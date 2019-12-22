@@ -1,0 +1,112 @@
+import os
+import random
+
+import nibabel as nib
+import numpy as np
+import tensorflow as tf
+
+
+class DataLoader:
+    def __init__(self, image_dir, label_dir):
+        # sanity check
+        if image_dir is None:
+            raise ValueError("Image directory path must not be None.")
+        if image_dir == label_dir:
+            raise ValueError("Image and label directory path is the same.")
+
+        # load data into memory
+        images, image_fnames = self.load_data(image_dir)
+        labels, label_fnames = self.load_data(label_dir)
+
+        # sanity check
+        for i in range(len(image_fnames)):
+            if len(images[i].shape) != 3:
+                raise ValueError("The %d-th image's dimesion is not 3: %d." % (i, len(images[i].shape)))
+        if labels is not None:
+            if len(image_fnames) != len(label_fnames):
+                raise ValueError(
+                    "The number of images (%d) and labels (%d) do not match." % (len(image_fnames), len(label_fnames)))
+            for i in range(len(image_fnames)):
+                if image_fnames[i] != label_fnames[i]:
+                    raise ValueError("The %d-th image and label's file name do not match: %s (image), %s (label)." % (
+                        i, image_fnames[i], label_fnames[i]))
+                if len(labels[i].shape) not in [3, 4]:
+                    raise ValueError("The %d-th label's dimesion is not 3 or 4: %d." % (i, len(labels[i].shape)))
+                if images[i].shape != labels[i].shape[:3]:
+                    raise ValueError("The %d-th image and label's shape do not match: %s (image), %s (label)." % (
+                        i, images[i].shape, labels[i].shape))
+
+        # save data
+        self.images = images
+        self.labels = labels
+        self.image_fnames = image_fnames
+
+    @staticmethod
+    def load_data(dir_name):
+        if dir_name is None:
+            return None, None
+        file_names = os.listdir(dir_name)
+        file_names.sort()
+        data = [np.asarray(nib.load(os.path.join(dir_name, fname)).dataobj, dtype=np.float32) for fname in file_names]
+        return data, file_names
+
+    def get_image(self, i):
+        return self.images[i]
+
+    def get_label(self, i):
+        label = self.labels[i]
+        if len(label.shape) == 4:
+            label_index = random.randrange(label.shape[3])
+            label = label[..., label_index]
+        return label
+
+
+class PairedDataLoader:
+    def __init__(self, moving_image_dir, moving_label_dir, fixed_image_dir, fixed_label_dir):
+        # sanity check
+        if (moving_label_dir is None) != (fixed_label_dir is None):
+            raise ValueError("The label paths should be both None or provided.")
+
+        # load data
+        loader_moving = DataLoader(moving_image_dir, moving_label_dir)
+        loader_fixed = DataLoader(fixed_image_dir, fixed_label_dir)
+
+        # sanity check
+        if len(loader_moving.image_fnames) != len(loader_fixed.image_fnames):
+            raise ValueError("The number of moving images (%d) and fixed images (%d) do not match." % (
+                len(loader_moving.image_fnames), len(loader_fixed.image_fnames)))
+        for i in range(len(loader_moving.image_fnames)):
+            if loader_moving.image_fnames[i] != loader_fixed.image_fnames[i]:
+                raise ValueError(
+                    "The %d-th moving and fixed image's file name do not match: %s (image), %s (label)." % (
+                        i, loader_moving.image_fnames[i], loader_fixed.image_fnames[i]))
+
+        # save
+        self.loader_moving = loader_moving
+        self.loader_fixed = loader_fixed
+
+    def get_generator(self):
+        """
+        For both moving and fixed, the image is always provided, but the label might not be provided,
+        if the label is not provided, it only generates (moving_image, fixed image) pairs,
+        otherwise, generates (moving_image, moving_label, fixed image, fixed_label) pairs.
+        """
+        num_samples = len(self.loader_moving.images)
+        for i in range(num_samples):
+            if self.loader_moving.labels is None:
+                yield (self.loader_moving.get_image(i),
+                       self.loader_fixed.get_image(i),)
+            else:
+                yield (self.loader_moving.get_image(i),
+                       self.loader_moving.get_label(i),
+                       self.loader_fixed.get_image(i),
+                       self.loader_fixed.get_label(i),)
+
+    def get_dataset(self):
+        if self.loader_moving.labels is None:
+            dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
+                                                     output_types=(tf.float32, tf.float32))
+        else:
+            dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
+                                                     output_types=(tf.float32, tf.float32, tf.float32, tf.float32))
+        return dataset
