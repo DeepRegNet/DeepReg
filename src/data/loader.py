@@ -62,7 +62,7 @@ class DataLoader:
 
 
 class PairedDataLoader:
-    def __init__(self, moving_image_dir, moving_label_dir, fixed_image_dir, fixed_label_dir):
+    def __init__(self, moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir):
         # sanity check
         if (moving_label_dir is None) != (fixed_label_dir is None):
             raise ValueError("The label paths should be both None or provided.")
@@ -84,6 +84,10 @@ class PairedDataLoader:
         # save
         self.loader_moving = loader_moving
         self.loader_fixed = loader_fixed
+        self.moving_image_shape = list(loader_moving.get_image(0).shape)
+        self.fixed_image_shape = list(loader_fixed.get_image(0).shape)
+        self.moving_label_shape = list(loader_moving.get_label(0).shape) if moving_label_dir is not None else None
+        self.fixed_label_shape = list(loader_fixed.get_label(0).shape) if fixed_label_dir is not None else None
 
     def get_generator(self):
         """
@@ -93,20 +97,28 @@ class PairedDataLoader:
         """
         num_samples = len(self.loader_moving.images)
         for i in range(num_samples):
+            moving_image = self.loader_moving.get_image(i)
+            fixed_image = self.loader_fixed.get_image(i)
             if self.loader_moving.labels is None:
-                yield (self.loader_moving.get_image(i),
-                       self.loader_fixed.get_image(i),)
+                yield (moving_image, fixed_image)
             else:
-                yield (self.loader_moving.get_image(i),
-                       self.loader_moving.get_label(i),
-                       self.loader_fixed.get_image(i),
-                       self.loader_fixed.get_label(i),)
+                moving_label = self.loader_moving.get_label(i)
+                fixed_label = self.loader_fixed.get_label(i)
+                yield ((moving_image, fixed_image, moving_label), fixed_label)
 
     def get_dataset(self):
         if self.loader_moving.labels is None:
+            raise NotImplementedError
             dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
-                                                     output_types=(tf.float32, tf.float32))
+                                                     output_types=(tf.float32, tf.float32),
+                                                     output_shapes=(self.moving_image_shape,
+                                                                    self.fixed_image_shape))
         else:
             dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
-                                                     output_types=(tf.float32, tf.float32, tf.float32, tf.float32))
+                                                     output_types=((tf.float32, tf.float32, tf.float32), tf.float32),
+                                                     output_shapes=((self.moving_image_shape,
+                                                                     self.fixed_image_shape,
+                                                                     self.moving_image_shape),
+                                                                    self.fixed_image_shape))
+
         return dataset
