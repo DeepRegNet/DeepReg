@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-import src.model.network.layer_util as layer_util
+import src.model.layer_util as layer_util
 
 
 class Deconv3D(tf.keras.layers.Layer):
@@ -81,9 +81,8 @@ class Resize3d(tf.keras.layers.Layer):
         """
 
         input_shape = inputs.shape
-
         # merge axis 0 and 1
-        output = tf.reshape(inputs, [input_shape[0] * input_shape[1],
+        output = tf.reshape(inputs, [-1,
                                      input_shape[2], input_shape[3],
                                      input_shape[4]])  # [batch * dim1, dim2, dim3, channels]
         # resize dim2 and dim3
@@ -93,7 +92,7 @@ class Resize3d(tf.keras.layers.Layer):
 
         # split axis 0 and merge axis 3 and 4
         output = tf.reshape(output,
-                            shape=[input_shape[0], input_shape[1], self._size[1],
+                            shape=[-1, input_shape[1], self._size[1],
                                    self._size[2] * input_shape[4]])  # [batch, dim1, out_dim2, out_dim3 * channels]
         # resize dim1 and dim2
         output = tf.image.resize(images=output,
@@ -101,7 +100,7 @@ class Resize3d(tf.keras.layers.Layer):
                                  method=self._method)  # [batch, out_dim1, out_dim2, out_dim3 * channels]
         # reshape
         output = tf.reshape(output,
-                            shape=[input_shape[0], self._size[0], self._size[1], self._size[2],
+                            shape=[-1, self._size[0], self._size[1], self._size[2],
                                    input_shape[4]])  # [batch, out_dim1, out_dim2, out_dim3, channels]
         return output
 
@@ -120,7 +119,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         output = self._conv3d(inputs=inputs)
         output = self._batch_norm(inputs=output, training=training)
-        output = self._relu(inputs=output)
+        output = self._relu(output)
         return output
 
 
@@ -148,7 +147,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         output = self._deconv3d(inputs=inputs)
         output = self._batch_norm(inputs=output, training=training)
-        output = self._relu(inputs=output)
+        output = self._relu(output)
         return output
 
 
@@ -199,8 +198,8 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         h0 = self._conv3d_block1(inputs=inputs, training=training)
         r1 = self._conv3d_block2(inputs=h0, training=training)
-        r2 = self._relu(inputs=self._batch_norm(inputs=self._conv3d(inputs=r1),
-                                                training=training) + h0)
+        r2 = self._relu(self._batch_norm(inputs=self._conv3d(inputs=r1),
+                                         training=training) + h0)
         h1 = self._max_pool3d(inputs=r2) if self._use_pooling else self._conv3d_block3(inputs=r2, training=training)
         return h1, h0
 
@@ -221,10 +220,10 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         # sanity check
-        if not isinstance(input_shape, list):
-            raise ValueError("UpSampleResnetBlock accepts an input, a list of tensors [input_nonskip, input_skip]")
+        if not (isinstance(input_shape, list) or isinstance(input_shape, tuple)):
+            raise ValueError("UpSampleResnetBlock accepts an input as a list of tensors [input_nonskip, input_skip]")
         if len(input_shape) != 2:
-            raise ValueError("UpSampleResnetBlock accepts an input, a list of tensors [input_nonskip, input_skip]")
+            raise ValueError("UpSampleResnetBlock accepts an input as a list of tensors [input_nonskip, input_skip]")
 
         super(UpSampleResnetBlock, self).build(input_shape)
 
@@ -235,10 +234,10 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
     def call(self, inputs, training=None, **kwargs):
         # sanity check
-        if not isinstance(inputs, list):
-            raise ValueError("UpSampleResnetBlock accepts an input, a list of tensors [input_nonskip, input_skip]")
+        if not (isinstance(inputs, list) or isinstance(inputs, tuple)):
+            raise ValueError("UpSampleResnetBlock accepts an input as a list of tensors [input_nonskip, input_skip]")
         if len(inputs) != 2:
-            raise ValueError("UpSampleResnetBlock accepts an input, a list of tensors [input_nonskip, input_skip]")
+            raise ValueError("UpSampleResnetBlock accepts an input as a list of tensors [input_nonskip, input_skip]")
 
         inputs_nonskip, inputs_skip = inputs[0], inputs[1]
         h0 = self._deconv3d_block(inputs=inputs_nonskip, training=training)
@@ -246,8 +245,8 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
             h0 += self._additive_upsampling(inputs=inputs_nonskip)
         r1 = h0 + inputs_skip
         r2 = self._conv3d_block(inputs=h0, training=training)
-        h1 = self._relu(inputs=self._batch_norm(inputs=self._conv3d(inputs=r2),
-                                                training=training) + r1)
+        h1 = self._relu(self._batch_norm(inputs=self._conv3d(inputs=r2),
+                                         training=training) + r1)
         return h1
 
 
@@ -261,7 +260,12 @@ class DDFSummand(tf.keras.layers.Layer):
         self._resize3d = Resize3d(size=output_shape)
 
     def call(self, inputs, **kwargs):
+        """
+        :param inputs: shape = [batch, dim1, dim2, dim3, channels]
+        :param kwargs:
+        :return:
+        """
         output = self._conv3d(inputs=inputs)
-        if inputs.shape != self._output_shape:  # TODO data type?
+        if inputs.shape[1:4] != self._output_shape:
             output = self._resize3d(inputs=output)
         return output
