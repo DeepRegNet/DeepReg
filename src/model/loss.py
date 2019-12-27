@@ -135,3 +135,25 @@ def local_displacement_energy(ddf, energy_type, energy_weight):
         energy = tf.constant(0.0)
 
     return energy * energy_weight
+
+
+def loss_fn(y_true, y_pred):
+    """
+
+    :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3, (1)]
+    :param y_pred: concatenated of [ddf, warped_moving_label], shape = [batch, f_dim1, f_dim2, f_dim3, 3+1]
+    :return:
+    """
+    fixed_label, concatenated = y_true, y_pred
+    ddf, warped_moving_label = concatenated[:, :, :, :, :3], concatenated[:, :, :, :, 3:4]
+    if len(fixed_label.shape) == 4:
+        fixed_label = tf.expand_dims(fixed_label, axis=4)
+    if len(warped_moving_label.shape) == 4:
+        warped_moving_label = tf.expand_dims(warped_moving_label, axis=4)
+    loss_similarity = tf.reduce_mean(multi_scale_loss(label_fixed=fixed_label,
+                                                      label_moving=warped_moving_label,
+                                                      loss_type="dice",
+                                                      loss_scales=[0, 1, 2, 4, 8]))
+    loss_regularizer = tf.reduce_mean(local_displacement_energy(ddf, "bending", 0.5))
+    total_loss = loss_similarity + loss_regularizer  # TODO add coeff for loss regularizer
+    return total_loss
