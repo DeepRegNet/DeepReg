@@ -6,11 +6,13 @@ import src.model.util as util
 
 class LocalModel(tf.keras.Model):
     def __init__(self, batch_size, num_channel_initial, ddf_levels=None, **kwargs):
-        super(LocalModel, self).__init__()
+        super(LocalModel, self).__init__(**kwargs)
 
         # save parameters
         self._batch_size = batch_size
         self._ddf_levels = [0, 1, 2, 3, 4] if ddf_levels is None else ddf_levels
+        self._moving_image_size = None
+        self._fixed_image_size = None
 
         # init layer variables
         self._resize3d = None
@@ -34,9 +36,9 @@ class LocalModel(tf.keras.Model):
     def build(self, input_shape):
         # sanity check
         if not (isinstance(input_shape, list) or isinstance(input_shape, tuple)):
-            raise ValueError("LocalModel accepts an input as a list of tensors [moving_image, fixed_image]")
+            raise ValueError("LocalModel's inputs are [moving_image, fixed_image, moving_label]")
         if len(input_shape) != 3:
-            raise ValueError("LocalModel accepts an input as a list of tensors [moving_image, fixed_image]")
+            raise ValueError("LocalModel's inputs are [moving_image, fixed_image, moving_label]")
         super(LocalModel, self).build(input_shape)
 
         moving_image_size = input_shape[0][1:4]
@@ -50,18 +52,15 @@ class LocalModel(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         # sanity check
         if not isinstance(inputs, list):
-            raise ValueError("LocalModel accepts an input as a list of tensors [moving_image, fixed_image]")
+            raise ValueError("LocalModel's inputs are [moving_image, fixed_image, moving_label]")
         if len(inputs) != 3:
-            raise ValueError("LocalModel accepts an input as a list of tensors [moving_image, fixed_image]")
+            raise ValueError("LocalModel's inputs are [moving_image, fixed_image, moving_label]")
 
         moving_image, fixed_image, moving_label = inputs[0], inputs[1], inputs[2]
 
         moving_image = tf.reshape(moving_image, [self._batch_size] + self._moving_image_size + [1])
         fixed_image = tf.reshape(fixed_image, [self._batch_size] + self._fixed_image_size + [1])
         moving_label = tf.reshape(moving_label, [self._batch_size] + self._moving_image_size + [1])
-        # moving_image = tf.expand_dims(moving_image, axis=4)  # [batch, m_dim1, m_dim2, m_dim3, 1]
-        # fixed_image = tf.expand_dims(fixed_image, axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 1]
-        # moving_label = tf.expand_dims(moving_label, axis=4)  # [batch, m_dim1, m_dim2, m_dim3, 1]
         inputs = tf.concat([self._resize3d(inputs=moving_image), fixed_image],
                            axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 2]
 
@@ -78,6 +77,9 @@ class LocalModel(tf.keras.Model):
         ddf = tf.reduce_sum(tf.stack([self._ddf_summands[i](inputs=hm[4 - i]) for i in self._ddf_levels], axis=5),
                             axis=5)
 
-        grid_warped = self._grid_ref + ddf
-        warped_moving_label = util.warp_moving(moving_image_or_label=moving_label, grid_warped=grid_warped)
-        return warped_moving_label
+        grid_warped = self._grid_ref + ddf  # [batch, f_dim1, f_dim2, f_dim3, 3]
+        warped_moving_label = util.warp_moving(moving_image_or_label=moving_label,
+                                               grid_warped=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3, 1]
+
+        concatenated = tf.concat([ddf, warped_moving_label], axis=4)
+        return concatenated
