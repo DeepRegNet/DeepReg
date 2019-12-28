@@ -137,7 +137,7 @@ def local_displacement_energy(ddf, energy_type, energy_weight):
     return energy * energy_weight
 
 
-def multi_scale_loss_fn(y_true, y_pred):
+def loss_similarity_fn(y_true, y_pred):
     """
 
     :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3, (1)]

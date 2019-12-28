@@ -8,13 +8,12 @@ import src.model.loss as loss
 class LocalModel(tf.keras.Model):
     def __init__(self,
                  moving_image_size, fixed_image_size,
-                 batch_size, num_channel_initial, ddf_levels=None, **kwargs):
+                 num_channel_initial, ddf_levels=None, **kwargs):
         super(LocalModel, self).__init__(**kwargs)
 
         # save parameters
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
-        self._batch_size = batch_size
         self._ddf_levels = [0, 1, 2, 3, 4] if ddf_levels is None else ddf_levels
         self._ddf_min_level = min(self._ddf_levels)
 
@@ -68,7 +67,7 @@ def build_model(moving_image_size, fixed_image_size, batch_size, num_channel_ini
 
     # backbone
     local_model = LocalModel(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
-                             batch_size=batch_size, num_channel_initial=num_channel_initial)
+                             num_channel_initial=num_channel_initial)
 
     # ddf
     ddf = local_model(inputs=[moving_image, fixed_image])
