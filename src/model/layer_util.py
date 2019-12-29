@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 
 
@@ -66,6 +67,7 @@ def warp_moving(moving_image_or_label, grid_warped):
 
 
 def get_reference_grid(grid_size):
+    check_inputs(grid_size, 3, "get_reference_grid")
     return tf.cast(tf.stack(tf.meshgrid(
         [i for i in range(grid_size[0])],
         [j for j in range(grid_size[1])],
@@ -74,6 +76,8 @@ def get_reference_grid(grid_size):
 
 
 def resample_linear(inputs, sample_coords):
+    if len(inputs.shape) == 4:
+        inputs = tf.expand_dims(inputs, axis=4)
     input_size = inputs.get_shape().as_list()[1:-1]
     spatial_rank = inputs.get_shape().ndims - 2
     xy = tf.unstack(sample_coords, axis=len(sample_coords.get_shape()) - 1)
@@ -106,3 +110,35 @@ def resample_linear(inputs, sample_coords):
                    pyramid_combination(samples0[1::2], weight0[:-1], weight_c0[:-1]) * weight0[-1]
 
     return pyramid_combination(samples, weight, weight_c)
+
+
+def random_transform_generator(batch_size, corner_scale=.1):
+    offsets = np.tile([[[1., 1., 1.],
+                        [1., 1., -1.],
+                        [1., -1., 1.],
+                        [-1., 1., 1.]]],
+                      [batch_size, 1, 1]) * np.random.uniform(0, corner_scale, [batch_size, 4, 3])
+    new_corners = np.transpose(np.concatenate((np.tile([[[-1., -1., -1.],
+                                                         [-1., -1., 1.],
+                                                         [-1., 1., -1.],
+                                                         [1., -1., -1.]]],
+                                                       [batch_size, 1, 1]) + offsets,
+                                               np.ones([batch_size, 4, 1])), 2), [0, 1, 2])  # O = T I
+    src_corners = np.tile(np.transpose([[[-1., -1., -1., 1.],
+                                         [-1., -1., 1., 1.],
+                                         [-1., 1., -1., 1.],
+                                         [1., -1., -1., 1.]]], [0, 1, 2]), [batch_size, 1, 1])
+    transforms = np.array([np.linalg.lstsq(src_corners[k], new_corners[k], rcond=-1)[0]
+                           for k in range(src_corners.shape[0])])
+    transforms = np.reshape(np.transpose(transforms[:][:, :][:, :, :3], [0, 2, 1]), [-1, 1, 12])
+    return transforms
+
+
+def warp_grid(grid, theta):
+    batch_size = theta.shape[0]
+    theta = tf.cast(tf.reshape(theta, (-1, 3, 4)), dtype=tf.float32)
+    size = grid.get_shape().as_list()
+    grid = tf.concat([tf.transpose(tf.reshape(grid, [-1, 3])), tf.ones([1, size[0] * size[1] * size[2]])], axis=0)
+    grid = tf.reshape(tf.tile(tf.reshape(grid, [-1]), [batch_size]), [batch_size, 4, -1])
+    grid_warped = tf.matmul(theta, grid)
+    return tf.reshape(tf.transpose(grid_warped, [0, 2, 1]), [batch_size, size[0], size[1], size[2], 3])

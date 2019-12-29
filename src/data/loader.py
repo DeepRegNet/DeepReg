@@ -5,6 +5,8 @@ import nibabel as nib
 import numpy as np
 import tensorflow as tf
 
+import src.data.augmentation as aug
+
 
 class DataLoader:
     def __init__(self, image_dir, label_dir):
@@ -92,8 +94,8 @@ class PairedDataLoader:
     def get_generator(self):
         """
         For both moving and fixed, the image is always provided, but the label might not be provided,
-        if the label is not provided, it only generates (moving_image, fixed image) pairs,
-        otherwise, generates (moving_image, moving_label, fixed image, fixed_label) pairs.
+        if the label is not provided, it only generates (moving_image, fixed_image) pairs,
+        otherwise, generates (moving_image, fixed_image, moving_label), fixed_label pairs.
         """
         num_samples = len(self.loader_moving.images)
         for i in range(num_samples):
@@ -106,7 +108,7 @@ class PairedDataLoader:
                 fixed_label = self.loader_fixed.get_label(i)
                 yield ((moving_image, fixed_image, moving_label), fixed_label)
 
-    def get_dataset(self):
+    def _get_dataset(self):
         if self.loader_moving.labels is None:
             raise NotImplementedError
             dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
@@ -121,4 +123,14 @@ class PairedDataLoader:
                                                                      self.moving_image_shape),
                                                                     self.fixed_image_shape))
 
+        return dataset
+
+    def get_dataset(self, batch_size, training, dataset_shuffle_buffer_size):
+        dataset = self._get_dataset()
+        dataset = dataset.shuffle(buffer_size=dataset_shuffle_buffer_size).batch(batch_size, drop_remainder=training)
+        if training:
+            affine_transform = aug.AffineTransformation3D(moving_image_size=self.moving_image_shape,
+                                                          fixed_image_size=self.fixed_label_shape,
+                                                          batch_size=batch_size)
+            dataset = dataset.map(affine_transform.transform)
         return dataset

@@ -25,8 +25,8 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
 # data
 data_loader_train = loader.PairedDataLoader(moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir)
-dataset_train = data_loader_train.get_dataset()
-dataset_train = dataset_train.shuffle(buffer_size=dataset_shuffle_buffer_size).batch(batch_size, drop_remainder=True)
+dataset_train = data_loader_train.get_dataset(batch_size=batch_size, training=True,
+                                              dataset_shuffle_buffer_size=dataset_shuffle_buffer_size)
 
 # optimizer
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
@@ -69,9 +69,8 @@ def train_step(model, inputs, labels):
 # train
 # local_model.fit(dataset, epochs=num_epochs, callbacks=[tensorboard_callback])
 
-print(local_model.summary())
+# print(local_model.summary())
 
-epochs = 3
 for epoch in range(epochs):
     print("Start of epoch %d" % (epoch,))
 
