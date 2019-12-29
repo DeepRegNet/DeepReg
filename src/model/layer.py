@@ -273,6 +273,11 @@ class DDFSummand(tf.keras.layers.Layer):
 
 class Warping(tf.keras.layers.Layer):
     def __init__(self, fixed_image_size, **kwargs):
+        """
+
+        :param fixed_image_size: shape = [dim1, dim2, dim3]
+        :param kwargs:
+        """
         super(Warping, self).__init__(**kwargs)
         self._grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
