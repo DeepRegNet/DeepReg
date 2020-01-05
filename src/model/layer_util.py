@@ -22,7 +22,8 @@ def batch_norm(axis=-1):
     return tf.keras.layers.BatchNormalization(axis=axis)
 
 
-def conv3d(filters, kernel_size=3, strides=1, padding="same", activation=None, use_bias=True):
+def conv3d(filters, kernel_size=3, strides=1, padding="same", activation=None, use_bias=True,
+           kernel_initializer="glorot_uniform"):
     """
     :param filters: number of channels of the output
     :param kernel_size: e.g. (3,3,3) or 3
@@ -30,6 +31,7 @@ def conv3d(filters, kernel_size=3, strides=1, padding="same", activation=None, u
     :param padding: "valid" or "same"
     :param activation:
     :param use_bias:
+    :param kernel_initializer:
     :return:
     """
     return tf.keras.layers.Conv3D(filters=filters,
@@ -38,7 +40,7 @@ def conv3d(filters, kernel_size=3, strides=1, padding="same", activation=None, u
                                   padding=padding,
                                   activation=activation,
                                   use_bias=use_bias,
-                                  kernel_initializer=he_normal())
+                                  kernel_initializer=kernel_initializer, )
 
 
 def max_pool3d(pool_size, strides=None, padding="same"):
