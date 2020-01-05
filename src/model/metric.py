@@ -11,6 +11,10 @@ class Metrics:
         for metric_name in self.metrics:
             self.metrics[metric_name](metric_value_dict[metric_name])
 
+    def update_tensorboard(self, step):
+        for metric_name in self.metrics:
+            tf.summary.scalar(metric_name, self.metrics[metric_name].result(), step=step)
+
     def reset(self):
         for metric_name in self.metrics:
             self.metrics[metric_name].reset_states()

@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+import src.model.layer_util as layer_util
+
 
 def single_scale_loss(label_fixed, label_moving, loss_type):
     if loss_type == "cross-entropy":
@@ -16,6 +18,7 @@ def single_scale_loss(label_fixed, label_moving, loss_type):
 
 
 def multi_scale_loss(label_fixed, label_moving, loss_type, loss_scales):
+    # TODO change to one conv?
     label_loss_all = tf.stack(
         [single_scale_loss(
             separable_filter3d(label_fixed, gauss_kernel1d(s)),
@@ -137,6 +140,55 @@ def local_displacement_energy(ddf, energy_type, energy_weight):
     return energy * energy_weight
 
 
+def binary_dice(y_true, y_pred):
+    if len(y_true.shape) == 4:
+        y_true = tf.expand_dims(y_true, axis=4)
+    if len(y_pred.shape) == 4:
+        y_pred = tf.expand_dims(y_pred, axis=4)
+    mask1 = y_true >= 0.5
+    mask2 = y_pred >= 0.5
+    vol1 = tf.reduce_sum(tf.cast(mask1, dtype=tf.float32), axis=[1, 2, 3, 4])
+    vol2 = tf.reduce_sum(tf.cast(mask2, dtype=tf.float32), axis=[1, 2, 3, 4])
+    dice = tf.reduce_sum(tf.cast(mask1 & mask2, dtype=tf.float32), axis=[1, 2, 3, 4]) * 2 / (vol1 + vol2)
+    return dice
+
+
+def compute_centroid(mask, grid, eps=1e-6):
+    """
+
+    :param mask: shape = [batch, dim1, dim2, dim3, 1]
+    :param grid: shape = [dim1, dim2, dim3, 3]
+    :return:
+    """
+    centroids = []
+    for i in range(mask.shape[0]):
+        bool_mask = mask[i, ..., 0] >= 0.5  # [dim1, dim2, dim3]
+        masked = tf.boolean_mask(grid, bool_mask)  # [None, 3]
+        centroid = tf.reduce_sum(masked, axis=0) / (tf.reduce_sum(tf.cast(bool_mask, tf.float32)) + eps)  # [3]
+        centroids.append(centroid)
+    return tf.stack(centroids, axis=0)
+
+    # return tf.stack([tf.reduce_mean(tf.boolean_mask(grid, mask[i, ..., 0] >= 0.5), axis=0)
+    #                  for i in range(mask.shape[0])], axis=0)
+
+
+def compute_centroid_distance(y_true, y_pred, grid_size):
+    """
+    :param y_true: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
+    :param y_pred: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
+    :param grid_size: shape = [dim1, dim2, dim3]
+    :return:
+    """
+    if len(y_true.shape) == 4:
+        y_true = tf.expand_dims(y_true, axis=4)
+    if len(y_pred.shape) == 4:
+        y_pred = tf.expand_dims(y_pred, axis=4)
+    grid = layer_util.get_reference_grid(grid_size=grid_size)
+    c1 = compute_centroid(y_pred, grid)
+    c2 = compute_centroid(y_true, grid)
+    return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))
+
+
 def loss_similarity_fn(y_true, y_pred):
     """
 
@@ -144,13 +196,12 @@ def loss_similarity_fn(y_true, y_pred):
     :param y_pred: warped_moving_label, shape = [batch, f_dim1, f_dim2, f_dim3, (1)]
     :return:
     """
-    fixed_label, warped_moving_label = y_true, y_pred
-    if len(fixed_label.shape) == 4:
-        fixed_label = tf.expand_dims(fixed_label, axis=4)
-    if len(warped_moving_label.shape) == 4:
-        warped_moving_label = tf.expand_dims(warped_moving_label, axis=4)
-    loss_similarity = tf.reduce_mean(multi_scale_loss(label_fixed=fixed_label,
-                                                      label_moving=warped_moving_label,
+    if len(y_true.shape) == 4:
+        y_true = tf.expand_dims(y_true, axis=4)
+    if len(y_pred.shape) == 4:
+        y_pred = tf.expand_dims(y_pred, axis=4)
+    loss_similarity = tf.reduce_mean(multi_scale_loss(label_fixed=y_true,
+                                                      label_moving=y_pred,
                                                       loss_type="dice",
-                                                      loss_scales=[0, 1, 2, 4, 8]))
+                                                      loss_scales=[0, 1, 2, 4, 8, 16, 32]))
     return loss_similarity
