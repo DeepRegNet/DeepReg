@@ -20,11 +20,11 @@ class AffineTransformation3D:
         return transformed
 
     @tf.function
-    def transform(self, inputs, labels):
+    def transform(self, inputs, labels, indices):
         """
-
         :param inputs: (moving_image, fixed_image, moving_label), each shape = [batch, dim1, dim2, dim3]
         :param labels: fixed_label, shape = [batch, dim1, dim2, dim3]
+        :param indices: a 2 element array, [sample_index, label_index]
         :return:
         """
 
@@ -43,4 +43,4 @@ class AffineTransformation3D:
         fixed_image = tf.squeeze(fixed_image, axis=4)
         fixed_label = tf.squeeze(fixed_label, axis=4)
 
-        return (moving_image, fixed_image, moving_label), fixed_label
+        return (moving_image, fixed_image, moving_label), fixed_label, indices
