@@ -104,7 +104,6 @@ class PairedDataLoader:
             fixed_image = self.loader_fixed.get_image(i)
             if self.loader_moving.labels is None:
                 raise NotImplementedError
-                # yield (moving_image, fixed_image)
             else:
                 moving_label, label_index = self.loader_moving.get_label(i)
                 fixed_label, _ = self.loader_fixed.get_label(i, label_index)
@@ -113,10 +112,6 @@ class PairedDataLoader:
     def _get_dataset(self):
         if self.loader_moving.labels is None:
             raise NotImplementedError
-            dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
-                                                     output_types=(tf.float32, tf.float32),
-                                                     output_shapes=(self.moving_image_shape,
-                                                                    self.fixed_image_shape))
         else:
             dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
                                                      output_types=((tf.float32, tf.float32, tf.float32), tf.float32),
@@ -129,7 +124,9 @@ class PairedDataLoader:
 
     def get_dataset(self, batch_size, training, dataset_shuffle_buffer_size):
         dataset = self._get_dataset()
-        dataset = dataset.shuffle(buffer_size=dataset_shuffle_buffer_size).batch(batch_size, drop_remainder=training)
+        if training:
+            dataset = dataset.shuffle(buffer_size=dataset_shuffle_buffer_size)
+        dataset = dataset.batch(batch_size, drop_remainder=training)
         if training:
             # TODO add cropping, but crop first or rotation first?
             affine_transform = aug.AffineTransformation3D(moving_image_size=self.moving_image_shape,

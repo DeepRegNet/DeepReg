@@ -1,7 +1,5 @@
 import tensorflow as tf
 
-import src.model.layer_util as layer_util
-
 
 def single_scale_loss(label_fixed, label_moving, loss_type):
     if loss_type == "cross-entropy":
@@ -172,18 +170,17 @@ def compute_centroid(mask, grid, eps=1e-6):
     #                  for i in range(mask.shape[0])], axis=0)
 
 
-def compute_centroid_distance(y_true, y_pred, grid_size):
+def compute_centroid_distance(y_true, y_pred, grid):
     """
     :param y_true: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
     :param y_pred: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
-    :param grid_size: shape = [dim1, dim2, dim3]
+    :param grid: shape = [dim1, dim2, dim3, 3]
     :return:
     """
     if len(y_true.shape) == 4:
         y_true = tf.expand_dims(y_true, axis=4)
     if len(y_pred.shape) == 4:
         y_pred = tf.expand_dims(y_pred, axis=4)
-    grid = layer_util.get_reference_grid(grid_size=grid_size)
     c1 = compute_centroid(y_pred, grid)
     c2 = compute_centroid(y_true, grid)
     return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))
@@ -203,5 +200,5 @@ def loss_similarity_fn(y_true, y_pred):
     loss_similarity = tf.reduce_mean(multi_scale_loss(label_fixed=y_true,
                                                       label_moving=y_pred,
                                                       loss_type="dice",
-                                                      loss_scales=[0, 1, 2, 4, 8, 16, 32]))
+                                                      loss_scales=[0, 1, 2, 4, 8, 16, 32]))  # TODO move into config
     return loss_similarity
