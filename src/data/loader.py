@@ -55,12 +55,13 @@ class DataLoader:
     def get_image(self, i):
         return self.images[i]
 
-    def get_label(self, i):
+    def get_label(self, i, label_index=None):
         label = self.labels[i]
         if len(label.shape) == 4:
-            label_index = random.randrange(label.shape[3])
+            if label_index is None:
+                label_index = random.randrange(label.shape[3])
             label = label[..., label_index]
-        return label
+        return label, label_index
 
 
 class PairedDataLoader:
@@ -88,8 +89,8 @@ class PairedDataLoader:
         self.loader_fixed = loader_fixed
         self.moving_image_shape = list(loader_moving.get_image(0).shape)
         self.fixed_image_shape = list(loader_fixed.get_image(0).shape)
-        self.moving_label_shape = list(loader_moving.get_label(0).shape) if moving_label_dir is not None else None
-        self.fixed_label_shape = list(loader_fixed.get_label(0).shape) if fixed_label_dir is not None else None
+        self.moving_label_shape = list(loader_moving.get_label(0)[0].shape) if moving_label_dir is not None else None
+        self.fixed_label_shape = list(loader_fixed.get_label(0)[0].shape) if fixed_label_dir is not None else None
 
     def get_generator(self):
         """
@@ -102,10 +103,11 @@ class PairedDataLoader:
             moving_image = self.loader_moving.get_image(i)
             fixed_image = self.loader_fixed.get_image(i)
             if self.loader_moving.labels is None:
-                yield (moving_image, fixed_image)
+                raise NotImplementedError
+                # yield (moving_image, fixed_image)
             else:
-                moving_label = self.loader_moving.get_label(i)
-                fixed_label = self.loader_fixed.get_label(i)
+                moving_label, label_index = self.loader_moving.get_label(i)
+                fixed_label, _ = self.loader_fixed.get_label(i, label_index)
                 yield ((moving_image, fixed_image, moving_label), fixed_label)
 
     def _get_dataset(self):
