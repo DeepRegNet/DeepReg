@@ -22,8 +22,6 @@ ddf_levels = [0, 1, 2, 3, 4]  # config in old code doesnt work
 
 tb_log_dir = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 train_summary_writer = tf.summary.create_file_writer(tb_log_dir)
-# logdir = "logs/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
 # data
 data_loader_train = loader.PairedDataLoader(moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir)
@@ -32,21 +30,15 @@ dataset_train = data_loader_train.get_dataset(batch_size=batch_size, training=Tr
 
 # optimizer
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-
 # metrics
-metrics = metric.Metrics(metric_names=[
-    "loss_sim",
-    "loss_reg",
-    "loss_total",
-    "dice",
-    "dist",
-    "pred_max",
-    "pred_mean",
-    "pred_min",
-    "true_max",
-    "true_mean",
-    "true_min",
-])
+metrics = metric.Metrics(tb_names=dict(
+    loss_sim="loss/similarity",
+    loss_reg="loss/regularization",
+    loss_total="loss/total",
+    metric_dice="metric/dice",
+    metric_dist="metric/centroid_distance",
+    opt_lr="opt/learning_rate",
+))
 
 # model
 local_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
@@ -58,7 +50,7 @@ local_model.compile(optimizer, loss=loss.loss_similarity_fn)
 
 # steps
 @tf.function
-def train_step(model, optimizer, inputs, labels):
+def train_step(model, opt, inputs, labels):
     # forward
     with tf.GradientTape() as tape:
         predictions = model(inputs=inputs, training=True)
@@ -69,37 +61,26 @@ def train_step(model, optimizer, inputs, labels):
         loss_total_value = loss_sim_value + loss_reg_value
 
         # metrics
-        dice_value = loss.binary_dice(labels, predictions)
-        dist_value = loss.compute_centroid_distance(labels, predictions, data_loader_train.fixed_label_shape)
-        pred_max_value = tf.reduce_max(predictions)
-        pred_min_value = tf.reduce_min(predictions)
-        pred_mean_value = tf.reduce_mean(predictions)
-        true_max_value = tf.reduce_max(labels)
-        true_min_value = tf.reduce_min(labels)
-        true_mean_value = tf.reduce_mean(labels)
+        metric_dice_value = loss.binary_dice(labels, predictions)
+        metric_dist_value = loss.compute_centroid_distance(labels, predictions, data_loader_train.fixed_label_shape)
 
     # optimize
     grads = tape.gradient(loss_total_value, model.trainable_weights)
-    optimizer.apply_gradients(zip(grads, model.trainable_weights))
+    opt.apply_gradients(zip(grads, model.trainable_weights))
+
+    opt_lr_value = opt._decayed_lr('float32')
 
     return dict(
         loss_sim=loss_sim_value,
         loss_reg=loss_reg_value,
         loss_total=loss_total_value,
-        dice=dice_value,
-        dist=dist_value,
-        pred_max=pred_max_value,
-        pred_min=pred_min_value,
-        pred_mean=pred_mean_value,
-        true_max=true_max_value,
-        true_min=true_min_value,
-        true_mean=true_mean_value,
+        metric_dice=metric_dice_value,
+        metric_dist=metric_dist_value,
+        opt_lr=opt_lr_value,
     )
 
 
 # train
-# local_model.fit(dataset, epochs=num_epochs, callbacks=[tensorboard_callback])
-
 # print(local_model.summary())
 
 with train_summary_writer.as_default():
@@ -107,7 +88,7 @@ with train_summary_writer.as_default():
         print("Start of epoch %d" % (epoch,))
 
         for step, (inputs_train, labels_train) in enumerate(dataset_train):
-            metric_value_dict = train_step(model=local_model, optimizer=optimizer,
+            metric_value_dict = train_step(model=local_model, opt=optimizer,
                                            inputs=inputs_train, labels=labels_train)
 
             # update metrics
