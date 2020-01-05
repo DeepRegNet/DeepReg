@@ -83,7 +83,7 @@ for epoch in range(num_epochs):
 
     # train
     with tb_writer_train.as_default():
-        for step, (inputs_train, labels_train) in enumerate(dataset_train):
+        for step, (inputs_train, labels_train, indices_train) in enumerate(dataset_train):
             metric_value_dict_train = steps.train_step(model=local_model, optimizer=optimizer,
                                                        inputs=inputs_train, labels=labels_train,
                                                        fixed_grid_ref=fixed_grid_ref)
@@ -98,7 +98,7 @@ for epoch in range(num_epochs):
 
     # test
     with tb_writer_test.as_default():
-        for step, (inputs_test, labels_test) in enumerate(dataset_test):
+        for step, (inputs_test, labels_test, indices_test) in enumerate(dataset_test):
             metric_value_dict_test = steps.valid_step(model=local_model,
                                                       inputs=inputs_test, labels=labels_test,
                                                       fixed_grid_ref=fixed_grid_ref)

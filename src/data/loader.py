@@ -99,26 +99,31 @@ class PairedDataLoader:
         otherwise, generates (moving_image, fixed_image, moving_label), fixed_label pairs.
         """
         num_samples = len(self.loader_moving.images)
-        for i in range(num_samples):
-            moving_image = self.loader_moving.get_image(i)
-            fixed_image = self.loader_fixed.get_image(i)
+        for sample_index in range(num_samples):
+            moving_image = self.loader_moving.get_image(sample_index)
+            fixed_image = self.loader_fixed.get_image(sample_index)
             if self.loader_moving.labels is None:
                 raise NotImplementedError
             else:
-                moving_label, label_index = self.loader_moving.get_label(i)
-                fixed_label, _ = self.loader_fixed.get_label(i, label_index)
-                yield ((moving_image, fixed_image, moving_label), fixed_label)
+                moving_label, label_index = self.loader_moving.get_label(sample_index)
+                fixed_label, _ = self.loader_fixed.get_label(sample_index, label_index)
+                label_index = -1 if label_index is None else label_index
+                indices = np.asarray([sample_index, label_index], dtype=np.float32)
+                yield ((moving_image, fixed_image, moving_label), fixed_label, indices)
 
     def _get_dataset(self):
         if self.loader_moving.labels is None:
             raise NotImplementedError
         else:
             dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
-                                                     output_types=((tf.float32, tf.float32, tf.float32), tf.float32),
+                                                     output_types=(
+                                                         (tf.float32, tf.float32, tf.float32), tf.float32, tf.float32),
                                                      output_shapes=((self.moving_image_shape,
                                                                      self.fixed_image_shape,
                                                                      self.moving_image_shape),
-                                                                    self.fixed_image_shape))
+                                                                    self.fixed_image_shape,
+                                                                    2,
+                                                                    ))
 
         return dataset
 
