@@ -59,7 +59,7 @@ class LocalModel(tf.keras.Model):
         return ddf
 
 
-def build_model(moving_image_size, fixed_image_size, batch_size, num_channel_initial):
+def build_model(moving_image_size, fixed_image_size, batch_size, num_channel_initial, ddf_levels):
     # inputs
     moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size, name="moving_image")
     fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_image")
@@ -67,7 +67,7 @@ def build_model(moving_image_size, fixed_image_size, batch_size, num_channel_ini
 
     # backbone
     local_model = LocalModel(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
-                             num_channel_initial=num_channel_initial)
+                             num_channel_initial=num_channel_initial, ddf_levels=ddf_levels)
 
     # ddf
     ddf = local_model(inputs=[moving_image, fixed_image])

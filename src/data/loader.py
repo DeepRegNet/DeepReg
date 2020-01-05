@@ -129,6 +129,7 @@ class PairedDataLoader:
         dataset = self._get_dataset()
         dataset = dataset.shuffle(buffer_size=dataset_shuffle_buffer_size).batch(batch_size, drop_remainder=training)
         if training:
+            # TODO add cropping, but crop first or rotation first?
             affine_transform = aug.AffineTransformation3D(moving_image_size=self.moving_image_shape,
                                                           fixed_image_size=self.fixed_label_shape,
                                                           batch_size=batch_size)
