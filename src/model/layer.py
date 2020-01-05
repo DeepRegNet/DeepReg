@@ -4,7 +4,7 @@ import src.model.layer_util as layer_util
 
 
 class Deconv3D(tf.keras.layers.Layer):
-    def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", **kwargs):
+    def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", use_bias=True, **kwargs):
         """
 
         :param filters:
@@ -21,6 +21,7 @@ class Deconv3D(tf.keras.layers.Layer):
         self._kernel_size = kernel_size
         self._strides = strides
         self._padding = padding
+        self._use_bias = use_bias
         self._kwargs = kwargs
         # init layer variables
         self._output_padding = None
@@ -52,6 +53,7 @@ class Deconv3D(tf.keras.layers.Layer):
                                                                 strides=self._strides,
                                                                 padding=self._padding,
                                                                 output_padding=self._output_padding,
+                                                                use_bias=self._use_bias,
                                                                 **self._kwargs)
 
     def call(self, inputs, **kwargs):
@@ -112,7 +114,8 @@ class Conv3dBlock(tf.keras.layers.Layer):
         self._conv3d = layer_util.conv3d(filters=filters,
                                          kernel_size=kernel_size,
                                          strides=strides,
-                                         padding=padding)
+                                         padding=padding,
+                                         use_bias=False, )
         self._batch_norm = layer_util.batch_norm()
         self._relu = layer_util.act(identifier="relu")
 
@@ -140,7 +143,8 @@ class Deconv3dBlock(tf.keras.layers.Layer):
                                   output_shape=output_shape,
                                   kernel_size=kernel_size,
                                   strides=strides,
-                                  padding=padding)
+                                  padding=padding,
+                                  use_bias=False, )
         self._batch_norm = layer_util.batch_norm()
         self._relu = layer_util.act(identifier="relu")
 
@@ -155,7 +159,7 @@ class ResidualBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
         super(ResidualBlock, self).__init__(**kwargs)
         # init layer variables
-        self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides)
+        self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
         self._batch_norm = layer_util.batch_norm()
         self._relu = layer_util.act(identifier="relu")
 
@@ -205,8 +209,8 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         self._conv3d_block1 = Conv3dBlock(filters=filters, kernel_size=kernel_size)
         self._conv3d_block2 = Conv3dBlock(filters=filters, kernel_size=kernel_size)
         self._residual_block = ResidualBlock(filters=filters, kernel_size=kernel_size, strides=1)
-        self._max_pool3d = layer_util.max_pool3d(pool_size=(2, 2, 2), strides=(2, 2, 2))
-        self._conv3d_block3 = Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
+        self._max_pool3d = layer_util.max_pool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if use_pooling else None
+        self._conv3d_block3 = None if use_pooling else Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
 
     def call(self, inputs, training=None, **kwargs):
         h0 = self._conv3d_block1(inputs=inputs, training=training)
@@ -256,7 +260,8 @@ class DDFSummand(tf.keras.layers.Layer):
         # save parameters
         self._output_shape = output_shape
         # init layer variables
-        self._conv3d = layer_util.conv3d(filters=filters, strides=1)
+        self._conv3d = layer_util.conv3d(filters=filters, strides=1,
+                                         kernel_initializer="zeros")  # if not zero, with init NN, ddf may be too large
         self._resize3d = Resize3d(size=output_shape)
 
     def call(self, inputs, **kwargs):
