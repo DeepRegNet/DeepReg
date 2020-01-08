@@ -89,8 +89,6 @@ class PairedDataLoader:
         self.loader_fixed = loader_fixed
         self.moving_image_shape = list(loader_moving.get_image(0).shape)
         self.fixed_image_shape = list(loader_fixed.get_image(0).shape)
-        self.moving_label_shape = list(loader_moving.get_label(0)[0].shape) if moving_label_dir is not None else None
-        self.fixed_label_shape = list(loader_fixed.get_label(0)[0].shape) if fixed_label_dir is not None else None
 
     def get_generator(self):
         """
