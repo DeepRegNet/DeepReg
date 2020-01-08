@@ -133,7 +133,7 @@ class PairedDataLoader:
         if training:
             # TODO add cropping, but crop first or rotation first?
             affine_transform = aug.AffineTransformation3D(moving_image_size=self.moving_image_shape,
-                                                          fixed_image_size=self.fixed_label_shape,
+                                                          fixed_image_size=self.fixed_image_shape,
                                                           batch_size=batch_size)
             dataset = dataset.map(affine_transform.transform)
         return dataset
