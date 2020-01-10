@@ -169,6 +169,5 @@ for epoch in range(num_epochs):
 
 # TODO
 # organize graph in tensorboard
-# save model regularly
 # add params
 # nan dice
