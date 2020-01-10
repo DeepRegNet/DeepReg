@@ -2,14 +2,13 @@ import random
 
 import h5py
 import numpy as np
-import tensorflow as tf
 
-import src.data.augmentation as aug
+from src.data.loader import BasicDataLoader
 
 SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 
 
-class H5DataLoader:
+class H5DataLoader(BasicDataLoader):
     def __init__(self, moving_image_filename, fixed_image_filename, moving_label_filename, fixed_label_filename):
         # load keys
         moving_key_dict = get_image_label_key_dict(image_filename=moving_image_filename,
@@ -29,18 +28,17 @@ class H5DataLoader:
 
         # sanity check
         # image and label have same shape
-        if moving_image_shape != moving_label_shape:
-            raise ValueError("moving image and label shape don't match")
-        if fixed_image_shape != fixed_label_shape:
-            raise ValueError("fixed image and label shape don't match")
+        assert moving_image_shape == moving_label_shape
+        assert fixed_image_shape == fixed_label_shape
 
         # save variables
+        self.key_dict = moving_key_dict
+
         self.moving_image_filename = moving_image_filename
         self.fixed_image_filename = fixed_image_filename
         self.moving_label_filename = moving_label_filename
         self.fixed_label_filename = fixed_label_filename
 
-        self.key_dict = moving_key_dict
         self.moving_image_shape = moving_image_shape
         self.fixed_image_shape = fixed_image_shape
 
@@ -69,32 +67,6 @@ class H5DataLoader:
 
                             indices = np.asarray([image_index, label_index], dtype=np.float32)
                             yield ((moving_image, fixed_image, moving_label), fixed_label, indices)
-
-    def _get_dataset(self):
-        dataset = tf.data.Dataset.from_generator(generator=self.get_generator,
-                                                 output_types=(
-                                                     (tf.float32, tf.float32, tf.float32), tf.float32, tf.float32),
-                                                 output_shapes=((self.moving_image_shape,
-                                                                 self.fixed_image_shape,
-                                                                 self.moving_image_shape),
-                                                                self.fixed_image_shape,
-                                                                2,
-                                                                ))
-
-        return dataset
-
-    def get_dataset(self, batch_size, training, dataset_shuffle_buffer_size):
-        dataset = self._get_dataset()
-        if training:
-            dataset = dataset.shuffle(buffer_size=dataset_shuffle_buffer_size)
-        dataset = dataset.batch(batch_size, drop_remainder=training)
-        if training:
-            # TODO add cropping, but crop first or rotation first?
-            affine_transform = aug.AffineTransformation3D(moving_image_size=self.moving_image_shape,
-                                                          fixed_image_size=self.fixed_image_shape,
-                                                          batch_size=batch_size)
-            dataset = dataset.map(affine_transform.transform)
-        return dataset
 
 
 def get_sorted_keys(filename):
