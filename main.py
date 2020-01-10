@@ -2,26 +2,79 @@ from datetime import datetime
 
 import tensorflow as tf
 
-import src.data.loader_nifti as loader
 import src.model.layer_util as layer_util
 import src.model.loss as loss
 import src.model.metric as metric
 import src.model.network as network
 import steps as steps
+from src.data.loader_h5 import H5DataLoader
+from src.data.loader_nifti import NiftiDataLoader
+
+
+def get_train_test_dataset(option, load_into_memory):
+    if option == "demo":
+        moving_image_dir_train = "./data/demo/train/mr_images"
+        fixed_image_dir_train = "./data/demo/train/us_images"
+        moving_label_dir_train = "./data/demo/train/mr_labels"
+        fixed_label_dir_train = "./data/demo/train/us_labels"
+
+        moving_image_dir_test = "./data/demo/test/mr_images"
+        fixed_image_dir_test = "./data/demo/test/us_images"
+        moving_label_dir_test = "./data/demo/test/mr_labels"
+        fixed_label_dir_test = "./data/demo/test/us_labels"
+
+        data_loader_train = NiftiDataLoader(moving_image_dir_train, fixed_image_dir_train,
+                                            moving_label_dir_train, fixed_label_dir_train,
+                                            load_into_memory)
+
+        data_loader_test = NiftiDataLoader(moving_image_dir_test, fixed_image_dir_test,
+                                           moving_label_dir_test, fixed_label_dir_test,
+                                           load_into_memory)
+    elif option == "full_nifti":
+        moving_image_dir_train = "./data/full/train/mr_images"
+        fixed_image_dir_train = "./data/full/train/us_images"
+        moving_label_dir_train = "./data/full/train/mr_labels"
+        fixed_label_dir_train = "./data/full/train/us_labels"
+
+        moving_image_dir_test = "./data/full/test/mr_images"
+        fixed_image_dir_test = "./data/full/test/us_images"
+        moving_label_dir_test = "./data/full/test/mr_labels"
+        fixed_label_dir_test = "./data/full/test/us_labels"
+
+        data_loader_train = NiftiDataLoader(moving_image_dir_train, fixed_image_dir_train,
+                                            moving_label_dir_train, fixed_label_dir_train,
+                                            load_into_memory)
+
+        data_loader_test = NiftiDataLoader(moving_image_dir_test, fixed_image_dir_test,
+                                           moving_label_dir_test, fixed_label_dir_test,
+                                           load_into_memory)
+    elif option == "full_h5":
+        # TODO separate train/test
+        moving_image_filename = "data/full_h5/mr_images_resampled800.h5"
+        moving_label_filename = "data/full_h5/mr_labels_resampled800_post3.h5"
+        fixed_image_filename = "data/full_h5/us_images_resampled800.h5"
+        fixed_label_filename = "data/full_h5/us_labels_resampled800_post3.h5"
+
+        data_loader_train = H5DataLoader(moving_image_filename=moving_image_filename,
+                                         fixed_image_filename=fixed_image_filename,
+                                         moving_label_filename=moving_label_filename,
+                                         fixed_label_filename=fixed_label_filename)
+
+        data_loader_test = H5DataLoader(moving_image_filename=moving_image_filename,
+                                        fixed_image_filename=fixed_image_filename,
+                                        moving_label_filename=moving_label_filename,
+                                        fixed_label_filename=fixed_label_filename)
+    else:
+        raise ValueError("Unknown option")
+    return data_loader_train, data_loader_test
+
 
 # config
-moving_image_dir_train = "./data/demo/train/mr_images"
-fixed_image_dir_train = "./data/demo/train/us_images"
-moving_label_dir_train = "./data/demo/train/mr_labels"
-fixed_label_dir_train = "./data/demo/train/us_labels"
 
-moving_image_dir_test = "./data/demo/test/mr_images"
-fixed_image_dir_test = "./data/demo/test/us_images"
-moving_label_dir_test = "./data/demo/test/mr_labels"
-fixed_label_dir_test = "./data/demo/test/us_labels"
-
-batch_size = 4
-num_channel_initial = 8
+data_option = "full_h5"
+data_load_into_memory = False
+batch_size = 2
+num_channel_initial = 4
 learning_rate = 1.0e-5
 num_epochs = 20
 save_period = 5
@@ -39,12 +92,9 @@ checkpoint_log_dir = log_dir + "/checkpoint"
 checkpoint_path = checkpoint_log_dir + "/cp-{epoch:04d}.ckpt"
 
 # data
-data_loader_train = loader.PairedDataLoader(moving_image_dir_train, fixed_image_dir_train,
-                                            moving_label_dir_train, fixed_label_dir_train)
+data_loader_train, data_loader_test = get_train_test_dataset(option=data_option, load_into_memory=data_load_into_memory)
 dataset_train = data_loader_train.get_dataset(batch_size=batch_size, training=True,
                                               dataset_shuffle_buffer_size=dataset_shuffle_buffer_size)
-data_loader_test = loader.PairedDataLoader(moving_image_dir_test, fixed_image_dir_test,
-                                           moving_label_dir_test, fixed_label_dir_test)
 dataset_test = data_loader_test.get_dataset(batch_size=batch_size, training=False,
                                             dataset_shuffle_buffer_size=dataset_shuffle_buffer_size)
 
@@ -117,10 +167,8 @@ for epoch in range(num_epochs):
     metrics_train.reset()
     metrics_test.reset()
 
-# TODO organize graph in tensorboard
-# organize tensorboard
-# track median/mean/min/max of dice and dist
-# track median/mean/min/max of ddf, preds, labels
-# note the sample id
+# TODO
+# organize graph in tensorboard
 # save model regularly
 # add params
+# nan dice
