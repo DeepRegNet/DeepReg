@@ -40,6 +40,7 @@ class NiftiFileLoader:
 
 class NiftiDataLoader(BasicDataLoader):
     def __init__(self, moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir, load_into_memory):
+        super(NiftiDataLoader, self).__init__()
         loader_moving_image = NiftiFileLoader(moving_image_dir, load_into_memory)
         loader_fixed_image = NiftiFileLoader(fixed_image_dir, load_into_memory)
         loader_moving_label = NiftiFileLoader(moving_label_dir, load_into_memory)
@@ -86,7 +87,7 @@ class NiftiDataLoader(BasicDataLoader):
                 fixed_label = fixed_label[..., label_index]
 
             indices = np.asarray([image_index, label_index], dtype=np.float32)
-            yield ((moving_image, fixed_image, moving_label), fixed_label, indices)
+            yield (moving_image, fixed_image, moving_label), fixed_label, indices
 
 
 def get_fnames_in_dir(dir_name):
