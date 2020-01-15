@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import tensorflow as tf
@@ -83,7 +84,7 @@ def get_train_test_dataset(option, load_into_memory):
 
 
 # config
-
+os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 data_option = "full_h5"
 data_load_into_memory = False
 batch_size = 2
