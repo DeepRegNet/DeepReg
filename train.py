@@ -156,8 +156,6 @@ for epoch in range(num_epochs):
             metrics_train.update(metric_value_dict=metric_value_dict_train)
             # update tensorboard
             metrics_train.update_tensorboard(step=optimizer.iterations)
-
-            # print("Training loss at step %d: %s" % (step, metrics_train))
         print("Training loss at epoch %d: %s" % (epoch, metrics_train))
 
     # test
@@ -171,7 +169,6 @@ for epoch in range(num_epochs):
         # update tensorboard
         metrics_test.update_tensorboard(step=optimizer.iterations)
         print("Test loss at step %d: %s" % (step, metrics_test))
-        print("Test example indices: %s" % indices_test)
 
     # save models
     if epoch % save_period == 0:
