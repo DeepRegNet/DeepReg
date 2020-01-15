@@ -143,7 +143,7 @@ print(local_model.summary())
 fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
 
 for epoch in range(num_epochs):
-    print("Start of epoch %d" % (epoch,))
+    print("%s | Start of epoch %d" % (datetime.now(), epoch))
 
     # train
     with tb_writer_train.as_default():
@@ -185,4 +185,4 @@ for epoch in range(num_epochs):
 # TODO
 # organize graph in tensorboard
 # add params
-# nan dice
+# https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_keras
