@@ -34,7 +34,7 @@ def weighted_binary_cross_entropy(ts, ps, pw=1, eps=1e-6):
 
 
 def dice_simple(ts, ps, eps_vol=1e-6):
-    numerator = tf.reduce_sum(ts * ps, axis=[1, 2, 3, 4]) * 2
+    numerator = tf.reduce_sum(ts * ps, axis=[1, 2, 3, 4]) * 2 + eps_vol
     denominator = tf.reduce_sum(ts, axis=[1, 2, 3, 4]) + tf.reduce_sum(ps, axis=[1, 2, 3, 4]) + eps_vol
     return numerator / denominator
 
