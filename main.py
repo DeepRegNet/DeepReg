@@ -54,16 +54,29 @@ def get_train_test_dataset(option, load_into_memory):
         moving_label_filename = "data/full_h5/mr_labels_resampled800_post3.h5"
         fixed_image_filename = "data/full_h5/us_images_resampled800.h5"
         fixed_label_filename = "data/full_h5/us_labels_resampled800_post3.h5"
-
+        seed = 0
+        shuffle = True
+        train_start_index = 0
+        train_end_index = 100
+        test_start_index = train_end_index
+        test_end_index = 108
         data_loader_train = H5DataLoader(moving_image_filename=moving_image_filename,
                                          fixed_image_filename=fixed_image_filename,
                                          moving_label_filename=moving_label_filename,
-                                         fixed_label_filename=fixed_label_filename)
+                                         fixed_label_filename=fixed_label_filename,
+                                         seed=seed,
+                                         shuffle=shuffle,
+                                         index_start=train_start_index,
+                                         index_end=train_end_index)
 
         data_loader_test = H5DataLoader(moving_image_filename=moving_image_filename,
                                         fixed_image_filename=fixed_image_filename,
                                         moving_label_filename=moving_label_filename,
-                                        fixed_label_filename=fixed_label_filename)
+                                        fixed_label_filename=fixed_label_filename,
+                                        seed=seed,
+                                        shuffle=shuffle,
+                                        index_start=test_start_index,
+                                        index_end=test_end_index)
     else:
         raise ValueError("Unknown option")
     return data_loader_train, data_loader_test
