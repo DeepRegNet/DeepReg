@@ -7,7 +7,7 @@ import src.model.optimizer as opt
 import src.model.layer_util as layer_util
 import src.model.metric as metric
 import src.model.network as network
-import steps as steps
+import src.model.step as step
 import src.data.loader as data_loader
 import src.config.parser as config_parser
 
@@ -40,21 +40,6 @@ if __name__ == "__main__":
     # optimizer
     optimizer = opt.get_optimizer(tf_opt_config)
 
-    # metrics
-    tb_names_test = dict(
-        loss_sim="loss/similarity",
-        loss_reg="loss/regularization",
-        loss_total="loss/total",
-        metric_dice="metric/dice",
-        metric_dist="metric/centroid_distance",
-    )
-    tb_names_train = dict(
-        **tb_names_test,
-        opt_lr="opt/learning_rate",
-    )
-    metrics_train = metric.Metrics(tb_names=tb_names_train)
-    metrics_test = metric.Metrics(tb_names=tb_names_test)
-
     # model
     reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
                                     fixed_image_size=data_loader_train.fixed_image_shape,
@@ -64,17 +49,17 @@ if __name__ == "__main__":
 
     # steps
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
-
+    metrics_train, metrics_test = step.init_metrics()
     for epoch in range(num_epochs):
         print("%s | Start of epoch %d" % (datetime.now(), epoch))
 
         # train
         with tb_writer_train.as_default():
-            for step, (inputs_train, labels_train, indices_train) in enumerate(dataset_train):
-                metric_value_dict_train = steps.train_step(model=reg_model, optimizer=optimizer,
-                                                           inputs=inputs_train, labels=labels_train,
-                                                           fixed_grid_ref=fixed_grid_ref,
-                                                           tf_loss_config=tf_loss_config)
+            for step_index, (inputs_train, labels_train, indices_train) in enumerate(dataset_train):
+                metric_value_dict_train = step.train_step(model=reg_model, optimizer=optimizer,
+                                                          inputs=inputs_train, labels=labels_train,
+                                                          fixed_grid_ref=fixed_grid_ref,
+                                                          tf_loss_config=tf_loss_config)
 
                 # update metrics
                 metrics_train.update(metric_value_dict=metric_value_dict_train)
@@ -84,16 +69,16 @@ if __name__ == "__main__":
 
         # test
         with tb_writer_test.as_default():
-            for step, (inputs_test, labels_test, indices_test) in enumerate(dataset_test):
-                metric_value_dict_test = steps.eval_step(model=reg_model,
-                                                         inputs=inputs_test, labels=labels_test,
-                                                         fixed_grid_ref=fixed_grid_ref,
-                                                         tf_loss_config=tf_loss_config)
+            for step_index, (inputs_test, labels_test, indices_test) in enumerate(dataset_test):
+                metric_value_dict_test = step.eval_step(model=reg_model,
+                                                        inputs=inputs_test, labels=labels_test,
+                                                        fixed_grid_ref=fixed_grid_ref,
+                                                        tf_loss_config=tf_loss_config)
                 # update metrics
                 metrics_test.update(metric_value_dict=metric_value_dict_test)
             # update tensorboard
             metrics_test.update_tensorboard(step=optimizer.iterations)
-            print("Test loss at step %d: %s" % (step, metrics_test))
+            print("Test loss at step %d: %s" % (step_index, metrics_test))
 
         # save models
         if epoch % save_period == 0:
