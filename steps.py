@@ -4,13 +4,14 @@ import src.model.loss as loss
 
 
 @tf.function
-def train_step(model, optimizer, inputs, labels, fixed_grid_ref):
+def train_step(model, optimizer, inputs, labels, fixed_grid_ref, tf_loss_config):
     # forward
     with tf.GradientTape() as tape:
         predictions = model(inputs=inputs, training=True)
 
         # loss
-        loss_sim_value = loss.loss_similarity_fn(y_true=labels, y_pred=predictions)
+        loss_sim_value = loss.loss_similarity_fn(y_true=labels, y_pred=predictions,
+                                                 **tf_loss_config["similarity"])
         loss_reg_value = sum(model.losses)
         loss_total_value = loss_sim_value + loss_reg_value
 
@@ -36,12 +37,12 @@ def train_step(model, optimizer, inputs, labels, fixed_grid_ref):
 
 
 @tf.function
-def valid_step(model, inputs, labels, fixed_grid_ref):
+def eval_step(model, inputs, labels, fixed_grid_ref, tf_loss_config):
     # forward
     predictions = model(inputs=inputs, training=False)
 
     # loss
-    loss_sim_value = loss.loss_similarity_fn(y_true=labels, y_pred=predictions)
+    loss_sim_value = loss.loss_similarity_fn(y_true=labels, y_pred=predictions, **tf_loss_config["similarity"])
     loss_reg_value = sum(model.losses)
     loss_total_value = loss_sim_value + loss_reg_value
 
@@ -56,3 +57,11 @@ def valid_step(model, inputs, labels, fixed_grid_ref):
         metric_dice=metric_dice_value,
         metric_dist=metric_dist_value,
     )
+
+
+@tf.function
+def predict_step(model, inputs):
+    # forward
+    predictions = model(inputs=inputs, training=False)
+
+    return predictions

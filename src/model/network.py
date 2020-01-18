@@ -59,27 +59,31 @@ class LocalModel(tf.keras.Model):
         return ddf
 
 
-def build_model(moving_image_size, fixed_image_size, batch_size, num_channel_initial, ddf_levels):
+def build_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
     # inputs
     moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size, name="moving_image")
     fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_image")
     moving_label = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size, name="moving_label")
 
     # backbone
-    local_model = LocalModel(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
-                             num_channel_initial=num_channel_initial, ddf_levels=ddf_levels)
+    if tf_model_config["name"] == "local":
+        backbone = LocalModel(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
+                              **tf_model_config["local"])
+    else:
+        raise ValueError("Unknown model name")
 
     # ddf
-    ddf = local_model(inputs=[moving_image, fixed_image])
+    ddf = backbone(inputs=[moving_image, fixed_image])
 
     # prediction
     warped_moving_label = layer.Warping(fixed_image_size=fixed_image_size)([ddf, moving_label])
 
     # build model
-    registration_model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label], outputs=warped_moving_label,
-                                        name="RegModel")
+    reg_model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label],
+                               outputs=warped_moving_label,
+                               name="RegModel")
 
     # add regularization loss
-    bending_loss = tf.reduce_mean(loss.local_displacement_energy(ddf, "bending", 0.5))
-    registration_model.add_loss(bending_loss)
-    return registration_model
+    reg_loss = tf.reduce_mean(loss.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
+    reg_model.add_loss(reg_loss)
+    return reg_model

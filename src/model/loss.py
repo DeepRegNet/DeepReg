@@ -186,11 +186,13 @@ def compute_centroid_distance(y_true, y_pred, grid):
     return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))
 
 
-def loss_similarity_fn(y_true, y_pred):
+def loss_similarity_fn(y_true, y_pred, loss_type, loss_scales):
     """
 
     :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3, (1)]
     :param y_pred: warped_moving_label, shape = [batch, f_dim1, f_dim2, f_dim3, (1)]
+    :param loss_type:
+    :param loss_scales:
     :return:
     """
     if len(y_true.shape) == 4:
@@ -199,6 +201,6 @@ def loss_similarity_fn(y_true, y_pred):
         y_pred = tf.expand_dims(y_pred, axis=4)
     loss_similarity = tf.reduce_mean(multi_scale_loss(label_fixed=y_true,
                                                       label_moving=y_pred,
-                                                      loss_type="dice",
-                                                      loss_scales=[0, 1, 2, 4, 8, 16, 32]))  # TODO move into config
+                                                      loss_type=loss_type,
+                                                      loss_scales=loss_scales))
     return loss_similarity
