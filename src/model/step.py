@@ -1,6 +1,24 @@
 import tensorflow as tf
 
 import src.model.loss as loss
+import src.model.metric as metric
+
+
+def init_metrics():  # this function should be consistent with the train/eval steps
+    tb_names_test = dict(
+        loss_sim="loss/similarity",
+        loss_reg="loss/regularization",
+        loss_total="loss/total",
+        metric_dice="metric/dice",
+        metric_dist="metric/centroid_distance",
+    )
+    tb_names_train = dict(
+        **tb_names_test,
+        opt_lr="opt/learning_rate",
+    )
+    metrics_train = metric.Metrics(tb_names=tb_names_train)
+    metrics_test = metric.Metrics(tb_names=tb_names_test)
+    return metrics_train, metrics_test
 
 
 @tf.function
