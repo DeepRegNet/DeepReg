@@ -4,7 +4,7 @@ import random
 import nibabel as nib
 import numpy as np
 
-from src.data.loader import BasicDataLoader
+from src.data.loader_basic import BasicDataLoader
 
 
 class NiftiFileLoader:
@@ -39,7 +39,9 @@ class NiftiFileLoader:
 
 
 class NiftiDataLoader(BasicDataLoader):
-    def __init__(self, moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir, load_into_memory):
+    def __init__(self,
+                 moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir,
+                 load_into_memory, sample_label):
         super(NiftiDataLoader, self).__init__()
         loader_moving_image = NiftiFileLoader(moving_image_dir, load_into_memory)
         loader_fixed_image = NiftiFileLoader(fixed_image_dir, load_into_memory)
@@ -69,6 +71,7 @@ class NiftiDataLoader(BasicDataLoader):
         self.loader_fixed_image = loader_fixed_image
         self.loader_moving_label = loader_moving_label
         self.loader_fixed_label = loader_fixed_label
+        self.sample_label = sample_label
 
         self.moving_image_shape = moving_image_shape
         self.fixed_image_shape = fixed_image_shape
@@ -80,14 +83,21 @@ class NiftiDataLoader(BasicDataLoader):
             moving_label = self.loader_moving_label.get_data(image_key)
             fixed_label = self.loader_fixed_label.get_data(image_key)
 
-            label_index = -1
-            if len(moving_label.shape) == 4:
-                label_index = random.randrange(moving_label.shape[3])
-                moving_label = moving_label[..., label_index]
-                fixed_label = fixed_label[..., label_index]
-
-            indices = np.asarray([image_index, label_index], dtype=np.float32)
-            yield (moving_image, fixed_image, moving_label), fixed_label, indices
+            if len(moving_label.shape) == 4:  # multiple labels
+                if self.sample_label:  # sample a label
+                    label_indices = [random.randrange(moving_label.shape[3])]
+                else:  # iterate labels
+                    label_indices = range(moving_label.shape[3])
+                for label_index in label_indices:
+                    indices = np.asarray([image_index, label_index], dtype=np.float32)
+                    yield (moving_image, fixed_image,
+                           moving_label[..., label_index]), fixed_label[..., label_index], indices
+            elif len(moving_label.shape) == 3:  # only one label
+                label_index = 0
+                indices = np.asarray([image_index, label_index], dtype=np.float32)
+                yield (moving_image, fixed_image, moving_label), fixed_label, indices
+            else:
+                raise ValueError("Unknown moving_label.shape")
 
 
 def get_fnames_in_dir(dir_name):

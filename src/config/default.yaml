@@ -1,0 +1,47 @@
+log_dir: "logs"
+
+data:
+  format: "nifti" # h5 or nifti
+  nifti:
+    dir: "data/nifti"
+    load_into_memory: false
+    train:
+      sample_label: true
+    test:
+      sample_label: false
+  h5:
+    dir: "data/h5"
+    seed: 0
+    shuffle_image: true
+    train:
+      start_image_index: 0 # included
+      end_image_index: 100 # excluded
+      sample_label: true
+    test:
+      start_image_index: 100
+      end_image_index: 108
+      sample_label: false
+
+tf:
+  TF_FORCE_GPU_ALLOW_GROWTH: true
+  model:
+    name: local
+    local:
+      num_channel_initial: 4
+      ddf_levels: [0, 1, 2, 3, 4]
+  loss:
+    similarity:
+      loss_type: "dice"
+      loss_scales: [0, 1, 2, 4, 8, 16, 32]
+    regularization:
+      energy_type: "bending"
+      energy_weight: 0.5
+  data:
+    batch_size: 2
+    shuffle_buffer_size: 1024
+  opt:
+    name: "adam"
+    adam:
+      learning_rate: 1.0e-5
+  epochs: 2
+  save_period: 1
