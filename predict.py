@@ -27,29 +27,46 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
         moving_image, fixed_image, moving_label = inputs  # shape [bs, dim1, dim2, dim3], [bs, dim1, dim2, dim3],
         fixed_label = labels
         num_samples = moving_image.shape[0]
+        moving_depth = moving_image.shape[3]
         fixed_depth = fixed_image.shape[3]
 
-        image_dir_format = save_dir + "/image{image_index:d}/label{label_index:d}"
+        image_dir_format = save_dir + "/image{image_index:d}/label{label_index:d}/{type_name:s}"
         for sample_index in range(num_samples):
-            # save prediction
             image_index, label_index = int(indices[sample_index, 0]), int(indices[sample_index, 1])
-            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index)
+
+            # save fixed
+            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="fixed")
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
-            for depth_index in range(fixed_depth):
-                image = fixed_image[sample_index, :, :, depth_index]
-                label = fixed_label[sample_index, :, :, depth_index]
-                pred = pred_fixed_label[sample_index, :, :, depth_index]
+            for fixed_depth_index in range(fixed_depth):
+                fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
+                fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
+                fixed_pred_d = pred_fixed_label[sample_index, :, :, fixed_depth_index]
                 plt.imsave(
-                    filename_format.format(depth_index=depth_index, name="image"),
-                    image, cmap='gray')  # value range for h5 and nifti might be different
+                    filename_format.format(depth_index=fixed_depth_index, name="fixed_image"),
+                    fixed_image_d, cmap='gray')  # value range for h5 and nifti might be different
                 plt.imsave(
-                    filename_format.format(depth_index=depth_index, name="label"),
-                    label, vmin=0, vmax=1, cmap='gray')
+                    filename_format.format(depth_index=fixed_depth_index, name="fixed_label"),
+                    fixed_label_d, vmin=0, vmax=1, cmap='gray')
                 plt.imsave(
-                    filename_format.format(depth_index=depth_index, name="pred"),
-                    pred, vmin=0, vmax=1, cmap='gray')
+                    filename_format.format(depth_index=fixed_depth_index, name="fixed_pred"),
+                    fixed_pred_d, vmin=0, vmax=1, cmap='gray')
+
+            # save moving
+            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="moving")
+            filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
+            if not os.path.exists(image_dir):
+                os.makedirs(image_dir)
+            for moving_depth_index in range(moving_depth):
+                moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
+                moving_label_d = moving_label[sample_index, :, :, moving_depth_index]
+                plt.imsave(
+                    filename_format.format(depth_index=moving_depth_index, name="moving_image"),
+                    moving_image_d, cmap='gray')  # value range for h5 and nifti might be different
+                plt.imsave(
+                    filename_format.format(depth_index=moving_depth_index, name="moving_label"),
+                    moving_label_d, vmin=0, vmax=1, cmap='gray')
 
             # calculate metric
             label = fixed_label[sample_index:(sample_index + 1), ...]
