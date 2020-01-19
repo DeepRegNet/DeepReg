@@ -13,7 +13,8 @@ class Metrics:
 
     def update(self, metric_value_dict):
         for var_name in self.metrics:
-            self.metrics[var_name](metric_value_dict[var_name])
+            if not tf.reduce_any(tf.math.is_nan(metric_value_dict[var_name])):
+                self.metrics[var_name](metric_value_dict[var_name])
 
     def update_tensorboard(self, step):
         for var_name in self.metrics:

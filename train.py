@@ -13,8 +13,15 @@ import src.model.step as step
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-g", "--gpu", help="GPU index", required=True)
+    parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="do not take all GPU memory")
     parser.add_argument("--config", help="Path of config", default="")
+    parser.set_defaults(memory=False)
     args = parser.parse_args()
+
+    # env vars
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if args.memory else "false"
 
     # load config
     config = config_parser.load(args.config)
@@ -26,7 +33,6 @@ if __name__ == "__main__":
     num_epochs = config["tf"]["epochs"]
     save_period = config["tf"]["save_period"]
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if config["tf"]["TF_FORCE_GPU_ALLOW_GROWTH"] else "false"
 
     # output
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -60,10 +66,12 @@ if __name__ == "__main__":
         # train
         with tb_writer_train.as_default():
             for step_index, (inputs_train, labels_train, indices_train) in enumerate(dataset_train):
-                metric_value_dict_train = step.train_step(model=reg_model, optimizer=optimizer,
-                                                          inputs=inputs_train, labels=labels_train,
-                                                          fixed_grid_ref=fixed_grid_ref,
-                                                          tf_loss_config=tf_loss_config)
+                metric_value_dict_train = step.train_step(
+                    model=reg_model,
+                    inputs=inputs_train, labels=labels_train, indices=indices_train,
+                    fixed_grid_ref=fixed_grid_ref,
+                    tf_loss_config=tf_loss_config,
+                    optimizer=optimizer)
 
                 # update metrics
                 metrics_train.update(metric_value_dict=metric_value_dict_train)
@@ -74,10 +82,11 @@ if __name__ == "__main__":
         # test
         with tb_writer_test.as_default():
             for step_index, (inputs_test, labels_test, indices_test) in enumerate(dataset_test):
-                metric_value_dict_test = step.eval_step(model=reg_model,
-                                                        inputs=inputs_test, labels=labels_test,
-                                                        fixed_grid_ref=fixed_grid_ref,
-                                                        tf_loss_config=tf_loss_config)
+                metric_value_dict_test = step.eval_step(
+                    model=reg_model,
+                    inputs=inputs_test, labels=labels_test, indices=indices_test,
+                    fixed_grid_ref=fixed_grid_ref,
+                    tf_loss_config=tf_loss_config)
                 # update metrics
                 metrics_test.update(metric_value_dict=metric_value_dict_test)
             # update tensorboard

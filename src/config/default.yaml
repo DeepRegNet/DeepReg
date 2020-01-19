@@ -23,7 +23,6 @@ data:
       sample_label: false
 
 tf:
-  TF_FORCE_GPU_ALLOW_GROWTH: true
   model:
     name: local
     local:
