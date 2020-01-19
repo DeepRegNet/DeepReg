@@ -3,13 +3,12 @@ from datetime import datetime
 
 import tensorflow as tf
 
-import src.model.optimizer as opt
-import src.model.layer_util as layer_util
-import src.model.metric as metric
-import src.model.network as network
-import src.model.step as step
-import src.data.loader as data_loader
 import src.config.parser as config_parser
+import src.data.loader as data_loader
+import src.model.layer_util as layer_util
+import src.model.network as network
+import src.model.optimizer as opt
+import src.model.step as step
 
 if __name__ == "__main__":
     # load config

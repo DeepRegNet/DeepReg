@@ -134,3 +134,4 @@ dmypy.json
 # logs
 logs/
 data/
+!src/data/
