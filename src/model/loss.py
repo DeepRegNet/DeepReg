@@ -158,13 +158,13 @@ def compute_centroid(mask, grid, eps=1e-6):
     :param grid: shape = [dim1, dim2, dim3, 3]
     :return:
     """
-    centroids = []
-    for i in range(mask.shape[0]):
-        bool_mask = mask[i, ..., 0] >= 0.5  # [dim1, dim2, dim3]
-        masked = tf.boolean_mask(grid, bool_mask)  # [None, 3]
-        centroid = tf.reduce_sum(masked, axis=0) / (tf.reduce_sum(tf.cast(bool_mask, tf.float32)) + eps)  # [3]
-        centroids.append(centroid)
-    return tf.stack(centroids, axis=0)
+    bool_mask = tf.cast(mask >= 0.5, dtype=tf.float32)  # [batch, dim1, dim2, dim3, 1]
+    expanded_grid = tf.expand_dims(grid, axis=0)  # [1, dim1, dim2, dim3, 3]
+    masked_grid = bool_mask * expanded_grid  # [batch, dim1, dim2, dim3, 3]
+    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # [batch, 3]
+    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + eps  # [batch, 1]
+    centroids = numerator / denominator
+    return centroids
 
     # return tf.stack([tf.reduce_mean(tf.boolean_mask(grid, mask[i, ..., 0] >= 0.5), axis=0)
     #                  for i in range(mask.shape[0])], axis=0)
