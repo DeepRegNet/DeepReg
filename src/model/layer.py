@@ -287,6 +287,11 @@ class Warping(tf.keras.layers.Layer):
         self._grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
     def call(self, inputs, **kwargs):
+        """
+        :param inputs:
+        :param kwargs:
+        :return: shape = [batch, f_dim1, f_dim2, f_dim3, 1]
+        """
         layer_util.check_inputs(inputs, 2, "Warping")
 
         ddf, moving_label = inputs[0], inputs[1]

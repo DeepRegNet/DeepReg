@@ -29,7 +29,7 @@ if __name__ == "__main__":
     tb_writer_train = tf.summary.create_file_writer(tb_log_dir + "/train")
     tb_writer_test = tf.summary.create_file_writer(tb_log_dir + "/test")
     checkpoint_log_dir = log_dir + "/checkpoint"
-    checkpoint_path = checkpoint_log_dir + "/cp-{epoch:06d}.ckpt"
+    checkpoint_path = checkpoint_log_dir + "/cp-{epoch:d}.ckpt"
 
     # data
     data_loader_train, data_loader_test = data_loader.get_train_test_dataset(data_config)
