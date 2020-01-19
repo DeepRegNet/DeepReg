@@ -181,8 +181,8 @@ def compute_centroid_distance(y_true, y_pred, grid):
         y_true = tf.expand_dims(y_true, axis=4)
     if len(y_pred.shape) == 4:
         y_pred = tf.expand_dims(y_pred, axis=4)
-    c1 = compute_centroid(y_pred, grid)
-    c2 = compute_centroid(y_true, grid)
+    c1 = compute_centroid(mask=y_pred, grid=grid)
+    c2 = compute_centroid(mask=y_true, grid=grid)
     return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))
 
 

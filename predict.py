@@ -19,10 +19,10 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
         pred_fixed_label = steps.predict_step(model=model, inputs=inputs)
         pred_fixed_label = pred_fixed_label[..., 0]
 
-        # moving_image [bs, m_dim1, m_dim2, m_dim3]
-        # fixed_image  [bs, f_dim1, f_dim2, f_dim3]
-        # moving_label [bs, m_dim1, m_dim2, m_dim3]
-        # fixed_label  [bs, f_dim1, f_dim2, f_dim3]
+        # moving_image [batch, m_dim1, m_dim2, m_dim3]
+        # fixed_image  [batch, f_dim1, f_dim2, f_dim3]
+        # moving_label [batch, m_dim1, m_dim2, m_dim3]
+        # fixed_label  [batch, f_dim1, f_dim2, f_dim3]
         # pred_moving_label [bs, f_dim1, f_dim2, f_dim3]
         moving_image, fixed_image, moving_label = inputs  # shape [bs, dim1, dim2, dim3], [bs, dim1, dim2, dim3],
         fixed_label = labels
@@ -92,9 +92,16 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
 if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
+    parser.add_argument("-g", "--gpu", help="GPU index", required=True)
+    parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="take all GPU memory")
     parser.add_argument("--ckpt", help="Path of checkpoint", required=True)
     parser.add_argument("--config", help="Path of config", default="")
+    parser.set_defaults(memory=True)
     args = parser.parse_args()
+
+    # env vars
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if args.memory else "true"
 
     checkpoint_path = args.ckpt
     if not checkpoint_path.endswith(".ckpt"):
@@ -106,7 +113,6 @@ if __name__ == "__main__":
     tf_data_config = config["tf"]["data"]
     tf_model_config = config["tf"]["model"]
     tf_loss_config = config["tf"]["loss"]
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if config["tf"]["TF_FORCE_GPU_ALLOW_GROWTH"] else "false"
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
