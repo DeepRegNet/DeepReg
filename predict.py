@@ -43,7 +43,7 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
                 pred = pred_fixed_label[sample_index, :, :, depth_index]
                 plt.imsave(
                     filename_format.format(depth_index=depth_index, name="image"),
-                    image, vmin=0, vmax=255, cmap='gray')
+                    image, cmap='gray')  # value range for h5 and nifti might be different
                 plt.imsave(
                     filename_format.format(depth_index=depth_index, name="label"),
                     label, vmin=0, vmax=1, cmap='gray')
@@ -112,5 +112,5 @@ if __name__ == "__main__":
     reg_model.load_weights(checkpoint_path)
 
     # predict
-    predict(dataset=dataset_train, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/train")
     predict(dataset=dataset_test, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/test")
+    predict(dataset=dataset_train, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/train")
