@@ -1,6 +1,8 @@
 import yaml
 
 
-def load_default():
-    with open("src/config/default.yaml") as file:
+def load(config_path):
+    if config_path == "":
+        config_path = "src/config/default.yaml"
+    with open(config_path) as file:
         return yaml.load(file)

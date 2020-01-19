@@ -1,3 +1,4 @@
+import argparse
 import os
 from datetime import datetime
 
@@ -11,8 +12,12 @@ import src.model.optimizer as opt
 import src.model.step as step
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", help="Path of config", default="")
+    args = parser.parse_args()
+
     # load config
-    config = config_parser.load_default()
+    config = config_parser.load(args.config)
     data_config = config["data"]
     tf_data_config = config["tf"]["data"]
     tf_opt_config = config["tf"]["opt"]
