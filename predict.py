@@ -75,15 +75,16 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
 if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--path', help='Path of checkpoint', required=True)
+    parser.add_argument("--ckpt", help="Path of checkpoint", required=True)
+    parser.add_argument("--config", help="Path of config", default="")
     args = parser.parse_args()
 
-    checkpoint_path = args.path
+    checkpoint_path = args.ckpt
     if not checkpoint_path.endswith(".ckpt"):
         raise ValueError("checkpoint path should end with .ckpt")
 
     # load config
-    config = config_parser.load_default()
+    config = config_parser.load(args.config)
     data_config = config["data"]
     tf_data_config = config["tf"]["data"]
     tf_model_config = config["tf"]["model"]
