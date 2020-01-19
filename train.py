@@ -42,6 +42,9 @@ if __name__ == "__main__":
     checkpoint_log_dir = log_dir + "/checkpoint"
     checkpoint_path = checkpoint_log_dir + "/cp-{epoch:d}.ckpt"
 
+    # backup config
+    config_parser.save(config=config, out_dir=log_dir)
+
     # data
     data_loader_train, data_loader_test = data_loader.get_train_test_dataset(data_config)
     dataset_train = data_loader_train.get_dataset(training=True, **tf_data_config)
