@@ -34,8 +34,8 @@ def train_step(model, optimizer, inputs, labels, fixed_grid_ref, tf_loss_config)
         loss_total_value = loss_sim_value + loss_reg_value
 
         # metrics
-        metric_dice_value = loss.binary_dice(labels, predictions)
-        metric_dist_value = loss.compute_centroid_distance(labels, predictions, fixed_grid_ref)
+        metric_dice_value = loss.binary_dice(y_true=labels, y_pred=predictions)
+        metric_dist_value = loss.compute_centroid_distance(y_true=labels, y_pred=predictions, grid=fixed_grid_ref)
 
     # optimize
     grads = tape.gradient(loss_total_value, model.trainable_weights)

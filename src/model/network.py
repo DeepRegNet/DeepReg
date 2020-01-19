@@ -76,11 +76,11 @@ def build_model(moving_image_size, fixed_image_size, batch_size, tf_model_config
     ddf = backbone(inputs=[moving_image, fixed_image])
 
     # prediction
-    warped_moving_label = layer.Warping(fixed_image_size=fixed_image_size)([ddf, moving_label])
+    pred_fixed_label = layer.Warping(fixed_image_size=fixed_image_size)([ddf, moving_label])
 
     # build model
     reg_model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label],
-                               outputs=warped_moving_label,
+                               outputs=pred_fixed_label,
                                name="RegModel")
 
     # add regularization loss
