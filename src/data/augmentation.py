@@ -22,8 +22,11 @@ class AffineTransformation3D:
     @tf.function
     def transform(self, inputs, labels, indices):
         """
-        :param inputs: (moving_image, fixed_image, moving_label), each shape = [batch, dim1, dim2, dim3]
-        :param labels: fixed_label, shape = [batch, dim1, dim2, dim3]
+        :param inputs: (moving_image, fixed_image, moving_label)
+                    moving_image, shape = [batch, m_dim1, m_dim2, m_dim3]
+                    fixed_image, shape = [batch, f_dim1, f_dim2, f_dim3]
+                    moving_label, shape = [batch, m_dim1, m_dim2, m_dim3]
+        :param labels: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3]
         :param indices: a 2 element array, [sample_index, label_index]
         :return:
         """
