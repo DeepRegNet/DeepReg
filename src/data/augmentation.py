@@ -11,7 +11,7 @@ class AffineTransformation3D:
         self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
     def _gen_transforms(self):
-        return layer_util.random_transform_generator(batch_size=self._batch_size, corner_scale=self._scale)
+        return layer_util.random_transform_generator(batch_size=self._batch_size, scale=self._scale)
 
     @staticmethod
     def _transform(image, grid_ref, transforms):

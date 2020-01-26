@@ -121,33 +121,65 @@ def resample_linear(inputs, sample_coords):
     return pyramid_combination(samples, weight, weight_c)
 
 
-def random_transform_generator(batch_size, corner_scale=.1):
-    offsets = np.tile([[[1., 1., 1.],
-                        [1., 1., -1.],
-                        [1., -1., 1.],
-                        [-1., 1., 1.]]],
-                      [batch_size, 1, 1]) * np.random.uniform(0, corner_scale, [batch_size, 4, 3])
-    new_corners = np.transpose(np.concatenate((np.tile([[[-1., -1., -1.],
-                                                         [-1., -1., 1.],
-                                                         [-1., 1., -1.],
-                                                         [1., -1., -1.]]],
-                                                       [batch_size, 1, 1]) + offsets,
-                                               np.ones([batch_size, 4, 1])), 2), [0, 1, 2])  # O = T I
-    src_corners = np.tile(np.transpose([[[-1., -1., -1., 1.],
-                                         [-1., -1., 1., 1.],
-                                         [-1., 1., -1., 1.],
-                                         [1., -1., -1., 1.]]], [0, 1, 2]), [batch_size, 1, 1])
-    transforms = np.array([np.linalg.lstsq(src_corners[k], new_corners[k], rcond=-1)[0]
-                           for k in range(src_corners.shape[0])])
-    transforms = np.reshape(np.transpose(transforms[:][:, :][:, :, :3], [0, 2, 1]), [-1, 1, 12])
-    return transforms
+def random_transform_generator(batch_size, scale=0.1):
+    """
+
+    :param batch_size: 
+    :param scale:
+    :return: tf tensor, shape = [batch, 4, 3]
+
+    affine transformation
+
+    [[x' y' z' 1]] = [[x y z 1]] * [[* * * 0]
+                                    [* * * 0]
+                                    [* * * 0]
+                                    [* * * 1]]
+    new = old * T
+    shape: [1, 4] = [1, 4] * [4, 4]
+
+    equivalent to
+    [[x' y' z']] = [[x y z 1]] * [[* * *]
+                                  [* * *]
+                                  [* * *]
+                                  [* * *]]
+    x, y, z are original coordinates
+    x', y', z' are transformed coordinates
+
+    for (x, y, z) the noise is -(x, y, z) .* (r1, r2, r3) where ri is a random number between (0, scale)
+    so (x', y', z') = (x, y, z) .* (1-r1, 1-r2, 1-r3)
+
+    this version is faster
+    sometime (0.18s -> 0.8ms), or (0.4ms -> 0.2ms)
+    """
+    noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # [batch, 4, 3]
+
+    old = np.tile([[[-1, -1, -1, 1],
+                    [-1, -1, 1, 1],
+                    [-1, 1, -1, 1],
+                    [1, -1, -1, 1]]], [batch_size, 1, 1])  # [batch, 4, 4], [0, 0, :] = [-1,-1,-1,1]
+    new = old[:, :, :3] * noise  # [batch, 4, 3]
+
+    theta = np.array([np.linalg.lstsq(old[k], new[k], rcond=-1)[0]
+                      for k in range(batch_size)])  # [batch, 4, 3]
+
+    return tf.cast(theta, dtype=tf.float32)
 
 
 def warp_grid(grid, theta):
-    batch_size = theta.shape[0]
-    theta = tf.cast(tf.reshape(theta, (-1, 3, 4)), dtype=tf.float32)
-    size = grid.get_shape().as_list()
-    grid = tf.concat([tf.transpose(tf.reshape(grid, [-1, 3])), tf.ones([1, size[0] * size[1] * size[2]])], axis=0)
-    grid = tf.reshape(tf.tile(tf.reshape(grid, [-1]), [batch_size]), [batch_size, 4, -1])
-    grid_warped = tf.matmul(theta, grid)
-    return tf.reshape(tf.transpose(grid_warped, [0, 2, 1]), [batch_size, size[0], size[1], size[2], 3])
+    """
+    perform transformation on the grid
+
+    :param grid: shape = [dim1, dim2, dim3, 3], grid[i,j,k,:] = [i j k]
+    :param theta: parameters of transformation, shape = [batch, 4, 3]
+    :return:
+
+    grid_padded[i,j,k,:] = [i j k 1]
+    grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
+
+    using einsum is faster (8ms -> 5ms) per call
+    """
+
+    grid_size = grid.get_shape().as_list()
+    grid = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)  # [dim1, dim2, dim3, 4]
+    grid_warped = tf.einsum("ijkq,bqp->bijkp", grid, theta)
+    return grid_warped
