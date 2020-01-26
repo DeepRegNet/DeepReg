@@ -85,6 +85,12 @@ def get_reference_grid(grid_size):
 
 
 def resample_linear(inputs, sample_coords):
+    """
+
+    :param inputs: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
+    :param sample_coords: shape = [batch, dim1, dim2, dim3, 3]
+    :return: shape = [batch, dim1, dim2, dim3, 1]
+    """
     if len(inputs.shape) == 4:
         inputs = tf.expand_dims(inputs, axis=4)
     input_size = inputs.get_shape().as_list()[1:-1]
@@ -171,7 +177,7 @@ def warp_grid(grid, theta):
 
     :param grid: shape = [dim1, dim2, dim3, 3], grid[i,j,k,:] = [i j k]
     :param theta: parameters of transformation, shape = [batch, 4, 3]
-    :return:
+    :return: shape = [batch, dim1, dim2, dim3, 3]
 
     grid_padded[i,j,k,:] = [i j k 1]
     grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
@@ -181,5 +187,5 @@ def warp_grid(grid, theta):
 
     grid_size = grid.get_shape().as_list()
     grid = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)  # [dim1, dim2, dim3, 4]
-    grid_warped = tf.einsum("ijkq,bqp->bijkp", grid, theta)
+    grid_warped = tf.einsum("ijkq,bqp->bijkp", grid, theta)  # [batch, dim1, dim2, dim3, 3]
     return grid_warped

@@ -15,6 +15,13 @@ class AffineTransformation3D:
 
     @staticmethod
     def _transform(image, grid_ref, transforms):
+        """
+
+        :param image: shape = [batch, dim1, dim2, dim3]
+        :param grid_ref: shape = [dim1, dim2, dim3, 3]
+        :param transforms: shape = [batch, 4, 3]
+        :return: shape = [batch, dim1, dim2, dim3, 1]
+        """
         transformed = layer_util.resample_linear(image,
                                                  layer_util.warp_grid(grid_ref, transforms))
         return transformed
