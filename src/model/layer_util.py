@@ -69,11 +69,18 @@ def warp_moving(moving_image_or_label, grid_warped):
 
 
 def get_reference_grid(grid_size):
+    """
+    :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
+    :return: tf tensor, shape = [dim1, dim2, dim3, 3], grid[i, j, k, :] = [i j k]
+
+    for tf.meshgrid, in the 3-D case with inputs of length M, N and P,
+    outputs are of shape (N, M, P) for ‘xy’ indexing and (M, N, P) for ‘ij’ indexing.
+    """
     check_inputs(grid_size, 3, "get_reference_grid")
     return tf.cast(tf.stack(tf.meshgrid(
-        [i for i in range(grid_size[0])],
-        [j for j in range(grid_size[1])],
-        [k for k in range(grid_size[2])],
+        np.arange(grid_size[0]),
+        np.arange(grid_size[1]),
+        np.arange(grid_size[2]),
         indexing='ij'), axis=3), dtype=tf.float32)
 
 
