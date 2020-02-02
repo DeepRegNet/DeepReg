@@ -1,5 +1,4 @@
 import itertools
-import time
 
 import numpy as np
 import tensorflow as tf
@@ -67,10 +66,6 @@ def check_inputs(inputs, size, msg=""):
         raise ValueError(msg + "Inputs should be a list or tuple of size %d, but received %d" % (size, len(inputs)))
 
 
-def warp_moving(moving_image_or_label, grid_warped):
-    return resample_linear(moving_image_or_label, grid_warped)
-
-
 def get_reference_grid(grid_size):
     """
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
@@ -87,107 +82,11 @@ def get_reference_grid(grid_size):
         indexing='ij'), axis=3), dtype=tf.float32)
 
 
-def resample_linear2(inputs, sample_coords):
-    """
-
-    :param inputs: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
-    :param sample_coords: shape = [batch, dim1, dim2, dim3, 3]
-    :return: shape = [batch, dim1, dim2, dim3, 1]
-    """
-    if len(inputs.shape) == 4:
-        inputs = tf.expand_dims(inputs, axis=4)
-    input_size = inputs.get_shape().as_list()[1:-1]
-    spatial_rank = inputs.get_shape().ndims - 2
-    xy = tf.unstack(sample_coords, axis=len(sample_coords.get_shape()) - 1)
-    index_voxel_coords = [tf.floor(x) for x in xy]
-
-    def boundary_replicate(sample_coords0, input_size0):
-        return tf.maximum(tf.minimum(sample_coords0, input_size0 - 1), 0)
-
-    spatial_coords = [boundary_replicate(tf.cast(x, tf.int32), input_size[idx])
-                      for idx, x in enumerate(index_voxel_coords)]
-    spatial_coords_plus1 = [boundary_replicate(tf.cast(x + 1., tf.int32), input_size[idx])
-                            for idx, x in enumerate(index_voxel_coords)]
-
-    weight = [tf.expand_dims(x - tf.cast(i, tf.float32), -1) for x, i in zip(xy, spatial_coords)]  # x - clip(floor(x))
-    weight_c = [tf.expand_dims(tf.cast(i, tf.float32) - x, -1) for x, i in
-                zip(xy, spatial_coords_plus1)]  # clip(floor(x+1))-x
-
-    sz = spatial_coords[0].get_shape().as_list()
-    batch_coords = tf.tile(tf.reshape(tf.range(sz[0]), [sz[0]] + [1] * (len(sz) - 1)), [1] + sz[1:])
-    sc = (spatial_coords, spatial_coords_plus1)
-    binary_codes = [[int(c) for c in format(i, '0%ib' % spatial_rank)] for i in range(2 ** spatial_rank)]
-
-    make_sample = lambda bc: tf.gather_nd(inputs, tf.stack([batch_coords] + [sc[c][i] for i, c in enumerate(bc)], -1))
-    samples = [make_sample(bc) for bc in binary_codes]
-
-    def pyramid_combination(samples0, weight0, weight_c0):
-        if len(weight0) == 1:
-            return samples0[0] * weight_c0[0] + samples0[1] * weight0[0]
-        else:
-            return pyramid_combination(samples0[::2], weight0[:-1], weight_c0[:-1]) * weight_c0[-1] + \
-                   pyramid_combination(samples0[1::2], weight0[:-1], weight_c0[:-1]) * weight0[-1]
-
-    return pyramid_combination(samples, weight, weight_c)
-
-
-def resample_linear1(source, sample_coords):
-    """
-
-    :param source: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
-    :param sample_coords: shape = [batch, dim1, dim2, dim3, 3]
-    :return: shape = [batch, dim1, dim2, dim3, 1]
-    """
-    if len(source.shape) == 4:
-        source = tf.expand_dims(source, axis=4)
-    grid_dims = source.shape[1:-1]
-    n = len(grid_dims)
-    coords = tf.unstack(sample_coords, axis=-1)  # [batch, s_dim1, s_dim2, s_dim3]
-    spatial_coords_floor = []
-    spatial_coords_ceil = []
-    weight_floor = []
-    weight_ceil = []
-    for axis, c in enumerate(coords):
-        clipped = tf.math.floor(c)  # [batch, s_dim1, s_dim2, s_dim3]
-        c_floor = tf.clip_by_value(tf.cast(clipped, dtype=tf.int32), clip_value_min=0,
-                                   clip_value_max=grid_dims[axis] - 1)
-        c_ceil = tf.clip_by_value(tf.cast(clipped + 1, dtype=tf.int32), clip_value_min=0,
-                                  clip_value_max=grid_dims[axis] - 1)
-        w_ceil = tf.expand_dims(c - tf.cast(c_floor, tf.float32), -1)  # [batch, s_dim1, s_dim2, s_dim3, 1]
-        w_floor = tf.expand_dims(tf.cast(c_ceil, tf.float32) - c, -1)
-        spatial_coords_floor.append(c_floor)
-        spatial_coords_ceil.append(c_ceil)
-        weight_floor.append(w_floor)
-        weight_ceil.append(w_ceil)
-
-    # sz = spatial_coords_floor[0].shape  # [batch, s_dim1, s_dim2, s_dim3]
-    # batch_coords = tf.tile(tf.reshape(tf.range(sz[0]), [sz[0]] + [1] * (len(sz) - 1)),
-    #                        [1] + sz[1:])  # [batch, s_dim1, s_dim2, s_dim3]
-
-    sc = (spatial_coords_floor, spatial_coords_ceil)
-    binary_codes = get_n_bits_combinations(n)
-    print(binary_codes)
-
-    # make_sample = lambda bc: tf.gather_nd(source, tf.stack([batch_coords] + [sc[c][i] for i, c in enumerate(bc)], -1))
-    make_sample = lambda bc: tf.gather_nd(source, tf.stack([sc[c][i] for i, c in enumerate(bc)], -1),
-                                          batch_dims=1)  # slower
-    samples = [make_sample(bc) for bc in binary_codes]
-
-    def pyramid_combination(samples0, w_c, w_f):
-        if len(w_c) == 1:
-            return samples0[0] * w_f[0] + samples0[1] * w_c[0]
-        else:
-            return pyramid_combination(samples0[::2], w_c[:-1], w_f[:-1]) * w_f[-1] + \
-                   pyramid_combination(samples0[1::2], w_c[:-1], w_f[:-1]) * w_c[-1]
-
-    return pyramid_combination(samples, weight_ceil, weight_floor)
-
-
 def get_n_bits_combinations(n):
     return [list(i) for i in itertools.product([0, 1], repeat=n)]
 
 
-def resample_linear_n(source, sample_coords, n):
+def resample_linear_n(source, sample_coords):
     """
 
     for each voxel at [b, d1, ..., dn]
@@ -197,90 +96,58 @@ def resample_linear_n(source, sample_coords, n):
     :param source: shape = [batch, g_dim 1, ..., g_dim n]
     :param sample_coords: shape = [batch, s_dim 1, ..., s_dim m, n]
     :param n: source dimension except batch
-    :return: shape = [batch, s_dim 1, ..., s_dim n, 1]
+    :return: shape = [batch, s_dim 1, ..., s_dim n]
     """
-
-    source = tf.squeeze(source, axis=n + 1)
-    assert len(source.shape) == n + 1
 
     batch_size = source.shape[0]
     grid_dims = source.shape[1:]  # value = [g_dim 1, ..., g_dim n], let their product be g_dims_prod
 
     coords = tf.unstack(sample_coords, axis=-1)  # n tensors of shape [batch, s_dim 1, ..., s_dim m]
     coords_floor_ceil = []  # n tensors of shape [batch, s_dim 1, ..., s_dim m, 2]
-    coords_floor_ceil_weight = []  # n tensors of shape [batch, s_dim 1, ..., s_dim m, 2]
-    weight_floor = []
-    weight_ceil = []
+    weight_floor = []  # no need of weight for ceil as their sum is 1
     for axis, c in enumerate(coords):
-        # clipped = tf.clip_by_value(c, clip_value_min=0, clip_value_max=grid_dims[axis] - 1)  # [batch, s_dims_prod]
-        # c_ceil = tf.math.ceil(clipped)
-        # c_floor = tf.maximum(c_ceil - 1, 0)
-        #
-        # w_ceil = clipped - c_floor
-        # w_floor = 1 - w_ceil
-        clipped = tf.math.floor(c)  # [batch, s_dim 1, ..., s_dim m]
-        c_floor = tf.clip_by_value(tf.cast(clipped, dtype=tf.int32), clip_value_min=0,
-                                   clip_value_max=grid_dims[axis] - 1)
-        c_ceil = tf.clip_by_value(tf.cast(clipped + 1, dtype=tf.int32), clip_value_min=0,
-                                  clip_value_max=grid_dims[axis] - 1)
-        w_ceil = c - tf.cast(c_floor, tf.float32)
-        w_floor = tf.cast(c_ceil, tf.float32) - c
+        clipped = tf.clip_by_value(c, clip_value_min=0, clip_value_max=grid_dims[axis] - 1)  # [batch, s_dims_prod]
+        c_ceil = tf.math.ceil(clipped)
+        c_floor = tf.maximum(c_ceil - 1, 0)
+        w_floor = c_ceil - clipped
 
         coords_floor_ceil.append([tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)])
-        coords_floor_ceil_weight.append([w_floor, w_ceil])
         weight_floor.append(w_floor)
-        weight_ceil.append(w_ceil)
 
-    corner_indices = get_n_bits_combinations(n=len(grid_dims))  # 2**n corners, first is [0, ..., 0]
+    corner_indices = get_n_bits_combinations(n=len(grid_dims))  # 2**n corners, each is of n binary values
     corner_values = []
-    # print(np.prod(sample_coords.shape[1:-1]))
     # add batch coords manually is faster than using batch_dims in tf.gather_nd
     batch_coords = tf.tile(tf.reshape(tf.range(batch_size), [batch_size] + [1] * (len(sample_coords.shape) - 2)),
                            [1] + sample_coords.shape[1:-1])  # [batch, s_dim 1, ..., s_dim m]
     for c_indices in corner_indices:
-        # c_indices is a list of n 0/1 values
-        # axis is between 0 : n-1
-        # fc_idx is 0 or 1
         c_coords = tf.stack([batch_coords] + [coords_floor_ceil[axis][fc_idx]
                                               for axis, fc_idx in enumerate(c_indices)],
                             axis=-1)  # shape [batch, s_dim 1, ..., s_dim m, n+1]
         c_values = tf.gather_nd(source, c_coords)  # shape [batch, s_dim 1, ..., s_dim m]
-        # c_values = tf.gather_nd(source, c_coords, batch_dims=1)  # shape [batch, s_dims_prod]
         corner_values.append(c_values)
 
-    def pyramid_combination(c_values, w_c, w_f):
-        if len(w_c) == 1:
-            return c_values[0] * w_f[0] + c_values[1] * w_c[0]
+    def pyramid_combination(x, w_f):
+        if len(w_f) == 1:
+            return x[0] * w_f[0] + x[1] * (1 - w_f[0])
         else:
-            return pyramid_combination(c_values[::2], w_c[:-1], w_f[:-1]) * w_f[-1] + \
-                   pyramid_combination(c_values[1::2], w_c[:-1], w_f[:-1]) * w_c[-1]
+            return pyramid_combination(x[::2], w_f[:-1]) * w_f[-1] + \
+                   pyramid_combination(x[1::2], w_f[:-1]) * (1 - w_f[-1])
 
-    sampled_values = pyramid_combination(corner_values, weight_ceil, weight_floor)
-    sampled_values = tf.reshape(sampled_values, shape=sample_coords.shape[:-1] + [1])
+    sampled_values = pyramid_combination(corner_values, weight_floor)
     return sampled_values
 
 
 def resample_linear(inputs, sample_coords):
     """
 
-    :param inputs: shape = [batch, dim1, dim2, dim3] or [batch, dim1, dim2, dim3, 1]
+    :param inputs: shape = [batch, dim1, dim2, dim3]
     :param sample_coords: shape = [batch, dim1, dim2, dim3, 3]
-    :return: shape = [batch, dim1, dim2, dim3, 1]
+    :return: shape = [batch, dim1, dim2, dim3]
     """
 
-    start = time.time()
-    if len(inputs.shape) == 4:
-        inputs = tf.expand_dims(inputs, axis=4)  # [batch, dim1, dim2, dim3, 1]
-    res = resample_linear_n(inputs, sample_coords, 3)
-    # res = resample_linear2(inputs, sample_coords)
-    elapsed1 = time.time() - start
+    assert len(inputs.shape) == 4
+    res = resample_linear_n(inputs, sample_coords)
 
-    start = time.time()
-    res2 = resample_linear2(inputs, sample_coords)
-    elapsed2 = time.time() - start
-
-    print(elapsed1, elapsed2, elapsed1 - elapsed2)
-    tf.print(tf.reduce_mean(tf.abs(res - res2)))
     return res
 
 
