@@ -295,9 +295,8 @@ class Warping(tf.keras.layers.Layer):
         layer_util.check_inputs(inputs, 2, "Warping")
 
         ddf, moving_label = inputs[0], inputs[1]
-        if len(moving_label.shape) == 4:
-            moving_label = tf.expand_dims(moving_label, axis=4)
+        assert len(moving_label.shape) == 4
         grid_warped = self._grid_ref + ddf  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        warped_moving_label = layer_util.warp_moving(moving_image_or_label=moving_label,
-                                                     grid_warped=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3, 1]
+        warped_moving_label = layer_util.resample_linear(inputs=moving_label,
+                                                         sample_coords=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
         return warped_moving_label

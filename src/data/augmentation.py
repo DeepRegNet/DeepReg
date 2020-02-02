@@ -20,7 +20,7 @@ class AffineTransformation3D:
         :param image: shape = [batch, dim1, dim2, dim3]
         :param grid_ref: shape = [dim1, dim2, dim3, 3]
         :param transforms: shape = [batch, 4, 3]
-        :return: shape = [batch, dim1, dim2, dim3, 1]
+        :return: shape = [batch, dim1, dim2, dim3]
         """
         transformed = layer_util.resample_linear(image,
                                                  layer_util.warp_grid(grid_ref, transforms))
@@ -47,10 +47,5 @@ class AffineTransformation3D:
         moving_label = self._transform(moving_label, self._moving_grid_ref, moving_transforms)
         fixed_image = self._transform(fixed_image, self._fixed_grid_ref, fixed_transforms)
         fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_transforms)
-
-        moving_image = tf.squeeze(moving_image, axis=4)
-        moving_label = tf.squeeze(moving_label, axis=4)
-        fixed_image = tf.squeeze(fixed_image, axis=4)
-        fixed_label = tf.squeeze(fixed_label, axis=4)
 
         return (moving_image, fixed_image, moving_label), fixed_label, indices
