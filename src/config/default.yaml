@@ -1,7 +1,7 @@
 log_dir: "logs"
 
 data:
-  format: "nifti" # h5 or nifti
+  format: "h5" # h5 or nifti
   nifti:
     dir: "data/nifti"
     load_into_memory: false
@@ -44,7 +44,7 @@ tf:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_size: 256
+    shuffle_buffer_size: 64
   opt:
     name: "adam"
     adam:
