@@ -7,51 +7,72 @@ class LocalModel(tf.keras.Model):
     def __init__(self,
                  moving_image_size, fixed_image_size,
                  num_channel_initial, ddf_levels=None, **kwargs):
+        """
+        image is encoded gradually, i from level 0 to E
+        then it is decoded gradually, j from level E to D
+        some of the decoded level are used for generating ddf
+
+        so ddf_levels are between [0, E] with E = max(ddf_levels) and D = min(ddf_levels)
+
+        :param moving_image_size: [m_dim1, m_dim2, m_dim3]
+        :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
+        :param num_channel_initial:
+        :param ddf_levels:
+        :param kwargs:
+        """
         super(LocalModel, self).__init__(**kwargs)
 
         # save parameters
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
         self._ddf_levels = [0, 1, 2, 3, 4] if ddf_levels is None else ddf_levels
-        self._ddf_min_level = min(self._ddf_levels)
+        self._ddf_max_level = max(self._ddf_levels)  # E
+        self._ddf_min_level = min(self._ddf_levels)  # D
 
         # init layer variables
         self._resize3d = layer.Resize3d(size=fixed_image_size)
 
-        nc = [num_channel_initial * (2 ** i) for i in range(5)]
-        self._downsample_block0 = layer.DownSampleResnetBlock(filters=nc[0], kernel_size=7)
-        self._downsample_block1 = layer.DownSampleResnetBlock(filters=nc[1])
-        self._downsample_block2 = layer.DownSampleResnetBlock(filters=nc[2])
-        self._downsample_block3 = layer.DownSampleResnetBlock(filters=nc[3])
-        self._conv3d_block4 = layer.Conv3dBlock(filters=nc[4])
+        nc = [num_channel_initial * (2 ** level) for level in range(self._ddf_max_level + 1)]  # level 0 to E
+        self._downsample_blocks = [layer.DownSampleResnetBlock(filters=nc[i], kernel_size=7 if i == 0 else 3)
+                                   for i in range(self._ddf_max_level)]  # level 0 to E-1
+        self._conv3d_block = layer.Conv3dBlock(filters=nc[-1])  # level E
 
-        self._upsample_block3 = layer.UpSampleResnetBlock(nc[3]) if self._ddf_min_level < 4 else None
-        self._upsample_block2 = layer.UpSampleResnetBlock(nc[2]) if self._ddf_min_level < 3 else None
-        self._upsample_block1 = layer.UpSampleResnetBlock(nc[1]) if self._ddf_min_level < 2 else None
-        self._upsample_block0 = layer.UpSampleResnetBlock(nc[0]) if self._ddf_min_level < 1 else None
+        self._upsample_blocks = [layer.UpSampleResnetBlock(nc[level]) for level in
+                                 range(self._ddf_max_level - 1, self._ddf_min_level - 1, -1)]  # level D to E-1
 
         self._ddf_summands = [layer.DDFSummand(output_shape=fixed_image_size) for _ in self._ddf_levels]
 
     def call(self, inputs, training=None, mask=None):
+        """
+
+        :param inputs: [moving_image, fixed_image]
+                        moving_image.shape = [batch, m_dim1, m_dim2, m_dim3]
+                        fixed_image.shape = [batch, f_dim1, f_dim2, f_dim3]
+        :param training:
+        :param mask:
+        :return:
+        """
         layer_util.check_inputs(inputs, 2, "LocalModel")
 
-        moving_image, fixed_image = inputs[0], inputs[1]
-        moving_image = tf.expand_dims(moving_image, axis=4)
-        fixed_image = tf.expand_dims(fixed_image, axis=4)
+        moving_image = tf.expand_dims(inputs[0], axis=4)  # [batch, m_dim1, m_dim2, m_dim3, 1]
+        fixed_image = tf.expand_dims(inputs[1], axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 1]
         images = tf.concat([self._resize3d(inputs=moving_image), fixed_image],
                            axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 2]
 
-        h0, hc0 = self._downsample_block0(inputs=images, training=training)
-        h1, hc1 = self._downsample_block1(inputs=h0, training=training)
-        h2, hc2 = self._downsample_block2(inputs=h1, training=training)
-        h3, hc3 = self._downsample_block3(inputs=h2, training=training)
-        hm = [self._conv3d_block4(inputs=h3, training=training)]
+        # down sample from level 0 to E
+        encoded = []  # outputs used for decoding, encoded[i] corresponds to level i, stored only 0 to E-1
+        h = images
+        for level in range(self._ddf_max_level):  # level 0 to E - 1
+            h, hc = self._downsample_blocks[level](inputs=h, training=training)
+            encoded.append(hc)
+        hm = self._conv3d_block(inputs=h, training=training)  # level E of encoding/decoding
 
-        hm += [self._upsample_block3(inputs=[hm[0], hc3], training=training)] if self._ddf_min_level < 4 else []
-        hm += [self._upsample_block2(inputs=[hm[1], hc2], training=training)] if self._ddf_min_level < 3 else []
-        hm += [self._upsample_block1(inputs=[hm[2], hc1], training=training)] if self._ddf_min_level < 2 else []
-        hm += [self._upsample_block0(inputs=[hm[3], hc0], training=training)] if self._ddf_min_level < 1 else []
+        # up sample from level E to D
+        decoded = [hm]  # level E
+        for idx, level in enumerate(range(self._ddf_max_level - 1, self._ddf_min_level - 1, -1)):  # level E-1 to D
+            hm = self._upsample_blocks[idx](inputs=[hm, encoded[level]], training=training)
+            decoded.append(hm)
 
-        ddf = tf.reduce_sum(tf.stack([self._ddf_summands[i](inputs=hm[4 - i]) for i in self._ddf_levels], axis=5),
-                            axis=5)
+        ddf = tf.reduce_sum(tf.stack([self._ddf_summands[idx](inputs=decoded[self._ddf_max_level - level])
+                                      for idx, level in enumerate(self._ddf_levels)], axis=5), axis=5)
         return ddf
