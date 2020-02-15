@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 import src.model.layer as layer
-import src.model.loss as loss
+import src.model.loss.deform
 from src.model.backbone.local_net import LocalModel
 
 
@@ -47,6 +47,7 @@ def build_model(moving_image_size, fixed_image_size, batch_size, tf_model_config
                                name="RegModel")
 
     # add regularization loss
-    reg_loss = tf.reduce_mean(loss.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
+    reg_loss = tf.reduce_mean(
+        src.model.loss.deform.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
     reg_model.add_loss(reg_loss)
     return reg_model

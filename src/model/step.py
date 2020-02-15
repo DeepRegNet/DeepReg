@@ -3,7 +3,8 @@ from enum import Enum
 import numpy as np
 import tensorflow as tf
 
-import src.model.loss as loss
+import src.model.loss.label_dist
+import src.model.loss.label_sim as loss
 import src.model.metric as metric
 
 
@@ -57,17 +58,19 @@ def step(model, inputs, labels, indices, fixed_grid_ref, tf_loss_config, optimiz
         loss_total_value = loss_sim_value + loss_reg_value
 
         # metrics
-        metric_dice_value = loss.binary_dice(y_true=labels, y_pred=preds)
-        metric_dist_value = loss.compute_centroid_distance(y_true=labels, y_pred=preds, grid=fixed_grid_ref)
+        metric_dice_value = loss.dice_score(y_true=labels, y_pred=preds, binary=True)
+        metric_dist_value = src.model.loss.label_dist.compute_centroid_distance(y_true=labels, y_pred=preds,
+                                                                                grid=fixed_grid_ref)
 
         # metrics for gland, label_index = 0
         mask = indices[:, 1] == 0  # shape = [batch, ]
         if tf.reduce_any(mask):
             masked_labels = tf.boolean_mask(labels, mask)
             masked_preds = tf.boolean_mask(preds, mask)
-            metric_dice_gland_value = loss.binary_dice(y_true=masked_labels, y_pred=masked_preds)
-            metric_dist_gland_value = loss.compute_centroid_distance(y_true=masked_labels, y_pred=masked_preds,
-                                                                     grid=fixed_grid_ref)
+            metric_dice_gland_value = loss.dice_score(y_true=masked_labels, y_pred=masked_preds, binary=True)
+            metric_dist_gland_value = src.model.loss.label_dist.compute_centroid_distance(y_true=masked_labels,
+                                                                                          y_pred=masked_preds,
+                                                                                          grid=fixed_grid_ref)
         else:
             metric_dice_gland_value = np.nan
             metric_dist_gland_value = np.nan

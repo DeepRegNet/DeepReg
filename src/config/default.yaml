@@ -27,7 +27,7 @@ tf:
     name: local
     local:
       num_channel_initial: 4
-      ddf_levels: [0, 1, 2, 3, 4]
+      ddf_levels: [0, 1, 2, 4]
   loss:
     similarity:
       loss_type: "dice"

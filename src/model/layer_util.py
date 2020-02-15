@@ -146,9 +146,7 @@ def resample_linear(inputs, sample_coords):
     """
 
     assert len(inputs.shape) == 4
-    res = resample_linear_n(inputs, sample_coords)
-
-    return res
+    return resample_linear_n(inputs, sample_coords)
 
 
 def random_transform_generator(batch_size, scale=0.1):

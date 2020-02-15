@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import src.config.parser as config_parser
 import src.data.loader as data_loader
 import src.model.layer_util as layer_util
-import src.model.loss as loss
+import src.model.loss.label_dist
+import src.model.loss.label_sim as loss
 import src.model.network as network
 from src.model import step as steps
 
@@ -16,14 +17,13 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
 
     for step, (inputs, labels, indices) in enumerate(dataset):
+        # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
+        # moving_image     [batch, m_dim1, m_dim2, m_dim3]
+        # fixed_image      [batch, f_dim1, f_dim2, f_dim3]
+        # moving_label     [batch, m_dim1, m_dim2, m_dim3]
+        # fixed_label      [batch, f_dim1, f_dim2, f_dim3]
         pred_fixed_label = steps.predict_step(model=model, inputs=inputs)
-
-        # moving_image [batch, m_dim1, m_dim2, m_dim3]
-        # fixed_image  [batch, f_dim1, f_dim2, f_dim3]
-        # moving_label [batch, m_dim1, m_dim2, m_dim3]
-        # fixed_label  [batch, f_dim1, f_dim2, f_dim3]
-        # pred_moving_label [bs, f_dim1, f_dim2, f_dim3]
-        moving_image, fixed_image, moving_label = inputs  # shape [bs, dim1, dim2, dim3], [bs, dim1, dim2, dim3],
+        moving_image, fixed_image, moving_label = inputs
         fixed_label = labels
         num_samples = moving_image.shape[0]
         moving_depth = moving_image.shape[3]
@@ -68,10 +68,11 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
                     moving_label_d, vmin=0, vmax=1, cmap='gray')
 
             # calculate metric
-            label = fixed_label[sample_index:(sample_index + 1), ...]
-            pred = pred_fixed_label[sample_index:(sample_index + 1), ...]
-            dice = loss.binary_dice(y_true=label, y_pred=pred)
-            dist = loss.compute_centroid_distance(y_true=label, y_pred=pred, grid=fixed_grid_ref)
+            label = fixed_label[sample_index:(sample_index + 1), :, :, :]
+            pred = pred_fixed_label[sample_index:(sample_index + 1), :, :, :]
+            dice = loss.dice_score(y_true=label, y_pred=pred, binary=True)
+            dist = src.model.loss.label_dist.compute_centroid_distance(y_true=label, y_pred=pred,
+                                                                       grid=fixed_grid_ref)
 
             # save metric
             if image_index not in metric_map.keys():
