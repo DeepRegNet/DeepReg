@@ -5,7 +5,7 @@ def load(config_path):
     if config_path == "":
         config_path = "src/config/default.yaml"
     with open(config_path) as file:
-        return yaml.load(file)
+        return yaml.load(file, Loader=yaml.FullLoader)
 
 
 def save(config, out_dir):
