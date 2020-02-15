@@ -73,8 +73,8 @@ class NiftiDataLoader(BasicDataLoader):
         self.loader_fixed_label = loader_fixed_label
         self.sample_label = sample_label
 
-        self.moving_image_shape = moving_image_shape
-        self.fixed_image_shape = fixed_image_shape
+        self.moving_image_shape = moving_image_shape  # [dim1, dim2, dim3]
+        self.fixed_image_shape = fixed_image_shape  # [dim1, dim2, dim3]
 
     def get_generator(self):
         for image_index, image_key in enumerate(self.file_names):
