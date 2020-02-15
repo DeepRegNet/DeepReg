@@ -1,6 +1,27 @@
 import tensorflow as tf
 
-EPS = 1.e0 - 6  # epsilon to prevent NaN
+EPS = 1.0e-6  # epsilon to prevent NaN
+
+"""
+similarity
+"""
+
+
+def similarity_fn(y_true, y_pred, config):
+    """
+
+    :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3]
+    :param y_pred: warped_moving_label, shape = [batch, f_dim1, f_dim2, f_dim3]
+    :param config:
+    :return:
+    """
+    if config["name"] == "multi_scale":
+        loss_similarity = multi_scale_loss(y_true=y_true,
+                                           y_pred=y_pred,
+                                           **config["multi_scale"], )  # [batch]
+    else:
+        raise ValueError("Unknown loss type.")
+    return tf.reduce_mean(loss_similarity)
 
 
 def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
@@ -11,7 +32,7 @@ def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
     :param y_pred: shape = [batch, dim1, dim2, dim3]
     :param loss_type:
     :param loss_scales:
-    :return: scalar
+    :return: [batch]
     """
     assert len(y_true.shape) == 4
     assert len(y_pred.shape) == 4
@@ -21,7 +42,7 @@ def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
                            loss_type=loss_type)
          for s in loss_scales],
         axis=1)
-    return tf.reduce_mean(label_loss_all)
+    return tf.reduce_mean(label_loss_all, axis=1)
 
 
 def single_scale_loss(y_true, y_pred, loss_type):
@@ -37,6 +58,7 @@ def single_scale_loss(y_true, y_pred, loss_type):
     elif loss_type == "mean-squared":
         return tf.reduce_mean(tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3])
     elif loss_type == "dice":
+        l = 1 - dice_score(y_true, y_pred)
         return 1 - dice_score(y_true, y_pred)
     elif loss_type == "dice_generalized":
         return 1 - dice_score_generalized(y_true, y_pred)
@@ -146,23 +168,38 @@ def separable_filter3d(x, kernel):
         strides = [1, 1, 1, 1, 1]
         x = tf.nn.conv3d(tf.nn.conv3d(tf.nn.conv3d(
             tf.expand_dims(x, axis=4),
-            tf.reshape(kernel, [-1, 1, 1, 1, 1]), strides, "SAME"),
-            tf.reshape(kernel, [1, -1, 1, 1, 1]), strides, "SAME"),
-            tf.reshape(kernel, [1, 1, -1, 1, 1]), strides, "SAME")
+            filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]), strides=strides, padding="SAME"),
+            filters=tf.reshape(kernel, [1, -1, 1, 1, 1]), strides=strides, padding="SAME"),
+            filters=tf.reshape(kernel, [1, 1, -1, 1, 1]), strides=strides, padding="SAME")
         return x[:, :, :, :, 0]
 
 
-def loss_similarity_fn(y_true, y_pred, loss_type, loss_scales):
-    """
+"""
+distance
+"""
 
-    :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3]
-    :param y_pred: warped_moving_label, shape = [batch, f_dim1, f_dim2, f_dim3]
-    :param loss_type:
-    :param loss_scales:
+
+def compute_centroid(mask, grid):
+    """
+    calculate the centroid of the mask
+    :param mask: shape = [batch, dim1, dim2, dim3]
+    :param grid: shape = [dim1, dim2, dim3, 3]
+    :return: shape = [batch, 3]
+    """
+    bool_mask = tf.expand_dims(tf.cast(mask >= 0.5, dtype=tf.float32), axis=4)  # [batch, dim1, dim2, dim3, 1]
+    masked_grid = bool_mask * tf.expand_dims(grid, axis=0)  # [batch, dim1, dim2, dim3, 3]
+    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3]) + EPS  # [batch, 3]
+    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + EPS  # [batch, 1]
+    return numerator / denominator  # [batch, 3]
+
+
+def compute_centroid_distance(y_true, y_pred, grid):
+    """
+    :param y_true: shape = [batch, dim1, dim2, dim3]
+    :param y_pred: shape = [batch, dim1, dim2, dim3]
+    :param grid: shape = [dim1, dim2, dim3, 3]
     :return:
     """
-    loss_similarity = multi_scale_loss(y_true=y_true,
-                                       y_pred=y_pred,
-                                       loss_type=loss_type,
-                                       loss_scales=loss_scales)
-    return loss_similarity
+    c1 = compute_centroid(mask=y_pred, grid=grid)
+    c2 = compute_centroid(mask=y_true, grid=grid)
+    return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))

@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import src.config.parser as config_parser
 import src.data.loader as data_loader
 import src.model.layer_util as layer_util
-import src.model.loss.label_dist
-import src.model.loss.label_sim as loss
+import src.model.loss.label as label_loss
 import src.model.network as network
 from src.model import step as steps
 
@@ -70,9 +69,9 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
             # calculate metric
             label = fixed_label[sample_index:(sample_index + 1), :, :, :]
             pred = pred_fixed_label[sample_index:(sample_index + 1), :, :, :]
-            dice = loss.dice_score(y_true=label, y_pred=pred, binary=True)
-            dist = src.model.loss.label_dist.compute_centroid_distance(y_true=label, y_pred=pred,
-                                                                       grid=fixed_grid_ref)
+            dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
+            dist = label_loss.compute_centroid_distance(y_true=label, y_pred=pred,
+                                                        grid=fixed_grid_ref)
 
             # save metric
             if image_index not in metric_map.keys():
