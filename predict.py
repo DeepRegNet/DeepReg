@@ -17,7 +17,6 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
 
     for step, (inputs, labels, indices) in enumerate(dataset):
         pred_fixed_label = steps.predict_step(model=model, inputs=inputs)
-        pred_fixed_label = pred_fixed_label[..., 0]
 
         # moving_image [batch, m_dim1, m_dim2, m_dim3]
         # fixed_image  [batch, f_dim1, f_dim2, f_dim3]
