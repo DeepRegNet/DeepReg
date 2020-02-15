@@ -15,7 +15,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
     parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="do not take all GPU memory")
-    parser.add_argument("--config", help="Path of config", default="")
+    parser.add_argument("-c", "--config", help="Path of config", default="")
+    parser.add_argument("-l", "--log", help="Name of log folder", default="")
     parser.set_defaults(memory=False)
     args = parser.parse_args()
 
@@ -35,7 +36,8 @@ if __name__ == "__main__":
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
 
     # output
-    log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_folder_name = args.log if args.log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = log_dir + "/" + log_folder_name
     tb_log_dir = log_dir + "/tensorboard"
     tb_writer_train = tf.summary.create_file_writer(tb_log_dir + "/train")
     tb_writer_test = tf.summary.create_file_writer(tb_log_dir + "/test")
