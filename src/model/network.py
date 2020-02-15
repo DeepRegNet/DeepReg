@@ -14,10 +14,22 @@ def build_backbone(moving_image_size, fixed_image_size, tf_model_config):
 
 
 def build_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
+    """
+
+    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
+    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
+    :param batch_size:
+    :param tf_model_config:
+    :param tf_loss_config:
+    :return:
+    """
     # inputs
-    moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size, name="moving_image")
-    fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_image")
-    moving_label = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size, name="moving_label")
+    moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
+                                  name="moving_image")  # [batch, m_dim1, m_dim2, m_dim3]
+    fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size,
+                                 name="fixed_image")  # [batch, f_dim1, f_dim2, f_dim3]
+    moving_label = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
+                                  name="moving_label")  # [batch, m_dim1, m_dim2, m_dim3]
 
     # backbone
     backbone = build_backbone(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,

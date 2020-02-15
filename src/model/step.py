@@ -46,7 +46,7 @@ def step(model, inputs, labels, indices, fixed_grid_ref, tf_loss_config, optimiz
     :return:
     """
     with tf.GradientTape() as tape:
-        preds = model(inputs=inputs, training=True)  # shape = [batch, f_dim1, f_dim2, f_dim3, 1]
+        preds = model(inputs=inputs, training=True)  # shape = [batch, f_dim1, f_dim2, f_dim3]
         if mode == Mode.PREDICT:
             return preds
 
