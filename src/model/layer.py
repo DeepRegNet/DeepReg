@@ -3,7 +3,7 @@ import tensorflow as tf
 import src.model.layer_util as layer_util
 
 
-class Deconv3D(tf.keras.layers.Layer):
+class Deconv3d(tf.keras.layers.Layer):
     def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", use_bias=True, **kwargs):
         """
 
@@ -14,7 +14,7 @@ class Deconv3D(tf.keras.layers.Layer):
         :param padding:
         :param kwargs:
         """
-        super(Deconv3D, self).__init__(**kwargs)
+        super(Deconv3d, self).__init__(**kwargs)
         # save parameters
         self._filters = filters
         self._output_shape = output_shape
@@ -28,7 +28,7 @@ class Deconv3D(tf.keras.layers.Layer):
         self._Conv3DTranspose = None
 
     def build(self, input_shape):
-        super(Deconv3D, self).build(input_shape)
+        super(Deconv3d, self).build(input_shape)
 
         if isinstance(self._kernel_size, int):
             self._kernel_size = [self._kernel_size] * 3
@@ -79,7 +79,7 @@ class Resize3d(tf.keras.layers.Layer):
         - resize dim2 and dim3
         - resize dim1 and dim2
         :param inputs: shape = [batch, dim1, dim2, dim3, channels], assuming channels_last
-        :return:
+        :return: shape = [batch, out_dim1, out_dim2, out_dim3, channels]
         """
 
         input_shape = inputs.shape
@@ -139,7 +139,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         """
         super(Deconv3dBlock, self).__init__(**kwargs)
         # init layer variables
-        self._deconv3d = Deconv3D(filters=filters,
+        self._deconv3d = Deconv3d(filters=filters,
                                   output_shape=output_shape,
                                   kernel_size=kernel_size,
                                   strides=strides,
@@ -254,9 +254,15 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         return h1
 
 
-class DDFSummand(tf.keras.layers.Layer):
+class Conv3dWithResize(tf.keras.layers.Layer):
     def __init__(self, output_shape, filters=3, **kwargs):
-        super(DDFSummand, self).__init__(**kwargs)
+        """
+        perform a conv and resize
+        :param output_shape: [out_dim1, out_dim2, out_dim3]
+        :param filters:
+        :param kwargs:
+        """
+        super(Conv3dWithResize, self).__init__(**kwargs)
         # save parameters
         self._output_shape = output_shape
         # init layer variables
@@ -268,7 +274,7 @@ class DDFSummand(tf.keras.layers.Layer):
         """
         :param inputs: shape = [batch, dim1, dim2, dim3, channels]
         :param kwargs:
-        :return:
+        :return: shape = [batch, out_dim1, out_dim2, out_dim3, channels]
         """
         output = self._conv3d(inputs=inputs)
         if inputs.shape[1:4] != self._output_shape:
@@ -280,23 +286,23 @@ class Warping(tf.keras.layers.Layer):
     def __init__(self, fixed_image_size, **kwargs):
         """
 
-        :param fixed_image_size: shape = [dim1, dim2, dim3]
+        :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
         :param kwargs:
         """
         super(Warping, self).__init__(**kwargs)
-        self._grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
+        self._grid_ref = tf.expand_dims(layer_util.get_reference_grid(
+            grid_size=fixed_image_size), axis=0)  # shape = [1, f_dim1, f_dim2, f_dim3, 3]
 
     def call(self, inputs, **kwargs):
         """
-        :param inputs:
+        wrap an image into a fixed size using ddf
+        :param inputs: [ddf, image]
+                        ddf.shape = [batch, f_dim1, f_dim2, f_dim3, 3]
+                        image.shape = [batch, m_dim1, m_dim2, m_dim3]
         :param kwargs:
-        :return: shape = [batch, f_dim1, f_dim2, f_dim3, 1]
+        :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
-        layer_util.check_inputs(inputs, 2, "Warping")
-
-        ddf, moving_label = inputs[0], inputs[1]
-        assert len(moving_label.shape) == 4
-        grid_warped = self._grid_ref + ddf  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        warped_moving_label = layer_util.resample_linear(inputs=moving_label,
+        grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
+        warped_moving_label = layer_util.resample_linear(inputs=inputs[1],
                                                          sample_coords=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
         return warped_moving_label
