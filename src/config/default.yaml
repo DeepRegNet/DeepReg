@@ -44,7 +44,7 @@ tf:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_size: 1024
+    shuffle_buffer_size: 256
   opt:
     name: "adam"
     adam:
