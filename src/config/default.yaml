@@ -28,6 +28,11 @@ tf:
     local:
       num_channel_initial: 4
       ddf_levels: [0, 1, 2, 3, 4]
+    unet:
+      num_channel_initial: 4
+      depth: 2
+      pooling: true
+      concat_skip: false
   loss:
     similarity:
       image:
