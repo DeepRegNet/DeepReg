@@ -37,10 +37,11 @@ class LocalNet(tf.keras.Model):
                                    for i in range(self._ddf_max_level)]  # level 0 to E-1
         self._conv3d_block = layer.Conv3dBlock(filters=nc[-1])  # level E
 
-        self._upsample_blocks = [layer.UpSampleResnetBlock(nc[level]) for level in
+        self._upsample_blocks = [layer.LocalNetUpSampleResnetBlock(nc[level]) for level in
                                  range(self._ddf_max_level - 1, self._ddf_min_level - 1, -1)]  # level D to E-1
 
-        self._ddf_summands = [layer.Conv3dWithResize(output_shape=fixed_image_size) for _ in self._ddf_levels]
+        self._ddf_summands = [layer.Conv3dWithResize(output_shape=fixed_image_size, filters=3)
+                              for _ in self._ddf_levels]
 
     def call(self, inputs, training=None, mask=None):
         """

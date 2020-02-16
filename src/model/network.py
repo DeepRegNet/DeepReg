@@ -3,12 +3,16 @@ import tensorflow as tf
 import src.model.layer as layer
 import src.model.loss.deform
 from src.model.backbone.local_net import LocalNet
+from src.model.backbone.u_net import UNet
 
 
 def build_backbone(moving_image_size, fixed_image_size, tf_model_config):
     if tf_model_config["name"] == "local":
         return LocalNet(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
                         **tf_model_config["local"])
+    elif tf_model_config["name"] == "unet":
+        return UNet(moving_image_size=moving_image_size, fixed_image_size=fixed_image_size,
+                    **tf_model_config["unet"])
     else:
         raise ValueError("Unknown model name")
 
