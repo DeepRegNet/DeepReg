@@ -3,7 +3,7 @@ import tensorflow as tf
 from src.model import layer as layer, layer_util as layer_util
 
 
-class LocalModel(tf.keras.Model):
+class LocalNet(tf.keras.Model):
     def __init__(self,
                  moving_image_size, fixed_image_size,
                  num_channel_initial, ddf_levels=None, **kwargs):
@@ -20,7 +20,7 @@ class LocalModel(tf.keras.Model):
         :param ddf_levels:
         :param kwargs:
         """
-        super(LocalModel, self).__init__(**kwargs)
+        super(LocalNet, self).__init__(**kwargs)
 
         # save parameters
         self._moving_image_size = moving_image_size

@@ -2,6 +2,10 @@ import tensorflow as tf
 
 import src.model.layer_util as layer_util
 
+"""
+In this script, we define the layers not provided by tensorflow
+"""
+
 
 class Deconv3d(tf.keras.layers.Layer):
     def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", use_bias=True, **kwargs):
@@ -155,9 +159,9 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         return output
 
 
-class ResidualBlock(tf.keras.layers.Layer):
+class PartialResidual3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
-        super(ResidualBlock, self).__init__(**kwargs)
+        super(PartialResidual3dBlock, self).__init__(**kwargs)
         # init layer variables
         self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
         self._batch_norm = layer_util.batch_norm()
@@ -168,6 +172,20 @@ class ResidualBlock(tf.keras.layers.Layer):
 
         return self._relu(self._batch_norm(inputs=self._conv3d(inputs=inputs[0]),
                                            training=training) + inputs[1])
+
+
+class Residual3dBlock(tf.keras.layers.Layer):
+    def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
+        super(Residual3dBlock, self).__init__(**kwargs)
+        # init layer variables
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=strides)
+        self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
+        self._batch_norm = layer_util.batch_norm()
+        self._relu = layer_util.act(identifier="relu")
+
+    def call(self, inputs, training=None, **kwargs):
+        return self._relu(self._batch_norm(inputs=self._conv3d(inputs=self._conv3d_block(inputs)),
+                                           training=training) + inputs)
 
 
 class AdditiveUpSampling(tf.keras.layers.Layer):
@@ -206,16 +224,14 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         # save parameters
         self._use_pooling = use_pooling
         # init layer variables
-        self._conv3d_block1 = Conv3dBlock(filters=filters, kernel_size=kernel_size)
-        self._conv3d_block2 = Conv3dBlock(filters=filters, kernel_size=kernel_size)
-        self._residual_block = ResidualBlock(filters=filters, kernel_size=kernel_size, strides=1)
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
+        self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size, strides=1)
         self._max_pool3d = layer_util.max_pool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if use_pooling else None
         self._conv3d_block3 = None if use_pooling else Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
 
     def call(self, inputs, training=None, **kwargs):
-        h0 = self._conv3d_block1(inputs=inputs, training=training)
-        r1 = self._conv3d_block2(inputs=h0, training=training)
-        r2 = self._residual_block(inputs=[r1, h0], training=training)
+        h0 = self._conv3d_block(inputs=inputs, training=training)
+        r2 = self._residual_block(inputs=h0, training=training)
         h1 = self._max_pool3d(inputs=r2) if self._use_pooling else self._conv3d_block3(inputs=r2, training=training)
         return h1, h0
 
@@ -230,7 +246,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         self._deconv3d_block = None
         self._additive_upsampling = None
         self._conv3d_block = Conv3dBlock(filters=filters)
-        self._residual_block = ResidualBlock(filters=filters, strides=1)
+        self._residual_block = PartialResidual3dBlock(filters=filters, strides=1)
 
     def build(self, input_shape):
         super(UpSampleResnetBlock, self).build(input_shape)
