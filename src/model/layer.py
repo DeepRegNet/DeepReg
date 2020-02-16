@@ -2,9 +2,67 @@ import tensorflow as tf
 
 import src.model.layer_util as layer_util
 
-"""
-In this script, we define the layers not provided by tensorflow
-"""
+
+class Activation(tf.keras.layers.Layer):
+    def __init__(self, identifier, **kwargs):
+        """
+        :param identifier: e.g. "relu"
+        :param kwargs:
+        """
+        super(Activation, self).__init__(**kwargs)
+        self._act = tf.keras.activations.get(identifier=identifier)
+
+    def call(self, inputs, **kwargs):
+        return self._act(inputs)
+
+
+class BatchNorm(tf.keras.layers.Layer):
+    def __init__(self, axis=-1, **kwargs):
+        """
+        :param axis: the axis that should be normalized (typically the features axis)
+        """
+        super(BatchNorm, self).__init__(**kwargs)
+        self._batch_norm = tf.keras.layers.BatchNormalization(axis=axis)
+
+    def call(self, inputs, training=None, **kwargs):
+        return self._batch_norm(inputs=inputs, training=training)
+
+
+class MaxPool3d(tf.keras.layers.Layer):
+    def __init__(self, pool_size, strides=None, padding="same", **kwargs):
+        super(MaxPool3d, self).__init__(**kwargs)
+        self._max_pool = tf.keras.layers.MaxPool3D(pool_size=pool_size,
+                                                   strides=strides,
+                                                   padding=padding)
+
+    def call(self, inputs, **kwargs):
+        return self._max_pool(inputs=inputs)
+
+
+class Conv3d(tf.keras.layers.Layer):
+    def __init__(self, filters, kernel_size=3, strides=1, padding="same", activation=None, use_bias=True,
+                 kernel_initializer="glorot_uniform", **kwargs):
+        """
+        :param filters: number of channels of the output
+        :param kernel_size: e.g. (3,3,3) or 3
+        :param strides: e.g. (1,1,1) or 1
+        :param padding: "valid" or "same"
+        :param activation:
+        :param use_bias:
+        :param kernel_initializer:
+        """
+        super(Conv3d, self).__init__(**kwargs)
+        self._conv3d = tf.keras.layers.Conv3D(filters=filters,
+                                              kernel_size=kernel_size,
+                                              strides=strides,
+                                              padding=padding,
+                                              activation=activation,
+                                              use_bias=use_bias,
+                                              kernel_initializer=kernel_initializer,
+                                              )
+
+    def call(self, inputs, **kwargs):
+        return self._conv3d(inputs=inputs)
 
 
 class Deconv3d(tf.keras.layers.Layer):
@@ -115,13 +173,13 @@ class Conv3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, padding="same", **kwargs):
         super(Conv3dBlock, self).__init__(**kwargs)
         # init layer variables
-        self._conv3d = layer_util.conv3d(filters=filters,
-                                         kernel_size=kernel_size,
-                                         strides=strides,
-                                         padding=padding,
-                                         use_bias=False, )
-        self._batch_norm = layer_util.batch_norm()
-        self._relu = layer_util.act(identifier="relu")
+        self._conv3d = Conv3d(filters=filters,
+                              kernel_size=kernel_size,
+                              strides=strides,
+                              padding=padding,
+                              use_bias=False, )
+        self._batch_norm = BatchNorm()
+        self._relu = Activation(identifier="relu")
 
     def call(self, inputs, training=None, **kwargs):
         output = self._conv3d(inputs=inputs)
@@ -149,8 +207,8 @@ class Deconv3dBlock(tf.keras.layers.Layer):
                                   strides=strides,
                                   padding=padding,
                                   use_bias=False, )
-        self._batch_norm = layer_util.batch_norm()
-        self._relu = layer_util.act(identifier="relu")
+        self._batch_norm = BatchNorm()
+        self._relu = Activation(identifier="relu")
 
     def call(self, inputs, training=None, **kwargs):
         output = self._deconv3d(inputs=inputs)
@@ -163,9 +221,9 @@ class PartialResidual3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
         super(PartialResidual3dBlock, self).__init__(**kwargs)
         # init layer variables
-        self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
-        self._batch_norm = layer_util.batch_norm()
-        self._relu = layer_util.act(identifier="relu")
+        self._conv3d = Conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
+        self._batch_norm = BatchNorm()
+        self._relu = Activation(identifier="relu")
 
     def call(self, inputs, training=None, **kwargs):
         layer_util.check_inputs(inputs, 2, "ResidualBlock")
@@ -179,9 +237,9 @@ class Residual3dBlock(tf.keras.layers.Layer):
         super(Residual3dBlock, self).__init__(**kwargs)
         # init layer variables
         self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=strides)
-        self._conv3d = layer_util.conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
-        self._batch_norm = layer_util.batch_norm()
-        self._relu = layer_util.act(identifier="relu")
+        self._conv3d = Conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
+        self._batch_norm = BatchNorm()
+        self._relu = Activation(identifier="relu")
 
     def call(self, inputs, training=None, **kwargs):
         return self._relu(self._batch_norm(inputs=self._conv3d(inputs=self._conv3d_block(inputs)),
@@ -226,7 +284,7 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         # init layer variables
         self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
         self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size, strides=1)
-        self._max_pool3d = layer_util.max_pool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if use_pooling else None
+        self._max_pool3d = MaxPool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if use_pooling else None
         self._conv3d_block3 = None if use_pooling else Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
 
     def call(self, inputs, training=None, **kwargs):
@@ -282,8 +340,8 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         # save parameters
         self._output_shape = output_shape
         # init layer variables
-        self._conv3d = layer_util.conv3d(filters=filters, strides=1,
-                                         kernel_initializer="zeros")  # if not zero, with init NN, ddf may be too large
+        self._conv3d = Conv3d(filters=filters, strides=1,
+                              kernel_initializer="zeros")  # if not zero, with init NN, ddf may be too large
         self._resize3d = Resize3d(size=output_shape)
 
     def call(self, inputs, **kwargs):
