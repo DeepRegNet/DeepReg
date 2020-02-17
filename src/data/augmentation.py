@@ -22,8 +22,8 @@ class AffineTransformation3D:
         :param transforms: shape = [batch, 4, 3]
         :return: shape = [batch, dim1, dim2, dim3]
         """
-        transformed = layer_util.resample_linear(image,
-                                                 layer_util.warp_grid(grid_ref, transforms))
+        transformed = layer_util.resample_linear(source=image,
+                                                 sample_coords=layer_util.warp_grid(grid_ref, transforms))
         return transformed
 
     @tf.function
