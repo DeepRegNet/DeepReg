@@ -37,7 +37,15 @@ def get_n_bits_combinations(n):
     return [list(i) for i in itertools.product([0, 1], repeat=n)]
 
 
-def resample_linear_n(source, sample_coords):
+def pyramid_combination(x, w_f):
+    if len(w_f) == 1:
+        return x[0] * w_f[0] + x[1] * (1 - w_f[0])
+    else:
+        return pyramid_combination(x[::2], w_f[:-1]) * w_f[-1] + \
+               pyramid_combination(x[1::2], w_f[:-1]) * (1 - w_f[-1])
+
+
+def resample_linear(source, sample_coords):
     """
 
     for each voxel at [b, d1, ..., dn]
@@ -77,27 +85,8 @@ def resample_linear_n(source, sample_coords):
         c_values = tf.gather_nd(source, c_coords)  # shape [batch, s_dim 1, ..., s_dim m]
         corner_values.append(c_values)
 
-    def pyramid_combination(x, w_f):
-        if len(w_f) == 1:
-            return x[0] * w_f[0] + x[1] * (1 - w_f[0])
-        else:
-            return pyramid_combination(x[::2], w_f[:-1]) * w_f[-1] + \
-                   pyramid_combination(x[1::2], w_f[:-1]) * (1 - w_f[-1])
-
     sampled_values = pyramid_combination(corner_values, weight_floor)
     return sampled_values
-
-
-def resample_linear(inputs, sample_coords):
-    """
-
-    :param inputs: shape = [batch, dim1, dim2, dim3]
-    :param sample_coords: shape = [batch, dim1, dim2, dim3, 3]
-    :return: shape = [batch, dim1, dim2, dim3]
-    """
-
-    assert len(inputs.shape) == 4
-    return resample_linear_n(inputs, sample_coords)
 
 
 def random_transform_generator(batch_size, scale=0.1):

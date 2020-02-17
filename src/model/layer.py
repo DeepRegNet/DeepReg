@@ -324,7 +324,7 @@ class Warping(tf.keras.layers.Layer):
         :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
         grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        warped_moving_label = layer_util.resample_linear(inputs=inputs[1],
+        warped_moving_label = layer_util.resample_linear(source=inputs[1],
                                                          sample_coords=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
         return warped_moving_label
 
