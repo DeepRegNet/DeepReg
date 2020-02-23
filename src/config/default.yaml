@@ -51,8 +51,11 @@ tf:
     batch_size: 2
     shuffle_buffer_size: 64
   opt:
-    name: "adam"
+    name: "sgd"
     adam:
       learning_rate: 1.0e-5
+    sgd:
+      learning_rate: 1.0e-4
+      momentum: 0.9
   epochs: 2
   save_period: 1
