@@ -16,6 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
     parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="do not take all GPU memory")
     parser.add_argument("-c", "--config", help="Path of config", default="")
+    parser.add_argument("--ckpt", help="Path of checkpoint to load", default="")
     parser.add_argument("-l", "--log", help="Name of log folder", default="")
     parser.set_defaults(memory=False)
     args = parser.parse_args()
@@ -43,6 +44,10 @@ if __name__ == "__main__":
     tb_writer_test = tf.summary.create_file_writer(tb_log_dir + "/test")
     checkpoint_log_dir = log_dir + "/checkpoint"
     checkpoint_path = checkpoint_log_dir + "/cp-{epoch:d}.ckpt"
+    checkpoint_init_path = args.ckpt
+    if checkpoint_init_path != "":
+        if not checkpoint_init_path.endswith(".ckpt"):
+            raise ValueError("checkpoint path should end with .ckpt")
 
     # backup config
     config_parser.save(config=config, out_dir=log_dir)
@@ -61,6 +66,7 @@ if __name__ == "__main__":
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
                                     tf_loss_config=tf_loss_config)
+    reg_model.load_weights(checkpoint_init_path)
 
     # steps
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
