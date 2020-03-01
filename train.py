@@ -66,7 +66,8 @@ if __name__ == "__main__":
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
                                     tf_loss_config=tf_loss_config)
-    reg_model.load_weights(checkpoint_init_path)
+    if checkpoint_init_path != "":
+        reg_model.load_weights(checkpoint_init_path)
 
     # steps
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
