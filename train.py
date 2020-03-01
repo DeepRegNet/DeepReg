@@ -50,6 +50,8 @@ if __name__ == "__main__":
             raise ValueError("checkpoint path should end with .ckpt")
 
     # backup config
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
