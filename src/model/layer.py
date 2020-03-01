@@ -4,7 +4,7 @@ import src.model.layer_util as layer_util
 
 
 class Activation(tf.keras.layers.Layer):
-    def __init__(self, identifier, **kwargs):
+    def __init__(self, identifier="relu", **kwargs):
         """
         :param identifier: e.g. "relu"
         :param kwargs:
@@ -16,16 +16,18 @@ class Activation(tf.keras.layers.Layer):
         return self._act(inputs)
 
 
-class BatchNorm(tf.keras.layers.Layer):
-    def __init__(self, axis=-1, **kwargs):
-        """
-        :param axis: the axis that should be normalized (typically the features axis)
-        """
-        super(BatchNorm, self).__init__(**kwargs)
-        self._batch_norm = tf.keras.layers.BatchNormalization(axis=axis)
+class Norm(tf.keras.layers.Layer):
+    def __init__(self, name="batch_norm", axis=-1, **kwargs):
+        super(Norm, self).__init__(**kwargs)
+        if name == "batch_norm":
+            self._norm = tf.keras.layers.BatchNormalization(axis=axis, **kwargs)
+        elif name == "layer_norm":
+            self._norm = tf.keras.layers.LayerNormalization(axis=axis)
+        else:
+            raise ValueError("Unknown normalization type")
 
     def call(self, inputs, training=None, **kwargs):
-        return self._batch_norm(inputs=inputs, training=training)
+        return self._norm(inputs=inputs, training=training)
 
 
 class MaxPool3d(tf.keras.layers.Layer):
@@ -178,13 +180,13 @@ class Conv3dBlock(tf.keras.layers.Layer):
                               strides=strides,
                               padding=padding,
                               use_bias=False, )
-        self._batch_norm = BatchNorm()
-        self._relu = Activation(identifier="relu")
+        self._norm = Norm()
+        self._act = Activation()
 
     def call(self, inputs, training=None, **kwargs):
         output = self._conv3d(inputs=inputs)
-        output = self._batch_norm(inputs=output, training=training)
-        output = self._relu(output)
+        output = self._norm(inputs=output, training=training)
+        output = self._act(output)
         return output
 
 
@@ -207,13 +209,13 @@ class Deconv3dBlock(tf.keras.layers.Layer):
                                   strides=strides,
                                   padding=padding,
                                   use_bias=False, )
-        self._batch_norm = BatchNorm()
-        self._relu = Activation(identifier="relu")
+        self._norm = Norm()
+        self._act = Activation()
 
     def call(self, inputs, training=None, **kwargs):
         output = self._deconv3d(inputs=inputs)
-        output = self._batch_norm(inputs=output, training=training)
-        output = self._relu(output)
+        output = self._norm(inputs=output, training=training)
+        output = self._act(output)
         return output
 
 
@@ -223,12 +225,12 @@ class Residual3dBlock(tf.keras.layers.Layer):
         # init layer variables
         self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=strides)
         self._conv3d = Conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
-        self._batch_norm = BatchNorm()
-        self._relu = Activation(identifier="relu")
+        self._norm = Norm()
+        self._act = Activation()
 
     def call(self, inputs, training=None, **kwargs):
-        return self._relu(self._batch_norm(inputs=self._conv3d(inputs=self._conv3d_block(inputs)),
-                                           training=training) + inputs)
+        return self._act(self._norm(inputs=self._conv3d(inputs=self._conv3d_block(inputs)),
+                                    training=training) + inputs)
 
 
 class DownSampleResnetBlock(tf.keras.layers.Layer):
@@ -369,14 +371,14 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         super(LocalNetResidual3dBlock, self).__init__(**kwargs)
         # init layer variables
         self._conv3d = Conv3d(filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False)
-        self._batch_norm = BatchNorm()
-        self._relu = Activation(identifier="relu")
+        self._norm = Norm()
+        self._act = Activation()
 
     def call(self, inputs, training=None, **kwargs):
         layer_util.check_inputs(inputs, 2, "ResidualBlock")
 
-        return self._relu(self._batch_norm(inputs=self._conv3d(inputs=inputs[0]),
-                                           training=training) + inputs[1])
+        return self._act(self._norm(inputs=self._conv3d(inputs=inputs[0]),
+                                    training=training) + inputs[1])
 
 
 class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
