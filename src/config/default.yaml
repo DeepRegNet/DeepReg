@@ -51,7 +51,7 @@ tf:
     batch_size: 2
     shuffle_buffer_size: 64
   opt:
-    name: "rms"
+    name: "adam"
     adam:
       learning_rate: 1.0e-5
     sgd:
