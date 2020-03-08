@@ -14,7 +14,7 @@ def similarity_fn(y_true, y_pred, name, **kwargs):
     y_true = tf.expand_dims(y_true, axis=4)
     y_pred = tf.expand_dims(y_pred, axis=4)
     if name == "lncc":
-        return local_normalized_cross_correlation(y_true, y_pred)
+        return -local_normalized_cross_correlation(y_true, y_pred)
     else:
         raise ValueError("Unknown loss type.")
 
