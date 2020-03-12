@@ -11,7 +11,7 @@ SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 class H5DataLoader(BasicDataLoader):
     def __init__(self,
                  moving_image_filename, fixed_image_filename, moving_label_filename, fixed_label_filename,
-                 seed, shuffle_image: bool, start_image_index, end_image_index, sample_label):
+                 start_image_index, end_image_index):
         """
 
         :param moving_image_filename:
@@ -49,14 +49,11 @@ class H5DataLoader(BasicDataLoader):
         # take specific data
         image_keys = sorted(moving_image_label_map)  # get sorted image_keys
         assert start_image_index >= 0 and end_image_index <= len(image_keys)
-        if shuffle_image:
-            random.Random(seed).shuffle(image_keys)
         image_keys = image_keys[start_image_index:end_image_index]
 
         # save variables
         self.image_label_map = moving_image_label_map
         self.image_keys = image_keys
-        self.sample_label = sample_label
 
         self.moving_image_filename = moving_image_filename
         self.fixed_image_filename = fixed_image_filename
@@ -76,17 +73,14 @@ class H5DataLoader(BasicDataLoader):
             with h5py.File(self.moving_label_filename, "r") as hf_moving_label:
                 with h5py.File(self.fixed_image_filename, "r") as hf_fixed_image:
                     with h5py.File(self.fixed_label_filename, "r") as hf_fixed_label:
-                        for image_index, image_key in enumerate(self.image_keys):
-                            sorted_label_keys = sorted(self.image_label_map[image_key])
-                            if self.sample_label:  # sample a label
-                                label_indices = [random.randrange(len(sorted_label_keys))]
-                            else:  # iterate labels
-                                label_indices = range(len(sorted_label_keys))
+                        image_keys = self.image_keys
+                        for image_index, image_key in enumerate(image_keys):
+                            label_indices = [random.randrange(len(self.image_label_map[image_key]))]
 
                             moving_image = hf_moving_image.get(image_key)[()]
                             fixed_image = hf_fixed_image.get(image_key)[()]
                             for label_index in label_indices:
-                                label_key = sorted_label_keys[label_index]
+                                label_key = self.image_label_map[image_key][label_index]
                                 moving_label = hf_moving_label.get(label_key)[()]
                                 fixed_label = hf_fixed_label.get(label_key)[()]
 
@@ -129,6 +123,9 @@ def get_image_label_map(image_filename, label_filename):
     # sanity check
     # all samples have labels
     assert sorted(image_label_map.keys()) == image_keys
+
+    for image_key in image_keys:
+        image_label_map[image_key] = sorted(image_label_map[image_key])
 
     return image_label_map
 
