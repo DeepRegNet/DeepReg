@@ -1,26 +1,18 @@
 log_dir: "logs"
 
 data:
-  format: "h5" # h5 or nifti
+  format: "nifti" # h5 or nifti
   nifti:
     dir: "data/nifti"
     load_into_memory: false
-    train:
-      sample_label: true
-    test:
-      sample_label: false
   h5:
     dir: "data/h5"
-    seed: 0
-    shuffle_image: true
     train:
       start_image_index: 0 # included
       end_image_index: 100 # excluded
-      sample_label: true
     test:
       start_image_index: 100
       end_image_index: 108
-      sample_label: false
 
 tf:
   model:
@@ -37,7 +29,7 @@ tf:
     similarity:
       image:
         name: "lncc"
-        weight: 0.1
+        weight: 0.
       label:
         weight: 1.0
         name: "multi_scale"
@@ -49,7 +41,7 @@ tf:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_size: 64
+    shuffle_buffer_size: 0
   opt:
     name: "adam"
     adam:
@@ -60,5 +52,6 @@ tf:
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 2
-  save_period: 1
+  epochs: 6
+  save_period: 2
+  histogram_freq: 2
