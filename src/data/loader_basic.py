@@ -22,7 +22,7 @@ class BasicDataLoader:
 
     def get_dataset(self, training, batch_size, shuffle_buffer_size):
         dataset = self._get_dataset()
-        if training:
+        if training and shuffle_buffer_size > 0:
             dataset = dataset.shuffle(buffer_size=shuffle_buffer_size)
         dataset = dataset.batch(batch_size, drop_remainder=training)
         if training:
