@@ -2,9 +2,12 @@ log_dir: "logs"
 
 data:
   format: "nifti" # h5 or nifti
+  sample_label:
+    train: "sample"
+    test: "first"
   nifti:
     dir: "data/nifti"
-    load_into_memory: false
+    load_into_memory: true
   h5:
     dir: "data/h5"
     train:

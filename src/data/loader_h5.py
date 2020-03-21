@@ -1,5 +1,3 @@
-import random
-
 import h5py
 import numpy as np
 
@@ -11,7 +9,7 @@ SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 class H5DataLoader(BasicDataLoader):
     def __init__(self,
                  moving_image_filename, fixed_image_filename, moving_label_filename, fixed_label_filename,
-                 start_image_index, end_image_index):
+                 start_image_index, end_image_index, sample_label):
         """
 
         :param moving_image_filename:
@@ -62,6 +60,8 @@ class H5DataLoader(BasicDataLoader):
 
         self.moving_image_shape = moving_image_shape
         self.fixed_image_shape = fixed_image_shape
+        self.sample_label = sample_label
+        self.num_images = len(image_keys)
 
     def get_generator(self):
         """
@@ -75,7 +75,7 @@ class H5DataLoader(BasicDataLoader):
                     with h5py.File(self.fixed_label_filename, "r") as hf_fixed_label:
                         image_keys = self.image_keys
                         for image_index, image_key in enumerate(image_keys):
-                            label_indices = [random.randrange(len(self.image_label_map[image_key]))]
+                            label_indices = self.get_label_indices(len(self.image_label_map[image_key]))
 
                             moving_image = hf_moving_image.get(image_key)[()]
                             fixed_image = hf_fixed_image.get(image_key)[()]
@@ -85,7 +85,7 @@ class H5DataLoader(BasicDataLoader):
                                 fixed_label = hf_fixed_label.get(label_key)[()]
 
                                 indices = np.asarray([image_index, label_index], dtype=np.float32)
-                                yield (moving_image, fixed_image, moving_label), fixed_label, indices
+                                yield (moving_image, fixed_image, moving_label, indices), fixed_label
 
 
 def get_sorted_keys(filename):
