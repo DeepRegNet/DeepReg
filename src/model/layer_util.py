@@ -54,7 +54,6 @@ def resample_linear(source, sample_coords):
 
     :param source: shape = [batch, g_dim 1, ..., g_dim n]
     :param sample_coords: shape = [batch, s_dim 1, ..., s_dim m, n]
-    :param n: source dimension except batch
     :return: shape = [batch, s_dim 1, ..., s_dim n]
     """
 

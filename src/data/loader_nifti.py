@@ -1,5 +1,4 @@
 import os
-import random
 
 import nibabel as nib
 import numpy as np
@@ -41,7 +40,7 @@ class NiftiFileLoader:
 class NiftiDataLoader(BasicDataLoader):
     def __init__(self,
                  moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir,
-                 load_into_memory):
+                 load_into_memory, sample_label):
         super(NiftiDataLoader, self).__init__()
         loader_moving_image = NiftiFileLoader(moving_image_dir, load_into_memory)
         loader_fixed_image = NiftiFileLoader(fixed_image_dir, load_into_memory)
@@ -74,6 +73,8 @@ class NiftiDataLoader(BasicDataLoader):
 
         self.moving_image_shape = moving_image_shape  # [dim1, dim2, dim3]
         self.fixed_image_shape = fixed_image_shape  # [dim1, dim2, dim3]
+        self.sample_label = sample_label
+        self.num_images = len(self.file_names)
 
     def get_generator(self):
         for image_index, image_key in enumerate(self.file_names):
@@ -83,15 +84,15 @@ class NiftiDataLoader(BasicDataLoader):
             fixed_label = self.loader_fixed_label.get_data(image_key)
 
             if len(moving_label.shape) == 4:  # multiple labels
-                label_indices = [random.randrange(moving_label.shape[3])]
+                label_indices = self.get_label_indices(moving_label.shape[3])
                 for label_index in label_indices:
                     indices = np.asarray([image_index, label_index], dtype=np.float32)
-                    yield (moving_image, fixed_image, moving_label[..., label_index]), \
-                          fixed_label[..., label_index], indices
+                    yield (moving_image, fixed_image, moving_label[..., label_index], indices), \
+                          fixed_label[..., label_index]
             elif len(moving_label.shape) == 3:  # only one label
                 label_index = 0
                 indices = np.asarray([image_index, label_index], dtype=np.float32)
-                yield (moving_image, fixed_image, moving_label), fixed_label, indices
+                yield (moving_image, fixed_image, moving_label, indices), fixed_label
             else:
                 raise ValueError("Unknown moving_label.shape")
 

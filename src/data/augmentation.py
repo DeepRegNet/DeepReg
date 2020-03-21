@@ -27,7 +27,7 @@ class AffineTransformation3D:
         return transformed
 
     @tf.function
-    def transform(self, inputs, labels, indices):
+    def transform(self, inputs, labels):
         """
         :param inputs: (moving_image, fixed_image, moving_label)
                     moving_image, shape = [batch, m_dim1, m_dim2, m_dim3]
@@ -38,7 +38,8 @@ class AffineTransformation3D:
         :return:
         """
 
-        moving_image, fixed_image, moving_label, fixed_label = inputs[0], inputs[1], inputs[2], labels
+        moving_image, fixed_image, moving_label, indices = inputs
+        fixed_label = labels
 
         moving_transforms = self._gen_transforms()
         fixed_transforms = self._gen_transforms()
@@ -48,4 +49,4 @@ class AffineTransformation3D:
         fixed_image = self._transform(fixed_image, self._fixed_grid_ref, fixed_transforms)
         fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_transforms)
 
-        return (moving_image, fixed_image, moving_label), fixed_label, indices
+        return (moving_image, fixed_image, moving_label, indices), fixed_label
