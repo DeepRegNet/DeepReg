@@ -9,12 +9,14 @@ def similarity_fn(y_true, y_pred, name, **kwargs):
     :param y_true: fixed_image, shape = [batch, f_dim1, f_dim2, f_dim3]
     :param y_pred: warped_moving_image, shape = [batch, f_dim1, f_dim2, f_dim3]
     :param name:
-    :return:
+    :return: shape = [batch]
     """
     y_true = tf.expand_dims(y_true, axis=4)
     y_pred = tf.expand_dims(y_pred, axis=4)
     if name == "lncc":
         return -local_normalized_cross_correlation(y_true, y_pred)
+    elif name == "ssd":
+        return ssd(y_true, y_pred)
     else:
         raise ValueError("Unknown loss type.")
 
@@ -56,3 +58,7 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
 
     ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
     return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
+
+
+def ssd(y_true, y_pred):
+    return tf.reduce_mean(tf.square(y_true - y_pred), axis=[1, 2, 3, 4])

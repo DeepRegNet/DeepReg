@@ -3,7 +3,8 @@ from src.data.loader_nifti import NiftiDataLoader
 
 
 def get_train_test_dataset(data_config: dict):
-    train_sample_label = data_config["train_sample_label"]
+    sample_label_train = data_config["sample_label"]["train"]
+    sample_label_test = data_config["sample_label"]["test"]
     if data_config["format"] == "nifti":
         data_config = data_config["nifti"]
         data_dir = data_config["dir"][:-1] if data_config["dir"][-1] == "/" else data_config["dir"]
@@ -24,6 +25,7 @@ def get_train_test_dataset(data_config: dict):
                                             moving_label_dir=moving_label_dir_train,
                                             fixed_label_dir=fixed_label_dir_train,
                                             load_into_memory=load_into_memory,
+                                            sample_label=sample_label_train,
                                             )
 
         data_loader_test = NiftiDataLoader(moving_image_dir=moving_image_dir_test,
@@ -31,6 +33,7 @@ def get_train_test_dataset(data_config: dict):
                                            moving_label_dir=moving_label_dir_test,
                                            fixed_label_dir=fixed_label_dir_test,
                                            load_into_memory=load_into_memory,
+                                           sample_label=sample_label_test,
                                            )
     elif data_config["format"] == "h5":
         data_config = data_config["h5"]
@@ -52,6 +55,7 @@ def get_train_test_dataset(data_config: dict):
                                          fixed_label_filename=fixed_label_filename,
                                          start_image_index=start_index_train,
                                          end_image_index=end_index_train,
+                                         sample_label=sample_label_train,
                                          )
 
         data_loader_test = H5DataLoader(moving_image_filename=moving_image_filename,
@@ -60,6 +64,7 @@ def get_train_test_dataset(data_config: dict):
                                         fixed_label_filename=fixed_label_filename,
                                         start_image_index=start_index_test,
                                         end_image_index=end_index_test,
+                                        sample_label=sample_label_test,
                                         )
     else:
         raise ValueError("Unknown option")

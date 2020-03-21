@@ -1,31 +1,47 @@
 import tensorflow as tf
 
+import src.model.layer_util as layer_util
+import src.model.loss.label as label_loss
 
-class Metrics:
-    def __init__(self, tb_names):
-        """
-        :param tb_names: a dict which key, value = variable name, tensorboard display name
-        """
-        self.metrics = dict()
-        self.tb_names = tb_names
-        for var_name in tb_names:
-            self.metrics[var_name] = tf.keras.metrics.Mean(name=var_name)
+EPS = 1.0e-6  # epsilon to prevent NaN
 
-    def update(self, metric_value_dict):
-        for var_name in self.metrics:
-            if not tf.reduce_any(tf.math.is_nan(metric_value_dict[var_name])):
-                self.metrics[var_name](metric_value_dict[var_name])
 
-    def update_tensorboard(self, step):
-        for var_name in self.metrics:
-            tf.summary.scalar(self.tb_names[var_name], self.metrics[var_name].result(), step=step)
+class MeanWrapper(tf.keras.metrics.Metric):
+    def __init__(self, name, **kwargs):
+        super(MeanWrapper, self).__init__(name=name, **kwargs)
+        self.total = self.add_weight(name="total", initializer="zeros")
+        self.count = self.add_weight(name="count", initializer="zeros")
 
-    def reset(self):
-        for var_name in self.metrics:
-            self.metrics[var_name].reset_states()
+    def fn(self, y_true, y_pred):
+        # return values of size [batch]
+        raise NotImplementedError
 
-    def __repr__(self):
-        value_dict = dict()
-        for var_name in self.metrics:
-            value_dict[var_name] = self.metrics[var_name].result().numpy()
-        return value_dict.__repr__()
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        values = self.fn(y_true, y_pred)
+        self.total.assign_add(tf.reduce_sum(values))
+        self.count.assign_add(tf.reduce_sum(tf.ones_like(values)))
+
+    def result(self):
+        return (self.total + EPS) / (self.count + EPS)
+
+    def reset_states(self):
+        # The state of the metric will be reset at the start of each epoch.
+        self.total.assign(0.)
+        self.count.assign(0.)
+
+
+class MeanDiceScore(MeanWrapper):
+    def __init__(self, name="metric/binary_dice_score_mean", **kwargs):
+        super(MeanDiceScore, self).__init__(name=name, **kwargs)
+
+    def fn(self, y_true, y_pred):
+        return label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True)
+
+
+class MeanCentroidDistance(MeanWrapper):
+    def __init__(self, grid_size, name="metric/centroid_distance_mean", **kwargs):
+        super(MeanCentroidDistance, self).__init__(name=name, **kwargs)
+        self.grid = layer_util.get_reference_grid(grid_size)
+
+    def fn(self, y_true, y_pred):
+        return label_loss.compute_centroid_distance(y_true, y_pred, self.grid)
