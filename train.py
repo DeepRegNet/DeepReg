@@ -6,10 +6,10 @@ import tensorflow as tf
 
 import src.config.parser as config_parser
 import src.data.loader as data_loader
-import src.model.layer_util as layer_util
+import src.model.loss.label as label_loss
+import src.model.metric as metric
 import src.model.network as network
 import src.model.optimizer as opt
-import src.model.step as step
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # env vars
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if args.memory else "false"
 
     # load config
@@ -34,16 +34,13 @@ if __name__ == "__main__":
     tf_loss_config = config["tf"]["loss"]
     num_epochs = config["tf"]["epochs"]
     save_period = config["tf"]["save_period"]
+    histogram_freq = config["tf"]["histogram_freq"]
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
 
     # output
     log_folder_name = args.log if args.log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = log_dir + "/" + log_folder_name
-    tb_log_dir = log_dir + "/tensorboard"
-    tb_writer_train = tf.summary.create_file_writer(tb_log_dir + "/train")
-    tb_writer_test = tf.summary.create_file_writer(tb_log_dir + "/test")
-    checkpoint_log_dir = log_dir + "/checkpoint"
-    checkpoint_path = checkpoint_log_dir + "/cp-{epoch:d}.ckpt"
+
     checkpoint_init_path = args.ckpt
     if checkpoint_init_path != "":
         if not checkpoint_init_path.endswith(".ckpt"):
@@ -55,63 +52,49 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train, data_loader_test = data_loader.get_train_test_dataset(data_config)
-    dataset_train = data_loader_train.get_dataset(training=True, **tf_data_config)
-    dataset_test = data_loader_test.get_dataset(training=False, **tf_data_config)
+    data_loader_train, data_loader_val = data_loader.get_train_test_dataset(data_config)
+    dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
+    dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)
+    dataset_size_train = data_loader_train.num_images
+    dataset_size_val = data_loader_val.num_images
 
     # optimizer
     optimizer = opt.get_optimizer(tf_opt_config)
 
-    # model
-    reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
-                                    fixed_image_size=data_loader_train.fixed_image_shape,
-                                    batch_size=tf_data_config["batch_size"],
-                                    tf_model_config=tf_model_config,
-                                    tf_loss_config=tf_loss_config)
-    if checkpoint_init_path != "":
-        reg_model.load_weights(checkpoint_init_path)
+    # callbacks
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
+        period=save_period)
 
-    # steps
-    fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
-    metrics_train, metrics_test = step.init_metrics()
-    for epoch in range(num_epochs):
-        print("%s | Start of epoch %d" % (datetime.now(), epoch))
+    strategy = tf.distribute.MirroredStrategy()
+    with strategy.scope():
+        # model
+        reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
+                                        fixed_image_size=data_loader_train.fixed_image_shape,
+                                        batch_size=tf_data_config["batch_size"],
+                                        tf_model_config=tf_model_config,
+                                        tf_loss_config=tf_loss_config)
+
+        # metrics
+        reg_model.compile(optimizer=optimizer,
+                          loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
+                          metrics=[metric.MeanDiceScore(),
+                                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape)])
+        print(reg_model.summary())
+
+        # load weights
+        if checkpoint_init_path != "":
+            reg_model.load_weights(checkpoint_init_path)
 
         # train
-        with tb_writer_train.as_default():
-            for step_index, (inputs_train, labels_train, indices_train) in enumerate(dataset_train):
-                metric_value_dict_train = step.train_step(
-                    model=reg_model,
-                    inputs=inputs_train, labels=labels_train, indices=indices_train,
-                    fixed_grid_ref=fixed_grid_ref,
-                    tf_loss_config=tf_loss_config,
-                    optimizer=optimizer)
-
-                # update metrics
-                metrics_train.update(metric_value_dict=metric_value_dict_train)
-                # update tensorboard
-                metrics_train.update_tensorboard(step=optimizer.iterations)
-            print("Training loss at epoch %d: %s" % (epoch, metrics_train))
-
-        # test
-        with tb_writer_test.as_default():
-            for step_index, (inputs_test, labels_test, indices_test) in enumerate(dataset_test):
-                metric_value_dict_test = step.eval_step(
-                    model=reg_model,
-                    inputs=inputs_test, labels=labels_test, indices=indices_test,
-                    fixed_grid_ref=fixed_grid_ref,
-                    tf_loss_config=tf_loss_config)
-                # update metrics
-                metrics_test.update(metric_value_dict=metric_value_dict_test)
-            # update tensorboard
-            metrics_test.update_tensorboard(step=optimizer.iterations)
-            print("Test loss at step %d: %s" % (step_index, metrics_test))
-
-        # save models
-        if epoch % save_period == 0:
-            print("Save checkpoint at epoch %d" % epoch)
-            reg_model.save_weights(filepath=checkpoint_path.format(epoch=epoch))
-
-        # reset metrics
-        metrics_train.reset()
-        metrics_test.reset()
+        # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
+        # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
+        reg_model.fit(
+            x=dataset_train,
+            steps_per_epoch=dataset_size_train // tf_data_config["batch_size"],
+            epochs=num_epochs,
+            validation_data=dataset_val,
+            validation_steps=dataset_size_val // tf_data_config["batch_size"],
+            callbacks=[tensorboard_callback, checkpoint_callback],
+        )

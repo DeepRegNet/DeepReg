@@ -7,21 +7,20 @@ similarity
 """
 
 
-def similarity_fn(y_true, y_pred, config):
+def get_similarity_fn(config):
     """
-
-    :param y_true: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3]
-    :param y_pred: warped_moving_label, shape = [batch, f_dim1, f_dim2, f_dim3]
     :param config:
     :return:
     """
     if config["name"] == "multi_scale":
-        loss_similarity = multi_scale_loss(y_true=y_true,
-                                           y_pred=y_pred,
-                                           **config["multi_scale"], )  # [batch]
+        def loss(y_true, y_pred):
+            return tf.reduce_mean(multi_scale_loss(y_true=y_true,
+                                                   y_pred=y_pred,
+                                                   **config["multi_scale"]))  # [batch]
+
+        return loss
     else:
         raise ValueError("Unknown loss type.")
-    return tf.reduce_mean(loss_similarity)
 
 
 def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
@@ -58,7 +57,6 @@ def single_scale_loss(y_true, y_pred, loss_type):
     elif loss_type == "mean-squared":
         return tf.reduce_mean(tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3])
     elif loss_type == "dice":
-        l = 1 - dice_score(y_true, y_pred)
         return 1 - dice_score(y_true, y_pred)
     elif loss_type == "dice_generalized":
         return 1 - dice_score_generalized(y_true, y_pred)
@@ -93,7 +91,7 @@ def dice_score(y_true, y_pred, binary=False):
     :return: shape = [batch]
     """
     if binary:
-        # y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
+        y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
         y_pred = tf.cast(y_pred >= 0.5, dtype=tf.float32)
     numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) * 2 + EPS
     denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) + EPS
@@ -198,8 +196,8 @@ def compute_centroid_distance(y_true, y_pred, grid):
     :param y_true: shape = [batch, dim1, dim2, dim3]
     :param y_pred: shape = [batch, dim1, dim2, dim3]
     :param grid: shape = [dim1, dim2, dim3, 3]
-    :return:
+    :return: shape = [batch]
     """
-    c1 = compute_centroid(mask=y_pred, grid=grid)
-    c2 = compute_centroid(mask=y_true, grid=grid)
-    return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2))
+    c1 = compute_centroid(mask=y_pred, grid=grid)  # shape = [batch, 3]
+    c2 = compute_centroid(mask=y_true, grid=grid)  # shape = [batch, 3]
+    return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2, axis=[1]))
