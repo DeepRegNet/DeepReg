@@ -13,11 +13,11 @@ class BasicDataLoader:
         self.num_images = None
 
     def get_label_indices(self, num_labels):
-        if self.sample_label == "sample":
+        if self.sample_label == "sample":  # sample a random label
             return [random.randrange(num_labels)]
-        elif self.sample_label == "first":
+        elif self.sample_label == "first":  # use the first label
             return [0]
-        elif self.sample_label == "all":
+        elif self.sample_label == "all":  # use all labels
             return list(range(num_labels))
         else:
             raise ValueError("Unknown label sampling policy %s" % self.sample_label)

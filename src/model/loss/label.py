@@ -19,6 +19,13 @@ def get_similarity_fn(config):
                                                    **config["multi_scale"]))  # [batch]
 
         return loss
+    elif config["name"] == "single_scale":
+        def loss(y_true, y_pred):
+            return tf.reduce_mean(single_scale_loss(y_true=y_true,
+                                                    y_pred=y_pred,
+                                                    **config["single_scale"]))  # [batch]
+
+        return loss
     else:
         raise ValueError("Unknown loss type.")
 
@@ -74,9 +81,9 @@ def weighted_binary_cross_entropy(y_true, y_pred, pos_weight=1):
     :param pos_weight: weight of positive class, scalar
     :return: shape = [batch]
     """
-
-    return - pos_weight * tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=[1, 2, 3]) \
-           - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=[1, 2, 3])
+    y_pred = tf.clip_by_value(y_pred, EPS, 1 - EPS)
+    return - pos_weight * tf.reduce_mean(y_true * tf.math.log(y_pred), axis=[1, 2, 3]) \
+           - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred), axis=[1, 2, 3])
 
 
 def dice_score(y_true, y_pred, binary=False):

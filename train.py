@@ -14,8 +14,8 @@ import src.model.optimizer as opt
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
+    parser.add_argument("-c", "--config", help="Path of config", required=True)
     parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="do not take all GPU memory")
-    parser.add_argument("-c", "--config", help="Path of config", default="")
     parser.add_argument("--ckpt", help="Path of checkpoint to load", default="")
     parser.add_argument("-l", "--log", help="Name of log folder", default="")
     parser.set_defaults(memory=False)
@@ -80,7 +80,10 @@ if __name__ == "__main__":
         reg_model.compile(optimizer=optimizer,
                           loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
                           metrics=[metric.MeanDiceScore(),
-                                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape)])
+                                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
+                                   metric.MeanForegroundProportion(pred=False),
+                                   metric.MeanForegroundProportion(pred=True),
+                                   ])
         print(reg_model.summary())
 
         # load weights

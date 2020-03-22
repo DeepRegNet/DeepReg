@@ -278,7 +278,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
 
 class Conv3dWithResize(tf.keras.layers.Layer):
-    def __init__(self, output_shape, filters, **kwargs):
+    def __init__(self, output_shape, filters, kernel_initializer="glorot_uniform", activation=None, **kwargs):
         """
         perform a conv and resize
         :param output_shape: [out_dim1, out_dim2, out_dim3]
@@ -290,7 +290,8 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         self._output_shape = output_shape
         # init layer variables
         self._conv3d = Conv3d(filters=filters, strides=1,
-                              kernel_initializer="zeros")  # if not zero, with init NN, ddf may be too large
+                              kernel_initializer=kernel_initializer,
+                              activation=activation)  # if not zero, with init NN, ddf may be too large
         self._resize3d = Resize3d(size=output_shape)
 
     def call(self, inputs, **kwargs):
