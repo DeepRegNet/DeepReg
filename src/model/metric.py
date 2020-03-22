@@ -45,3 +45,15 @@ class MeanCentroidDistance(MeanWrapper):
 
     def fn(self, y_true, y_pred):
         return label_loss.compute_centroid_distance(y_true, y_pred, self.grid)
+
+
+class MeanForegroundProportion(MeanWrapper):
+    def __init__(self, pred: bool, name="metric/foreground_proportion", **kwargs):
+        name += "_pred" if pred else "_true"
+        super(MeanForegroundProportion, self).__init__(name=name, **kwargs)
+        self.pred = pred
+
+    def fn(self, y_true, y_pred):
+        y = y_pred if self.pred else y_true
+        y = tf.cast(y >= 0.5, dtype=tf.float32)
+        return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(tf.ones_like(y), axis=[1, 2, 3])

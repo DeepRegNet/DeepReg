@@ -3,10 +3,10 @@ log_dir: "logs"
 data:
   format: "nifti" # h5 or nifti
   sample_label:
-    train: "sample"
+    train: "sample" # sample or first or all
     test: "first"
   nifti:
-    dir: "data/nifti"
+    dir: "data/demo"
     load_into_memory: true
   h5:
     dir: "data/h5"
@@ -19,10 +19,14 @@ data:
 
 tf:
   model:
-    name: "local"
+    method: "ddf" # ddf or conditional or seg
+    backbone:
+      name: "local"
+      out_kernel_initializer: "zeros" # zeros or glorot_uniform
+      out_activation: ""
     local:
       num_channel_initial: 4
-      ddf_levels: [0, 1, 2, 3, 4]
+      extract_levels: [0, 1, 2, 3, 4]
     unet:
       num_channel_initial: 4
       depth: 2
@@ -39,6 +43,8 @@ tf:
         multi_scale:
           loss_type: "dice"
           loss_scales: [0, 1, 2, 4, 8, 16, 32]
+        single_scale:
+          loss_type: "cross-entropy"
     regularization:
       weight: 0.5
       energy_type: "bending"
