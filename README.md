@@ -11,7 +11,7 @@ The easiest way to install the python environment is with Miniconda/Anaconda.
 
 The training script is `train.py` and it accepts the following parameters
 - `-g` or `--gpu`, **required**, providing available GPU indices, e.g. `-g 0` uses GPU of index 0 and `-g "0,1"` uses GPU of index 0 and 1.
-- `-c` or `--config`, providing the path of the configuration file, `-c demo.yaml`. If not provided, the default configuration file `src/config/default.yaml` will be used.
+- `-c` or `--config`, **required**, providing the path of the configuration file, `-c demo.yaml`. Some default configuration files are provided under `src/config/`.
 - `-m` or `--memory`, providing this flag will prevent tensorflow to reserve all available GPU memory.
 - `--ckpt`, providing the checkpoint to load, to prevent start training from random initialization. The path must ended in `.ckpt`, e.g. `--ckpt logs/demo/save/weights-epoch100.ckpt`
 - `-l` or `--log`, providing the name of log folder. It not provided, a timestamp based folder name will be used.
