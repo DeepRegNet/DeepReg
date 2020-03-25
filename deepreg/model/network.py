@@ -1,10 +1,10 @@
 import tensorflow as tf
 
-import src.model.layer as layer
-import src.model.loss.deform
-import src.model.loss.image as image_loss
-from src.model.backbone.local_net import LocalNet
-from src.model.backbone.u_net import UNet
+import deepreg.model.layer as layer
+import deepreg.model.loss.deform
+import deepreg.model.loss.image as image_loss
+from deepreg.model.backbone.local_net import LocalNet
+from deepreg.model.backbone.u_net import UNet
 
 
 def build_backbone(image_size, out_channels, tf_model_config):
@@ -92,7 +92,7 @@ def build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
 
     # regularization loss
     loss_reg = tf.reduce_mean(
-        src.model.loss.deform.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
+        deepreg.model.loss.deform.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
     weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")

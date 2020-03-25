@@ -1,5 +1,5 @@
-from src.data.mr_us.loader_h5 import H5DataLoader
-from src.data.mr_us.loader_nifti import NiftiDataLoader
+from deepreg.data.mr_us.loader_h5 import H5DataLoader
+from deepreg.data.mr_us.loader_nifti import NiftiDataLoader
 
 
 def get_train_test_dataset(data_config: dict):

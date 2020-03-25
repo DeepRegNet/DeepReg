@@ -14,12 +14,12 @@ Two formats are supported: h5 files or nifti files.
 
 ## H5
 
-Data are assumed to be stored together in four files under the same folder (default is `data/h5/`) 
+Data are assumed to be stored together in four files under the same folder (default is `data/mr_us/h5/`) 
 and the default file names are:
-- `data/h5/moving_images.h5`
-- `data/h5/moving_labels.h5`
-- `data/h5/fixed_images.h5`
-- `data/h5/fixed_labels.h5`
+- `data/mr_us/h5/moving_images.h5`
+- `data/mr_us/h5/moving_labels.h5`
+- `data/mr_us/h5/fixed_images.h5`
+- `data/mr_us/h5/fixed_labels.h5`
 
 For images file, there is no constraint on the keys of h5 file. Each key corresponds to one image sample, 
 the shape is assumed to be the same 3D shape among all samples `[dim1, dim2, dim3]`.
@@ -35,10 +35,10 @@ Each key corresponds to one label for  one image, and the shape should be the sa
 i.e. `[dim1, dim2, dim3]`.
 
 ## Nifti
-Training and test data are assumed to be stored separately under the same folder (default is `data/nifti/`).
+Training and test data are assumed to be stored separately under the same folder (default is `data/mr_us/nifti/`).
 The default folders are
-- `data/nifti/train` for training data
-- `data/nifti/test` for test data
+- `data/mr_us/nifti/train` for training data
+- `data/mr_us/nifti/test` for test data
 
 Under `train` or `test`, there are four folders saving images and labels:
 - `moving_images.h5`

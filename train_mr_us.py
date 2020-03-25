@@ -4,12 +4,12 @@ from datetime import datetime
 
 import tensorflow as tf
 
-import src.config.parser as config_parser
-import src.data.mr_us.loader as data_loader
-import src.model.loss.label as label_loss
-import src.model.metric as metric
-import src.model.network as network
-import src.model.optimizer as opt
+import deepreg.config.parser as config_parser
+import deepreg.data.mr_us.loader as data_loader
+import deepreg.model.loss.label as label_loss
+import deepreg.model.metric as metric
+import deepreg.model.network as network
+import deepreg.model.optimizer as opt
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
