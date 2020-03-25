@@ -4,13 +4,13 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 
-import src.config.parser as config_parser
-import src.data.mr_us.loader as data_loader
-import src.model.layer_util as layer_util
-import src.model.loss.label as label_loss
-import src.model.metric as metric
-import src.model.network as network
-import src.model.optimizer as opt
+import deepreg.config.parser as config_parser
+import deepreg.data.mr_us.loader as data_loader
+import deepreg.model.layer_util as layer_util
+import deepreg.model.loss.label as label_loss
+import deepreg.model.metric as metric
+import deepreg.model.network as network
+import deepreg.model.optimizer as opt
 
 
 def predict(dataset, fixed_grid_ref, model, save_dir):

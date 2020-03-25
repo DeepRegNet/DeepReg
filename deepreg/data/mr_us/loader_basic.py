@@ -2,7 +2,7 @@ import random
 
 import tensorflow as tf
 
-import src.data.augmentation as aug
+import deepreg.data.augmentation as aug
 
 
 class BasicDataLoader:

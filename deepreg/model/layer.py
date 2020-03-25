@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-import src.model.layer_util as layer_util
+import deepreg.model.layer_util as layer_util
 
 
 class Activation(tf.keras.layers.Layer):
