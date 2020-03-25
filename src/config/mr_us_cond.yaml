@@ -3,13 +3,13 @@ log_dir: "logs"
 data:
   format: "nifti" # h5 or nifti
   sample_label:
-    train: "sample" # sample or first or all
+    train: "first" # sample or first or all
     test: "first"
   nifti:
-    dir: "data/demo"
+    dir: "data/mr_us/demo"
     load_into_memory: true
   h5:
-    dir: "data/h5"
+    dir: "data/mr_us/h5"
     train:
       start_image_index: 0 # included
       end_image_index: 100 # excluded
@@ -19,11 +19,11 @@ data:
 
 tf:
   model:
-    method: "ddf" # ddf or conditional or seg
+    method: "conditional" # ddf or conditional or seg
     backbone:
       name: "local"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+      out_kernel_initializer: "glorot_uniform" # zeros or glorot_uniform
+      out_activation: "sigmoid"
     local:
       num_channel_initial: 4
       extract_levels: [0, 1, 2, 3, 4]
@@ -39,7 +39,7 @@ tf:
         weight: 0.
       label:
         weight: 1.0
-        name: "multi_scale"
+        name: "single_scale"
         multi_scale:
           loss_type: "dice"
           loss_scales: [0, 1, 2, 4, 8, 16, 32]
