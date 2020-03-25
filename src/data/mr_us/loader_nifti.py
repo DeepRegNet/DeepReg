@@ -3,7 +3,7 @@ import os
 import nibabel as nib
 import numpy as np
 
-from src.data.loader_basic import BasicDataLoader
+from src.data.mr_us.loader_basic import BasicDataLoader
 
 
 class NiftiFileLoader:

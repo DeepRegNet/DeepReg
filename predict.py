@@ -5,7 +5,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 import src.config.parser as config_parser
-import src.data.loader as data_loader
+import src.data.mr_us.loader as data_loader
 import src.model.layer_util as layer_util
 import src.model.loss.label as label_loss
 import src.model.metric as metric

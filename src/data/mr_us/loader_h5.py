@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 
-from src.data.loader_basic import BasicDataLoader
+from src.data.mr_us.loader_basic import BasicDataLoader
 
 SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 
