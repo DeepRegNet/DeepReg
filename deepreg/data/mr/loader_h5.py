@@ -11,7 +11,7 @@ PATIENT_VISIT_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}"
 
 
 class H5DataLoader:
-    def __init__(self, train_mode, filename, valid_start, test_start, data_order):
+    def __init__(self, train_mode, data_order, filename, valid_start, test_start):
         pid_vid_map = get_patient_visit_map(filename, train_mode, valid_start, test_start)
         self.pairs = get_key_pairs_from_map(pid_vid_map, data_order)
         self.filename = filename

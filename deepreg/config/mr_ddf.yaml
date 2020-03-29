@@ -4,7 +4,6 @@ data:
   filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
   valid_start: 110
   test_start: 116
-  data_order: "bidi" # forward / backward / bidi
 
 tf:
   model:
