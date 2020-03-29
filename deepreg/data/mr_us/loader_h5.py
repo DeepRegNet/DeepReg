@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 
 from deepreg.data.mr_us.loader_basic import BasicDataLoader
+from deepreg.data.util import get_h5_sorted_keys
 
 SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 
@@ -88,11 +89,6 @@ class H5DataLoader(BasicDataLoader):
                                 yield (moving_image, fixed_image, moving_label, indices), fixed_label
 
 
-def get_sorted_keys(filename):
-    with h5py.File(filename, "r") as hf:
-        return sorted(hf.keys())
-
-
 def get_image_label_map(image_filename, label_filename):
     """
     for images, the keys of h5 are like ["case000000", "case000001",  ...]
@@ -107,8 +103,8 @@ def get_image_label_map(image_filename, label_filename):
     """
 
     # load keys
-    image_keys = get_sorted_keys(filename=image_filename)
-    label_keys = get_sorted_keys(filename=label_filename)
+    image_keys = get_h5_sorted_keys(filename=image_filename)
+    label_keys = get_h5_sorted_keys(filename=label_filename)
 
     # build dictionary
     image_label_map = dict()  # map image key to label key
