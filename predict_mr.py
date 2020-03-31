@@ -33,7 +33,7 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
         image_dir_format = save_dir + "/pid1{pid1:d}_vid1{vid1:d}_pid2{pid2:d}_vid2{vid2:d}/" \
                                       "label{label_index:d}/{type_name:s}"
         for sample_index in range(num_samples):
-            pid1, vid1, pid2, vid2, label_index = indices[sample_index, :].tolist()
+            pid1, vid1, pid2, vid2, label_index = indices[sample_index, :].numpy().tolist()
 
             # save fixed
             image_dir = image_dir_format.format(
