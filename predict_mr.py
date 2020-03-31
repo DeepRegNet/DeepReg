@@ -131,8 +131,8 @@ if __name__ == "__main__":
     optimizer = opt.get_optimizer(tf_opt_config)
 
     # model
-    reg_model = network.build_model(moving_image_size=dataset_test.moving_image_shape,
-                                    fixed_image_size=dataset_test.fixed_image_shape,
+    reg_model = network.build_model(moving_image_size=data_loader_test.moving_image_shape,
+                                    fixed_image_size=data_loader_test.fixed_image_shape,
                                     index_size=data_loader_test.num_indices,
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
@@ -142,11 +142,11 @@ if __name__ == "__main__":
     reg_model.compile(optimizer=optimizer,
                       loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
                       metrics=[metric.MeanDiceScore(),
-                               metric.MeanCentroidDistance(grid_size=dataset_test.fixed_image_shape)])
+                               metric.MeanCentroidDistance(grid_size=data_loader_test.fixed_image_shape)])
 
     # load weights
     reg_model.load_weights(checkpoint_path)
 
     # predict
-    fixed_grid_ref = layer_util.get_reference_grid(grid_size=dataset_test.fixed_image_shape)
+    fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_test.fixed_image_shape)
     predict(dataset=dataset_test, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/test")
