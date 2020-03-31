@@ -35,19 +35,19 @@ def build_backbone(image_size, out_channels, tf_model_config):
         raise ValueError("Unknown model name")
 
 
-def build_inputs(moving_image_size, fixed_image_size, batch_size):
+def build_inputs(moving_image_size, fixed_image_size, index_size, batch_size):
     moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
                                   name="moving_image")  # [batch, m_dim1, m_dim2, m_dim3]
     fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size,
                                  name="fixed_image")  # [batch, f_dim1, f_dim2, f_dim3]
     moving_label = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
                                   name="moving_label")  # [batch, m_dim1, m_dim2, m_dim3]
-    indices = tf.keras.Input(shape=(2,), batch_size=batch_size,
+    indices = tf.keras.Input(shape=(index_size,), batch_size=batch_size,
                              name="indices")  # [batch, 2]
     return moving_image, fixed_image, moving_label, indices
 
 
-def build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
+def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
@@ -58,7 +58,8 @@ def build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
     :return:
     """
     # inputs
-    moving_image, fixed_image, moving_label, indices = build_inputs(moving_image_size, fixed_image_size, batch_size)
+    moving_image, fixed_image, moving_label, indices = build_inputs(
+        moving_image_size, fixed_image_size, index_size, batch_size)
 
     backbone_input = tf.concat([layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(moving_image, axis=4)),
                                 tf.expand_dims(fixed_image, axis=4)],
@@ -78,7 +79,7 @@ def build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
     # build model
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
                            outputs=[pred_fixed_label],
-                           name="RegModel")
+                           name="DDFRegModel")
 
     # image loss
     if tf_loss_config["similarity"]["image"]["weight"] > 0:
@@ -101,7 +102,7 @@ def build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
     return model
 
 
-def build_cond_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
+def build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
@@ -112,7 +113,8 @@ def build_cond_model(moving_image_size, fixed_image_size, batch_size, tf_model_c
     :return:
     """
     # inputs
-    moving_image, fixed_image, moving_label, indices = build_inputs(moving_image_size, fixed_image_size, batch_size)
+    moving_image, fixed_image, moving_label, indices = build_inputs(
+        moving_image_size, fixed_image_size, index_size, batch_size)
     backbone_input = tf.concat([layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(moving_image, axis=4)),
                                 tf.expand_dims(fixed_image, axis=4),
                                 layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(moving_label, axis=4)),
@@ -130,12 +132,12 @@ def build_cond_model(moving_image_size, fixed_image_size, batch_size, tf_model_c
     # build model
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
                            outputs=[pred_fixed_label],
-                           name="RegModel")
+                           name="CondRegModel")
 
     return model
 
 
-def build_seg_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
+def build_seg_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
@@ -146,7 +148,8 @@ def build_seg_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
     :return:
     """
     # inputs
-    moving_image, fixed_image, moving_label, indices = build_inputs(moving_image_size, fixed_image_size, batch_size)
+    moving_image, fixed_image, moving_label, indices = build_inputs(
+        moving_image_size, fixed_image_size, index_size, batch_size)
     backbone_input = tf.expand_dims(fixed_image, axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 3]
 
     # backbone
@@ -160,17 +163,20 @@ def build_seg_model(moving_image_size, fixed_image_size, batch_size, tf_model_co
     # build model
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
                            outputs=[pred_fixed_label],
-                           name="RegModel")
+                           name="SegModel")
 
     return model
 
 
-def build_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config):
+def build_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     if tf_model_config["method"] == "ddf":
-        return build_ddf_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config)
+        return build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
+                               tf_loss_config)
     elif tf_model_config["method"] == "conditional":
-        return build_cond_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config)
+        return build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
+                                tf_loss_config)
     elif tf_model_config["method"] == "seg":
-        return build_seg_model(moving_image_size, fixed_image_size, batch_size, tf_model_config, tf_loss_config)
+        return build_seg_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
+                               tf_loss_config)
     else:
         raise ValueError("Unknown model method")

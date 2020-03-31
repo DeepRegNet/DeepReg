@@ -5,7 +5,7 @@ from datetime import datetime
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.data.mr_us.loader as data_loader
+import deepreg.data.mr_us.load
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
 import deepreg.model.network as network
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train, data_loader_val = data_loader.get_train_test_dataset(data_config)
+    data_loader_train, data_loader_val = deepreg.data.mr_us.load.get_train_test_dataset(data_config)
     dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_images
@@ -72,6 +72,7 @@ if __name__ == "__main__":
         # model
         reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
                                         fixed_image_size=data_loader_train.fixed_image_shape,
+                                        index_size=data_loader_train.num_indices,
                                         batch_size=tf_data_config["batch_size"],
                                         tf_model_config=tf_model_config,
                                         tf_loss_config=tf_loss_config)
