@@ -5,7 +5,7 @@ from datetime import datetime
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.data.mr.loader_h5_seg as data_loader
+import deepreg.data.mr.load as data_loader
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
 import deepreg.model.network as network
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train = data_loader.H5SegmentationDataLoader(train_mode="train", data_order="bidi", **data_config)
-    data_loader_val = data_loader.H5SegmentationDataLoader(train_mode="valid", data_order="forward", **data_config)
+    data_loader_train, data_loader_val, _ = data_loader.get_train_test_data_loader(
+        data_type="segmentation", data_config=data_config)
     dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_images

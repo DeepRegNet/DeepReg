@@ -1,9 +1,14 @@
 log_dir: "logs"
 
 data:
-  filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
-  valid_start: 110
-  test_start: 116
+  segmentation:
+    filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
+    valid_start: 110
+    test_start: 116
+  landmark:
+    filename: "data/mr/holdout-landmarks.h5"
+    valid_start: 110
+    test_start: 116
 
 tf:
   model:

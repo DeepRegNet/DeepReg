@@ -5,7 +5,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 import deepreg.config.parser as config_parser
-import deepreg.data.mr_us.load as load
+import deepreg.data.mr.load as data_loader
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
@@ -97,9 +97,9 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--memory", action='store_true', help="take all GPU memory")
     parser.add_argument("--ckpt", help="Path of checkpoint", required=True)
     parser.add_argument("--bs", default=1, help="batch size")
-    parser.add_argument("--train", action='store_true', help="predict on training set")
+    parser.add_argument("--seg", action='store_true', help="predict on segmentation")
     parser.set_defaults(memory=True)
-    parser.set_defaults(train=False)
+    parser.set_defaults(seg=False)
     args = parser.parse_args()
 
     # env vars
@@ -124,17 +124,18 @@ if __name__ == "__main__":
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # data
-    data_loader_train, data_loader_val = load.get_train_test_data_loader(data_config)
-    dataset_train = data_loader_train.get_dataset(training=False, repeat=False, **tf_data_config)
-    dataset_val = data_loader_val.get_dataset(training=False, repeat=False, **tf_data_config)
+    _, _, data_loader_test = data_loader.get_train_test_data_loader(
+        data_type="segmentation" if args.seg else "landmark",
+        data_config=data_config)
+    dataset_test = data_loader_test.get_dataset(training=False, repeat=False, **tf_data_config)
 
     # optimizer
     optimizer = opt.get_optimizer(tf_opt_config)
 
     # model
-    reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
-                                    fixed_image_size=data_loader_train.fixed_image_shape,
-                                    index_size=data_loader_train.num_indices,
+    reg_model = network.build_model(moving_image_size=dataset_test.moving_image_shape,
+                                    fixed_image_size=dataset_test.fixed_image_shape,
+                                    index_size=dataset_test.num_indices,
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
                                     tf_loss_config=tf_loss_config)
@@ -143,13 +144,11 @@ if __name__ == "__main__":
     reg_model.compile(optimizer=optimizer,
                       loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
                       metrics=[metric.MeanDiceScore(),
-                               metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape)])
+                               metric.MeanCentroidDistance(grid_size=dataset_test.fixed_image_shape)])
 
     # load weights
     reg_model.load_weights(checkpoint_path)
 
     # predict
-    fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
-    predict(dataset=dataset_val, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/test")
-    if args.train:
-        predict(dataset=dataset_train, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/train")
+    fixed_grid_ref = layer_util.get_reference_grid(grid_size=dataset_test.fixed_image_shape)
+    predict(dataset=dataset_test, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/test")
