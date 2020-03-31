@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # model
     reg_model = network.build_model(moving_image_size=dataset_test.moving_image_shape,
                                     fixed_image_size=dataset_test.fixed_image_shape,
-                                    index_size=dataset_test.num_indices,
+                                    index_size=data_loader_test.num_indices,
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
                                     tf_loss_config=tf_loss_config)
