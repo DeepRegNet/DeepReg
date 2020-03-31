@@ -42,7 +42,7 @@ tf:
       weight: 0.5
       energy_type: "bending"
   data:
-    batch_size: 2
+    batch_size: 1
     shuffle_buffer_size: 0
   opt:
     name: "adam"
@@ -54,6 +54,6 @@ tf:
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 6
+  epochs: 2
   save_period: 2
   histogram_freq: 2
