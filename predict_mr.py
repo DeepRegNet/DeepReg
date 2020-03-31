@@ -30,12 +30,15 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
         moving_depth = moving_image.shape[3]
         fixed_depth = fixed_image.shape[3]
 
-        image_dir_format = save_dir + "/image{image_index:d}/label{label_index:d}/{type_name:s}"
+        image_dir_format = save_dir + "/pid1{pid1:d}_vid1{vid1:d}_pid2{pid2:d}_vid2{vid2:d}/" \
+                                      "label{label_index:d}/{type_name:s}"
         for sample_index in range(num_samples):
-            image_index, label_index = int(indices[sample_index, 0]), int(indices[sample_index, 1])
+            pid1, vid1, pid2, vid2, label_index = indices[sample_index, :].tolist()
 
             # save fixed
-            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="fixed")
+            image_dir = image_dir_format.format(
+                pid1=pid1, vid1=vid1, pid2=pid2, vid2=vid2, label_index=label_index,
+                type_name="fixed")
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -54,7 +57,8 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
                     fixed_pred_d, vmin=0, vmax=1, cmap='gray')
 
             # save moving
-            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="moving")
+            image_dir = image_dir_format.format(pid1=pid1, vid1=vid1, pid2=pid2, vid2=vid2, label_index=label_index,
+                                                type_name="moving")
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -76,17 +80,20 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
                                                         grid=fixed_grid_ref)
 
             # save metric
+            image_index = (pid1, vid1, pid2, vid2)
             if image_index not in metric_map.keys():
                 metric_map[image_index] = dict()
             assert label_index not in metric_map[image_index].keys()  # label should not be repeated
             metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
 
     # print metric
-    line_format = "image {image_index:d}, label {label_index:d}, dice {dice:.4f}, dist {dist:.4f}\n"
+    line_format = "pid1 {pid1:d}, vid1 {vid1:d}, pid2 {pid2:d}, vid2 {vid2:d}, label {label_index:d}, " \
+                  "dice {dice:.4f}, dist {dist:.4f}\n"
     with open(save_dir + "/metric.log", "w+") as f:
         for image_index in sorted(metric_map.keys()):
+            pid1, vid1, pid2, vid2 = image_index
             for label_index in sorted(metric_map[image_index].keys()):
-                f.write(line_format.format(image_index=image_index, label_index=label_index,
+                f.write(line_format.format(pid1=pid1, vid1=vid1, pid2=pid2, vid2=vid2, label_index=label_index,
                                            **metric_map[image_index][label_index]))
 
 
