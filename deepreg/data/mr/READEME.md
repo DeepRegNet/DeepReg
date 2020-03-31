@@ -13,9 +13,13 @@ The H5 file has keys in the format of `Patient%d-Visit%d`,
 e.g. `Patient1-Visit2` represents the visit of vID=2 of the patient of pID=1. 
 For the same patient, the visit IDs are sorted chronologically but the vID is not necessarily started from 0. 
 
+Images are of the same shape, (128, 128, 102).
+
 ### Landmarks
 
 The H5 file has keys in the format of `Patient%d-Visit%d-ldmark-%d`, 
 e.g. `Patient1-Visit2-ldmark-0` represents the landmark of lID=0 for the visit of vID=2 of the patient of pID=1. 
 
 Same landmark ID always represents the same landmark type.
+
+For the same patient, different visits might have different landmarks.

@@ -3,7 +3,8 @@ import os
 import nibabel as nib
 import numpy as np
 
-from deepreg.data.mr_us.loader_basic import BasicDataLoader
+from deepreg.data.loader_basic import BasicDataLoader
+from deepreg.data.mr_us.util import get_label_indices
 
 
 class NiftiFileLoader:
@@ -75,6 +76,7 @@ class NiftiDataLoader(BasicDataLoader):
         self.fixed_image_shape = fixed_image_shape  # [dim1, dim2, dim3]
         self.sample_label = sample_label
         self.num_images = len(self.file_names)
+        self.num_indices = 2
 
     def get_generator(self):
         for image_index, image_key in enumerate(self.file_names):
@@ -84,7 +86,7 @@ class NiftiDataLoader(BasicDataLoader):
             fixed_label = self.loader_fixed_label.get_data(image_key)
 
             if len(moving_label.shape) == 4:  # multiple labels
-                label_indices = self.get_label_indices(moving_label.shape[3])
+                label_indices = get_label_indices(moving_label.shape[3], self.sample_label)
                 for label_index in label_indices:
                     indices = np.asarray([image_index, label_index], dtype=np.float32)
                     yield (moving_image, fixed_image, moving_label[..., label_index], indices), \

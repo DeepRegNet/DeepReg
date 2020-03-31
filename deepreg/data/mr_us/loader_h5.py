@@ -1,7 +1,8 @@
 import h5py
 import numpy as np
 
-from deepreg.data.mr_us.loader_basic import BasicDataLoader
+from deepreg.data.loader_basic import BasicDataLoader
+from deepreg.data.mr_us.util import get_label_indices
 from deepreg.data.util import get_h5_sorted_keys
 
 SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
@@ -63,6 +64,7 @@ class H5DataLoader(BasicDataLoader):
         self.fixed_image_shape = fixed_image_shape
         self.sample_label = sample_label
         self.num_images = len(image_keys)
+        self.num_indices = 2
 
     def get_generator(self):
         """
@@ -76,7 +78,7 @@ class H5DataLoader(BasicDataLoader):
                     with h5py.File(self.fixed_label_filename, "r") as hf_fixed_label:
                         image_keys = self.image_keys
                         for image_index, image_key in enumerate(image_keys):
-                            label_indices = self.get_label_indices(len(self.image_label_map[image_key]))
+                            label_indices = get_label_indices(len(self.image_label_map[image_key]), self.sample_label)
 
                             moving_image = hf_moving_image.get(image_key)[()]
                             fixed_image = hf_fixed_image.get(image_key)[()]
