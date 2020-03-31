@@ -113,8 +113,6 @@ if __name__ == "__main__":
     # load config
     config = config_parser.load("/".join(checkpoint_path.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
-    data_config["sample_label"]["train"] = "all"
-    data_config["sample_label"]["test"] = "all"
     tf_data_config = config["tf"]["data"]
     tf_data_config["batch_size"] = int(args.bs)
     tf_opt_config = config["tf"]["opt"]
