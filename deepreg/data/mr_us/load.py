@@ -2,7 +2,7 @@ from deepreg.data.mr_us.loader_h5 import H5DataLoader
 from deepreg.data.mr_us.loader_nifti import NiftiDataLoader
 
 
-def get_train_test_dataset(data_config: dict):
+def get_train_test_data_loader(data_config: dict):
     sample_label_train = data_config["sample_label"]["train"]
     sample_label_test = data_config["sample_label"]["test"]
     if data_config["format"] == "nifti":

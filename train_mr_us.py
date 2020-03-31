@@ -52,7 +52,7 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train, data_loader_val = deepreg.data.mr_us.load.get_train_test_dataset(data_config)
+    data_loader_train, data_loader_val = deepreg.data.mr_us.load.get_train_test_data_loader(data_config)
     dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_images
