@@ -7,7 +7,7 @@ from deepreg.data.loader_basic import BasicDataLoader
 from deepreg.data.mr.util import get_image_shape, get_patient_map
 from deepreg.data.util import get_h5_sorted_keys
 
-PATIENT_VISIT_LANDMARK_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}ldmark-{lid:d}"
+PATIENT_VISIT_LANDMARK_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}-ldmark-{lid:d}"
 
 
 class H5LandmarkDataLoader(BasicDataLoader):
