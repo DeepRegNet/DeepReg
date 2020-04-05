@@ -1,22 +1,14 @@
-import deepreg.data.mr.loader_h5_ldmk as ldmk_data_loader
-import deepreg.data.mr.loader_h5_seg as seg_data_loader
+import deepreg.data.mr.loader_h5_ldmk as ldmk
+import deepreg.data.mr.loader_h5_seg as seg
 
 
-def get_data_loaders(data_type, data_config: dict):
-    if data_type == "segmentation":
-        data_loader_train = seg_data_loader.H5SegmentationDataLoader(
-            train_mode="train", data_order="bidi", **data_config[data_type])
-        data_loader_val = seg_data_loader.H5SegmentationDataLoader(
-            train_mode="valid", data_order="forward", **data_config[data_type])
-        data_loader_test = seg_data_loader.H5SegmentationDataLoader(
-            train_mode="test", data_order="forward", **data_config[data_type])
-    elif data_type == "landmark":
-        data_loader_train = ldmk_data_loader.H5LandmarkDataLoader(
-            train_mode="train", data_order="bidi", **data_config[data_type])
-        data_loader_val = ldmk_data_loader.H5LandmarkDataLoader(
-            train_mode="valid", data_order="forward", **data_config[data_type])
-        data_loader_test = ldmk_data_loader.H5LandmarkDataLoader(
-            train_mode="test", data_order="forward", **data_config[data_type])
+def get_data_loader(data_config, mode):
+    data_order = data_config["data_order"] if mode == "train" else "forward"
+    if data_config["data_type"] == "segmentation":
+        return seg.H5SegmentationDataLoader(
+            train_mode=mode, data_order=data_order, **data_config["segmentation"])
+    elif data_config["data_type"] == "landmark":
+        return ldmk.H5LandmarkDataLoader(
+            train_mode=mode, data_order=data_order, **data_config["landmark"])
     else:
-        raise ValueError("Unknown data_type")
-    return data_loader_train, data_loader_val, data_loader_test
+        raise ValueError("Unknown data type")

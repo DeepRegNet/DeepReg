@@ -1,6 +1,7 @@
 log_dir: "logs"
 
 data:
+  name: "mr_us" # required
   format: "nifti" # h5 or nifti
   sample_label:
     train: "first" # sample or first or all
