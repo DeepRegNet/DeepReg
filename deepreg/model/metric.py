@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-import src.model.layer_util as layer_util
-import src.model.loss.label as label_loss
+import deepreg.model.layer_util as layer_util
+import deepreg.model.loss.label as label_loss
 
 EPS = 1.0e-6  # epsilon to prevent NaN
 

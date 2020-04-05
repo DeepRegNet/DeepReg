@@ -1,15 +1,16 @@
 log_dir: "logs"
 
 data:
+  name: "mr_us" # required
   format: "nifti" # h5 or nifti
   sample_label:
     train: "sample" # sample or first or all
     test: "first"
   nifti:
-    dir: "data/demo"
+    dir: "data/mr_us/demo"
     load_into_memory: true
   h5:
-    dir: "data/h5"
+    dir: "data/mr_us/h5"
     train:
       start_image_index: 0 # included
       end_image_index: 100 # excluded
