@@ -3,14 +3,14 @@ import re
 import h5py
 import numpy as np
 
-from deepreg.data.loader_basic import BasicDataLoader
+from deepreg.data.loader_gen import GeneratorDataLoader
 from deepreg.data.mr.util import get_image_shape, get_patient_map
 from deepreg.data.util import get_h5_sorted_keys
 
 PATIENT_VISIT_LANDMARK_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}-ldmark-{lid:d}"
 
 
-class H5LandmarkDataLoader(BasicDataLoader):
+class H5LandmarkDataLoader(GeneratorDataLoader):
     def __init__(self, train_mode, data_order, filename, valid_start, test_start):
         super(H5LandmarkDataLoader, self).__init__()
         pid_vid_lid_map = get_patient_map(get_patient_visit_landmark_map,

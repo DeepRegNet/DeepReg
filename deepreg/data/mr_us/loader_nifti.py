@@ -3,7 +3,7 @@ import os
 import nibabel as nib
 import numpy as np
 
-from deepreg.data.loader_basic import BasicDataLoader
+from deepreg.data.loader_gen import GeneratorDataLoader
 from deepreg.data.mr_us.util import get_label_indices
 
 
@@ -38,7 +38,7 @@ class NiftiFileLoader:
         return data.shape[:3]  # label.shape might be [dim1, dim2, dim3, num_labels]
 
 
-class NiftiDataLoader(BasicDataLoader):
+class NiftiDataLoader(GeneratorDataLoader):
     def __init__(self,
                  moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir,
                  load_into_memory, sample_label):
