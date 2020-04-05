@@ -52,7 +52,8 @@ image 1, label 5, dice 0.0000, dist 27.9396
 
 ### Data
 
-To use this package with a custom dataset,
+To use this package with a custom dataset
+
 1. Create a folder under `deepreg/data/`, e.g. `deepreg/data/custom/`.
 
 2. Create a new sample configuration file under `deepreg/config/`, e.g. `deepreg/config/custom.yaml`.
@@ -63,19 +64,33 @@ To use this package with a custom dataset,
 3. Write a new data loader to load the custom data.
 
     Each data sample consists of `((moving_image`, `fixed_image`, `moving_label`, `indices`), `fixed_image)` where
-    
+
     - images and labels are all assumed to be 3D single-channel images and of shape `[dim1, dim2, dim3]`.
     - indices are of shape `[num_indices]`, used for identifying the data sample. 
 
-    An interface of using generator to build TF dataset is provide
-    in `deepreg/data/loader_gen.py` there are three functions need to be implemented
-    - `get_generator` which builds a generator to return data. This function is used for data loading.
+    The interface `DataLoader` in `deepreg/data/loader.py` defined all required functions:
+    - `get_dataset` which returns a not-batched dataset and will be batched and preprocessed in `get_dataset_and_preprocess`.
     - `split_indices` which splits the indices into `image_index` and `label_index`,
-    where `label_index` must be a integer and `image_index` can be an integer or a tuple. This function is used for prediction.
-    - `image_index_to_dir` which format the image index into a string. This function is used for prediction.
-    
+        where `label_index` must be a integer and `image_index` can be an integer or a tuple. This function is used for prediction only.
+    - `image_index_to_dir` which format the image index into a string. This function is used for prediction only.
+     
+    If generator is used to TF dataset, a more detailed interface `GeneratorDataLoader` is also provided,
+    instead of defining `get_dataset`, `get_generator` is required to be defined, which needs to build a generator to return data.
+   
 4. Write a new load function `get_data_loader` which returns the data loader given the configuration and the mode (`train`/`valid`/`test`).
 
    Call `get_data_loader` inside `deepreg/data/load.py` for the custom data.
 
 ### Model
+
+To add a custom backbone network
+
+1. Create a file under `deepreg/modal/backbone/`, e.g. `deepreg/modal/backbone/nn.py`
+
+2. Use the network inside `build_backbone` of `deepreg/modal/network.py`.
+
+The network should
+
+- receives a single input tensor of shape `[batch, dim1, dim2, dim3, in_channels]`
+
+- outputs a single output tensor of shape `[batch, dim1, dim2, dim3, out_channels]`
