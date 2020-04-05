@@ -5,7 +5,7 @@ from datetime import datetime
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.data.mr_us.load
+import deepreg.data.load as load
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
 import deepreg.model.network as network
@@ -52,9 +52,10 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train, data_loader_val = deepreg.data.mr_us.load.get_data_loaders(data_config)
-    dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
-    dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)
+    data_loader_train = load.get_data_loader(data_config, "train")
+    data_loader_val = load.get_data_loader(data_config, "valid")
+    dataset_train = data_loader_train.get_dataset_and_preprocess(training=True, repeat=True, **tf_data_config)
+    dataset_val = data_loader_val.get_dataset_and_preprocess(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_images
     dataset_size_val = data_loader_val.num_images
 
@@ -70,31 +71,31 @@ if __name__ == "__main__":
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
         # model
-        reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
-                                        fixed_image_size=data_loader_train.fixed_image_shape,
-                                        index_size=data_loader_train.num_indices,
-                                        batch_size=tf_data_config["batch_size"],
-                                        tf_model_config=tf_model_config,
-                                        tf_loss_config=tf_loss_config)
+        model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
+                                    fixed_image_size=data_loader_train.fixed_image_shape,
+                                    index_size=data_loader_train.num_indices,
+                                    batch_size=tf_data_config["batch_size"],
+                                    tf_model_config=tf_model_config,
+                                    tf_loss_config=tf_loss_config)
 
         # metrics
-        reg_model.compile(optimizer=optimizer,
-                          loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                          metrics=[metric.MeanDiceScore(),
-                                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
-                                   metric.MeanForegroundProportion(pred=False),
-                                   metric.MeanForegroundProportion(pred=True),
-                                   ])
-        print(reg_model.summary())
+        model.compile(optimizer=optimizer,
+                      loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
+                      metrics=[metric.MeanDiceScore(),
+                               metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
+                               metric.MeanForegroundProportion(pred=False),
+                               metric.MeanForegroundProportion(pred=True),
+                               ])
+        print(model.summary())
 
         # load weights
         if checkpoint_init_path != "":
-            reg_model.load_weights(checkpoint_init_path)
+            model.load_weights(checkpoint_init_path)
 
         # train
         # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
         # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
-        reg_model.fit(
+        model.fit(
             x=dataset_train,
             steps_per_epoch=dataset_size_train // tf_data_config["batch_size"],
             epochs=num_epochs,

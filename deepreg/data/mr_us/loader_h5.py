@@ -1,14 +1,14 @@
 import h5py
 import numpy as np
 
-from deepreg.data.loader_gen import GeneratorDataLoader
+from deepreg.data.mr_us.loader import DataLoader
 from deepreg.data.mr_us.util import get_label_indices
 from deepreg.data.util import get_h5_sorted_keys
 
 SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 
 
-class H5DataLoader(GeneratorDataLoader):
+class H5DataLoader(DataLoader):
     def __init__(self,
                  moving_image_filename, fixed_image_filename, moving_label_filename, fixed_label_filename,
                  start_image_index, end_image_index, sample_label):
