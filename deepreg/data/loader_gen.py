@@ -3,7 +3,7 @@ import tensorflow as tf
 import deepreg.data.preprocess as preprocess
 
 
-class BasicDataLoader:
+class GeneratorDataLoader:
     def __init__(self):
         self.moving_image_shape = None
         self.fixed_image_shape = None
