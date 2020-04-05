@@ -124,7 +124,7 @@ if __name__ == "__main__":
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # data
-    data_loader_train, data_loader_val = load.get_train_test_data_loader(data_config)
+    data_loader_train, data_loader_val = load.get_data_loaders(data_config)
     dataset_train = data_loader_train.get_dataset(training=False, repeat=False, **tf_data_config)
     dataset_val = data_loader_val.get_dataset(training=False, repeat=False, **tf_data_config)
 

@@ -52,7 +52,7 @@ if __name__ == "__main__":
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train, data_loader_val, _ = data_loader.get_train_test_data_loader(
+    data_loader_train, data_loader_val, _ = data_loader.get_data_loaders(
         data_type="segmentation", data_config=data_config)
     dataset_train = data_loader_train.get_dataset(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset(training=False, repeat=True, **tf_data_config)

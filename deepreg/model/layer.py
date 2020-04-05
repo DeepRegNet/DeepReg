@@ -105,7 +105,7 @@ class Deconv3d(tf.keras.layers.Layer):
             When the output shape is defined, the padding should be calculated manually
             if padding == 'same':
                 pad = filter_size // 2
-            length = ((input_length - 1) * stride + filter_size - 2 * pad + output_padding)
+                length = ((input_length - 1) * stride + filter_size - 2 * pad + output_padding)
             """
             self._padding = "same"
             self._output_padding = [
