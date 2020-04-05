@@ -1,13 +1,15 @@
 # Deep Registration
 
 
-## Environment Setup
+## Installation
 
 The easiest way to install the python environment is with Miniconda/Anaconda.
 - Use `conda create --name py36-tf2 python=3.6 tensorflow-gpu` to setup the latest gpu-support with tf.
 - Use `pip install -r requirements.txt` to install the rest requirements
 
-## Train
+## Demo
+
+### Train
 
 The training script is `train.py` and it accepts the following parameters
 - `-g` or `--gpu`, **required**, providing available GPU indices, e.g. `-g 0` uses GPU of index 0 and `-g "0,1"` uses GPU of index 0 and 1.
@@ -18,14 +20,15 @@ The training script is `train.py` and it accepts the following parameters
 
 For example, `python train.py -c demo.yaml -l demo -g "0,1"` will launch a training using the configuration file `demo.yaml` with GPU of index 0 and 1 and the log will be saved under `logs/demo`.
 
-## Predict
+### Predict
 
 The prediction script is `predict.py` and it accepts the following parameters
 - `-g` or `--gpu`, **required**, providing available GPU indices, e.g. `-g 0` uses GPU of index 0. Multi-GPU setting is not tested for prediction.
+- `--mode`, **required**, providing which part of the data should be evaluated. Must be one of `train`/`valid`/`test`.
 - `--ckpt`, **required**, providing the checkpoint to load, to prevent start training from random initialization. The path must ended in `.ckpt`, e.g. `--ckpt logs/demo/save/weights-epoch100.ckpt`. When loading the checkpoint, a backup configuration file wil be used, in the example above, the configuration file will be under `logs/demo/`. 
 - `-m` or `--memory`, providing this flag will prevent tensorflow to reserve all available GPU memory.
 - `--bs`, providing the batch size, the number of data samples must be divided evenly by batch size during prediction. If not provided, batch size of 1 will be used.
-- `--train`, providing this flag will execute prediction on the training data.
+
 
 For example, `python predict.py -g 0 --ckpt logs/demo/save/weights-epoch100.ckpt` will launch a prediction using the provided checkpoint with one GPU. The results will be saved under `logs` in a new folder, in which a `metric.log` will be generated. An example of `metric.log` will be like
 
@@ -45,53 +48,49 @@ image 1, label 5, dice 0.0000, dist 27.9396
 
 ```
 
-## Data
+## Development
 
-Required data contain four parts:
-- moving images
-- moving labels
-- fixed images
-- fixed labels
+### Data
 
-Each moving/fixed image should have at least one label.
+To use this package with a custom dataset
 
-Two formats are supported: h5 files or nifti files.
+1. Create a folder under `deepreg/data/`, e.g. `deepreg/data/custom/`.
 
-### H5
+2. Create a new sample configuration file under `deepreg/config/`, e.g. `deepreg/config/custom.yaml`.
 
-Data are assumed to be stored together in four files under the same folder (default is `data/h5/`) 
-and the default file names are:
-- `data/h5/moving_images.h5`
-- `data/h5/moving_labels.h5`
-- `data/h5/fixed_images.h5`
-- `data/h5/fixed_labels.h5`
+   There is no need to change the `tf` part, and all data related configurations should be under `data` part 
+   and the only required attribute is `name`. 
 
-For images file, there is no constraint on the keys of h5 file. Each key corresponds to one image sample, 
-the shape is assumed to be the same 3D shape among all samples `[dim1, dim2, dim3]`.
+3. Write a new data loader to load the custom data.
 
-For labels file, the key is assumed to contain the corresponding image key in a specific format.
-> For example, if `moving_images.h5` contains a key `case000025` and this image has multiple labels, 
-> then the keys for labels should be `case000025_bin000`,`case000025_bin001`, etc.
-> The values after `_bin` are not important as they will be sorted.
-> But the label key must contain image key followed by `_bin`. 
-> Moreover, the first label is assumed to be of the same type (one metric in tensorboard depends on this).
+    Each data sample consists of `((moving_image`, `fixed_image`, `moving_label`, `indices`), `fixed_image)` where
 
-Each key corresponds to one label for  one image, and the shape should be the same as the image, 
-i.e. `[dim1, dim2, dim3]`.
+    - images and labels are all assumed to be 3D single-channel images and of shape `[dim1, dim2, dim3]`.
+    - indices are of shape `[num_indices]`, used for identifying the data sample. 
 
-### Nifti
-Training and test data are assumed to be stored separately under the same folder (default is `data/nifti/`).
-The default folders are
-- `data/nifti/train` for training data
-- `data/nifti/test` for test data
+    The interface `DataLoader` in `deepreg/data/loader.py` defined all required functions:
+    - `get_dataset` which returns a not-batched dataset and will be batched and preprocessed in `get_dataset_and_preprocess`.
+    - `split_indices` which splits the indices into `image_index` and `label_index`,
+        where `label_index` must be a integer and `image_index` can be an integer or a tuple. This function is used for prediction only.
+    - `image_index_to_dir` which format the image index into a string. This function is used for prediction only.
+     
+    If generator is used to TF dataset, a more detailed interface `GeneratorDataLoader` is also provided,
+    instead of defining `get_dataset`, `get_generator` is required to be defined, which needs to build a generator to return data.
+   
+4. Write a new load function `get_data_loader` which returns the data loader given the configuration and the mode (`train`/`valid`/`test`).
 
-Under `train` or `test`, there are four folders saving images and labels:
-- `moving_images.h5`
-- `moving_labels`
-- `fixed_images`
-- `fixed_labels`
+   Call `get_data_loader` inside `deepreg/data/load.py` for the custom data.
 
-In each folder, samples are stored in the format of `*.nii.gz`, each files represents one sample.
-The file names should be consistent across all folders.
-For labels, the labels corresponding to one image sample is stored in one single file,
-the shape could be `[dim1, dim2, dim3]` or `[dim1, dim2, dim3, dim4]` where `dim4` is the axis for labels.
+### Model
+
+To add a custom backbone network
+
+1. Create a file under `deepreg/modal/backbone/`, e.g. `deepreg/modal/backbone/nn.py`
+
+2. Use the network inside `build_backbone` of `deepreg/modal/network.py`.
+
+The network should
+
+- receives a single input tensor of shape `[batch, dim1, dim2, dim3, in_channels]`
+
+- outputs a single output tensor of shape `[batch, dim1, dim2, dim3, out_channels]`

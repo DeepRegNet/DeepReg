@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from src.model import layer as layer
+from deepreg.model import layer as layer
 
 
 class UNet(tf.keras.Model):
@@ -39,13 +39,13 @@ class UNet(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         """
 
-        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3]
+        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, in_channels]
         :param training:
         :param mask:
-        :return:
+        :return: shape = [batch, f_dim1, f_dim2, f_dim3, out_channels]
         """
 
-        down_sampled = inputs  # [batch, f_dim1, f_dim2, f_dim3, 2]
+        down_sampled = inputs
 
         # down sample
         skips = []

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from src.model import layer as layer
+from deepreg.model import layer as layer
 
 
 class LocalNet(tf.keras.Model):

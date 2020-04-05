@@ -4,16 +4,16 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 
-import src.config.parser as config_parser
-import src.data.loader as data_loader
-import src.model.layer_util as layer_util
-import src.model.loss.label as label_loss
-import src.model.metric as metric
-import src.model.network as network
-import src.model.optimizer as opt
+import deepreg.config.parser as config_parser
+import deepreg.data.load as load
+import deepreg.model.layer_util as layer_util
+import deepreg.model.loss.label as label_loss
+import deepreg.model.metric as metric
+import deepreg.model.network as network
+import deepreg.model.optimizer as opt
 
 
-def predict(dataset, fixed_grid_ref, model, save_dir):
+def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
     for i, (inputs, labels) in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
@@ -30,12 +30,13 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
         moving_depth = moving_image.shape[3]
         fixed_depth = fixed_image.shape[3]
 
-        image_dir_format = save_dir + "/image{image_index:d}/label{label_index:d}/{type_name:s}"
+        image_dir_format = save_dir + "/{image_dir:s}/label{label_index:d}/{type_name:s}"
         for sample_index in range(num_samples):
-            image_index, label_index = int(indices[sample_index, 0]), int(indices[sample_index, 1])
+            image_index, label_index = data_loader.split_indices(indices[sample_index, :].numpy().astype(int).tolist())
 
             # save fixed
-            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="fixed")
+            image_dir = image_dir_format.format(image_dir=data_loader.image_index_to_dir(image_index),
+                                                label_index=label_index, type_name="fixed")
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -54,7 +55,8 @@ def predict(dataset, fixed_grid_ref, model, save_dir):
                     fixed_pred_d, vmin=0, vmax=1, cmap='gray')
 
             # save moving
-            image_dir = image_dir_format.format(image_index=image_index, label_index=label_index, type_name="moving")
+            image_dir = image_dir_format.format(image_dir=data_loader.image_index_to_dir(image_index),
+                                                label_index=label_index, type_name="moving")
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -94,24 +96,25 @@ if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
+    parser.add_argument("--mode", help="predict on train/valid/test data", required=True)
     parser.add_argument("-m", "--memory", action='store_true', help="take all GPU memory")
     parser.add_argument("--ckpt", help="Path of checkpoint", required=True)
     parser.add_argument("--bs", default=1, help="batch size")
-    parser.add_argument("--train", action='store_true', help="predict on training set")
     parser.set_defaults(memory=True)
-    parser.set_defaults(train=False)
     args = parser.parse_args()
+
+    # sanity check
+    if not args.ckpt.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
+        raise ValueError("checkpoint path should end with .ckpt")
+    if args.mode not in ["train", "valid", "test"]:
+        raise ValueError("data must be one of train, valid, test")
 
     # env vars
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if args.memory else "true"
 
-    checkpoint_path = args.ckpt  # would be like log_folder/save/xxx.ckpt
-    if not checkpoint_path.endswith(".ckpt"):
-        raise ValueError("checkpoint path should end with .ckpt")
-
     # load config
-    config = config_parser.load("/".join(checkpoint_path.split("/")[:-2]) + "/config.yaml")
+    config = config_parser.load("/".join(args.ckpt.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
     data_config["sample_label"]["train"] = "all"
     data_config["sample_label"]["test"] = "all"
@@ -124,31 +127,30 @@ if __name__ == "__main__":
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # data
-    data_loader_train, data_loader_val = data_loader.get_train_test_dataset(data_config)
-    dataset_train = data_loader_train.get_dataset(training=True, repeat=False, **tf_data_config)
-    dataset_val = data_loader_val.get_dataset(training=False, repeat=False, **tf_data_config)
+    data_loader = load.get_data_loader(data_config, args.mode)
+    dataset = data_loader.get_dataset_and_preprocess(training=False, repeat=False, **tf_data_config)
 
     # optimizer
     optimizer = opt.get_optimizer(tf_opt_config)
 
     # model
-    reg_model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
-                                    fixed_image_size=data_loader_train.fixed_image_shape,
-                                    batch_size=tf_data_config["batch_size"],
-                                    tf_model_config=tf_model_config,
-                                    tf_loss_config=tf_loss_config)
+    model = network.build_model(moving_image_size=data_loader.moving_image_shape,
+                                fixed_image_size=data_loader.fixed_image_shape,
+                                index_size=data_loader.num_indices,
+                                batch_size=tf_data_config["batch_size"],
+                                tf_model_config=tf_model_config,
+                                tf_loss_config=tf_loss_config)
 
     # metrics
-    reg_model.compile(optimizer=optimizer,
-                      loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                      metrics=[metric.MeanDiceScore(),
-                               metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape)])
+    model.compile(optimizer=optimizer,
+                  loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
+                  metrics=[metric.MeanDiceScore(),
+                           metric.MeanCentroidDistance(grid_size=data_loader.fixed_image_shape)])
 
     # load weights
-    reg_model.load_weights(checkpoint_path)
+    model.load_weights(args.ckpt)
 
     # predict
-    fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader_train.fixed_image_shape)
-    predict(dataset=dataset_val, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/test")
-    if args.train:
-        predict(dataset=dataset_train, fixed_grid_ref=fixed_grid_ref, model=reg_model, save_dir=log_dir + "/train")
+    fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape)
+    predict(data_loader=data_loader, dataset=dataset, fixed_grid_ref=fixed_grid_ref, model=model,
+            save_dir=log_dir + "/test")
