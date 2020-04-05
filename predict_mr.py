@@ -129,7 +129,7 @@ if __name__ == "__main__":
     log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # data
-    _, _, data_loader_test = data_loader.get_train_test_data_loader(
+    _, _, data_loader_test = data_loader.get_data_loaders(
         data_type="segmentation" if args.seg else "landmark",
         data_config=data_config)
     dataset_test = data_loader_test.get_dataset(training=False, repeat=False, **tf_data_config)
