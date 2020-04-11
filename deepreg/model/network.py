@@ -80,6 +80,7 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
                            outputs=[pred_fixed_label],
                            name="DDFRegModel")
+    model.ddf = ddf
 
     # image loss
     if tf_loss_config["similarity"]["image"]["weight"] > 0:
