@@ -3,6 +3,7 @@ import tensorflow as tf
 import deepreg.model.layer as layer
 import deepreg.model.loss.deform
 import deepreg.model.loss.image as image_loss
+import deepreg.model.loss.label as label_loss
 from deepreg.model.backbone.local_net import LocalNet
 from deepreg.model.backbone.u_net import UNet
 
@@ -64,6 +65,7 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
         :param _backbone:
         :param _moving_image: [batch, m_dim1, m_dim2, m_dim3]
         :param _moving_label: [batch, m_dim1, m_dim2, m_dim3]
+        :param _fixed_image:  [batch, f_dim1, f_dim2, f_dim3]
         :return:
         """
         # ddf
@@ -78,6 +80,32 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
         return _ddf, _pred_fixed_image, _pred_fixed_label
 
+    def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
+        # image loss
+        if tf_loss_config["similarity"]["image"]["weight"] > 0:
+            loss_image = tf.reduce_mean(image_loss.similarity_fn(
+                y_true=_fixed_image, y_pred=_pred_fixed_image,
+                **tf_loss_config["similarity"]["image"]))
+            weighted_loss_image = loss_image * tf_loss_config["similarity"]["image"]["weight"]
+            model.add_loss(weighted_loss_image)
+            model.add_metric(loss_image, name="loss/image_similarity" + suffix, aggregation="mean")
+            model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity" + suffix, aggregation="mean")
+
+        # regularization loss
+        loss_reg = tf.reduce_mean(
+            deepreg.model.loss.deform.local_displacement_energy(_ddf, **tf_loss_config["regularization"]))
+        weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
+        model.add_loss(weighted_loss_reg)
+        model.add_metric(loss_reg, name="loss/regularization" + suffix, aggregation="mean")
+        model.add_metric(weighted_loss_reg, name="loss/weighted_regularization" + suffix, aggregation="mean")
+
+        # label loss
+        if _fixed_label is not None:
+            label_loss_fn = label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])
+            loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
+            model.add_loss(loss_label)
+            model.add_metric(loss_label, name="loss/label" + suffix, aggregation="mean")
+
     # inputs
     moving_image, fixed_image, moving_label, indices = build_inputs(
         moving_image_size, fixed_image_size, index_size, batch_size)
@@ -86,31 +114,32 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
     backbone = build_backbone(image_size=fixed_image_size, out_channels=3,
                               tf_model_config=tf_model_config)
 
-    # ddf
+    # forward
     ddf, pred_fixed_image, pred_fixed_label = forward(backbone, moving_image, moving_label, fixed_image)
+
     # build model
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
                            outputs=[pred_fixed_label],
                            name="DDFRegModel")
     model.ddf = ddf
 
-    # image loss
-    if tf_loss_config["similarity"]["image"]["weight"] > 0:
-        loss_image = tf.reduce_mean(image_loss.similarity_fn(
-            y_true=fixed_image, y_pred=pred_fixed_image,
-            **tf_loss_config["similarity"]["image"]))
-        weighted_loss_image = loss_image * tf_loss_config["similarity"]["image"]["weight"]
-        model.add_loss(weighted_loss_image)
-        model.add_metric(loss_image, name="loss/image_similarity", aggregation="mean")
-        model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity", aggregation="mean")
+    # loss and metric
+    add_loss_metric(fixed_image, pred_fixed_image, ddf, None, None, "")
 
-    # regularization loss
-    loss_reg = tf.reduce_mean(
-        deepreg.model.loss.deform.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
-    weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
-    model.add_loss(weighted_loss_reg)
-    model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
-    model.add_metric(weighted_loss_reg, name="loss/weighted_regularization", aggregation="mean")
+    # sample ddf
+    ddf_scale = tf.random.uniform(ddf.shape, minval=-1.5, maxval=1.5)
+    ddf_rnd = ddf * ddf_scale
+
+    # apply ddf_rand
+    warping_layer = layer.Warping(fixed_image_size=fixed_image_size)
+    fixed_image_aug = tf.stop_gradient(warping_layer([ddf_rnd, moving_image]))  # [batch, f_dim1, f_dim2, f_dim3]
+    fixed_label_aug = tf.stop_gradient(warping_layer([ddf_rnd, moving_label]))  # [batch, f_dim1, f_dim2, f_dim3]
+
+    # forward
+    ddf_aug, pred_fixed_image_aug, pred_fixed_label_aug = forward(backbone, moving_image, moving_label, fixed_image_aug)
+
+    # loss and metric
+    add_loss_metric(fixed_image_aug, pred_fixed_image_aug, ddf_aug, fixed_label_aug, pred_fixed_label_aug, "_aug")
 
     return model
 
