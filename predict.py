@@ -3,6 +3,8 @@ import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.data.load as load
@@ -21,22 +23,27 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
         # fixed_image      [batch, f_dim1, f_dim2, f_dim3]
         # moving_label     [batch, m_dim1, m_dim2, m_dim3]
         # fixed_label      [batch, f_dim1, f_dim2, f_dim3]
-        pred_fixed_label = model.predict(
-            x=inputs,
-        )
+        if hasattr(model, "ddf"):
+            model_ddf = tf.keras.Model(inputs=model.inputs,
+                                       outputs=model.outputs + [model.ddf])
+            pred_fixed_label, ddf = model_ddf.predict(x=inputs)
+        else:
+            pred_fixed_label = model.predict(x=inputs)
+            ddf = None
+
         moving_image, fixed_image, moving_label, indices = inputs
         fixed_label = labels
         num_samples = moving_image.shape[0]
         moving_depth = moving_image.shape[3]
         fixed_depth = fixed_image.shape[3]
 
-        image_dir_format = save_dir + "/{image_dir:s}/label{label_index:d}/{type_name:s}"
+        image_dir_format = save_dir + "/{image_dir:s}/label{label_index:d}"
         for sample_index in range(num_samples):
             image_index, label_index = data_loader.split_indices(indices[sample_index, :].numpy().astype(int).tolist())
 
             # save fixed
             image_dir = image_dir_format.format(image_dir=data_loader.image_index_to_dir(image_index),
-                                                label_index=label_index, type_name="fixed")
+                                                label_index=label_index)
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -56,7 +63,7 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
 
             # save moving
             image_dir = image_dir_format.format(image_dir=data_loader.image_index_to_dir(image_index),
-                                                label_index=label_index, type_name="moving")
+                                                label_index=label_index)
             filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -69,6 +76,21 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
                 plt.imsave(
                     filename_format.format(depth_index=moving_depth_index, name="moving_label"),
                     moving_label_d, vmin=0, vmax=1, cmap='gray')
+
+            # save ddf if exists
+            if ddf is not None:
+                image_dir = image_dir_format.format(image_dir=data_loader.image_index_to_dir(image_index),
+                                                    label_index=label_index)
+                filename_format = image_dir + "/depth{depth_index:d}_{name:s}.png"
+                if not os.path.exists(image_dir):
+                    os.makedirs(image_dir)
+                for fixed_depth_index in range(fixed_depth):
+                    ddf_d = ddf[sample_index, :, :, fixed_depth_index, :]  # [f_dim1, f_dim2,  3]
+                    ddf_max, ddf_min = np.max(ddf_d), np.min(ddf_d)
+                    ddf_d = (ddf_d - ddf_min) / (ddf_max - ddf_min)
+                    plt.imsave(
+                        filename_format.format(depth_index=fixed_depth_index, name="ddf"),
+                        ddf_d)
 
             # calculate metric
             label = fixed_label[sample_index:(sample_index + 1), :, :, :]
@@ -84,11 +106,12 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
             metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
 
     # print metric
-    line_format = "image {image_index:d}, label {label_index:d}, dice {dice:.4f}, dist {dist:.4f}\n"
+    line_format = "{image_dir:s}, label {label_index:d}, dice {dice:.4f}, dist {dist:.4f}\n"
     with open(save_dir + "/metric.log", "w+") as f:
         for image_index in sorted(metric_map.keys()):
             for label_index in sorted(metric_map[image_index].keys()):
-                f.write(line_format.format(image_index=image_index, label_index=label_index,
+                f.write(line_format.format(image_dir=data_loader.image_index_to_dir(image_index),
+                                           label_index=label_index,
                                            **metric_map[image_index][label_index]))
 
 
@@ -116,8 +139,9 @@ if __name__ == "__main__":
     # load config
     config = config_parser.load("/".join(args.ckpt.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
-    data_config["sample_label"]["train"] = "all"
-    data_config["sample_label"]["test"] = "all"
+    if data_config["name"] == "mr_us":
+        data_config["sample_label"]["train"] = "all"
+        data_config["sample_label"]["test"] = "all"
     tf_data_config = config["tf"]["data"]
     tf_data_config["batch_size"] = int(args.bs)
     tf_opt_config = config["tf"]["opt"]
