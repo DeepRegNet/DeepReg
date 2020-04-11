@@ -12,4 +12,5 @@ class DataLoader(GeneratorDataLoader):
 
     def image_index_to_dir(self, image_index):
         pid1, vid1, pid2, vid2 = image_index
-        return "pid1{pid1:d}_vid1{vid1:d}_pid2{pid2:d}_vid2{vid2:d}".format(pid1=pid1, vid1=vid1, pid2=pid2, vid2=vid2)
+        return "pid1_{pid1:d}_vid1_{vid1:d}_pid2_{pid2:d}_vid2_{vid2:d}".format(pid1=pid1, vid1=vid1, pid2=pid2,
+                                                                                vid2=vid2)
