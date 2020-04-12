@@ -81,6 +81,16 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
         return _ddf, _pred_fixed_image, _pred_fixed_label
 
     def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
+        """
+
+        :param _fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
+        :param _pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
+        :param _ddf:              [batch, f_dim1, f_dim2, f_dim3, 3]
+        :param _fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
+        :param _pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
+        :param suffix:
+        :return:
+        """
         # image loss
         if tf_loss_config["similarity"]["image"]["weight"] > 0:
             loss_image = tf.reduce_mean(image_loss.similarity_fn(
@@ -115,7 +125,10 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
                               tf_model_config=tf_model_config)
 
     # forward
-    ddf, pred_fixed_image, pred_fixed_label = forward(backbone, moving_image, moving_label, fixed_image)
+    ddf, pred_fixed_image, pred_fixed_label = forward(_backbone=backbone,
+                                                      _moving_image=moving_image,
+                                                      _moving_label=moving_label,
+                                                      _fixed_image=fixed_image)
 
     # build model
     model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
@@ -124,22 +137,12 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
     model.ddf = ddf
 
     # loss and metric
-    add_loss_metric(fixed_image, pred_fixed_image, ddf, None, None, "")
-
-    # sample ddf
-    ddf_scale = tf.random.uniform(ddf.shape, minval=-1.5, maxval=1.5)
-    ddf_rnd = ddf * ddf_scale
-
-    # apply ddf_rand
-    warping_layer = layer.Warping(fixed_image_size=fixed_image_size)
-    fixed_image_aug = tf.stop_gradient(warping_layer([ddf_rnd, moving_image]))  # [batch, f_dim1, f_dim2, f_dim3]
-    fixed_label_aug = tf.stop_gradient(warping_layer([ddf_rnd, moving_label]))  # [batch, f_dim1, f_dim2, f_dim3]
-
-    # forward
-    ddf_aug, pred_fixed_image_aug, pred_fixed_label_aug = forward(backbone, moving_image, moving_label, fixed_image_aug)
-
-    # loss and metric
-    add_loss_metric(fixed_image_aug, pred_fixed_image_aug, ddf_aug, fixed_label_aug, pred_fixed_label_aug, "_aug")
+    add_loss_metric(_fixed_image=fixed_image,
+                    _pred_fixed_image=pred_fixed_image,
+                    _ddf=ddf,
+                    _fixed_label=None,
+                    _pred_fixed_label=None,
+                    suffix="")
 
     return model
 
