@@ -115,7 +115,7 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
                                            **metric_map[image_index][label_index]))
 
 
-if __name__ == "__main__":
+def main():
     # parse args
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
@@ -178,3 +178,7 @@ if __name__ == "__main__":
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape)
     predict(data_loader=data_loader, dataset=dataset, fixed_grid_ref=fixed_grid_ref, model=model,
             save_dir=log_dir + "/test")
+
+
+if __name__ == "__main__":
+    main()

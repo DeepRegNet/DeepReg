@@ -11,7 +11,8 @@ import deepreg.model.metric as metric
 import deepreg.model.network as network
 import deepreg.model.optimizer as opt
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", help="GPU index", required=True)
     parser.add_argument("-c", "--config", help="Path of config", required=True)
@@ -103,3 +104,7 @@ if __name__ == "__main__":
             validation_steps=dataset_size_val // tf_data_config["batch_size"],
             callbacks=[tensorboard_callback, checkpoint_callback],
         )
+
+
+if __name__ == "__main__":
+    main()

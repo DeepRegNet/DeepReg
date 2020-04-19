@@ -62,6 +62,6 @@ tf:
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 6
+  epochs: 2
   save_period: 2
   histogram_freq: 2
