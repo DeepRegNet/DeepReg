@@ -1,7 +1,7 @@
-import argparse
 import os
 from datetime import datetime
 
+import click
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
@@ -12,22 +12,45 @@ import deepreg.model.network as network
 import deepreg.model.optimizer as opt
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--gpu", help="GPU index", required=True)
-    parser.add_argument("-c", "--config", help="Path of config", required=True)
-    parser.add_argument("-m", "--memory", dest="memory", action='store_true', help="do not take all GPU memory")
-    parser.add_argument("--ckpt", help="Path of checkpoint to load", default="")
-    parser.add_argument("-l", "--log", help="Name of log folder", default="")
-    parser.set_defaults(memory=False)
-    args = parser.parse_args()
-
+@click.command()
+@click.option(
+    "--gpu", "-g",
+    help="GPU index",
+    type=str,
+    required=True,
+)
+@click.option(
+    "--config_path", "-c",
+    help="Path of config",
+    type=click.Path(file_okay=True, dir_okay=False, exists=True),
+    required=True,
+)
+@click.option(
+    "--gpu_allow_growth/--not_gpu_allow_growth",
+    help="Do not take all GPU memory",
+    default=False,
+    show_default=True)
+@click.option(
+    "--ckpt_path",
+    help="Path of checkpoint to load",
+    default="",
+    show_default=True,
+    type=str,
+)
+@click.option(
+    "--log",
+    help="Name of log folder",
+    default="",
+    show_default=True,
+    type=str,
+)
+def main(gpu, config_path, gpu_allow_growth, ckpt_path, log):
     # env vars
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if args.memory else "false"
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
 
     # load config
-    config = config_parser.load(args.config)
+    config = config_parser.load(config_path)
     data_config = config["data"]
     tf_data_config = config["tf"]["data"]
     tf_opt_config = config["tf"]["opt"]
@@ -39,10 +62,10 @@ def main():
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
 
     # output
-    log_folder_name = args.log if args.log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_folder_name = log if log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = log_dir + "/" + log_folder_name
 
-    checkpoint_init_path = args.ckpt
+    checkpoint_init_path = ckpt_path
     if checkpoint_init_path != "":
         if not checkpoint_init_path.endswith(".ckpt"):
             raise ValueError("checkpoint path should end with .ckpt")
