@@ -13,6 +13,7 @@ setup(
         "nibabel",
         "pyyaml",
         "matplotlib",
+        "click",
     ],
     entry_points={
         "console_scripts": [
