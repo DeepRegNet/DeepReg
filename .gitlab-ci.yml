@@ -1,8 +1,0 @@
-stages:
-  - test
-
-test:
-  image: docker
-  stage: test
-  script:
-    - docker build .
