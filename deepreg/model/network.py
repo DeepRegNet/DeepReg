@@ -180,12 +180,12 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
         return _dvf, _ddf, _pred_fixed_image, _pred_fixed_label
 
-    def add_loss_metric(_fixed_image, _pred_fixed_image, _dvf, _fixed_label, _pred_fixed_label, suffix):
+    def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
         """
 
         :param _fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
-        :param _dvf:              [batch, f_dim1, f_dim2, f_dim3, 3]
+        :param _ddf:              [batch, f_dim1, f_dim2, f_dim3, 3]
         :param _fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
         :param suffix:
@@ -202,7 +202,8 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
             model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity" + suffix, aggregation="mean")
 
         # regularization loss
-        loss_reg = tf.reduce_mean(tf.reduce_mean(_dvf * _dvf, axis=[1, 2, 3, 4]))
+        loss_reg = tf.reduce_mean(
+            deepreg.model.loss.deform.local_displacement_energy(_ddf, **tf_loss_config["regularization"]))
         weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
         model.add_loss(weighted_loss_reg)
         model.add_metric(loss_reg, name="loss/regularization" + suffix, aggregation="mean")
@@ -239,7 +240,7 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
     # loss and metric
     add_loss_metric(_fixed_image=fixed_image,
                     _pred_fixed_image=pred_fixed_image,
-                    _dvf=dvf,
+                    _ddf=ddf,
                     _fixed_label=None,
                     _pred_fixed_label=None,
                     suffix="")
