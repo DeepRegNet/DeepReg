@@ -147,7 +147,14 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
     show_default=True,
     type=int,
 )
-def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size):
+@click.option(
+    "--log",
+    help="Name of log folder",
+    default="",
+    show_default=True,
+    type=str,
+)
+def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log):
     # sanity check
     if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
         raise ValueError("checkpoint path should end with .ckpt")
@@ -167,8 +174,9 @@ def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size):
     tf_opt_config = config["tf"]["opt"]
     tf_model_config = config["tf"]["model"]
     tf_loss_config = config["tf"]["loss"]
+    log_folder_name = log if log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
-    log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = log_dir + "/" + log_folder_name
 
     # data
     data_loader = load.get_data_loader(data_config, mode)
