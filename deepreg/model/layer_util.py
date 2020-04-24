@@ -24,12 +24,15 @@ def get_reference_grid(grid_size):
 
     for tf.meshgrid, in the 3-D case with inputs of length M, N and P,
     outputs are of shape (N, M, P) for ‘xy’ indexing and (M, N, P) for ‘ij’ indexing.
+
+    same function as volshape_to_meshgrid of neuron
+    https://github.com/adalca/neuron/blob/master/neuron/utils.py
+    neuron modifies meshgrid to make it faster, however local benchmark suggests tf.meshgrid is better
     """
-    check_inputs(grid_size, 3, "get_reference_grid")
     return tf.cast(tf.stack(tf.meshgrid(
-        np.arange(grid_size[0]),
-        np.arange(grid_size[1]),
-        np.arange(grid_size[2]),
+        tf.range(grid_size[0]),
+        tf.range(grid_size[1]),
+        tf.range(grid_size[2]),
         indexing='ij'), axis=3), dtype=tf.float32)
 
 
@@ -68,6 +71,8 @@ def resample(vol, loc, interpolation="linear"):
     2. they support more dimensions in source
 
     TODO allow source to have more dimensions
+    TODO try not using stack as neuron claims it's slower
+    TODO add unit test for this function
     """
 
     # init
