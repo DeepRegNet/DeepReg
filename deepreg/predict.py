@@ -1,7 +1,7 @@
-import argparse
 import os
 from datetime import datetime
 
+import click
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -115,43 +115,71 @@ def predict(data_loader, dataset, fixed_grid_ref, model, save_dir):
                                            **metric_map[image_index][label_index]))
 
 
-if __name__ == "__main__":
-    # parse args
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--gpu", help="GPU index", required=True)
-    parser.add_argument("--mode", help="predict on train/valid/test data", required=True)
-    parser.add_argument("-m", "--memory", action='store_true', help="take all GPU memory")
-    parser.add_argument("--ckpt", help="Path of checkpoint", required=True)
-    parser.add_argument("--bs", default=1, help="batch size")
-    parser.set_defaults(memory=True)
-    args = parser.parse_args()
-
+@click.command()
+@click.option(
+    "--gpu", "-g",
+    help="GPU index",
+    type=str,
+    required=True,
+)
+@click.option(
+    "--gpu_allow_growth/--not_gpu_allow_growth",
+    help="Do not take all GPU memory",
+    default=False,
+    show_default=True)
+@click.option(
+    "--ckpt_path",
+    help="Path of checkpoint to load",
+    default="",
+    show_default=True,
+    type=str,
+    required=True,
+)
+@click.option('--mode',
+              help="Predict on train/valid/test data.",
+              type=click.Choice(["tran", "valid", "test"],
+                                case_sensitive=False),
+              required=True)
+@click.option(
+    "--batch_size", "-b",
+    help="Batch size",
+    default=1,
+    show_default=True,
+    type=int,
+)
+@click.option(
+    "--log",
+    help="Name of log folder",
+    default="",
+    show_default=True,
+    type=str,
+)
+def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log):
     # sanity check
-    if not args.ckpt.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
+    if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
         raise ValueError("checkpoint path should end with .ckpt")
-    if args.mode not in ["train", "valid", "test"]:
-        raise ValueError("data must be one of train, valid, test")
 
     # env vars
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if args.memory else "true"
+    os.environ['CUDA_VISIBLE_DEVICES'] = gpu
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config = config_parser.load("/".join(args.ckpt.split("/")[:-2]) + "/config.yaml")
+    config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
     if data_config["name"] == "mr_us":
         data_config["sample_label"]["train"] = "all"
         data_config["sample_label"]["test"] = "all"
     tf_data_config = config["tf"]["data"]
-    tf_data_config["batch_size"] = int(args.bs)
+    tf_data_config["batch_size"] = batch_size
     tf_opt_config = config["tf"]["opt"]
     tf_model_config = config["tf"]["model"]
     tf_loss_config = config["tf"]["loss"]
+    log_folder_name = log if log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
-    log_dir = log_dir + "/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = log_dir + "/" + log_folder_name
 
     # data
-    data_loader = load.get_data_loader(data_config, args.mode)
+    data_loader = load.get_data_loader(data_config, mode)
     dataset = data_loader.get_dataset_and_preprocess(training=False, repeat=False, **tf_data_config)
 
     # optimizer
@@ -172,9 +200,13 @@ if __name__ == "__main__":
                            metric.MeanCentroidDistance(grid_size=data_loader.fixed_image_shape)])
 
     # load weights
-    model.load_weights(args.ckpt)
+    model.load_weights(ckpt_path)
 
     # predict
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape)
     predict(data_loader=data_loader, dataset=dataset, fixed_grid_ref=fixed_grid_ref, model=model,
             save_dir=log_dir + "/test")
+
+
+if __name__ == "__main__":
+    main()
