@@ -7,7 +7,8 @@ import deepreg.model.layer_util as layer_util
 
 
 class Test(TestCase):
-    def check_equal(self, x, y):
+    @staticmethod
+    def check_equal(x, y):
         """
         given two tf tensors return True/False (not tf tensor)
         tolerate small errors
