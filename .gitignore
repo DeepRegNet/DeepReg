@@ -133,5 +133,8 @@ dmypy.json
 
 # logs
 logs/
-data/
-!deepreg/data/
+
+# data folders
+/data/mr/
+/data/mr_us/h5/
+/data/mr_us/nifti/
