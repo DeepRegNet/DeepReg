@@ -43,10 +43,11 @@ def get_n_bits_combinations(n):
 def pyramid_combination(x, w_f):
     """
     calculate linear interpolation using values of hypercube corners in dimension n
-    :param x: values on the corner, has 2**n tensors of shape [batch, *loc_shape]
-    :param w_f: weight of floor points, has n tensors of shape [batch, *loc_shape]
+    :param x: a list having values on the corner, has 2**n tensors of shape [batch, *loc_shape, (ch)]
+    :param w_f: a list having weight of floor points, has n tensors of shape [batch, *loc_shape, (1)]
     :return:
     """
+
     if len(w_f) == 1:
         return x[0] * w_f[0] + x[1] * (1 - w_f[0])
     else:
@@ -61,6 +62,8 @@ def resample(vol, loc, interpolation="linear"):
     output[b, l1, ..., ln] is therefore the value sampled at [b, v1, ..., vn] in source
 
     :param vol: shape = [batch, v_dim 1, ..., v_dim n] = [batch, *vol_shape]
+                or shape = [batch, v_dim 1, ..., v_dim n, ch] = [batch, *vol_shape, ch]
+                with the last channel for features
     :param loc: shape = [batch, l_dim 1, ..., l_dim m, n] = [batch, *loc_shape, n],
                 use `loc` instead of `coords` to make code simpler
     :param interpolation: TODO support nearest
@@ -70,17 +73,24 @@ def resample(vol, loc, interpolation="linear"):
     1. they dont have batch size
     2. they support more dimensions in source
 
-    TODO allow source to have more dimensions
     TODO try not using stack as neuron claims it's slower
     TODO add unit test for this function
     """
 
     # init
     batch_size = vol.shape[0]
-    vol_shape = vol.shape[1:]
     loc_shape = loc.shape[1: -1]
     n = loc.shape[-1]  # dimension of vol
-    assert n == len(vol_shape)
+    has_ch = False
+    if n == len(vol.shape) - 1:
+        # vol.shape = [batch, *vol_shape]
+        pass
+    elif n == len(vol.shape) - 2:
+        # vol.shape = [batch, *vol_shape, ch]
+        has_ch = True
+    else:
+        raise ValueError("vol shape inconsistent with loc")
+    vol_shape = vol.shape[1:n + 1]
     if interpolation != "linear":
         raise ValueError("only linear interpolation is supported")
 
@@ -96,7 +106,7 @@ def resample(vol, loc, interpolation="linear"):
 
         loc_floor_ceil.append([tf.cast(c_floor, tf.int32),
                                tf.cast(c_ceil, tf.int32)])
-        weight_floor.append(w_floor)
+        weight_floor.append(tf.expand_dims(w_floor, -1) if has_ch else w_floor)
 
     # get vol values on n-dim hypercube corners
     corner_indices = get_n_bits_combinations(n=len(vol_shape))  # 2**n corners, each is of n binary values
@@ -105,12 +115,12 @@ def resample(vol, loc, interpolation="linear"):
     batch_coords = tf.tile(tf.reshape(tf.range(batch_size), [batch_size] + [1] * len(loc_shape)),
                            [1] + loc_shape)  # [batch, *loc_shape]
     corner_values = [
-        tf.gather_nd(vol,  # shape [batch, *vol_shape]
+        tf.gather_nd(vol,  # shape [batch, *vol_shape, (ch)]
                      tf.stack([batch_coords] + [loc_floor_ceil[axis][fc_idx]
                                                 for axis, fc_idx in enumerate(c)],  # combine batch coord and loc
                               axis=-1))  # get value in vol, shape [batch, *loc_shape, n+1]
         for c in corner_indices  # for each corner
-    ]  # each tensor has shape [batch, *loc_shape]
+    ]  # each tensor has shape [batch, *loc_shape, (ch)]
 
     # resample
     sampled = pyramid_combination(corner_values, weight_floor)

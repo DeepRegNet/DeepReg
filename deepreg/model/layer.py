@@ -311,6 +311,7 @@ class Warping(tf.keras.layers.Layer):
         """
 
         :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
+                                 or [f_dim1, f_dim2, f_dim3, ch] with the last channel for features
         :param kwargs:
         """
         super(Warping, self).__init__(**kwargs)
