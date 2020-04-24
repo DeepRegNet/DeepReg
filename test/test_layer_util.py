@@ -31,6 +31,7 @@ class Test(TestCase):
         self.check_equal(want, get)
 
     def test_resample(self):
+        # linear, vol has no feature channel
         interpolation = "linear"
         vol = tf.constant(np.array(
             [[[0, 1, 2],
@@ -54,6 +55,46 @@ class Test(TestCase):
               [1.2, 2.5, 3.8],
               [1.9, 2, 2.1],
               ]],
-            dtype=np.float32))  # shape = [1,2,3]
+            dtype=np.float32))  # shape = [1,3,3]
+        get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+        self.check_equal(want, get)
+
+        # linear, vol has feature channel
+        interpolation = "linear"
+        vol = tf.constant(np.array(
+            [[[[0, 0],
+               [1, 1],
+               [2, 2],
+               ],
+              [[3, 3],
+               [4, 4],
+               [5, 5],
+               ],
+              ]],
+            dtype=np.float32))  # shape = [1,2,3,2]
+        loc = tf.constant(np.array(
+            [[[[0, 0],
+               [0, 1],
+               [0, 3]],  # outside frame
+              [[0.4, 0],
+               [0.5, 1],
+               [0.6, 2]],
+              [[0.4, 0.7],
+               [0.5, 0.5],
+               [0.6, 0.3]],  # resampled = 3x+y
+              ]],
+            dtype=np.float32))  # shape = [1,3,3,2]
+        want = tf.constant(np.array(
+            [[[[0, 0],
+               [1, 1],
+               [2, 2]],
+              [[1.2, 1.2],
+               [2.5, 2.5],
+               [3.8, 3.8]],
+              [[1.9, 1.9],
+               [2, 2],
+               [2.1, 2.1]],
+              ]],
+            dtype=np.float32))  # shape = [1,3,3,2]
         get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
         self.check_equal(want, get)
