@@ -338,6 +338,35 @@ class Warping(tf.keras.layers.Layer):
         return image_warped
 
 
+class IntDVF(tf.keras.layers.Layer):
+    def __init__(self, fixed_image_size, num_steps=7, **kwargs):
+        """
+
+        :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
+        :param num_steps: number of steps for integration
+        :param kwargs:
+        """
+        super(IntDVF, self).__init__(**kwargs)
+        self._warping = Warping(fixed_image_size=fixed_image_size)
+        self._num_steps = num_steps
+
+    def call(self, inputs, **kwargs):
+        """
+        given a dvf, calculate ddf
+
+        same as integrate_vec of neuron
+        https://github.com/adalca/neuron/blob/master/neuron/utils.py
+
+        :param inputs: dvf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
+        :param kwargs:
+        :return: ddf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
+        """
+        ddf = inputs / (2 ** self._num_steps)
+        for _ in range(self._num_steps):
+            ddf += self._warping(inputs=[ddf, ddf])
+        return ddf
+
+
 """
 local net
 """
