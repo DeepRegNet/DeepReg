@@ -320,6 +320,11 @@ class Warping(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         """
         wrap an image into a fixed size using ddf
+        same functionality as transform of neuron
+        https://github.com/adalca/neuron/blob/master/neuron/utils.py
+        vol = image
+        loc_shift = ddf
+
         :param inputs: [ddf, image]
                         ddf.shape = [batch, f_dim1, f_dim2, f_dim3, 3]
                         image.shape = [batch, m_dim1, m_dim2, m_dim3]
@@ -327,9 +332,9 @@ class Warping(tf.keras.layers.Layer):
         :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
         grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        warped_moving_label = layer_util.resample(vol=inputs[1],
-                                                  loc=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
-        return warped_moving_label
+        image_warped = layer_util.resample(vol=inputs[1],
+                                           loc=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
+        return image_warped
 
 
 """
