@@ -202,7 +202,7 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
             model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity" + suffix, aggregation="mean")
 
         # regularization loss
-        loss_reg = tf.reduce_mean(tf.reduce_mean(_dvf, axis=[1, 2, 3, 4]))
+        loss_reg = tf.reduce_mean(tf.reduce_mean(_dvf * _dvf, axis=[1, 2, 3, 4]))
         weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
         model.add_loss(weighted_loss_reg)
         model.add_metric(loss_reg, name="loss/regularization" + suffix, aggregation="mean")
