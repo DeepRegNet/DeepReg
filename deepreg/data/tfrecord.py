@@ -95,7 +95,7 @@ def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=256):
     def write(_examples, _num_tfrecord):
         filename = data_dir + "%d.tfrecords" % _num_tfrecord
         with tf.io.TFRecordWriter(filename, options=options) as writer:
-            for _example in examples:
+            for _example in _examples:
                 writer.write(serializer(_example))
 
     num_tf_record = 0
@@ -105,6 +105,7 @@ def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=256):
             examples.append(example)
         else:
             write(examples, num_tf_record)
+            examples = []
             num_tf_record += 1
     if len(examples) > 0:
         write(examples, num_tf_record)
