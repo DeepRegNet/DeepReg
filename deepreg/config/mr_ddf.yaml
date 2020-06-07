@@ -2,6 +2,7 @@ log_dir: "logs"
 
 data:
   name: "mr" # required
+  tfrecord_dir: "data/mr/bidi_tfrecords"
   data_order: "bidi" # for training only
   segmentation:
     filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
