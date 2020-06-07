@@ -34,6 +34,12 @@ class H5SegmentationDataLoader(DataLoader):
                 indices = np.asarray([pid1, vid1, pid2, vid2,
                                       0,  # means it's segmentation
                                       ], dtype=np.float32)
+                
+                assert moving_image.shape == self.moving_image_shape
+                assert moving_label.shape == self.moving_image_shape
+                assert fixed_image.shape == self.fixed_image_shape
+                assert fixed_label.shape == self.fixed_image_shape
+
                 yield (moving_image, fixed_image, moving_label, indices), fixed_label
 
 
