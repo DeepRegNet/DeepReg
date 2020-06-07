@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
@@ -31,11 +32,11 @@ def serializer(example):
     inputs, fixed_label = example
     moving_image, fixed_image, moving_label, indices = inputs
     feature = {
-        "moving_image": _bytes_feature(moving_image.tobytes()),
-        "fixed_image": _bytes_feature(fixed_image.tobytes()),
-        "moving_label": _bytes_feature(moving_label.tobytes()),
-        "fixed_label": _bytes_feature(fixed_label.tobytes()),
-        "indices": _bytes_feature(indices.tobytes()),
+        "moving_image": _bytes_feature(moving_image.astype(np.float32).tobytes()),
+        "fixed_image": _bytes_feature(fixed_image.astype(np.float32).tobytes()),
+        "moving_label": _bytes_feature(moving_label.astype(np.float32).tobytes()),
+        "fixed_label": _bytes_feature(fixed_label.astype(np.float32).tobytes()),
+        "indices": _bytes_feature(indices.astype(np.float32).tobytes()),
     }
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
