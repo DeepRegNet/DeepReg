@@ -2,6 +2,7 @@ log_dir: "logs"
 
 data:
   name: "mr_us" # required
+  tfrecord_dir: "data/mr_us/tfrecords"
   format: "nifti" # h5 or nifti
   sample_label:
     train: "first" # sample or first or all
@@ -51,7 +52,7 @@ tf:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_size: 0
+    shuffle_buffer_num_batch: 0
   opt:
     name: "adam"
     adam:

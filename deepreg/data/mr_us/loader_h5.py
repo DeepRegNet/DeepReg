@@ -11,7 +11,7 @@ SKIPPED_KEYS = ["num_important", "num_labels"]  # keys in label h5 file
 class H5DataLoader(DataLoader):
     def __init__(self,
                  moving_image_filename, fixed_image_filename, moving_label_filename, fixed_label_filename,
-                 start_image_index, end_image_index, sample_label):
+                 start_image_index, end_image_index, sample_label, tfrecord_dir):
         """
 
         :param moving_image_filename:
@@ -65,6 +65,7 @@ class H5DataLoader(DataLoader):
         self.sample_label = sample_label
         self.num_images = len(image_keys)
         self.num_indices = 2
+        self.tfrecord_dir = tfrecord_dir
 
     def get_generator(self):
         """

@@ -19,6 +19,7 @@ setup(
         "console_scripts": [
             "deepreg_train=deepreg.train:main",
             "deepreg_predict=deepreg.predict:main",
+            "deepreg_gen_tfrecord=deepreg.gen_tfrecord:main",
         ]
     },
 )
