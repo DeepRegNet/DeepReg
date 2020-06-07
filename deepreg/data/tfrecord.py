@@ -41,7 +41,7 @@ def serializer(example):
     return example_proto.SerializeToString()
 
 
-def decode_array(data, shape):
+def decode_array(data, shape, name=None):
     """
 
     :param data:
@@ -49,7 +49,7 @@ def decode_array(data, shape):
     :return:
     """
     return tf.reshape(tf.io.decode_raw(data, out_type=tf.float32),
-                      shape=shape)
+                      shape=shape, name=name)
 
 
 def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
@@ -68,11 +68,12 @@ def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
     fixed_label = example["fixed_label"]
     indices = example["indices"]
 
-    moving_image = decode_array(moving_image, moving_image_shape)
-    moving_label = decode_array(moving_label, moving_image_shape)
-    fixed_image = decode_array(fixed_image, fixed_image_shape)
-    fixed_label = decode_array(fixed_label, fixed_image_shape)
-    indices = decode_array(indices, [num_indices])
+    with tf.name_scope("parser") as scope:
+        moving_image = decode_array(moving_image, shape=moving_image_shape, name="moving_image")
+        moving_label = decode_array(moving_label, shape=moving_image_shape, name="moving_label")
+        fixed_image = decode_array(fixed_image, shape=fixed_image_shape, name="fixed_image")
+        fixed_label = decode_array(fixed_label, shape=fixed_image_shape, name="fixed_label")
+        indices = decode_array(indices, shape=[num_indices], name="indices")
 
     return (moving_image, fixed_image, moving_label, indices), fixed_label
 
