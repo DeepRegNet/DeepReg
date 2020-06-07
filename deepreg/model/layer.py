@@ -311,6 +311,7 @@ class Warping(tf.keras.layers.Layer):
         """
 
         :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
+                                 or [f_dim1, f_dim2, f_dim3, ch] with the last channel for features
         :param kwargs:
         """
         super(Warping, self).__init__(**kwargs)
@@ -320,6 +321,11 @@ class Warping(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         """
         wrap an image into a fixed size using ddf
+        same functionality as transform of neuron
+        https://github.com/adalca/neuron/blob/master/neuron/utils.py
+        vol = image
+        loc_shift = ddf
+
         :param inputs: [ddf, image]
                         ddf.shape = [batch, f_dim1, f_dim2, f_dim3, 3]
                         image.shape = [batch, m_dim1, m_dim2, m_dim3]
@@ -327,9 +333,38 @@ class Warping(tf.keras.layers.Layer):
         :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
         grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        warped_moving_label = layer_util.resample_linear(source=inputs[1],
-                                                         sample_coords=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
-        return warped_moving_label
+        image_warped = layer_util.resample(vol=inputs[1],
+                                           loc=grid_warped)  # [batch, f_dim1, f_dim2, f_dim3]
+        return image_warped
+
+
+class IntDVF(tf.keras.layers.Layer):
+    def __init__(self, fixed_image_size, num_steps=7, **kwargs):
+        """
+
+        :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
+        :param num_steps: number of steps for integration
+        :param kwargs:
+        """
+        super(IntDVF, self).__init__(**kwargs)
+        self._warping = Warping(fixed_image_size=fixed_image_size)
+        self._num_steps = num_steps
+
+    def call(self, inputs, **kwargs):
+        """
+        given a dvf, calculate ddf
+
+        same as integrate_vec of neuron
+        https://github.com/adalca/neuron/blob/master/neuron/utils.py
+
+        :param inputs: dvf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
+        :param kwargs:
+        :return: ddf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
+        """
+        ddf = inputs / (2 ** self._num_steps)
+        for _ in range(self._num_steps):
+            ddf += self._warping(inputs=[ddf, ddf])
+        return ddf
 
 
 """
