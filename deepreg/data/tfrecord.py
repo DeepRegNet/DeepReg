@@ -77,7 +77,7 @@ def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
     return (moving_image, fixed_image, moving_label, indices), fixed_label
 
 
-def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=256):
+def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=64):
     """
     :param data_dir: folder path where we save tfrecords
     :param data_generator:

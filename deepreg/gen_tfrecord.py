@@ -15,7 +15,13 @@ from deepreg.data.tfrecord import write_tfrecords
     type=click.Path(file_okay=True, dir_okay=False, exists=True),
     required=True,
 )
-def main(config_path):
+@click.option(
+    "--examples_per_tfrecord", "-n",
+    help="Number of examples per tfrecord",
+    type=int,
+    default=64,
+)
+def main(config_path, examples_per_tfrecord):
     config = config_parser.load(config_path)
     data_config = config["data"]
     tfrecord_dir = data_config["tfrecord_dir"]
@@ -27,7 +33,8 @@ def main(config_path):
             shutil.rmtree(tfrecord_dir)
     for mode in ["train", "valid", "test"]:
         data_loader = load.get_data_loader(data_config, mode)
-        write_tfrecords(data_dir=os.path.join(tfrecord_dir, mode), data_generator=data_loader.get_generator())
+        write_tfrecords(data_dir=os.path.join(tfrecord_dir, mode), data_generator=data_loader.get_generator(),
+                        examples_per_tfrecord=examples_per_tfrecord)
 
 
 if __name__ == "__main__":
