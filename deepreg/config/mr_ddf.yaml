@@ -2,7 +2,6 @@ log_dir: "logs"
 
 data:
   name: "mr" # required
-  data_type: "segmentation"
   data_order: "bidi" # for training only
   segmentation:
     filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
@@ -46,7 +45,7 @@ tf:
       energy_type: "bending"
   data:
     batch_size: 1
-    shuffle_buffer_size: 0
+    shuffle_buffer_num_batch: 0
   opt:
     name: "adam"
     adam:
