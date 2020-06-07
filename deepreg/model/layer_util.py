@@ -24,12 +24,15 @@ def get_reference_grid(grid_size):
 
     for tf.meshgrid, in the 3-D case with inputs of length M, N and P,
     outputs are of shape (N, M, P) for ‘xy’ indexing and (M, N, P) for ‘ij’ indexing.
+
+    same function as volshape_to_meshgrid of neuron
+    https://github.com/adalca/neuron/blob/master/neuron/utils.py
+    neuron modifies meshgrid to make it faster, however local benchmark suggests tf.meshgrid is better
     """
-    check_inputs(grid_size, 3, "get_reference_grid")
     return tf.cast(tf.stack(tf.meshgrid(
-        np.arange(grid_size[0]),
-        np.arange(grid_size[1]),
-        np.arange(grid_size[2]),
+        tf.range(grid_size[0]),
+        tf.range(grid_size[1]),
+        tf.range(grid_size[2]),
         indexing='ij'), axis=3), dtype=tf.float32)
 
 
@@ -38,6 +41,13 @@ def get_n_bits_combinations(n):
 
 
 def pyramid_combination(x, w_f):
+    """
+    calculate linear interpolation using values of hypercube corners in dimension n
+    :param x: a list having values on the corner, has 2**n tensors of shape [batch, *loc_shape, (ch)]
+    :param w_f: a list having weight of floor points, has n tensors of shape [batch, *loc_shape, (1)]
+    :return:
+    """
+
     if len(w_f) == 1:
         return x[0] * w_f[0] + x[1] * (1 - w_f[0])
     else:
@@ -45,47 +55,76 @@ def pyramid_combination(x, w_f):
                pyramid_combination(x[1::2], w_f[:-1]) * (1 - w_f[-1])
 
 
-def resample_linear(source, sample_coords):
+def resample(vol, loc, interpolation="linear"):
     """
+    for each voxel at [b, l1, ..., ln]
+    sample_coords[b, l1, ..., ln, :] = [v1, ..., vn], which is the coordinates of a source voxel
+    output[b, l1, ..., ln] is therefore the value sampled at [b, v1, ..., vn] in source
 
-    for each voxel at [b, d1, ..., dn]
-    sample_coords[b, d1, ..., dn] = [q1, ..., qn]
-    it's the values sampled at [b, q1, ..., qn] in source
-
-    :param source: shape = [batch, g_dim 1, ..., g_dim n]
-    :param sample_coords: shape = [batch, s_dim 1, ..., s_dim m, n]
+    :param vol: shape = [batch, v_dim 1, ..., v_dim n] = [batch, *vol_shape]
+                or shape = [batch, v_dim 1, ..., v_dim n, ch] = [batch, *vol_shape, ch]
+                with the last channel for features
+    :param loc: shape = [batch, l_dim 1, ..., l_dim m, n] = [batch, *loc_shape, n],
+                use `loc` instead of `coords` to make code simpler
+    :param interpolation: TODO support nearest
     :return: shape = [batch, s_dim 1, ..., s_dim n]
+
+    difference with neuron's interpn https://github.com/adalca/neuron/blob/master/neuron/utils.py
+    1. they dont have batch size
+    2. they support more dimensions in source
+
+    TODO try not using stack as neuron claims it's slower
+    TODO add unit test for this function
     """
 
-    batch_size = source.shape[0]
-    grid_dims = source.shape[1:]  # value = [g_dim 1, ..., g_dim n], let their product be g_dims_prod
+    # init
+    batch_size = vol.shape[0]
+    loc_shape = loc.shape[1: -1]
+    n = loc.shape[-1]  # dimension of vol
+    has_ch = False
+    if n == len(vol.shape) - 1:
+        # vol.shape = [batch, *vol_shape]
+        pass
+    elif n == len(vol.shape) - 2:
+        # vol.shape = [batch, *vol_shape, ch]
+        has_ch = True
+    else:
+        raise ValueError("vol shape inconsistent with loc")
+    vol_shape = vol.shape[1:n + 1]
+    if interpolation != "linear":
+        raise ValueError("only linear interpolation is supported")
 
-    coords = tf.unstack(sample_coords, axis=-1)  # n tensors of shape [batch, s_dim 1, ..., s_dim m]
-    coords_floor_ceil = []  # n tensors of shape [batch, s_dim 1, ..., s_dim m, 2]
-    weight_floor = []  # no need of weight for ceil as their sum is 1
-    for axis, c in enumerate(coords):
-        clipped = tf.clip_by_value(c, clip_value_min=0, clip_value_max=grid_dims[axis] - 1)  # [batch, s_dims_prod]
+    # clip loc to get anchors and weights
+    loc_unstack = tf.unstack(loc, axis=-1)  # n tensors of shape [batch, s_dim 1, ..., s_dim m]
+    loc_floor_ceil, weight_floor = [], []
+    for d, _loc in enumerate(loc_unstack):
+        # using for loop is faster than using list comprehension
+        clipped = tf.clip_by_value(_loc, clip_value_min=0, clip_value_max=vol_shape[d] - 1)  # [batch, *loc_shape]
         c_ceil = tf.math.ceil(clipped)
         c_floor = tf.maximum(c_ceil - 1, 0)
         w_floor = c_ceil - clipped
 
-        coords_floor_ceil.append([tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)])
-        weight_floor.append(w_floor)
+        loc_floor_ceil.append([tf.cast(c_floor, tf.int32),
+                               tf.cast(c_ceil, tf.int32)])
+        weight_floor.append(tf.expand_dims(w_floor, -1) if has_ch else w_floor)
 
-    corner_indices = get_n_bits_combinations(n=len(grid_dims))  # 2**n corners, each is of n binary values
-    corner_values = []
+    # get vol values on n-dim hypercube corners
+    corner_indices = get_n_bits_combinations(n=len(vol_shape))  # 2**n corners, each is of n binary values
+    # range(batch_size) on axis 0 and repeated on other axises
     # add batch coords manually is faster than using batch_dims in tf.gather_nd
-    batch_coords = tf.tile(tf.reshape(tf.range(batch_size), [batch_size] + [1] * (len(sample_coords.shape) - 2)),
-                           [1] + sample_coords.shape[1:-1])  # [batch, s_dim 1, ..., s_dim m]
-    for c_indices in corner_indices:
-        c_coords = tf.stack([batch_coords] + [coords_floor_ceil[axis][fc_idx]
-                                              for axis, fc_idx in enumerate(c_indices)],
-                            axis=-1)  # shape [batch, s_dim 1, ..., s_dim m, n+1]
-        c_values = tf.gather_nd(source, c_coords)  # shape [batch, s_dim 1, ..., s_dim m]
-        corner_values.append(c_values)
+    batch_coords = tf.tile(tf.reshape(tf.range(batch_size), [batch_size] + [1] * len(loc_shape)),
+                           [1] + loc_shape)  # [batch, *loc_shape]
+    corner_values = [
+        tf.gather_nd(vol,  # shape [batch, *vol_shape, (ch)]
+                     tf.stack([batch_coords] + [loc_floor_ceil[axis][fc_idx]
+                                                for axis, fc_idx in enumerate(c)],  # combine batch coord and loc
+                              axis=-1))  # get value in vol, shape [batch, *loc_shape, n+1]
+        for c in corner_indices  # for each corner
+    ]  # each tensor has shape [batch, *loc_shape, (ch)]
 
-    sampled_values = pyramid_combination(corner_values, weight_floor)
-    return sampled_values
+    # resample
+    sampled = pyramid_combination(corner_values, weight_floor)
+    return sampled
 
 
 def random_transform_generator(batch_size, scale=0.1):
