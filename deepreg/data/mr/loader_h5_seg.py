@@ -11,7 +11,7 @@ PATIENT_VISIT_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}"
 
 
 class H5SegmentationDataLoader(DataLoader):
-    def __init__(self, train_mode, data_order, filename, valid_start, test_start):
+    def __init__(self, train_mode, data_order, filename, valid_start, test_start, tfrecord_dir):
         super(H5SegmentationDataLoader, self).__init__()
         pid_vid_map = get_patient_map(get_patient_visit_map,
                                       filename, train_mode, valid_start, test_start)
@@ -21,6 +21,7 @@ class H5SegmentationDataLoader(DataLoader):
         self.moving_image_shape = get_image_shape(filename)
         self.fixed_image_shape = self.moving_image_shape
         self.num_indices = 5
+        self.tfrecord_dir = tfrecord_dir
 
     def get_generator(self):
         with h5py.File(self.filename, "r") as hf:
