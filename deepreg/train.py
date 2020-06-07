@@ -101,7 +101,7 @@ def main(gpu, config_path, gpu_allow_growth, ckpt_path, log):
                                     batch_size=tf_data_config["batch_size"],
                                     tf_model_config=tf_model_config,
                                     tf_loss_config=tf_loss_config)
-
+        model.summary()
         # metrics
         model.compile(optimizer=optimizer,
                       loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
