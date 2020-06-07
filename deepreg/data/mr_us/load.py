@@ -5,10 +5,9 @@ from deepreg.data.mr_us.loader_nifti import NiftiDataLoader
 
 
 def get_data_loader(data_config, mode):
-    sample_label_train = data_config["sample_label"]["train"]
-    sample_label_test = data_config["sample_label"]["test"]
     if mode == "valid":
         mode = "test"
+    sample_label = data_config["sample_label"][mode]
     if data_config["format"] == "nifti":
         nifti_config = data_config["nifti"]
         data_dir = nifti_config["dir"][:-1] if nifti_config["dir"][-1] == "/" else nifti_config["dir"]
@@ -16,19 +15,19 @@ def get_data_loader(data_config, mode):
         if data_config["tfrecord_dir"] != "" and data_config["tfrecord_dir"] != None:
             load_into_memory = False
 
-        moving_image_dir_train = data_dir + "/%s/moving_images" % mode
-        fixed_image_dir_train = data_dir + "/%s/fixed_images" % mode
-        moving_label_dir_train = data_dir + "/%s/moving_labels" % mode
-        fixed_label_dir_train = data_dir + "/%s/fixed_labels" % mode
+        moving_image_dir = data_dir + "/%s/moving_images" % mode
+        fixed_image_dir = data_dir + "/%s/fixed_images" % mode
+        moving_label_dir = data_dir + "/%s/moving_labels" % mode
+        fixed_label_dir = data_dir + "/%s/fixed_labels" % mode
         tfrecord_dir = None
         if data_config["tfrecord_dir"] != "" and data_config["tfrecord_dir"] is not None:
             tfrecord_dir = os.path.join(data_config["tfrecord_dir"], mode)
-        return NiftiDataLoader(moving_image_dir=moving_image_dir_train,
-                               fixed_image_dir=fixed_image_dir_train,
-                               moving_label_dir=moving_label_dir_train,
-                               fixed_label_dir=fixed_label_dir_train,
+        return NiftiDataLoader(moving_image_dir=moving_image_dir,
+                               fixed_image_dir=fixed_image_dir,
+                               moving_label_dir=moving_label_dir,
+                               fixed_label_dir=fixed_label_dir,
                                load_into_memory=load_into_memory,
-                               sample_label=sample_label_train,
+                               sample_label=sample_label,
                                tfrecord_dir=tfrecord_dir,
                                )
     elif data_config["format"] == "h5":
@@ -43,15 +42,15 @@ def get_data_loader(data_config, mode):
         if data_config["tfrecord_dir"] != "" and data_config["tfrecord_dir"] is not None:
             tfrecord_dir = os.path.join(data_config["tfrecord_dir"], mode)
 
-        start_index_train = h5_config[mode]["start_image_index"]
-        end_index_train = h5_config[mode]["end_image_index"]
+        start_index = h5_config[mode]["start_image_index"]
+        end_index = h5_config[mode]["end_image_index"]
         return H5DataLoader(moving_image_filename=moving_image_filename,
                             fixed_image_filename=fixed_image_filename,
                             moving_label_filename=moving_label_filename,
                             fixed_label_filename=fixed_label_filename,
-                            start_image_index=start_index_train,
-                            end_image_index=end_index_train,
-                            sample_label=sample_label_train,
+                            start_image_index=start_index,
+                            end_image_index=end_index,
+                            sample_label=sample_label,
                             tfrecord_dir=tfrecord_dir,
                             )
     else:
