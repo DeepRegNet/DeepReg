@@ -4,13 +4,13 @@ import h5py
 def get_image_shape(filename):
     with h5py.File(filename, "r") as hf:
         keys = sorted([k for k in hf.keys()])
-        sh = list(hf.get(keys[0]).shape)
+        sh = tuple(hf.get(keys[0]).shape)
 
         # sanity check
         # all samples have same 4d shape (2, dim1, dim2, dim3)
         assert len(sh) == 4
         for k in keys:
-            assert sh == list(hf.get(k).shape)
+            assert sh == tuple(hf.get(k).shape)
     return sh[1:]
 
 

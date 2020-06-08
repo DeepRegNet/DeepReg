@@ -11,7 +11,7 @@ PATIENT_VISIT_LANDMARK_KEY_FORMAT = "Patient{pid:d}-Visit{vid:d}-ldmark-{lid:d}"
 
 
 class H5LandmarkDataLoader(DataLoader):
-    def __init__(self, train_mode, data_order, filename, valid_start, test_start):
+    def __init__(self, train_mode, data_order, filename, valid_start, test_start, tfrecord_dir):
         super(H5LandmarkDataLoader, self).__init__()
         pid_vid_lid_map = get_patient_map(get_patient_visit_landmark_map,
                                           filename, train_mode, valid_start, test_start)
@@ -21,6 +21,7 @@ class H5LandmarkDataLoader(DataLoader):
         self.moving_image_shape = get_image_shape(filename)
         self.fixed_image_shape = self.moving_image_shape
         self.num_indices = 5
+        self.tfrecord_dir = tfrecord_dir
 
     def get_generator(self):
         with h5py.File(self.filename, "r") as hf:
@@ -34,6 +35,12 @@ class H5LandmarkDataLoader(DataLoader):
                     indices = np.asarray([pid1, vid1, pid2, vid2,
                                           lid + 1,
                                           ], dtype=np.float32)
+                    
+                    assert moving_image.shape == self.moving_image_shape
+                    assert moving_label.shape == self.moving_image_shape
+                    assert fixed_image.shape == self.fixed_image_shape
+                    assert fixed_label.shape == self.fixed_image_shape
+
                     yield (moving_image, fixed_image, moving_label, indices), fixed_label
 
 

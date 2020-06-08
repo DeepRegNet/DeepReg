@@ -41,7 +41,7 @@ class NiftiFileLoader:
 class NiftiDataLoader(DataLoader):
     def __init__(self,
                  moving_image_dir, fixed_image_dir, moving_label_dir, fixed_label_dir,
-                 load_into_memory, sample_label):
+                 load_into_memory, sample_label, tfrecord_dir):
         super(NiftiDataLoader, self).__init__()
         loader_moving_image = NiftiFileLoader(moving_image_dir, load_into_memory)
         loader_fixed_image = NiftiFileLoader(fixed_image_dir, load_into_memory)
@@ -77,6 +77,7 @@ class NiftiDataLoader(DataLoader):
         self.sample_label = sample_label
         self.num_images = len(self.file_names)
         self.num_indices = 2
+        self.tfrecord_dir = tfrecord_dir
 
     def get_generator(self):
         for image_index, image_key in enumerate(self.file_names):
