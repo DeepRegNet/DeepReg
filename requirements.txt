@@ -5,3 +5,4 @@ pyyaml
 matplotlib
 click
 tqdm
+tensorflow
