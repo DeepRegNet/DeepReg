@@ -1,6 +1,6 @@
 # Deep Registration
 
-DeepReg is an open-source toolkit for research in medical image registration using deep learning. The current version is based on TensorFlow 2. This toolkits contain a number of implementations for unsupervised-, weaky-supervised algorithms with their combinations and variants, with a practical focus on diverse clinical applications with rich example demonstrations.
+DeepReg is an open-source toolkit for research in medical image registration using deep learning. The current version is based on TensorFlow 2. This toolkit contains implementations for unsupervised- and (weaky-)supervised algorithms with their combinations and variants, with a practical focus on diverse clinical applications with rich examples.
 
 This is still under development. However some of the functionalities can be accessed as follows.
 
