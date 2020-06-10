@@ -10,4 +10,3 @@ install:
 script:
   - pytest
   - pytest --cov=./
-  - pytest -m parametrize
