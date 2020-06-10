@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.6"      # current default Python on Travis CI
+# Command to install dependencies
+install:
+  - pip install -r ./requirements.txt
+  - pip install pytest pytest-cov
+  - pip install -e .
+  - pip install pyyaml
+script:
+  - pytest
+  - pytest --cov=./
+  - pytest -m parametrize
