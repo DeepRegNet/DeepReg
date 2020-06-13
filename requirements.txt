@@ -8,3 +8,4 @@ tqdm
 tensorflow
 glob
 nilearn
+pytest
