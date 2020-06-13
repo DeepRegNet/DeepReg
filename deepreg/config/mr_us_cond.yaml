@@ -17,7 +17,7 @@ tf:
       out_kernel_initializer: "glorot_uniform" # zeros or glorot_uniform
       out_activation: "sigmoid"
     local:
-      num_channel_initial: 4
+      num_channel_initial: 2
       extract_levels: [0, 1, 2, 3, 4]
     unet:
       num_channel_initial: 4

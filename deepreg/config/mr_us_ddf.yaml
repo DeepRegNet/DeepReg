@@ -17,7 +17,7 @@ tf:
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
     local:
-      num_channel_initial: 4
+      num_channel_initial: 2
       extract_levels: [0, 1, 2, 3, 4]
     unet:
       num_channel_initial: 4
