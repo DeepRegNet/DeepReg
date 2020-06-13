@@ -4,8 +4,7 @@ import nibabel as nib
 import numpy as np
 
 from deepreg.data.loader import GeneratorDataLoader
-from deepreg.data.nifti.sample import get_label_indices
-from deepreg.data.nifti.util import get_sorted_filenames_in_dir, check_difference_between_two_lists
+from deepreg.data.util import get_sorted_filenames_in_dir, check_difference_between_two_lists, get_label_indices
 
 
 class NiftiFileLoader:
