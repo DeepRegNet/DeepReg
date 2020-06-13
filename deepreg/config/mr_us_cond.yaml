@@ -1,23 +1,13 @@
 log_dir: "logs"
 
 data:
-  name: "mr_us" # required
-  tfrecord_dir: "data/mr_us/tfrecords"
-  format: "nifti" # h5 or nifti
+  dir: "data/mr_us/demo" # required
+  type: "nifti"
+  moving_image_shape: [64, 64, 60]
+  fixed_image_shape: [44, 59, 41]
   sample_label:
-    train: "first" # sample or first or all
+    train: "sample" # sample or first or all
     test: "first"
-  nifti:
-    dir: "data/mr_us/demo"
-    load_into_memory: true
-  h5:
-    dir: "data/mr_us/h5"
-    train:
-      start_image_index: 0 # included
-      end_image_index: 100 # excluded
-    test:
-      start_image_index: 100
-      end_image_index: 108
 
 tf:
   model:

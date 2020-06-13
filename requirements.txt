@@ -6,3 +6,5 @@ matplotlib
 click
 tqdm
 tensorflow
+glob
+nilearn

@@ -5,11 +5,11 @@ import click
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.data.load as load
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
 import deepreg.model.network as network
 import deepreg.model.optimizer as opt
+from deepreg.data.load import get_data_loader
 
 
 @click.command()
@@ -76,8 +76,8 @@ def main(gpu, config_path, gpu_allow_growth, ckpt_path, log):
     config_parser.save(config=config, out_dir=log_dir)
 
     # data
-    data_loader_train = load.get_data_loader(data_config, "train")
-    data_loader_val = load.get_data_loader(data_config, "valid")
+    data_loader_train = get_data_loader(data_config, "train")
+    data_loader_val = get_data_loader(data_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset_and_preprocess(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_images
