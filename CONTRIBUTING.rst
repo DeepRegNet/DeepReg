@@ -30,6 +30,7 @@ The easiest way to contribute is to follow these guidelines:
 5. Make your changes following the coding guidelines below.
 6. Commit and push your changes to your fork. The commit message should start with `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small, related chunks. Review each commit and explain its purpose in the commit message.
 7. Submit a merge request: https://github.com/ucl-candi/DeepReg/merge-requests/new
+8. Merge request will be reviewed and, if necessary, changes suggested before merge to master.
 
 Design Considerations
 ---------------------
