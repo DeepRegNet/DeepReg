@@ -1,4 +1,5 @@
-# Training data sampling methods
+# Training data sampling options
+
 ## Sampling for multiple labels
 In any case when corresponding labels are available and there are multiple types of labels, e.g. the segmentation of different organs in a CT image, two options are available:
 
