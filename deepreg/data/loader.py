@@ -65,7 +65,9 @@ class DataLoader:
         num_labels_moving = 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
         num_labels_fixed = 1 if len(fixed_label.shape) == 3 else fixed_label.shape[-1]
         if num_labels_moving != num_labels_fixed:
-            raise ValueError("Sample {}'s moving image and fixed image have different numbers of labels")
+            raise ValueError(
+                "Sample {}'s moving image and fixed image have different numbers of labels."
+                "moving: {}, fixed: {}".format(image_indices, num_labels_moving, num_labels_fixed))
 
     def sample_image_label(self, moving_image: np.ndarray, fixed_image: np.ndarray,
                            moving_label: np.ndarray, fixed_label: np.ndarray, image_indices: list):
