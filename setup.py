@@ -9,7 +9,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "h5py",
-        "numpy",
+        "numpy>=1.16",
         "nibabel",
         "pyyaml",
         "matplotlib",
@@ -17,7 +17,9 @@ setup(
         "tqdm",
         "tensorflow==2.2",
         "nilearn",
-        "pytest",
+        "pytest>=4.6",
+        "pytest-cov",
+        "pytest-dependency",
     ],
     entry_points={
         "console_scripts": [
