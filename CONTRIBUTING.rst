@@ -13,9 +13,10 @@ Reporting bugs and feature requests
 Please create a new issue on: https://github.com/ucl-candi/DeepReg/issues/new
 
 When reporting a bug, please include:
-* The version of DeepReg you are using
-* Your OS version (for example Windows 10 64-bit, macOS High Sierra, Ubuntu 16.04)
-* Detailed steps to reproduce the bug.
+
+1. The version of DeepReg you are using
+2. Your OS version (for example Windows 10 64-bit, macOS High Sierra, Ubuntu 16.04)
+3. Detailed steps to reproduce the bug.
 
 
 Fixing bugs or implement features
