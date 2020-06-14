@@ -11,7 +11,11 @@ class NiftiFileLoader:
 
     def get_data(self, index: int):
         assert 0 <= index < len(self.file_paths)
-        return np.asarray(nib.load(self.file_paths[index]).dataobj, dtype=np.float32)
+        arr = np.asarray(nib.load(self.file_paths[index]).dataobj, dtype=np.float32)
+        if len(arr.shape) == 4 and arr.shape[3] == 1:
+            # for labels, if there's only one label, remove the last dimension
+            arr = arr[:, :, :, 0]
+        return arr
 
     def get_relative_file_paths(self):
         n = len(self.dir_path)

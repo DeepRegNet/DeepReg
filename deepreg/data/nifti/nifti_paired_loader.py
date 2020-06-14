@@ -1,10 +1,8 @@
 import os
 
-import numpy as np
-
 from deepreg.data.loader import PairedDataLoader, GeneratorDataLoader
 from deepreg.data.nifti.util import NiftiFileLoader
-from deepreg.data.util import check_difference_between_two_lists, get_label_indices
+from deepreg.data.util import check_difference_between_two_lists
 
 
 class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
@@ -20,7 +18,8 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         :param sample_label:
         """
         super(NiftiPairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
-                                                    fixed_image_shape=fixed_image_shape)
+                                                    fixed_image_shape=fixed_image_shape,
+                                                    sample_label=sample_label)
         self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"))
         self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"))
@@ -28,7 +27,6 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.validate_data_files()
 
         self.num_images = len(self.loader_moving_image.file_paths)
-        self.sample_label = sample_label
 
     @property
     def num_samples(self) -> int:
@@ -48,45 +46,12 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         check_difference_between_two_lists(list1=filenames_moving_image, list2=filenames_moving_label)
         check_difference_between_two_lists(list1=filenames_moving_image, list2=filenames_fixed_label)
 
-    def validate_images_and_labels(self, index: int, moving_image: np.ndarray, fixed_image: np.ndarray,
-                                   moving_label: np.ndarray, fixed_label: np.ndarray):
-        for arr, name in zip([moving_image, fixed_image, moving_label, fixed_label],
-                             ["moving_image", "fixed_image", "moving_label", "fixed_label"]):
-            if np.min(arr) < 0 or np.max(arr) > 1:
-                raise ValueError("Sample {}'s {} has value outside of [0,1]."
-                                 "Images are assumed to be between [0, 255] "
-                                 "and labels are assumed to be between [0, 1]".format(index, name))
-        for arr, name in zip([moving_image, moving_label],
-                             ["moving_image", "moving_label"]):
-            if arr.shape[:3] != self.moving_image_shape:
-                raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
-                                 "Expected {} but got {}.".format(index, name, self.moving_image_shape, arr.shape[:3]))
-        for arr, name in zip([fixed_image, fixed_label],
-                             ["fixed_image", "fixed_label"]):
-            if arr.shape[:3] != self.fixed_image_shape:
-                raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
-                                 "Expected {} but got {}.".format(index, name, self.fixed_image_shape, arr.shape[:3]))
-
     def get_generator(self):
         for image_index in range(self.num_images):
             moving_image = self.loader_moving_image.get_data(index=image_index) / 255.
             fixed_image = self.loader_fixed_image.get_data(index=image_index) / 255.
             moving_label = self.loader_moving_label.get_data(index=image_index)
             fixed_label = self.loader_fixed_label.get_data(index=image_index)
-            self.validate_images_and_labels(image_index, moving_image, fixed_image, moving_label, fixed_label)
 
-            if len(moving_label.shape) == 4:  # multiple labels
-                label_indices = get_label_indices(moving_label.shape[3], self.sample_label)
-                for label_index in label_indices:
-                    indices = np.asarray([image_index, label_index], dtype=np.float32)
-                    inputs = (moving_image, fixed_image, moving_label[..., label_index], indices)
-                    labels = fixed_label[..., label_index]
-                    yield inputs, labels
-            elif len(moving_label.shape) == 3:  # only one label
-                label_index = 0
-                indices = np.asarray([image_index, label_index], dtype=np.float32)
-                inputs = (moving_image, fixed_image, moving_label, indices)
-                labels = fixed_label
-                yield inputs, labels
-            else:
-                raise ValueError("Unknown moving_label.shape")
+            for sample in self.sample_image_label(moving_image, fixed_image, moving_label, fixed_label, [image_index]):
+                yield sample
