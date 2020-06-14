@@ -14,12 +14,16 @@ setup(
         "pyyaml",
         "matplotlib",
         "click",
+        "tqdm",
+        "tensorflow==2.2",
+        "nilearn",
+        "pytest",
     ],
     entry_points={
         "console_scripts": [
-            "deepreg_train=deepreg.train:main",
-            "deepreg_predict=deepreg.predict:main",
-            "deepreg_gen_tfrecord=deepreg.gen_tfrecord:main",
+            "train=deepreg.train:main",
+            "predict=deepreg.predict:main",
+            "gen_tfrecord=deepreg.gen_tfrecord:main",
         ]
     },
 )

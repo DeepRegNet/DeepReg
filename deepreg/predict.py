@@ -38,10 +38,12 @@ def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
         fixed_depth = fixed_image.shape[3]
 
         for sample_index in range(num_samples):
-            image_index, label_index = indices[sample_index, :].numpy().astype(int).tolist()
+            indices_i = indices[sample_index, :].numpy().astype(int).tolist()
+            image_index = "_".join([str(x) for x in indices_i[:-1]])
+            label_index = str(indices_i[-1])
 
             # save fixed
-            image_dir = os.path.join(save_dir, "image%d" % image_index, "label%d" % label_index)
+            image_dir = os.path.join(save_dir, "image%s" % image_index, "label%s" % label_index)
             filename_format = os.path.join(image_dir, "depth{depth_index:d}_{name:s}.png")
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
@@ -98,7 +100,7 @@ def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
             metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
 
     # print metric
-    line_format = "{image_index:d}, label {label_index:d}, dice {dice:.4f}, dist {dist:.4f}\n"
+    line_format = "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
     with open(save_dir + "/metric.log", "w+") as f:
         for image_index in sorted(metric_map.keys()):
             for label_index in sorted(metric_map[image_index].keys()):
@@ -119,7 +121,6 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     # load config
     config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
-    data_config["sample_label"][mode] = sample_label
     tf_data_config = config["tf"]["data"]
     tf_data_config["batch_size"] = batch_size
     tf_opt_config = config["tf"]["opt"]

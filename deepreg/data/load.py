@@ -1,6 +1,7 @@
 import os
 
 from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
+from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedDataLoader
 
 
 def get_data_loader(data_config, mode):
@@ -12,6 +13,8 @@ def get_data_loader(data_config, mode):
     :return:
     """
     data_dir = data_config["dir"]
+
+    # set mode
     modes = os.listdir(data_dir)
     if "train" not in modes:
         raise ValueError("training data must be provided, they should be stored under train/")
@@ -21,13 +24,23 @@ def get_data_loader(data_config, mode):
     if mode not in modes:
         return None
 
-    moving_image_shape = data_config["moving_image_shape"]
-    fixed_image_shape = data_config["fixed_image_shape"]
-    if data_config["type"] == "nifti":
-        sample_label = data_config["sample_label"][mode]
-        return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                     moving_image_shape=moving_image_shape,
-                                     fixed_image_shape=fixed_image_shape,
-                                     sample_label=sample_label)
-    else:
-        raise ValueError("Unknown data loader type")
+    sample_label = "sample" if mode == "train" else "all"
+    seed = None if mode == "train" else 0
+
+    if data_config["format"] == "nifti":
+        if data_config["type"] == "paired":
+            moving_image_shape = data_config["moving_image_shape"]
+            fixed_image_shape = data_config["fixed_image_shape"]
+            return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                         sample_label=sample_label,
+                                         seed=seed,
+                                         moving_image_shape=moving_image_shape,
+                                         fixed_image_shape=fixed_image_shape)
+        elif data_config["type"] == "unpaired":
+            image_shape = data_config["image_shape"]
+            return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                           sample_label=sample_label,
+                                           seed=seed,
+                                           image_shape=image_shape)
+
+    raise ValueError("Unknown data loader type")

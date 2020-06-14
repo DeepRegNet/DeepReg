@@ -1,13 +1,11 @@
 log_dir: "logs"
 
 data:
-  dir: "data/mr_us/demo" # required
-  type: "nifti"
+  dir: "data/mr_us/paired" # required
+  format: "nifti"
+  type: "paired"
   moving_image_shape: [64, 64, 60]
   fixed_image_shape: [44, 59, 41]
-  sample_label:
-    train: "sample" # sample or first or all
-    test: "first"
 
 tf:
   model:

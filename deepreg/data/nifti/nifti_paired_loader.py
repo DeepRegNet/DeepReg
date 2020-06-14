@@ -7,19 +7,20 @@ from deepreg.data.util import check_difference_between_two_lists
 
 class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple),
-                 sample_label):
+                 data_dir_path: str, sample_label: str, seed,
+                 moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple)):
         """
 
         :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
                               sub-directories: moving_images, fixed_images, moving_labels, fixed_labels
+        :param sample_label:
+        :param seed:
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
-        :param sample_label:
         """
         super(NiftiPairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
                                                     fixed_image_shape=fixed_image_shape,
-                                                    sample_label=sample_label)
+                                                    sample_label=sample_label, seed=seed)
         self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"))
         self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"))
@@ -53,5 +54,9 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
             moving_label = self.loader_moving_label.get_data(index=image_index)
             fixed_label = self.loader_fixed_label.get_data(index=image_index)
 
-            for sample in self.sample_image_label(moving_image, fixed_image, moving_label, fixed_label, [image_index]):
+            for sample in self.sample_image_label(moving_image=moving_image,
+                                                  fixed_image=fixed_image,
+                                                  moving_label=moving_label,
+                                                  fixed_label=fixed_label,
+                                                  image_indices=[image_index]):
                 yield sample
