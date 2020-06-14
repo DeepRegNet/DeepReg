@@ -1,27 +1,13 @@
 import os
 
-import nibabel as nib
 import numpy as np
 
-from deepreg.data.loader import GeneratorDataLoader
-from deepreg.data.util import get_sorted_filenames_in_dir, check_difference_between_two_lists, get_label_indices
+from deepreg.data.loader import PairedDataLoader, GeneratorDataLoader
+from deepreg.data.nifti.util import NiftiFileLoader
+from deepreg.data.util import check_difference_between_two_lists, get_label_indices
 
 
-class NiftiFileLoader:
-    def __init__(self, dir_path):
-        self.dir_path = dir_path
-        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="nii.gz")
-
-    def get_data(self, index: int):
-        assert 0 <= index < len(self.file_paths)
-        return np.asarray(nib.load(self.file_paths[index]).dataobj, dtype=np.float32)
-
-    def get_relative_file_paths(self):
-        n = len(self.dir_path)
-        return [p[n:] for p in self.file_paths]
-
-
-class NiftiDataLoader(GeneratorDataLoader):
+class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
     def __init__(self,
                  data_dir_path: str, moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple),
                  sample_label):
@@ -33,21 +19,24 @@ class NiftiDataLoader(GeneratorDataLoader):
         :param fixed_image_shape: (width, height, depth)
         :param sample_label:
         """
-        super(NiftiDataLoader, self).__init__()
-        if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
-            raise ValueError("moving_image_shape and fixed_image_shape have to be length of three,"
-                             "corresponding to (width, height, depth)")
+        super(NiftiPairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
+                                                    fixed_image_shape=fixed_image_shape)
         self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"))
         self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"))
         self.loader_fixed_label = NiftiFileLoader(os.path.join(data_dir_path, "fixed_labels"))
         self.validate_data_files()
 
-        self.moving_image_shape = tuple(moving_image_shape)
-        self.fixed_image_shape = tuple(fixed_image_shape)
-
         self.num_images = len(self.loader_moving_image.file_paths)
         self.sample_label = sample_label
+
+    @property
+    def num_samples(self) -> int:
+        """
+        Return the number of samples in the dataset for one epoch.
+        :return:
+        """
+        return self.num_images
 
     def validate_data_files(self):
         """Verify all loader have the same files"""

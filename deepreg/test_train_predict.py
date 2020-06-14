@@ -8,7 +8,7 @@ from deepreg.train import train
 tf.get_logger().setLevel(3)
 
 
-def test_train():
+def test_train_and_predict():
     gpu = "0"
     config_path = "deepreg/config/mr_us_ddf.yaml"
     gpu_allow_growth = False
