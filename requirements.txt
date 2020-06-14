@@ -8,3 +8,5 @@ tqdm
 tensorflow==2.2
 nilearn
 pytest
+pytest-cov
+pytest-dependency
