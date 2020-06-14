@@ -1,6 +1,6 @@
 import os
 
-from deepreg.data.nifti.nifti_loader import NiftiDataLoader
+from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
 
 
 def get_data_loader(data_config, mode):
@@ -25,9 +25,9 @@ def get_data_loader(data_config, mode):
     fixed_image_shape = data_config["fixed_image_shape"]
     if data_config["type"] == "nifti":
         sample_label = data_config["sample_label"][mode]
-        return NiftiDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                               moving_image_shape=moving_image_shape,
-                               fixed_image_shape=fixed_image_shape,
-                               sample_label=sample_label)
+        return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                     moving_image_shape=moving_image_shape,
+                                     fixed_image_shape=fixed_image_shape,
+                                     sample_label=sample_label)
     else:
         raise ValueError("Unknown data loader type")
