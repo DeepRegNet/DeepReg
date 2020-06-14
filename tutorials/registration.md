@@ -5,7 +5,7 @@
 ![alt text](./media/deepreg-tutorial-unsupervised.svg "Unsupervised")
 
 ## Weakly-supervised learning
-![alt text](./media/deepreg-tutorial-weakly.svg.svg "Weakly")
+![alt text](./media/deepreg-tutorial-weakly.svg "Weakly")
 
 ## Unsupervised learning with weak supervision
-![alt text](./media/deepreg-tutorial-combined.svg.svg "combined")
+![alt text](./media/deepreg-tutorial-combined.svg "combined")
