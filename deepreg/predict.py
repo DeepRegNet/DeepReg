@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 
@@ -109,7 +110,17 @@ def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
                                            **metric_map[image_index][label_index]))
 
 
-def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label):
+def init(log_dir):
+    # init log directory
+    if log_dir == "":  # default
+        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
+    if os.path.exists(log_dir):
+        logging.warning("Log directory {} exists already.".format(log_dir))
+    else:
+        os.makedirs(log_dir)
+
+
+def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
     # sanity check
     if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
         raise ValueError("checkpoint path should end with .ckpt")
@@ -126,9 +137,6 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     tf_opt_config = config["tf"]["opt"]
     tf_model_config = config["tf"]["model"]
     tf_loss_config = config["tf"]["loss"]
-    log_folder_name = log if log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
-    log_dir = log_dir + "/" + log_folder_name
 
     # data
     data_loader = load.get_data_loader(data_config, mode)
@@ -194,8 +202,8 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     type=int,
 )
 @click.option(
-    "--log",
-    help="Name of log folder",
+    "--log_dir",
+    help="Path of log directory",
     default="",
     show_default=True,
     type=str,
@@ -207,8 +215,8 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     show_default=True,
     type=str,
 )
-def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label):
-    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label)
+def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label)
 
 
 if __name__ == "__main__":
