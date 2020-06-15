@@ -10,8 +10,8 @@ tf.get_logger().setLevel(3)
 
 def test_train_and_predict():
     configs = [
-        ("paired_ddf", "deepreg/config/paired_ddf.yaml"),
-        ("unpaired_ddf", "deepreg/config/unpaired_ddf.yaml"),
+        ("paired_labeled_ddf", "deepreg/config/paired_labeled_ddf.yaml"),
+        ("unpaired_labeled_ddf", "deepreg/config/unpaired_labeled_ddf.yaml"),
     ]
     gpu = ""
     gpu_allow_growth = False
