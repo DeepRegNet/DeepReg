@@ -10,7 +10,7 @@ install:
 jobs:
   include:
     - stage: "Tests"
-      name: "Ouptut Tests"
+      name: "Output Tests"
       script:   travis_wait 30 pytest ./test/output/
     - name: "Unit Tests"
       script: pytest ./test/unit/
