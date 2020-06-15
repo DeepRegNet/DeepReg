@@ -121,6 +121,7 @@ def init(log_dir):
 
 
 def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    logging.error("TODO sample_label is not used in predict")
     # sanity check
     if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
         raise ValueError("checkpoint path should end with .ckpt")
