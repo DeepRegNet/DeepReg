@@ -7,7 +7,7 @@ This is still under development. However some of the functionalities can be acce
 ## Installation
 
 The easiest way to install the python environment is with Miniconda/Anaconda.
-- Use `conda create --name py36-tf2 python=3.6 tensorflow-gpu` to setup the latest gpu-support with tf.
+- Use `conda create --name deepreg python=3.7 tensorflow-gpu=2.2` to setup the latest gpu-support with tf.
 - Use `pip install -r requirements.txt` to install the rest requirements
 - Use `pip install -e .` to install the package
 

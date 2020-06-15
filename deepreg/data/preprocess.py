@@ -50,3 +50,35 @@ class AffineTransformation3D:
         fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_transforms)
 
         return (moving_image, fixed_image, moving_label, indices), fixed_label
+
+
+def preprocess(dataset,
+               moving_image_shape, fixed_image_shape,
+               training,
+               shuffle_buffer_num_batch, repeat: bool, batch_size):
+    """
+    shuffle, repeat, batch, augmentation
+    :param dataset:
+    :param moving_image_shape:
+    :param fixed_image_shape:
+    :param training:
+    :param batch_size:
+    :param repeat:
+    :param shuffle_buffer_num_batch:
+    :return:
+    """
+    # shuffle / repeat / batch / preprocess
+    if training and shuffle_buffer_num_batch > 0:
+        dataset = dataset.shuffle(buffer_size=batch_size * shuffle_buffer_num_batch)
+    if repeat:
+        dataset = dataset.repeat()
+    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    dataset = dataset.batch(batch_size=batch_size,
+                            drop_remainder=training)
+    if training:
+        # TODO add cropping, but crop first or rotation first?
+        affine_transform = AffineTransformation3D(moving_image_size=moving_image_shape,
+                                                  fixed_image_size=fixed_image_shape,
+                                                  batch_size=batch_size)
+        dataset = dataset.map(affine_transform.transform)
+    return dataset

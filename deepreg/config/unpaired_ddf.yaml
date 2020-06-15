@@ -1,17 +1,14 @@
 log_dir: "logs"
 
 data:
-  dir: "data/mr_us/demo" # required
-  type: "nifti"
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
-  sample_label:
-    train: "sample" # sample or first or all
-    test: "first"
+  dir: "data/mr_us/unpaired" # required
+  format: "nifti"
+  type: "unpaired"
+  image_shape: [64, 64, 60]
 
 tf:
   model:
-    method: "dvf" # ddf or dvf or conditional or seg
+    method: "ddf" # ddf or conditional or seg
     backbone:
       name: "local"
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
