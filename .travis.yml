@@ -11,8 +11,6 @@ jobs:
   include:
     - stage: "Tests"
       name: "Ouptut Tests"
-      script:   travis_wait 30 pytest ./test/output/
+      script:   travis_wait 30 pytest --cov=./test/output/
     - name: "Unit Tests"
-      script: pytest ./test/unit/
-    - stage: "Coverage"
-      script: pytest --cov=./
+      script: pytest --cov=./test/unit/
