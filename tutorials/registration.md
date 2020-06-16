@@ -36,7 +36,18 @@ Depite the name, this formulation to predcit the corresponding regions of intere
 
 ## Training a registration network
 Following these simplpe steps:
-- [Setup](./setup.md); 
-- [Configure](./configuration.md) - see an overview of other configuration options;
-- Data. For using predefined data loaders, see the [tutorial](./predefined_loaders.md). Otherise, a [cutomised data loader](./cutomise_loaders) is required;
-- Train by calling 'train.py'.
+- [Setup](./setup.md);  
+
+- Data. For using predefined data loaders, see the [tutorial](./predefined_loader.md). Otherise, a [cutomised data loader](./add_loader.md) is required;  
+
+- [Configure](./configuration.md) - see an overview of other configuration options;  
+
+- Train by calling 'train.py'.  
+
+- Predict by calling 'predict.py'.
+
+- Demos are available for example applications [link to demo overview](./demo.md) 
+
+- Experiments often require random-split or cross-validation. This is likely to be supported in a future release. There are some [workaround](/experiment.md) using the exisiting folder-based data loaders for these. 
+
+- Other advanced uses include [add a new loss](./add_loss.md) and [add a new network](./add_network.md)
