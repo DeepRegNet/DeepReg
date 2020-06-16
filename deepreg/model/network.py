@@ -1,3 +1,7 @@
+'''
+This module parses the netwotk configurations to build network backbone architecture (including conditional segmentation), inputs, DDF/DVF outputs and loss
+'''
+
 import tensorflow as tf
 
 import deepreg.model.layer as layer
@@ -12,10 +16,11 @@ def build_backbone(image_size, out_channels, tf_model_config):
     """
     backbone model accepts a single input of shape [batch, dim1, dim2, dim3, ch_in]
                and returns a single output of shape [batch, dim1, dim2, dim3, ch_out]
+
     :param image_size: [dim1, dim2, dim3]
     :param out_channels: ch_out
-    :param tf_model_config:
-    :return:
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: tf.keras.Model object
     """
 
     # no activation
@@ -37,6 +42,16 @@ def build_backbone(image_size, out_channels, tf_model_config):
 
 
 def build_inputs(moving_image_size, fixed_image_size, index_size, batch_size):
+    """
+    Configure a pair of moving and fixed images and a pair of moving and fixed labels as model input 
+               and returns model input tf.keras.Input
+    
+    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
+    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
+    :param index_size: dataset size
+    :param batch_size: minibatch size 
+    :return: tf.keras.Input object
+    """
     moving_image = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
                                   name="moving_image")  # [batch, m_dim1, m_dim2, m_dim3]
     fixed_image = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size,
@@ -50,23 +65,30 @@ def build_inputs(moving_image_size, fixed_image_size, index_size, batch_size):
 
 def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
+    Build the model if the output is DDF (dense displacement field)
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param batch_size:
-    :param tf_model_config:
-    :param tf_loss_config:
-    :return:
+    :param index_size: dataset size
+    :param batch_size: minibatch size
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :param tf_loss_config: loss configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: the built tf.keras.Model
     """
 
     def forward(_backbone, _moving_image, _moving_label, _fixed_image):
         """
+        Perform the network forward pass
 
-        :param _backbone:
+        :param _backbone: model architecture object, e.g. return from model.backbone.local_net
         :param _moving_image: [batch, m_dim1, m_dim2, m_dim3]
         :param _moving_label: [batch, m_dim1, m_dim2, m_dim3]
         :param _fixed_image:  [batch, f_dim1, f_dim2, f_dim3]
-        :return:
+        :return: tuple(_ddf, _pred_fixed_image, _pred_fixed_label)
+            WHEHE
+            str _ddf is the dense displacement field [batch, m_dim1, m_dim2, m_dim3, 3]
+            str _pred_fixed_image is the predicted (warped) moving image [batch, f_dim1, f_dim2, f_dim3]
+            str _pred_fixed_label is the predicted (warped) moving label [batch, f_dim1, f_dim2, f_dim3]
         """
         # ddf
         backbone_input = tf.concat([layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(_moving_image, axis=4)),
@@ -82,14 +104,15 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
     def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
         """
+        Configue and add the training loss, including image, label and deformation regularisation
 
         :param _fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
         :param _ddf:              [batch, f_dim1, f_dim2, f_dim3, 3]
         :param _fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
-        :param suffix:
-        :return:
+        :param suffix: string reserved or extra information 
+        :return: tf.keras.Model with loss and metric added
         """
         # image loss
         if tf_loss_config["similarity"]["image"]["weight"] > 0:
@@ -149,23 +172,32 @@ def build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
 def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
+    Build the model if the output is DVF-integrated DDF (dense displacement field)
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param batch_size:
-    :param tf_model_config:
-    :param tf_loss_config:
-    :return:
+    :param index_size: dataset size
+    :param batch_size: minibatch size
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :param tf_loss_config: loss configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: the built tf.keras.Model
     """
+    
 
     def forward(_backbone, _moving_image, _moving_label, _fixed_image):
         """
+        Perform the network forward pass
 
-        :param _backbone:
+        :param _backbone: model architecture object, e.g. return from model.backbone.local_net
         :param _moving_image: [batch, m_dim1, m_dim2, m_dim3]
         :param _moving_label: [batch, m_dim1, m_dim2, m_dim3]
         :param _fixed_image:  [batch, f_dim1, f_dim2, f_dim3]
-        :return:
+        :return: tuple(_dvf, _ddf, _pred_fixed_image, _pred_fixed_label)
+            WHEHE
+            str _dvf is the dense velocity field [batch, m_dim1, m_dim2, m_dim3, 3]
+            str _ddf is the dense displacement field [batch, m_dim1, m_dim2, m_dim3, 3]
+            str _pred_fixed_image is the predicted (warped) moving image [batch, f_dim1, f_dim2, f_dim3]
+            str _pred_fixed_label is the predicted (warped) moving label [batch, f_dim1, f_dim2, f_dim3]
         """
         # ddf
         backbone_input = tf.concat([layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(_moving_image, axis=4)),
@@ -182,14 +214,15 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
     def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
         """
+        Configue and add the training loss, including image, label and deformation regularisation
 
         :param _fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
         :param _ddf:              [batch, f_dim1, f_dim2, f_dim3, 3]
         :param _fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
         :param _pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
-        :param suffix:
-        :return:
+        :param suffix: string reserved or extra information 
+        :return: tf.keras.Model with loss and metric added
         """
         # image loss
         if tf_loss_config["similarity"]["image"]["weight"] > 0:
@@ -250,13 +283,15 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
 
 def build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
+    Build the model if using conditional segmentation algorithm
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param batch_size:
-    :param tf_model_config:
-    :param tf_loss_config:
-    :return:
+    :param index_size: dataset size
+    :param batch_size: minibatch size
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :param tf_loss_config: loss configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: the built tf.keras.Model
     """
     # inputs
     moving_image, fixed_image, moving_label, indices = build_inputs(
@@ -285,18 +320,21 @@ def build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size
 
 def build_seg_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
     """
+    @Experimental
+    Build the model for a segmenation model for the fixed image
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param batch_size:
-    :param tf_model_config:
-    :param tf_loss_config:
-    :return:
+    :param index_size: dataset size
+    :param batch_size: minibatch size
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :param tf_loss_config: loss configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: the built tf.keras.Model
     """
     # inputs
     moving_image, fixed_image, moving_label, indices = build_inputs(
         moving_image_size, fixed_image_size, index_size, batch_size)
-    backbone_input = tf.expand_dims(fixed_image, axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 3]
+    backbone_input = tf.expand_dims(fixed_image, axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 1]
 
     # backbone
     backbone = build_backbone(image_size=fixed_image_size, out_channels=1,
@@ -314,7 +352,19 @@ def build_seg_model(moving_image_size, fixed_image_size, index_size, batch_size,
     return model
 
 
-def build_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
+def build_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):    
+    """
+    Parsing algorithm types to model building functions
+    
+    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
+    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
+    :param index_size: dataset size
+    :param batch_size: minibatch size 
+    :param tf_model_config: model configuration, e.g. key-value pairs return from parser.yaml.load
+    :param tf_loss_config: loss configuration, e.g. key-value pairs return from parser.yaml.load
+    :return: the built tf.keras.Model
+    """
+
     if tf_model_config["method"] == "ddf":
         return build_ddf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
                                tf_loss_config)
