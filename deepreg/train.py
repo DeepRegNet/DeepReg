@@ -8,9 +8,9 @@ import tensorflow as tf
 import deepreg.config.parser as config_parser
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
-import deepreg.model.network.network as network
 import deepreg.model.optimizer as opt
 from deepreg.data.load import get_data_loader
+from deepreg.model.network.build import build_model
 
 
 def init(config_path, log_dir, ckpt_path):
@@ -70,13 +70,13 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
         # model
-        model = network.build_model(moving_image_size=data_loader_train.moving_image_shape,
-                                    fixed_image_size=data_loader_train.fixed_image_shape,
-                                    index_size=data_loader_train.num_indices,
-                                    labeled=data_config["labeled"],
-                                    batch_size=tf_data_config["batch_size"],
-                                    tf_model_config=tf_model_config,
-                                    tf_loss_config=tf_loss_config)
+        model = build_model(moving_image_size=data_loader_train.moving_image_shape,
+                            fixed_image_size=data_loader_train.fixed_image_shape,
+                            index_size=data_loader_train.num_indices,
+                            labeled=data_config["labeled"],
+                            batch_size=tf_data_config["batch_size"],
+                            tf_model_config=tf_model_config,
+                            tf_loss_config=tf_loss_config)
         model.summary()
         # metrics
         model.compile(optimizer=optimizer,

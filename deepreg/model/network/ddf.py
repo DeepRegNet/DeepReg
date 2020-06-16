@@ -1,24 +1,28 @@
 import tensorflow as tf
 
-import deepreg.model
-from deepreg.model import layer as layer
-from deepreg.model.loss import image as image_loss
-from deepreg.model.network.build import build_inputs, build_backbone
+import deepreg.model.layer as layer
+import deepreg.model.loss.deform as deform_loss
+import deepreg.model.loss.image as image_loss
+from deepreg.model.network.util import build_backbone, build_inputs
 
 
 def ddf_forward(backbone: tf.keras.Model,
                 moving_image: tf.Tensor, fixed_image: tf.Tensor, moving_label: (tf.Tensor, None),
-                moving_image_size: tuple, fixed_image_size: tuple):
+                moving_image_size: tuple, fixed_image_size: tuple) -> [tf.Tensor, tf.Tensor, (tf.Tensor, None)]:
     """
-
-    :param backbone:
-    :param moving_image: (batch, m_dim1, m_dim2, m_dim3)
-    :param fixed_image:  (batch, f_dim1, f_dim2, f_dim3)
-    :param moving_label: (batch, m_dim1, m_dim2, m_dim3) or None
+    Perform the network forward pass
+    :param backbone: model architecture object, e.g. model.backbone.local_net
+    :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
+    :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
+    :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size:
     :param fixed_image_size:
-    :return:
+    :return: tuple(ddf, pred_fixed_image, pred_fixed_label), where
+    - ddf is the dense displacement field of shape (batch, m_dim1, m_dim2, m_dim3, 3)
+    - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
+    - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
     """
+
     # expand dims
     moving_image = tf.expand_dims(moving_image, axis=4)  # (batch, m_dim1, m_dim2, m_dim3, 1)
     fixed_image = tf.expand_dims(fixed_image, axis=4)  # (batch, f_dim1, f_dim2, f_dim3, 1)
@@ -39,25 +43,25 @@ def ddf_forward(backbone: tf.keras.Model,
     return ddf, pred_fixed_image, pred_fixed_label
 
 
-def ddf_add_loss_metric(model, fixed_image, pred_fixed_image, tf_loss_config):
+def ddf_add_loss_metric(model: tf.keras.Model, fixed_image: tf.Tensor, pred_fixed_image: tf.Tensor,
+                        tf_loss_config: dict):
     """
+    Configure and add the training loss, including image and deformation regularisation,
+    label loss is added using when compiling the model.
     :param model:
-    :param fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
-    :param pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
-    :param fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
-    :param pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
+    :param fixed_image:      (batch, f_dim1, f_dim2, f_dim3)
+    :param pred_fixed_image: (batch, f_dim1, f_dim2, f_dim3)
+    :param tf_loss_config:
     :return:
     """
     # regularization loss on ddf
-    loss_reg = tf.reduce_mean(
-        deepreg.model.loss.deform.local_displacement_energy(model.ddf, **tf_loss_config["regularization"]))
+    loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(model.ddf, **tf_loss_config["regularization"]))
     weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
     model.add_metric(weighted_loss_reg, name="loss/weighted_regularization", aggregation="mean")
 
     # image loss
-    # label loss is added using when compiling the model
     if tf_loss_config["similarity"]["image"]["weight"] > 0:
         # TODO check if no label available image loss weight must be > 0
         loss_image = tf.reduce_mean(image_loss.similarity_fn(
