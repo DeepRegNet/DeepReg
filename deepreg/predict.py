@@ -12,7 +12,7 @@ import deepreg.data.load as load
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
-import deepreg.model.network as network
+import deepreg.model.network.network as network
 import deepreg.model.optimizer as opt
 
 
@@ -150,6 +150,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     model = network.build_model(moving_image_size=data_loader.moving_image_shape,
                                 fixed_image_size=data_loader.fixed_image_shape,
                                 index_size=data_loader.num_indices,
+                                labeled=data_config["labeled"],
                                 batch_size=tf_data_config["batch_size"],
                                 tf_model_config=tf_model_config,
                                 tf_loss_config=tf_loss_config)
