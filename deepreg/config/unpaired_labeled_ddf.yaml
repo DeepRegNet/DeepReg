@@ -1,11 +1,9 @@
-log_dir: "logs"
-
 data:
-  dir: "data/mr_us/paired" # required
+  dir: "data/mr_us/unpaired" # required
   format: "nifti"
-  type: "paired"
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
+  paired: false
+  labeled: true
+  image_shape: [64, 64, 60]
 
 tf:
   model:

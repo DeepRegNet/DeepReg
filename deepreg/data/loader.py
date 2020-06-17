@@ -43,35 +43,53 @@ class DataLoader:
         return dataset
 
     def validate_images_and_labels(self, moving_image: np.ndarray, fixed_image: np.ndarray,
-                                   moving_label: np.ndarray, fixed_label: np.ndarray, image_indices: list):
+                                   moving_label: (np.ndarray, None), fixed_label: (np.ndarray, None),
+                                   image_indices: list):
+        if moving_image is None or fixed_image is None:
+            raise ValueError("moving image and fixed image must not be None")
+        if (moving_label is None) != (fixed_label is None):
+            raise ValueError("moving label and fixed label must be both None or non-None")
+
         for arr, name in zip([moving_image, fixed_image, moving_label, fixed_label],
                              ["moving_image", "fixed_image", "moving_label", "fixed_label"]):
+            if arr is None:
+                continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError("Sample {}'s {} has value outside of [0,1]."
                                  "Images are assumed to be between [0, 255] "
                                  "and labels are assumed to be between [0, 1]".format(image_indices, name))
-        for arr, name in zip([moving_image, moving_label],
-                             ["moving_image", "moving_label"]):
-            if arr.shape[:3] != self.moving_image_shape:
-                raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
-                                 "Expected {} but got {}.".format(image_indices, name, self.moving_image_shape,
-                                                                  arr.shape[:3]))
-        for arr, name in zip([fixed_image, fixed_label],
-                             ["fixed_image", "fixed_label"]):
-            if arr.shape[:3] != self.fixed_image_shape:
-                raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
-                                 "Expected {} but got {}.".format(image_indices, name, self.fixed_image_shape,
-                                                                  arr.shape[:3]))
-        num_labels_moving = 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
-        num_labels_fixed = 1 if len(fixed_label.shape) == 3 else fixed_label.shape[-1]
-        if num_labels_moving != num_labels_fixed:
-            raise ValueError(
-                "Sample {}'s moving image and fixed image have different numbers of labels."
-                "moving: {}, fixed: {}".format(image_indices, num_labels_moving, num_labels_fixed))
+
+        if moving_label is not None:
+            for arr, name in zip([moving_image, moving_label],
+                                 ["moving_image", "moving_label"]):
+                if arr.shape[:3] != self.moving_image_shape:
+                    raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
+                                     "Expected {} but got {}.".format(image_indices, name, self.moving_image_shape,
+                                                                      arr.shape[:3]))
+            for arr, name in zip([fixed_image, fixed_label],
+                                 ["fixed_image", "fixed_label"]):
+                if arr.shape[:3] != self.fixed_image_shape:
+                    raise ValueError("Sample {}'s {} has different shape (width, height, depth) from required."
+                                     "Expected {} but got {}.".format(image_indices, name, self.fixed_image_shape,
+                                                                      arr.shape[:3]))
+            num_labels_moving = 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
+            num_labels_fixed = 1 if len(fixed_label.shape) == 3 else fixed_label.shape[-1]
+            if num_labels_moving != num_labels_fixed:
+                raise ValueError(
+                    "Sample {}'s moving image and fixed image have different numbers of labels."
+                    "moving: {}, fixed: {}".format(image_indices, num_labels_moving, num_labels_fixed))
 
     def sample_image_label(self, moving_image: np.ndarray, fixed_image: np.ndarray,
-                           moving_label: np.ndarray, fixed_label: np.ndarray, image_indices: list):
+                           moving_label: (np.ndarray, None), fixed_label: (np.ndarray, None), image_indices: list):
         self.validate_images_and_labels(moving_image, fixed_image, moving_label, fixed_label, image_indices)
+        # unlabeled
+        if moving_label is None:
+            label_index = -1  # means no label
+            indices = np.asarray(image_indices + [label_index], dtype=np.float32)
+            inputs = (moving_image, fixed_image, indices)
+            return inputs
+
+        # labeled
         if len(moving_label.shape) == 4:  # multiple labels
             label_indices = get_label_indices(moving_label.shape[3], self.sample_label)
             for label_index in label_indices:
@@ -100,6 +118,7 @@ class PairedDataLoader(DataLoader, ABC):
                              "corresponding to (width, height, depth)")
         self._moving_image_shape = tuple(moving_image_shape)
         self._fixed_image_shape = tuple(fixed_image_shape)
+        self.num_images = None
 
     @property
     def moving_image_shape(self) -> tuple:
@@ -108,6 +127,14 @@ class PairedDataLoader(DataLoader, ABC):
     @property
     def fixed_image_shape(self) -> tuple:
         return self._fixed_image_shape
+
+    @property
+    def num_samples(self) -> int:
+        """
+        Return the number of samples in the dataset for one epoch.
+        :return:
+        """
+        return self.num_images
 
 
 class UnpairedDataLoader(DataLoader, ABC):
@@ -121,6 +148,7 @@ class UnpairedDataLoader(DataLoader, ABC):
             raise ValueError("image_shape has to be length of three,"
                              "corresponding to (width, height, depth)")
         self.image_shape = tuple(image_shape)
+        self._num_samples = None
 
     @property
     def moving_image_shape(self) -> tuple:
@@ -129,6 +157,10 @@ class UnpairedDataLoader(DataLoader, ABC):
     @property
     def fixed_image_shape(self) -> tuple:
         return self.image_shape
+
+    @property
+    def num_samples(self) -> int:
+        return self._num_samples
 
 
 class GeneratorDataLoader(DataLoader, ABC):

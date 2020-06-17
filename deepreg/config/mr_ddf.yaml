@@ -1,5 +1,3 @@
-log_dir: "logs"
-
 data:
   name: "mr" # required
   tfrecord_dir: "data/mr/bidi_tfrecords"
