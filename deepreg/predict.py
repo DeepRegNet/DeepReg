@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 
@@ -11,8 +12,8 @@ import deepreg.data.load as load
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
 import deepreg.model.metric as metric
-import deepreg.model.network as network
 import deepreg.model.optimizer as opt
+from deepreg.model.network.build import build_model
 
 
 def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
@@ -109,7 +110,18 @@ def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
                                            **metric_map[image_index][label_index]))
 
 
-def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label):
+def init(log_dir):
+    # init log directory
+    if log_dir == "":  # default
+        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
+    if os.path.exists(log_dir):
+        logging.warning("Log directory {} exists already.".format(log_dir))
+    else:
+        os.makedirs(log_dir)
+
+
+def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    logging.error("TODO sample_label is not used in predict")
     # sanity check
     if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
         raise ValueError("checkpoint path should end with .ckpt")
@@ -126,9 +138,6 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     tf_opt_config = config["tf"]["opt"]
     tf_model_config = config["tf"]["model"]
     tf_loss_config = config["tf"]["loss"]
-    log_folder_name = log if log != "" else datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = config["log_dir"][:-1] if config["log_dir"][-1] == "/" else config["log_dir"]
-    log_dir = log_dir + "/" + log_folder_name
 
     # data
     data_loader = load.get_data_loader(data_config, mode)
@@ -138,12 +147,13 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     optimizer = opt.get_optimizer(tf_opt_config)
 
     # model
-    model = network.build_model(moving_image_size=data_loader.moving_image_shape,
-                                fixed_image_size=data_loader.fixed_image_shape,
-                                index_size=data_loader.num_indices,
-                                batch_size=tf_data_config["batch_size"],
-                                tf_model_config=tf_model_config,
-                                tf_loss_config=tf_loss_config)
+    model = build_model(moving_image_size=data_loader.moving_image_shape,
+                        fixed_image_size=data_loader.fixed_image_shape,
+                        index_size=data_loader.num_indices,
+                        labeled=data_config["labeled"],
+                        batch_size=tf_data_config["batch_size"],
+                        tf_model_config=tf_model_config,
+                        tf_loss_config=tf_loss_config)
 
     # metrics
     model.compile(optimizer=optimizer,
@@ -194,8 +204,8 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     type=int,
 )
 @click.option(
-    "--log",
-    help="Name of log folder",
+    "--log_dir",
+    help="Path of log directory",
     default="",
     show_default=True,
     type=str,
@@ -207,8 +217,8 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_labe
     show_default=True,
     type=str,
 )
-def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label):
-    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log, sample_label)
+def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label)
 
 
 if __name__ == "__main__":

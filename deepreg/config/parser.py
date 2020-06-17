@@ -1,3 +1,5 @@
+import os
+
 import yaml
 
 
@@ -6,6 +8,7 @@ def load(config_path):
         return yaml.load(file, Loader=yaml.FullLoader)
 
 
-def save(config, out_dir):
-    with open(out_dir + "/config.yaml", "w+") as f:
+def save(config: dict, out_dir: str, filename: str = "config.yaml"):
+    assert filename.endswith(".yaml")
+    with open(os.path.join(out_dir, filename), "w+") as f:
         f.write(yaml.dump(config))

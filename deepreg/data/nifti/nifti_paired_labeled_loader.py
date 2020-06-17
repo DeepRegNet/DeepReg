@@ -5,11 +5,13 @@ from deepreg.data.nifti.util import NiftiFileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
+class NiftiPairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
     def __init__(self,
                  data_dir_path: str, sample_label: str, seed,
                  moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple)):
         """
+        Load data which are paired and labeled, so each sample has
+            (moving_image, fixed_image, moving_label, fixed_label)
 
         :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
                               sub-directories: moving_images, fixed_images, moving_labels, fixed_labels
@@ -18,9 +20,9 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
-        super(NiftiPairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
-                                                    fixed_image_shape=fixed_image_shape,
-                                                    sample_label=sample_label, seed=seed)
+        super(NiftiPairedLabeledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
+                                                           fixed_image_shape=fixed_image_shape,
+                                                           sample_label=sample_label, seed=seed)
         self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"))
         self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"))
@@ -28,14 +30,6 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.validate_data_files()
 
         self.num_images = len(self.loader_moving_image.file_paths)
-
-    @property
-    def num_samples(self) -> int:
-        """
-        Return the number of samples in the dataset for one epoch.
-        :return:
-        """
-        return self.num_images
 
     def validate_data_files(self):
         """Verify all loader have the same files"""

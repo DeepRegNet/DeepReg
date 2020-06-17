@@ -6,17 +6,21 @@ from deepreg.data.nifti.util import NiftiFileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
+class NiftiUnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
                  data_dir_path: str, sample_label: str, seed, image_shape: (list, tuple)):
         """
+        Load data which are unpaired and labeled, so each sample has
+            (image, label)
+
         :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
                               sub-directories: images, labels
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(NiftiUnpairedDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label, seed=seed)
+        super(NiftiUnpairedLabeledDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label,
+                                                             seed=seed)
         self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
         self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
         self.validate_data_files()
@@ -29,10 +33,6 @@ class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         filenames_image = self.loader_image.get_relative_file_paths()
         filenames_label = self.loader_label.get_relative_file_paths()
         check_difference_between_two_lists(list1=filenames_image, list2=filenames_label)
-
-    @property
-    def num_samples(self) -> int:
-        return self._num_samples
 
     def get_generator(self):
         image_indices = [i for i in range(self.num_images)]
