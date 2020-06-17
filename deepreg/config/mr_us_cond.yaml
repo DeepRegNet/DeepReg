@@ -1,5 +1,3 @@
-log_dir: "logs"
-
 data:
   dir: "data/mr_us/demo" # required
   type: "nifti"
