@@ -54,3 +54,4 @@ Coding guidelines
 7. Make sure all dependencies have been added to requirements
 8. Make sure your code works for all required versions of Python
 9. Make sure your code works for all required operating systems
+10. CI is enabled: for documentation changes/linting commits you may include [ci skip] in your commit messages. A reminder that CI checks are required before merge!
