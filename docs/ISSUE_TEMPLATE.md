@@ -7,8 +7,9 @@ Please delete options that are not relevant.
 - [ ] New feature request
 - [ ] Documentation update
 - [ ] Test request
+- [ ] Linting request
 
-#### Steps to reproduce the issue, including (but not limited to):
+#### For bug report or feature request, steps to reproduce the issue, including (but not limited to):
 
 1. OS
 2. Environment to reproduce
