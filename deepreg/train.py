@@ -58,15 +58,6 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     dataset_size_train = data_loader_train.num_images
     dataset_size_val = data_loader_val.num_images
 
-    # optimizer
-    optimizer = opt.get_optimizer(tf_opt_config)
-
-    # callbacks
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
-        period=save_period)
-
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
         # model
@@ -78,14 +69,17 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
                             tf_model_config=tf_model_config,
                             tf_loss_config=tf_loss_config)
         model.summary()
-        # metrics
+        # compile
+        optimizer = opt.get_optimizer(tf_opt_config)
+        loss_fn = label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])
+        metrics = [metric.MeanDiceScore(),
+                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
+                   metric.MeanForegroundProportion(pred=False),
+                   metric.MeanForegroundProportion(pred=True),
+                   ]
         model.compile(optimizer=optimizer,
-                      loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                      metrics=[metric.MeanDiceScore(),
-                               metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
-                               metric.MeanForegroundProportion(pred=False),
-                               metric.MeanForegroundProportion(pred=True),
-                               ])
+                      loss=loss_fn,
+                      metrics=metrics)
         print(model.summary())
 
         # load weights
@@ -93,6 +87,11 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
             model.load_weights(ckpt_path)
 
         # train
+        # callbacks
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
+        checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
+            period=save_period)
         # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
         # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
         model.fit(
