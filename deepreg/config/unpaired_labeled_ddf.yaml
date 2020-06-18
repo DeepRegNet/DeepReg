@@ -1,15 +1,9 @@
 data:
-  name: "mr" # required
-  tfrecord_dir: "data/mr/bidi_tfrecords"
-  data_order: "bidi" # for training only
-  segmentation:
-    filename: "data/mr/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5"
-    valid_start: 110
-    test_start: 116
-  landmark:
-    filename: "data/mr/holdout-landmarks.h5"
-    valid_start: 110
-    test_start: 116
+  dir: "data/mr_us/unpaired" # required
+  format: "nifti"
+  paired: false
+  labeled: true
+  image_shape: [64, 64, 60]
 
 tf:
   model:
@@ -19,7 +13,7 @@ tf:
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
     local:
-      num_channel_initial: 4
+      num_channel_initial: 2
       extract_levels: [0, 1, 2, 3, 4]
     unet:
       num_channel_initial: 4
@@ -43,7 +37,7 @@ tf:
       weight: 0.5
       energy_type: "bending"
   data:
-    batch_size: 1
+    batch_size: 2
     shuffle_buffer_num_batch: 0
   opt:
     name: "adam"
