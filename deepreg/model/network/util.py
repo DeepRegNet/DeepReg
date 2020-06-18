@@ -2,6 +2,7 @@ import tensorflow as tf
 
 from deepreg.model.backbone.local_net import LocalNet
 from deepreg.model.backbone.u_net import UNet
+from deepreg.model.backbone.global_net import GlobalNet
 
 
 def build_backbone(image_size: tuple, out_channels: int, tf_model_config: dict) -> tf.keras.Model:
@@ -22,6 +23,11 @@ def build_backbone(image_size: tuple, out_channels: int, tf_model_config: dict) 
                         out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
                         out_activation=tf_model_config["backbone"]["out_activation"],
                         **tf_model_config["local"])
+    elif tf_model_config["backbone"]["name"] == "global":
+        return GlobalNet(image_size=image_size, out_channels=out_channels,
+                        out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
+                        out_activation=tf_model_config["backbone"]["out_activation"],
+                        **tf_model_config["global"])
     elif tf_model_config["backbone"]["name"] == "unet":
         return UNet(image_size=image_size, out_channels=out_channels,
                     out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
