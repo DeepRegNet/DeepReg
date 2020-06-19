@@ -109,8 +109,13 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
         model = tf.keras.Model(inputs=[moving_image, fixed_image, indices],
                                name="DDFRegModelWithoutLabel")
     else:  # labeled
+        # name the outputs
+        # but the name will have prefix "tf_op_layer_"
+        # so the names are tf_op_layer_output_ddf, tf_op_layer_output_pred_fixed_label
+        ddf = tf.identity(ddf, name="output_ddf")
+        pred_fixed_label = tf.identity(pred_fixed_label, name="output_pred_fixed_label")
         model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
-                               outputs=[pred_fixed_label],
+                               outputs=[ddf, pred_fixed_label],
                                name="DDFRegModelWithLabel")
     model.ddf = ddf  # save ddf
 
