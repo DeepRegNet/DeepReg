@@ -87,7 +87,7 @@ class DataLoader:
             label_index = -1  # means no label
             indices = np.asarray(image_indices + [label_index], dtype=np.float32)
             inputs = (moving_image, fixed_image, indices)
-            return inputs
+            yield inputs
 
         # labeled
         if len(moving_label.shape) == 4:  # multiple labels
