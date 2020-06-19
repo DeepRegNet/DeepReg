@@ -358,6 +358,7 @@ class IntDVF(tf.keras.layers.Layer):
             ddf += self._warping(inputs=[ddf, ddf])
         return ddf
 
+
 class Dense(tf.keras.layers.Layer):
     def __init__(self, units, bias_initializer='zeros', **kwargs):
         """
@@ -375,9 +376,11 @@ class Dense(tf.keras.layers.Layer):
         flatten_inputs = self._flatten(inputs)
         return self._dense(flatten_inputs)
 
+
 """
 local net
 """
+
 
 class AdditiveUpSampling(tf.keras.layers.Layer):
     def __init__(self, output_shape, stride=2, **kwargs):
