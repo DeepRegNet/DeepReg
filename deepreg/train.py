@@ -69,14 +69,24 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
                             tf_model_config=tf_model_config,
                             tf_loss_config=tf_loss_config)
         model.summary()
+
         # compile
         optimizer = opt.get_optimizer(tf_opt_config)
-        loss_fn = label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])
-        metrics = [metric.MeanDiceScore(),
-                   metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
-                   metric.MeanForegroundProportion(pred=False),
-                   metric.MeanForegroundProportion(pred=True),
-                   ]
+        model_outputs_names = ["tf_op_layer_output_ddf", "tf_op_layer_output_pred_fixed_label"]
+        loss_fn = dict(zip(model_outputs_names,
+                           [None,
+                            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
+                            ]))
+
+        metrics = dict(zip(model_outputs_names,
+                           [None,
+                            [
+                                metric.MeanDiceScore(),
+                                metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
+                                metric.MeanForegroundProportion(pred=False),
+                                metric.MeanForegroundProportion(pred=True),
+                            ],
+                            ]))
         model.compile(optimizer=optimizer,
                       loss=loss_fn,
                       metrics=metrics)

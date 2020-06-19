@@ -5,7 +5,6 @@ from datetime import datetime
 import click
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.data.load as load
@@ -25,9 +24,7 @@ def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
         # moving_label     [batch, m_dim1, m_dim2, m_dim3]
         # fixed_label      [batch, f_dim1, f_dim2, f_dim3]
         if hasattr(model, "ddf"):
-            model_ddf = tf.keras.Model(inputs=model.inputs,
-                                       outputs=model.outputs + [model.ddf])
-            pred_fixed_label, ddf = model_ddf.predict(x=inputs)
+            ddf, pred_fixed_label = model.predict(x=inputs)
         else:
             pred_fixed_label = model.predict(x=inputs)
             ddf = None
