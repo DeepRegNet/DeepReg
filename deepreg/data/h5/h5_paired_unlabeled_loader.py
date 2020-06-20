@@ -1,3 +1,9 @@
+'''
+Loads paired, unlabeled h5 data
+The data must be arranged in directories with names:
+moving_image, fixed_image
+'''
+
 import os
 
 from deepreg.data.loader import PairedDataLoader, GeneratorDataLoader
@@ -6,22 +12,26 @@ from deepreg.data.util import check_difference_between_two_lists
 
 
 class H5PairedUnlabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
-    
-    def __init__(self, data_dir_path: str, sample_label: str, seed, moving_image_shape: (list, tuple), fixed_image_shape):
+    '''
+    This class loads paired, unlabeled h5 data
+    '''
+    def __init__(self, data_dir_path: str, sample_label: str,
+                 seed, moving_image_shape: (list, tuple), fixed_image_shape):
         """
         Load data which are paired and labeled, so each sample has
-            (moving_image, fixed_image, moving_label, fixed_label)
+            (moving_image, fixed_image)
 
-        :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
-                              sub-directories: moving_images, fixed_images, moving_labels, fixed_labels
+        :param data_dir_path: path of the directory storing data, 
+        the data has to be saved under different
+        sub-directories: moving_images, fixed_images
         :param sample_label:
         :param seed:
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
         super(H5PairedUnlabeledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
-                                                           fixed_image_shape=fixed_image_shape,
-                                                           sample_label=sample_label, seed=seed)
+                                                          fixed_image_shape=fixed_image_shape,
+                                                          sample_label=sample_label, seed=seed)
         
         self.loader_moving_image = H5FileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = H5FileLoader(os.path.join(data_dir_path, "fixed_images"))
@@ -38,7 +48,8 @@ class H5PairedUnlabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         data_names_moving_image = self.loader_moving_image.get_data_names()
         data_names_fixed_image = self.loader_fixed_image.get_data_names()
         
-        check_difference_between_two_lists(list1=data_names_moving_image, list2=data_names_fixed_image)
+        check_difference_between_two_lists(list1=data_names_moving_image, 
+                                           list2=data_names_fixed_image)
    
     def get_generator(self):
         for image_index in range(self.num_images):
