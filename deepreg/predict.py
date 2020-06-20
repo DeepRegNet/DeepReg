@@ -10,27 +10,29 @@ import deepreg.config.parser as config_parser
 import deepreg.data.load as load
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
-import deepreg.model.metric as metric
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
 
 
-def predict_on_dataset(data_loader, dataset, fixed_grid_ref, model, save_dir):
+def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
-    for i, (inputs, labels) in enumerate(dataset):
+    for i, inputs_dict in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
         # moving_image     [batch, m_dim1, m_dim2, m_dim3]
         # fixed_image      [batch, f_dim1, f_dim2, f_dim3]
         # moving_label     [batch, m_dim1, m_dim2, m_dim3]
         # fixed_label      [batch, f_dim1, f_dim2, f_dim3]
-        if hasattr(model, "ddf"):
-            ddf, pred_fixed_label = model.predict(x=inputs)
-        else:
-            pred_fixed_label = model.predict(x=inputs)
-            ddf = None
+        outputs_dict = model.predict(x=inputs_dict)
 
-        moving_image, fixed_image, moving_label, indices = inputs
-        fixed_label = labels
+        moving_image = inputs_dict.get("moving_image")
+        fixed_image = inputs_dict.get("fixed_image")
+        indices = inputs_dict.get("indices")
+        moving_label = inputs_dict.get("moving_label")
+        fixed_label = inputs_dict.get("fixed_label")
+
+        ddf = outputs_dict.get("ddf")
+        pred_fixed_label = outputs_dict.get("pred_fixed_label")
+
         num_samples = moving_image.shape[0]
         moving_depth = moving_image.shape[3]
         fixed_depth = fixed_image.shape[3]
@@ -153,10 +155,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
                         tf_loss_config=tf_loss_config)
 
     # metrics
-    model.compile(optimizer=optimizer,
-                  loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                  metrics=[metric.MeanDiceScore(),
-                           metric.MeanCentroidDistance(grid_size=data_loader.fixed_image_shape)])
+    model.compile(optimizer=optimizer)
 
     # load weights
     # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-objec
@@ -164,7 +163,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
 
     # predict
     fixed_grid_ref = layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape)
-    predict_on_dataset(data_loader=data_loader, dataset=dataset, fixed_grid_ref=fixed_grid_ref, model=model,
+    predict_on_dataset(dataset=dataset, fixed_grid_ref=fixed_grid_ref, model=model,
                        save_dir=log_dir + "/test")
 
 

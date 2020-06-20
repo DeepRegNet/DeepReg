@@ -6,8 +6,6 @@ import click
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.model.loss.label as label_loss
-import deepreg.model.metric as metric
 import deepreg.model.optimizer as opt
 from deepreg.data.load import get_data_loader
 from deepreg.model.network.build import build_model
@@ -72,24 +70,8 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
 
         # compile
         optimizer = opt.get_optimizer(tf_opt_config)
-        model_outputs_names = ["tf_op_layer_output_ddf", "tf_op_layer_output_pred_fixed_label"]
-        loss_fn = dict(zip(model_outputs_names,
-                           [None,
-                            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                            ]))
 
-        metrics = dict(zip(model_outputs_names,
-                           [None,
-                            [
-                                metric.MeanDiceScore(),
-                                metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
-                                metric.MeanForegroundProportion(pred=False),
-                                metric.MeanForegroundProportion(pred=True),
-                            ],
-                            ]))
-        model.compile(optimizer=optimizer,
-                      loss=loss_fn,
-                      metrics=metrics)
+        model.compile(optimizer=optimizer)
         print(model.summary())
 
         # load weights

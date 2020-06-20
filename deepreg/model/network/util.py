@@ -1,8 +1,8 @@
 import tensorflow as tf
 
+from deepreg.model.backbone.global_net import GlobalNet
 from deepreg.model.backbone.local_net import LocalNet
 from deepreg.model.backbone.u_net import UNet
-from deepreg.model.backbone.global_net import GlobalNet
 
 
 def build_backbone(image_size: tuple, out_channels: int, tf_model_config: dict) -> tf.keras.Model:
@@ -25,9 +25,9 @@ def build_backbone(image_size: tuple, out_channels: int, tf_model_config: dict) 
                         **tf_model_config["local"])
     elif tf_model_config["backbone"]["name"] == "global":
         return GlobalNet(image_size=image_size, out_channels=out_channels,
-                        out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
-                        out_activation=tf_model_config["backbone"]["out_activation"],
-                        **tf_model_config["global"])
+                         out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
+                         out_activation=tf_model_config["backbone"]["out_activation"],
+                         **tf_model_config["global"])
     elif tf_model_config["backbone"]["name"] == "unet":
         return UNet(image_size=image_size, out_channels=out_channels,
                     out_kernel_initializer=tf_model_config["backbone"]["out_kernel_initializer"],
@@ -38,7 +38,7 @@ def build_backbone(image_size: tuple, out_channels: int, tf_model_config: dict) 
 
 
 def build_inputs(moving_image_size: tuple, fixed_image_size: tuple, index_size: int, batch_size: int,
-                 labeled: bool) -> [tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input]:
+                 labeled: bool) -> [tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input]:
     """
     Configure a pair of moving and fixed images and a pair of moving and fixed labels as model input
     and returns model input tf.keras.Input
@@ -56,6 +56,8 @@ def build_inputs(moving_image_size: tuple, fixed_image_size: tuple, index_size: 
                                  name="fixed_image")  # (batch, f_dim1, f_dim2, f_dim3)
     moving_label = tf.keras.Input(shape=(*moving_image_size,), batch_size=batch_size,
                                   name="moving_label") if labeled else None  # (batch, m_dim1, m_dim2, m_dim3)
+    fixed_label = tf.keras.Input(shape=(*fixed_image_size,), batch_size=batch_size,
+                                 name="fixed_label") if labeled else None  # (batch, m_dim1, m_dim2, m_dim3)
     indices = tf.keras.Input(shape=(index_size,), batch_size=batch_size,
                              name="indices")  # (batch, 2)
-    return moving_image, fixed_image, moving_label, indices
+    return moving_image, fixed_image, moving_label, fixed_label, indices
