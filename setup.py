@@ -13,7 +13,7 @@ setup(
         "nibabel",
         "pyyaml",
         "matplotlib",
-        "click",
+        "argparse",
         "tqdm",
         "tensorflow==2.2",
         "nilearn",
