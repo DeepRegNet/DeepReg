@@ -55,6 +55,8 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     dataset_val = data_loader_val.get_dataset_and_preprocess(training=False, repeat=True, **tf_data_config)
     dataset_size_train = data_loader_train.num_samples
     dataset_size_val = data_loader_val.num_samples
+    steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
+    steps_per_epoch_valid = max(dataset_size_val // tf_data_config["batch_size"], 1)
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
@@ -88,10 +90,10 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
         # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
         model.fit(
             x=dataset_train,
-            steps_per_epoch=dataset_size_train // tf_data_config["batch_size"],
+            steps_per_epoch=steps_per_epoch_train,
             epochs=num_epochs,
             validation_data=dataset_val,
-            validation_steps=dataset_size_val // tf_data_config["batch_size"],
+            validation_steps=steps_per_epoch_valid,
             callbacks=[tensorboard_callback, checkpoint_callback],
         )
 
