@@ -27,29 +27,46 @@ class AffineTransformation3D:
         return transformed
 
     @tf.function
-    def transform(self, inputs, labels):
+    def transform(self, inputs: dict):
         """
-        :param inputs: (moving_image, fixed_image, moving_label)
-                    moving_image, shape = [batch, m_dim1, m_dim2, m_dim3]
-                    fixed_image, shape = [batch, f_dim1, f_dim2, f_dim3]
-                    moving_label, shape = [batch, m_dim1, m_dim2, m_dim3]
-        :param labels: fixed_label, shape = [batch, f_dim1, f_dim2, f_dim3]
-        :param indices: a 2 element array, [sample_index, label_index]
+        :param inputs:
+                    moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
+                    fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
+                    moving_label, shape = (batch, m_dim1, m_dim2, m_dim3)
+                    fixed_label, shape = (batch, f_dim1, f_dim2, f_dim3)
+                    indices, shape = (num_indices, )
         :return:
         """
 
-        moving_image, fixed_image, moving_label, indices = inputs
-        fixed_label = labels
+        moving_image = inputs.get("moving_image")
+        fixed_image = inputs.get("fixed_image")
+        moving_label = inputs.get("moving_label", None)
+        fixed_label = inputs.get("fixed_label", None)
+        indices = inputs.get("indices")
 
         moving_transforms = self._gen_transforms()
         fixed_transforms = self._gen_transforms()
 
         moving_image = self._transform(moving_image, self._moving_grid_ref, moving_transforms)
-        moving_label = self._transform(moving_label, self._moving_grid_ref, moving_transforms)
         fixed_image = self._transform(fixed_image, self._fixed_grid_ref, fixed_transforms)
+
+        if moving_label is None:  # unlabeled
+            return dict(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                indices=indices,
+            )
+        
+        moving_label = self._transform(moving_label, self._moving_grid_ref, moving_transforms)
         fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_transforms)
 
-        return (moving_image, fixed_image, moving_label, indices), fixed_label
+        return dict(
+            moving_image=moving_image,
+            fixed_image=fixed_image,
+            moving_label=moving_label,
+            fixed_label=fixed_label,
+            indices=indices,
+        )
 
 
 def preprocess(dataset,

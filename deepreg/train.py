@@ -6,8 +6,6 @@ import click
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.model.loss.label as label_loss
-import deepreg.model.metric as metric
 import deepreg.model.optimizer as opt
 from deepreg.data.load import get_data_loader
 from deepreg.model.network.build import build_model
@@ -55,17 +53,10 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     data_loader_val = get_data_loader(data_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(training=True, repeat=True, **tf_data_config)
     dataset_val = data_loader_val.get_dataset_and_preprocess(training=False, repeat=True, **tf_data_config)
-    dataset_size_train = data_loader_train.num_images
-    dataset_size_val = data_loader_val.num_images
-
-    # optimizer
-    optimizer = opt.get_optimizer(tf_opt_config)
-
-    # callbacks
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
-        period=save_period)
+    dataset_size_train = data_loader_train.num_samples
+    dataset_size_val = data_loader_val.num_samples
+    steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
+    steps_per_epoch_valid = max(dataset_size_val // tf_data_config["batch_size"], 1)
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
@@ -78,14 +69,11 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
                             tf_model_config=tf_model_config,
                             tf_loss_config=tf_loss_config)
         model.summary()
-        # metrics
-        model.compile(optimizer=optimizer,
-                      loss=label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"]),
-                      metrics=[metric.MeanDiceScore(),
-                               metric.MeanCentroidDistance(grid_size=data_loader_train.fixed_image_shape),
-                               metric.MeanForegroundProportion(pred=False),
-                               metric.MeanForegroundProportion(pred=True),
-                               ])
+
+        # compile
+        optimizer = opt.get_optimizer(tf_opt_config)
+
+        model.compile(optimizer=optimizer)
         print(model.summary())
 
         # load weights
@@ -93,14 +81,19 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
             model.load_weights(ckpt_path)
 
         # train
+        # callbacks
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
+        checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+            filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
+            period=save_period)
         # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
         # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
         model.fit(
             x=dataset_train,
-            steps_per_epoch=dataset_size_train // tf_data_config["batch_size"],
+            steps_per_epoch=steps_per_epoch_train,
             epochs=num_epochs,
             validation_data=dataset_val,
-            validation_steps=dataset_size_val // tf_data_config["batch_size"],
+            validation_steps=steps_per_epoch_valid,
             callbacks=[tensorboard_callback, checkpoint_callback],
         )
 
