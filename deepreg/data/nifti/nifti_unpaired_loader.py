@@ -27,6 +27,7 @@ class NiftiUnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
 
         self.num_images = len(self.loader_image.file_paths)
         self._num_samples = self.num_images // 2
+        self.labeled = True
 
     def validate_data_files(self):
         """Verify all loader have the same files"""

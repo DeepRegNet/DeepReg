@@ -21,6 +21,7 @@ def train_and_predict_with_config(test_name, config_path):
 
 def test_train_and_predict():
     configs = [
+        ("paired_unlabeled_ddf", "deepreg/config/paired_unlabeled_ddf.yaml"),
         ("paired_labeled_ddf", "deepreg/config/paired_labeled_ddf.yaml"),
         ("unpaired_labeled_ddf", "deepreg/config/unpaired_labeled_ddf.yaml"),
     ]
