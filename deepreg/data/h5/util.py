@@ -1,6 +1,8 @@
 import h5py
 import numpy as np
 
+import os
+
 class H5FileLoader:
     
     def __init__(self, dir_path):
@@ -13,7 +15,7 @@ class H5FileLoader:
         
         :param fname: name of the h5 file which stores the data
         '''
-        with h5py.File(fname, 'r') as f:
+        with h5py.File(os.path.join(self.dir_path, fname), 'r') as f:
             keys = sorted(f.keys())
             data_dict = {}
             for key in keys:

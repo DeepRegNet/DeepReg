@@ -2,7 +2,7 @@ import os
 import random
 
 from deepreg.data.loader import UnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.nifti.util import NiftiFileLoader
+from deepreg.data.h5.util import H5FileLoader
 
 
 class H5UnpairedUnlabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
@@ -20,9 +20,9 @@ class H5UnpairedUnlabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         """
         super(H5UnpairedUnlabeledDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label,
                                                              seed=seed)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
+        self.loader_image = H5FileLoader(os.path.join(data_dir_path, "images"))
 
-        self.num_images = len(self.loader_image.file_paths)
+        self.num_images = len(self.loader_image.get_data_names())
         self._num_samples = self.num_images // 2
 
     def get_generator(self):
