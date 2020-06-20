@@ -1,3 +1,8 @@
+"""
+Module to perform predictions on data using
+command line interface
+"""
+
 import logging
 import os
 from datetime import datetime
@@ -17,6 +22,13 @@ EPS = 1.0e-6
 
 
 def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
+    """
+    Function to predict results from a dataset from some model
+    :param dataset: where data is stored
+    :param fixed_grid_ref: 
+    :param model: 
+    :param save_dir: str, path to store dir
+    """
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
     for i, inputs_dict in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
@@ -122,6 +134,11 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
 
 
 def init(log_dir):
+    """
+    Function to create new directory to log directory
+    to store results.
+    :param log_dir: string, path to store logs.
+    """
     # init log directory
     if log_dir == "":  # default
         log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -132,9 +149,19 @@ def init(log_dir):
 
 
 def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    """
+    Function to predict some metrics from the saved model and logging results.
+    :param gpu: str, which env gpu to use.
+    :param gpu_allow_growth: bool, whether to allow gpu growth or not
+    :param ckpt_path: str, where model is stored, should be like log_folder/save/xxx.ckpt
+    :param mode: which mode to load the data ??
+    :param batch_size: int, batch size to perform predictions in
+    :param log_dir: str, path to store logs
+    :param sample_label: 
+    """
     logging.error("TODO sample_label is not used in predict")
     # sanity check
-    if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
+    if not ckpt_path.endswith(".ckpt"):
         raise ValueError("checkpoint path should end with .ckpt")
 
     # env vars
