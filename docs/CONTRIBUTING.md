@@ -1,14 +1,10 @@
-.. highlight:: shell
 
-===============================================
-Contributing to DeepReg
-===============================================
+# Contributing to DeepReg
 
-We welcome contributions to DeepReg
+We welcome contributions to DeepReg.
 
 
-Reporting bugs and feature requests
------------------------------------
+## Reporting bugs and feature requests
 
 Please create a new issue on: https://github.com/ucl-candi/DeepReg/issues/new
 
@@ -19,8 +15,8 @@ When reporting a bug, please include:
 3. Detailed steps to reproduce the bug.
 
 
-Fixing bugs or implement features
----------------------------------
+### Fixing bugs or implement features
+
 
 The easiest way to contribute is to follow these guidelines:
 
@@ -33,8 +29,7 @@ The easiest way to contribute is to follow these guidelines:
 7. Submit a merge request: https://github.com/ucl-candi/DeepReg/merge-requests/new
 8. Merge request will be reviewed and, if necessary, changes suggested before merge to master.
 
-Design Considerations
----------------------
+### Design Considerations
 
 1. As few dependencies as possible. Try to stick to standard scipy packages like numpy and pandas.
 2. Discuss extra dependencies with the team and maybe the outcome will be to create a new separate package, where you can be more specific and more modular.
@@ -42,8 +37,7 @@ Design Considerations
 4. All errors as exceptions rather than return codes.
 
 
-Coding guidelines
------------------
+### Coding guidelines
 
 1. Please follow PEP8 guidelines https://www.python.org/dev/peps/pep-0008/
 2. Create a python virtual environment (virtualenv) for development
