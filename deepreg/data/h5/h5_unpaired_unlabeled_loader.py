@@ -24,6 +24,7 @@ class H5UnpairedUnlabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
 
         self.num_images = len(self.loader_image.get_data_names())
         self._num_samples = self.num_images // 2
+        self.labeled = False
 
     def get_generator(self):
         image_indices = [i for i in range(self.num_images)]
