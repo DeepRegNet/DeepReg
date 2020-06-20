@@ -6,6 +6,9 @@ DeepReg is an open-source toolkit for research in medical image registration usi
 
 This is still under development. However some of the functionalities can be accessed as follows.
 
+## Contributions
+We welcome contributions! Please refer to the [contribution guidelines](https://github.com/ucl-candi/DeepReg/doc/CONTRIBUTING.md) for the toolkit.
+
 ## Setup
 
 The easiest way to install the python environment is with Miniconda/Anaconda.
