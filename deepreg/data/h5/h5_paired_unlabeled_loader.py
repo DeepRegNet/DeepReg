@@ -27,6 +27,7 @@ class H5PairedUnlabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.loader_fixed_image = H5FileLoader(os.path.join(data_dir_path, "fixed_images"))
 
         self.num_images = len(self.loader_moving_image.get_data_names())
+        self.labeled = False
         self.validate_data_files()
         
         
