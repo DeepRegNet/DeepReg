@@ -6,7 +6,7 @@ import logging
 import os
 from datetime import datetime
 
-import click
+import argparse
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
@@ -73,8 +73,12 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     # data
     data_loader_train = get_data_loader(data_config, "train")
     data_loader_val = get_data_loader(data_config, "valid")
-    dataset_train = data_loader_train.get_dataset_and_preprocess(training=True, repeat=True, **tf_data_config)
-    dataset_val = data_loader_val.get_dataset_and_preprocess(training=False, repeat=True, **tf_data_config)
+    dataset_train = data_loader_train.get_dataset_and_preprocess(training=True,
+                                                                 repeat=True,
+                                                                 **tf_data_config)
+    dataset_val = data_loader_val.get_dataset_and_preprocess(training=False,
+                                                             repeat=True,
+                                                             **tf_data_config)
     dataset_size_train = data_loader_train.num_samples
     dataset_size_val = data_loader_val.num_samples
     steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
@@ -104,7 +108,8 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
 
         # train
         # callbacks
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=histogram_freq)
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir,
+                                                              histogram_freq=histogram_freq)
         checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt", save_weights_only=True,
             period=save_period)
@@ -120,40 +125,51 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
         )
 
 
-@click.command()
-@click.option(
-    "--gpu", "-g",
-    help="GPU index",
-    type=str,
-    required=True,
-)
-@click.option(
-    "--config_path", "-c",
-    help="Path of config",
-    type=click.Path(file_okay=True, dir_okay=False, exists=True),
-    required=True,
-)
-@click.option(
-    "--gpu_allow_growth/--not_gpu_allow_growth",
-    help="Do not take all GPU memory",
-    default=False,
-    show_default=True)
-@click.option(
-    "--ckpt_path",
-    help="Path of checkpoint to load",
-    default="",
-    show_default=True,
-    type=str,
-)
-@click.option(
-    "--log_dir",
-    help="Path of log directory",
-    default="",
-    show_default=True,
-    type=str,
-)
-def main(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
-    train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir)
+def main(args=None):
+    """Entry point for train script"""
+
+    parser = argparse.ArgumentParser(description="train")
+
+    ## ADD POSITIONAL ARGUMENTS
+    parser.add_argument("--gpu",
+                        "-g",
+                        help="GPU index",
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--gpu_allow_growth",
+                        "-gr",
+                        help="Do not take all GPU memory",
+                        default=False,
+                        show_default=True)
+
+    parser.add_argument("--ckpt_path",
+                        "-c",
+                        help="Path of checkpoint to load",
+                        default="",
+                        show_default=True,
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--log_dir",
+                        "-l",
+                        help="Path of log directory",
+                        default="",
+                        show_default=True,
+                        type=str)
+
+    parser.add_argument("--config_path",
+                        "-c",
+                        help="Path of config",
+                        type=str,
+                        required=True)
+
+    args = parser.parse_args(args)
+    train(args.gpu,
+          args.config_path,
+          args.gpu_allow_growth,
+          args.ckpt_path,
+          args.log_dir)
 
 
 if __name__ == "__main__":
