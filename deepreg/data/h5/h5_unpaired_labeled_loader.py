@@ -26,6 +26,7 @@ class H5UnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
 
         self.num_images = len(self.loader_image.get_data_names())
         self._num_samples = self.num_images // 2
+        self.labeled = True
         self.validate_data_files()
         
     def validate_data_files(self):

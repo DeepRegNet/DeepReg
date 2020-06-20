@@ -29,6 +29,7 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.loader_fixed_label = H5FileLoader(os.path.join(data_dir_path, "fixed_labels"))
         
         self.num_images = len(self.loader_moving_image.get_data_names())
+        self.labeled = True
         self.validate_data_files()
         
         
