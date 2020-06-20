@@ -70,7 +70,6 @@ class Conv3d(tf.keras.layers.Layer):
 class Deconv3d(tf.keras.layers.Layer):
     def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", use_bias=True, **kwargs):
         """
-
         :param filters:
         :param output_shape: [out_dim1, out_dim2, out_dim3]
         :param kernel_size:
@@ -127,7 +126,6 @@ class Deconv3d(tf.keras.layers.Layer):
 class Resize3d(tf.keras.layers.Layer):
     def __init__(self, size, method=tf.image.ResizeMethod.BILINEAR, **kwargs):
         """
-
         :param size: [out_dim1, out_dim2, out_dim3], list or tuple
         :param method:
         :param kwargs:
@@ -193,7 +191,6 @@ class Conv3dBlock(tf.keras.layers.Layer):
 class Deconv3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, output_shape=None, kernel_size=3, strides=1, padding="same", **kwargs):
         """
-
         :param filters:
         :param output_shape: [out_dim1, out_dim2, out_dim3]
         :param kernel_size:
@@ -309,7 +306,6 @@ class Conv3dWithResize(tf.keras.layers.Layer):
 class Warping(tf.keras.layers.Layer):
     def __init__(self, fixed_image_size, **kwargs):
         """
-
         :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
                                  or [f_dim1, f_dim2, f_dim3, ch] with the last channel for features
         :param kwargs:
@@ -325,7 +321,6 @@ class Warping(tf.keras.layers.Layer):
         https://github.com/adalca/neuron/blob/master/neuron/utils.py
         vol = image
         loc_shift = ddf
-
         :param inputs: [ddf, image]
                         ddf.shape = [batch, f_dim1, f_dim2, f_dim3, 3]
                         image.shape = [batch, m_dim1, m_dim2, m_dim3]
@@ -341,7 +336,6 @@ class Warping(tf.keras.layers.Layer):
 class IntDVF(tf.keras.layers.Layer):
     def __init__(self, fixed_image_size, num_steps=7, **kwargs):
         """
-
         :param fixed_image_size: shape = [f_dim1, f_dim2, f_dim3]
         :param num_steps: number of steps for integration
         :param kwargs:
@@ -353,10 +347,8 @@ class IntDVF(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         """
         given a dvf, calculate ddf
-
         same as integrate_vec of neuron
         https://github.com/adalca/neuron/blob/master/neuron/utils.py
-
         :param inputs: dvf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
         :param kwargs:
         :return: ddf, shape = [batch, f_dim1, f_dim2, f_dim3, 3]
@@ -366,11 +358,26 @@ class IntDVF(tf.keras.layers.Layer):
             ddf += self._warping(inputs=[ddf, ddf])
         return ddf
 
+class Dense(tf.keras.layers.Layer):
+    def __init__(self, units, bias_initializer='zeros', **kwargs):
+        """
+        :param output_shape: [batch, 4, 3]
+        :param bias_initializer:
+        :param kwargs:
+        """
+        super(Dense, self).__init__(**kwargs)
+
+        # init layer variables
+        self._flatten = tf.keras.layers.Flatten()
+        self._dense = tf.keras.layers.Dense(units=units, bias_initializer=bias_initializer)
+
+    def call(self, inputs, training=None, **kwargs):
+        flatten_inputs = self._flatten(inputs)
+        return self._dense(flatten_inputs)
 
 """
 local net
 """
-
 
 class AdditiveUpSampling(tf.keras.layers.Layer):
     def __init__(self, output_shape, stride=2, **kwargs):
