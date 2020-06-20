@@ -5,7 +5,7 @@ from deepreg.data.h5.util import H5FileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class H5PairedLabelledDataLoader(PairedDataLoader, GeneratorDataLoader):
+class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
     
     def __init__(self, data_dir_path: str, sample_label: str, seed, moving_image_shape: (list, tuple), fixed_image_shape):
         """
@@ -19,7 +19,7 @@ class H5PairedLabelledDataLoader(PairedDataLoader, GeneratorDataLoader):
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
-        super(H5PairedLabelledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
+        super(H5PairedLabeledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
                                                            fixed_image_shape=fixed_image_shape,
                                                            sample_label=sample_label, seed=seed)
         
