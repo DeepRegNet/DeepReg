@@ -40,16 +40,24 @@ class AffineTransformation3D:
 
         moving_image = inputs.get("moving_image")
         fixed_image = inputs.get("fixed_image")
-        moving_label = inputs.get("moving_label")
-        fixed_label = inputs.get("fixed_label")
+        moving_label = inputs.get("moving_label", None)
+        fixed_label = inputs.get("fixed_label", None)
         indices = inputs.get("indices")
 
         moving_transforms = self._gen_transforms()
         fixed_transforms = self._gen_transforms()
 
         moving_image = self._transform(moving_image, self._moving_grid_ref, moving_transforms)
-        moving_label = self._transform(moving_label, self._moving_grid_ref, moving_transforms)
         fixed_image = self._transform(fixed_image, self._fixed_grid_ref, fixed_transforms)
+
+        if moving_label is None:  # unlabeled
+            return dict(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                indices=indices,
+            )
+        
+        moving_label = self._transform(moving_label, self._moving_grid_ref, moving_transforms)
         fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_transforms)
 
         return dict(

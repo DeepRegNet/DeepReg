@@ -12,6 +12,7 @@ class DataLoader:
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
         self.seed = seed  # used for sampling
+        self.labeled = None
 
     @property
     def moving_image_shape(self) -> tuple:
@@ -91,29 +92,29 @@ class DataLoader:
                 fixed_image=fixed_image,
                 indices=indices,
             )
-
-        # labeled
-        if len(moving_label.shape) == 4:  # multiple labels
-            label_indices = get_label_indices(moving_label.shape[3], self.sample_label)
-            for label_index in label_indices:
+        else:
+            # labeled
+            if len(moving_label.shape) == 4:  # multiple labels
+                label_indices = get_label_indices(moving_label.shape[3], self.sample_label)
+                for label_index in label_indices:
+                    indices = np.asarray(image_indices + [label_index], dtype=np.float32)
+                    yield dict(
+                        moving_image=moving_image,
+                        fixed_image=fixed_image,
+                        indices=indices,
+                        moving_label=moving_label[..., label_index],
+                        fixed_label=fixed_label[..., label_index],
+                    )
+            else:  # only one label
+                label_index = 0
                 indices = np.asarray(image_indices + [label_index], dtype=np.float32)
                 yield dict(
                     moving_image=moving_image,
                     fixed_image=fixed_image,
+                    moving_label=moving_label,
+                    fixed_label=fixed_label,
                     indices=indices,
-                    moving_label=moving_label[..., label_index],
-                    fixed_label=fixed_label[..., label_index],
                 )
-        else:  # only one label
-            label_index = 0
-            indices = np.asarray(image_indices + [label_index], dtype=np.float32)
-            yield dict(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                moving_label=moving_label,
-                fixed_label=fixed_label,
-                indices=indices,
-            )
 
 
 class PairedDataLoader(DataLoader, ABC):
@@ -182,20 +183,35 @@ class GeneratorDataLoader(DataLoader, ABC):
         raise NotImplementedError
 
     def get_dataset(self):
-        return tf.data.Dataset.from_generator(
-            generator=self.get_generator,
-            output_types=dict(
-                moving_image=tf.float32,
-                fixed_image=tf.float32,
-                moving_label=tf.float32,
-                fixed_label=tf.float32,
-                indices=tf.float32,
-            ),
-            output_shapes=dict(
-                moving_image=self.moving_image_shape,
-                fixed_image=self.fixed_image_shape,
-                moving_label=self.moving_image_shape,
-                fixed_label=self.fixed_image_shape,
-                indices=self.num_indices,
-            ),
-        )
+        if self.labeled:
+            return tf.data.Dataset.from_generator(
+                generator=self.get_generator,
+                output_types=dict(
+                    moving_image=tf.float32,
+                    fixed_image=tf.float32,
+                    moving_label=tf.float32,
+                    fixed_label=tf.float32,
+                    indices=tf.float32,
+                ),
+                output_shapes=dict(
+                    moving_image=self.moving_image_shape,
+                    fixed_image=self.fixed_image_shape,
+                    moving_label=self.moving_image_shape,
+                    fixed_label=self.fixed_image_shape,
+                    indices=self.num_indices,
+                ),
+            )
+        else:
+            return tf.data.Dataset.from_generator(
+                generator=self.get_generator,
+                output_types=dict(
+                    moving_image=tf.float32,
+                    fixed_image=tf.float32,
+                    indices=tf.float32,
+                ),
+                output_shapes=dict(
+                    moving_image=self.moving_image_shape,
+                    fixed_image=self.fixed_image_shape,
+                    indices=self.num_indices,
+                ),
+            )

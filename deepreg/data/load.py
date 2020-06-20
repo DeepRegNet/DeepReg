@@ -1,6 +1,7 @@
 import os
 
 from deepreg.data.nifti.nifti_paired_labeled_loader import NiftiPairedLabeledDataLoader
+from deepreg.data.nifti.nifti_paired_unlabeled_loader import NiftiPairedUnlabeledDataLoader
 from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedLabeledDataLoader
 
 
@@ -29,14 +30,20 @@ def get_data_loader(data_config, mode):
 
     if data_config["format"] == "nifti":
         if data_config["paired"] is True:
+            moving_image_shape = data_config["moving_image_shape"]
+            fixed_image_shape = data_config["fixed_image_shape"]
             if data_config["labeled"] is True:
-                moving_image_shape = data_config["moving_image_shape"]
-                fixed_image_shape = data_config["fixed_image_shape"]
                 return NiftiPairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                                     sample_label=sample_label,
                                                     seed=seed,
                                                     moving_image_shape=moving_image_shape,
                                                     fixed_image_shape=fixed_image_shape)
+            else:
+                return NiftiPairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                                      sample_label=None,
+                                                      seed=seed,
+                                                      moving_image_shape=moving_image_shape,
+                                                      fixed_image_shape=fixed_image_shape)
         elif data_config["paired"] is False:
             if data_config["labeled"] is True:
                 image_shape = data_config["image_shape"]

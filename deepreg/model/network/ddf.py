@@ -45,6 +45,7 @@ def ddf_forward(backbone: tf.keras.Model,
 
 
 def ddf_add_loss_metric(model: tf.keras.Model,
+                        ddf: tf.Tensor,
                         fixed_image: tf.Tensor, fixed_label: tf.Tensor,
                         pred_fixed_image: tf.Tensor, pred_fixed_label: tf.Tensor,
                         tf_loss_config: dict):
@@ -58,7 +59,7 @@ def ddf_add_loss_metric(model: tf.keras.Model,
     :return:
     """
     # regularization loss on ddf
-    loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(model.ddf, **tf_loss_config["regularization"]))
+    loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
     weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
@@ -76,13 +77,14 @@ def ddf_add_loss_metric(model: tf.keras.Model,
         model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity", aggregation="mean")
 
     # label loss
-    loss_label = tf.reduce_mean(
-        label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(y_true=fixed_label,
-                                                                                   y_pred=pred_fixed_label))
-    weighted_loss_label = loss_label
-    model.add_loss(weighted_loss_label)
-    model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
-    model.add_metric(weighted_loss_label, name="loss/weighted_label_similarity", aggregation="mean")
+    if fixed_label is not None:
+        loss_label = tf.reduce_mean(
+            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(y_true=fixed_label,
+                                                                                       y_pred=pred_fixed_label))
+        weighted_loss_label = loss_label
+        model.add_loss(weighted_loss_label)
+        model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
+        model.add_metric(weighted_loss_label, name="loss/weighted_label_similarity", aggregation="mean")
 
     # TODO add dice score, centroid distance, foreground proportion
 
@@ -121,14 +123,17 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
 
     # build model
     if moving_label is None:  # unlabeled
-        raise NotImplementedError
+        model = tf.keras.Model(
+            inputs=dict(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                indices=indices,
+            ),
+            outputs=dict(
+                ddf=ddf,
+            ),
+            name="DDFRegModelWithoutLabel")
     else:  # labeled
-        # name the outputs
-        # but the name will have prefix "tf_op_layer_"
-        # so the names are tf_op_layer_output_ddf, tf_op_layer_output_pred_fixed_label
-        ddf = tf.identity(ddf, name="output_ddf")
-        pred_fixed_label = tf.identity(pred_fixed_label, name="output_pred_fixed_label")
-
         model = tf.keras.Model(
             inputs=dict(
                 moving_image=moving_image,
@@ -142,10 +147,10 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
                 pred_fixed_label=pred_fixed_label,
             ),
             name="DDFRegModelWithLabel")
-    model.ddf = ddf  # save ddf
 
     # loss and metric
     ddf_add_loss_metric(model=model,
+                        ddf=ddf,
                         fixed_image=fixed_image,
                         fixed_label=fixed_label,
                         pred_fixed_image=pred_fixed_image,

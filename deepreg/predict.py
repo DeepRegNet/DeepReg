@@ -13,6 +13,8 @@ import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
 
+EPS = 1.0e-6
+
 
 def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
@@ -27,11 +29,13 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         moving_image = inputs_dict.get("moving_image")
         fixed_image = inputs_dict.get("fixed_image")
         indices = inputs_dict.get("indices")
-        moving_label = inputs_dict.get("moving_label")
-        fixed_label = inputs_dict.get("fixed_label")
+        moving_label = inputs_dict.get("moving_label", None)
+        fixed_label = inputs_dict.get("fixed_label", None)
 
-        ddf = outputs_dict.get("ddf")
-        pred_fixed_label = outputs_dict.get("pred_fixed_label")
+        ddf = outputs_dict.get("ddf", None)
+        pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
+
+        labeled = moving_label is not None
 
         num_samples = moving_image.shape[0]
         moving_depth = moving_image.shape[3]
@@ -43,36 +47,43 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             label_index = str(indices_i[-1])
 
             # save fixed
-            image_dir = os.path.join(save_dir, "image%s" % image_index, "label%s" % label_index)
+            image_dir = os.path.join(save_dir, "image%s" % image_index)
+            if labeled:
+                image_dir = os.path.join(save_dir, "label%s" % label_index)
+
             filename_format = os.path.join(image_dir, "depth{depth_index:d}_{name:s}.png")
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
             for fixed_depth_index in range(fixed_depth):
                 fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
-                fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
-                fixed_pred_d = pred_fixed_label[sample_index, :, :, fixed_depth_index]
                 plt.imsave(
                     filename_format.format(depth_index=fixed_depth_index, name="fixed_image"),
                     fixed_image_d, cmap='gray')  # value range for h5 and nifti might be different
-                plt.imsave(
-                    filename_format.format(depth_index=fixed_depth_index, name="fixed_label"),
-                    fixed_label_d, vmin=0, vmax=1, cmap='gray')
-                plt.imsave(
-                    filename_format.format(depth_index=fixed_depth_index, name="fixed_pred"),
-                    fixed_pred_d, vmin=0, vmax=1, cmap='gray')
+
+                if labeled:
+                    fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
+                    fixed_pred_d = pred_fixed_label[sample_index, :, :, fixed_depth_index]
+
+                    plt.imsave(
+                        filename_format.format(depth_index=fixed_depth_index, name="fixed_label"),
+                        fixed_label_d, vmin=0, vmax=1, cmap='gray')
+                    plt.imsave(
+                        filename_format.format(depth_index=fixed_depth_index, name="fixed_label_pred"),
+                        fixed_pred_d, vmin=0, vmax=1, cmap='gray')
 
             # save moving
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
             for moving_depth_index in range(moving_depth):
                 moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
-                moving_label_d = moving_label[sample_index, :, :, moving_depth_index]
                 plt.imsave(
                     filename_format.format(depth_index=moving_depth_index, name="moving_image"),
                     moving_image_d, cmap='gray')  # value range for h5 and nifti might be different
-                plt.imsave(
-                    filename_format.format(depth_index=moving_depth_index, name="moving_label"),
-                    moving_label_d, vmin=0, vmax=1, cmap='gray')
+                if labeled:
+                    moving_label_d = moving_label[sample_index, :, :, moving_depth_index]
+                    plt.imsave(
+                        filename_format.format(depth_index=moving_depth_index, name="moving_label"),
+                        moving_label_d, vmin=0, vmax=1, cmap='gray')
 
             # save ddf if exists
             if ddf is not None:
@@ -81,23 +92,24 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 for fixed_depth_index in range(fixed_depth):
                     ddf_d = ddf[sample_index, :, :, fixed_depth_index, :]  # [f_dim1, f_dim2,  3]
                     ddf_max, ddf_min = np.max(ddf_d), np.min(ddf_d)
-                    ddf_d = (ddf_d - ddf_min) / (ddf_max - ddf_min)
+                    ddf_d = (ddf_d - ddf_min) / np.maximum(ddf_max - ddf_min, EPS)
                     plt.imsave(
                         filename_format.format(depth_index=fixed_depth_index, name="ddf"),
                         ddf_d)
 
             # calculate metric
-            label = fixed_label[sample_index:(sample_index + 1), :, :, :]
-            pred = pred_fixed_label[sample_index:(sample_index + 1), :, :, :]
-            dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
-            dist = label_loss.compute_centroid_distance(y_true=label, y_pred=pred,
-                                                        grid=fixed_grid_ref)
+            if labeled:
+                label = fixed_label[sample_index:(sample_index + 1), :, :, :]
+                pred = pred_fixed_label[sample_index:(sample_index + 1), :, :, :]
+                dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
+                dist = label_loss.compute_centroid_distance(y_true=label, y_pred=pred,
+                                                            grid=fixed_grid_ref)
 
-            # save metric
-            if image_index not in metric_map.keys():
-                metric_map[image_index] = dict()
-            assert label_index not in metric_map[image_index].keys()  # label should not be repeated
-            metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
+                # save metric
+                if image_index not in metric_map.keys():
+                    metric_map[image_index] = dict()
+                assert label_index not in metric_map[image_index].keys()  # label should not be repeated
+                metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
 
     # print metric
     line_format = "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
