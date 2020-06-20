@@ -222,6 +222,7 @@ def main(args=None):
                         "-g",
                         help="GPU index",
                         type=str,
+                        nargs='+',
                         required=True)
 
     parser.add_argument("--gpu_allow_growth",
