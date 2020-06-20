@@ -1,3 +1,7 @@
+"""
+Module to train a network using init files and a CLI
+"""
+
 import logging
 import os
 from datetime import datetime
@@ -12,6 +16,15 @@ from deepreg.model.network.build import build_model
 
 
 def init(config_path, log_dir, ckpt_path):
+    """
+    Function to initialise log directories,
+    assert that checkpointed model is the right
+    type and to parse the configuration for training
+    :param config_path: str, path to config file
+    :param log_dir: str, path to where training logs
+                    to be stored.
+    :param ckpt_path: str, path where model is stored.
+    """
     # init log directory
     if log_dir == "":  # default
         log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -33,6 +46,15 @@ def init(config_path, log_dir, ckpt_path):
 
 
 def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
+    """
+    Function to train a model
+    :param gpu: str, which local gpu to use to train
+    :param config_path: str, path to configuration set up
+    :param gpu_allow_growth: bool, whether or not to allocate
+                             whole GPU memory to training
+    :param ckpt_path: str, where to store training ckpts
+    :param log_dir: str, where to store logs in training
+    """
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
