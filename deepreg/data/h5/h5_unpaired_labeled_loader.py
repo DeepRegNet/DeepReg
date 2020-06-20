@@ -2,7 +2,7 @@ import os
 import random
 
 from deepreg.data.loader import UnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.nifti.util import NiftiFileLoader
+from deepreg.data.h5.util import H5FileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
@@ -21,18 +21,21 @@ class H5UnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         """
         super(H5UnpairedLabeledDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label,
                                                              seed=seed)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
-        self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
+        self.loader_image = H5FileLoader(os.path.join(data_dir_path, "images"))
+        self.loader_label = H5FileLoader(os.path.join(data_dir_path, "labels"))
 
-        self.num_images = len(self.loader_image.file_paths)
+        self.num_images = len(self.loader_image.get_data_names())
         self._num_samples = self.num_images // 2
         self.validate_data_files()
         
     def validate_data_files(self):
-        """Verify all loaders have the same data"""
-        data_names_image = self.loader_image.get_relative_file_paths()
-        data_names_label = self.loader_label.get_relative_file_paths()
-        check_difference_between_two_lists(list1=data_names_image, list2=data_names_label)       
+        '''
+        Check that all data names are the same in all folders
+        '''
+        data_names_image = self.loader_image.get_data_names()
+        data_names_label = self.loader_label.get_data_names()
+
+        check_difference_between_two_lists(list1=data_names_image, list2=data_names_label)    
         
     def get_generator(self):
         image_indices = [i for i in range(self.num_images)]
