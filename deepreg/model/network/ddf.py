@@ -3,6 +3,7 @@ import tensorflow as tf
 import deepreg.model.layer as layer
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
+import deepreg.model.loss.label as label_loss
 from deepreg.model.network.util import build_backbone, build_inputs
 
 
@@ -43,7 +44,10 @@ def ddf_forward(backbone: tf.keras.Model,
     return ddf, pred_fixed_image, pred_fixed_label
 
 
-def ddf_add_loss_metric(model: tf.keras.Model, fixed_image: tf.Tensor, pred_fixed_image: tf.Tensor,
+def ddf_add_loss_metric(model: tf.keras.Model,
+                        ddf: tf.Tensor,
+                        fixed_image: tf.Tensor, fixed_label: tf.Tensor,
+                        pred_fixed_image: tf.Tensor, pred_fixed_label: tf.Tensor,
                         tf_loss_config: dict):
     """
     Configure and add the training loss, including image and deformation regularisation,
@@ -55,7 +59,7 @@ def ddf_add_loss_metric(model: tf.keras.Model, fixed_image: tf.Tensor, pred_fixe
     :return:
     """
     # regularization loss on ddf
-    loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(model.ddf, **tf_loss_config["regularization"]))
+    loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(ddf, **tf_loss_config["regularization"]))
     weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
@@ -71,6 +75,18 @@ def ddf_add_loss_metric(model: tf.keras.Model, fixed_image: tf.Tensor, pred_fixe
         model.add_loss(weighted_loss_image)
         model.add_metric(loss_image, name="loss/image_similarity", aggregation="mean")
         model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity", aggregation="mean")
+
+    # label loss
+    if fixed_label is not None:
+        loss_label = tf.reduce_mean(
+            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(y_true=fixed_label,
+                                                                                       y_pred=pred_fixed_label))
+        weighted_loss_label = loss_label
+        model.add_loss(weighted_loss_label)
+        model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
+        model.add_metric(weighted_loss_label, name="loss/weighted_label_similarity", aggregation="mean")
+
+    # TODO add dice score, centroid distance, foreground proportion
 
 
 def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_size: int, labeled: bool, batch_size: int,
@@ -88,7 +104,7 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
     """
 
     # inputs
-    moving_image, fixed_image, moving_label, indices = build_inputs(
+    moving_image, fixed_image, moving_label, fixed_label, indices = build_inputs(
         moving_image_size=moving_image_size, fixed_image_size=fixed_image_size, index_size=index_size,
         batch_size=batch_size, labeled=labeled)
 
@@ -97,6 +113,7 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
                               tf_model_config=tf_model_config)
 
     # forward
+    print(moving_image, fixed_image, moving_label, indices)
     ddf, pred_fixed_image, pred_fixed_label = ddf_forward(backbone=backbone,
                                                           moving_image=moving_image,
                                                           fixed_image=fixed_image,
@@ -106,18 +123,38 @@ def build_ddf_model(moving_image_size: tuple, fixed_image_size: tuple, index_siz
 
     # build model
     if moving_label is None:  # unlabeled
-        model = tf.keras.Model(inputs=[moving_image, fixed_image, indices],
-                               name="DDFRegModelWithoutLabel")
+        model = tf.keras.Model(
+            inputs=dict(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                indices=indices,
+            ),
+            outputs=dict(
+                ddf=ddf,
+            ),
+            name="DDFRegModelWithoutLabel")
     else:  # labeled
-        model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
-                               outputs=[pred_fixed_label],
-                               name="DDFRegModelWithLabel")
-    model.ddf = ddf  # save ddf
+        model = tf.keras.Model(
+            inputs=dict(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                indices=indices,
+                moving_label=moving_label,
+                fixed_label=fixed_label,
+            ),
+            outputs=dict(
+                ddf=ddf,
+                pred_fixed_label=pred_fixed_label,
+            ),
+            name="DDFRegModelWithLabel")
 
     # loss and metric
     ddf_add_loss_metric(model=model,
+                        ddf=ddf,
                         fixed_image=fixed_image,
+                        fixed_label=fixed_label,
                         pred_fixed_image=pred_fixed_image,
+                        pred_fixed_label=pred_fixed_label,
                         tf_loss_config=tf_loss_config)
 
     return model
