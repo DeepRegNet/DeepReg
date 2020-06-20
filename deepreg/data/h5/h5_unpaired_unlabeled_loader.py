@@ -1,3 +1,9 @@
+'''
+Loads paired, unlabeled h5 data
+The data must be arranged in directories with names:
+images
+'''
+
 import os
 import random
 
@@ -6,20 +12,25 @@ from deepreg.data.h5.util import H5FileLoader
 
 
 class H5UnpairedUnlabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
-    
-    def __init__(self, data_dir_path: str, sample_label: str, seed, image_shape: (list, tuple)):
+    '''
+    This class loads unpaired, unlabeled h5 data
+    '''
+    def __init__(self, data_dir_path: str, sample_label: str, 
+                 seed, image_shape: (list, tuple)):
         """
-        Load data which are unpaired and labeled, so each sample has
-            (image, label)
+        Load data which are unpaired and unlabeled, so each sample has
+            (image)
 
-        :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
-                              sub-directories: images, labels
+        :param data_dir_path: path of the directory storing data, 
+        the data has to be saved under different
+        sub-directories: images
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(H5UnpairedUnlabeledDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label,
-                                                             seed=seed)
+        super(H5UnpairedUnlabeledDataLoader, self).__init__(image_shape=image_shape,
+                                                            sample_label=sample_label,
+                                                            seed=seed)
         self.loader_image = H5FileLoader(os.path.join(data_dir_path, "images"))
 
         self.num_images = len(self.loader_image.get_data_names())

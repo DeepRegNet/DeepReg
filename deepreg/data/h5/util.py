@@ -1,10 +1,17 @@
-import h5py
-import numpy as np
-
+'''
+Loads h5 files
+'''
 import os
 
+import numpy as np
+
+import h5py
+
+
 class H5FileLoader:
-    
+    '''
+    General loader for h5 files
+    '''
     def __init__(self, dir_path):
         self.dir_path = dir_path
         self.data_dict = None
@@ -29,7 +36,7 @@ class H5FileLoader:
         self.dict_from_h5()
         return list(self.data_dict.keys())
     
-    def get_data(self, index:int):
+    def get_data(self, index: int):
         '''
         Get one data array by specifying an index
         

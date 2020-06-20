@@ -1,3 +1,9 @@
+'''
+Loads paired, labeled h5 data
+The data must be arranged in directories with names:
+moving_image, fixed_image, moving_label, fixed_label
+'''
+
 import os
 
 from deepreg.data.loader import PairedDataLoader, GeneratorDataLoader
@@ -5,23 +11,27 @@ from deepreg.data.h5.util import H5FileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
-    
-    def __init__(self, data_dir_path: str, sample_label: str, seed, moving_image_shape: (list, tuple), fixed_image_shape):
+class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader): 
+    '''
+    This class loads paired, labeled h5 data
+    '''
+    def __init__(self, data_dir_path: str, sample_label: str, seed,
+                 moving_image_shape: (list, tuple), fixed_image_shape):
         """
         Load data which are paired and labeled, so each sample has
             (moving_image, fixed_image, moving_label, fixed_label)
 
-        :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
-                              sub-directories: moving_images, fixed_images, moving_labels, fixed_labels
+        :param data_dir_path: path of the directory storing data,
+        the data has to be saved under four different
+        sub-directories: moving_images, fixed_images, moving_labels, fixed_labels
         :param sample_label:
         :param seed:
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
         super(H5PairedLabeledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
-                                                           fixed_image_shape=fixed_image_shape,
-                                                           sample_label=sample_label, seed=seed)
+                                                        fixed_image_shape=fixed_image_shape,
+                                                        sample_label=sample_label, seed=seed)
         
         self.loader_moving_image = H5FileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = H5FileLoader(os.path.join(data_dir_path, "fixed_images"))
@@ -32,7 +42,6 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.labeled = True
         self.validate_data_files()
         
-        
     def validate_data_files(self):
         '''
         Check that all data names are the same in all folders
@@ -42,11 +51,13 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         data_names_moving_label = self.loader_moving_label.get_data_names()
         data_names_fixed_label = self.loader_fixed_label.get_data_names()
         
-        check_difference_between_two_lists(list1=data_names_moving_image, list2=data_names_fixed_image)
-        check_difference_between_two_lists(list1=data_names_moving_image, list2=data_names_moving_label)
-        check_difference_between_two_lists(list1=data_names_moving_image, list2=data_names_fixed_label)
+        check_difference_between_two_lists(list1=data_names_moving_image,
+                                           list2=data_names_fixed_image)
+        check_difference_between_two_lists(list1=data_names_moving_image,
+                                           list2=data_names_moving_label)
+        check_difference_between_two_lists(list1=data_names_moving_image, 
+                                           list2=data_names_fixed_label)
         
-    
     def get_generator(self):
         for image_index in range(self.num_images):
             moving_image = self.loader_moving_image.get_data(index=image_index) / 255.
