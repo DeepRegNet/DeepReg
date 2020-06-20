@@ -7,7 +7,7 @@ import logging
 import os
 from datetime import datetime
 
-import click
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -206,54 +206,67 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
                        save_dir=log_dir + "/test")
 
 
-@click.command()
-@click.option(
-    "--gpu", "-g",
-    help="GPU index",
-    type=str,
-    required=True,
-)
-@click.option(
-    "--gpu_allow_growth/--not_gpu_allow_growth",
-    help="Do not take all GPU memory",
-    default=False,
-    show_default=True)
-@click.option(
-    "--ckpt_path",
-    help="Path of checkpoint to load",
-    default="",
-    show_default=True,
-    type=str,
-    required=True,
-)
-@click.option('--mode',
-              help="Predict on train/valid/test data.",
-              type=click.Choice(["tran", "valid", "test"],
-                                case_sensitive=False),
-              required=True)
-@click.option(
-    "--batch_size", "-b",
-    help="Batch size",
-    default=1,
-    show_default=True,
-    type=int,
-)
-@click.option(
-    "--log_dir",
-    help="Path of log directory",
-    default="",
-    show_default=True,
-    type=str,
-)
-@click.option(
-    "--sample_label",
-    help="Method of sampling labels",
-    default="all",
-    show_default=True,
-    type=str,
-)
-def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
-    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label)
+def main(args=None):
+    """
+    Function to run in command line with argparse to predict results on data
+    for a given model
+    """
+    parser = argparse.ArgumentParser(description="predict")
+
+    ## ADD POSITIONAL ARGUMENTS
+    parser.add_argument("--gpu",
+                        "-g",
+                        help="GPU index",
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--gpu_allow_growth",
+                        "-gr",
+                        help="Do not take all GPU memory",
+                        default=False,
+                        show_default=True)
+
+    parser.add_argument("--ckpt_path",
+                        "-c",
+                        help="Path of checkpoint to load",
+                        default="",
+                        show_default=True,
+                        type=str,
+                        required=True)
+
+    parser.add_argument('--mode',
+                        "-m",
+                        help="Predict on train/valid/test data.",
+                        type=list,
+                        default="test",
+                        show_default=True,
+                        case_sensitive=False,
+                        required=True)
+
+    parser.add_argument("--batch_size",
+                        "-b",
+                        help="Batch size for predictions",
+                        default=1,
+                        show_default=True,
+                        type=int)
+
+    parser.add_argument("--log_dir",
+                        "-l",
+                        help="Path of log directory",
+                        default="",
+                        show_default=True,
+                        type=str)
+
+    parser.add_argument("--sample_label",
+                        "-s",
+                        help="Method of sampling labels",
+                        default="all",
+                        show_default=True,
+                        type=str)
+
+    args = parser.parse_args(args)
+
+    predict(args.gpu, args.gpu_allow_growth, args.ckpt_path, args.mode, args.batch_size, args.log_dir, args.sample_label)
 
 
 if __name__ == "__main__":
