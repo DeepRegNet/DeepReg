@@ -47,7 +47,7 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
             if intra_group_prob < 0 or intra_group_prob > 1:
                 raise ValueError("intra_group_prob should be between [0,1]")
             # TODO this value is too large
-            self._num_samples = len(self.inter_sample_indices) + len(self.intra_sample_indices)
+            self._num_samples = max(len(self.inter_sample_indices), len(self.intra_sample_indices))
 
     def validate_data_files(self):
         """Verify all loader have the same files"""
