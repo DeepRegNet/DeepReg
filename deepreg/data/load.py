@@ -55,11 +55,13 @@ def get_data_loader(data_config, mode):
             image_shape = data_config["image_shape"]
             intra_group_prob = data_config["intra_group_prob"]
             intra_group_option = data_config["intra_group_option"]
+            sample_image_in_group = data_config["sample_image_in_group"]
             return NiftiGroupedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                           labeled=labeled,
                                           sample_label=sample_label,
                                           intra_group_prob=intra_group_prob,
                                           intra_group_option=intra_group_option,
+                                          sample_image_in_group=sample_image_in_group,
                                           seed=seed,
                                           image_shape=image_shape)
         else:  # unpaired and not grouped
