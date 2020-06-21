@@ -1,5 +1,5 @@
 data:
-  dir: "/home/ssd/Desktop/DeepReg_Project/DeepReg_Git/DeepReg/data/h5_mr_us/mr_us/unpaired" # required
+  dir: "data/h5_mr_us/mr_us/unpaired" # required
   format: "h5"
   paired: false
   labeled: true
