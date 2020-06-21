@@ -6,7 +6,11 @@ A great scientific tutorial on deep learning for registration can be found at th
 A registration network takes a pair of moving and fixed images as the input of the deep nerual network. what types of the images are the input depend on the clinical application. They can be simply a random pair of images from all the training images available. They may however require more advanced sampling. For instance, when multiple subjects each having multiple available images, please see more sampling options in [Training data sampling options](./sampling.md).
 
 ## Network outputs
-In most common cases, the registration network outputs a dense displacement field (DDF). The DDF can be constrained during training by a deformation regularisation term. The deformation regularisation include, L1- or L2 norm of the displacement gradient and bending energy. The implicite constraint, such as diffeomorphism can be forced by predicting the velocity field then numerically integrated to DDF, a feaature also supported in DeepReg.
+The registration network outputs a dense displacement field (DDF). The DDF can be constrained during training by a deformation regularisation term. The deformation regularisation include, L1- or L2 norm of the displacement gradient and bending energy.  
+
+Option to predict a dense velocity field is also available, such that a diffeomorphic DDF can be numerically integrated. 
+
+A more constrained option is to predict an affine transformation, parameterised by 12 parameters of the affine transformation matrix. The DDF can then be computed to resample the moving images in fixed image space.
 
 ## Loss function
 In addition to the deformation regularisation, the loss function to train a registration network depends on the adopted algorithms. 
