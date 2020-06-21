@@ -1,8 +1,13 @@
+"""
+Module to perform predictions on data using
+command line interface
+"""
+
 import logging
 import os
 from datetime import datetime
 
-import click
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -17,8 +22,15 @@ EPS = 1.0e-6
 
 
 def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
+    """
+    Function to predict results from a dataset from some model
+    :param dataset: where data is stored
+    :param fixed_grid_ref:
+    :param model:
+    :param save_dir: str, path to store dir
+    """
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
-    for i, inputs_dict in enumerate(dataset):
+    for _, inputs_dict in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
         # moving_image     [batch, m_dim1, m_dim2, m_dim3]
         # fixed_image      [batch, f_dim1, f_dim2, f_dim3]
@@ -68,7 +80,8 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                         filename_format.format(depth_index=fixed_depth_index, name="fixed_label"),
                         fixed_label_d, vmin=0, vmax=1, cmap='gray')
                     plt.imsave(
-                        filename_format.format(depth_index=fixed_depth_index, name="fixed_label_pred"),
+                        filename_format.format(depth_index=fixed_depth_index,
+                                               name="fixed_label_pred"),
                         fixed_pred_d, vmin=0, vmax=1, cmap='gray')
 
             # save moving
@@ -108,20 +121,27 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 # save metric
                 if image_index not in metric_map.keys():
                     metric_map[image_index] = dict()
-                assert label_index not in metric_map[image_index].keys()  # label should not be repeated
-                metric_map[image_index][label_index] = dict(dice=dice.numpy()[0], dist=dist.numpy()[0])
+                # label should not be repeated - assert that it is not in keys
+                assert label_index not in metric_map[image_index].keys()
+                metric_map[image_index][label_index] = dict(dice=dice.numpy()[0],
+                                                            dist=dist.numpy()[0])
 
     # print metric
     line_format = "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
-    with open(save_dir + "/metric.log", "w+") as f:
+    with open(save_dir + "/metric.log", "w+") as file:
         for image_index in sorted(metric_map.keys()):
             for label_index in sorted(metric_map[image_index].keys()):
-                f.write(line_format.format(image_index=image_index,
-                                           label_index=label_index,
-                                           **metric_map[image_index][label_index]))
+                file.write(line_format.format(image_index=image_index,
+                                              label_index=label_index,
+                                              **metric_map[image_index][label_index]))
 
 
 def init(log_dir):
+    """
+    Function to create new directory to log directory
+    to store results.
+    :param log_dir: string, path to store logs.
+    """
     # init log directory
     if log_dir == "":  # default
         log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
@@ -132,9 +152,20 @@ def init(log_dir):
 
 
 def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+    """
+    Function to predict some metrics from the saved model and logging results.
+    :param gpu: str, which env gpu to use.
+    :param gpu_allow_growth: bool, whether to allow gpu growth or not
+    :param ckpt_path: str, where model is stored, should be like
+                      log_folder/save/xxx.ckpt
+    :param mode: which mode to load the data ??
+    :param batch_size: int, batch size to perform predictions in
+    :param log_dir: str, path to store logs
+    :param sample_label:
+    """
     logging.error("TODO sample_label is not used in predict")
     # sanity check
-    if not ckpt_path.endswith(".ckpt"):  # should be like log_folder/save/xxx.ckpt
+    if not ckpt_path.endswith(".ckpt"):
         raise ValueError("checkpoint path should end with .ckpt")
 
     # env vars
@@ -179,54 +210,74 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
                        save_dir=log_dir + "/test")
 
 
-@click.command()
-@click.option(
-    "--gpu", "-g",
-    help="GPU index",
-    type=str,
-    required=True,
-)
-@click.option(
-    "--gpu_allow_growth/--not_gpu_allow_growth",
-    help="Do not take all GPU memory",
-    default=False,
-    show_default=True)
-@click.option(
-    "--ckpt_path",
-    help="Path of checkpoint to load",
-    default="",
-    show_default=True,
-    type=str,
-    required=True,
-)
-@click.option('--mode',
-              help="Predict on train/valid/test data.",
-              type=click.Choice(["tran", "valid", "test"],
-                                case_sensitive=False),
-              required=True)
-@click.option(
-    "--batch_size", "-b",
-    help="Batch size",
-    default=1,
-    show_default=True,
-    type=int,
-)
-@click.option(
-    "--log_dir",
-    help="Path of log directory",
-    default="",
-    show_default=True,
-    type=str,
-)
-@click.option(
-    "--sample_label",
-    help="Method of sampling labels",
-    default="all",
-    show_default=True,
-    type=str,
-)
-def main(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
-    predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label)
+def main(args=None):
+    """
+    Function to run in command line with argparse to predict results on data
+    for a given model
+    """
+    parser = argparse.ArgumentParser(description="predict")
+
+    ## ADD POSITIONAL ARGUMENTS
+    parser.add_argument("--gpu",
+                        "-g",
+                        help="GPU index",
+                        type=str,
+                        nargs='+',
+                        required=True)
+
+    parser.add_argument("--gpu_allow_growth",
+                        "-gr",
+                        help="Do not take all GPU memory",
+                        default=False,
+                        show_default=True)
+
+    parser.add_argument("--ckpt_path",
+                        "-c",
+                        help="Path of checkpoint to load",
+                        default="",
+                        show_default=True,
+                        type=str,
+                        required=True)
+
+    parser.add_argument('--mode',
+                        "-m",
+                        help="Predict on train/valid/test data.",
+                        type=list,
+                        default="test",
+                        show_default=True,
+                        case_sensitive=False,
+                        required=True)
+
+    parser.add_argument("--batch_size",
+                        "-b",
+                        help="Batch size for predictions",
+                        default=1,
+                        show_default=True,
+                        type=int)
+
+    parser.add_argument("--log_dir",
+                        "-l",
+                        help="Path of log directory",
+                        default="",
+                        show_default=True,
+                        type=str)
+
+    parser.add_argument("--sample_label",
+                        "-s",
+                        help="Method of sampling labels",
+                        default="all",
+                        show_default=True,
+                        type=str)
+
+    args = parser.parse_args(args)
+
+    predict(args.gpu,
+            args.gpu_allow_growth,
+            args.ckpt_path,
+            args.mode,
+            args.batch_size,
+            args.log_dir,
+            args.sample_label)
 
 
 if __name__ == "__main__":
