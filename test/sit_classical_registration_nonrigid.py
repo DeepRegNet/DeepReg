@@ -1,5 +1,5 @@
 """
-Classical iterative pairwise registration algorithms as integration tests
+Classical nonrigid iterative pairwise registration algorithms as integration tests
 """
 import nibabel
 import tensorflow as tf 
@@ -33,7 +33,7 @@ fixed_image = layer_util.resample(vol=moving_image, loc=layer_util.warp_grid(gri
 @tf.function
 def train_step(warper, weights, optimizer, mov, fix):
     """
-    Standard train step function for backprop using geadient tape    
+    Train step function for backprop using gradient tape    
 
     :param warper: warping function returned from layer.Warping
     :param weights: trainable ddf [1, f_dim1, f_dim2, f_dim3, 3]
