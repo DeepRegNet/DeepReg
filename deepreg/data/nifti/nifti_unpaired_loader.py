@@ -2,13 +2,13 @@ import os
 import random
 
 from deepreg.data.loader import UnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.nifti.util import NiftiFileLoader
+from deepreg.data.nifti.nifti_loader import NiftiFileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
 class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, labeled: bool, sample_label: str, seed, image_shape: (list, tuple)):
+                 data_dir_path: str, labeled: bool, grouped: bool, sample_label: str, seed, image_shape: (list, tuple)):
         """
         Load data which are unpaired, labeled or unlabeled
 
@@ -22,9 +22,9 @@ class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                                                       labeled=labeled,
                                                       sample_label=sample_label,
                                                       seed=seed)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
+        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped)
         if self.labeled:
-            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
+            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped)
         self.validate_data_files()
 
         self.num_images = len(self.loader_image.file_paths)
