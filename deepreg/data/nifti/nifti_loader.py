@@ -5,7 +5,7 @@ from deepreg.data.util import get_sorted_filenames_in_dir
 
 
 class NiftiFileLoader:
-    def __init__(self, dir_path):
+    def __init__(self, dir_path: str, grouped: bool):
         self.dir_path = dir_path
         self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="nii.gz")
 
