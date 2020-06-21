@@ -1,6 +1,6 @@
-#### Issue description
+# Issue description
 
-## Type of issue
+## Type of Issue
 Please delete options that are not relevant.
 
 - [ ] Bug report
