@@ -29,7 +29,8 @@ The easiest way to contribute is to follow these guidelines:
 7. Submit a merge request: https://github.com/ucl-candi/DeepReg/merge-requests/new
 8. Merge request will be reviewed and, if necessary, changes suggested before merge to master.
 
-## Commit style
+## Commit style
+
 To facilitate review of contributions, we encourage contributors to adhere to the following commit guidelines.
 
 1. The commit message should start with `Issue #<issue number>` so that the commits are tied to a specific issue.
