@@ -8,7 +8,7 @@ from deepreg.data.util import check_difference_between_two_lists
 
 class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, labeled: bool, sample_label: str,
+                 data_dir_path: str, labeled: bool, sample_label: (str, None),
                  intra_group_prob: float, intra_group_option: str, sample_image_in_group: bool,
                  seed, image_shape: (list, tuple)):
         """
@@ -121,35 +121,37 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         rnd = random.Random(self.seed)
         if self.sample_image_in_group:
             group_indices = [i for i in range(self.num_groups)]
-            if rnd.random() <= self.intra_group_prob:  # intra group, inside one group
-                group_index = rnd.choice(group_indices)
-                num_images_in_group = self.num_images_per_group[group_index]
-                if self.intra_group_option in ["forward", "backward"]:
-                    # image_index1 < image_index2
-                    # image_index1 must be <= num_images_in_group-2
-                    image_index1 = rnd.choice([i for i in range(num_images_in_group - 1)])
-                    image_index2 = rnd.choice([i for i in range(image_index1 + 1, num_images_in_group)])
-                    if self.intra_group_option == "forward":
+            random.Random(self.seed).shuffle(group_indices)
+            for group_index in group_indices:
+                if rnd.random() <= self.intra_group_prob:  # intra group, inside one group
+                    num_images_in_group = self.num_images_per_group[group_index]
+                    if self.intra_group_option in ["forward", "backward"]:
+                        # image_index1 < image_index2
+                        # image_index1 must be <= num_images_in_group-2
+                        image_index1 = rnd.choice([i for i in range(num_images_in_group - 1)])
+                        image_index2 = rnd.choice([i for i in range(image_index1 + 1, num_images_in_group)])
+                        if self.intra_group_option == "forward":
+                            yield (group_index, image_index1), (group_index, image_index2), [group_index, image_index1,
+                                                                                             group_index, image_index2]
+                        else:
+                            yield (group_index, image_index2), (group_index, image_index1), [group_index, image_index2,
+                                                                                             group_index, image_index1]
+                    elif self.intra_group_option == "undirected":
+                        image_index1, image_index2 = rnd.sample([i for i in range(num_images_in_group)], 2)
+                        image_index2 = rnd.choice([i for i in range(num_images_in_group) if i != image_index1])
                         yield (group_index, image_index1), (group_index, image_index2), [group_index, image_index1,
                                                                                          group_index, image_index2]
                     else:
-                        yield (group_index, image_index2), (group_index, image_index1), [group_index, image_index2,
-                                                                                         group_index, image_index1]
-                elif self.intra_group_option == "bidirectional":
-                    image_index1 = rnd.choice([i for i in range(num_images_in_group)])
-                    image_index2 = rnd.choice([i for i in range(num_images_in_group) if i != image_index1])
-                    yield (group_index, image_index1), (group_index, image_index2), [group_index, image_index1,
-                                                                                     group_index, image_index2]
-                else:
-                    raise ValueError("Unknown intra_group_option, must be forward/backward/bidirectional/all")
-            else:  # inter group, between different groups
-                group_index1, group_index2 = rnd.sample(group_indices, 2)
-                num_images_in_group1 = self.num_images_per_group[group_index1]
-                num_images_in_group2 = self.num_images_per_group[group_index2]
-                image_index1 = rnd.choice([i for i in range(num_images_in_group1)])
-                image_index2 = rnd.choice([i for i in range(num_images_in_group2)])
-                yield (group_index1, image_index1), (group_index2, image_index2), [group_index1, image_index1,
-                                                                                   group_index2, image_index2]
+                        raise ValueError("Unknown intra_group_option, must be forward/backward/undirected")
+                else:  # inter group, between different groups
+                    group_index1 = group_index
+                    group_index2 = rnd.choice([i for i in range(self.num_groups) if i != group_index1])
+                    num_images_in_group1 = self.num_images_per_group[group_index1]
+                    num_images_in_group2 = self.num_images_per_group[group_index2]
+                    image_index1 = rnd.choice([i for i in range(num_images_in_group1)])
+                    image_index2 = rnd.choice([i for i in range(num_images_in_group2)])
+                    yield (group_index1, image_index1), (group_index2, image_index2), [group_index1, image_index1,
+                                                                                       group_index2, image_index2]
         else:
             assert self.sample_indices is not None
             sample_indices = self.sample_indices.copy()

@@ -25,7 +25,7 @@ data:
   fixed_image_shape:     # required if paired, [dim1, dim2, dim3]
   image_shape:           # required if unpaired or grouped, [dim1, dim2, dim3]
   intra_group_prob:      # required if grouped, value between [0,1], 0 means inter-group only and 1 means intra-group only
-  intra_group_option:    # required if grouped, feasible values are: "forward", "backward", "bidirectional"
+  intra_group_option:    # required if grouped, feasible values are: "forward", "backward", "undirected"
   sample_image_in_group: # required if grouped, false is want to generate all possible data pairs
                          # if false, intra_group_prob must be 0 or 1
 ```
