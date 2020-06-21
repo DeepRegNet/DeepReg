@@ -11,6 +11,10 @@ import h5py
 class H5FileLoader:
     '''
     General loader for h5 files
+    Supports:
+    loading an array from h5 data
+    converting h5 data into a dictionary 
+    getting the keys from the h5 file
     '''
     def __init__(self, dir_path):
         self.dir_path = dir_path
