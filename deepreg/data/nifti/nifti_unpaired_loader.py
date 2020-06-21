@@ -6,12 +6,11 @@ from deepreg.data.nifti.util import NiftiFileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class NiftiUnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
+class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, sample_label: str, seed, image_shape: (list, tuple)):
+                 data_dir_path: str, labeled: bool, sample_label: str, seed, image_shape: (list, tuple)):
         """
-        Load data which are unpaired and labeled, so each sample has
-            (image, label)
+        Load data which are unpaired, labeled or unlabeled
 
         :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
                               sub-directories: images, labels
@@ -19,21 +18,24 @@ class NiftiUnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(NiftiUnpairedLabeledDataLoader, self).__init__(image_shape=image_shape, sample_label=sample_label,
-                                                             seed=seed)
+        super(NiftiUnpairedDataLoader, self).__init__(image_shape=image_shape,
+                                                      labeled=labeled,
+                                                      sample_label=sample_label,
+                                                      seed=seed)
         self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
-        self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
+        if self.labeled:
+            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
         self.validate_data_files()
 
         self.num_images = len(self.loader_image.file_paths)
         self._num_samples = self.num_images // 2
-        self.labeled = True
 
     def validate_data_files(self):
         """Verify all loader have the same files"""
-        filenames_image = self.loader_image.get_relative_file_paths()
-        filenames_label = self.loader_label.get_relative_file_paths()
-        check_difference_between_two_lists(list1=filenames_image, list2=filenames_label)
+        if self.labeled:
+            filenames_image = self.loader_image.get_relative_file_paths()
+            filenames_label = self.loader_label.get_relative_file_paths()
+            check_difference_between_two_lists(list1=filenames_image, list2=filenames_label)
 
     def get_generator(self):
         image_indices = [i for i in range(self.num_images)]
@@ -43,8 +45,8 @@ class NiftiUnpairedLabeledDataLoader(UnpairedDataLoader, GeneratorDataLoader):
             image_index2 = 2 * sample_index + 1
             moving_image = self.loader_image.get_data(index=image_index1) / 255.
             fixed_image = self.loader_image.get_data(index=image_index2) / 255.
-            moving_label = self.loader_label.get_data(index=image_index1)
-            fixed_label = self.loader_label.get_data(index=image_index2)
+            moving_label = self.loader_label.get_data(index=image_index1) if self.labeled else None
+            fixed_label = self.loader_label.get_data(index=image_index2) if self.labeled else None
 
             for sample in self.sample_image_label(moving_image=moving_image,
                                                   fixed_image=fixed_image,
