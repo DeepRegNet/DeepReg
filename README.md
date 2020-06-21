@@ -7,7 +7,7 @@ DeepReg is an open-source toolkit for research in medical image registration usi
 This is still under development. However some of the functionalities can be accessed as follows.
 
 ## Contributions
-We welcome contributions! Please refer to the [contribution guidelines](https://github.com/ucl-candi/DeepReg/docs/CONTRIBUTING.md) for the toolkit.
+We welcome contributions! Please refer to the [contribution guidelines](https://github.com/ucl-candi/DeepReg/blob/master/docs/CONTRIBUTING.md) for the toolkit.
 
 ## Setup
 
