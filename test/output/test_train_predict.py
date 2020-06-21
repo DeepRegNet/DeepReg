@@ -23,6 +23,7 @@ def test_train_and_predict():
     configs = [
         ("paired_unlabeled_ddf", "deepreg/config/paired_unlabeled_ddf.yaml"),
         ("paired_labeled_ddf", "deepreg/config/paired_labeled_ddf.yaml"),
+        ("unpaired_unlabeled_ddf", "deepreg/config/unpaired_unlabeled_ddf.yaml"),
         ("unpaired_labeled_ddf", "deepreg/config/unpaired_labeled_ddf.yaml"),
     ]
     for test_name, config_path in configs:

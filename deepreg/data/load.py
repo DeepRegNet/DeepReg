@@ -3,6 +3,7 @@ import os
 from deepreg.data.nifti.nifti_paired_labeled_loader import NiftiPairedLabeledDataLoader
 from deepreg.data.nifti.nifti_paired_unlabeled_loader import NiftiPairedUnlabeledDataLoader
 from deepreg.data.nifti.nifti_unpaired_labeled_loader import NiftiUnpairedLabeledDataLoader
+from deepreg.data.nifti.nifti_unpaired_unlabeled_loader import NiftiUnpairedUnlabeledDataLoader
 
 
 def get_data_loader(data_config, mode):
@@ -45,10 +46,15 @@ def get_data_loader(data_config, mode):
                                                       moving_image_shape=moving_image_shape,
                                                       fixed_image_shape=fixed_image_shape)
         elif data_config["paired"] is False:
+            image_shape = data_config["image_shape"]
             if data_config["labeled"] is True:
-                image_shape = data_config["image_shape"]
                 return NiftiUnpairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                                       sample_label=sample_label,
                                                       seed=seed,
                                                       image_shape=image_shape)
+            else:
+                return NiftiUnpairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                                        sample_label=None,
+                                                        seed=seed,
+                                                        image_shape=image_shape)
     raise ValueError("Unknown data loader type. \nConfig {}\n".format(data_config))
