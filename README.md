@@ -13,41 +13,33 @@ We welcome contributions! Please refer to the [contribution guidelines](https://
 
 The dependencies for this package are managed by `pip`.
 - Create a new virtual environment using Anaconda/Miniconda by calling the command `conda create --name deepreg python=3.7 tensorflow-gpu=2.2` to setup the latest gpu-support with Tensorflow.
-- Call `pip install -e .` in the within the Deepreg folder to install the package in the virtual environment. All necessary requirements for development and/or usage will be automatically installed.
+- Call `pip install -e .` within the Deepreg folder to install the package in the virtual environment. All necessary requirements for development and/or usage will be automatically installed.
 
-## Demo
+## Command line interface applications
 
-### Train
+Deepreg supports 3 command line interface applications to facilitate training of a deep learning registration models, prediction from pre-trained models, and to generate Tensorflow records.
 
-The training can be launched using `deepreg_train` and it accepts the following parameters
-- `-g` or `--gpu`, **required**, providing available GPU indices, e.g. `-g 0` uses GPU of index 0 and `-g "0,1"` uses GPU of index 0 and 1.
-- `-c` or `--config_path`, **required**, providing the path of the configuration file, `-c demo.yaml`. Some default configuration files are provided under `src/config/`.
-- `--gpu_allow_growth` providing this flag will prevent tensorflow to reserve all available GPU memory.
-- `--ckpt_path` providing the checkpoint to load, to prevent start training from random initialization. The path must ended in `.ckpt`, e.g. `--ckpt logs/demo/save/weights-epoch100.ckpt`
-- `--log` providing the name of log folder. It not provided, a timestamp based folder name will be used.
+* **Training**: `train --gpu <str> --config_path <str> --gpu_allow_growth --ckpt_path <str> --log <str>`
 
-For example, `deepreg_train -g "" -c deepreg/config/mr_us_ddf.yaml --log demo` will launch a training using the configuration file `deepreg/config/mr_us_ddf.yaml` without GPU and the log will be saved under `logs/demo`.
+* **Predict**: provided a trained, checkpointed Tensorflow model (format `.ckpt`), predictions for a given split of the data (`train`/`valid`/`test`) can be evaluated and logged. The data is taken from the config extracted from the ckpt path provided like:
 
-### Predict
 
-The training can be launched using `deepreg_predict` and it accepts the following parameters
-- `-g` or `--gpu`, **required**, providing available GPU indices, e.g. `-g 0` uses GPU of index 0. Multi-GPU setting is not tested for prediction.
-- `--mode`, **required**, providing which part of the data should be evaluated. Must be one of `train`/`valid`/`test`.
-- `--ckpt_path`, **required**, providing the checkpoint to load, to prevent start training from random initialization. The path must ended in `.ckpt`, e.g. `--ckpt logs/demo/save/weights-epoch100.ckpt`. When loading the checkpoint, a backup configuration file wil be used, in the example above, the configuration file will be under `logs/demo/`. 
-- `--gpu_allow_growth`, providing this flag will prevent tensorflow to reserve all available GPU memory.
-- `-b` or `--batch_size`, providing the batch size, the number of data samples must be divided evenly by batch size during prediction. If not provided, batch size of 1 will be used.
-- `--log` providing the name of log folder. It not provided, a timestamp based folder name will be used.
+`predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>`
 
-For example, `deepreg_predict -g "" --ckpt_path logs/demo/save/weights-epoch2.ckpt --mode test --log demo_test_pred` will launch a prediction on the test data using the provided checkpoint. The results will be saved under `logs` in a new folder, in which a `metric.log` will be generated. An example of `metric.log` will be like
+* **Generating Tensorflow records**: provided a config file stored in a path, the data is converted to a TFRecord type which facilitates speedier training.
 
-```
-image0, label 0, dice 0.0000, dist 21.1440
-image0, label 1, dice 0.0000, dist 25.7530
-image0, label 2, dice 0.0000, dist 16.5396
-image1, label 0, dice 0.4170, dist 12.2923
-image1, label 1, dice 0.0000, dist 14.9628
-image1, label 2, dice 0.0000, dist 12.5561
-```
+`gen_tfrecord --config_path <str> --examples_per_tfrecord <int>`
+
+Arguments: 
+- `--gpu` | `-g`, string, indicating which GPU to use in training. Can pass multiple GPUs to this argument like `--gpu 0 1`
+- `--config_path` | `-c` , string, path to the configuraton file in training, `.yaml` extension.
+- `--gpu_allow_growth` | `-gr`, providing this flag will prevent Tensorflow from reserving all available GPU memory for given GPU(s). Defaults to False.
+- `--ckpt_path` | `-c` , string, path to the checkpointed model, `.ckpt` extension.
+- `--log` | `-l` , string, path where logs are to be saved. If not provided, a folder in the current working directory is generated based on a timestamp for the command.
+- `--mode` | `-m`, string, which split of data to be used for prediction. One of `train`/`valid`/`test`.
+- `--batch_size` | `-b`, int, number of batches to feed to the model for prediction. Defaults to 1.
+- `--sample_label` | `-s`, string, currently not supported
+- `--examples_per_tfrecord` | `-n`, int, number of TFRecord examples to generate at a time. Default is 64.
 
 ## Development
 
