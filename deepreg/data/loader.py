@@ -8,11 +8,11 @@ from deepreg.data.util import get_label_indices
 
 
 class DataLoader:
-    def __init__(self, num_indices, sample_label, seed=None):
+    def __init__(self, labeled: bool, num_indices: int, sample_label: (str, None), seed: (int, None) = None):
+        self.labeled = labeled
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
         self.seed = seed  # used for sampling
-        self.labeled = None
 
     @property
     def moving_image_shape(self) -> tuple:
