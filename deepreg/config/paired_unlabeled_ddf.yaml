@@ -3,6 +3,7 @@ data:
   format: "nifti"
   paired: true
   labeled: false
+  grouped: false
   moving_image_shape: [64, 64, 60]
   fixed_image_shape: [44, 59, 41]
 

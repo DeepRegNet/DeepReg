@@ -3,6 +3,7 @@ data:
   format: "nifti"
   paired: false
   labeled: true
+  grouped: false
   image_shape: [64, 64, 60]
 
 tf:
