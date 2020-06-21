@@ -1,9 +1,7 @@
 import os
 
-from deepreg.data.nifti.nifti_paired_labeled_loader import NiftiPairedLabeledDataLoader
-from deepreg.data.nifti.nifti_paired_unlabeled_loader import NiftiPairedUnlabeledDataLoader
-from deepreg.data.nifti.nifti_unpaired_labeled_loader import NiftiUnpairedLabeledDataLoader
-from deepreg.data.nifti.nifti_unpaired_unlabeled_loader import NiftiUnpairedUnlabeledDataLoader
+from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
+from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedDataLoader
 
 
 def get_data_loader(data_config, mode):
@@ -26,6 +24,7 @@ def get_data_loader(data_config, mode):
     if mode not in modes:
         return None
 
+    labeled = data_config["labeled"]
     sample_label = "sample" if mode == "train" else "all"
     seed = None if mode == "train" else 0
 
@@ -33,28 +32,17 @@ def get_data_loader(data_config, mode):
         if data_config["paired"] is True:
             moving_image_shape = data_config["moving_image_shape"]
             fixed_image_shape = data_config["fixed_image_shape"]
-            if data_config["labeled"] is True:
-                return NiftiPairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                    sample_label=sample_label,
-                                                    seed=seed,
-                                                    moving_image_shape=moving_image_shape,
-                                                    fixed_image_shape=fixed_image_shape)
-            else:
-                return NiftiPairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                      sample_label=None,
-                                                      seed=seed,
-                                                      moving_image_shape=moving_image_shape,
-                                                      fixed_image_shape=fixed_image_shape)
+            return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                         labeled=labeled,
+                                         sample_label=sample_label,
+                                         seed=seed,
+                                         moving_image_shape=moving_image_shape,
+                                         fixed_image_shape=fixed_image_shape)
         elif data_config["paired"] is False:
             image_shape = data_config["image_shape"]
-            if data_config["labeled"] is True:
-                return NiftiUnpairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                      sample_label=sample_label,
-                                                      seed=seed,
-                                                      image_shape=image_shape)
-            else:
-                return NiftiUnpairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                        sample_label=None,
-                                                        seed=seed,
-                                                        image_shape=image_shape)
+            return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                           labeled=labeled,
+                                           sample_label=sample_label,
+                                           seed=seed,
+                                           image_shape=image_shape)
     raise ValueError("Unknown data loader type. \nConfig {}\n".format(data_config))
