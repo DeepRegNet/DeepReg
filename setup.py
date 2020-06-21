@@ -16,7 +16,6 @@ setup(
         "argparse",
         "tqdm",
         "tensorflow==2.2",
-        "nilearn",
         "pytest>=4.6",
         "pytest-cov",
         "pytest-dependency",
