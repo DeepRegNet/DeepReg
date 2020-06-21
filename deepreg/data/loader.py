@@ -178,14 +178,33 @@ class UnpairedDataLoader(DataLoader, ABC):
 class GeneratorDataLoader(DataLoader, ABC):
     def __init__(self, **kwargs):
         super(GeneratorDataLoader, self).__init__(**kwargs)
+        self.loader_moving_image = None
+        self.loader_fixed_image = None
+        self.loader_moving_label = None
+        self.loader_fixed_label = None
 
-    def get_generator(self):
+    def sample_index_generator(self):
         raise NotImplementedError
+
+    def data_generator(self):
+        for moving_index, fixed_index, image_indices in self.sample_index_generator():
+            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.
+            moving_label = self.loader_moving_label.get_data(index=moving_index) if self.labeled else None
+            fixed_label = self.loader_fixed_label.get_data(index=fixed_index) if self.labeled else None
+
+            for sample in self.sample_image_label(moving_image=moving_image,
+                                                  fixed_image=fixed_image,
+                                                  moving_label=moving_label,
+                                                  fixed_label=fixed_label,
+                                                  image_indices=image_indices,
+                                                  ):
+                yield sample
 
     def get_dataset(self):
         if self.labeled:
             return tf.data.Dataset.from_generator(
-                generator=self.get_generator,
+                generator=self.data_generator,
                 output_types=dict(
                     moving_image=tf.float32,
                     fixed_image=tf.float32,
@@ -203,7 +222,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
         else:
             return tf.data.Dataset.from_generator(
-                generator=self.get_generator,
+                generator=self.data_generator,
                 output_types=dict(
                     moving_image=tf.float32,
                     fixed_image=tf.float32,
