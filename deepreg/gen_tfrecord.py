@@ -1,28 +1,37 @@
+"""
+Module to implement command line interface and run tf
+record function
+"""
 import os
 import shutil
-
-import click
+import argparse
 
 import deepreg.config.parser as config_parser
 import deepreg.data.load as load
 from deepreg.data.tfrecord import write_tfrecords
 
 
-@click.command()
-@click.option(
-    "--config_path", "-c",
-    help="Path of config",
-    type=click.Path(file_okay=True, dir_okay=False, exists=True),
-    required=True,
-)
-@click.option(
-    "--examples_per_tfrecord", "-n",
-    help="Number of examples per tfrecord",
-    type=int,
-    default=64,
-)
-def main(config_path, examples_per_tfrecord):
-    config = config_parser.load(config_path)
+def main(args=None):
+    """Entry point for gen_tfrecord"""
+
+    parser = argparse.ArgumentParser(description="gen_tfrecord")
+
+    ## ADD POSITIONAL ARGUMENTS
+    parser.add_argument("--config_path",
+                        "-c",
+                        help="Path of config",
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--examples_per_tfrecord",
+                        "-n",
+                        help="Number of examples per tfrecord",
+                        type=int,
+                        default=64)
+
+    args = parser.parse_args(args)
+
+    config = config_parser.load(args.config_path)
     data_config = config["data"]
     tfrecord_dir = data_config["tfrecord_dir"]
     data_config["tfrecord_dir"] = ""
@@ -33,8 +42,9 @@ def main(config_path, examples_per_tfrecord):
             shutil.rmtree(tfrecord_dir)
     for mode in ["train", "valid", "test"]:
         data_loader = load.get_data_loader(data_config, mode)
-        write_tfrecords(data_dir=os.path.join(tfrecord_dir, mode), data_generator=data_loader.get_generator(),
-                        examples_per_tfrecord=examples_per_tfrecord)
+        write_tfrecords(data_dir=os.path.join(tfrecord_dir, mode),
+                        data_generator=data_loader.get_generator(),
+                        examples_per_tfrecord=args.examples_per_tfrecord)
 
 
 if __name__ == "__main__":
