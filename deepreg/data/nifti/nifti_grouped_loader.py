@@ -25,13 +25,18 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                                                      sample_label=sample_label,
                                                      seed=seed)
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped=True)
+        loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped=True)
+        self.loader_moving_image = loader_image
+        self.loader_fixed_image = loader_image
         if self.labeled:
-            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped=True)
+            loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped=True)
+            self.loader_moving_label = loader_label
+            self.loader_fixed_label = loader_label
         self.validate_data_files()
 
-        self.num_groups = len(self.loader_image.group_paths)
-        self.num_images_per_group = [len(self.loader_image.file_path_dict[g]) for g in self.loader_image.group_paths]
+        self.num_groups = len(self.loader_moving_image.group_paths)
+        self.num_images_per_group = [len(self.loader_moving_image.file_path_dict[g])
+                                     for g in self.loader_moving_image.group_paths]
         self.intra_sample_indices, self.inter_sample_indices = self.get_sample_indices(intra_group_option)
         self.intra_group_prob = intra_group_prob
         if intra_group_prob == 0:  # inter only
@@ -47,8 +52,8 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def validate_data_files(self):
         """Verify all loader have the same files"""
         if self.labeled:
-            filenames_image = self.loader_image.get_relative_file_paths()
-            filenames_label = self.loader_label.get_relative_file_paths()
+            filenames_image = self.loader_moving_image.get_relative_file_paths()
+            filenames_label = self.loader_moving_label.get_relative_file_paths()
             check_difference_between_two_lists(list1=filenames_image, list2=filenames_label)
 
     def get_sample_indices(self, intra_group_option):
@@ -103,25 +108,15 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
 
         return intra_sample_indices, inter_sample_indices
 
-    def get_generator(self):
+    def sample_index_generator(self):
         rnd = random.Random(self.seed)
         if self.intra_group_prob == 0 or self.intra_group_prob == 1:  # inter or intra only
             sample_indices = self.intra_sample_indices.copy() if self.intra_group_prob == 1 \
                 else self.inter_sample_indices.copy()
             rnd.shuffle(sample_indices)
             for sample_index in sample_indices:
-                moving_image = self.loader_image.get_data(index=sample_index[0]) / 255.
-                fixed_image = self.loader_image.get_data(index=sample_index[1]) / 255.
-                moving_label = self.loader_label.get_data(index=sample_index[0]) if self.labeled else None
-                fixed_label = self.loader_label.get_data(index=sample_index[1]) if self.labeled else None
-
-                for sample in self.sample_image_label(moving_image=moving_image,
-                                                      fixed_image=fixed_image,
-                                                      moving_label=moving_label,
-                                                      fixed_label=fixed_label,
-                                                      image_indices=list(sample_index[0]) + list(sample_index[1]),
-                                                      ):
-                    yield sample
+                moving_index, fixed_index = sample_index
+                yield moving_index, fixed_index, list(moving_index) + list(fixed_index)
         else:  # mixed
             intra_sample_indices = self.intra_sample_indices.copy()
             inter_sample_indices = self.inter_sample_indices.copy()
@@ -132,16 +127,5 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                     sample_index = intra_sample_indices.pop(0)
                 else:  # inter group
                     sample_index = inter_sample_indices.pop(0)
-
-                moving_image = self.loader_image.get_data(index=sample_index[0]) / 255.
-                fixed_image = self.loader_image.get_data(index=sample_index[1]) / 255.
-                moving_label = self.loader_label.get_data(index=sample_index[0]) if self.labeled else None
-                fixed_label = self.loader_label.get_data(index=sample_index[1]) if self.labeled else None
-
-                for sample in self.sample_image_label(moving_image=moving_image,
-                                                      fixed_image=fixed_image,
-                                                      moving_label=moving_label,
-                                                      fixed_label=fixed_label,
-                                                      image_indices=list(sample_index[0]) + list(sample_index[1]),
-                                                      ):
-                    yield sample
+                moving_index, fixed_index = sample_index
+                yield moving_index, fixed_index, list(moving_index) + list(fixed_index)

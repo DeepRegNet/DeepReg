@@ -2,9 +2,9 @@
 Module to implement command line interface and run tf
 record function
 """
+import argparse
 import os
 import shutil
-import argparse
 
 import deepreg.config.parser as config_parser
 import deepreg.data.load as load
@@ -43,7 +43,7 @@ def main(args=None):
     for mode in ["train", "valid", "test"]:
         data_loader = load.get_data_loader(data_config, mode)
         write_tfrecords(data_dir=os.path.join(tfrecord_dir, mode),
-                        data_generator=data_loader.get_generator(),
+                        data_generator=data_loader.data_generator(),
                         examples_per_tfrecord=args.examples_per_tfrecord)
 
 

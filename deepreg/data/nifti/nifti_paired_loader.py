@@ -25,7 +25,7 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
                                                     labeled=labeled,
                                                     sample_label=sample_label,
                                                     seed=seed)
-        
+
         self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"), grouped=False)
         self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"), grouped=False)
         if self.labeled:
@@ -46,16 +46,6 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
             check_difference_between_two_lists(list1=filenames_moving_image, list2=filenames_moving_label)
             check_difference_between_two_lists(list1=filenames_moving_image, list2=filenames_fixed_label)
 
-    def get_generator(self):
+    def sample_index_generator(self):
         for image_index in range(self.num_images):
-            moving_image = self.loader_moving_image.get_data(index=image_index) / 255.
-            fixed_image = self.loader_fixed_image.get_data(index=image_index) / 255.
-            moving_label = self.loader_moving_label.get_data(index=image_index) if self.labeled else None
-            fixed_label = self.loader_fixed_label.get_data(index=image_index) if self.labeled else None
-
-            for sample in self.sample_image_label(moving_image=moving_image,
-                                                  fixed_image=fixed_image,
-                                                  moving_label=moving_label,
-                                                  fixed_label=fixed_label,
-                                                  image_indices=[image_index]):
-                yield sample
+            yield image_index, image_index, [image_index]
