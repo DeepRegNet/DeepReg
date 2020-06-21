@@ -20,7 +20,7 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
     is used to generate a sample from the data which is loaded in
     using functions from the H5FileLoader class
     '''
-    def __init__(self, data_dir_path: str, sample_label: str, seed,
+    def __init__(self, data_dir_path: str, labeled: bool sample_label: str, seed,
                  moving_image_shape: (list, tuple), fixed_image_shape):
         """
         Load data which are paired and labeled, so each sample has
@@ -45,7 +45,7 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         self.loader_fixed_label = H5FileLoader(os.path.join(data_dir_path, "fixed_labels"))
         
         self.num_images = len(self.loader_moving_image.get_data_names())
-        self.labeled = True
+        # self.labeled = True
         self.validate_data_files()
         
     def validate_data_files(self):
