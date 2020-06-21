@@ -2,7 +2,7 @@ import os
 
 from deepreg.data.nifti.nifti_paired_labeled_loader import NiftiPairedLabeledDataLoader
 from deepreg.data.nifti.nifti_paired_unlabeled_loader import NiftiPairedUnlabeledDataLoader
-from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedLabeledDataLoader
+from deepreg.data.nifti.nifti_unpaired_labeled_loader import NiftiUnpairedLabeledDataLoader
 
 
 def get_data_loader(data_config, mode):
