@@ -24,24 +24,40 @@ def get_data_loader(data_config, mode):
     if mode not in modes:
         return None
 
+    paired = data_config["paired"]
     labeled = data_config["labeled"]
+    grouped = data_config["grouped"]
     sample_label = "sample" if mode == "train" else "all"
     seed = None if mode == "train" else 0
 
+    # sanity check for configs
+    if not isinstance(paired, bool):
+        raise ValueError("paired must be boolean, false or true")
+    if not isinstance(labeled, bool):
+        raise ValueError("paired must be boolean, false or true")
+    if not isinstance(grouped, bool):
+        raise ValueError("paired must be boolean, false or true")
+    if grouped and paired:
+        raise ValueError("Paired data can not be grouped.")
+
     if data_config["format"] == "nifti":
-        if data_config["paired"] is True:
+        if paired:  # paired and not grouped
             moving_image_shape = data_config["moving_image_shape"]
             fixed_image_shape = data_config["fixed_image_shape"]
             return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                          labeled=labeled,
+                                         grouped=grouped,
                                          sample_label=sample_label,
                                          seed=seed,
                                          moving_image_shape=moving_image_shape,
                                          fixed_image_shape=fixed_image_shape)
-        elif data_config["paired"] is False:
+        elif grouped:  # unpaired and grouped
+            pass
+        else:  # unpaired and not grouped
             image_shape = data_config["image_shape"]
             return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                            labeled=labeled,
+                                           grouped=grouped,
                                            sample_label=sample_label,
                                            seed=seed,
                                            image_shape=image_shape)
