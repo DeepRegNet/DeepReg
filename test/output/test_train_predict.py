@@ -23,6 +23,7 @@ def test_train_and_predict():
     configs = [
         ("paired_unlabeled_ddf", "deepreg/config/paired_unlabeled_ddf.yaml"),
         ("paired_labeled_ddf", "deepreg/config/paired_labeled_ddf.yaml"),
+        ("unpaired_unlabeled_ddf", "deepreg/config/unpaired_unlabeled_ddf.yaml"),
         ("unpaired_labeled_ddf", "deepreg/config/unpaired_labeled_ddf.yaml"),
         ("paired_labeled_h5", "deepreg/config/paired_labeled_h5.yaml"),
         ("paired_unlabeled_h5", "deepreg/config/paired_unlabeled_h5.yaml"),
