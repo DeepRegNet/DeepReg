@@ -14,6 +14,11 @@ from deepreg.data.util import check_difference_between_two_lists
 class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader): 
     '''
     This class loads paired, labeled h5 data
+    The the function get_generator is defined for the interface:
+    GeneratorDataLoader
+    The function sample_image_label from the PairedDataLoader
+    is used to generate a sample from the data which is loaded in
+    using functions from the H5FileLoader class
     '''
     def __init__(self, data_dir_path: str, sample_label: str, seed,
                  moving_image_shape: (list, tuple), fixed_image_shape):
