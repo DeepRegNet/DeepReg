@@ -36,7 +36,8 @@ class H5PairedLabeledDataLoader(PairedDataLoader, GeneratorDataLoader):
         """
         super(H5PairedLabeledDataLoader, self).__init__(moving_image_shape=moving_image_shape,
                                                         fixed_image_shape=fixed_image_shape,
-                                                        sample_label=sample_label, seed=seed)
+                                                        sample_label=sample_label,
+                                                        labeled=labeled, seed=seed)
         
         self.loader_moving_image = H5FileLoader(os.path.join(data_dir_path, "moving_images"))
         self.loader_fixed_image = H5FileLoader(os.path.join(data_dir_path, "fixed_images"))
