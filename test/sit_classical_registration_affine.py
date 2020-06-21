@@ -48,7 +48,7 @@ def train_step(grid, weights, optimizer, mov, fix):
     return loss
 
 # affine transformation as trainable weights
-var_affine = tf.Variable(initial_value=[[1,0,0],[0,1,0],[0,0,1],[0,0,0]], trainable=True)
+var_affine = tf.Variable(initial_value=[[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0],[0.0,0.0,0.0]]], trainable=True)
 optimiser = tf.optimizers.Adam(learning_rate)
 for step in range(total_iter):
     loss_opt = train_step(grid_ref, var_affine, optimiser, moving_image, fixed_image)
