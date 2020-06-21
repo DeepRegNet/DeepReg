@@ -1,6 +1,6 @@
-'''
+"""
 Classical iterative pairwise registration algorithms as integration tests
-'''
+"""
 import nibabel
 import tensorflow as tf 
 import deepreg.model.layer as layer
@@ -28,16 +28,23 @@ random_transform = layer_util.random_transform_generator(batch_size=1, scale=0.2
 grid_ref = layer_util.get_reference_grid(grid_size=moving_image.shape[1:4])
 fixed_image = layer_util.resample(vol=moving_image, loc=layer_util.warp_grid(grid_ref, random_transform))
 
-# ddf as trainable weights
-fixed_image_size = fixed_image.shape
-initialiser = tf.random_normal_initializer(mean=0, stddev=1e-3)
-var_ddf = tf.Variable(initialiser(fixed_image_size+[3]), name='ddf', trainable=True)
-warping = layer.Warping(fixed_image_size=fixed_image_size[1:4])
-
 
 ## optimisation
 @tf.function
 def train_step(warper, weights, optimizer, mov, fix):
+    """
+    Standard train step function for backprop using geadient tape    
+
+    :param warper: warping function returned from layer.Warping
+    :param weights: trainable ddf [1, f_dim1, f_dim2, f_dim3, 3]
+    :param optimizer: tf.optimizers
+    :param mov: moving image [1, m_dim1, m_dim2, m_dim3]
+    :param fix: fixed image [1, f_dim1, f_dim2, f_dim3]
+    :return: 
+        loss: overall loss to optimise
+        loss_image: image dissimilarity
+        loss_deform: deformation regularisation
+    """
     with tf.GradientTape() as tape:
         pred = warper(inputs=[weights, mov])
         loss_image = image_loss.similarity_fn(y_true=fix, y_pred=pred, name=image_loss_name)
@@ -47,9 +54,15 @@ def train_step(warper, weights, optimizer, mov, fix):
     optimizer.apply_gradients(zip(gradients, [weights]))
     return loss, loss_image, loss_deform
 
-optimizer = tf.optimizers.Adam(learning_rate)
+# ddf as trainable weights
+fixed_image_size = fixed_image.shape
+initialiser = tf.random_normal_initializer(mean=0, stddev=1e-3)
+var_ddf = tf.Variable(initialiser(fixed_image_size+[3]), name='ddf', trainable=True)
+
+warping = layer.Warping(fixed_image_size=fixed_image_size[1:4])
+optimiser = tf.optimizers.Adam(learning_rate)
 for step in range(total_iter):
-    loss_opt, loss_image_opt, loss_deform_opt = train_step(warping, var_ddf, optimizer, moving_image, fixed_image)
+    loss_opt, loss_image_opt, loss_deform_opt = train_step(warping, var_ddf, optimiser, moving_image, fixed_image)
     if (step % 50) == 0:  # print info
         tf.print('Step',step, 'loss',loss_opt, image_loss_name,loss_image_opt, deform_loss_name,loss_deform_opt)
 
