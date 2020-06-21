@@ -1,9 +1,11 @@
 data:
-  dir: "data/mr_us/unpaired" # required
+  dir: "data/mr_us/grouped" # required
   format: "nifti"
   paired: false
   labeled: false
   grouped: true
+  intra_group_prob: 0.5
+  intra_group_option: "forward"
   image_shape: [64, 64, 60]
 
 tf:
