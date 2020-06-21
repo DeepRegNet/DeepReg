@@ -8,7 +8,7 @@ from deepreg.data.util import check_difference_between_two_lists
 
 class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, labeled: bool, grouped: bool, sample_label: str, seed, image_shape: (list, tuple)):
+                 data_dir_path: str, labeled: bool, sample_label: str, seed, image_shape: (list, tuple)):
         """
         Load data which are unpaired, labeled or unlabeled
 
@@ -22,9 +22,9 @@ class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                                                       labeled=labeled,
                                                       sample_label=sample_label,
                                                       seed=seed)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped)
+        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped=False)
         if self.labeled:
-            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped)
+            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped=False)
         self.validate_data_files()
 
         self.num_images = len(self.loader_image.file_paths)

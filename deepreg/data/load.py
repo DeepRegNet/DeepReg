@@ -1,5 +1,6 @@
 import os
 
+from deepreg.data.nifti.nifti_grouped_loader import NiftiGroupedDataLoader
 from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
 from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedDataLoader
 
@@ -46,18 +47,25 @@ def get_data_loader(data_config, mode):
             fixed_image_shape = data_config["fixed_image_shape"]
             return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                          labeled=labeled,
-                                         grouped=grouped,
                                          sample_label=sample_label,
                                          seed=seed,
                                          moving_image_shape=moving_image_shape,
                                          fixed_image_shape=fixed_image_shape)
         elif grouped:  # unpaired and grouped
-            pass
+            image_shape = data_config["image_shape"]
+            intra_group_prob = data_config["intra_group_prob"]
+            intra_group_option = data_config["intra_group_option"]
+            return NiftiGroupedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                          labeled=labeled,
+                                          sample_label=sample_label,
+                                          intra_group_prob=intra_group_prob,
+                                          intra_group_option=intra_group_option,
+                                          seed=seed,
+                                          image_shape=image_shape)
         else:  # unpaired and not grouped
             image_shape = data_config["image_shape"]
             return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                            labeled=labeled,
-                                           grouped=grouped,
                                            sample_label=sample_label,
                                            seed=seed,
                                            image_shape=image_shape)

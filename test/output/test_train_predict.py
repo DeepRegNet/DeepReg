@@ -9,6 +9,7 @@ tf.get_logger().setLevel(3)
 
 
 def train_and_predict_with_config(test_name, config_path):
+    tf.keras.backend.clear_session()  # needed for pytest, otherwise model output name will change
     gpu = ""
     gpu_allow_growth = False
     ckpt_path = ""
@@ -19,13 +20,27 @@ def train_and_predict_with_config(test_name, config_path):
             batch_size=1, log_dir=log_dir, sample_label="all")
 
 
-def test_train_and_predict():
-    configs = [
-        ("paired_unlabeled_ddf", "deepreg/config/paired_unlabeled_ddf.yaml"),
-        ("paired_labeled_ddf", "deepreg/config/paired_labeled_ddf.yaml"),
-        ("unpaired_unlabeled_ddf", "deepreg/config/unpaired_unlabeled_ddf.yaml"),
-        ("unpaired_labeled_ddf", "deepreg/config/unpaired_labeled_ddf.yaml"),
-    ]
-    for test_name, config_path in configs:
-        tf.keras.backend.clear_session()  # needed for pytest, otherwise model output name will change
-        train_and_predict_with_config(test_name, config_path)
+class TestTrainAndPredict:
+    def test_paired_labeled_ddf(self):
+        train_and_predict_with_config(test_name="paired_labeled_ddf",
+                                      config_path="deepreg/config/paired_labeled_ddf.yaml")
+
+    def test_paired_unlabeld_ddf(self):
+        train_and_predict_with_config(test_name="paired_unlabeled_ddf",
+                                      config_path="deepreg/config/paired_unlabeled_ddf.yaml")
+
+    def test_unpaired_labeled_ddf(self):
+        train_and_predict_with_config(test_name="unpaired_labeled_ddf",
+                                      config_path="deepreg/config/unpaired_labeled_ddf.yaml")
+
+    def test_unpaired_unlabeld_ddf(self):
+        train_and_predict_with_config(test_name="unpaired_unlabeled_ddf",
+                                      config_path="deepreg/config/unpaired_unlabeled_ddf.yaml")
+
+    def test_grouped_labeled_ddf(self):
+        train_and_predict_with_config(test_name="grouped_labeled_ddf",
+                                      config_path="deepreg/config/grouped_labeled_ddf.yaml")
+
+    def test_grouped_unlabeld_ddf(self):
+        train_and_predict_with_config(test_name="grouped_unlabeled_ddf",
+                                      config_path="deepreg/config/grouped_unlabeled_ddf.yaml")

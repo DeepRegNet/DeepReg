@@ -7,7 +7,7 @@ from deepreg.data.util import check_difference_between_two_lists
 
 class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
     def __init__(self,
-                 data_dir_path: str, labeled: bool, grouped: bool, sample_label: str, seed,
+                 data_dir_path: str, labeled: bool, sample_label: str, seed,
                  moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple)):
         """
         Load data which are paired, labeled or unlabeled.
@@ -25,12 +25,12 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
                                                     labeled=labeled,
                                                     sample_label=sample_label,
                                                     seed=seed)
-        assert not grouped
-        self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"), grouped)
-        self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"), grouped)
+        
+        self.loader_moving_image = NiftiFileLoader(os.path.join(data_dir_path, "moving_images"), grouped=False)
+        self.loader_fixed_image = NiftiFileLoader(os.path.join(data_dir_path, "fixed_images"), grouped=False)
         if self.labeled:
-            self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"), grouped)
-            self.loader_fixed_label = NiftiFileLoader(os.path.join(data_dir_path, "fixed_labels"), grouped)
+            self.loader_moving_label = NiftiFileLoader(os.path.join(data_dir_path, "moving_labels"), grouped=False)
+            self.loader_fixed_label = NiftiFileLoader(os.path.join(data_dir_path, "fixed_labels"), grouped=False)
         self.validate_data_files()
         self.num_images = len(self.loader_moving_image.file_paths)
 
