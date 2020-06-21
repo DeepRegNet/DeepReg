@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 ## registration parameters
 image_loss_name = 'ssd'
 learning_rate = 0.1
-total_iter = int(3000)
+total_iter = int(1000)
 
 
 ## load image
