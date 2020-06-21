@@ -1,9 +1,9 @@
 # Data sampling options
 
-## Training, validation and test
+## 0 - Training, validation and test
 Training and validation use the same data folder structure and prediction can use a different test data folder structure. See the [predefined data loader tutorial](./predefined_loader.md) for more details. 
 
-## Image pair sampling
+## 1 - Image pair sampling
 The registration network samples a pair of images as input.
 
 ### Paired-image loader
@@ -29,7 +29,7 @@ This option requires a parameter specifying the sampling ratio r=[0,1] for intra
 This option is default for testing, where all the possible image pairs (depends on the intra-group sampling option) will be sampled once in each epoch. This option is not supported when mixing intra-and-inter-group pairs.
 
 
-## Sampling multiple labels
+## 2 - Label pair Sampling
 When each image has multiple labels, e.g. segmentations of different organs in a CT image. For each sampled image pair, one label pair is randomly sampled. This is default for training.
 
 ### Corresponding label types
@@ -43,10 +43,10 @@ Consistent label pairs between a pair of moving and fixed labels requires:
 When a pair of moving and fixed images have inconsistent label pairs, label dissimilarity can not be defined. Therefore,  
     - Using unpaired-labelled-image loader, consistent label pairs are required;  
     - Using grouped-labelled-image loader, consistent label pairs are required between intra-group image pairs;  
-    - *When mixing intra-inter-group images in grouped-labelled-image loader, consistent label pairs are also required between inter-group image pairs.  
+    - When mixing intra-inter-group images in grouped-labelled-image loader, consistent label pairs are also required between inter-group image pairs.  
 However,  
     - Using paired-labelled-image loader, consistent label pairs are not required between different image pairs;  
-    - Using grouped-labelled-image loader, consistent label pairs are not required between different image groups (unless mixing intra-inter-group images*).  
+    - Using grouped-labelled-image loader, consistent label pairs are not required between different image groups (unless mixing intra-inter-group images).  
 
 
 ### Option for iterating all available label pairs
