@@ -136,13 +136,13 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                         else:
                             yield (group_index, image_index2), (group_index, image_index1), [group_index, image_index2,
                                                                                              group_index, image_index1]
-                    elif self.intra_group_option == "undirected":
+                    elif self.intra_group_option == "unconstrained":
                         image_index1, image_index2 = rnd.sample([i for i in range(num_images_in_group)], 2)
                         image_index2 = rnd.choice([i for i in range(num_images_in_group) if i != image_index1])
                         yield (group_index, image_index1), (group_index, image_index2), [group_index, image_index1,
                                                                                          group_index, image_index2]
                     else:
-                        raise ValueError("Unknown intra_group_option, must be forward/backward/undirected")
+                        raise ValueError("Unknown intra_group_option, must be forward/backward/unconstrained")
                 else:  # inter group, between different groups
                     group_index1 = group_index
                     group_index2 = rnd.choice([i for i in range(self.num_groups) if i != group_index1])
