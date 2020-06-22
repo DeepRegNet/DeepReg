@@ -221,7 +221,7 @@ def main(args=None):
     ## ADD POSITIONAL ARGUMENTS
     parser.add_argument("--gpu",
                         "-g",
-                        help="GPU index",
+                        help="GPU index for training, multiple gpus can be passed",
                         type=str,
                         nargs='+',
                         required=True)
