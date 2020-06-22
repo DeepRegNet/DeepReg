@@ -128,27 +128,26 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
 def main(args=None):
     """Entry point for train script"""
 
-    parser = argparse.ArgumentParser(description="train")
+    parser = argparse.ArgumentParser(description="train",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     ## ADD POSITIONAL ARGUMENTS
     parser.add_argument("--gpu",
                         "-g",
-                        help="GPU index",
+                        help="GPU index for training, multiple gpus can be passed",
                         type=str,
                         nargs='+',
                         required=True)
 
     parser.add_argument("--gpu_allow_growth",
                         "-gr",
-                        help="Do not take all GPU memory",
-                        default=False,
-                        show_default=True)
+                        help="Prevent TensorFlow from reserving all available GPU memory",
+                        default=False)
 
     parser.add_argument("--ckpt_path",
-                        "-c",
-                        help="Path of checkpoint to load",
+                        "-k",
+                        help="Path of checkpointed model to load",
                         default="",
-                        show_default=True,
                         type=str,
                         required=True)
 
@@ -156,7 +155,6 @@ def main(args=None):
                         "-l",
                         help="Path of log directory",
                         default="",
-                        show_default=True,
                         type=str)
 
     parser.add_argument("--config_path",
