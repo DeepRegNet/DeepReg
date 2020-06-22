@@ -1,7 +1,7 @@
 data:
   dir: "data/mr_us/unpaired" # required
   format: "nifti"
-  type: "grouped" # paired / unpaired / grouped
+  type: "unpaired" # paired / unpaired / grouped
   labeled: true
   image_shape: [64, 64, 60]
 
