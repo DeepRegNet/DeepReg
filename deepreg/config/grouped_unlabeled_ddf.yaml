@@ -1,10 +1,12 @@
 data:
-  dir: "data/mr_us/paired" # required
+  dir: "data/mr_us/grouped" # required
   format: "nifti"
-  type: "paired" # paired / unpaired / grouped
-  labeled: true
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
+  type: "grouped" # paired / unpaired / grouped
+  labeled: false
+  intra_group_prob: 1
+  intra_group_option: "forward"
+  sample_image_in_group: true
+  image_shape: [64, 64, 60]
 
 tf:
   model:
