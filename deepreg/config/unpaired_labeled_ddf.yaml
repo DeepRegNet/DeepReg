@@ -1,7 +1,7 @@
 data:
   dir: "data/mr_us/unpaired" # required
   format: "nifti"
-  paired: false
+  type: "unpaired" # paired / unpaired / grouped
   labeled: true
   image_shape: [64, 64, 60]
 
@@ -13,7 +13,7 @@ tf:
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
     local:
-      num_channel_initial: 2
+      num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
     unet:
       num_channel_initial: 4

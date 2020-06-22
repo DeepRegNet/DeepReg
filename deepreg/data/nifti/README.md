@@ -17,18 +17,22 @@ The supported data set cases are:
 The corresponding configuration should be 
 ```yaml
 data:
-  dir:                # required, directory of data under which we have train/images, etc.
-  format: "nifti"
-  paired:             # required, true if paired else false
-  labeled:            # required, true if labeled else false
-  moving_image_shape: # required if paired, [dim1, dim2, dim3]
-  fixed_image_shape:  # required if paired, [dim1, dim2, dim3]
-  image_shape:        # required if unpaired, [dim1, dim2, dim3]
+  dir:                   # required, directory of data under which we have train/images, etc.
+  format: "nifti"        
+  paired:                # required, true if paired else false
+  labeled:               # required, true if labeled else false
+  moving_image_shape:    # required if paired, [dim1, dim2, dim3]
+  fixed_image_shape:     # required if paired, [dim1, dim2, dim3]
+  image_shape:           # required if unpaired or grouped, [dim1, dim2, dim3]
+  intra_group_prob:      # required if grouped, value between [0,1], 0 means inter-group only and 1 means intra-group only
+  intra_group_option:    # required if grouped, feasible values are: "forward", "backward", "unconstrained"
+  sample_image_in_group: # required if grouped, false is want to generate all possible data pairs
+                         # if false, intra_group_prob must be 0 or 1
 ```
 
 and detailed requirements of the data organization are as follows.
 
-## Case 1-1 Unpaired mages only without labels
+## Case 1-1 Unpaired mages without labels
 
 We only have images without any labels and all images are independent samples.
 So all data should be stored under `train/images`, e.g.:
@@ -59,7 +63,7 @@ The corresponding image file name and label file name should be exactly the same
     - ...
 
 
-## Case 2-1 Paired images only with labels
+## Case 2-1 Paired images without labels
 
 We only have paired images without any labels.
 So all data should be stored under `train/moving_images`, `train/fixed_images`
@@ -102,4 +106,49 @@ The images and labels corresponding to the same subjects/groups should have exac
   - fixed_labels
     - subject1.nii.gz
     - subject2.nii.gz
+    - ...
+
+## Case 3-1 Grouped images without labels
+
+We have images without any labels, but images are grouped under different subjects/groups,
+e.g. time-series observations for each subject/group.
+For instance, the data set can be the CT scans of multiple patients (groups) 
+where each patient has multiple scans acquired at different time points.
+So all data should be stored under `train/images` and the leaf directories 
+(directories that do not have sub-directories) must represent different groups, e.g.:
+
+- train
+  - images
+    - group1
+      - obs1.nii.gz
+      - obs2.nii.gz
+      - ...
+    - group2
+      - obs1.nii.gz
+      - obs2.nii.gz
+      - ...
+    - ...
+
+(It is also ok if the data are grouped into different directories, 
+but the leaf directories will be considered as different groups.)
+
+## Case 3-2 Grouped images with labels
+
+We have both images and labels. 
+So all images should be stored under `train/images` and all labels should be stored under `train/labels`. 
+The leaf directories will be considered as different groups
+and the corresponding image file name and label file name should be exactly the same, e.g.:
+
+- train
+  - images
+    - group1
+      - obs1.nii.gz
+      - obs2.nii.gz
+      - ...
+    - ...
+  - labels
+    - group1
+      - obs1.nii.gz
+      - obs2.nii.gz
+      - ...
     - ...

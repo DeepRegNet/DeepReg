@@ -2,7 +2,7 @@ import os
 import random
 
 from deepreg.data.loader import UnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.nifti.util import NiftiFileLoader
+from deepreg.data.nifti.nifti_loader import NiftiFileLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
@@ -22,35 +22,28 @@ class NiftiUnpairedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
                                                       labeled=labeled,
                                                       sample_label=sample_label,
                                                       seed=seed)
-        self.loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"))
+        loader_image = NiftiFileLoader(os.path.join(data_dir_path, "images"), grouped=False)
+        self.loader_moving_image = loader_image
+        self.loader_fixed_image = loader_image
         if self.labeled:
-            self.loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"))
+            loader_label = NiftiFileLoader(os.path.join(data_dir_path, "labels"), grouped=False)
+            self.loader_moving_label = loader_label
+            self.loader_fixed_label = loader_label
         self.validate_data_files()
 
-        self.num_images = len(self.loader_image.file_paths)
+        self.num_images = len(self.loader_moving_image.file_paths)
         self._num_samples = self.num_images // 2
 
     def validate_data_files(self):
         """Verify all loader have the same files"""
         if self.labeled:
-            filenames_image = self.loader_image.get_relative_file_paths()
-            filenames_label = self.loader_label.get_relative_file_paths()
+            filenames_image = self.loader_moving_image.get_relative_file_paths()
+            filenames_label = self.loader_moving_label.get_relative_file_paths()
             check_difference_between_two_lists(list1=filenames_image, list2=filenames_label)
 
-    def get_generator(self):
+    def sample_index_generator(self):
         image_indices = [i for i in range(self.num_images)]
         random.Random(self.seed).shuffle(image_indices)
         for sample_index in range(self.num_samples):
-            image_index1 = 2 * sample_index
-            image_index2 = 2 * sample_index + 1
-            moving_image = self.loader_image.get_data(index=image_index1) / 255.
-            fixed_image = self.loader_image.get_data(index=image_index2) / 255.
-            moving_label = self.loader_label.get_data(index=image_index1) if self.labeled else None
-            fixed_label = self.loader_label.get_data(index=image_index2) if self.labeled else None
-
-            for sample in self.sample_image_label(moving_image=moving_image,
-                                                  fixed_image=fixed_image,
-                                                  moving_label=moving_label,
-                                                  fixed_label=fixed_label,
-                                                  image_indices=[image_index1, image_index2]):
-                yield sample
+            moving_index, fixed_index = 2 * sample_index, 2 * sample_index + 1
+            yield moving_index, fixed_index, [moving_index, fixed_index]
