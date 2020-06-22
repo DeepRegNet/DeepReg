@@ -1,9 +1,8 @@
 data:
   dir: "data/mr_us/grouped" # required
   format: "nifti"
-  paired: false
+  type: "grouped" # paired / unpaired / grouped
   labeled: false
-  grouped: true
   intra_group_prob: 1
   intra_group_option: "forward"
   sample_image_in_group: true

@@ -25,24 +25,17 @@ def get_data_loader(data_config, mode):
     if mode not in modes:
         return None
 
-    paired = data_config["paired"]
+    data_type = data_config["type"]
     labeled = data_config["labeled"]
-    grouped = data_config["grouped"]
     sample_label = "sample" if mode == "train" else "all"
     seed = None if mode == "train" else 0
 
     # sanity check for configs
-    if not isinstance(paired, bool):
-        raise ValueError("paired must be boolean, false or true")
-    if not isinstance(labeled, bool):
-        raise ValueError("paired must be boolean, false or true")
-    if not isinstance(grouped, bool):
-        raise ValueError("paired must be boolean, false or true")
-    if grouped and paired:
-        raise ValueError("Paired data can not be grouped.")
+    if data_type not in ["paired", "unpaired", "grouped"]:
+        raise ValueError("data type must be paired / unpaired / grouped")
 
     if data_config["format"] == "nifti":
-        if paired:  # paired and not grouped
+        if data_type == "paired":
             moving_image_shape = data_config["moving_image_shape"]
             fixed_image_shape = data_config["fixed_image_shape"]
             return NiftiPairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
@@ -51,7 +44,7 @@ def get_data_loader(data_config, mode):
                                          seed=seed,
                                          moving_image_shape=moving_image_shape,
                                          fixed_image_shape=fixed_image_shape)
-        elif grouped:  # unpaired and grouped
+        elif data_type == "grouped":
             image_shape = data_config["image_shape"]
             intra_group_prob = data_config["intra_group_prob"]
             intra_group_option = data_config["intra_group_option"]
@@ -64,7 +57,7 @@ def get_data_loader(data_config, mode):
                                           sample_image_in_group=sample_image_in_group,
                                           seed=seed,
                                           image_shape=image_shape)
-        else:  # unpaired and not grouped
+        elif data_type == "unpaired":
             image_shape = data_config["image_shape"]
             return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                            labeled=labeled,
