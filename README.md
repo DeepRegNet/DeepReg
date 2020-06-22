@@ -34,7 +34,7 @@ Arguments:
 - `--gpu` | `-g`, string, indicating which GPU to use in training. Can pass multiple GPUs to this argument like `--gpu 0 1`
 - `--config_path` | `-c` , string, path to the configuraton file in training, `.yaml` extension.
 - `--gpu_allow_growth` | `-gr`, providing this flag will prevent Tensorflow from reserving all available GPU memory for given GPU(s). Defaults to False.
-- `--ckpt_path` | `-c` , string, path to the checkpointed model, `.ckpt` extension.
+- `--ckpt_path` | `-k` , string, path to the checkpointed model, `.ckpt` extension.
 - `--log` | `-l` , string, path where logs are to be saved. If not provided, a folder in the current working directory is generated based on a timestamp for the command.
 - `--mode` | `-m`, string, which split of data to be used for prediction. One of `train`/`valid`/`test`.
 - `--batch_size` | `-b`, int, number of batches to feed to the model for prediction. Defaults to 1.
