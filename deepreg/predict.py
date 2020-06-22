@@ -215,58 +215,52 @@ def main(args=None):
     Function to run in command line with argparse to predict results on data
     for a given model
     """
-    parser = argparse.ArgumentParser(description="predict")
+    parser = argparse.ArgumentParser(description="predict",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     ## ADD POSITIONAL ARGUMENTS
     parser.add_argument("--gpu",
                         "-g",
-                        help="GPU index",
+                        help="GPU index for training, multiple gpus can be passed",
                         type=str,
                         nargs='+',
                         required=True)
 
     parser.add_argument("--gpu_allow_growth",
                         "-gr",
-                        help="Do not take all GPU memory",
-                        default=False,
-                        show_default=True)
+                        help="Prevent TensorFlow from reserving all available GPU memory",
+                        default=False)
 
     parser.add_argument("--ckpt_path",
-                        "-c",
-                        help="Path of checkpoint to load",
+                        "-k",
+                        help="Path of checkpointed model to load",
                         default="",
-                        show_default=True,
                         type=str,
                         required=True)
 
     parser.add_argument('--mode',
                         "-m",
-                        help="Predict on train/valid/test data.",
+                        help="Define the split of data to be used for prediction. One of train / valid / test",
                         type=list,
                         default="test",
-                        show_default=True,
-                        case_sensitive=False,
                         required=True)
 
     parser.add_argument("--batch_size",
                         "-b",
                         help="Batch size for predictions",
                         default=1,
-                        show_default=True,
                         type=int)
 
     parser.add_argument("--log_dir",
                         "-l",
                         help="Path of log directory",
                         default="",
-                        show_default=True,
                         type=str)
 
     parser.add_argument("--sample_label",
                         "-s",
                         help="Method of sampling labels",
                         default="all",
-                        show_default=True,
                         type=str)
 
     args = parser.parse_args(args)
