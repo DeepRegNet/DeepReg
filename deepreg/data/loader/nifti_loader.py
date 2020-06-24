@@ -3,13 +3,15 @@ import os
 import nibabel as nib
 import numpy as np
 
+from deepreg.data.loader.interface import FileLoader
 from deepreg.data.util import get_sorted_filenames_in_dir
 
 
-class NiftiFileLoader:
+class NiftiFileLoader(FileLoader):
+    """Generalized loader for nifti files"""
+
     def __init__(self, dir_path: str, grouped: bool):
-        self.dir_path = dir_path
-        self.grouped = grouped
+        super(NiftiFileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
         self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="nii.gz")
         if grouped:
             file_path_dict = dict()  # dict[group_path] = [file_path]
@@ -45,7 +47,7 @@ class NiftiFileLoader:
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_num_images(self):
+    def get_num_images(self) -> int:
         return len(self.file_paths)
 
     def get_data_ids(self):
@@ -57,5 +59,6 @@ class NiftiFileLoader:
         return [len(self.file_path_dict[g])
                 for g in self.group_paths]
 
-    def get_num_groups(self):
+    def get_num_groups(self) -> int:
+        assert self.grouped
         return len(self.group_paths)

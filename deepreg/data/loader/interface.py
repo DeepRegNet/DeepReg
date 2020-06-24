@@ -234,3 +234,52 @@ class GeneratorDataLoader(DataLoader, ABC):
                     indices=self.num_indices,
                 ),
             )
+
+
+class FileLoader:
+    def __init__(self, dir_path: str, grouped: bool):
+        """
+        :param dir_path: path to the directory of the data set
+        :param grouped: true if the data is grouped
+        """
+        self.dir_path = dir_path
+        self.grouped = grouped
+
+    def get_data(self, index: (int, tuple)):
+        """
+        return the data corresponding to the given index
+        :param index:
+        :return:
+        """
+        raise NotImplementedError
+
+    def get_num_images(self) -> int:
+        """
+        return the number of images in this data set
+        :return:
+        """
+        raise NotImplementedError
+
+    def get_data_ids(self):
+        """
+        return the unique IDs of the data in this data set
+        this function is used to verify the consistency between
+        images and label, moving and fixed
+        :return:
+        """
+        raise NotImplementedError
+
+    def get_num_images_per_group(self):
+        """
+        only used if the data set is grouped
+        return the number of images per group
+        :return:
+        """
+        raise NotImplementedError
+
+    def get_num_groups(self) -> int:
+        """
+        return the number of groups
+        :return:
+        """
+        raise NotImplementedError

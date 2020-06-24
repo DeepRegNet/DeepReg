@@ -6,24 +6,15 @@ import os
 import h5py
 import numpy as np
 
+from deepreg.data.loader.interface import FileLoader
 from deepreg.data.util import get_sorted_filenames_in_dir
 
 
-class H5FileLoader:
-    """
-    Loads h5 files and an be used to get various attributes of the files
-    Also supports grouped data
-    """
+class H5FileLoader(FileLoader):
+    """Generalized loader for h5 files"""
 
     def __init__(self, dir_path: str, grouped: bool):
-        """
-        Generalised loader for h5 files
-
-        :param dir_path: path to directory which contains data
-        :param grouped: True/ False indicating if data is grouped
-        """
-        self.dir_path = dir_path
-        self.grouped = grouped
+        super(H5FileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
         self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="h5")
 
         self.data_dict = None
@@ -111,14 +102,11 @@ class H5FileLoader:
         else:
             return self.get_data_names()
 
-    def get_num_images(self):
+    def get_num_images(self) -> int:
         return len(self.get_data_names())
 
     def get_num_images_per_group(self):
-        """
-        for grouped folder structure, reurn the number of images in each group
-        :returns: list of numer of images per group
-        """
+        assert self.grouped
         dir_path_orig = self.dir_path
         num_images_per_group = []
         for group_name in self.group_names:
@@ -131,5 +119,6 @@ class H5FileLoader:
             self.dir_path = dir_path_orig
         return num_images_per_group
 
-    def get_num_groups(self):
+    def get_num_groups(self) -> int:
+        assert self.grouped
         return self.num_groups_in_dir
