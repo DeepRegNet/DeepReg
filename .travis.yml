@@ -11,12 +11,13 @@ jobs:
   include:
     - stage: "Tests"
       name: "Output Tests"
-      script:   travis_wait 30 pytest ./test/output/test_paired_unlabeled_ddf.py
-      script:   travis_wait 30 pytest ./test/output/test_grouped_unlabeld_ddf.py
-      script:   travis_wait 30 pytest ./test/output/test_paired_labeled_ddf.py
-      script:   travis_wait 30 pytest ./test/output/test_unpaired_labeled_ddf.py
-      script:   travis_wait 30 pytest ./test/output/test_unpaired_unlabeld_ddf.py
-      script:   travis_wait 30 pytest ./test/output/test_grouped_labeled_ddf.py
+      script:   
+      - travis_wait 30 pytest ./test/output/test_paired_unlabeled_ddf.py
+      - travis_wait 30 pytest ./test/output/test_grouped_unlabeld_ddf.py
+      - travis_wait 30 pytest ./test/output/test_paired_labeled_ddf.py
+      - travis_wait 30 pytest ./test/output/test_unpaired_labeled_ddf.py
+      - travis_wait 30 pytest ./test/output/test_unpaired_unlabeld_ddf.py
+      - travis_wait 30 pytest ./test/output/test_grouped_labeled_ddf.py
     - name: "Unit Tests"
       script: pytest ./test/unit/
     # - stage: "Coverage"
