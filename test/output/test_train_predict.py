@@ -25,7 +25,7 @@ class TestTrainAndPredict:
         train_and_predict_with_config(test_name="paired_labeled_ddf",
                                       config_path="deepreg/config/paired_labeled_ddf.yaml")
 
-    def test_paired_unlabeld_ddf(self):
+    def test_paired_unlabeled_ddf(self):
         train_and_predict_with_config(test_name="paired_unlabeled_ddf",
                                       config_path="deepreg/config/paired_unlabeled_ddf.yaml")
 
@@ -33,7 +33,7 @@ class TestTrainAndPredict:
         train_and_predict_with_config(test_name="unpaired_labeled_ddf",
                                       config_path="deepreg/config/unpaired_labeled_ddf.yaml")
 
-    def test_unpaired_unlabeld_ddf(self):
+    def test_unpaired_unlabeled_ddf(self):
         train_and_predict_with_config(test_name="unpaired_unlabeled_ddf",
                                       config_path="deepreg/config/unpaired_unlabeled_ddf.yaml")
 
@@ -41,6 +41,32 @@ class TestTrainAndPredict:
         train_and_predict_with_config(test_name="grouped_labeled_ddf",
                                       config_path="deepreg/config/grouped_labeled_ddf.yaml")
 
-    def test_grouped_unlabeld_ddf(self):
+    def test_grouped_unlabeled_ddf(self):
         train_and_predict_with_config(test_name="grouped_unlabeled_ddf",
                                       config_path="deepreg/config/grouped_unlabeled_ddf.yaml")
+     
+                                      
+                                      
+    def test_paired_labeled_h5(self):
+        train_and_predict_with_config(test_name="paired_labeled_h5",
+                                      config_path="deepreg/config/h5_config/paired_labeled_h5.yaml")
+
+    def test_paired_unlabeled_h5(self):
+        train_and_predict_with_config(test_name="paired_unlabeled_h5",
+                                      config_path="deepreg/config/h5_config/paired_unlabeled_h5.yaml")
+
+    def test_unpaired_labeled_h5(self):
+        train_and_predict_with_config(test_name="unpaired_labeled_h5",
+                                      config_path="deepreg/config/h5_config/unpaired_labeled_h5.yaml")
+
+    def test_unpaired_unlabeled_h5(self):
+        train_and_predict_with_config(test_name="unpaired_unlabeled_h5",
+                                      config_path="deepreg/config/h5_config/unpaired_unlabeled_h5.yaml")
+
+    def test_grouped_labeled_h5(self):
+        train_and_predict_with_config(test_name="grouped_labeled_h5",
+                                      config_path="deepreg/config/h5_config/grouped_labeled_h5.yaml")
+
+    def test_grouped_unlabeled_h5(self):
+        train_and_predict_with_config(test_name="grouped_unlabeled_h5",
+                                      config_path="deepreg/config/h5_config/grouped_unlabeled_h5.yaml")

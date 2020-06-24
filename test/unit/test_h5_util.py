@@ -4,7 +4,7 @@ Tests functinality of the H5FileLOader
 
 import numpy as np
 
-from deepreg.data.h5.H5FileLoader import H5FileLoader
+from deepreg.data.h5.h5_loader import H5FileLoader
 
 class Test():
     '''
@@ -57,7 +57,7 @@ class Test():
         filename = 'data.h5'
         directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
         
-        loader = H5FileLoader(directory)
+        loader = H5FileLoader(directory, grouped=False)
         loader.dict_from_h5(fname=filename)
         obtained = loader.data_dict
         obtained_keys = sorted(obtained.keys())
@@ -79,7 +79,7 @@ class Test():
         '''
         directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
 
-        loader = H5FileLoader(directory)
+        loader = H5FileLoader(directory, grouped=False)
         
         obtained = loader.get_data_names()
         expected = ['case000025.nii.gz']    
@@ -95,7 +95,7 @@ class Test():
         '''
         directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
         
-        loader = H5FileLoader(directory)
+        loader = H5FileLoader(directory, grouped=False)
         
         obtained = np.shape(loader.get_data(index=0))
         
