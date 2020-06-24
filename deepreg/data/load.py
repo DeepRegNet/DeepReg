@@ -1,10 +1,10 @@
 import os
 
+from deepreg.data.data_loader.grouped_loader import NiftiGroupedDataLoader
 from deepreg.data.data_loader.h5_loader import H5FileLoader
-from deepreg.data.data_loader.nifti_grouped_loader import NiftiGroupedDataLoader
 from deepreg.data.data_loader.nifti_loader import NiftiFileLoader
-from deepreg.data.data_loader.nifti_paired_loader import NiftiPairedDataLoader
-from deepreg.data.data_loader.nifti_unpaired_loader import NiftiUnpairedDataLoader
+from deepreg.data.data_loader.paired_loader import NiftiPairedDataLoader
+from deepreg.data.data_loader.unpaired_loader import NiftiUnpairedDataLoader
 
 
 def get_data_loader(data_config, mode):
