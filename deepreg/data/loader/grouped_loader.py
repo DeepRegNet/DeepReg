@@ -1,11 +1,11 @@
 import os
 import random
 
-from deepreg.data.loader.interface import UnpairedDataLoader, GeneratorDataLoader
+from deepreg.data.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
+class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def __init__(self,
                  file_loader,
                  data_dir_path: str, labeled: bool, sample_label: (str, None),
@@ -20,10 +20,10 @@ class NiftiGroupedDataLoader(UnpairedDataLoader, GeneratorDataLoader):
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(NiftiGroupedDataLoader, self).__init__(image_shape=image_shape,
-                                                     labeled=labeled,
-                                                     sample_label=sample_label,
-                                                     seed=seed)
+        super(GroupedDataLoader, self).__init__(image_shape=image_shape,
+                                                labeled=labeled,
+                                                sample_label=sample_label,
+                                                seed=seed)
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
         loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=True)
         self.loader_moving_image = loader_image

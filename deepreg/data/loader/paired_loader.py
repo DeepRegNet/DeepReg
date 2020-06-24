@@ -1,10 +1,10 @@
 import os
 
-from deepreg.data.loader.interface import PairedDataLoader, GeneratorDataLoader
+from deepreg.data.loader.interface import AbstractPairedDataLoader, GeneratorDataLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
-class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
+class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     """
     Loads paired data using given file loader, handles both labeled and unlabeled cases
     The function sample_index_generator needs to be defined for the GeneratorDataLoader class
@@ -25,11 +25,11 @@ class NiftiPairedDataLoader(PairedDataLoader, GeneratorDataLoader):
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
-        super(NiftiPairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
-                                                    fixed_image_shape=fixed_image_shape,
-                                                    labeled=labeled,
-                                                    sample_label=sample_label,
-                                                    seed=seed)
+        super(PairedDataLoader, self).__init__(moving_image_shape=moving_image_shape,
+                                               fixed_image_shape=fixed_image_shape,
+                                               labeled=labeled,
+                                               sample_label=sample_label,
+                                               seed=seed)
 
         self.loader_moving_image = file_loader(os.path.join(data_dir_path, "moving_images"), grouped=False)
         self.loader_fixed_image = file_loader(os.path.join(data_dir_path, "fixed_images"), grouped=False)
