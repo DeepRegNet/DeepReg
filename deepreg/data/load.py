@@ -4,12 +4,6 @@ from deepreg.data.nifti.nifti_grouped_loader import NiftiGroupedDataLoader
 from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
 from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedDataLoader
 
-from deepreg.data.h5.h5_paired_labeled_loader import H5PairedLabeledDataLoader
-from deepreg.data.h5.h5_unpaired_labeled_loader import H5UnpairedLabeledDataLoader
-from deepreg.data.h5.h5_paired_unlabeled_loader import H5PairedUnlabeledDataLoader
-from deepreg.data.h5.h5_unpaired_unlabeled_loader import H5UnpairedUnlabeledDataLoader
-
-
 
 def get_data_loader(data_config, mode):
     """
@@ -70,48 +64,4 @@ def get_data_loader(data_config, mode):
                                            sample_label=sample_label,
                                            seed=seed,
                                            image_shape=image_shape)
-          
-
-            if data_config["labeled"] is True:
-                image_shape = data_config["image_shape"]
-                return NiftiUnpairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                      sample_label=sample_label,
-                                                      seed=seed,
-                                                      image_shape=image_shape)
-            
-    elif data_config["format"] == "h5":
-        if data_config["paired"] is True:
-            if data_config["labeled"] is True:
-                moving_image_shape = data_config["moving_image_shape"]
-                fixed_image_shape = data_config["fixed_image_shape"]
-                return H5PairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                 sample_label=sample_label,
-                                                 seed=seed,
-                                                 moving_image_shape=moving_image_shape,
-                                                 fixed_image_shape=fixed_image_shape)
-            
-            elif data_config["labeled"] is False:
-                moving_image_shape = data_config["moving_image_shape"]
-                fixed_image_shape = data_config["fixed_image_shape"]
-                return H5PairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                   sample_label=sample_label,
-                                                   seed=seed,
-                                                   moving_image_shape=moving_image_shape,
-                                                   fixed_image_shape=fixed_image_shape)
-            
-        elif data_config["paired"] is False:
-            if data_config["labeled"] is True:
-                image_shape = data_config["image_shape"]
-                return H5UnpairedLabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                   sample_label=sample_label,
-                                                   seed=seed,
-                                                   image_shape=image_shape)
-            
-            elif data_config["labeled"] is False:
-                image_shape = data_config["image_shape"]
-                return H5UnpairedUnlabeledDataLoader(data_dir_path=os.path.join(data_dir, mode),
-                                                     sample_label=sample_label,
-                                                     seed=seed,
-                                                     image_shape=image_shape)
-
     raise ValueError("Unknown data loader type. \nConfig {}\n".format(data_config))
