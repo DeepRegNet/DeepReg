@@ -117,14 +117,14 @@ class DataLoader:
                 )
 
 
-class PairedDataLoader(DataLoader, ABC):
+class AbstractPairedDataLoader(DataLoader, ABC):
     def __init__(self, moving_image_shape: (list, tuple), fixed_image_shape: (list, tuple), **kwargs):
         """
         num_indices = 2 corresponding to (image_index, label_index)
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape:  (width, height, depth)
         """
-        super(PairedDataLoader, self).__init__(num_indices=2, **kwargs)
+        super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError("moving_image_shape and fixed_image_shape have to be length of three,"
                              "corresponding to (width, height, depth)")
@@ -149,13 +149,13 @@ class PairedDataLoader(DataLoader, ABC):
         return self.num_images
 
 
-class UnpairedDataLoader(DataLoader, ABC):
+class AbstractUnpairedDataLoader(DataLoader, ABC):
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
         - image_shape is the shape of images fed into dataset, it is assumed to be 3d, [dim1, dim2, dim3]
           moving_image_shape = fixed_image_shape = image_shape
         """
-        super(UnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
+        super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError("image_shape has to be length of three,"
                              "corresponding to (width, height, depth)")
