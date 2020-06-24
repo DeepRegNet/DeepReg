@@ -97,6 +97,8 @@ class Test():
         
         loader = H5FileLoader(directory, grouped=False)
         
+        loader.dict_from_h5()
+        
         obtained = np.shape(loader.get_data(index=0))
         
         expected = (44, 59, 41)
