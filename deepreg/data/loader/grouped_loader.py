@@ -1,7 +1,7 @@
 import os
 import random
 
-from deepreg.data.loader import UnpairedDataLoader, GeneratorDataLoader
+from deepreg.data.loader.interface import UnpairedDataLoader, GeneratorDataLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 

@@ -1,6 +1,6 @@
 import os
 
-from deepreg.data.loader import PairedDataLoader, GeneratorDataLoader
+from deepreg.data.loader.interface import PairedDataLoader, GeneratorDataLoader
 from deepreg.data.util import check_difference_between_two_lists
 
 
