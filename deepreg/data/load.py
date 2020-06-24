@@ -4,6 +4,10 @@ from deepreg.data.nifti.nifti_grouped_loader import NiftiGroupedDataLoader
 from deepreg.data.nifti.nifti_paired_loader import NiftiPairedDataLoader
 from deepreg.data.nifti.nifti_unpaired_loader import NiftiUnpairedDataLoader
 
+from deepreg.data.h5.h5_grouped_loader import H5GroupedDataLoader
+from deepreg.data.h5.h5_paired_loader import H5PairedDataLoader
+from deepreg.data.h5.h5_unpaired_loader import H5UnpairedDataLoader
+
 
 def get_data_loader(data_config, mode):
     """
@@ -60,6 +64,37 @@ def get_data_loader(data_config, mode):
         elif data_type == "unpaired":
             image_shape = data_config["image_shape"]
             return NiftiUnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                           labeled=labeled,
+                                           sample_label=sample_label,
+                                           seed=seed,
+                                           image_shape=image_shape)
+        
+    if data_config["format"] == "h5":
+        if data_type == "paired":
+            moving_image_shape = data_config["moving_image_shape"]
+            fixed_image_shape = data_config["fixed_image_shape"]
+            return H5PairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                         labeled=labeled,
+                                         sample_label=sample_label,
+                                         seed=seed,
+                                         moving_image_shape=moving_image_shape,
+                                         fixed_image_shape=fixed_image_shape)
+        elif data_type == "grouped":
+            image_shape = data_config["image_shape"]
+            intra_group_prob = data_config["intra_group_prob"]
+            intra_group_option = data_config["intra_group_option"]
+            sample_image_in_group = data_config["sample_image_in_group"]
+            return H5GroupedDataLoader(data_dir_path=os.path.join(data_dir, mode),
+                                          labeled=labeled,
+                                          sample_label=sample_label,
+                                          intra_group_prob=intra_group_prob,
+                                          intra_group_option=intra_group_option,
+                                          sample_image_in_group=sample_image_in_group,
+                                          seed=seed,
+                                          image_shape=image_shape)
+        elif data_type == "unpaired":
+            image_shape = data_config["image_shape"]
+            return H5UnpairedDataLoader(data_dir_path=os.path.join(data_dir, mode),
                                            labeled=labeled,
                                            sample_label=sample_label,
                                            seed=seed,
