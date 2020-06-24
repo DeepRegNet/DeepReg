@@ -4,7 +4,7 @@ Tests functinality of the H5FileLOader
 
 import numpy as np
 
-from deepreg.data.h5.util import H5FileLoader
+from deepreg.data.h5.H5FileLoader import H5FileLoader
 
 class Test():
     '''
