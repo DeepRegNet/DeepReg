@@ -45,6 +45,17 @@ class NiftiFileLoader:
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_relative_file_paths(self):
+    def get_num_images(self):
+        return len(self.file_paths)
+
+    def get_data_ids(self):
         n = len(self.dir_path)
         return [p[n:] for p in self.file_paths]
+
+    def get_num_images_per_group(self):
+        assert self.grouped
+        return [len(self.file_path_dict[g])
+                for g in self.group_paths]
+
+    def get_num_groups(self):
+        return len(self.group_paths)

@@ -44,9 +44,7 @@ class TestTrainAndPredict:
     def test_grouped_unlabeled_ddf(self):
         train_and_predict_with_config(test_name="grouped_unlabeled_ddf",
                                       config_path="deepreg/config/grouped_unlabeled_ddf.yaml")
-     
-                                      
-                                      
+
     def test_paired_labeled_h5(self):
         train_and_predict_with_config(test_name="paired_labeled_h5",
                                       config_path="deepreg/config/h5_config/paired_labeled_h5.yaml")
