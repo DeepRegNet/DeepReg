@@ -1,4 +1,4 @@
-<img src="./deepreg_logo_purple.svg" alt="deepreg_logo" title="DeepReg" width="150" />  
+<img src="./deepreg_logo_purple.svg" alt="deepreg_logo" title="DeepReg" width="150" />
 
 # DeepReg: deep learning for image registration
 
@@ -9,35 +9,35 @@ This is still under development. However some of the functionalities can be acce
 
 
 ## Quick start
-- Create a new virtual environment using Anaconda/Miniconda:  
+- Create a new virtual environment using Anaconda/Miniconda:
 `conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
 
-- Install DeepReg:  
+- Install DeepReg:
 `pip install -e .`
 
-- Train a registration network using test data:  
+- Train a registration network using test data:
 `train --gpu <str> --config_path <str> --gpu_allow_growth --ckpt_path <str> --log <str>`
 
-- Prediction using a trained registration network:  
-`predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>` 
+- Prediction using a trained registration network:
+`predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>`
 
 
 ## Tutorials
-### Two ways to get started with DeepReg  
+### Two ways to get started with DeepReg
 
-[Get started with image registration using deep learning](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/registration.md)  
+[Get started with image registration using deep learning](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/registration.md)
 
-[Get started with demos](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/demos.md)  
+[Get started with demos](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/demos.md)
 
-### Other topics in [Tutorials](./tutorials)  
+### Other topics in [Tutorials](./tutorials)
 
-[Training data sampling options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/sampling.md)  
+[Training data sampling options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/sampling.md)
 
 (under development)
 
-[Configuration options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/configuration.md)  
+[Configuration options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/configuration.md)
 
-[How to arrange your data files and folders for using predefined data loaders](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/predefined_loader.md)  
+[How to arrange your data files and folders for using predefined data loaders](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/predefined_loader.md)
 
 ......
 

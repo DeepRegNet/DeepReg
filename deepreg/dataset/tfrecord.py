@@ -32,13 +32,23 @@ def serializer(example):
     inputs, fixed_label = example
     moving_image, fixed_image, moving_label, indices = inputs
     feature = {
-        "moving_image": _bytes_feature(moving_image.astype(np.float32).tobytes()),
-        "fixed_image": _bytes_feature(fixed_image.astype(np.float32).tobytes()),
-        "moving_label": _bytes_feature(moving_label.astype(np.float32).tobytes()),
-        "fixed_label": _bytes_feature(fixed_label.astype(np.float32).tobytes()),
+        "moving_image": _bytes_feature(
+            moving_image.astype(np.float32).tobytes()
+        ),
+        "fixed_image": _bytes_feature(
+            fixed_image.astype(np.float32).tobytes()
+        ),
+        "moving_label": _bytes_feature(
+            moving_label.astype(np.float32).tobytes()
+        ),
+        "fixed_label": _bytes_feature(
+            fixed_label.astype(np.float32).tobytes()
+        ),
         "indices": _bytes_feature(indices.astype(np.float32).tobytes()),
     }
-    example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
+    example_proto = tf.train.Example(
+        features=tf.train.Features(feature=feature)
+    )
     return example_proto.SerializeToString()
 
 
@@ -49,8 +59,9 @@ def decode_array(data, shape, name=None):
     :param shape: is not tf tensor, otherwise the shape will remain None
     :return:
     """
-    return tf.reshape(tf.io.decode_raw(data, out_type=tf.float32),
-                      shape=shape, name=name)
+    return tf.reshape(
+        tf.io.decode_raw(data, out_type=tf.float32), shape=shape, name=name
+    )
 
 
 def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
@@ -61,7 +72,9 @@ def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
         "fixed_label": tf.io.FixedLenFeature(shape=[], dtype=tf.string),
         "indices": tf.io.FixedLenFeature(shape=[], dtype=tf.string),
     }
-    example = tf.io.parse_single_example(serialized=example_proto, features=features)
+    example = tf.io.parse_single_example(
+        serialized=example_proto, features=features
+    )
 
     moving_image = example["moving_image"]
     fixed_image = example["fixed_image"]
@@ -69,11 +82,19 @@ def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
     fixed_label = example["fixed_label"]
     indices = example["indices"]
 
-    with tf.name_scope("parser") as scope:
-        moving_image = decode_array(moving_image, shape=moving_image_shape, name="moving_image")
-        moving_label = decode_array(moving_label, shape=moving_image_shape, name="moving_label")
-        fixed_image = decode_array(fixed_image, shape=fixed_image_shape, name="fixed_image")
-        fixed_label = decode_array(fixed_label, shape=fixed_image_shape, name="fixed_label")
+    with tf.name_scope("parser"):
+        moving_image = decode_array(
+            moving_image, shape=moving_image_shape, name="moving_image"
+        )
+        moving_label = decode_array(
+            moving_label, shape=moving_image_shape, name="moving_label"
+        )
+        fixed_image = decode_array(
+            fixed_image, shape=fixed_image_shape, name="fixed_image"
+        )
+        fixed_label = decode_array(
+            fixed_label, shape=fixed_image_shape, name="fixed_label"
+        )
         indices = decode_array(indices, shape=[num_indices], name="indices")
 
     return (moving_image, fixed_image, moving_label, indices), fixed_label
@@ -88,7 +109,9 @@ def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=64):
     """
 
     mkdir_if_not_exists(data_dir)
-    options = tf.io.TFRecordOptions(compression_type=TF_RECORDS_COMPRESSION_TYPE)
+    options = tf.io.TFRecordOptions(
+        compression_type=TF_RECORDS_COMPRESSION_TYPE
+    )
 
     def write(_examples, _num_tfrecord):
         filename = os.path.join(data_dir, "%d.tfrecords" % _num_tfrecord)
@@ -110,11 +133,23 @@ def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=64):
 
 
 def get_tfrecords_filenames(tfrecord_dir):
-    return [os.path.join(tfrecord_dir, x) for x in os.listdir(tfrecord_dir) if x.endswith(".tfrecords")]
+    return [
+        os.path.join(tfrecord_dir, x)
+        for x in os.listdir(tfrecord_dir)
+        if x.endswith(".tfrecords")
+    ]
 
 
-def load_tfrecords(filenames, moving_image_shape, fixed_image_shape, num_indices):
-    dataset = tf.data.TFRecordDataset(filenames, compression_type=TF_RECORDS_COMPRESSION_TYPE)
-    dataset = dataset.map(lambda x: parser(x, moving_image_shape, fixed_image_shape, num_indices),
-                          num_parallel_calls=tf.data.experimental.AUTOTUNE)
+def load_tfrecords(
+    filenames, moving_image_shape, fixed_image_shape, num_indices
+):
+    dataset = tf.data.TFRecordDataset(
+        filenames, compression_type=TF_RECORDS_COMPRESSION_TYPE
+    )
+    dataset = dataset.map(
+        lambda x: parser(
+            x, moving_image_shape, fixed_image_shape, num_indices
+        ),
+        num_parallel_calls=tf.data.experimental.AUTOTUNE,
+    )
     return dataset

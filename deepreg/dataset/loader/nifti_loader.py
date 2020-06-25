@@ -11,8 +11,12 @@ class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files"""
 
     def __init__(self, dir_path: str, grouped: bool):
-        super(NiftiFileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
-        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="nii.gz")
+        super(NiftiFileLoader, self).__init__(
+            dir_path=dir_path, grouped=grouped
+        )
+        self.file_paths = get_sorted_filenames_in_dir(
+            dir_path=dir_path, suffix="nii.gz"
+        )
         if grouped:
             file_path_dict = dict()  # dict[group_path] = [file_path]
             for path in self.file_paths:
@@ -36,10 +40,18 @@ class NiftiFileLoader(FileLoader):
             if len(index) == 2:
                 group_index, sample_index = index
                 assert 0 <= group_index < len(self.group_paths)
-                assert 0 <= sample_index < len(self.file_path_dict[self.group_paths[group_index]])
-                filepath = self.file_path_dict[self.group_paths[group_index]][sample_index]
+                assert (
+                    0
+                    <= sample_index
+                    < len(self.file_path_dict[self.group_paths[group_index]])
+                )
+                filepath = self.file_path_dict[self.group_paths[group_index]][
+                    sample_index
+                ]
         if filepath is None:
-            raise ValueError("Index for get_data of NiftiFileLoader must be int or tuple of length two")
+            raise ValueError(
+                "Index for get_data of NiftiFileLoader must be int or tuple of length two"
+            )
 
         arr = np.asarray(nib.load(filepath).dataobj, dtype=np.float32)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
@@ -56,8 +68,7 @@ class NiftiFileLoader(FileLoader):
 
     def get_num_images_per_group(self):
         assert self.grouped
-        return [len(self.file_path_dict[g])
-                for g in self.group_paths]
+        return [len(self.file_path_dict[g]) for g in self.group_paths]
 
     def get_num_groups(self) -> int:
         assert self.grouped

@@ -14,11 +14,11 @@ The supported data set cases are:
 - paired data with labels (case 2-1)
 - paired data without labels (case 2-2)
 
-The corresponding configuration should be 
+The corresponding configuration should be
 ```yaml
 data:
   dir:                   # required, directory of data under which we have train/images, etc.
-  format: "nifti"        
+  format: "nifti"
   paired:                # required, true if paired else false
   labeled:               # required, true if labeled else false
   moving_image_shape:    # required if paired, [dim1, dim2, dim3]
@@ -86,7 +86,7 @@ and `train/fixed_images` as we will directly scan all nifti files under them.)
 ## Case 2-2 Paired images with labels
 
 We have both images and labels.
-So all data should be stored under `train/moving_images`, `train/fixed_images`, `train/moving_labels`, 
+So all data should be stored under `train/moving_images`, `train/fixed_images`, `train/moving_labels`,
 and `train/fixed_labels` .
 The images and labels corresponding to the same subjects/groups should have exactly the same names, e.g.:
 
@@ -112,9 +112,9 @@ The images and labels corresponding to the same subjects/groups should have exac
 
 We have images without any labels, but images are grouped under different subjects/groups,
 e.g. time-series observations for each subject/group.
-For instance, the data set can be the CT scans of multiple patients (groups) 
+For instance, the data set can be the CT scans of multiple patients (groups)
 where each patient has multiple scans acquired at different time points.
-So all data should be stored under `train/images` and the leaf directories 
+So all data should be stored under `train/images` and the leaf directories
 (directories that do not have sub-directories) must represent different groups, e.g.:
 
 - train
@@ -129,13 +129,13 @@ So all data should be stored under `train/images` and the leaf directories
       - ...
     - ...
 
-(It is also ok if the data are grouped into different directories, 
+(It is also ok if the data are grouped into different directories,
 but the leaf directories will be considered as different groups.)
 
 ## Case 3-2 Grouped images with labels
 
-We have both images and labels. 
-So all images should be stored under `train/images` and all labels should be stored under `train/labels`. 
+We have both images and labels.
+So all images should be stored under `train/images` and all labels should be stored under `train/labels`.
 The leaf directories will be considered as different groups
 and the corresponding image file name and label file name should be exactly the same, e.g.:
 

@@ -34,8 +34,15 @@ def local_displacement_energy(ddf, energy_type, **kwargs):
         dTdxy = gradient_txyz(dTdx, gradient_dy)
         dTdyz = gradient_txyz(dTdy, gradient_dz)
         dTdxz = gradient_txyz(dTdx, gradient_dz)
-        return tf.reduce_mean(dTdxx ** 2 + dTdyy ** 2 + dTdzz ** 2 + 2 * dTdxy ** 2 + 2 * dTdxz ** 2 + 2 * dTdyz ** 2,
-                              [1, 2, 3, 4])
+        return tf.reduce_mean(
+            dTdxx ** 2
+            + dTdyy ** 2
+            + dTdzz ** 2
+            + 2 * dTdxy ** 2
+            + 2 * dTdxz ** 2
+            + 2 * dTdyz ** 2,
+            [1, 2, 3, 4],
+        )
 
     if energy_type == "bending":
         return compute_bending_energy(ddf)
