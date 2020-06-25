@@ -3,16 +3,16 @@ Module to perform predictions on data using
 command line interface
 """
 
+import argparse
 import logging
 import os
 from datetime import datetime
 
-import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
 import deepreg.config.parser as config_parser
-import deepreg.data.load as load
+import deepreg.dataset.load as load
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt

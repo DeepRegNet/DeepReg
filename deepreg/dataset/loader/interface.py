@@ -6,14 +6,15 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
-from deepreg.data.preprocess import preprocess
-from deepreg.data.util import get_label_indices
+from deepreg.dataset.preprocess import preprocess
+from deepreg.dataset.util import get_label_indices
 
 
 class DataLoader:
     '''
     loads data to feed to model
     '''
+
     def __init__(self, labeled: bool, num_indices: int, sample_label: (str, None), seed: (int, None) = None):
         '''
         :param labeled: bool cooresponding to labels provided or omitted
@@ -168,7 +169,8 @@ class AbstractPairedDataLoader(DataLoader, ABC):
     '''
     Abstract loader for paried data independent of file format
     '''
-    def __init__(self, moving_image_shape: (list, tuple), 
+
+    def __init__(self, moving_image_shape: (list, tuple),
                  fixed_image_shape: (list, tuple), **kwargs):
         """
         num_indices = 2 corresponding to (image_index, label_index)
@@ -213,6 +215,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
     '''
     Abstract loader for unparied data independent of file format
     '''
+
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
         - image_shape is the shape of images fed into dataset, 
@@ -244,6 +247,7 @@ class GeneratorDataLoader(DataLoader, ABC):
     '''
     handles loading of samples by implementing get_dataset from DataLoader
     '''
+
     def __init__(self, **kwargs):
         super(GeneratorDataLoader, self).__init__(**kwargs)
         self.loader_moving_image = None
@@ -319,6 +323,7 @@ class FileLoader:
     '''
     contians funcitons which need to be defined for different file formats
     '''
+
     def __init__(self, dir_path: str, grouped: bool):
         """
         :param dir_path: path to the directory of the data set

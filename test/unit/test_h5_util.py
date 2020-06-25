@@ -1,15 +1,15 @@
 """
-Tests functinality of the H5FileLOader
+Tests functionality of the H5FileLoader
 """
 
 import numpy as np
 
-from deepreg.data.loader.h5_loader import H5FileLoader
+from deepreg.dataset.loader.h5_loader import H5FileLoader
 
 
-class Test():
+class TestH5FileLoader:
     """
-    Tests the funcitonality of the H5FileLoader
+    Tests the functionality of the H5FileLoader
     The test_xyz methods will return True is the test is passed
     """
 
@@ -27,7 +27,7 @@ class Test():
     def get_shapes_for_dict(dictionary):
         """
         given a dictionary of numpy arrays return shapes of arrays
-        :param dicitonary: dictionary of numpy arrays
+        :param dictionary: dictionary of numpy arrays
         :return: list of shapes of numpy arrays in sorted order
         """
         shapes = []
@@ -57,7 +57,7 @@ class Test():
         :return: True/ False
         """
         filename = 'fixed_images.h5'
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
         loader.dict_from_h5(fname=filename)
@@ -79,7 +79,7 @@ class Test():
         check if the get_data_names function returns the expected keys
         :return: True/ False
         """
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
 
@@ -95,7 +95,7 @@ class Test():
         shapes of arrays when loading in test data
         :return: True/ False
         """
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
 
