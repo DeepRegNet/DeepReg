@@ -22,14 +22,14 @@ This is still under development. However some of the functionalities can be acce
 `predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>` 
 
 
-### Tutorials
-#### The following two tutorial to get started with DeepReg, have a look at the two tutorials.  
+## Tutorials
+### Two ways to get started with DeepReg  
 
 [Get started with image registration using deep learning](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/registration.md)  
 
 [Get started with demos](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/demos.md)  
 
-#### A few other topics are also discussed in [tutorials](./tutorials).  
+### Other topics that are discussed in [Tutorials](./tutorials)  
 
 [Training data sampling options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/sampling.md)  
 
@@ -41,11 +41,12 @@ This is still under development. However some of the functionalities can be acce
 
 ......
 
-### Demos
-(under development)
-
 ### Setup
 (under development)
+
+## Demos
+(under development)
+
 
 ## Contributions
 We welcome contributions! Please refer to the [contribution guidelines](https://github.com/ucl-candi/DeepReg/blob/master/docs/CONTRIBUTING.md) for the toolkit.
