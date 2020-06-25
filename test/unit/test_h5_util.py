@@ -56,7 +56,7 @@ class Test():
         and shapes of arrays when loading in test data
         :return: True/ False
         """
-        filename = 'data.h5'
+        filename = 'fixed_images.h5'
         directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
@@ -99,7 +99,7 @@ class Test():
 
         loader = H5FileLoader(directory, grouped=False)
 
-        loader.dict_from_h5()
+        loader.dict_from_h5(fname='fixed_images.h5')
 
         obtained = np.shape(loader.get_data(index=0))
 
