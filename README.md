@@ -29,7 +29,7 @@ This is still under development. However some of the functionalities can be acce
 
 [Get started with demos](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/demos.md)  
 
-### Other topics that are discussed in [Tutorials](./tutorials)  
+### Other topics in [Tutorials](./tutorials)  
 
 [Training data sampling options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/sampling.md)  
 
