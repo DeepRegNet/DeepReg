@@ -20,7 +20,7 @@ setup(
         "pytest-cov",
         "pytest-dependency",
         "black",
-        "flack8",
+        "flake8",
         "pre-commit",
     ],
     entry_points={
