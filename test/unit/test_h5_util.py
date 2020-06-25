@@ -57,7 +57,7 @@ class Test():
         :return: True/ False
         """
         filename = 'fixed_images.h5'
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
         loader.dict_from_h5(fname=filename)
@@ -79,7 +79,7 @@ class Test():
         check if the get_data_names function returns the expected keys
         :return: True/ False
         """
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
 
@@ -95,7 +95,7 @@ class Test():
         shapes of arrays when loading in test data
         :return: True/ False
         """
-        directory = 'data/h5_mr_us/mr_us/paired/test/fixed_images'
+        directory = 'data/test/h5/paired/test/fixed_images'
 
         loader = H5FileLoader(directory, grouped=False)
 
