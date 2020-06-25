@@ -1,5 +1,5 @@
 data:
-  dir: "data/h5_mr_us/mr_us/unpaired" # required
+  dir: "data/test/h5/unpaired" # required
   format: "h5"
   type: "unpaired" # paired / unpaired / grouped
   labeled: false

@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from deepreg.data.util import mkdir_if_not_exists
+from deepreg.dataset.util import mkdir_if_not_exists
 
 TF_RECORDS_COMPRESSION_TYPE = "GZIP"
 

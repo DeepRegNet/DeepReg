@@ -2,16 +2,16 @@
 Module to train a network using init files and a CLI
 """
 
+import argparse
 import logging
 import os
 from datetime import datetime
 
-import argparse
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
-from deepreg.data.load import get_data_loader
+from deepreg.dataset.load import get_data_loader
 from deepreg.model.network.build import build_model
 
 
