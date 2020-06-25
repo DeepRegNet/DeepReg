@@ -23,4 +23,4 @@ def test_unpaired_unlabeld_ddf():
         predict(gpu=gpu, gpu_allow_growth=gpu_allow_growth, ckpt_path=ckpt_path, mode="test",
                 batch_size=1, log_dir=log_dir, sample_label="all")
     train_and_predict_with_config(test_name="unpaired_unlabeled_ddf",
-                                    config_path="/deepreg/config/unpaired_unlabeled_ddf.yaml")
+                                    config_path="deepreg/config/unpaired_unlabeled_ddf.yaml")
