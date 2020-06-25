@@ -1,7 +1,9 @@
 # Training configurations
 
+A typical yaml config file is explained as follows.
+
 ```yaml
-tf:
+train:
   model:
     method: "ddf" # ddf or conditional or seg
     backbone:

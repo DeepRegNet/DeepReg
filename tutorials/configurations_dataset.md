@@ -1,7 +1,9 @@
 # Dataset configurations
 
+A typical yaml config file is explained as follows.
+
 ```yaml
-data:
+dataset:
   dir:                   # required, directory of data under which we have train/images, etc.
   format: "nifti"        
   paired:                # required, true if paired else false
