@@ -3,19 +3,19 @@ Loads h5 files and some associated information
 """
 import os
 
+import h5py
 import numpy as np
 
-import h5py
-
-from deepreg.data.loader.interface import FileLoader
-from deepreg.data.util import get_sorted_filenames_in_dir
+from deepreg.dataset.loader.interface import FileLoader
+from deepreg.dataset.util import get_sorted_filenames_in_dir
 
 
 class H5FileLoader(FileLoader):
     """Generalized loader for h5 files"""
+
     def __init__(self, dir_path: str, grouped: bool):
         super(H5FileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
-        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, 
+        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path,
                                                       suffix="h5")
         self.dir_path = '/'.join(dir_path.split('/')[:-1])
         self.fname = dir_path.split('/')[-1] + '.h5'
@@ -59,7 +59,7 @@ class H5FileLoader(FileLoader):
         elif isinstance(index, tuple):
             assert self.grouped
             group_index, sample_index = index
-            data_name = 'group-' + str(group_index+1) + '-' + str(sample_index+1)
+            data_name = 'group-' + str(group_index + 1) + '-' + str(sample_index + 1)
             self.dict_from_h5(fname=self.fname)
         arr = self.data_dict[data_name]
         if len(arr.shape) == 4 and arr.shape[3] == 1:
@@ -107,7 +107,7 @@ class H5FileLoader(FileLoader):
             group_numbers.append(group_number)
         num_images_per_group = []
         for i in range(self.num_groups):
-            num_images = int(len(np.where(np.array(group_numbers) == i+1)[0] + 1))
+            num_images = int(len(np.where(np.array(group_numbers) == i + 1)[0] + 1))
             num_images_per_group.append(num_images)
         return num_images_per_group
 

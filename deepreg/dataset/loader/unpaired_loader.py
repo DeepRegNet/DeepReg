@@ -6,8 +6,8 @@ supports labeled and unlabeled data
 import os
 import random
 
-from deepreg.data.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.util import check_difference_between_two_lists
+from deepreg.dataset.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
+from deepreg.dataset.util import check_difference_between_two_lists
 
 
 class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
@@ -17,6 +17,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     The function sample_index_generator needs to be defined for the 
     GeneratorDataLoader class
     """
+
     def __init__(self,
                  file_loader,
                  data_dir_path: str, labeled: bool, sample_label: str, seed, image_shape: (list, tuple)):

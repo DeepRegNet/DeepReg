@@ -5,8 +5,8 @@ supports labeled and unlabeled data
 '''
 import os
 
-from deepreg.data.loader.interface import AbstractPairedDataLoader, GeneratorDataLoader
-from deepreg.data.util import check_difference_between_two_lists
+from deepreg.dataset.loader.interface import AbstractPairedDataLoader, GeneratorDataLoader
+from deepreg.dataset.util import check_difference_between_two_lists
 
 
 class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
@@ -16,6 +16,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     The function sample_index_generator needs to be defined for the 
     GeneratorDataLoader class
     """
+
     def __init__(self,
                  file_loader,
                  data_dir_path: str, labeled: bool, sample_label: str, seed,
@@ -42,15 +43,15 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         self.loader_moving_image = file_loader(os.path.join(data_dir_path,
                                                             "moving_images"),
                                                grouped=False)
-        self.loader_fixed_image = file_loader(os.path.join(data_dir_path, 
-                                                           "fixed_images"), 
+        self.loader_fixed_image = file_loader(os.path.join(data_dir_path,
+                                                           "fixed_images"),
                                               grouped=False)
         if self.labeled:
-            self.loader_moving_label = file_loader(os.path.join(data_dir_path, 
+            self.loader_moving_label = file_loader(os.path.join(data_dir_path,
                                                                 "moving_labels"),
                                                    grouped=False)
-            self.loader_fixed_label = file_loader(os.path.join(data_dir_path, 
-                                                               "fixed_labels"), 
+            self.loader_fixed_label = file_loader(os.path.join(data_dir_path,
+                                                               "fixed_labels"),
                                                   grouped=False)
         self.validate_data_files()
         self.num_images = self.loader_moving_image.get_num_images()
@@ -74,4 +75,3 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         GeneratorDataLoader class"""
         for image_index in range(self.num_images):
             yield image_index, image_index, [image_index]
-            
