@@ -7,8 +7,8 @@ import os
 import shutil
 
 import deepreg.config.parser as config_parser
-import deepreg.data.load as load
-from deepreg.data.tfrecord import write_tfrecords
+import deepreg.dataset.load as load
+from deepreg.dataset.tfrecord import write_tfrecords
 
 
 def main(args=None):

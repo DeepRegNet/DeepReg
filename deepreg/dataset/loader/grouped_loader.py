@@ -6,8 +6,8 @@ supports labeled and unlabeled data
 import os
 import random
 
-from deepreg.data.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
-from deepreg.data.util import check_difference_between_two_lists
+from deepreg.dataset.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
+from deepreg.dataset.util import check_difference_between_two_lists
 
 
 class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
@@ -17,10 +17,11 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     indexes of images to load
     AbstractUnpairedLoader handles different file formats
     '''
+
     def __init__(self,
                  file_loader,
                  data_dir_path: str, labeled: bool, sample_label: (str, None),
-                 intra_group_prob: float, intra_group_option: str, 
+                 intra_group_prob: float, intra_group_option: str,
                  sample_image_in_group: bool,
                  seed, image_shape: (list, tuple)):
         """
@@ -38,7 +39,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                                                 sample_label=sample_label,
                                                 seed=seed)
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
-        loader_image = file_loader(os.path.join(data_dir_path, "images"), 
+        loader_image = file_loader(os.path.join(data_dir_path, "images"),
                                    grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
@@ -75,7 +76,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(list1=image_ids, 
+            check_difference_between_two_lists(list1=image_ids,
                                                list2=label_ids)
 
     def get_intra_sample_indices(self):
@@ -95,21 +96,21 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # j < i
-                        intra_sample_indices.append(((group_index, j), 
+                        intra_sample_indices.append(((group_index, j),
                                                      (group_index, i)))
             elif self.intra_group_option == "backward":
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # i > j
-                        intra_sample_indices.append(((group_index, i), 
+                        intra_sample_indices.append(((group_index, i),
                                                      (group_index, j)))
             elif self.intra_group_option == "bidirectional":
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # j < i, i > j
-                        intra_sample_indices.append(((group_index, j), 
+                        intra_sample_indices.append(((group_index, j),
                                                      (group_index, i)))
-                        intra_sample_indices.append(((group_index, i), 
+                        intra_sample_indices.append(((group_index, i),
                                                      (group_index, j)))
             else:
                 raise ValueError("Unknown intra_group_option, must be forward/backward/bidirectional")
@@ -132,9 +133,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 num_images_in_group2 = self.num_images_per_group[group_index2]
                 for image_index1 in range(num_images_in_group1):
                     for image_index2 in range(num_images_in_group2):
-                        inter_sample_indices.append(((group_index1, 
-                                                      image_index1), 
-                                                     (group_index2, 
+                        inter_sample_indices.append(((group_index1,
+                                                      image_index1),
+                                                     (group_index2,
                                                       image_index2)))
         return inter_sample_indices
 

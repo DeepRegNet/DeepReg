@@ -3,8 +3,8 @@ import os
 import nibabel as nib
 import numpy as np
 
-from deepreg.data.loader.interface import FileLoader
-from deepreg.data.util import get_sorted_filenames_in_dir
+from deepreg.dataset.loader.interface import FileLoader
+from deepreg.dataset.util import get_sorted_filenames_in_dir
 
 
 class NiftiFileLoader(FileLoader):
