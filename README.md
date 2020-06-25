@@ -29,7 +29,8 @@ This is still under development. However some of the functionalities can be acce
 
 [Get started with demos](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/demos.md)  
 
-### Other topics in [Tutorials](./tutorials)  
+### Other topics 
+[How to arrange data files and folders to use predefined data loaders](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/predefined_loader.md)  
 
 [Training data sampling options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/sampling.md)  
 
@@ -37,7 +38,6 @@ This is still under development. However some of the functionalities can be acce
 
 [Configuration options](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/configuration.md)  
 
-[How to arrange your data files and folders for using predefined data loaders](https://github.com/ucl-candi/DeepReg/blob/master/tutorials/predefined_loader.md)  
 
 ......
 
