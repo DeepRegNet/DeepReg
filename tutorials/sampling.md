@@ -1,18 +1,53 @@
-# Training data sampling options
+# Data sampling options
 
-## Sampling for multiple labels
-In any case when corresponding labels are available and there are multiple types of labels, e.g. the segmentation of different organs in a CT image, two options are available:
+## 0 - Training, validation and test
+Training and validation use the same data folder structure. Prediction can use a different test data folder structure. See the [predefined data loader tutorial](./predefined_loader.md) for more details. 
 
-- During one epoch, each image would be sampled only once and when there are multiple labels, we will randomly sample one label at a time. (Default) 
-- During one epoch, each image would be paired with each available label. So if an image has four types of labels, it will be sampled for four times and each time corresponds to a different label. When using multiple labels, it is the user's responsibility to ensure the labels are ordered, such that label_idx are the corresponding types in (width, height, depth, label_idx)
+## 1 - Image pair sampling
+The registration network samples a pair of images as input.
 
-## Sampling for multiple subjects each with multiple images
-When multiple subjects each with multiple images are available, multiple different sampling methods are supported:
+### Paired-image loader
+Using paired-image loader, each pair will be sampled once in each epoch. One epoch iterats over the number of total pairs.
 
-- Inter-subject, one image is sampled from subject A as moving image, and another one image is sampled from a different subject B as fixed image.   
-- Intra-subject, two images are sampled from the same subject. In this case, we can specify:  
-    - a) moving image always has a smaller index, e.g. at an earlier time;  
-    - b) moving image always has a larger index, e.g. at a later time; or  
-    - c) no constraint on the order.  
-For the first two options, the intra-subject images will be ascending-sorted by name to represent ordered sequential images, such as time-series data *Multiple label sampling is also supported once image pair is sampled;  
-In case there are no consistent label types defined between subjects, an option is available to turned off label contribution to the loss for those inter-subject image pairs.
+### Unpaired-image loader
+Using unpaired-image loader, all the images will be randomly paired first without replacement, before each pair is sampled once in each epoch. One epoch iterates over "floor(number-of-images / 2)" image pairs.
+
+### Grouped-image loader
+Using grouped-image loader, each group is sampled once in each epoch. One epoch iterates over the number of groups. 
+
+#### Sampling intra-group image pairs
+When each group has multiple images, one intra-group image pair is randomly sampled (default for training) with different sampling contraints, by setting `intra_group_option`:  
+    - Forward: moving image always has a smaller index, e.g. at an earlier time;  
+    - Backward: moving image always has a larger index, e.g. at a later time; or  
+    - Unconstrained: no constraint on the order.  
+For the first two options, the intra-subject images will be ascending-sorted by name to represent ordered sequential images, such as time-series data.
+
+#### Option for mixing inter-group image pairs
+This option requires a parameter `intra_group_prob` specifying the intra-groupe image sampling probability `p=[0,1]`. When `p` is greater than zero, there will be `(1-p)*100%` chance to sample the fixed images from a different group, after sampling the moving image from the current intra-group images.
+
+#### Option for iterating all available intra-group image pairs
+All the possible image pairs (depends on the intra-group sampling option) will be sampled once in each epoch. This option is not supported when mixing intra-and-inter-group pairs. Disabling the `sample_image_in_group` will enable this option (default for testing).
+
+
+## 2 - Label pair sampling
+When each image has multiple labels, e.g. segmentations of different organs in a CT image. For each sampled image pair, one label pair is randomly sampled. This is default for training.
+
+### Corresponding label pairs
+When using multiple labels, it is the user's responsibility to ensure the labels are ordered, such that the same `label_idx` in `[width, height, depth, label_idx]` is the same anatomical or pathological structure - a corresponding label pair between the moving and fixed labels.  
+
+### Consistent label pairs
+Consistent label pairs between a pair of moving and fixed labels requires:  
+    1) The two images have the same number of labels; and  
+    2) They are ordered and corresponding label types.
+
+When a pair of moving and fixed images have inconsistent label pairs, label dissimilarity can not be defined. Therefore,  
+    - Using unpaired-labelled-image loader, consistent label pairs are required;  
+    - Using grouped-labelled-image loader, consistent label pairs are required between intra-group image pairs;  
+    - When mixing intra-inter-group images in grouped-labelled-image loader, consistent label pairs are required between all intra-and-inter-group image pairs.  
+However,  
+    - Using paired-labelled-image loader, consistent label pairs are not required between different image pairs;  
+    - Using grouped-labelled-image loader without mixing intra-inter-group images, consistent label pairs are not required between different image groups.  
+
+
+### Option for iterating all available label pairs
+This option is default for testing. All the label pairs will be sampled once for each sampled image pair. This option is not supported when mixing intra-and-inter-group image pairs.
