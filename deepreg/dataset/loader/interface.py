@@ -30,8 +30,8 @@ class DataLoader:
         """
         self.labeled = labeled
         self.num_indices = (
-            num_indices
-        )  # number of indices to identify a sample
+            num_indices  # number of indices to identify a sample
+        )
         self.sample_label = sample_label
         self.seed = seed  # used for sampling
 

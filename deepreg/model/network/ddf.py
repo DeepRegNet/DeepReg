@@ -160,7 +160,13 @@ def build_ddf_model(
     """
 
     # inputs
-    moving_image, fixed_image, moving_label, fixed_label, indices = build_inputs(
+    (
+        moving_image,
+        fixed_image,
+        moving_label,
+        fixed_label,
+        indices,
+    ) = build_inputs(
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         index_size=index_size,
