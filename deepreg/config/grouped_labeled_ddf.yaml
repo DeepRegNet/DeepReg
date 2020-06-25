@@ -1,5 +1,5 @@
 data:
-  dir: "data/mr_us/grouped" # required
+  dir: "data/test/nifti/grouped" # required
   format: "nifti"
   type: "grouped" # paired / unpaired / grouped
   labeled: true
