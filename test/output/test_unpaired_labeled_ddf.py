@@ -24,3 +24,7 @@ def test_unpaired_labeled_ddf():
                 batch_size=1, log_dir=log_dir, sample_label="all")
     train_and_predict_with_config(test_name="unpaired_labeled_ddf",
                                     config_path="deepreg/config/unpaired_labeled_ddf.yaml")
+                                    
+    train_and_predict_with_config(test_name="unpaired_labeled_h5",
+                                    config_path="deepreg/config/h5_config/unpaired_labeled_h5.yaml")                                   
+                                  
