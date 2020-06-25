@@ -19,6 +19,9 @@ setup(
         "pytest>=4.6",
         "pytest-cov",
         "pytest-dependency",
+        "black",
+        "flack8",
+        "pre-commit",
     ],
     entry_points={
         "console_scripts": [
