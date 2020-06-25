@@ -1,3 +1,8 @@
+'''
+Loads grouped data
+supports h5 and nifti formats
+supports labeled and unlabeled data
+'''
 import os
 import random
 
@@ -6,16 +11,24 @@ from deepreg.data.util import check_difference_between_two_lists
 
 
 class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
+    '''
+    Loads grouped data 
+    sample_index_generator from GeneratorDataLoader is defined to yeild
+    indexes of images to load
+    AbstractUnpairedLoader handles different file formats
+    '''
     def __init__(self,
                  file_loader,
                  data_dir_path: str, labeled: bool, sample_label: (str, None),
-                 intra_group_prob: float, intra_group_option: str, sample_image_in_group: bool,
+                 intra_group_prob: float, intra_group_option: str, 
+                 sample_image_in_group: bool,
                  seed, image_shape: (list, tuple)):
         """
         Load data which are grouped, labeled or unlabeled
 
-        :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
-                              sub-directories: images, labels
+        :param data_dir_path: path of the directory storing data,  
+        the data has to be saved under two different
+        sub-directories: images, labels
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
@@ -25,15 +38,16 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                                                 sample_label=sample_label,
                                                 seed=seed)
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
-        loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=True)
+        loader_image = file_loader(os.path.join(data_dir_path, "images"), 
+                                   grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
-            loader_label = file_loader(os.path.join(data_dir_path, "labels"), grouped=True)
+            loader_label = file_loader(os.path.join(data_dir_path, "labels"),
+                                       grouped=True)
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label
         self.validate_data_files()
-
         self.num_groups = self.loader_moving_image.get_num_groups()
         self.num_images_per_group = self.loader_moving_image.get_num_images_per_group()
         self.intra_group_option = intra_group_option
@@ -61,7 +75,8 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
+            check_difference_between_two_lists(list1=image_ids, 
+                                               list2=label_ids)
 
     def get_intra_sample_indices(self):
         """
@@ -80,18 +95,22 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # j < i
-                        intra_sample_indices.append(((group_index, j), (group_index, i)))
+                        intra_sample_indices.append(((group_index, j), 
+                                                     (group_index, i)))
             elif self.intra_group_option == "backward":
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # i > j
-                        intra_sample_indices.append(((group_index, i), (group_index, j)))
+                        intra_sample_indices.append(((group_index, i), 
+                                                     (group_index, j)))
             elif self.intra_group_option == "bidirectional":
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # j < i, i > j
-                        intra_sample_indices.append(((group_index, j), (group_index, i)))
-                        intra_sample_indices.append(((group_index, i), (group_index, j)))
+                        intra_sample_indices.append(((group_index, j), 
+                                                     (group_index, i)))
+                        intra_sample_indices.append(((group_index, i), 
+                                                     (group_index, j)))
             else:
                 raise ValueError("Unknown intra_group_option, must be forward/backward/bidirectional")
         return intra_sample_indices
@@ -113,7 +132,10 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 num_images_in_group2 = self.num_images_per_group[group_index2]
                 for image_index1 in range(num_images_in_group1):
                     for image_index2 in range(num_images_in_group2):
-                        inter_sample_indices.append(((group_index1, image_index1), (group_index2, image_index2)))
+                        inter_sample_indices.append(((group_index1, 
+                                                      image_index1), 
+                                                     (group_index2, 
+                                                      image_index2)))
         return inter_sample_indices
 
     def sample_index_generator(self):

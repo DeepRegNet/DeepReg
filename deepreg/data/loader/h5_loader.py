@@ -3,8 +3,9 @@ Loads h5 files and some associated information
 """
 import os
 
-import h5py
 import numpy as np
+
+import h5py
 
 from deepreg.data.loader.interface import FileLoader
 from deepreg.data.util import get_sorted_filenames_in_dir
@@ -12,20 +13,15 @@ from deepreg.data.util import get_sorted_filenames_in_dir
 
 class H5FileLoader(FileLoader):
     """Generalized loader for h5 files"""
-
     def __init__(self, dir_path: str, grouped: bool):
         super(H5FileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
-        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, suffix="h5")
-        
+        self.file_paths = get_sorted_filenames_in_dir(dir_path=dir_path, 
+                                                      suffix="h5")
         self.dir_path = '/'.join(dir_path.split('/')[:-1])
         self.fname = dir_path.split('/')[-1] + '.h5'
-        
-
         self.data_dict = None
-
         if grouped:
             self.num_groups = self.get_num_groups()
-
 
     def dict_from_h5(self, fname):
         """
@@ -81,31 +77,45 @@ class H5FileLoader(FileLoader):
         return all_sample_names
 
     def get_data_ids(self):
+        '''
+        get data names
+        :returns: names of data in list format
+        '''
         if self.grouped:
             return self.get_data_names_grouped()
         else:
             return self.get_data_names()
 
     def get_num_images(self) -> int:
+        '''
+        get number of images in data
+        :returns: number of images
+        '''
         return len(self.get_data_names())
 
     def get_num_images_per_group(self):
+        '''
+        get number of images in each group
+        :returns: list of numbers corresponding to number of images per group
+        '''
         assert self.grouped
         self.dict_from_h5(fname=self.fname)
         all_images = sorted(self.data_dict.keys())
         group_numbers = []
-        images_numbers = []
         for image in all_images:
-            image_number = int(image.split('-')[-1])
             group_number = int(image.split('-')[-2])
             group_numbers.append(group_number)
         num_images_per_group = []
         for i in range(self.num_groups):
-            num_images = int(len(np.where(np.array(group_numbers)==i+1)[0] + 1))
+            num_images = int(len(np.where(np.array(group_numbers) == i+1)[0] + 1))
             num_images_per_group.append(num_images)
         return num_images_per_group
 
     def get_num_groups(self) -> int:
+        '''
+        get number of groups
+        :returns: total number of groups
+        '''
         assert self.grouped
         self.dict_from_h5(fname=self.fname)
         all_images = sorted(self.data_dict.keys())
