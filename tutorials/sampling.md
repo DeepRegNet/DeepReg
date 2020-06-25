@@ -1,7 +1,6 @@
 # Data sampling options
 
-## 0 - Training, validation and test
-Training and validation use the same data folder structure. Prediction can use a different test data folder structure. See the [predefined data loader tutorial](./predefined_loader.md) for more details.
+This describes the sampling methods used in the [predefined data loaders](./predefined_loader.md).
 
 ## 1 - Image pair sampling
 The registration network samples a pair of images as input.
