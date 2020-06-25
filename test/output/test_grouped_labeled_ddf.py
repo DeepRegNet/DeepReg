@@ -25,4 +25,4 @@ def test_grouped_labeled_ddf():
                 batch_size=1, log_dir=log_dir, sample_label="all")
 
     train_and_predict_with_config(test_name="grouped_labeled_ddf",
-                                    config_path="/deepreg/config/grouped_labeled_ddf.yaml")
+                                    config_path="deepreg/config/grouped_labeled_ddf.yaml")
