@@ -7,7 +7,14 @@ import deepreg.model.loss.label as label_loss
 from deepreg.model.network.util import build_backbone, build_inputs
 
 
-def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config, tf_loss_config):
+def build_dvf_model(
+    moving_image_size,
+    fixed_image_size,
+    index_size,
+    batch_size,
+    tf_model_config,
+    tf_loss_config,
+):
     """
     Build the model if the output is DVF-integrated DDF (dense displacement field)
 
@@ -36,19 +43,38 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
             str _pred_fixed_label is the predicted (warped) moving label [batch, f_dim1, f_dim2, f_dim3]
         """
         # ddf
-        backbone_input = tf.concat([layer.Resize3d(size=fixed_image_size)(inputs=tf.expand_dims(_moving_image, axis=4)),
-                                    tf.expand_dims(_fixed_image, axis=4)],
-                                   axis=4)  # [batch, f_dim1, f_dim2, f_dim3, 2]
-        _dvf = _backbone(inputs=backbone_input)  # [batch, f_dim1, f_dim2, f_dim3, 3]
+        backbone_input = tf.concat(
+            [
+                layer.Resize3d(size=fixed_image_size)(
+                    inputs=tf.expand_dims(_moving_image, axis=4)
+                ),
+                tf.expand_dims(_fixed_image, axis=4),
+            ],
+            axis=4,
+        )  # [batch, f_dim1, f_dim2, f_dim3, 2]
+        _dvf = _backbone(
+            inputs=backbone_input
+        )  # [batch, f_dim1, f_dim2, f_dim3, 3]
         _ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(_dvf)
 
         # prediction image ang label shape = [batch, f_dim1, f_dim2, f_dim3]
-        _pred_fixed_image = layer.Warping(fixed_image_size=fixed_image_size)([_ddf, _moving_image])
-        _pred_fixed_label = layer.Warping(fixed_image_size=fixed_image_size)([_ddf, _moving_label])
+        _pred_fixed_image = layer.Warping(fixed_image_size=fixed_image_size)(
+            [_ddf, _moving_image]
+        )
+        _pred_fixed_label = layer.Warping(fixed_image_size=fixed_image_size)(
+            [_ddf, _moving_label]
+        )
 
         return _dvf, _ddf, _pred_fixed_image, _pred_fixed_label
 
-    def add_loss_metric(_fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix):
+    def add_loss_metric(
+        _fixed_image,
+        _pred_fixed_image,
+        _ddf,
+        _fixed_label,
+        _pred_fixed_label,
+        suffix,
+    ):
         """
         Configue and add the training loss, including image, label and deformation regularisation
 
@@ -62,55 +88,97 @@ def build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size,
         """
         # image loss
         if tf_loss_config["similarity"]["image"]["weight"] > 0:
-            loss_image = tf.reduce_mean(image_loss.similarity_fn(
-                y_true=_fixed_image, y_pred=_pred_fixed_image,
-                **tf_loss_config["similarity"]["image"]))
-            weighted_loss_image = loss_image * tf_loss_config["similarity"]["image"]["weight"]
+            loss_image = tf.reduce_mean(
+                image_loss.similarity_fn(
+                    y_true=_fixed_image,
+                    y_pred=_pred_fixed_image,
+                    **tf_loss_config["similarity"]["image"],
+                )
+            )
+            weighted_loss_image = (
+                loss_image * tf_loss_config["similarity"]["image"]["weight"]
+            )
             model.add_loss(weighted_loss_image)
-            model.add_metric(loss_image, name="loss/image_similarity" + suffix, aggregation="mean")
-            model.add_metric(weighted_loss_image, name="loss/weighted_image_similarity" + suffix, aggregation="mean")
+            model.add_metric(
+                loss_image,
+                name="loss/image_similarity" + suffix,
+                aggregation="mean",
+            )
+            model.add_metric(
+                weighted_loss_image,
+                name="loss/weighted_image_similarity" + suffix,
+                aggregation="mean",
+            )
 
         # regularization loss
-        loss_reg = tf.reduce_mean(deform_loss.local_displacement_energy(_ddf, **tf_loss_config["regularization"]))
-        weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
+        loss_reg = tf.reduce_mean(
+            deform_loss.local_displacement_energy(
+                _ddf, **tf_loss_config["regularization"]
+            )
+        )
+        weighted_loss_reg = (
+            loss_reg * tf_loss_config["regularization"]["weight"]
+        )
         model.add_loss(weighted_loss_reg)
-        model.add_metric(loss_reg, name="loss/regularization" + suffix, aggregation="mean")
-        model.add_metric(weighted_loss_reg, name="loss/weighted_regularization" + suffix, aggregation="mean")
+        model.add_metric(
+            loss_reg, name="loss/regularization" + suffix, aggregation="mean"
+        )
+        model.add_metric(
+            weighted_loss_reg,
+            name="loss/weighted_regularization" + suffix,
+            aggregation="mean",
+        )
 
         # label loss
         if _fixed_label is not None:
-            label_loss_fn = label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])
-            loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
+            label_loss_fn = label_loss.get_similarity_fn(
+                config=tf_loss_config["similarity"]["label"]
+            )
+            loss_label = label_loss_fn(
+                y_true=_fixed_label, y_pred=_pred_fixed_label
+            )
             model.add_loss(loss_label)
-            model.add_metric(loss_label, name="loss/label" + suffix, aggregation="mean")
+            model.add_metric(
+                loss_label, name="loss/label" + suffix, aggregation="mean"
+            )
 
     # inputs
     moving_image, fixed_image, moving_label, indices = build_inputs(
-        moving_image_size, fixed_image_size, index_size, batch_size)
+        moving_image_size, fixed_image_size, index_size, batch_size
+    )
 
     # backbone
-    backbone = build_backbone(image_size=fixed_image_size, out_channels=3,
-                              tf_model_config=tf_model_config)
+    backbone = build_backbone(
+        image_size=fixed_image_size,
+        out_channels=3,
+        tf_model_config=tf_model_config,
+    )
 
     # forward
-    dvf, ddf, pred_fixed_image, pred_fixed_label = forward(_backbone=backbone,
-                                                           _moving_image=moving_image,
-                                                           _moving_label=moving_label,
-                                                           _fixed_image=fixed_image)
+    dvf, ddf, pred_fixed_image, pred_fixed_label = forward(
+        _backbone=backbone,
+        _moving_image=moving_image,
+        _moving_label=moving_label,
+        _fixed_image=fixed_image,
+    )
 
     # build model
-    model = tf.keras.Model(inputs=[moving_image, fixed_image, moving_label, indices],
-                           outputs=[pred_fixed_label],
-                           name="DDFRegModel")
+    model = tf.keras.Model(
+        inputs=[moving_image, fixed_image, moving_label, indices],
+        outputs=[pred_fixed_label],
+        name="DDFRegModel",
+    )
     model.dvf = dvf
     model.ddf = ddf
 
     # loss and metric
-    add_loss_metric(_fixed_image=fixed_image,
-                    _pred_fixed_image=pred_fixed_image,
-                    _ddf=ddf,
-                    _fixed_label=None,
-                    _pred_fixed_label=None,
-                    suffix="")
+    add_loss_metric(
+        _fixed_image=fixed_image,
+        _pred_fixed_image=pred_fixed_image,
+        _ddf=ddf,
+        _fixed_label=None,
+        _pred_fixed_label=None,
+        suffix="",
+    )
 
     return model

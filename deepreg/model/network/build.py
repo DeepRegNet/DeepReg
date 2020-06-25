@@ -3,8 +3,15 @@ from deepreg.model.network.ddf import build_ddf_model
 from deepreg.model.network.dvf import build_dvf_model
 
 
-def build_model(moving_image_size: tuple, fixed_image_size: tuple, index_size: int, labeled: bool, batch_size: int,
-                tf_model_config: dict, tf_loss_config: dict):
+def build_model(
+    moving_image_size: tuple,
+    fixed_image_size: tuple,
+    index_size: int,
+    labeled: bool,
+    batch_size: int,
+    tf_model_config: dict,
+    tf_loss_config: dict,
+):
     """
     Parsing algorithm types to model building functions
 
@@ -18,13 +25,32 @@ def build_model(moving_image_size: tuple, fixed_image_size: tuple, index_size: i
     :return: the built tf.keras.Model
     """
     if tf_model_config["method"] == "ddf":
-        return build_ddf_model(moving_image_size, fixed_image_size, index_size, labeled, batch_size, tf_model_config,
-                               tf_loss_config)
+        return build_ddf_model(
+            moving_image_size,
+            fixed_image_size,
+            index_size,
+            labeled,
+            batch_size,
+            tf_model_config,
+            tf_loss_config,
+        )
     elif tf_model_config["method"] == "dvf":
-        return build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
-                               tf_loss_config)
+        return build_dvf_model(
+            moving_image_size,
+            fixed_image_size,
+            index_size,
+            batch_size,
+            tf_model_config,
+            tf_loss_config,
+        )
     elif tf_model_config["method"] == "conditional":
-        return build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
-                                tf_loss_config)
+        return build_cond_model(
+            moving_image_size,
+            fixed_image_size,
+            index_size,
+            batch_size,
+            tf_model_config,
+            tf_loss_config,
+        )
     else:
         raise ValueError("Unknown model method")

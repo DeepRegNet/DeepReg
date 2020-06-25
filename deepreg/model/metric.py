@@ -26,8 +26,8 @@ class MeanWrapper(tf.keras.metrics.Metric):
 
     def reset_states(self):
         # The state of the metric will be reset at the start of each epoch.
-        self.total.assign(0.)
-        self.count.assign(0.)
+        self.total.assign(0.0)
+        self.count.assign(0.0)
 
 
 class MeanDiceScore(MeanWrapper):
@@ -39,7 +39,9 @@ class MeanDiceScore(MeanWrapper):
 
 
 class MeanCentroidDistance(MeanWrapper):
-    def __init__(self, grid_size, name="metric/centroid_distance_mean", **kwargs):
+    def __init__(
+        self, grid_size, name="metric/centroid_distance_mean", **kwargs
+    ):
         super(MeanCentroidDistance, self).__init__(name=name, **kwargs)
         self.grid = layer_util.get_reference_grid(grid_size)
 
@@ -48,7 +50,9 @@ class MeanCentroidDistance(MeanWrapper):
 
 
 class MeanForegroundProportion(MeanWrapper):
-    def __init__(self, pred: bool, name="metric/foreground_proportion", **kwargs):
+    def __init__(
+        self, pred: bool, name="metric/foreground_proportion", **kwargs
+    ):
         name += "_pred" if pred else "_true"
         super(MeanForegroundProportion, self).__init__(name=name, **kwargs)
         self.pred = pred
@@ -56,4 +60,6 @@ class MeanForegroundProportion(MeanWrapper):
     def fn(self, y_true, y_pred):
         y = y_pred if self.pred else y_true
         y = tf.cast(y >= 0.5, dtype=tf.float32)
-        return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(tf.ones_like(y), axis=[1, 2, 3])
+        return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(
+            tf.ones_like(y), axis=[1, 2, 3]
+        )

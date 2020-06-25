@@ -34,7 +34,9 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
     """
 
     kernel_vol = kernel_size ** 3
-    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, 1, 1])  # [dim1, dim2, dim3, d_in, d_out]
+    filters = tf.ones(
+        shape=[kernel_size, kernel_size, kernel_size, 1, 1]
+    )  # [dim1, dim2, dim3, d_in, d_out]
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 
@@ -43,11 +45,21 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
     p2 = y_pred * y_pred
     tp = y_true * y_pred
 
-    t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
-    p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
-    t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
-    p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
-    tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
+    t_sum = tf.nn.conv3d(
+        y_true, filters=filters, strides=strides, padding=padding
+    )
+    p_sum = tf.nn.conv3d(
+        y_pred, filters=filters, strides=strides, padding=padding
+    )
+    t2_sum = tf.nn.conv3d(
+        t2, filters=filters, strides=strides, padding=padding
+    )
+    p2_sum = tf.nn.conv3d(
+        p2, filters=filters, strides=strides, padding=padding
+    )
+    tp_sum = tf.nn.conv3d(
+        tp, filters=filters, strides=strides, padding=padding
+    )
 
     t_avg = t_sum / kernel_vol
     p_avg = p_sum / kernel_vol
