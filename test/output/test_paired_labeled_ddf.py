@@ -24,3 +24,6 @@ def test_paired_labeled_ddf():
                 batch_size=1, log_dir=log_dir, sample_label="all")
     train_and_predict_with_config(test_name="paired_labeled_ddf",
                                     config_path="deepreg/config/paired_labeled_ddf.yaml")
+                                    
+    train_and_predict_with_config(test_name="paired_labeled_h5",
+                                    config_path="deepreg/config/h5_config/paired_labeled_h5.yaml")                                    
