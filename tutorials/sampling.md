@@ -32,7 +32,7 @@ All the possible image pairs (depends on the intra-group sampling option) will b
 ## 2 - Label pair sampling
 When each image has multiple labels, e.g. segmentations of different organs in a CT image. For each sampled image pair, one label pair is randomly sampled. This is default for training.
 
-### Corresponding label types
+### Corresponding label pairs
 When using multiple labels, it is the user's responsibility to ensure the labels are ordered, such that the same `label_idx` in `[width, height, depth, label_idx]` is the same anatomical or pathological structure - a corresponding label pair between the moving and fixed labels.  
 
 ### Consistent label pairs
