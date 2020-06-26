@@ -27,12 +27,12 @@ This is still under development. However some of the functionalities can be acce
 
 [Get started with image registration using deep learning](./tutorials/registration.md)  
 
-[Get started with demos](./tutorials/demos.md)  
+[Get started with demos](./tutorials/demo.md)  
 
 
 ### How-to guides
 
-[How to configure DeepReg options](./tutorials/configuration.md)  
+[How to configure DeepReg options](./tutorials/configurations.md)  
 
 [How to arrange data files and folders to use predefined data loaders](./tutorials/predefined_loader.md)  
 
