@@ -29,19 +29,20 @@ This is still under development. However some of the functionalities can be acce
 
 [Get started with demos](./tutorials/demos.md)
 
-### Other topics
+
+### How-to guides
+
+[How to configure DeepReg options](./tutorials/configuration.md)
+
 [How to arrange data files and folders to use predefined data loaders](./tutorials/predefined_loader.md)
 
-[Training data sampling options](./tutorials/sampling.md)
+...... (under development)
 
-(under development)
-
-[Configuration options](./tutorials/configuration.md)
+Other tutorial topics can be found in the wiki [Tutorial Index](https://github.com/ucl-candi/DeepReg/wiki/Tutorial-Index)
 
 
-......
 
-### Setup
+### System setup
 (under development)
 
 ## Demos
