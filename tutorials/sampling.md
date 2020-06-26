@@ -1,4 +1,4 @@
-# Data sampling options
+# Data sampling options in predefined loaders
 
 This describes the sampling methods used in the [predefined data loaders](./predefined_loader.md).
 
