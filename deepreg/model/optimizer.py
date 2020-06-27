@@ -1,6 +1,6 @@
 """
 Functions parsing the config optimiser options
-:function 
+:function
 """
 
 import tensorflow as tf

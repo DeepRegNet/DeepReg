@@ -1,6 +1,7 @@
 # Issue description
 
 ## Type of Issue
+
 Please delete options that are not relevant.
 
 - [ ] Bug report
@@ -17,12 +18,8 @@ Please delete options that are not relevant.
 
 #### What's the expected result?
 
-
 #### What's the actual result?
-
 
 #### Additional details / screenshot
 
--
--
- 
+## -
