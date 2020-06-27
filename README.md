@@ -45,12 +45,6 @@ Other tutorial topics can be found in the wiki [Tutorial Index](https://github.c
 ### System setup
 (under development)
 
-#### pre-commit setup
-
-[Pre-commit](https://pre-commit.com/) is installed via `pip install -e .`,
-to activate pre-commit, run `pre-commit install` under the root of this repository and it will be activated.
-
-
 ## Demos
 (under development)
 
