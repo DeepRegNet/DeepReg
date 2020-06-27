@@ -1,5 +1,7 @@
 # How to configure DeepReg options
 
+(under development)
+
 ## Command line arguments
 
 `DeepReg` is primarily a command line tool that provides two basic functions, `train` and `predict`.
