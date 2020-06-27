@@ -32,23 +32,13 @@ def serializer(example):
     inputs, fixed_label = example
     moving_image, fixed_image, moving_label, indices = inputs
     feature = {
-        "moving_image": _bytes_feature(
-            moving_image.astype(np.float32).tobytes()
-        ),
-        "fixed_image": _bytes_feature(
-            fixed_image.astype(np.float32).tobytes()
-        ),
-        "moving_label": _bytes_feature(
-            moving_label.astype(np.float32).tobytes()
-        ),
-        "fixed_label": _bytes_feature(
-            fixed_label.astype(np.float32).tobytes()
-        ),
+        "moving_image": _bytes_feature(moving_image.astype(np.float32).tobytes()),
+        "fixed_image": _bytes_feature(fixed_image.astype(np.float32).tobytes()),
+        "moving_label": _bytes_feature(moving_label.astype(np.float32).tobytes()),
+        "fixed_label": _bytes_feature(fixed_label.astype(np.float32).tobytes()),
         "indices": _bytes_feature(indices.astype(np.float32).tobytes()),
     }
-    example_proto = tf.train.Example(
-        features=tf.train.Features(feature=feature)
-    )
+    example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
     return example_proto.SerializeToString()
 
 
@@ -72,9 +62,7 @@ def parser(example_proto, moving_image_shape, fixed_image_shape, num_indices):
         "fixed_label": tf.io.FixedLenFeature(shape=[], dtype=tf.string),
         "indices": tf.io.FixedLenFeature(shape=[], dtype=tf.string),
     }
-    example = tf.io.parse_single_example(
-        serialized=example_proto, features=features
-    )
+    example = tf.io.parse_single_example(serialized=example_proto, features=features)
 
     moving_image = example["moving_image"]
     fixed_image = example["fixed_image"]
@@ -109,9 +97,7 @@ def write_tfrecords(data_dir, data_generator, examples_per_tfrecord=64):
     """
 
     mkdir_if_not_exists(data_dir)
-    options = tf.io.TFRecordOptions(
-        compression_type=TF_RECORDS_COMPRESSION_TYPE
-    )
+    options = tf.io.TFRecordOptions(compression_type=TF_RECORDS_COMPRESSION_TYPE)
 
     def write(_examples, _num_tfrecord):
         filename = os.path.join(data_dir, "%d.tfrecords" % _num_tfrecord)
@@ -140,16 +126,12 @@ def get_tfrecords_filenames(tfrecord_dir):
     ]
 
 
-def load_tfrecords(
-    filenames, moving_image_shape, fixed_image_shape, num_indices
-):
+def load_tfrecords(filenames, moving_image_shape, fixed_image_shape, num_indices):
     dataset = tf.data.TFRecordDataset(
         filenames, compression_type=TF_RECORDS_COMPRESSION_TYPE
     )
     dataset = dataset.map(
-        lambda x: parser(
-            x, moving_image_shape, fixed_image_shape, num_indices
-        ),
+        lambda x: parser(x, moving_image_shape, fixed_image_shape, num_indices),
         num_parallel_calls=tf.data.experimental.AUTOTUNE,
     )
     return dataset

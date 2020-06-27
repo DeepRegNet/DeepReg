@@ -11,9 +11,7 @@ class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files"""
 
     def __init__(self, dir_path: str, grouped: bool):
-        super(NiftiFileLoader, self).__init__(
-            dir_path=dir_path, grouped=grouped
-        )
+        super(NiftiFileLoader, self).__init__(dir_path=dir_path, grouped=grouped)
         self.file_paths = get_sorted_filenames_in_dir(
             dir_path=dir_path, suffix="nii.gz"
         )

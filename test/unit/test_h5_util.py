@@ -69,9 +69,7 @@ class TestH5FileLoader:
         expected_shapes = [(44, 59, 41)]
 
         test_1 = self.check_list_equal(obtained_keys, expected_keys)
-        test_2 = self.check_tuple_of_int_equal(
-            obtained_shapes[0], expected_shapes[0]
-        )
+        test_2 = self.check_tuple_of_int_equal(obtained_shapes[0], expected_shapes[0])
 
         return test_1 and test_2
 

@@ -29,9 +29,7 @@ class DataLoader:
         :param seed : (int, None), optional
         """
         self.labeled = labeled
-        self.num_indices = (
-            num_indices  # number of indices to identify a sample
-        )
+        self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
         self.seed = seed  # used for sampling
 
@@ -131,10 +129,7 @@ class DataLoader:
                     raise ValueError(
                         "Sample {}'s {} has different shape (width, height, depth) from required."
                         "Expected {} but got {}.".format(
-                            image_indices,
-                            name,
-                            self.moving_image_shape,
-                            arr.shape[:3],
+                            image_indices, name, self.moving_image_shape, arr.shape[:3]
                         )
                     )
             for arr, name in zip(
@@ -144,10 +139,7 @@ class DataLoader:
                     raise ValueError(
                         "Sample {}'s {} has different shape (width, height, depth) from required."
                         "Expected {} but got {}.".format(
-                            image_indices,
-                            name,
-                            self.fixed_image_shape,
-                            arr.shape[:3],
+                            image_indices, name, self.fixed_image_shape, arr.shape[:3]
                         )
                     )
             num_labels_moving = (
@@ -186,13 +178,9 @@ class DataLoader:
         # unlabeled
         if moving_label is None:
             label_index = -1  # means no label
-            indices = np.asarray(
-                image_indices + [label_index], dtype=np.float32
-            )
+            indices = np.asarray(image_indices + [label_index], dtype=np.float32)
             yield dict(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                indices=indices,
+                moving_image=moving_image, fixed_image=fixed_image, indices=indices
             )
         else:
             # labeled
@@ -213,9 +201,7 @@ class DataLoader:
                     )
             else:  # only one label
                 label_index = 0
-                indices = np.asarray(
-                    image_indices + [label_index], dtype=np.float32
-                )
+                indices = np.asarray(image_indices + [label_index], dtype=np.float32)
                 yield dict(
                     moving_image=moving_image,
                     fixed_image=fixed_image,
@@ -287,9 +273,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         it is assumed to be 3d, [dim1, dim2, dim3]
           moving_image_shape = fixed_image_shape = image_shape
         """
-        super(AbstractUnpairedDataLoader, self).__init__(
-            num_indices=3, **kwargs
-        )
+        super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
                 "image_shape has to be length of three,"
@@ -335,17 +319,9 @@ class GeneratorDataLoader(DataLoader, ABC):
         """
         yeild samples of data to feed model
         """
-        for (
-            moving_index,
-            fixed_index,
-            image_indices,
-        ) in self.sample_index_generator():
-            moving_image = (
-                self.loader_moving_image.get_data(index=moving_index) / 255.0
-            )
-            fixed_image = (
-                self.loader_fixed_image.get_data(index=fixed_index) / 255.0
-            )
+        for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
+            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
             moving_label = (
                 self.loader_moving_label.get_data(index=moving_index)
                 if self.labeled
@@ -392,9 +368,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             return tf.data.Dataset.from_generator(
                 generator=self.data_generator,
                 output_types=dict(
-                    moving_image=tf.float32,
-                    fixed_image=tf.float32,
-                    indices=tf.float32,
+                    moving_image=tf.float32, fixed_image=tf.float32, indices=tf.float32
                 ),
                 output_shapes=dict(
                     moving_image=self.moving_image_shape,

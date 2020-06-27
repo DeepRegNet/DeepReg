@@ -50,9 +50,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             seed=seed,
         )
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
-        loader_image = file_loader(
-            os.path.join(data_dir_path, "images"), grouped=True
-        )
+        loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
@@ -63,17 +61,13 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             self.loader_fixed_label = loader_label
         self.validate_data_files()
         self.num_groups = self.loader_moving_image.get_num_groups()
-        self.num_images_per_group = (
-            self.loader_moving_image.get_num_images_per_group()
-        )
+        self.num_images_per_group = self.loader_moving_image.get_num_images_per_group()
         self.intra_group_option = intra_group_option
         self.intra_group_prob = intra_group_prob
         self.sample_image_in_group = sample_image_in_group
         if self.intra_group_prob < 1:
             if self.num_groups < 2:
-                raise ValueError(
-                    "There are <2 groups, can't do inter group sampling"
-                )
+                raise ValueError("There are <2 groups, can't do inter group sampling")
         if self.sample_image_in_group:
             # one image pair in each group (pair) will be yielded
             self.sample_indices = None
@@ -95,9 +89,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(
-                list1=image_ids, list2=label_ids
-            )
+            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
 
     def get_intra_sample_indices(self):
         """
@@ -160,10 +152,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 for image_index1 in range(num_images_in_group1):
                     for image_index2 in range(num_images_in_group2):
                         inter_sample_indices.append(
-                            (
-                                (group_index1, image_index1),
-                                (group_index2, image_index2),
-                            )
+                            ((group_index1, image_index1), (group_index2, image_index2))
                         )
         return inter_sample_indices
 
@@ -176,9 +165,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 if (
                     rnd.random() <= self.intra_group_prob
                 ):  # intra group, inside one group
-                    num_images_in_group = self.num_images_per_group[
-                        group_index
-                    ]
+                    num_images_in_group = self.num_images_per_group[group_index]
                     if self.intra_group_option in ["forward", "backward"]:
                         # image_index1 < image_index2
                         # image_index1 must be <= num_images_in_group-2
@@ -186,53 +173,29 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                             [i for i in range(num_images_in_group - 1)]
                         )
                         image_index2 = rnd.choice(
-                            [
-                                i
-                                for i in range(
-                                    image_index1 + 1, num_images_in_group
-                                )
-                            ]
+                            [i for i in range(image_index1 + 1, num_images_in_group)]
                         )
                         if self.intra_group_option == "forward":
                             yield (group_index, image_index1), (
                                 group_index,
                                 image_index2,
-                            ), [
-                                group_index,
-                                image_index1,
-                                group_index,
-                                image_index2,
-                            ]
+                            ), [group_index, image_index1, group_index, image_index2]
                         else:
                             yield (group_index, image_index2), (
                                 group_index,
                                 image_index1,
-                            ), [
-                                group_index,
-                                image_index2,
-                                group_index,
-                                image_index1,
-                            ]
+                            ), [group_index, image_index2, group_index, image_index1]
                     elif self.intra_group_option == "unconstrained":
                         image_index1, image_index2 = rnd.sample(
                             [i for i in range(num_images_in_group)], 2
                         )
                         image_index2 = rnd.choice(
-                            [
-                                i
-                                for i in range(num_images_in_group)
-                                if i != image_index1
-                            ]
+                            [i for i in range(num_images_in_group) if i != image_index1]
                         )
                         yield (group_index, image_index1), (
                             group_index,
                             image_index2,
-                        ), [
-                            group_index,
-                            image_index1,
-                            group_index,
-                            image_index2,
-                        ]
+                        ), [group_index, image_index1, group_index, image_index2]
                     else:
                         raise ValueError(
                             "Unknown intra_group_option, must be forward/backward/unconstrained"
@@ -240,28 +203,18 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 else:  # inter group, between different groups
                     group_index1 = group_index
                     group_index2 = rnd.choice(
-                        [
-                            i
-                            for i in range(self.num_groups)
-                            if i != group_index1
-                        ]
+                        [i for i in range(self.num_groups) if i != group_index1]
                     )
-                    num_images_in_group1 = self.num_images_per_group[
-                        group_index1
-                    ]
-                    num_images_in_group2 = self.num_images_per_group[
-                        group_index2
-                    ]
-                    image_index1 = rnd.choice(
-                        [i for i in range(num_images_in_group1)]
-                    )
-                    image_index2 = rnd.choice(
-                        [i for i in range(num_images_in_group2)]
-                    )
-                    yield (group_index1, image_index1), (
+                    num_images_in_group1 = self.num_images_per_group[group_index1]
+                    num_images_in_group2 = self.num_images_per_group[group_index2]
+                    image_index1 = rnd.choice([i for i in range(num_images_in_group1)])
+                    image_index2 = rnd.choice([i for i in range(num_images_in_group2)])
+                    yield (group_index1, image_index1), (group_index2, image_index2), [
+                        group_index1,
+                        image_index1,
                         group_index2,
                         image_index2,
-                    ), [group_index1, image_index1, group_index2, image_index2]
+                    ]
         else:
             assert self.sample_indices is not None
             sample_indices = self.sample_indices.copy()

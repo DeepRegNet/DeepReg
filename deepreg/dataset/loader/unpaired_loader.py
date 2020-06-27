@@ -46,9 +46,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             sample_label=sample_label,
             seed=seed,
         )
-        loader_image = file_loader(
-            os.path.join(data_dir_path, "images"), grouped=False
-        )
+        loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=False)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
@@ -67,9 +65,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(
-                list1=image_ids, list2=label_ids
-            )
+            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
 
     def sample_index_generator(self):
         """

@@ -20,9 +20,7 @@ class Norm(tf.keras.layers.Layer):
     def __init__(self, name="batch_norm", axis=-1, **kwargs):
         super(Norm, self).__init__(**kwargs)
         if name == "batch_norm":
-            self._norm = tf.keras.layers.BatchNormalization(
-                axis=axis, **kwargs
-            )
+            self._norm = tf.keras.layers.BatchNormalization(axis=axis, **kwargs)
         elif name == "layer_norm":
             self._norm = tf.keras.layers.LayerNormalization(axis=axis)
         else:
@@ -179,45 +177,28 @@ class Resize3d(tf.keras.layers.Layer):
         )  # [batch * dim1, dim2, dim3, channels]
         # resize dim2 and dim3
         output = tf.image.resize(
-            images=output,
-            size=[self._size[1], self._size[2]],
-            method=self._method,
+            images=output, size=[self._size[1], self._size[2]], method=self._method
         )  # [batch * dim1, out_dim2, out_dim3, channels]
 
         # split axis 0 and merge axis 3 and 4
         output = tf.reshape(
             output,
-            shape=[
-                -1,
-                input_shape[1],
-                self._size[1],
-                self._size[2] * input_shape[4],
-            ],
+            shape=[-1, input_shape[1], self._size[1], self._size[2] * input_shape[4]],
         )  # [batch, dim1, out_dim2, out_dim3 * channels]
         # resize dim1 and dim2
         output = tf.image.resize(
-            images=output,
-            size=[self._size[0], self._size[1]],
-            method=self._method,
+            images=output, size=[self._size[0], self._size[1]], method=self._method
         )  # [batch, out_dim1, out_dim2, out_dim3 * channels]
         # reshape
         output = tf.reshape(
             output,
-            shape=[
-                -1,
-                self._size[0],
-                self._size[1],
-                self._size[2],
-                input_shape[4],
-            ],
+            shape=[-1, self._size[0], self._size[1], self._size[2], input_shape[4]],
         )  # [batch, out_dim1, out_dim2, out_dim3, channels]
         return output
 
 
 class Conv3dBlock(tf.keras.layers.Layer):
-    def __init__(
-        self, filters, kernel_size=3, strides=1, padding="same", **kwargs
-    ):
+    def __init__(self, filters, kernel_size=3, strides=1, padding="same", **kwargs):
         super(Conv3dBlock, self).__init__(**kwargs)
         # init layer variables
         self._conv3d = Conv3d(
@@ -283,10 +264,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
             filters=filters, kernel_size=kernel_size, strides=strides
         )
         self._conv3d = Conv3d(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            use_bias=False,
+            filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
         )
         self._norm = Norm()
         self._act = Activation()
@@ -307,32 +285,20 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         # save parameters
         self._pooling = pooling
         # init layer variables
-        self._conv3d_block = Conv3dBlock(
-            filters=filters, kernel_size=kernel_size
-        )
-        self._residual_block = Residual3dBlock(
-            filters=filters, kernel_size=kernel_size
-        )
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
+        self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
         self._max_pool3d = (
-            MaxPool3d(pool_size=(2, 2, 2), strides=(2, 2, 2))
-            if pooling
-            else None
+            MaxPool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if pooling else None
         )
         self._conv3d_block3 = (
             None
             if pooling
-            else Conv3dBlock(
-                filters=filters, kernel_size=kernel_size, strides=2
-            )
+            else Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
         )
 
     def call(self, inputs, training=None, **kwargs):
-        conved = self._conv3d_block(
-            inputs=inputs, training=training
-        )  # adjust channel
-        skip = self._residual_block(
-            inputs=conved, training=training
-        )  # develop feature
+        conved = self._conv3d_block(inputs=inputs, training=training)  # adjust channel
+        skip = self._residual_block(inputs=conved, training=training)  # develop feature
         pooled = (
             self._max_pool3d(inputs=skip)
             if self._pooling
@@ -349,12 +315,8 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         self._concat = concat
         # init layer variables
         self._deconv3d_block = None
-        self._conv3d_block = Conv3dBlock(
-            filters=filters, kernel_size=kernel_size
-        )
-        self._residual_block = Residual3dBlock(
-            filters=filters, kernel_size=kernel_size
-        )
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
+        self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
 
     def build(self, input_shape):
         super(UpSampleResnetBlock, self).build(input_shape)
@@ -369,16 +331,12 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
             inputs=up_sampled, training=training
         )  # up sample and change channel
         up_sampled = (
-            tf.concat([up_sampled, skip], axis=4)
-            if self._concat
-            else up_sampled + skip
+            tf.concat([up_sampled, skip], axis=4) if self._concat else up_sampled + skip
         )  # combine
         up_sampled = self._conv3d_block(
             inputs=up_sampled, training=training
         )  # adjust channel
-        up_sampled = self._residual_block(
-            inputs=up_sampled, training=training
-        )  # conv
+        up_sampled = self._residual_block(inputs=up_sampled, training=training)  # conv
         return up_sampled
 
 
@@ -446,9 +404,7 @@ class Warping(tf.keras.layers.Layer):
         :param kwargs:
         :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
-        grid_warped = (
-            self._grid_ref + inputs[0]
-        )  # [batch, f_dim1, f_dim2, f_dim3, 3]
+        grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
         image_warped = layer_util.resample(
             vol=inputs[1], loc=grid_warped
         )  # [batch, f_dim1, f_dim2, f_dim3]
@@ -526,9 +482,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         :return:
         """
         if inputs.shape[4] % self._stride != 0:
-            raise ValueError(
-                "The channel dimension can not be divided by the stride"
-            )
+            raise ValueError("The channel dimension can not be divided by the stride")
         output = self._resize3d(inputs=inputs)
         output = tf.split(
             output, num_or_size_splits=self._stride, axis=4
@@ -544,10 +498,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         super(LocalNetResidual3dBlock, self).__init__(**kwargs)
         # init layer variables
         self._conv3d = Conv3d(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            use_bias=False,
+            filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
         )
         self._norm = Norm()
         self._act = Activation()
@@ -556,9 +507,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         layer_util.check_inputs(inputs, 2, "ResidualBlock")
 
         return self._act(
-            self._norm(
-                inputs=self._conv3d(inputs=inputs[0]), training=training
-            )
+            self._norm(inputs=self._conv3d(inputs=inputs[0]), training=training)
             + inputs[1]
         )
 
@@ -573,9 +522,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         self._deconv3d_block = None
         self._additive_upsampling = None
         self._conv3d_block = Conv3dBlock(filters=filters)
-        self._residual_block = LocalNetResidual3dBlock(
-            filters=filters, strides=1
-        )
+        self._residual_block = LocalNetResidual3dBlock(filters=filters, strides=1)
 
     def build(self, input_shape):
         super(LocalNetUpSampleResnetBlock, self).build(input_shape)
@@ -586,9 +533,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
             filters=self._filters, output_shape=output_shape, strides=2
         )
         if self._use_additive_upsampling:
-            self._additive_upsampling = AdditiveUpSampling(
-                output_shape=output_shape
-            )
+            self._additive_upsampling = AdditiveUpSampling(output_shape=output_shape)
 
     def call(self, inputs, training=None, **kwargs):
         layer_util.check_inputs(inputs, 2, "UpSampleResnetBlock call")

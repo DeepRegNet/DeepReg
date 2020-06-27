@@ -82,9 +82,9 @@ def pyramid_combination(x_list, w_f):
     if len(w_f) == 1:
         return x_list[0] * w_f[0] + x_list[1] * (1 - w_f[0])
     # else
-    return pyramid_combination(x_list[::2], w_f[:-1]) * w_f[
-        -1
-    ] + pyramid_combination(x_list[1::2], w_f[:-1]) * (1 - w_f[-1])
+    return pyramid_combination(x_list[::2], w_f[:-1]) * w_f[-1] + pyramid_combination(
+        x_list[1::2], w_f[:-1]
+    ) * (1 - w_f[-1])
 
 
 def resample(vol, loc, interpolation="linear"):
@@ -145,9 +145,7 @@ def resample(vol, loc, interpolation="linear"):
         c_floor = tf.maximum(c_ceil - 1, 0)
         w_floor = c_ceil - clipped
 
-        loc_floor_ceil.append(
-            [tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)]
-        )
+        loc_floor_ceil.append([tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)])
         weight_floor.append(tf.expand_dims(w_floor, -1) if has_ch else w_floor)
 
     # get vol values on n-dim hypercube corners
@@ -168,10 +166,7 @@ def resample(vol, loc, interpolation="linear"):
             vol,  # shape [batch, *vol_shape, (ch)]
             tf.stack(
                 [batch_coords]
-                + [
-                    loc_floor_ceil[axis][fc_idx]
-                    for axis, fc_idx in enumerate(c)
-                ],
+                + [loc_floor_ceil[axis][fc_idx] for axis, fc_idx in enumerate(c)],
                 axis=-1,
             ),
         )
@@ -226,10 +221,7 @@ def random_transform_generator(batch_size, scale=0.1):
     new = old[:, :, :3] * noise  # [batch, 4, 3]
 
     theta = np.array(
-        [
-            np.linalg.lstsq(old[k], new[k], rcond=-1)[0]
-            for k in range(batch_size)
-        ]
+        [np.linalg.lstsq(old[k], new[k], rcond=-1)[0] for k in range(batch_size)]
     )  # [batch, 4, 3]
 
     return tf.cast(theta, dtype=tf.float32)

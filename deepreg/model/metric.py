@@ -39,9 +39,7 @@ class MeanDiceScore(MeanWrapper):
 
 
 class MeanCentroidDistance(MeanWrapper):
-    def __init__(
-        self, grid_size, name="metric/centroid_distance_mean", **kwargs
-    ):
+    def __init__(self, grid_size, name="metric/centroid_distance_mean", **kwargs):
         super(MeanCentroidDistance, self).__init__(name=name, **kwargs)
         self.grid = layer_util.get_reference_grid(grid_size)
 
@@ -50,9 +48,7 @@ class MeanCentroidDistance(MeanWrapper):
 
 
 class MeanForegroundProportion(MeanWrapper):
-    def __init__(
-        self, pred: bool, name="metric/foreground_proportion", **kwargs
-    ):
+    def __init__(self, pred: bool, name="metric/foreground_proportion", **kwargs):
         name += "_pred" if pred else "_true"
         super(MeanForegroundProportion, self).__init__(name=name, **kwargs)
         self.pred = pred
