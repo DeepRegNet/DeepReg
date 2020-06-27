@@ -144,7 +144,7 @@ def main(args=None):
         help="GPU index for training."
         '-g "" for using CPU'
         '-g "0" for using GPU 0'
-        '-g "0,1\'" for using GPU 0 and 1.',
+        '-g "0,1" for using GPU 0 and 1.',
         type=str,
         required=True,
     )

@@ -277,9 +277,11 @@ def main(args=None):
     parser.add_argument(
         "--gpu",
         "-g",
-        help="GPU index for training, multiple gpus can be passed",
+        help="GPU index for training."
+        '-g "" for using CPU'
+        '-g "0" for using GPU 0'
+        '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        nargs="+",
         required=True,
     )
 
