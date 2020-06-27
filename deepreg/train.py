@@ -141,9 +141,11 @@ def main(args=None):
     parser.add_argument(
         "--gpu",
         "-g",
-        help="GPU index for training, multiple gpus can be passed",
+        help="GPU index for training."
+        '-g "" for using CPU'
+        '-g "0" for using GPU 0'
+        '-g "0,1\'" for using GPU 0 and 1.',
         type=str,
-        nargs="+",
         required=True,
     )
 
@@ -157,18 +159,28 @@ def main(args=None):
     parser.add_argument(
         "--ckpt_path",
         "-k",
-        help="Path of checkpointed model to load",
+        help="Path of the saved model checkpoint to load."
+        "No need to provide if start training from scratch.",
         default="",
         type=str,
+        required=False,
+    )
+
+    parser.add_argument(
+        "--log_dir",
+        "-l",
+        help="Path of log directory."
+        "If not provided, a timestamp based folder will be created.",
+        default="",
+        type=str,
+    )
+
+    parser.add_argument(
+        "--config_path",
+        "-c",
+        help="Path of config, must endswith .yaml.",
+        type=str,
         required=True,
-    )
-
-    parser.add_argument(
-        "--log_dir", "-l", help="Path of log directory", default="", type=str
-    )
-
-    parser.add_argument(
-        "--config_path", "-c", help="Path of config", type=str, required=True
     )
 
     args = parser.parse_args(args)
