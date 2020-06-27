@@ -17,12 +17,13 @@ System options are reuired to parse to these functions:
 ## Config files
 
 `train` requires two sections be configured in config file, `dataset` and `train`;
+
 `predict` requires at minimum `dataset` be configured.
 
 ### Options for predefined loaders
 
-The options for `dataset` are summarised in [Dataset configurations](./configurations_dataset.md)
+The options for `dataset` are summarised in [Dataset configuration](./configuration_dataset.md)
 
 ### Options for training
 
-The options for `train` are summarised in [Training configurations](./configurations_train.md)
+The options for `train` are summarised in [Training configuration](./configuration_train.md)

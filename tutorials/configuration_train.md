@@ -1,4 +1,4 @@
-# Training configurations
+# Training configuration
 
 A typical yaml config file is explained as follows.
 
@@ -9,7 +9,6 @@ train:
     backbone:
       name: "global"
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
@@ -22,10 +21,10 @@ train:
       pooling: true
       concat_skip: false
   loss:
-    similarity:
+    dissimilarity:
       image:
         name: "lncc"
-        weight: 0.
+        weight: 0.0
       label:
         weight: 1.0
         name: "multi_scale"
@@ -41,7 +40,7 @@ train:
     batch_size: 2
     shuffle_buffer_num_batch: 0
   opt:
-    name: "adam"
+    name: "adam" # "adam" / "sgd" / "rms"
     adam:
       learning_rate: 1.0e-5
     sgd:

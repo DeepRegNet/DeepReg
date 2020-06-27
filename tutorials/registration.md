@@ -21,7 +21,8 @@ In addition to the deformation regularisation, the loss function to train a regi
 ### Unsupervised learning
 
 For unsupervised learning, the training is driven by the unsupervised loss. The loss functions are often consisted of a deformation regularisation term on the predicted displacement field and an image dissimilarity measure between the fixed and warped moving images, which are adapted from the claissical image registration methods. The image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross correlation (NCC and normalised mutual information (MI).
-![alt text](./media/deepreg-tutorial-unsupervised.svg "Unsupervised")
+
+<img src="./media/deepreg-tutorial-unsupervised.svg" alt="" title="unsupervised" width="300" />
 
 ### Weakly-supervised learning
 
@@ -30,12 +31,14 @@ The training may take an additional pair of corresponding moving and fixed label
 In addition to the regularisation on the predicted displacement field, the training is driven by minimising the dissimilarity between the fixed labels and warped moving labels, one that is modality-independent and similar to many other well-studied computer vision and medical imaging tasks, such as image segmentation.
 
 When multiple labels are available for each image, the labels can be sampled during training iteration, such that on one label with one image is used in each iteration, that is a pair of moving and fixed images and a pair of moving and fixed labels being loaded into training. See other sampling options in [Training data sampling options](./sampling.md).
-![alt text](./media/deepreg-tutorial-weakly.svg "Weakly")
+
+<img src="./media/deepreg-tutorial-weakly.svg" alt="" title="weakly" width="300" />
 
 ### Unsupervised learning with weak supervision
 
 Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone.
-![alt text](./media/deepreg-tutorial-combined.svg "combined")
+
+<img src="./media/deepreg-tutorial-combined.svg" alt="" title="combined" width="300" />
 
 ### Conditional segmentation
 
