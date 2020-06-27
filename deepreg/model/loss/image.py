@@ -34,7 +34,9 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
     """
 
     kernel_vol = kernel_size ** 3
-    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, 1, 1])  # [dim1, dim2, dim3, d_in, d_out]
+    filters = tf.ones(
+        shape=[kernel_size, kernel_size, kernel_size, 1, 1]
+    )  # [dim1, dim2, dim3, d_in, d_out]
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 

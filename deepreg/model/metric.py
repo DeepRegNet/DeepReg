@@ -26,8 +26,8 @@ class MeanWrapper(tf.keras.metrics.Metric):
 
     def reset_states(self):
         # The state of the metric will be reset at the start of each epoch.
-        self.total.assign(0.)
-        self.count.assign(0.)
+        self.total.assign(0.0)
+        self.count.assign(0.0)
 
 
 class MeanDiceScore(MeanWrapper):
@@ -56,4 +56,6 @@ class MeanForegroundProportion(MeanWrapper):
     def fn(self, y_true, y_pred):
         y = y_pred if self.pred else y_true
         y = tf.cast(y >= 0.5, dtype=tf.float32)
-        return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(tf.ones_like(y), axis=[1, 2, 3])
+        return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(
+            tf.ones_like(y), axis=[1, 2, 3]
+        )

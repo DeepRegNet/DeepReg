@@ -53,3 +53,4 @@ train:
   epochs: 2
   save_period: 2
   histogram_freq: 2
+```
