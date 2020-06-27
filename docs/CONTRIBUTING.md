@@ -64,3 +64,8 @@ To facilitate review of contributions, we encourage contributors to adhere to th
 8. Make sure your code works for all required versions of Python
 9. Make sure your code works for all required operating systems
 10. CI is enabled: for documentation changes/linting commits you may include [ci skip] in your commit messages. A reminder that CI checks are required before merge!
+
+## pre-commit setup
+
+[Pre-commit](https://pre-commit.com/) is installed via `pip install -e .`,
+to activate pre-commit, run `pre-commit install` under the root of this repository and it will be activated.
