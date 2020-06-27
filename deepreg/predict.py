@@ -180,19 +180,31 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )
 
 
-def init(log_dir):
+def init(log_dir, ckpt_path):
     """
     Function to create new directory to log directory
     to store results.
     :param log_dir: string, path to store logs.
+    :param ckpt_path: str, path where model is stored.
     """
+    # check ckpt_path
+    if not ckpt_path.endswith(".ckpt"):
+        raise ValueError(
+            "checkpoint path should end with .ckpt, got {}".format(ckpt_path)
+        )
+
     # init log directory
-    if log_dir == "":  # default
-        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
+    log_dir = os.path.join(
+        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
+    )
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))
     else:
         os.makedirs(log_dir)
+
+    # load config
+    config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
+    return config, log_dir
 
 
 def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
@@ -208,16 +220,13 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     :param sample_label:
     """
     logging.error("TODO sample_label is not used in predict")
-    # sanity check
-    if not ckpt_path.endswith(".ckpt"):
-        raise ValueError("checkpoint path should end with .ckpt")
 
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
+    config, log_dir = init(log_dir, ckpt_path)
     data_config = config["data"]
     tf_data_config = config["tf"]["data"]
     tf_data_config["batch_size"] = batch_size
@@ -277,9 +286,11 @@ def main(args=None):
     parser.add_argument(
         "--gpu",
         "-g",
-        help="GPU index for training, multiple gpus can be passed",
+        help="GPU index for training."
+        '-g "" for using CPU'
+        '-g "0" for using GPU 0'
+        '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        nargs="+",
         required=True,
     )
 
@@ -303,7 +314,7 @@ def main(args=None):
         "--mode",
         "-m",
         help="Define the split of data to be used for prediction. One of train / valid / test",
-        type=list,
+        type=str,
         default="test",
         required=True,
     )

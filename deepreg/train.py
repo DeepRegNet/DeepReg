@@ -26,8 +26,9 @@ def init(config_path, log_dir, ckpt_path):
     :param ckpt_path: str, path where model is stored.
     """
     # init log directory
-    if log_dir == "":  # default
-        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
+    log_dir = os.path.join(
+        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
+    )
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))
     else:
@@ -96,13 +97,11 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
             tf_model_config=tf_model_config,
             tf_loss_config=tf_loss_config,
         )
-        model.summary()
 
         # compile
         optimizer = opt.get_optimizer(tf_opt_config)
 
         model.compile(optimizer=optimizer)
-        print(model.summary())
 
         # load weights
         if ckpt_path != "":
@@ -141,9 +140,11 @@ def main(args=None):
     parser.add_argument(
         "--gpu",
         "-g",
-        help="GPU index for training, multiple gpus can be passed",
+        help="GPU index for training."
+        '-g "" for using CPU'
+        '-g "0" for using GPU 0'
+        '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        nargs="+",
         required=True,
     )
 
@@ -157,18 +158,28 @@ def main(args=None):
     parser.add_argument(
         "--ckpt_path",
         "-k",
-        help="Path of checkpointed model to load",
+        help="Path of the saved model checkpoint to load."
+        "No need to provide if start training from scratch.",
         default="",
         type=str,
+        required=False,
+    )
+
+    parser.add_argument(
+        "--log_dir",
+        "-l",
+        help="Name of log directory. The directory is under logs/."
+        "If not provided, a timestamp based folder will be created.",
+        default="",
+        type=str,
+    )
+
+    parser.add_argument(
+        "--config_path",
+        "-c",
+        help="Path of config, must endswith .yaml.",
+        type=str,
         required=True,
-    )
-
-    parser.add_argument(
-        "--log_dir", "-l", help="Path of log directory", default="", type=str
-    )
-
-    parser.add_argument(
-        "--config_path", "-c", help="Path of config", type=str, required=True
     )
 
     args = parser.parse_args(args)

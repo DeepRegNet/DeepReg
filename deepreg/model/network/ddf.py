@@ -164,7 +164,6 @@ def build_ddf_model(
     )
 
     # forward
-    print(moving_image, fixed_image, moving_label, indices)
     ddf, pred_fixed_image, pred_fixed_label = ddf_forward(
         backbone=backbone,
         moving_image=moving_image,

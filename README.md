@@ -14,11 +14,11 @@ This is still under development. However some of the functionalities can be acce
 - Install DeepReg:
   `pip install -e .`
 
-- Train a registration network using test data:
-  `train --gpu <str> --config_path <str> --gpu_allow_growth --ckpt_path <str> --log <str>`
+- Train a registration network:
+  `train -g "" --config_path deepreg/config/unpaired_unlabeled_ddf.yaml --log_dir test`
 
-- Prediction using a trained registration network:
-  `predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>`
+- Prediction using the trained registration network:
+  `predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test`
 
 ## Tutorials
 
