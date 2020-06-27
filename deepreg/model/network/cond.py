@@ -42,9 +42,7 @@ def build_cond_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size,
-        out_channels=1,
-        tf_model_config=tf_model_config,
+        image_size=fixed_image_size, out_channels=1, tf_model_config=tf_model_config
     )
 
     # prediction

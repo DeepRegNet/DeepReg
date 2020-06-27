@@ -29,9 +29,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     :param model:
     :param save_dir: str, path to store dir
     """
-    metric_map = (
-        dict()
-    )  # map[image_index][label_index][metric_name] = metric_value
+    metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
     for _, inputs_dict in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
         # moving_image     [batch, m_dim1, m_dim2, m_dim3]
@@ -71,9 +69,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
             for fixed_depth_index in range(fixed_depth):
-                fixed_image_d = fixed_image[
-                    sample_index, :, :, fixed_depth_index
-                ]
+                fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
                 plt.imsave(
                     filename_format.format(
                         depth_index=fixed_depth_index, name="fixed_image"
@@ -83,9 +79,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )  # value range for h5 and nifti might be different
 
                 if labeled:
-                    fixed_label_d = fixed_label[
-                        sample_index, :, :, fixed_depth_index
-                    ]
+                    fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
                     fixed_pred_d = pred_fixed_label[
                         sample_index, :, :, fixed_depth_index
                     ]
@@ -101,8 +95,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                     )
                     plt.imsave(
                         filename_format.format(
-                            depth_index=fixed_depth_index,
-                            name="fixed_label_pred",
+                            depth_index=fixed_depth_index, name="fixed_label_pred"
                         ),
                         fixed_pred_d,
                         vmin=0,
@@ -114,9 +107,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             if not os.path.exists(image_dir):
                 os.makedirs(image_dir)
             for moving_depth_index in range(moving_depth):
-                moving_image_d = moving_image[
-                    sample_index, :, :, moving_depth_index
-                ]
+                moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
                 plt.imsave(
                     filename_format.format(
                         depth_index=moving_depth_index, name="moving_image"
@@ -147,9 +138,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                         sample_index, :, :, fixed_depth_index, :
                     ]  # [f_dim1, f_dim2,  3]
                     ddf_max, ddf_min = np.max(ddf_d), np.min(ddf_d)
-                    ddf_d = (ddf_d - ddf_min) / np.maximum(
-                        ddf_max - ddf_min, EPS
-                    )
+                    ddf_d = (ddf_d - ddf_min) / np.maximum(ddf_max - ddf_min, EPS)
                     plt.imsave(
                         filename_format.format(
                             depth_index=fixed_depth_index, name="ddf"
@@ -160,12 +149,8 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             # calculate metric
             if labeled:
                 label = fixed_label[sample_index : (sample_index + 1), :, :, :]
-                pred = pred_fixed_label[
-                    sample_index : (sample_index + 1), :, :, :
-                ]
-                dice = label_loss.dice_score(
-                    y_true=label, y_pred=pred, binary=True
-                )
+                pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
+                dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
                 dist = label_loss.compute_centroid_distance(
                     y_true=label, y_pred=pred, grid=fixed_grid_ref
                 )
@@ -180,7 +165,9 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )
 
     # print metric
-    line_format = "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
+    line_format = (
+        "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
+    )
     with open(save_dir + "/metric.log", "w+") as file:
         for image_index in sorted(metric_map.keys()):
             for label_index in sorted(metric_map[image_index].keys()):
@@ -201,18 +188,14 @@ def init(log_dir):
     """
     # init log directory
     if log_dir == "":  # default
-        log_dir = os.path.join(
-            "logs", datetime.now().strftime("%Y%m%d-%H%M%S")
-        )
+        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))
     else:
         os.makedirs(log_dir)
 
 
-def predict(
-    gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label
-):
+def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
     """
     Function to predict some metrics from the saved model and logging results.
     :param gpu: str, which env gpu to use.
@@ -231,14 +214,10 @@ def predict(
 
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
-        "false" if gpu_allow_growth else "true"
-    )
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config = config_parser.load(
-        "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
-    )
+    config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
     data_config = config["data"]
     tf_data_config = config["tf"]["data"]
     tf_data_config["batch_size"] = batch_size
@@ -291,8 +270,7 @@ def main(args=None):
     for a given model
     """
     parser = argparse.ArgumentParser(
-        description="predict",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="predict", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     ## ADD POSITIONAL ARGUMENTS
@@ -331,11 +309,7 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--batch_size",
-        "-b",
-        help="Batch size for predictions",
-        default=1,
-        type=int,
+        "--batch_size", "-b", help="Batch size for predictions", default=1, type=int
     )
 
     parser.add_argument(

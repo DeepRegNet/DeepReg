@@ -60,13 +60,7 @@ def build_inputs(
     index_size: int,
     batch_size: int,
     labeled: bool,
-) -> [
-    tf.keras.Input,
-    tf.keras.Input,
-    tf.keras.Input,
-    tf.keras.Input,
-    tf.keras.Input,
-]:
+) -> [tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input]:
     """
     Configure a pair of moving and fixed images and a pair of moving and fixed labels as model input
     and returns model input tf.keras.Input
@@ -86,18 +80,14 @@ def build_inputs(
     )  # (batch, f_dim1, f_dim2, f_dim3)
     moving_label = (
         tf.keras.Input(
-            shape=(*moving_image_size,),
-            batch_size=batch_size,
-            name="moving_label",
+            shape=(*moving_image_size,), batch_size=batch_size, name="moving_label"
         )
         if labeled
         else None
     )  # (batch, m_dim1, m_dim2, m_dim3)
     fixed_label = (
         tf.keras.Input(
-            shape=(*fixed_image_size,),
-            batch_size=batch_size,
-            name="fixed_label",
+            shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_label"
         )
         if labeled
         else None

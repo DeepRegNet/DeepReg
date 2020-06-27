@@ -45,9 +45,7 @@ def get_data_loader(data_config, mode):
     else:
         raise ValueError(
             "Unknown data format. "
-            "Supported formats are nifti and h5, got {}\n".format(
-                data_config["format"]
-            )
+            "Supported formats are nifti and h5, got {}\n".format(data_config["format"])
         )
 
     if data_type == "paired":

@@ -53,9 +53,7 @@ def ddf_forward(
     warping = layer.Warping(fixed_image_size=fixed_image_size)
     pred_fixed_image = warping(inputs=[ddf, moving_image])
     pred_fixed_label = (
-        warping(inputs=[ddf, moving_label])
-        if moving_label is not None
-        else None
+        warping(inputs=[ddf, moving_label]) if moving_label is not None else None
     )
 
     return ddf, pred_fixed_image, pred_fixed_label
@@ -81,17 +79,13 @@ def ddf_add_loss_metric(
     """
     # regularization loss on ddf
     loss_reg = tf.reduce_mean(
-        deform_loss.local_displacement_energy(
-            ddf, **tf_loss_config["regularization"]
-        )
+        deform_loss.local_displacement_energy(ddf, **tf_loss_config["regularization"])
     )
     weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
     model.add_metric(
-        weighted_loss_reg,
-        name="loss/weighted_regularization",
-        aggregation="mean",
+        weighted_loss_reg, name="loss/weighted_regularization", aggregation="mean"
     )
 
     # image loss
@@ -108,9 +102,7 @@ def ddf_add_loss_metric(
             loss_image * tf_loss_config["similarity"]["image"]["weight"]
         )
         model.add_loss(weighted_loss_image)
-        model.add_metric(
-            loss_image, name="loss/image_similarity", aggregation="mean"
-        )
+        model.add_metric(loss_image, name="loss/image_similarity", aggregation="mean")
         model.add_metric(
             weighted_loss_image,
             name="loss/weighted_image_similarity",
@@ -120,15 +112,13 @@ def ddf_add_loss_metric(
     # label loss
     if fixed_label is not None:
         loss_label = tf.reduce_mean(
-            label_loss.get_similarity_fn(
-                config=tf_loss_config["similarity"]["label"]
-            )(y_true=fixed_label, y_pred=pred_fixed_label)
+            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(
+                y_true=fixed_label, y_pred=pred_fixed_label
+            )
         )
         weighted_loss_label = loss_label
         model.add_loss(weighted_loss_label)
-        model.add_metric(
-            loss_label, name="loss/label_similarity", aggregation="mean"
-        )
+        model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
         model.add_metric(
             weighted_loss_label,
             name="loss/weighted_label_similarity",
@@ -160,13 +150,7 @@ def build_ddf_model(
     """
 
     # inputs
-    (
-        moving_image,
-        fixed_image,
-        moving_label,
-        fixed_label,
-        indices,
-    ) = build_inputs(
+    (moving_image, fixed_image, moving_label, fixed_label, indices) = build_inputs(
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         index_size=index_size,
@@ -176,9 +160,7 @@ def build_ddf_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size,
-        out_channels=3,
-        tf_model_config=tf_model_config,
+        image_size=fixed_image_size, out_channels=3, tf_model_config=tf_model_config
     )
 
     # forward
@@ -196,9 +178,7 @@ def build_ddf_model(
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=dict(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                indices=indices,
+                moving_image=moving_image, fixed_image=fixed_image, indices=indices
             ),
             outputs=dict(ddf=ddf),
             name="DDFRegModelWithoutLabel",

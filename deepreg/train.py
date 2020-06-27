@@ -27,9 +27,7 @@ def init(config_path, log_dir, ckpt_path):
     """
     # init log directory
     if log_dir == "":  # default
-        log_dir = os.path.join(
-            "logs", datetime.now().strftime("%Y%m%d-%H%M%S")
-        )
+        log_dir = os.path.join("logs", datetime.now().strftime("%Y%m%d-%H%M%S"))
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))
     else:
@@ -59,9 +57,7 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     """
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
-        "true" if gpu_allow_growth else "false"
-    )
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
 
     # load config
     config, log_dir = init(config_path, log_dir, ckpt_path)
@@ -85,12 +81,8 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
     )
     dataset_size_train = data_loader_train.num_samples
     dataset_size_val = data_loader_val.num_samples
-    steps_per_epoch_train = max(
-        dataset_size_train // tf_data_config["batch_size"], 1
-    )
-    steps_per_epoch_valid = max(
-        dataset_size_val // tf_data_config["batch_size"], 1
-    )
+    steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
+    steps_per_epoch_valid = max(dataset_size_val // tf_data_config["batch_size"], 1)
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
@@ -142,8 +134,7 @@ def main(args=None):
     """Entry point for train script"""
 
     parser = argparse.ArgumentParser(
-        description="train",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="train", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     ## ADD POSITIONAL ARGUMENTS
@@ -182,11 +173,7 @@ def main(args=None):
 
     args = parser.parse_args(args)
     train(
-        args.gpu,
-        args.config_path,
-        args.gpu_allow_growth,
-        args.ckpt_path,
-        args.log_dir,
+        args.gpu, args.config_path, args.gpu_allow_growth, args.ckpt_path, args.log_dir
     )
 
 

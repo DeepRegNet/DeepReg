@@ -16,9 +16,7 @@ def get_similarity_fn(config):
 
         def loss(y_true, y_pred):
             return tf.reduce_mean(
-                multi_scale_loss(
-                    y_true=y_true, y_pred=y_pred, **config["multi_scale"]
-                )
+                multi_scale_loss(y_true=y_true, y_pred=y_pred, **config["multi_scale"])
             )  # [batch]
 
         return loss
@@ -145,13 +143,7 @@ def dice_score_generalized(y_true, y_pred, pos_weight=1, neg_weight=0):
     )
 
     numerator = (
-        2
-        * (
-            (pos_weight + neg_weight) * y_prod
-            - neg_weight * y_sum
-            + neg_weight
-        )
-        + EPS
+        2 * ((pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight) + EPS
     )
     denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight + EPS
     return numerator / denominator
@@ -181,9 +173,7 @@ def gauss_kernel1d(sigma):
         return tf.constant(0)
     else:
         tail = int(sigma * 3)
-        k = tf.exp(
-            [-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)]
-        )
+        k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
         return k / tf.reduce_sum(k)
 
 
@@ -192,9 +182,7 @@ def cauchy_kernel1d(sigma):  # this is an approximation
         return 0
     else:
         tail = int(sigma * 5)
-        k = tf.math.reciprocal(
-            [((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)]
-        )
+        k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
         return k / tf.reduce_sum(k)
 
 

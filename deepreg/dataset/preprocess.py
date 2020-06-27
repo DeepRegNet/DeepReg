@@ -4,17 +4,13 @@ import deepreg.model.layer_util as layer_util
 
 
 class AffineTransformation3D:
-    def __init__(
-        self, moving_image_size, fixed_image_size, batch_size, scale=0.1
-    ):
+    def __init__(self, moving_image_size, fixed_image_size, batch_size, scale=0.1):
         self._batch_size = batch_size
         self._scale = scale
         self._moving_grid_ref = layer_util.get_reference_grid(
             grid_size=moving_image_size
         )
-        self._fixed_grid_ref = layer_util.get_reference_grid(
-            grid_size=fixed_image_size
-        )
+        self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
     def _gen_transforms(self):
         return layer_util.random_transform_generator(
@@ -65,9 +61,7 @@ class AffineTransformation3D:
 
         if moving_label is None:  # unlabeled
             return dict(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                indices=indices,
+                moving_image=moving_image, fixed_image=fixed_image, indices=indices
             )
 
         moving_label = self._transform(
@@ -108,9 +102,7 @@ def preprocess(
     """
     # shuffle / repeat / batch / preprocess
     if training and shuffle_buffer_num_batch > 0:
-        dataset = dataset.shuffle(
-            buffer_size=batch_size * shuffle_buffer_num_batch
-        )
+        dataset = dataset.shuffle(buffer_size=batch_size * shuffle_buffer_num_batch)
     if repeat:
         dataset = dataset.repeat()
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)

@@ -45,21 +45,11 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
     p2 = y_pred * y_pred
     tp = y_true * y_pred
 
-    t_sum = tf.nn.conv3d(
-        y_true, filters=filters, strides=strides, padding=padding
-    )
-    p_sum = tf.nn.conv3d(
-        y_pred, filters=filters, strides=strides, padding=padding
-    )
-    t2_sum = tf.nn.conv3d(
-        t2, filters=filters, strides=strides, padding=padding
-    )
-    p2_sum = tf.nn.conv3d(
-        p2, filters=filters, strides=strides, padding=padding
-    )
-    tp_sum = tf.nn.conv3d(
-        tp, filters=filters, strides=strides, padding=padding
-    )
+    t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
+    p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
+    t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
+    p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
+    tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
 
     t_avg = t_sum / kernel_vol
     p_avg = p_sum / kernel_vol

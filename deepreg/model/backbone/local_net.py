@@ -42,9 +42,7 @@ class LocalNet(tf.keras.Model):
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
         self._downsample_blocks = [
-            layer.DownSampleResnetBlock(
-                filters=nc[i], kernel_size=7 if i == 0 else 3
-            )
+            layer.DownSampleResnetBlock(filters=nc[i], kernel_size=7 if i == 0 else 3)
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
         self._conv3d_block = layer.Conv3dBlock(filters=nc[-1])  # level E
