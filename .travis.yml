@@ -1,14 +1,17 @@
 language: python
+os: linux
+dist: bionic
 python:
-  - "3.7"      # current default Python on Travis CI
-# Command to install dependencies
+  - "3.7" # current default Python on Travis CI
 install:
-  - pip install -e .
-# script:
-#   - pytest
-#   - pytest --cov=./
+  - pip install -e . # install deepreg package with corresponding requirements
+
 jobs:
   include:
+    - stage: "lint"
+      script:
+        - black --check .
+        - flake8 .
     - stage: "Tests"
       name: "Output Tests: Paired Unlabeled"
       script: travis_wait 30 pytest ./test/output/test_paired_unlabeled_ddf.py

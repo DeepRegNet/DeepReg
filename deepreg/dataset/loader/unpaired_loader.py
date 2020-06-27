@@ -1,12 +1,15 @@
-'''
+"""
 Loads unpaired data
 supports h5 and nifti formats
 supports labeled and unlabeled data
-'''
+"""
 import os
 import random
 
-from deepreg.dataset.loader.interface import AbstractUnpairedDataLoader, GeneratorDataLoader
+from deepreg.dataset.loader.interface import (
+    AbstractUnpairedDataLoader,
+    GeneratorDataLoader,
+)
 from deepreg.dataset.util import check_difference_between_two_lists
 
 
@@ -14,13 +17,19 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     """
     Loads unpaired data using given file loader, handles both labeled
     and unlabeled cases
-    The function sample_index_generator needs to be defined for the 
+    The function sample_index_generator needs to be defined for the
     GeneratorDataLoader class
     """
 
-    def __init__(self,
-                 file_loader,
-                 data_dir_path: str, labeled: bool, sample_label: str, seed, image_shape: (list, tuple)):
+    def __init__(
+        self,
+        file_loader,
+        data_dir_path: str,
+        labeled: bool,
+        sample_label: str,
+        seed,
+        image_shape: (list, tuple),
+    ):
         """
         Load data which are unpaired, labeled or unlabeled
 
@@ -31,15 +40,19 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(UnpairedDataLoader, self).__init__(image_shape=image_shape,
-                                                 labeled=labeled,
-                                                 sample_label=sample_label,
-                                                 seed=seed)
+        super(UnpairedDataLoader, self).__init__(
+            image_shape=image_shape,
+            labeled=labeled,
+            sample_label=sample_label,
+            seed=seed,
+        )
         loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=False)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
-            loader_label = file_loader(os.path.join(data_dir_path, "labels"), grouped=False)
+            loader_label = file_loader(
+                os.path.join(data_dir_path, "labels"), grouped=False
+            )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label
         self.validate_data_files()
@@ -55,10 +68,10 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             check_difference_between_two_lists(list1=image_ids, list2=label_ids)
 
     def sample_index_generator(self):
-        '''
+        """
         generates smaple indexes in orer to laod data using the
         GeneratorDataLoader class
-        '''
+        """
         image_indices = [i for i in range(self.num_images)]
         random.Random(self.seed).shuffle(image_indices)
         for sample_index in range(self.num_samples):
