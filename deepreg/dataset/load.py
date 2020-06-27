@@ -27,7 +27,7 @@ def get_data_loader(data_config, mode):
         # when validation data is not available, use test data instead
         mode = "test"
     if mode not in modes:
-        return None
+        raise ValueError("Unknown mode {}. Supported modes are {}".format(mode, modes))
 
     data_type = data_config["type"]
     labeled = data_config["labeled"]

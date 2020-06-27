@@ -20,7 +20,7 @@ def train_and_predict_with_config(test_name, config_path):
     gpu = ""
     gpu_allow_growth = False
     ckpt_path = ""
-    log_dir = os.path.join("logs", "test_" + test_name)
+    log_dir = "test_" + test_name
     train(
         gpu=gpu,
         config_path=config_path,
