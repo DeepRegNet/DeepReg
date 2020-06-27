@@ -19,9 +19,11 @@ setup(
         "pytest>=4.6",
         "pytest-cov",
         "pytest-dependency",
+        "pre-commit",
+        "seed-isort-config",
+        "isort",
         "black",
         "flake8",
-        "pre-commit",
     ],
     entry_points={
         "console_scripts": [

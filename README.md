@@ -6,29 +6,27 @@ DeepReg is an open-source toolkit for research in medical image registration usi
 
 This is still under development. However some of the functionalities can be accessed.
 
-
-
 ## Quick start
+
 - Create a new virtual environment using Anaconda/Miniconda:
-`conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
+  `conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
 
 - Install DeepReg:
-`pip install -e .`
+  `pip install -e .`
 
 - Train a registration network using test data:
-`train --gpu <str> --config_path <str> --gpu_allow_growth --ckpt_path <str> --log <str>`
+  `train --gpu <str> --config_path <str> --gpu_allow_growth --ckpt_path <str> --log <str>`
 
 - Prediction using a trained registration network:
-`predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>`
-
+  `predict --gpu <str> --mode <str> --ckpt_path <str> --gpu_allow_growth --log <str> --batch_size <int> --sample_label <str>`
 
 ## Tutorials
+
 ### Two ways to get started with DeepReg
 
 [Get started with image registration using deep learning](./tutorials/registration.md)
 
 [Get started with demos](./tutorials/demos.md)
-
 
 ### How-to guides
 
@@ -40,14 +38,14 @@ This is still under development. However some of the functionalities can be acce
 
 Other tutorial topics can be found in the wiki [Tutorial Index](https://github.com/ucl-candi/DeepReg/wiki/Tutorial-Index)
 
-
-
 ### System setup
+
 (under development)
 
 ## Demos
+
 (under development)
 
-
 ## Contributions
+
 We welcome contributions! Please refer to the [contribution guidelines](./docs/CONTRIBUTING.md) for the toolkit.
