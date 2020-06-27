@@ -2,7 +2,7 @@ language: python
 os: linux
 dist: bionic
 python:
-  - "3.7"      # current default Python on Travis CI
+  - "3.7" # current default Python on Travis CI
 install:
   - pip install -e . # install deepreg package with corresponding requirements
 

@@ -2,6 +2,7 @@
 Module containing utilities for layer inputs
 """
 import itertools
+
 import numpy as np
 import tensorflow as tf
 
