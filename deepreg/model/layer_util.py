@@ -2,6 +2,7 @@
 Module containing utilities for layer inputs
 """
 import itertools
+
 import numpy as np
 import tensorflow as tf
 
@@ -26,8 +27,11 @@ def check_inputs(inputs, size, msg=""):
         raise ValueError(msg + "Inputs should be a list or tuple")
     if len(inputs) != size:
         raise ValueError(
-            msg + """Inputs should be a list or tuple\
-                     of size %d, but received %d""" % (size, len(inputs)))
+            msg
+            + """Inputs should be a list or tuple\
+                     of size %d, but received %d"""
+            % (size, len(inputs))
+        )
 
 
 def get_reference_grid(grid_size):
@@ -45,10 +49,12 @@ def get_reference_grid(grid_size):
     neuron modifies meshgrid to make it faster, however local
     benchmark suggests tf.meshgrid is better
     """
-    mesh_grid = tf.meshgrid(tf.range(grid_size[0]),
-                            tf.range(grid_size[1]),
-                            tf.range(grid_size[2]),
-                            indexing='ij')
+    mesh_grid = tf.meshgrid(
+        tf.range(grid_size[0]),
+        tf.range(grid_size[1]),
+        tf.range(grid_size[2]),
+        indexing="ij",
+    )
     stacked_mesh = tf.stack(mesh_grid, axis=3)
 
     return tf.cast(stacked_mesh, dtype=tf.float32)
@@ -76,8 +82,9 @@ def pyramid_combination(x_list, w_f):
     if len(w_f) == 1:
         return x_list[0] * w_f[0] + x_list[1] * (1 - w_f[0])
     # else
-    return pyramid_combination(x_list[::2], w_f[:-1]) * w_f[-1] + \
-           pyramid_combination(x_list[1::2], w_f[:-1]) * (1 - w_f[-1])
+    return pyramid_combination(x_list[::2], w_f[:-1]) * w_f[-1] + pyramid_combination(
+        x_list[1::2], w_f[:-1]
+    ) * (1 - w_f[-1])
 
 
 def resample(vol, loc, interpolation="linear"):
@@ -109,7 +116,7 @@ def resample(vol, loc, interpolation="linear"):
 
     # init
     batch_size = vol.shape[0]
-    loc_shape = loc.shape[1: -1]
+    loc_shape = loc.shape[1:-1]
     dim_vol = loc.shape[-1]  # dimension of vol
     has_ch = False
     if dim_vol == len(vol.shape) - 1:
@@ -120,7 +127,7 @@ def resample(vol, loc, interpolation="linear"):
         has_ch = True
     else:
         raise ValueError("vol shape inconsistent with loc")
-    vol_shape = vol.shape[1:dim_vol + 1]
+    vol_shape = vol.shape[1 : dim_vol + 1]
     if interpolation != "linear":
         raise ValueError("only linear interpolation is supported")
 
@@ -131,15 +138,14 @@ def resample(vol, loc, interpolation="linear"):
     for dim, _loc in enumerate(loc_unstack):
         # using for loop is faster than using list comprehension
         # [batch, *loc_shape]
-        clipped = tf.clip_by_value(_loc,
-                                   clip_value_min=0,
-                                   clip_value_max=vol_shape[dim] - 1)
+        clipped = tf.clip_by_value(
+            _loc, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
+        )
         c_ceil = tf.math.ceil(clipped)
         c_floor = tf.maximum(c_ceil - 1, 0)
         w_floor = c_ceil - clipped
 
-        loc_floor_ceil.append([tf.cast(c_floor, tf.int32),
-                               tf.cast(c_ceil, tf.int32)])
+        loc_floor_ceil.append([tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)])
         weight_floor.append(tf.expand_dims(w_floor, -1) if has_ch else w_floor)
 
     # get vol values on n-dim hypercube corners
@@ -148,19 +154,22 @@ def resample(vol, loc, interpolation="linear"):
 
     # range(batch_size) on axis 0 and repeated on other axises
     # add batch coords manually is faster than using batch_dims in tf.gather_nd
-    batch_coords = tf.tile(tf.reshape(tf.range(batch_size),
-                                      [batch_size] + [1] * len(loc_shape)),
-                           [1] + loc_shape)  # [batch, *loc_shape]
+    batch_coords = tf.tile(
+        tf.reshape(tf.range(batch_size), [batch_size] + [1] * len(loc_shape)),
+        [1] + loc_shape,
+    )  # [batch, *loc_shape]
 
     # For each corner, get value in vol, shape [batch, *loc_shape, n+1]
     # by combining the batch coordinate and loc
     corner_values = [
-        tf.gather_nd(vol,  # shape [batch, *vol_shape, (ch)]
-                     tf.stack([
-                         batch_coords] + [
-                             loc_floor_ceil[axis][fc_idx]
-                             for axis, fc_idx in enumerate(c)],
-                              axis=-1))
+        tf.gather_nd(
+            vol,  # shape [batch, *vol_shape, (ch)]
+            tf.stack(
+                [batch_coords]
+                + [loc_floor_ceil[axis][fc_idx] for axis, fc_idx in enumerate(c)],
+                axis=-1,
+            ),
+        )
         for c in corner_indices
     ]  # each tensor has shape [batch, *loc_shape, (ch)]
 
@@ -205,14 +214,15 @@ def random_transform_generator(batch_size, scale=0.1):
     noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])
 
     # [batch, 4, 4], [0, 0, :] = [-1,-1,-1,1]
-    old = np.tile([[[-1, -1, -1, 1],
-                    [-1, -1, 1, 1],
-                    [-1, 1, -1, 1],
-                    [1, -1, -1, 1]]], [batch_size, 1, 1])
+    old = np.tile(
+        [[[-1, -1, -1, 1], [-1, -1, 1, 1], [-1, 1, -1, 1], [1, -1, -1, 1]]],
+        [batch_size, 1, 1],
+    )
     new = old[:, :, :3] * noise  # [batch, 4, 3]
 
-    theta = np.array([np.linalg.lstsq(old[k], new[k], rcond=-1)[0]
-                      for k in range(batch_size)])  # [batch, 4, 3]
+    theta = np.array(
+        [np.linalg.lstsq(old[k], new[k], rcond=-1)[0] for k in range(batch_size)]
+    )  # [batch, 4, 3]
 
     return tf.cast(theta, dtype=tf.float32)
 

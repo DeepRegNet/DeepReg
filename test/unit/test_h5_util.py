@@ -56,8 +56,8 @@ class TestH5FileLoader:
         and shapes of arrays when loading in test data
         :return: True/ False
         """
-        filename = 'fixed_images.h5'
-        directory = 'data/test/h5/paired/test/fixed_images'
+        filename = "fixed_images.h5"
+        directory = "data/test/h5/paired/test/fixed_images"
 
         loader = H5FileLoader(directory, grouped=False)
         loader.dict_from_h5(fname=filename)
@@ -65,12 +65,11 @@ class TestH5FileLoader:
         obtained_keys = sorted(obtained.keys())
         obtained_shapes = self.get_shapes_for_dict(obtained)
 
-        expected_keys = ['case000025.nii.gz']
+        expected_keys = ["case000025.nii.gz"]
         expected_shapes = [(44, 59, 41)]
 
         test_1 = self.check_list_equal(obtained_keys, expected_keys)
-        test_2 = self.check_tuple_of_int_equal(obtained_shapes[0],
-                                               expected_shapes[0])
+        test_2 = self.check_tuple_of_int_equal(obtained_shapes[0], expected_shapes[0])
 
         return test_1 and test_2
 
@@ -79,27 +78,27 @@ class TestH5FileLoader:
         check if the get_data_names function returns the expected keys
         :return: True/ False
         """
-        directory = 'data/test/h5/paired/test/fixed_images'
+        directory = "data/test/h5/paired/test/fixed_images"
 
         loader = H5FileLoader(directory, grouped=False)
 
         obtained = loader.get_data_names()
-        expected = ['case000025.nii.gz']
+        expected = ["case000025.nii.gz"]
 
         test = self.check_list_equal(obtained, expected)
         return test
 
     def test_get_data(self):
         """
-        check if the get_data function returns the 
+        check if the get_data function returns the
         shapes of arrays when loading in test data
         :return: True/ False
         """
-        directory = 'data/test/h5/paired/test/fixed_images'
+        directory = "data/test/h5/paired/test/fixed_images"
 
         loader = H5FileLoader(directory, grouped=False)
 
-        loader.dict_from_h5(fname='fixed_images.h5')
+        loader.dict_from_h5(fname="fixed_images.h5")
 
         obtained = np.shape(loader.get_data(index=0))
 

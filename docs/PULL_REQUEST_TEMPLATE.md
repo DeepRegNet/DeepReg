@@ -17,12 +17,14 @@ Please delete options that are not relevant.
 
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
 If there are no tests written, flag with label so we can help generate some tests before merge.
+
 - [ ] Test A
 - [ ] Test B
 
 **Test Configuration**:
-* Firmware version:
-* Hardware:
+
+- Firmware version:
+- Hardware:
 
 # Checklist:
 

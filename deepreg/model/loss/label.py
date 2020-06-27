@@ -13,17 +13,21 @@ def get_similarity_fn(config):
     :return:
     """
     if config["name"] == "multi_scale":
+
         def loss(y_true, y_pred):
-            return tf.reduce_mean(multi_scale_loss(y_true=y_true,
-                                                   y_pred=y_pred,
-                                                   **config["multi_scale"]))  # [batch]
+            return tf.reduce_mean(
+                multi_scale_loss(y_true=y_true, y_pred=y_pred, **config["multi_scale"])
+            )  # [batch]
 
         return loss
     elif config["name"] == "single_scale":
+
         def loss(y_true, y_pred):
-            return tf.reduce_mean(single_scale_loss(y_true=y_true,
-                                                    y_pred=y_pred,
-                                                    **config["single_scale"]))  # [batch]
+            return tf.reduce_mean(
+                single_scale_loss(
+                    y_true=y_true, y_pred=y_pred, **config["single_scale"]
+                )
+            )  # [batch]
 
         return loss
     else:
@@ -43,11 +47,16 @@ def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
     assert len(y_true.shape) == 4
     assert len(y_pred.shape) == 4
     label_loss_all = tf.stack(
-        [single_scale_loss(y_true=separable_filter3d(y_true, gauss_kernel1d(s)),
-                           y_pred=separable_filter3d(y_pred, gauss_kernel1d(s)),
-                           loss_type=loss_type)
-         for s in loss_scales],
-        axis=1)
+        [
+            single_scale_loss(
+                y_true=separable_filter3d(y_true, gauss_kernel1d(s)),
+                y_pred=separable_filter3d(y_pred, gauss_kernel1d(s)),
+                loss_type=loss_type,
+            )
+            for s in loss_scales
+        ],
+        axis=1,
+    )
     return tf.reduce_mean(label_loss_all, axis=1)
 
 
@@ -62,7 +71,9 @@ def single_scale_loss(y_true, y_pred, loss_type):
     if loss_type == "cross-entropy":
         return weighted_binary_cross_entropy(y_true, y_pred)
     elif loss_type == "mean-squared":
-        return tf.reduce_mean(tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3])
+        return tf.reduce_mean(
+            tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3]
+        )
     elif loss_type == "dice":
         return 1 - dice_score(y_true, y_pred)
     elif loss_type == "dice_generalized":
@@ -82,8 +93,9 @@ def weighted_binary_cross_entropy(y_true, y_pred, pos_weight=1):
     :return: shape = [batch]
     """
     y_pred = tf.clip_by_value(y_pred, EPS, 1 - EPS)
-    return - pos_weight * tf.reduce_mean(y_true * tf.math.log(y_pred), axis=[1, 2, 3]) \
-           - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred), axis=[1, 2, 3])
+    return -pos_weight * tf.reduce_mean(
+        y_true * tf.math.log(y_pred), axis=[1, 2, 3]
+    ) - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred), axis=[1, 2, 3])
 
 
 def dice_score(y_true, y_pred, binary=False):
@@ -101,7 +113,11 @@ def dice_score(y_true, y_pred, binary=False):
         y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
         y_pred = tf.cast(y_pred >= 0.5, dtype=tf.float32)
     numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) * 2 + EPS
-    denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) + EPS
+    denominator = (
+        tf.reduce_sum(y_true, axis=[1, 2, 3])
+        + tf.reduce_sum(y_pred, axis=[1, 2, 3])
+        + EPS
+    )
     return numerator / denominator
 
 
@@ -122,9 +138,13 @@ def dice_score_generalized(y_true, y_pred, pos_weight=1, neg_weight=0):
     :return: shape = [batch]
     """
     y_prod = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
-    y_sum = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3])
+    y_sum = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
+        y_pred, axis=[1, 2, 3]
+    )
 
-    numerator = 2 * ((pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight) + EPS
+    numerator = (
+        2 * ((pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight) + EPS
+    )
     denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight + EPS
     return numerator / denominator
 
@@ -139,7 +159,12 @@ def jaccard_index(y_true, y_pred):
     :return: shape = [batch]
     """
     numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) + EPS
-    denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3]) - numerator + EPS
+    denominator = (
+        tf.reduce_sum(y_true, axis=[1, 2, 3])
+        + tf.reduce_sum(y_pred, axis=[1, 2, 3])
+        - numerator
+        + EPS
+    )
     return numerator / denominator
 
 
@@ -171,11 +196,22 @@ def separable_filter3d(x, kernel):
         return x
     else:
         strides = [1, 1, 1, 1, 1]
-        x = tf.nn.conv3d(tf.nn.conv3d(tf.nn.conv3d(
-            tf.expand_dims(x, axis=4),
-            filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]), strides=strides, padding="SAME"),
-            filters=tf.reshape(kernel, [1, -1, 1, 1, 1]), strides=strides, padding="SAME"),
-            filters=tf.reshape(kernel, [1, 1, -1, 1, 1]), strides=strides, padding="SAME")
+        x = tf.nn.conv3d(
+            tf.nn.conv3d(
+                tf.nn.conv3d(
+                    tf.expand_dims(x, axis=4),
+                    filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]),
+                    strides=strides,
+                    padding="SAME",
+                ),
+                filters=tf.reshape(kernel, [1, -1, 1, 1, 1]),
+                strides=strides,
+                padding="SAME",
+            ),
+            filters=tf.reshape(kernel, [1, 1, -1, 1, 1]),
+            strides=strides,
+            padding="SAME",
+        )
         return x[:, :, :, :, 0]
 
 
@@ -191,8 +227,12 @@ def compute_centroid(mask, grid):
     :param grid: shape = [dim1, dim2, dim3, 3]
     :return: shape = [batch, 3]
     """
-    bool_mask = tf.expand_dims(tf.cast(mask >= 0.5, dtype=tf.float32), axis=4)  # [batch, dim1, dim2, dim3, 1]
-    masked_grid = bool_mask * tf.expand_dims(grid, axis=0)  # [batch, dim1, dim2, dim3, 3]
+    bool_mask = tf.expand_dims(
+        tf.cast(mask >= 0.5, dtype=tf.float32), axis=4
+    )  # [batch, dim1, dim2, dim3, 1]
+    masked_grid = bool_mask * tf.expand_dims(
+        grid, axis=0
+    )  # [batch, dim1, dim2, dim3, 3]
     numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3]) + EPS  # [batch, 3]
     denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + EPS  # [batch, 1]
     return numerator / denominator  # [batch, 3]

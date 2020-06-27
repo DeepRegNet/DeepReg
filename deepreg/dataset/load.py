@@ -20,7 +20,9 @@ def get_data_loader(data_config, mode):
     # set mode
     modes = os.listdir(data_dir)
     if "train" not in modes:
-        raise ValueError("training data must be provided, they should be stored under train/")
+        raise ValueError(
+            "training data must be provided, they should be stored under train/"
+        )
     if mode == "valid" and mode not in modes:
         # when validation data is not available, use test data instead
         mode = "test"
@@ -43,41 +45,51 @@ def get_data_loader(data_config, mode):
     else:
         raise ValueError(
             "Unknown data format. "
-            "Supported formats are nifti and h5, got {}\n".format(data_config["format"]))
+            "Supported formats are nifti and h5, got {}\n".format(data_config["format"])
+        )
 
     if data_type == "paired":
         moving_image_shape = data_config["moving_image_shape"]
         fixed_image_shape = data_config["fixed_image_shape"]
-        return PairedDataLoader(file_loader=file_loader,
-                                data_dir_path=os.path.join(data_dir, mode),
-                                labeled=labeled,
-                                sample_label=sample_label,
-                                seed=seed,
-                                moving_image_shape=moving_image_shape,
-                                fixed_image_shape=fixed_image_shape)
+        return PairedDataLoader(
+            file_loader=file_loader,
+            data_dir_path=os.path.join(data_dir, mode),
+            labeled=labeled,
+            sample_label=sample_label,
+            seed=seed,
+            moving_image_shape=moving_image_shape,
+            fixed_image_shape=fixed_image_shape,
+        )
     elif data_type == "grouped":
         image_shape = data_config["image_shape"]
         intra_group_prob = data_config["intra_group_prob"]
         intra_group_option = data_config["intra_group_option"]
         sample_image_in_group = data_config["sample_image_in_group"]
-        return GroupedDataLoader(file_loader=file_loader,
-                                 data_dir_path=os.path.join(data_dir, mode),
-                                 labeled=labeled,
-                                 sample_label=sample_label,
-                                 intra_group_prob=intra_group_prob,
-                                 intra_group_option=intra_group_option,
-                                 sample_image_in_group=sample_image_in_group,
-                                 seed=seed,
-                                 image_shape=image_shape)
+        return GroupedDataLoader(
+            file_loader=file_loader,
+            data_dir_path=os.path.join(data_dir, mode),
+            labeled=labeled,
+            sample_label=sample_label,
+            intra_group_prob=intra_group_prob,
+            intra_group_option=intra_group_option,
+            sample_image_in_group=sample_image_in_group,
+            seed=seed,
+            image_shape=image_shape,
+        )
     elif data_type == "unpaired":
         image_shape = data_config["image_shape"]
-        return UnpairedDataLoader(file_loader=file_loader,
-                                  data_dir_path=os.path.join(data_dir, mode),
-                                  labeled=labeled,
-                                  sample_label=sample_label,
-                                  seed=seed,
-                                  image_shape=image_shape)
+        return UnpairedDataLoader(
+            file_loader=file_loader,
+            data_dir_path=os.path.join(data_dir, mode),
+            labeled=labeled,
+            sample_label=sample_label,
+            seed=seed,
+            image_shape=image_shape,
+        )
     else:
         raise ValueError(
             "Unknown data format. "
-            "Supported types are paired, unpaired, and grouped, got {}\n".format(data_type))
+            "Supported types are paired, unpaired, and grouped, got {}\n".format(
+                data_type
+            )
+        )
