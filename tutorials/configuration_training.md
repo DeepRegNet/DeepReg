@@ -1,9 +1,9 @@
 # Training configuration
 
-A typical yaml config file is explained as follows.
+The training section of a yaml config file is explained as follows. Each config file can have only one training section.
 
 ```yaml
-train:
+training:
   model:
     method: "ddf" # ddf or conditional or seg
     backbone:
@@ -30,7 +30,7 @@ train:
         name: "multi_scale"
         multi_scale:
           loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16, 32]
+          loss_scales: [0, 1, 2, 4, 8, 16]
         single_scale:
           loss_type: "cross-entropy"
     regularization:

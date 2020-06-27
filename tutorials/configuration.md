@@ -6,13 +6,19 @@
 
 `DeepReg` is primarily a command line tool that provides two basic functions, `train` and `predict`.
 
-System options are reuired to parse to these functions:
+`train` requires:
 `-g` or `--gpu`
 `-c` or `--config_path`
-`-g` or `--gpu <str>`
-`--gpu_allow_growth`
+optionally:
+`-gr` or `--gpu_allow_growth`
 `-k` or `--ckpt_path`
 `-l` or `--log`
+
+`predict` requires:
+`-g` or `--gpu`
+`-k` or `--ckpt_path`
+optionally:
+`-c` or `--config_path`
 
 ## Config files
 
@@ -26,4 +32,4 @@ The options for `dataset` are summarised in [Dataset configuration](./configurat
 
 ### Options for training
 
-The options for `train` are summarised in [Training configuration](./configuration_train.md)
+The options for `train` are summarised in [Training configuration](./configuration_training.md)

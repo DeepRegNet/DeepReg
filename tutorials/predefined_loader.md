@@ -34,13 +34,13 @@ These predefined data loaders require specific _data folder structures_, which a
 ### Data folder structure for nifti images
 
 [Requirement](./predefined_loader_nifti.md)
-[Example nifiti data folder](../data/)
+[Example nifiti data folder](../data/test/nifti)
 
 ### Data folder structure for h5 images
 
 [Requirement](./predefined_loader_h5.md)
-[Example h5 data folder](../data/)
+[Example h5 data folder](../data/test/h5)
 
-## For examples to use these predefined loaders in an experiment, without explicitely moving files.
+## How to use these predefined loaders in an experiment.
 
 ## Training and validation use the same data folder structure. Prediction can use a different test data folder structure.

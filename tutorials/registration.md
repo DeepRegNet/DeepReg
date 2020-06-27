@@ -22,7 +22,7 @@ In addition to the deformation regularisation, the loss function to train a regi
 
 For unsupervised learning, the training is driven by the unsupervised loss. The loss functions are often consisted of a deformation regularisation term on the predicted displacement field and an image dissimilarity measure between the fixed and warped moving images, which are adapted from the claissical image registration methods. The image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross correlation (NCC and normalised mutual information (MI).
 
-<img src="./media/deepreg-tutorial-unsupervised.svg" alt="" title="unsupervised" width="300" />
+<img src="./media/deepreg-tutorial-unsupervised.svg" alt="" title="unsupervised" width="600" />
 
 ### Weakly-supervised learning
 
@@ -32,13 +32,13 @@ In addition to the regularisation on the predicted displacement field, the train
 
 When multiple labels are available for each image, the labels can be sampled during training iteration, such that on one label with one image is used in each iteration, that is a pair of moving and fixed images and a pair of moving and fixed labels being loaded into training. See other sampling options in [Training data sampling options](./sampling.md).
 
-<img src="./media/deepreg-tutorial-weakly.svg" alt="" title="weakly" width="300" />
+<img src="./media/deepreg-tutorial-weakly.svg" alt="" title="weakly" width="600" />
 
 ### Unsupervised learning with weak supervision
 
 Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone.
 
-<img src="./media/deepreg-tutorial-combined.svg" alt="" title="combined" width="300" />
+<img src="./media/deepreg-tutorial-combined.svg" alt="" title="combined" width="600" />
 
 ### Conditional segmentation
 
@@ -62,6 +62,6 @@ Following these simplpe steps:
 
 - Demos are available for example applications [link to demo overview](./demo.md)
 
-- Experiments often require random-split or cross-validation. This is likely to be supported in a future release. There are some [workaround](/experiment.md) using the exisiting folder-based data loaders for these.
+- Experiments often require random-split or cross-validation. This is supported by using multiple folders in train and val datasets. See [How to perform an experiment such as random-split and cross-validation](/experiment.md) for more details.
 
 - Other advanced uses include [add a new loss](./add_loss.md) and [add a new network](./add_network.md)

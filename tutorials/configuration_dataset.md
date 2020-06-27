@@ -1,11 +1,11 @@
 # Dataset configuration
 
-A typical yaml config file is explained as follows.
+The dataset section of a yaml config file is explained as follows. Each config file can have one dataset for train, val and test.
 
 ```yaml
 dataset:
   dir: # required, data directory, e.g. "data/test/nifti/grouped"
-  mode: "train" # required, "train" / "val" / "test"
+  purpose: "train" # required, "train" / "val" / "test"
   format: # required, "nifti", "h5"
   type: "grouped" # required, "paired" / "unpaired" / "grouped"
   labeled: true # required, true if labeled else false
