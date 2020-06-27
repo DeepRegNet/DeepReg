@@ -168,7 +168,7 @@ def main(args=None):
     parser.add_argument(
         "--log_dir",
         "-l",
-        help="Path of log directory."
+        help="Name of log directory. The directory is under logs/."
         "If not provided, a timestamp based folder will be created.",
         default="",
         type=str,
