@@ -128,6 +128,9 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
             callbacks=[tensorboard_callback, checkpoint_callback],
         )
 
+    data_loader_train.close()
+    data_loader_val.close()
+
 
 def main(args=None):
     """Entry point for train script"""

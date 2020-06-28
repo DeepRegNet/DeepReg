@@ -65,3 +65,6 @@ class NiftiFileLoader(FileLoader):
 
     def get_num_images(self) -> int:
         return len(self.file_paths)
+
+    def close(self):
+        pass

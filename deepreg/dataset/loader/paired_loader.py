@@ -88,3 +88,10 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         GeneratorDataLoader class"""
         for image_index in range(self.num_images):
             yield image_index, image_index, [image_index]
+
+    def close(self):
+        self.loader_moving_image.close()
+        self.loader_fixed_image.close()
+        if self.labeled:
+            self.loader_moving_label.close()
+            self.loader_fixed_label.close()
