@@ -2,7 +2,7 @@
 
 Cutomised data loaders can be added to work with the core `DeepReg` algorithms, examples are explained in [How to add a new data loader](/add_loader.md).
 
-Currently, six use _scenarios_ are supported for unpaired, grouped and paired images, each with two data loaders depends on whether corresponding labels are avaialble. Details of sampling avaialble in these loaders are explained in [Data sampling options](./sampling.md).
+Currently, six use _scenarios_ are supported for unpaired, grouped and paired images, each with two data loaders depends on whether corresponding labels are avaialble. Details of sampling avaialble in these loaders are explained in [Data sampling options](sampling.md).
 
 ## Supported scenarios
 
@@ -33,12 +33,12 @@ These predefined data loaders require specific _data folder structures_, which a
 
 ### Data folder structure for nifti images
 
-[Requirement](./predefined_loader_nifti.md)
+[Requirement](predefined_loader_nifti.md)
 [Example nifiti data folder](../data/)
 
 ### Data folder structure for h5 images
 
-[Requirement](./predefined_loader_h5.md)
+[Requirement](predefined_loader_h5.md)
 [Example h5 data folder](../data/)
 
 ## For examples to use these predefined loaders in an experiment, without explicitely moving files.
