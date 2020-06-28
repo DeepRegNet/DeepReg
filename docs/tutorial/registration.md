@@ -1,4 +1,4 @@
-# Get started with image registration using deep learning
+# Image Registration
 
 A great scientific tutorial on deep learning for registration can be found at the
 [learn2reg tutorial](https://learn2reg.github.io/), held in conjunction with
@@ -77,12 +77,12 @@ and Computer-Assisted Intervention (pp. 401-409). Springer, Cham.'
 
 ## Training a registration network
 
-Following these simplpe steps:
+Following these simple steps:
 
 - [Setup](setup.md);
 
 - Data. For using predefined data loaders, see the [tutorial](predefined_loader.md).
-  Otherise, a [cutomised data loader](./add_loader.md) is required;
+  Otherise, a [customised data loader](./add_loader.md) is required;
 
 - [Configure](./configuration.md) - see an overview of other configuration options;
 
