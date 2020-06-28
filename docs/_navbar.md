@@ -8,4 +8,4 @@
 - Documentation
   - [Configuration](tutorial/configuration.md)
   - [Data Loader](tutorial/predefined_loader.md)
-  - [Installation](tutorial/installation.md)
+  - Installation

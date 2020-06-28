@@ -6,15 +6,16 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-DeepReg is an open-source toolkit for research in medical image registration using deep
-learning. The current version bases on TensorFlow 2. This toolkit contains
-implementations for unsupervised- and weaky-supervised algorithms with their
-combinations and variants, with a practical focus on diverse clinical applications, as
-in provided examples.
+**DeepReg is an open-source toolkit for research in medical image registration using
+deep learning.**
+
+The current version bases on TensorFlow 2. This toolkit contains implementations for
+unsupervised- and weaky-supervised algorithms with their combinations and variants, with
+a practical focus on diverse clinical applications, as in provided examples.
 
 This is still under development. However, some functionalities can be accessed already.
 
-## Quick start
+## Quick Start
 
 - Create a new virtual environment using
   [Anaconda](https://docs.anaconda.com/anaconda/install/) /
