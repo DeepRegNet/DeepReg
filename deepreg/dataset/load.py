@@ -26,6 +26,8 @@ def get_data_loader(data_config, mode):
     )
 
     data_dir_paths = data_config["dir"][mode]
+    if data_dir_paths is None or data_dir_paths == "":
+        return None
     if isinstance(data_dir_paths, str):
         data_dir_paths = [data_dir_paths]
 
