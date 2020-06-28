@@ -19,7 +19,7 @@ tf:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
     unet:
-      num_channel_initial: 4
+      num_channel_initial: 1
       depth: 2
       pooling: true
       concat_skip: false
