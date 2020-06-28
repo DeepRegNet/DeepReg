@@ -272,6 +272,8 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
         save_dir=log_dir + "/test",
     )
 
+    data_loader.close()
+
 
 def main(args=None):
     """

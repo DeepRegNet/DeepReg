@@ -220,3 +220,8 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             rnd.shuffle(sample_indices)
             for sample_index in sample_indices:
                 yield sample_index
+
+    def close(self):
+        self.loader_moving_image.close()
+        if self.labeled:
+            self.loader_moving_label.close()

@@ -210,6 +210,9 @@ class DataLoader:
                     indices=indices,
                 )
 
+    def close(self):
+        pass
+
 
 class AbstractPairedDataLoader(DataLoader, ABC):
     """
@@ -427,3 +430,7 @@ class FileLoader:
     def get_num_images_per_group(self):
         assert self.grouped
         return [len(self.group_sample_dict[g]) for g in self.group_ids]
+
+    def close(self):
+        """close opened file handles"""
+        raise NotImplementedError

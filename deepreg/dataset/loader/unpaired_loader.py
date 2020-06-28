@@ -76,3 +76,8 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         for sample_index in range(self.num_samples):
             moving_index, fixed_index = 2 * sample_index, 2 * sample_index + 1
             yield moving_index, fixed_index, [moving_index, fixed_index]
+
+    def close(self):
+        self.loader_moving_image.close()
+        if self.labeled:
+            self.loader_moving_label.close()

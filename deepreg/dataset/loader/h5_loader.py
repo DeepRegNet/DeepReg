@@ -68,3 +68,6 @@ class H5FileLoader(FileLoader):
 
     def get_num_images(self) -> int:
         return len(self.data_keys)
+
+    def close(self):
+        self.h5_file.close()
