@@ -203,7 +203,9 @@ def init(log_dir, ckpt_path):
         os.makedirs(log_dir)
 
     # load config
-    config = config_parser.load("/".join(ckpt_path.split("/")[:-2]) + "/config.yaml")
+    config = config_parser.load_configs(
+        "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
+    )
     return config, log_dir
 
 
