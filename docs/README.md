@@ -2,13 +2,6 @@
 
 > Deep learning for image registration
 
-DeepReg is an open-source toolkit for research in medical image registration using deep learning.
-The current version is based on TensorFlow 2.
-This toolkit contains implementations for unsupervised- and weaky-supervised algorithms with their combinations and variants,
-with a practical focus on diverse clinical applications, as in provided examples.
-
-This is still under development. However some of the functionalities can be accessed.
-
 ## Quick start
 
 - Create a new virtual environment using [Anaconda](https://docs.anaconda.com/anaconda/install/) / [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
