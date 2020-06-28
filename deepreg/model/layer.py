@@ -387,9 +387,9 @@ class Warping(tf.keras.layers.Layer):
         :param kwargs:
         """
         super(Warping, self).__init__(**kwargs)
-        self._grid_ref = tf.expand_dims(
+        self.grid_ref = tf.expand_dims(
             layer_util.get_reference_grid(grid_size=fixed_image_size), axis=0
-        )  # shape = [1, f_dim1, f_dim2, f_dim3, 3]
+        )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
 
     def call(self, inputs, **kwargs):
         """
@@ -404,7 +404,7 @@ class Warping(tf.keras.layers.Layer):
         :param kwargs:
         :return: shape = [batch, f_dim1, f_dim2, f_dim3]
         """
-        grid_warped = self._grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
+        grid_warped = self.grid_ref + inputs[0]  # [batch, f_dim1, f_dim2, f_dim3, 3]
         image_warped = layer_util.resample(
             vol=inputs[1], loc=grid_warped
         )  # [batch, f_dim1, f_dim2, f_dim3]

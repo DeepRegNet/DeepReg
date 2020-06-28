@@ -248,3 +248,19 @@ def compute_centroid_distance(y_true, y_pred, grid):
     c1 = compute_centroid(mask=y_pred, grid=grid)  # shape = [batch, 3]
     c2 = compute_centroid(mask=y_true, grid=grid)  # shape = [batch, 3]
     return tf.sqrt(tf.reduce_sum((c1 - c2) ** 2, axis=[1]))
+
+
+"""
+proportion
+"""
+
+
+def foreground_proportion(y):
+    """
+    :param y: shape = [batch, dim1, dim2, dim3]
+    :return: shape = [batch]
+    """
+    y = tf.cast(y >= 0.5, dtype=tf.float32)
+    return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(
+        tf.ones_like(y), axis=[1, 2, 3]
+    )
