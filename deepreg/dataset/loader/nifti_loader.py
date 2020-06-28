@@ -17,17 +17,7 @@ class NiftiFileLoader(FileLoader):
         self.file_paths = get_sorted_filenames_in_dir(
             dir_path=os.path.join(dir_path, name), suffix="nii.gz"
         )
-        if grouped:
-            group_sample_dict = dict()  # dict[group_path] = [file_path]
-            for path in self.file_paths:
-                head, _ = os.path.split(path)
-                if head not in group_sample_dict.keys():
-                    group_sample_dict[head] = []
-                group_sample_dict[head].append(path)
-            for k in group_sample_dict.keys():  # sort paths under the same group
-                group_sample_dict[k] = sorted(group_sample_dict[k])
-            self.group_ids = sorted(list(group_sample_dict.keys()))
-            self.group_sample_dict = group_sample_dict
+        self.set_group_structure()
 
     def get_data(self, index: (int, tuple)):
         if isinstance(index, int):  # paired or unpaired
@@ -65,6 +55,19 @@ class NiftiFileLoader(FileLoader):
 
     def get_num_images(self) -> int:
         return len(self.file_paths)
+
+    def set_group_structure(self):
+        if self.grouped:
+            group_sample_dict = dict()  # dict[group_path] = [file_path]
+            for path in self.file_paths:
+                head, _ = os.path.split(path)
+                if head not in group_sample_dict.keys():
+                    group_sample_dict[head] = []
+                group_sample_dict[head].append(path)
+            for k in group_sample_dict.keys():  # sort paths under the same group
+                group_sample_dict[k] = sorted(group_sample_dict[k])
+            self.group_ids = sorted(list(group_sample_dict.keys()))
+            self.group_sample_dict = group_sample_dict
 
     def close(self):
         pass

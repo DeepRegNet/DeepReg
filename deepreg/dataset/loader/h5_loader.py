@@ -20,18 +20,7 @@ class H5FileLoader(FileLoader):
         )
         self.h5_file = h5py.File(os.path.join(dir_path, name + ".h5"), "r")
         self.data_keys = sorted(self.h5_file.keys())
-        if grouped:
-            group_sample_dict = dict()
-            for data_key in self.data_keys:
-                tokens = data_key.split("-")
-                group_id, sample_id = tokens[-2], tokens[-1]
-                if group_id not in group_sample_dict.keys():
-                    group_sample_dict[group_id] = []
-                group_sample_dict[group_id].append(sample_id)
-            for group_id in group_sample_dict.keys():
-                group_sample_dict[group_id] = sorted(group_sample_dict[group_id])
-            self.group_ids = sorted(list(group_sample_dict.keys()))
-            self.group_sample_dict = group_sample_dict
+        self.set_group_structure()
 
     def get_data(self, index: (int, tuple)):
         """
@@ -68,6 +57,20 @@ class H5FileLoader(FileLoader):
 
     def get_num_images(self) -> int:
         return len(self.data_keys)
+
+    def set_group_structure(self):
+        if self.grouped:
+            group_sample_dict = dict()
+            for data_key in self.data_keys:
+                tokens = data_key.split("-")
+                group_id, sample_id = tokens[-2], tokens[-1]
+                if group_id not in group_sample_dict.keys():
+                    group_sample_dict[group_id] = []
+                group_sample_dict[group_id].append(sample_id)
+            for group_id in group_sample_dict.keys():
+                group_sample_dict[group_id] = sorted(group_sample_dict[group_id])
+            self.group_ids = sorted(list(group_sample_dict.keys()))
+            self.group_sample_dict = group_sample_dict
 
     def close(self):
         self.h5_file.close()

@@ -423,6 +423,14 @@ class FileLoader:
         """
         raise NotImplementedError
 
+    def set_group_structure(self):
+        """
+        save variables to store the structure of the groups
+        set group_ids and group_sample_dict
+        :return:
+        """
+        raise NotImplementedError
+
     def get_num_groups(self) -> int:
         assert self.grouped
         return len(self.group_ids)
