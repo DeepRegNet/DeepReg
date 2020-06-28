@@ -5,6 +5,8 @@ from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.unpaired_loader import UnpairedDataLoader
 
+FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
+
 
 def get_data_loader(data_config, mode):
     """
@@ -16,41 +18,24 @@ def get_data_loader(data_config, mode):
     """
 
     data_type = data_config["type"]
-
-    # sanity check for configs
-    # TODO move checks
-    if data_type not in ["paired", "unpaired", "grouped"]:
-        raise ValueError("data type must be paired / unpaired / grouped")
-
-    if data_config["format"] == "nifti":
-        file_loader = NiftiFileLoader
-    elif data_config["format"] == "h5":
-        file_loader = H5FileLoader
-    else:
-        raise ValueError(
-            "Unknown data format. "
-            "Supported formats are nifti and h5, got {}\n".format(data_config["format"])
-        )
-
-    # TODO check data_config["dir"][mode]
-
-    labeled = data_config["labeled"]
-    sample_label = "sample" if mode == "train" else "all"
-    seed = None if mode == "train" else 0
     common_args = dict(
-        file_loader=file_loader, labeled=labeled, sample_label=sample_label, seed=seed
+        file_loader=FileLoaderDict[data_config["format"]],
+        labeled=data_config["labeled"],
+        sample_label="sample" if mode == "train" else "all",
+        seed=None if mode == "train" else 0,
     )
 
     data_dir_paths = data_config["dir"][mode]
     if isinstance(data_dir_paths, str):
         data_dir_paths = [data_dir_paths]
-    assert isinstance(data_dir_paths, list)
+
     data_loaders = []
     for data_dir_path in data_dir_paths:
         data_loader_i = get_single_data_loader(
             data_type, data_config, common_args, data_dir_path
         )
         data_loaders.append(data_loader_i)
+
     if len(data_loaders) == 1:
         return data_loaders[0]
     else:
