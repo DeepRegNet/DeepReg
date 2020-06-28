@@ -15,7 +15,7 @@ This is still under development. However some of the functionalities can be acce
   `pip install -e .`
 
 - Train a registration network:
-  `train -g "" --config_path deepreg/config/unpaired_unlabeled_ddf.yaml --log_dir test`
+  `train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test`
 
 - Prediction using the trained registration network:
   `predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test`

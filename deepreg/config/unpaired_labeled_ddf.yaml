@@ -5,7 +5,7 @@ data:
     test: "data/test/nifti/unpaired/test" # required
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
-  labeled: false
+  labeled: true
   image_shape: [64, 64, 60]
 
 tf:
