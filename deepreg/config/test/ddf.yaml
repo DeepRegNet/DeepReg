@@ -1,11 +1,3 @@
-data:
-  dir: "data/test/h5/paired" # required
-  format: "h5"
-  type: "paired" # paired / unpaired / grouped
-  labeled: true
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
-
 tf:
   model:
     method: "ddf" # ddf or conditional or seg
@@ -17,7 +9,7 @@ tf:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
     unet:
-      num_channel_initial: 4
+      num_channel_initial: 1
       depth: 2
       pooling: true
       concat_skip: false
@@ -25,7 +17,7 @@ tf:
     similarity:
       image:
         name: "lncc"
-        weight: 0.
+        weight: 0.1
       label:
         weight: 1.0
         name: "multi_scale"

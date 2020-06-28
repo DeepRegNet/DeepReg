@@ -31,7 +31,7 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    config = config_parser.load(args.config_path)
+    config = config_parser.load_configs(args.config_path)
     data_config = config["data"]
     tfrecord_dir = data_config["tfrecord_dir"]
     data_config["tfrecord_dir"] = ""

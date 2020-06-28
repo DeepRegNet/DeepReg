@@ -1,4 +1,4 @@
-from unittest import TestCase
+import unittest
 
 import numpy as np
 import tensorflow as tf
@@ -6,9 +6,9 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 
 
-class Test(TestCase):
+class TestLayerUtil(unittest.TestCase):
     @staticmethod
-    def check_equal(x, y):
+    def assertTensorsEqual(x, y):
         """
         given two tf tensors return True/False (not tf tensor)
         tolerate small errors
@@ -19,7 +19,7 @@ class Test(TestCase):
         return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
 
     def test_get_reference_grid(self):
-        want = tf.constant(
+        expected = tf.constant(
             np.array(
                 [
                     [
@@ -30,10 +30,10 @@ class Test(TestCase):
                 dtype=np.float32,
             )
         )
-        get = layer_util.get_reference_grid(grid_size=[1, 2, 3])
-        self.check_equal(want, get)
+        got = layer_util.get_reference_grid(grid_size=[1, 2, 3])
+        self.assertTensorsEqual(got, expected)
 
-    def test_resample(self):
+    def test_resample_linear_without_feature(self):
         # linear, vol has no feature channel
         interpolation = "linear"
         vol = tf.constant(
@@ -51,12 +51,13 @@ class Test(TestCase):
                 dtype=np.float32,
             )
         )  # shape = [1,3,3,2]
-        want = tf.constant(
+        expected = tf.constant(
             np.array([[[0, 1, 2], [1.2, 2.5, 3.8], [1.9, 2, 2.1]]], dtype=np.float32)
         )  # shape = [1,3,3]
-        get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-        self.check_equal(want, get)
+        got = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+        self.assertTensorsEqual(got, expected)
 
+    def test_resample_linear_with_feature(self):
         # linear, vol has feature channel
         interpolation = "linear"
         vol = tf.constant(
@@ -76,7 +77,7 @@ class Test(TestCase):
                 dtype=np.float32,
             )
         )  # shape = [1,3,3,2]
-        want = tf.constant(
+        expected = tf.constant(
             np.array(
                 [
                     [
@@ -88,5 +89,5 @@ class Test(TestCase):
                 dtype=np.float32,
             )
         )  # shape = [1,3,3,2]
-        get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-        self.check_equal(want, get)
+        got = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+        self.assertTensorsEqual(got, expected)
