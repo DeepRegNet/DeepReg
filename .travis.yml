@@ -15,20 +15,20 @@ jobs:
     - stage: "Tests"
       name: "Command Tests: Unpaired Unlabeled"
       script:
-        - train -g "" --config_path deepreg/config/unpaired_unlabeled_ddf.yaml --log_dir test
+        - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
         - predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
     - name: "Output Tests: Paired Unlabeled"
-      script: travis_wait 30 pytest ./test/output/test_paired_unlabeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_paired_unlabeled.py
     - name: "Output Tests: Paired Labeled"
-      script: travis_wait 30 pytest ./test/output/test_paired_labeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_paired_labeled.py
     - name: "Output Tests: Unpaired Labeled"
-      script: travis_wait 30 pytest ./test/output/test_unpaired_labeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_unpaired_labeled.py
     - name: "Output Tests: Unpaired Unlabeled"
-      script: travis_wait 30 pytest ./test/output/test_unpaired_unlabeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_unpaired_unlabeled.py
     - name: "Output Tests: Grouped Unlabeled"
-      script: travis_wait 30 pytest ./test/output/test_grouped_unlabeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_grouped_unlabeled.py
     - name: "Output Tests: Grouped Labeled"
-      script: travis_wait 30 pytest ./test/output/test_grouped_labeled_ddf.py
+      script: travis_wait 30 pytest ./test/output/test_grouped_labeled.py
     - name: "Unit Tests"
       script: pytest ./test/unit/
     # - stage: "Coverage"

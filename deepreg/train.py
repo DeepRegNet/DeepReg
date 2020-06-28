@@ -20,11 +20,12 @@ def init(config_path, log_dir, ckpt_path):
     Function to initialise log directories,
     assert that checkpointed model is the right
     type and to parse the configuration for training
-    :param config_path: str, path to config file
+    :param config_path: list of str, path to config file
     :param log_dir: str, path to where training logs
                     to be stored.
     :param ckpt_path: str, path where model is stored.
     """
+
     # init log directory
     log_dir = os.path.join(
         "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
@@ -40,13 +41,14 @@ def init(config_path, log_dir, ckpt_path):
             raise ValueError("checkpoint path should end with .ckpt")
 
     # load and backup config
-    config = config_parser.load(config_path)
-
+    config = config_parser.load_configs(config_path)
     config_parser.save(config=config, out_dir=log_dir)
     return config, log_dir
 
 
-def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
+def train(
+    gpu: str, config_path: list, gpu_allow_growth: bool, ckpt_path: str, log_dir: str
+):
     """
     Function to train a model
     :param gpu: str, which local gpu to use to train
@@ -73,17 +75,31 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
 
     # data
     data_loader_train = get_data_loader(data_config, "train")
+    if data_loader_train is None:
+        raise ValueError(
+            "Training data loader is None. Probably the data dir path is not defined."
+        )
     data_loader_val = get_data_loader(data_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(
         training=True, repeat=True, **tf_data_config
     )
-    dataset_val = data_loader_val.get_dataset_and_preprocess(
-        training=False, repeat=True, **tf_data_config
+    dataset_val = (
+        data_loader_val.get_dataset_and_preprocess(
+            training=False, repeat=True, **tf_data_config
+        )
+        if data_loader_val is not None
+        else None
     )
     dataset_size_train = data_loader_train.num_samples
-    dataset_size_val = data_loader_val.num_samples
+    dataset_size_val = (
+        data_loader_val.num_samples if data_loader_val is not None else None
+    )
     steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
-    steps_per_epoch_valid = max(dataset_size_val // tf_data_config["batch_size"], 1)
+    steps_per_epoch_valid = (
+        max(dataset_size_val // tf_data_config["batch_size"], 1)
+        if data_loader_val is not None
+        else None
+    )
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
@@ -127,6 +143,10 @@ def train(gpu, config_path, gpu_allow_growth, ckpt_path, log_dir):
             validation_steps=steps_per_epoch_valid,
             callbacks=[tensorboard_callback, checkpoint_callback],
         )
+
+    data_loader_train.close()
+    if data_loader_val is not None:
+        data_loader_val.close()
 
 
 def main(args=None):
@@ -177,8 +197,9 @@ def main(args=None):
     parser.add_argument(
         "--config_path",
         "-c",
-        help="Path of config, must endswith .yaml.",
+        help="Path of config, must endswith .yaml. Can pass multiple paths.",
         type=str,
+        nargs="+",
         required=True,
     )
 

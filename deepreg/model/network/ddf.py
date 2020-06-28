@@ -14,7 +14,7 @@ def ddf_forward(
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-) -> [tf.Tensor, tf.Tensor, (tf.Tensor, None)]:
+) -> [tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass
     :param backbone: model architecture object, e.g. model.backbone.local_net
@@ -23,16 +23,17 @@ def ddf_forward(
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size:
     :param fixed_image_size:
-    :return: tuple(ddf, pred_fixed_image, pred_fixed_label), where
+    :return: tuple(ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
     - ddf is the dense displacement field of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
     - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+    - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
     # expand dims
     moving_image = tf.expand_dims(
         moving_image, axis=4
-    )  # (batch, m_dim1, m_dim2, m_dim3, 1)
+    )  # (batch, m_dim1, m_dim2, m_dim3, 1), need to be squeezed later for warping
     fixed_image = tf.expand_dims(
         fixed_image, axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
@@ -51,29 +52,34 @@ def ddf_forward(
 
     # prediction, (batch, f_dim1, f_dim2, f_dim3)
     warping = layer.Warping(fixed_image_size=fixed_image_size)
-    pred_fixed_image = warping(inputs=[ddf, moving_image])
+    grid_fixed = tf.squeeze(warping.grid_ref, axis=0)  # (f_dim1, f_dim2, f_dim3, 3)
+    pred_fixed_image = warping(inputs=[ddf, tf.squeeze(moving_image, axis=4)])
     pred_fixed_label = (
         warping(inputs=[ddf, moving_label]) if moving_label is not None else None
     )
-
-    return ddf, pred_fixed_image, pred_fixed_label
+    return ddf, pred_fixed_image, pred_fixed_label, grid_fixed
 
 
 def ddf_add_loss_metric(
     model: tf.keras.Model,
     ddf: tf.Tensor,
+    grid_fixed: tf.Tensor,
     fixed_image: tf.Tensor,
-    fixed_label: tf.Tensor,
+    fixed_label: (tf.Tensor, None),
     pred_fixed_image: tf.Tensor,
-    pred_fixed_label: tf.Tensor,
+    pred_fixed_label: (tf.Tensor, None),
     tf_loss_config: dict,
 ):
     """
     Configure and add the training loss, including image and deformation regularisation,
     label loss is added using when compiling the model.
     :param model:
+    :param ddf:              (batch, m_dim1, m_dim2, m_dim3, 3)
+    :param grid_fixed:       (f_dim1, f_dim2, f_dim3, 3)
     :param fixed_image:      (batch, f_dim1, f_dim2, f_dim3)
+    :param fixed_label:      (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_image: (batch, f_dim1, f_dim2, f_dim3)
+    :param pred_fixed_label: (batch, f_dim1, f_dim2, f_dim3)
     :param tf_loss_config:
     :return:
     """
@@ -90,7 +96,6 @@ def ddf_add_loss_metric(
 
     # image loss
     if tf_loss_config["similarity"]["image"]["weight"] > 0:
-        # TODO check if no label available image loss weight must be > 0
         loss_image = tf.reduce_mean(
             image_loss.similarity_fn(
                 y_true=fixed_image,
@@ -125,7 +130,27 @@ def ddf_add_loss_metric(
             aggregation="mean",
         )
 
-    # TODO add dice score, centroid distance, foreground proportion
+        # metrics
+        dice_binary = label_loss.dice_score(
+            y_true=fixed_label, y_pred=pred_fixed_label, binary=True
+        )
+        dice_float = label_loss.dice_score(
+            y_true=fixed_label, y_pred=pred_fixed_label, binary=False
+        )
+        tre = label_loss.compute_centroid_distance(
+            y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
+        )
+        foreground_label = label_loss.foreground_proportion(y=fixed_label)
+        foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
+        model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
+        model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
+        model.add_metric(tre, name="metric/tre", aggregation="mean")
+        model.add_metric(
+            foreground_label, name="metric/foreground_label", aggregation="mean"
+        )
+        model.add_metric(
+            foreground_pred, name="metric/foreground_pred", aggregation="mean"
+        )
 
 
 def build_ddf_model(
@@ -164,7 +189,7 @@ def build_ddf_model(
     )
 
     # forward
-    ddf, pred_fixed_image, pred_fixed_label = ddf_forward(
+    ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_forward(
         backbone=backbone,
         moving_image=moving_image,
         fixed_image=fixed_image,
@@ -199,6 +224,7 @@ def build_ddf_model(
     ddf_add_loss_metric(
         model=model,
         ddf=ddf,
+        grid_fixed=grid_fixed,
         fixed_image=fixed_image,
         fixed_label=fixed_label,
         pred_fixed_image=pred_fixed_image,
