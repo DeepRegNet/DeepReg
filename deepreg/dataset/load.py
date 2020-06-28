@@ -1,5 +1,3 @@
-import os
-
 from deepreg.dataset.loader.grouped_loader import GroupedDataLoader
 from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.interface import ConcatenatedDataLoader
@@ -16,19 +14,6 @@ def get_data_loader(data_config, mode):
     :param mode:
     :return:
     """
-    data_dir = data_config["dir"]
-
-    # set mode
-    modes = os.listdir(data_dir)
-    if "train" not in modes:
-        raise ValueError(
-            "training data must be provided, they should be stored under train/"
-        )
-    if mode == "valid" and mode not in modes:
-        # when validation data is not available, use test data instead
-        mode = "test"
-    if mode not in modes:
-        raise ValueError("Unknown mode {}. Supported modes are {}".format(mode, modes))
 
     data_type = data_config["type"]
 
@@ -47,6 +32,8 @@ def get_data_loader(data_config, mode):
             "Supported formats are nifti and h5, got {}\n".format(data_config["format"])
         )
 
+    # TODO check data_config["dir"][mode]
+
     labeled = data_config["labeled"]
     sample_label = "sample" if mode == "train" else "all"
     seed = None if mode == "train" else 0
@@ -54,8 +41,10 @@ def get_data_loader(data_config, mode):
         file_loader=file_loader, labeled=labeled, sample_label=sample_label, seed=seed
     )
 
-    data_dir_paths = [os.path.join(data_dir, mode)]
-
+    data_dir_paths = data_config["dir"][mode]
+    if isinstance(data_dir_paths, str):
+        data_dir_paths = [data_dir_paths]
+    assert isinstance(data_dir_paths, list)
     data_loaders = []
     for data_dir_path in data_dir_paths:
         data_loader_i = get_single_data_loader(
