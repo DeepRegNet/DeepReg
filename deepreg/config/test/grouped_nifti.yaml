@@ -1,0 +1,12 @@
+data:
+  dir:
+    train: "data/test/nifti/grouped/train"
+    valid: "data/test/nifti/grouped/test"
+    test: "data/test/nifti/grouped/test"
+  format: "nifti"
+  type: "grouped" # paired / unpaired / grouped
+  labeled: true
+  intra_group_prob: 1
+  intra_group_option: "forward"
+  sample_image_in_group: true
+  image_shape: [64, 64, 60]
