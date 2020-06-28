@@ -32,7 +32,7 @@ def ddf_forward(
     # expand dims
     moving_image = tf.expand_dims(
         moving_image, axis=4
-    )  # (batch, m_dim1, m_dim2, m_dim3, 1)
+    )  # (batch, m_dim1, m_dim2, m_dim3, 1), need to be squeezed later for warping
     fixed_image = tf.expand_dims(
         fixed_image, axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
@@ -51,11 +51,10 @@ def ddf_forward(
 
     # prediction, (batch, f_dim1, f_dim2, f_dim3)
     warping = layer.Warping(fixed_image_size=fixed_image_size)
-    pred_fixed_image = warping(inputs=[ddf, moving_image])
+    pred_fixed_image = warping(inputs=[ddf, tf.squeeze(moving_image, axis=4)])
     pred_fixed_label = (
         warping(inputs=[ddf, moving_label]) if moving_label is not None else None
     )
-
     return ddf, pred_fixed_image, pred_fixed_label
 
 
