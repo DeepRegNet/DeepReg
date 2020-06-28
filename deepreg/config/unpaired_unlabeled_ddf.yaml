@@ -27,7 +27,7 @@ tf:
     similarity:
       image:
         name: "lncc"
-        weight: 0.
+        weight: 0.1
       label:
         weight: 1.0
         name: "multi_scale"
