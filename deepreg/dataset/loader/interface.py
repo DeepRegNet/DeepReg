@@ -17,13 +17,13 @@ class DataLoader:
 
     def __init__(
         self,
-        labeled: bool,
-        num_indices: int,
+        labeled: (bool, None),
+        num_indices: (int, None),
         sample_label: (str, None),
         seed: (int, None) = None,
     ):
         """
-        :param labeled: bool cooresponding to labels provided or omitted
+        :param labeled: bool corresponding to labels provided or omitted
         :param num_indices : int
         :param sample_label : (str, None)
         :param seed : (int, None), optional
@@ -82,133 +82,6 @@ class DataLoader:
             batch_size=batch_size,
         )
         return dataset
-
-    def validate_images_and_labels(
-        self,
-        moving_image: np.ndarray,
-        fixed_image: np.ndarray,
-        moving_label: (np.ndarray, None),
-        fixed_label: (np.ndarray, None),
-        image_indices: list,
-    ):
-        """
-        check that all file names match according to naming convention
-        :param moving_image : np.ndarray
-        :param fixed_image : np.ndarray
-        :param moving_label : (np.ndarray, None)
-        :param fixed_label : (np.ndarray, None)
-        :param image_indices : list
-        """
-        if moving_image is None or fixed_image is None:
-            raise ValueError("moving image and fixed image must not be None")
-        if (moving_label is None) != (fixed_label is None):
-            raise ValueError(
-                "moving label and fixed label must be both None or non-None"
-            )
-
-        for arr, name in zip(
-            [moving_image, fixed_image, moving_label, fixed_label],
-            ["moving_image", "fixed_image", "moving_label", "fixed_label"],
-        ):
-            if arr is None:
-                continue
-            if np.min(arr) < 0 or np.max(arr) > 1:
-                raise ValueError(
-                    "Sample {}'s {} has value outside of [0,1]."
-                    "Images are assumed to be between [0, 255] "
-                    "and labels are assumed to be between [0, 1]".format(
-                        image_indices, name
-                    )
-                )
-
-        if moving_label is not None:
-            for arr, name in zip(
-                [moving_image, moving_label], ["moving_image", "moving_label"]
-            ):
-                if arr.shape[:3] != self.moving_image_shape:
-                    raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.moving_image_shape, arr.shape[:3]
-                        )
-                    )
-            for arr, name in zip(
-                [fixed_image, fixed_label], ["fixed_image", "fixed_label"]
-            ):
-                if arr.shape[:3] != self.fixed_image_shape:
-                    raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.fixed_image_shape, arr.shape[:3]
-                        )
-                    )
-            num_labels_moving = (
-                1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
-            )
-            num_labels_fixed = (
-                1 if len(fixed_label.shape) == 3 else fixed_label.shape[-1]
-            )
-            if num_labels_moving != num_labels_fixed:
-                raise ValueError(
-                    "Sample {}'s moving image and fixed image have different numbers of labels."
-                    "moving: {}, fixed: {}".format(
-                        image_indices, num_labels_moving, num_labels_fixed
-                    )
-                )
-
-    def sample_image_label(
-        self,
-        moving_image: np.ndarray,
-        fixed_image: np.ndarray,
-        moving_label: (np.ndarray, None),
-        fixed_label: (np.ndarray, None),
-        image_indices: list,
-    ):
-        """
-        sample the image labels
-        :param moving_image : np.ndarray
-        :param fixed_image : np.ndarray
-        :param moving_label : (np.ndarray, None)
-        :param fixed_label : (np.ndarray, None)
-        :param image_indices : list
-        """
-        self.validate_images_and_labels(
-            moving_image, fixed_image, moving_label, fixed_label, image_indices
-        )
-        # unlabeled
-        if moving_label is None:
-            label_index = -1  # means no label
-            indices = np.asarray(image_indices + [label_index], dtype=np.float32)
-            yield dict(
-                moving_image=moving_image, fixed_image=fixed_image, indices=indices
-            )
-        else:
-            # labeled
-            if len(moving_label.shape) == 4:  # multiple labels
-                label_indices = get_label_indices(
-                    moving_label.shape[3], self.sample_label
-                )
-                for label_index in label_indices:
-                    indices = np.asarray(
-                        image_indices + [label_index], dtype=np.float32
-                    )
-                    yield dict(
-                        moving_image=moving_image,
-                        fixed_image=fixed_image,
-                        indices=indices,
-                        moving_label=moving_label[..., label_index],
-                        fixed_label=fixed_label[..., label_index],
-                    )
-            else:  # only one label
-                label_index = 0
-                indices = np.asarray(image_indices + [label_index], dtype=np.float32)
-                yield dict(
-                    moving_image=moving_image,
-                    fixed_image=fixed_image,
-                    moving_label=moving_label,
-                    fixed_label=fixed_label,
-                    indices=indices,
-                )
 
     def close(self):
         pass
@@ -310,41 +183,6 @@ class GeneratorDataLoader(DataLoader, ABC):
         self.loader_moving_label = None
         self.loader_fixed_label = None
 
-    def sample_index_generator(self):
-        """
-        this method needs to be defined by the data loaders that are
-        implemented
-        it needs to yield the sample indexes
-        """
-        raise NotImplementedError
-
-    def data_generator(self):
-        """
-        yeild samples of data to feed model
-        """
-        for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
-            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
-            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
-            moving_label = (
-                self.loader_moving_label.get_data(index=moving_index)
-                if self.labeled
-                else None
-            )
-            fixed_label = (
-                self.loader_fixed_label.get_data(index=fixed_index)
-                if self.labeled
-                else None
-            )
-
-            for sample in self.sample_image_label(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                moving_label=moving_label,
-                fixed_label=fixed_label,
-                image_indices=image_indices,
-            ):
-                yield sample
-
     def get_dataset(self):
         """
         returns a dataset from the generator
@@ -379,6 +217,170 @@ class GeneratorDataLoader(DataLoader, ABC):
                     indices=self.num_indices,
                 ),
             )
+
+    def data_generator(self):
+        """
+        yeild samples of data to feed model
+        """
+        for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
+            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
+            moving_label = (
+                self.loader_moving_label.get_data(index=moving_index)
+                if self.labeled
+                else None
+            )
+            fixed_label = (
+                self.loader_fixed_label.get_data(index=fixed_index)
+                if self.labeled
+                else None
+            )
+
+            for sample in self.sample_image_label(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                moving_label=moving_label,
+                fixed_label=fixed_label,
+                image_indices=image_indices,
+            ):
+                yield sample
+
+    def sample_index_generator(self):
+        """
+        this method needs to be defined by the data loaders that are implemented
+        it needs to yield the sample indexes
+        only used in data_generator
+        """
+        raise NotImplementedError
+
+    def validate_images_and_labels(
+        self,
+        moving_image: np.ndarray,
+        fixed_image: np.ndarray,
+        moving_label: (np.ndarray, None),
+        fixed_label: (np.ndarray, None),
+        image_indices: list,
+    ):
+        """
+        check that all file names match according to naming convention
+        only used in sample_image_label
+        :param moving_image : np.ndarray
+        :param fixed_image : np.ndarray
+        :param moving_label : (np.ndarray, None)
+        :param fixed_label : (np.ndarray, None)
+        :param image_indices : list
+        """
+        if moving_image is None or fixed_image is None:
+            raise ValueError("moving image and fixed image must not be None")
+        if (moving_label is None) != (fixed_label is None):
+            raise ValueError(
+                "moving label and fixed label must be both None or non-None"
+            )
+
+        for arr, name in zip(
+            [moving_image, fixed_image, moving_label, fixed_label],
+            ["moving_image", "fixed_image", "moving_label", "fixed_label"],
+        ):
+            if arr is None:
+                continue
+            if np.min(arr) < 0 or np.max(arr) > 1:
+                raise ValueError(
+                    "Sample {}'s {} has value outside of [0,1]."
+                    "Images are assumed to be between [0, 255] "
+                    "and labels are assumed to be between [0, 1]".format(
+                        image_indices, name
+                    )
+                )
+
+        if moving_label is not None:
+            for arr, name in zip(
+                [moving_image, moving_label], ["moving_image", "moving_label"]
+            ):
+                if arr.shape[:3] != self.moving_image_shape:
+                    raise ValueError(
+                        "Sample {}'s {} has different shape (width, height, depth) from required."
+                        "Expected {} but got {}.".format(
+                            image_indices, name, self.moving_image_shape, arr.shape[:3]
+                        )
+                    )
+            for arr, name in zip(
+                [fixed_image, fixed_label], ["fixed_image", "fixed_label"]
+            ):
+                if arr.shape[:3] != self.fixed_image_shape:
+                    raise ValueError(
+                        "Sample {}'s {} has different shape (width, height, depth) from required."
+                        "Expected {} but got {}.".format(
+                            image_indices, name, self.fixed_image_shape, arr.shape[:3]
+                        )
+                    )
+            num_labels_moving = (
+                1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
+            )
+            num_labels_fixed = (
+                1 if len(fixed_label.shape) == 3 else fixed_label.shape[-1]
+            )
+            if num_labels_moving != num_labels_fixed:
+                raise ValueError(
+                    "Sample {}'s moving image and fixed image have different numbers of labels."
+                    "moving: {}, fixed: {}".format(
+                        image_indices, num_labels_moving, num_labels_fixed
+                    )
+                )
+
+    def sample_image_label(
+        self,
+        moving_image: np.ndarray,
+        fixed_image: np.ndarray,
+        moving_label: (np.ndarray, None),
+        fixed_label: (np.ndarray, None),
+        image_indices: list,
+    ):
+        """
+        sample the image labels
+        only used in data_generator
+        :param moving_image : np.ndarray
+        :param fixed_image : np.ndarray
+        :param moving_label : (np.ndarray, None)
+        :param fixed_label : (np.ndarray, None)
+        :param image_indices : list
+        """
+        self.validate_images_and_labels(
+            moving_image, fixed_image, moving_label, fixed_label, image_indices
+        )
+        # unlabeled
+        if moving_label is None:
+            label_index = -1  # means no label
+            indices = np.asarray(image_indices + [label_index], dtype=np.float32)
+            yield dict(
+                moving_image=moving_image, fixed_image=fixed_image, indices=indices
+            )
+        else:
+            # labeled
+            if len(moving_label.shape) == 4:  # multiple labels
+                label_indices = get_label_indices(
+                    moving_label.shape[3], self.sample_label
+                )
+                for label_index in label_indices:
+                    indices = np.asarray(
+                        image_indices + [label_index], dtype=np.float32
+                    )
+                    yield dict(
+                        moving_image=moving_image,
+                        fixed_image=fixed_image,
+                        indices=indices,
+                        moving_label=moving_label[..., label_index],
+                        fixed_label=fixed_label[..., label_index],
+                    )
+            else:  # only one label
+                label_index = 0
+                indices = np.asarray(image_indices + [label_index], dtype=np.float32)
+                yield dict(
+                    moving_image=moving_image,
+                    fixed_image=fixed_image,
+                    moving_label=moving_label,
+                    fixed_label=fixed_label,
+                    indices=indices,
+                )
 
 
 class FileLoader:
