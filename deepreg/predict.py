@@ -238,6 +238,10 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
 
     # data
     data_loader = load.get_data_loader(data_config, mode)
+    if data_loader is None:
+        raise ValueError(
+            "Data loader for prediction is None. Probably the data dir path is not defined."
+        )
     dataset = data_loader.get_dataset_and_preprocess(
         training=False, repeat=False, **tf_data_config
     )

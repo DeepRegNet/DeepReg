@@ -75,17 +75,31 @@ def train(
 
     # data
     data_loader_train = get_data_loader(data_config, "train")
+    if data_loader_train is None:
+        raise ValueError(
+            "Training data loader is None. Probably the data dir path is not defined."
+        )
     data_loader_val = get_data_loader(data_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(
         training=True, repeat=True, **tf_data_config
     )
-    dataset_val = data_loader_val.get_dataset_and_preprocess(
-        training=False, repeat=True, **tf_data_config
+    dataset_val = (
+        data_loader_val.get_dataset_and_preprocess(
+            training=False, repeat=True, **tf_data_config
+        )
+        if data_loader_val is not None
+        else None
     )
     dataset_size_train = data_loader_train.num_samples
-    dataset_size_val = data_loader_val.num_samples
+    dataset_size_val = (
+        data_loader_val.num_samples if data_loader_val is not None else None
+    )
     steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
-    steps_per_epoch_valid = max(dataset_size_val // tf_data_config["batch_size"], 1)
+    steps_per_epoch_valid = (
+        max(dataset_size_val // tf_data_config["batch_size"], 1)
+        if data_loader_val is not None
+        else None
+    )
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
@@ -131,7 +145,8 @@ def train(
         )
 
     data_loader_train.close()
-    data_loader_val.close()
+    if data_loader_val is not None:
+        data_loader_val.close()
 
 
 def main(args=None):

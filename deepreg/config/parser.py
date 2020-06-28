@@ -1,4 +1,5 @@
 import collections.abc
+import logging
 import os
 
 import yaml
@@ -55,7 +56,11 @@ def config_sanity_check(config: dict):
     for mode in ["train", "valid", "test"]:
         assert mode in data_config["dir"].keys()
         data_dir = data_config["dir"][mode]
-        if not (isinstance(data_dir, str) or isinstance(data_dir, list)):
+        if data_dir is None:
+            logging.warning("Data directory for {} is not defined.".format(mode))
+        if not (
+            isinstance(data_dir, str) or isinstance(data_dir, list) or data_dir is None
+        ):
             raise ValueError(
                 "data_dir for mode {} must be string or list of strings,"
                 "got {}.".format(mode, data_dir)
