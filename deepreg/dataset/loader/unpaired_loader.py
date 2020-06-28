@@ -3,7 +3,6 @@ Loads unpaired data
 supports h5 and nifti formats
 supports labeled and unlabeled data
 """
-import os
 import random
 
 from deepreg.dataset.loader.interface import (
@@ -46,12 +45,12 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             sample_label=sample_label,
             seed=seed,
         )
-        loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=False)
+        loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=False)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
             loader_label = file_loader(
-                os.path.join(data_dir_path, "labels"), grouped=False
+                dir_path=data_dir_path, name="labels", grouped=False
             )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label

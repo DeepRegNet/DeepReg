@@ -383,25 +383,23 @@ class FileLoader:
     contians funcitons which need to be defined for different file formats
     """
 
-    def __init__(self, dir_path: str, grouped: bool):
+    def __init__(self, dir_path: str, name: str, grouped: bool):
         """
         :param dir_path: path to the directory of the data set
+        :param name: name is used to identify the subdirectories or file names
         :param grouped: true if the data is grouped
         """
         self.dir_path = dir_path
+        self.name = name
         self.grouped = grouped
+        if grouped:
+            self.group_ids = None
+            self.group_sample_dict = None
 
     def get_data(self, index: (int, tuple)):
         """
         return the data corresponding to the given index
         :param index:
-        :return:
-        """
-        raise NotImplementedError
-
-    def get_num_images(self) -> int:
-        """
-        return the number of images in this data set
         :return:
         """
         raise NotImplementedError
@@ -415,17 +413,17 @@ class FileLoader:
         """
         raise NotImplementedError
 
-    def get_num_images_per_group(self):
+    def get_num_images(self) -> int:
         """
-        only used if the data set is grouped
-        return the number of images per group
+        return the number of images in this data set
         :return:
         """
         raise NotImplementedError
 
     def get_num_groups(self) -> int:
-        """
-        return the number of groups
-        :return:
-        """
-        raise NotImplementedError
+        assert self.grouped
+        return len(self.group_ids)
+
+    def get_num_images_per_group(self):
+        assert self.grouped
+        return [len(self.group_sample_dict[g]) for g in self.group_ids]

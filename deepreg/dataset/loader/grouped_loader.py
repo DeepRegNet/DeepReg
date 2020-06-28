@@ -3,7 +3,6 @@ Loads grouped data
 supports h5 and nifti formats
 supports labeled and unlabeled data
 """
-import os
 import random
 
 from deepreg.dataset.loader.interface import (
@@ -50,12 +49,12 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             seed=seed,
         )
         self.num_indices = 5  # (group1, sample1, group2, sample2, label)
-        loader_image = file_loader(os.path.join(data_dir_path, "images"), grouped=True)
+        loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
             loader_label = file_loader(
-                os.path.join(data_dir_path, "labels"), grouped=True
+                dir_path=data_dir_path, name="labels", grouped=True
             )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label
