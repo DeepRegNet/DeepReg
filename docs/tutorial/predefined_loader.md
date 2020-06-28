@@ -1,8 +1,12 @@
 # How to arrange data files and folders to use predefined data loaders
 
-Cutomised data loaders can be added to work with the core `DeepReg` algorithms, examples are explained in [How to add a new data loader](/add_loader.md).
+Cutomised data loaders can be added to work with the core `DeepReg` algorithms, examples
+are explained in [How to add a new data loader](/add_loader.md).
 
-Currently, six use _scenarios_ are supported for unpaired, grouped and paired images, each with two data loaders depends on whether corresponding labels are avaialble. Details of sampling avaialble in these loaders are explained in [Data sampling options](sampling.md).
+Currently, six use _scenarios_ are supported for unpaired, grouped and paired images,
+each with two data loaders depends on whether corresponding labels are avaialble.
+Details of sampling avaialble in these loaders are explained in
+[Data sampling options](sampling.md).
 
 ## Supported scenarios
 
@@ -25,21 +29,24 @@ Currently, six use _scenarios_ are supported for unpaired, grouped and paired im
 
 There are some prerequisites on the data:
 
-- Data must be split into train / val / test before and placed in different directories. Although val or test data are optional.
-- Each image or label is in 3D. Image has shape `(width, height, depth)`; label has shape `(width, height, depth)` or `(width, height, depth, num_labels)`.
-- The data do not have to be of the same shape - All will be resized to the same shape before feed-in. In order to prevent unexpected effects, it may be recommended that all images are pre-processed to the desirable shape.
+- Data must be split into train / val / test before and placed in different directories.
+  Although val or test data are optional.
+- Each image or label is in 3D. Image has shape `(width, height, depth)`; label has
+  shape `(width, height, depth)` or `(width, height, depth, num_labels)`.
+- The data do not have to be of the same shape - All will be resized to the same shape
+  before feed-in. In order to prevent unexpected effects, it may be recommended that all
+  images are pre-processed to the desirable shape.
 
-These predefined data loaders require specific _data folder structures_, which are explained as follows, for nifti and h5 file formats, respectively.
+These predefined data loaders require specific _data folder structures_, which are
+explained as follows, for nifti and h5 file formats, respectively.
 
 ### Data folder structure for nifti images
 
-[Requirement](predefined_loader_nifti.md)
-[Example nifiti data folder](../data/)
+[Requirement](predefined_loader_nifti.md) [Example nifiti data folder](../data/)
 
 ### Data folder structure for h5 images
 
-[Requirement](predefined_loader_h5.md)
-[Example h5 data folder](../data/)
+[Requirement](predefined_loader_h5.md) [Example h5 data folder](../data/)
 
 ## For examples to use these predefined loaders in an experiment, without explicitely moving files.
 

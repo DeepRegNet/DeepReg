@@ -4,7 +4,9 @@
 
 ## Quick start
 
-- Create a new virtual environment using [Anaconda](https://docs.anaconda.com/anaconda/install/) / [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
+- Create a new virtual environment using
+  [Anaconda](https://docs.anaconda.com/anaconda/install/) /
+  [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 
   `conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
 
@@ -12,7 +14,8 @@
 
   `pip install -e .`
 
-- Train a registration network using unpaired and labeled data and a predefined configuration:
+- Train a registration network using unpaired and labeled data and a predefined
+  configuration:
 
   `train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test`
 
@@ -36,7 +39,8 @@
 
 (under development)
 
-Other tutorial topics can be found in the wiki [Tutorial Index](https://github.com/ucl-candi/DeepReg/wiki/Tutorial-Index)
+Other tutorial topics can be found in the wiki
+[Tutorial Index](https://github.com/ucl-candi/DeepReg/wiki/Tutorial-Index)
 
 ### System setup
 
@@ -48,4 +52,5 @@ Other tutorial topics can be found in the wiki [Tutorial Index](https://github.c
 
 ## Contributions
 
-We welcome contributions! Please refer to the [contribution guidelines](./docs/CONTRIBUTING.md) for the toolkit.
+We welcome contributions! Please refer to the
+[contribution guidelines](./docs/CONTRIBUTING.md) for the toolkit.
