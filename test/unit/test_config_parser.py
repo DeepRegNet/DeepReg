@@ -13,7 +13,7 @@ class TestConfigParser(unittest.TestCase):
             config_path=[
                 "deepreg/config/test/ddf.yaml",
                 "deepreg/config/test/unpaired_nifti.yaml",
-                "deepreg/config/test/unlabeled.yaml",
+                "deepreg/config/test/labeled.yaml",
             ]
         )
         self.assertEqual(got, expected)
