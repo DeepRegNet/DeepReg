@@ -15,7 +15,7 @@ jobs:
     - stage: "Tests"
       name: "Command Tests: Unpaired Unlabeled"
       script:
-        - train -g "" --config_path deepreg/config/unpaired_unlabeled_ddf.yaml --log_dir test
+        - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
         - predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
     - name: "Output Tests: Paired Unlabeled"
       script: travis_wait 30 pytest ./test/output/test_paired_unlabeled.py
