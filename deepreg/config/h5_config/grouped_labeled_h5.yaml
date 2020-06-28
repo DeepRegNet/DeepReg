@@ -1,5 +1,8 @@
 data:
-  dir: "data/test/h5/grouped" # required
+  dir:
+    train: "data/test/h5/grouped/train" # required
+    valid: "data/test/h5/grouped/test" # required
+    test: "data/test/h5/grouped/test" # required
   format: "h5"
   type: "grouped" # paired / unpaired / grouped
   labeled: true

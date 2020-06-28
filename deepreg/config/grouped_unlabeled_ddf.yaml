@@ -1,5 +1,8 @@
 data:
-  dir: "data/test/nifti/grouped" # required
+  dir:
+    train: "data/test/nifti/grouped/train" # required
+    valid: "data/test/nifti/grouped/test" # required
+    test: "data/test/nifti/grouped/test" # required
   format: "nifti"
   type: "grouped" # paired / unpaired / grouped
   labeled: false
