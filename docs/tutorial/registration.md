@@ -40,7 +40,8 @@ displacement field and an image dissimilarity measure between the fixed and warp
 moving images, which are adapted from the claissical image registration methods. The
 image dissimilarity measures include sum-of-square difference in intensity (SSD),
 normalised cross correlation (NCC and normalised mutual information (MI).
-<img src="./media/deepreg-tutorial-unsupervised.svg" alt="" title="unsupervised" width="600" />
+
+![Unsupervised](media/deepreg-tutorial-unsupervised.svg ":size=600")
 
 ### Weakly-supervised learning
 
@@ -57,13 +58,15 @@ training iteration, such that on one label with one image is used in each iterat
 that is a pair of moving and fixed images and a pair of moving and fixed labels being
 loaded into training. See other sampling options in
 [Training data sampling options](sampling.md).
-<img src="./media/deepreg-tutorial-weakly.svg" alt="" title="weakly" width="600" />
+
+![Weakly-supervised](media/deepreg-tutorial-weakly.svg ":size=600")
 
 ### Unsupervised learning with weak supervision
 
 Combining the unsupervised loss and the weak supervision has shown superior registration
 accuracy, compared with that using unsupervised loss alone.
-<img src="./media/deepreg-tutorial-combined.svg" alt="" title="combined" width="600" />
+
+![Combined](media/deepreg-tutorial-combined.svg ":size=600")
 
 ### Conditional segmentation
 
