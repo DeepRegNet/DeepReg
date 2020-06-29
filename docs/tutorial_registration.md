@@ -1,20 +1,24 @@
-# Image Registration
+# Image Registration with Deep Learning
 
 A great scientific tutorial on deep learning for registration can be found at the
 [learn2reg tutorial](https://learn2reg.github.io/), held in conjunction with
 MICCAI 2019. This tutorial provides a practical overview for a number of algorithms
 supported by DeepReg.
 
-## Decide what the network input images are
+## Registration
+
+(define what is registration)
+
+## Data
 
 A registration network takes a pair of moving and fixed images as the input of the deep
 nerual network. what types of the images are the input depend on the clinical
 application. They can be simply a random pair of images from all the training images
 available. They may however require more advanced sampling. For instance, when multiple
 subjects each having multiple available images, please see more sampling options in
-[Training data sampling options](sampling.md).
+[Training data sampling options](tutorial_sampling.md).
 
-## Network outputs
+## Network
 
 The registration network outputs a dense displacement field (DDF). The DDF can be
 constrained during training by a deformation regularisation term. The deformation
@@ -27,7 +31,7 @@ A more constrained option is to predict an affine transformation, parameterised 
 parameters of the affine transformation matrix. The DDF can then be computed to resample
 the moving images in fixed image space.
 
-## Loss function
+## Loss
 
 In addition to the deformation regularisation, the loss function to train a registration
 network depends on the adopted algorithms.
@@ -41,7 +45,7 @@ moving images, which are adapted from the claissical image registration methods.
 image dissimilarity measures include sum-of-square difference in intensity (SSD),
 normalised cross correlation (NCC and normalised mutual information (MI).
 
-![Unsupervised](../media/deepreg-tutorial-unsupervised.svg ":size=600")
+![Unsupervised](asset/deepreg-tutorial-unsupervised.svg ":size=600")
 
 ### Weakly-supervised learning
 
@@ -57,43 +61,42 @@ When multiple labels are available for each image, the labels can be sampled dur
 training iteration, such that on one label with one image is used in each iteration,
 that is a pair of moving and fixed images and a pair of moving and fixed labels being
 loaded into training. See other sampling options in
-[Training data sampling options](sampling.md).
+[Training data sampling options](tutorial_sampling.md).
 
-![Weakly-supervised](../media/deepreg-tutorial-weakly.svg ":size=600")
+![Weakly-supervised](asset/deepreg-tutorial-weakly.svg ":size=600")
 
 ### Unsupervised learning with weak supervision
 
 Combining the unsupervised loss and the weak supervision has shown superior registration
 accuracy, compared with that using unsupervised loss alone.
 
-![Combined](../media/deepreg-tutorial-combined.svg ":size=600")
+![Combined](asset/deepreg-tutorial-combined.svg ":size=600")
 
 ### Conditional segmentation
 
 Depite the name, this formulation to predcit the corresponding regions of interest is
 considered a image registration, rather than a image segmentation algorithm. Interested
-readers are refered to the MICCAI 2019 paper: 'Hu, Y., Gibson, E., Barratt, D.C.,
-Emberton, M., Noble, J.A. and Vercauteren, T., 2019, October. Conditional segmentation
-in lieu of image registration. In International Conference on Medical Image Computing
-and Computer-Assisted Intervention (pp. 401-409). Springer, Cham.'
-[paper link](https://arxiv.org/abs/1907.00438)
+readers are refered to the MICCAI 2019 paper:
+[Conditional segmentation in lieu of image registration](https://arxiv.org/abs/1907.00438)
 
 ## Training a registration network
 
+(move to other pages)
+
 Following these simple steps:
 
-- [Setup](setup.md);
+- [Setup](quick_start_setup.md);
 
-- Data. For using predefined data loaders, see the [tutorial](predefined_loader.md).
+- Data. For using predefined data loaders, see the [tutorial](api_data_loader.md).
   Otherise, a [customised data loader](./add_loader.md) is required;
 
-- [Configure](./configuration.md) - see an overview of other configuration options;
+- [Configure](api_configuration.md) - see an overview of other configuration options;
 
 - Train by calling 'train.py'.
 
 - Predict by calling 'predict.py'.
 
-- Demos are available for example applications [link to demo overview](demo.md)
+- Demos are available for example applications [link to demo overview](tutorial/demo.md)
 
 - Experiments often require random-split or cross-validation. This is supported by using
   multiple folders in train and val datasets. See
