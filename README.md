@@ -15,27 +15,6 @@ a practical focus on diverse clinical applications, as in provided examples.
 
 This is still under development. However, some functionalities can be accessed already.
 
-## Quick Start
+## Tutorials and Documentations
 
-- Create a new virtual environment using
-  [Anaconda](https://docs.anaconda.com/anaconda/install/) /
-  [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
-
-  `conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
-
-- Install the DeepReg package:
-
-  `pip install -e .`
-
-- Train a registration network using unpaired and labeled data and a predefined
-  configuration:
-
-  `train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test`
-
-- Make prediction using the trained registration network on the test data set:
-
-  `predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test`
-
-## Documentation
-
-Read the documentation at [DeepReg](https://ucl-candi.github.io/DeepReg/).
+Read the tutorials and documentation at [DeepReg](https://ucl-candi.github.io/DeepReg/).

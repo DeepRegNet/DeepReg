@@ -28,9 +28,9 @@ optionally
 ### Options for predefined loaders
 
 The options for `dataset` are summarised in
-[Dataset configuration](configurations_dataset.md)
+[Dataset configuration](tutorial/configurations_dataset.md)
 
 ### Options for training
 
 The options for `train` are summarised in
-[Training configuration](configurations_train.md)
+[Training configuration](tutorial/configurations_train.md)

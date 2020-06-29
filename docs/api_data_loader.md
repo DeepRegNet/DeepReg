@@ -6,7 +6,7 @@ are explained in [How to add a new data loader](/add_loader.md).
 Currently, six use _scenarios_ are supported for unpaired, grouped and paired images,
 each with two data loaders depends on whether corresponding labels are avaialble.
 Details of sampling avaialble in these loaders are explained in
-[Data sampling options](sampling.md).
+[Data sampling options](tutorial_sampling.md).
 
 ## Supported scenarios
 
@@ -42,12 +42,13 @@ explained as follows, for nifti and h5 file formats, respectively.
 
 ### Data folder structure for nifti images
 
-[Requirement](predefined_loader_nifti.md)
+[Requirement](tutorial/predefined_loader_nifti.md)
 [Example nifiti data folder](../data/test/nifti)
 
 ### Data folder structure for h5 images
 
-[Requirement](predefined_loader_h5.md) [Example h5 data folder](../data/test/h5)
+[Requirement](tutorial/predefined_loader_h5.md)
+[Example h5 data folder](../data/test/h5)
 
 ## How to use these predefined loaders in an experiment.
 
