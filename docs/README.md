@@ -6,19 +6,18 @@
 
 #### Image Registration
 
-A detailed [tutorial](tutorial/registration.md) on image registration with deep
+A detailed [tutorial](tutorial_registration.md) on image registration with deep
 learning.
 
 #### Demos
 
-Multiple selected [demos](tutorial/registration.md) of image registration using
-open-sourced data.
+Multiple selected demos of image registration using open-sourced data.
 
 ## Documentation
 
 - Installation
-- [Configuration](tutorial/configuration.md)
-- [Data Loader](tutorial/predefined_loader.md)
+- [Configuration](api_configuration.md)
+- [Data Loader](api_data_loader.md)
 - Custom Model
 
 ## Contributions
