@@ -1,7 +1,7 @@
 # Data sampling options in predefined loaders
 
 This describes the sampling methods used in the
-[predefined data loaders](predefined_loader.md).
+[predefined data loaders](api_data_loader.md).
 
 ## 1 - Image pair sampling
 
