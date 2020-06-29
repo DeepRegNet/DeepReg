@@ -41,7 +41,7 @@ moving images, which are adapted from the claissical image registration methods.
 image dissimilarity measures include sum-of-square difference in intensity (SSD),
 normalised cross correlation (NCC and normalised mutual information (MI).
 
-![Unsupervised](media/deepreg-tutorial-unsupervised.svg ":size=600")
+![Unsupervised](../media/deepreg-tutorial-unsupervised.svg ":size=600")
 
 ### Weakly-supervised learning
 
@@ -59,14 +59,14 @@ that is a pair of moving and fixed images and a pair of moving and fixed labels 
 loaded into training. See other sampling options in
 [Training data sampling options](sampling.md).
 
-![Weakly-supervised](media/deepreg-tutorial-weakly.svg ":size=600")
+![Weakly-supervised](../media/deepreg-tutorial-weakly.svg ":size=600")
 
 ### Unsupervised learning with weak supervision
 
 Combining the unsupervised loss and the weak supervision has shown superior registration
 accuracy, compared with that using unsupervised loss alone.
 
-![Combined](media/deepreg-tutorial-combined.svg ":size=600")
+![Combined](../media/deepreg-tutorial-combined.svg ":size=600")
 
 ### Conditional segmentation
 
