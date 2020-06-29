@@ -21,14 +21,14 @@ With CPU only
 
 ```bash
 conda create --name deepreg python=3.7 tensorflow-gpu=2.2
-source activate deepreg
+conda activate deepreg
 ```
 
 With GPU
 
 ```bash
 conda create --name deepreg python=3.7 # create the virtual environment
-source activate deepreg # activate the environment
+conda activate deepreg # activate the environment
 ```
 
 <!-- tabs:end -->
