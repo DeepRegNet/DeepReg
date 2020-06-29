@@ -1,58 +1,27 @@
 # DeepReg
 
-> Deep learning for image registration
-
-DeepReg is an open-source toolkit for research in medical image registration using deep learning.
-The current version is based on TensorFlow 2.
-This toolkit contains implementations for unsupervised- and weaky-supervised algorithms with their combinations and variants,
-with a practical focus on diverse clinical applications, as in provided examples.
-
-This is still under development. However some of the functionalities can be accessed.
-
-## Quick start
-
-- Create a new virtual environment using [Anaconda](https://docs.anaconda.com/anaconda/install/) / [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
-
-  `conda create --name deepreg python=3.7 tensorflow-gpu=2.2`
-
-- Install the DeepReg package:
-
-  `pip install -e .`
-
-- Train a registration network using unpaired and labeled data and a predefined configuration:
-
-  `train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test`
-
-- Make prediction using the trained registration network on the test data set:
-
-  `predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test`
+> Deep learning for Image Registration
 
 ## Tutorials
 
-### Two ways to get started with DeepReg
+#### Image Registration
 
-[Get started with image registration using deep learning](./tutorials/registration.md)
+A detailed [tutorial](tutorial/registration.md) on image registration with deep
+learning.
 
-[Get started with demos](./tutorials/demo.md)
+#### Demos
 
-### How-to guides
+Multiple selected [demos](tutorial/registration.md) of image registration using
+open-sourced data.
 
-[How to configure DeepReg options](./tutorials/configurations.md)
+## Documentation
 
-[How to arrange data files and folders to use predefined data loaders](./tutorials/predefined_loader.md)
-
-(under development)
-
-Other tutorial topics can be found in the wiki [Tutorial Index](https://github.com/ucl-candi/DeepReg/wiki/Tutorial-Index)
-
-### System setup
-
-(under development)
-
-## Demos
-
-(under development)
+- Installation
+- [Configuration](tutorial/configuration.md)
+- [Data Loader](tutorial/predefined_loader.md)
+- Custom Model
 
 ## Contributions
 
-We welcome contributions! Please refer to the [contribution guidelines](./docs/CONTRIBUTING.md) for the toolkit.
+We welcome contributions! Please refer to the
+[contribution guidelines](CONTRIBUTING.md).
