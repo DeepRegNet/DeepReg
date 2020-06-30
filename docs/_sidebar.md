@@ -1,8 +1,7 @@
 <!-- docs/_sidebar.md -->
 
 - **Getting started**
-  - [Setup](quick_start_setup.md)
-  - [Training and Inference](quick_start_train.md)
+  - [Quick Start](quick_start.md)
 - **Tutorial**
   - [Image Registration](tutorial_registration.md)
 - **Documentation**
