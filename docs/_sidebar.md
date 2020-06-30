@@ -1,10 +1,9 @@
 <!-- docs/_sidebar.md -->
 
-- **Quick Start**
-  - [Setup](quick_start_setup.md)
-  - [Training and Inference](quick_start_train.md)
+- **Getting started**
+  - [Quick Start](quick_start.md)
 - **Tutorial**
   - [Image Registration](tutorial_registration.md)
-- **API**
+- **Documentation**
   - [Configuration](api_configuration.md)
   - [Data Loader](api_data_loader.md)
