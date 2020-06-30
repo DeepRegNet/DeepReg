@@ -1,20 +1,20 @@
-'''
+"""
 Functions parsing the config optimiser options
-:function 
-'''
+:function
+"""
 
 import tensorflow as tf
 
 
 def get_optimizer(tf_opt_config):
-    '''
+    """
     Parsing the optimiser options and parameters
 
     :param tf_opt_config: unpacked dictionary for the optimiser returned from yaml.load, optimiser options and parameters
 
     :return: tf.keras.optimizers object
 
-    '''
+    """
     if tf_opt_config["name"] == "adam":
         return tf.keras.optimizers.Adam(**tf_opt_config["adam"])
     elif tf_opt_config["name"] == "sgd":

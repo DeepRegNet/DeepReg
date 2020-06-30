@@ -5,11 +5,16 @@ from deepreg.model import layer_util as layer_util
 
 
 class GlobalNet(tf.keras.Model):
-    def __init__(self,
-                 image_size, out_channels,
-                 num_channel_initial, extract_levels,
-                 out_kernel_initializer, out_activation,
-                 **kwargs):
+    def __init__(
+        self,
+        image_size,
+        out_channels,
+        num_channel_initial,
+        extract_levels,
+        out_kernel_initializer,
+        out_activation,
+        **kwargs,
+    ):
         """
         image is encoded gradually, i from level 0 to E
         then a densely-connected layer outputs an affine
@@ -28,14 +33,23 @@ class GlobalNet(tf.keras.Model):
         self._extract_levels = extract_levels
         self._extract_max_level = max(self._extract_levels)  # E
         self.reference_grid = layer_util.get_reference_grid(image_size)
-        self.transform_initial = tf.constant_initializer(value=[1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 1., 0.])
+        self.transform_initial = tf.constant_initializer(
+            value=[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+        )
 
         # init layer variables
-        nc = [num_channel_initial * (2 ** level) for level in range(self._extract_max_level + 1)]  # level 0 to E
-        self._downsample_blocks = [layer.DownSampleResnetBlock(filters=nc[i], kernel_size=7 if i == 0 else 3)
-                                   for i in range(self._extract_max_level)]  # level 0 to E-1
+        nc = [
+            num_channel_initial * (2 ** level)
+            for level in range(self._extract_max_level + 1)
+        ]  # level 0 to E
+        self._downsample_blocks = [
+            layer.DownSampleResnetBlock(filters=nc[i], kernel_size=7 if i == 0 else 3)
+            for i in range(self._extract_max_level)
+        ]  # level 0 to E-1
         self._conv3d_block = layer.Conv3dBlock(filters=nc[-1])  # level E
-        self._dense_layer = layer.Dense(units=12, bias_initializer=self.transform_initial) 
+        self._dense_layer = layer.Dense(
+            units=12, bias_initializer=self.transform_initial
+        )
         self._reshape = tf.keras.layers.Reshape(target_shape=(4, 3))
 
     def call(self, inputs, training=None, mask=None):

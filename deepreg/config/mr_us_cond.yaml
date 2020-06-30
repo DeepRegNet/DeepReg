@@ -1,5 +1,6 @@
+# TODO to update
 data:
-  dir: "data/mr_us/demo" # required
+  dir: "data/test/nifti/demo" # required
   type: "nifti"
   moving_image_shape: [64, 64, 60]
   fixed_image_shape: [44, 59, 41]

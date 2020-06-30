@@ -1,17 +1,34 @@
 language: python
+os: linux
+dist: bionic
 python:
-  - "3.7"      # current default Python on Travis CI
-# Command to install dependencies
+  - "3.7" # current default Python on Travis CI
 install:
-  - pip install -e .
-# script:
-#   - pytest
-#   - pytest --cov=./
+  - pip install -e . # install deepreg package with corresponding requirements
+
 jobs:
   include:
+    - stage: "lint"
+      script:
+        - black --check .
+        - flake8 .
     - stage: "Tests"
-      name: "Output Tests"
-      script:   travis_wait 30 pytest ./test/output/
+      name: "Command Tests: Unpaired Unlabeled"
+      script:
+        - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
+        - predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+    - name: "Output Tests: Paired Unlabeled"
+      script: travis_wait 30 pytest ./test/output/test_paired_unlabeled.py
+    - name: "Output Tests: Paired Labeled"
+      script: travis_wait 30 pytest ./test/output/test_paired_labeled.py
+    - name: "Output Tests: Unpaired Labeled"
+      script: travis_wait 30 pytest ./test/output/test_unpaired_labeled.py
+    - name: "Output Tests: Unpaired Unlabeled"
+      script: travis_wait 30 pytest ./test/output/test_unpaired_unlabeled.py
+    - name: "Output Tests: Grouped Unlabeled"
+      script: travis_wait 30 pytest ./test/output/test_grouped_unlabeled.py
+    - name: "Output Tests: Grouped Labeled"
+      script: travis_wait 30 pytest ./test/output/test_grouped_labeled.py
     - name: "Unit Tests"
       script: pytest ./test/unit/
     # - stage: "Coverage"

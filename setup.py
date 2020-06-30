@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="deepreg",
-    version="0.1.4",
+    version="0.1.5",
     description="Registration with Deep Learning",
     author="Yunguan Fu",
     packages=["deepreg"],
@@ -19,6 +19,12 @@ setup(
         "pytest>=4.6",
         "pytest-cov",
         "pytest-dependency",
+        "pre-commit",
+        "seed-isort-config",
+        "isort",
+        "black",
+        "flake8",
+        "simple_http_server",
     ],
     entry_points={
         "console_scripts": [
