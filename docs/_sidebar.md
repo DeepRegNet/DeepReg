@@ -1,6 +1,6 @@
 <!-- docs/_sidebar.md -->
 
-- **Quick Start**
+- **Getting started**
   - [Setup](quick_start_setup.md)
   - [Training and Inference](quick_start_train.md)
 - **Tutorial**
