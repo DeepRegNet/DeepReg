@@ -277,51 +277,102 @@ def resample(vol, loc, interpolation="linear"):
     return sampled
 
 
-def random_transform_generator(batch_size, scale=0.1):
+def random_transform_generator(
+    batch_size: int, scale: float, seed: (int, None) = None
+) -> tf.Tensor:
     """
-    Function that generates a randomly transformed
-    batch of data
+    Function that generates a random 3D transformation parameters for a batch of data
 
     :param batch_size: int
-    :param scale [default=0.1]:
-    :return: tf tensor, shape = [batch, 4, 3]
+    :param scale:
+    :return: shape = (batch, 4, 3)
 
-    affine transformation
-
+    for 3D coordinates, affine transformation is
     [[x' y' z' 1]] = [[x y z 1]] * [[* * * 0]
                                     [* * * 0]
                                     [* * * 0]
                                     [* * * 1]]
-    new = old * T
-    shape: [1, 4] = [1, 4] * [4, 4]
+    where each * represents a degree of freedom,
+    so there are in total 12 degrees of freedom
+    the equation can be denoted as
+        new = old * T
+    where
+    - new is the transformed coordinates, of shape (1, 4)
+    - old is the original coordinates, of shape (1, 4)
+    - T is the transformation matrix, of shape (4, 4)
 
-    equivalent to
+    the equation can be simplified to
     [[x' y' z']] = [[x y z 1]] * [[* * *]
                                   [* * *]
                                   [* * *]
                                   [* * *]]
-    x, y, z are original coordinates
-    x', y', z' are transformed coordinates
+    so that
+        new = old * T
+    where
+    - new is the transformed coordinates, of shape (1, 3)
+    - old is the original coordinates, of shape (1, 4)
+    - T is the transformation matrix, of shape (4, 3)
 
-    for (x, y, z) the noise is -(x, y, z) .* (r1, r2, r3)
+    Given original and transformed coordinates,
+    we can calculate the transformation matrix using
+        x = np.linalg.lstsq(a, b)
+    such that
+        a x = b
+    in our case,
+    - a = old
+    - b = new
+    - x = T
+
+    To generate random transformation,
+    we choose to add random perturbation to corner coordinates as follows:
+    for corner of coordinates (x, y, z), the noise is
+        -(x, y, z) .* (r1, r2, r3)
     where ri is a random number between (0, scale)
-    so (x', y', z') = (x, y, z) .* (1-r1, 1-r2, 1-r3)
+    so
+        (x', y', z') = (x, y, z) .* (1-r1, 1-r2, 1-r3)
+    thus, we can directly sample between 1-scale and 1 instead
 
-    this version is faster (0.4ms -> 0.2ms) per call
+    we choose to calculate the transformation based on
+    four corners in a cube centered at (0, 0, 0)
+    a cube is shown as below
+    where
+    - C = (-1, -1, -1)
+    - G = (-1, -1, 1)
+    - D = (-1, 1, -1)
+    - A = (1, -1, -1)
+
+                G — — — — — — — — H
+              / |               / |
+            /   |             /   |
+          /     |           /     |
+        /       |         /       |
+      /         |       /         |
+    E — — — — — — — — F           |
+    |           |     |           |
+    |           |     |           |
+    |           C — — | — — — — — D
+    |         /       |         /
+    |       /         |       /
+    |     /           |     /
+    |   /             |   /
+    | /               | /
+    A — — — — — — — — B
     """
-    # [batch, 4, 3]
-    noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])
 
-    # [batch, 4, 4], [0, 0, :] = [-1,-1,-1,1]
+    np.random.seed(seed=seed)
+    noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # shape = (batch, 4, 3)
+
+    # old represents four corners of a cube
+    # corresponding to the corner C G D A as shown above
     old = np.tile(
         [[[-1, -1, -1, 1], [-1, -1, 1, 1], [-1, 1, -1, 1], [1, -1, -1, 1]]],
         [batch_size, 1, 1],
-    )
-    new = old[:, :, :3] * noise  # [batch, 4, 3]
+    )  # shape = (batch, 4, 4)
+    new = old[:, :, :3] * noise  # shape = (batch, 4, 3)
 
     theta = np.array(
         [np.linalg.lstsq(old[k], new[k], rcond=-1)[0] for k in range(batch_size)]
-    )  # [batch, 4, 3]
+    )  # shape = (batch, 4, 3)
 
     return tf.cast(theta, dtype=tf.float32)
 

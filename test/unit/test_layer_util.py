@@ -145,6 +145,28 @@ class TestLayerUtil(unittest.TestCase):
         got = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
         self.assertTensorsEqual(got, expected)
 
+    def test_random_transform_generator(self):
+        batch_size = 1
+        scale = 0.1
+        seed = 0
+        expected = tf.constant(
+            np.array(
+                [
+                    [
+                        [9.4661278e-01, -3.8267835e-03, 3.6934228e-03],
+                        [5.5613145e-03, 9.8034811e-01, -1.8044969e-02],
+                        [1.9651605e-04, 1.4576728e-02, 9.6243286e-01],
+                        [-2.5107686e-03, 1.9579126e-02, -1.2195010e-02],
+                    ]
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 4, 3)
+        got = layer_util.random_transform_generator(
+            batch_size=batch_size, scale=scale, seed=seed
+        )
+        self.assertTensorsEqual(got, expected)
+
     def test_warp_grid(self):
         grid = tf.constant(
             np.array(
