@@ -56,6 +56,14 @@ class TestLayerUtil(unittest.TestCase):
         got = layer_util.get_n_bits_combinations(3)
         self.assertEqual(got, expected)
 
+    def test_pyramid_combination(self):
+        # dim = 1
+        values = tf.constant(np.array([[1], [2]], dtype=np.float32))
+        weights = tf.constant(np.array([[0.2]], dtype=np.float32))
+        expected = tf.constant(np.array([1.8], dtype=np.float32))
+        got = layer_util.pyramid_combination(values=values, weights=weights)
+        self.assertTensorsEqual(got, expected)
+
     def test_resample_linear_without_feature(self):
         # linear, vol has no feature channel
         interpolation = "linear"

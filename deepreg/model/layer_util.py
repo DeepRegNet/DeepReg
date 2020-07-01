@@ -81,23 +81,22 @@ def get_n_bits_combinations(num_bits: int) -> list:
     return [list(i) for i in itertools.product([0, 1], repeat=num_bits)]
 
 
-def pyramid_combination(x_list, w_f):
+def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     """
     calculate linear interpolation using values of hypercube corners
     in dimension n.
-    :param x_list: a list having values on the corner, has
+    :param values: a list having values on the corner, has
               2**n tensors of shape [batch, *loc_shape, (ch)]
-    :param w_f: a list having weight of floor points, has n
+    :param weights: a list having weight of floor points, has n
            tensors of shape [batch, *loc_shape, (1)]
     :return:
     """
 
-    if len(w_f) == 1:
-        return x_list[0] * w_f[0] + x_list[1] * (1 - w_f[0])
-    # else
-    return pyramid_combination(x_list[::2], w_f[:-1]) * w_f[-1] + pyramid_combination(
-        x_list[1::2], w_f[:-1]
-    ) * (1 - w_f[-1])
+    if len(weights) == 1:
+        return values[0] * weights[0] + values[1] * (1 - weights[0])
+    return pyramid_combination(values[::2], weights[:-1]) * weights[
+        -1
+    ] + pyramid_combination(values[1::2], weights[:-1]) * (1 - weights[-1])
 
 
 def resample(vol, loc, interpolation="linear"):
