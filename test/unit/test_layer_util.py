@@ -44,23 +44,45 @@ class TestLayerUtil(unittest.TestCase):
         self.assertEqual(got, expected)
         # num_bits = 3
         expected = [
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 1, 1],
-            [1, 0, 0],
-            [1, 0, 1],
-            [1, 1, 0],
-            [1, 1, 1],
+            [0, 0, 0],  # 0
+            [0, 0, 1],  # 1
+            [0, 1, 0],  # 2
+            [0, 1, 1],  # 3
+            [1, 0, 0],  # 4
+            [1, 0, 1],  # 5
+            [1, 1, 0],  # 6
+            [1, 1, 1],  # 7
         ]
         got = layer_util.get_n_bits_combinations(3)
         self.assertEqual(got, expected)
 
     def test_pyramid_combination(self):
-        # dim = 1
-        values = tf.constant(np.array([[1], [2]], dtype=np.float32))
+        # num_dim = 1
         weights = tf.constant(np.array([[0.2]], dtype=np.float32))
+        values = tf.constant(np.array([[1], [2]], dtype=np.float32))
+        # expected = 1 * 0.2 + 2 * 2
         expected = tf.constant(np.array([1.8], dtype=np.float32))
+        got = layer_util.pyramid_combination(values=values, weights=weights)
+        self.assertTensorsEqual(got, expected)
+
+        # num_dim = 2
+        weights = tf.constant(np.array([[0.2], [0.3]], dtype=np.float32))
+        values = tf.constant(
+            np.array(
+                [
+                    [1],  # value at corner (0, 0), weight = 0.2 * 0.3
+                    [2],  # value at corner (0, 1), weight = 0.2 * 0.7
+                    [3],  # value at corner (1, 0), weight = 0.8 * 0.3
+                    [4],  # value at corner (1, 1), weight = 0.8 * 0.7
+                ],
+                dtype=np.float32,
+            )
+        )
+        # expected = 1 * 0.2 * 0.3
+        #          + 2 * 0.2 * 0.7
+        #          + 3 * 0.8 * 0.3
+        #          + 4 * 0.8 * 0.7
+        expected = tf.constant(np.array([3.3], dtype=np.float32))
         got = layer_util.pyramid_combination(values=values, weights=weights)
         self.assertTensorsEqual(got, expected)
 

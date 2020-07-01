@@ -73,30 +73,117 @@ def get_n_bits_combinations(num_bits: int) -> list:
     """
     Function returning list containing all combinations of n bits.
     Given num_bits binary bits, each bit has value 0 or 1,
-    there are in total 2**n_bits
+    there are in total 2**n_bits combinations
     :param num_bits: int, number of combinations to evaluate
     :return: a list of length 2**n_bits
+    return[i] is the binary representation of the decimal integer
+    for example, when num_bits = 3
+    get_n_bits_combinations(3) =
+    [
+        [0, 0, 0], # 0
+        [0, 0, 1], # 1
+        [0, 1, 0], # 2
+        [0, 1, 1], # 3
+        [1, 0, 0], # 4
+        [1, 0, 1], # 5
+        [1, 1, 0], # 6
+        [1, 1, 1], # 7
+    ]
     """
     assert num_bits >= 1
     return [list(i) for i in itertools.product([0, 1], repeat=num_bits)]
 
 
-def pyramid_combination(values: list, weights: list) -> tf.Tensor:
+def pyramid_combination(values: list, weights: list) -> list:
     """
-    calculate linear interpolation using values of hypercube corners
-    in dimension n.
-    :param values: a list having values on the corner, has
-              2**n tensors of shape [batch, *loc_shape, (ch)]
-    :param weights: a list having weight of floor points, has n
-           tensors of shape [batch, *loc_shape, (1)]
-    :return:
-    """
+    Calculate linear interpolation (a weighted sum) using values of hypercube corners in dimension n.
 
-    if len(weights) == 1:
+    :param values: a list having values on the corner,
+                   it has 2**n tensors of shape
+                   (*loc_shape) or (batch, *loc_shape) or (batch, *loc_shape, ch)
+                   the order is consistent with get_n_bits_combinations
+                   loc_shape is independent from n, aka num_dim
+    :param weights: a list having weights of floor points,
+                    it has n tensors of shape
+                    (*loc_shape) or (batch, *loc_shape) or (batch, *loc_shape, 1)
+    :return: one tensor of the same shape as an element in values
+             (*loc_shape) or (batch, *loc_shape) or (batch, *loc_shape, 1)
+
+    for example, when num_dimension = len(loc_shape) = num_bits = 3
+    values correspond to values at corners of following coordinates
+    [
+        [0, 0, 0], # even
+        [0, 0, 1], # odd
+        [0, 1, 0], # even
+        [0, 1, 1], # odd
+        [1, 0, 0], # even
+        [1, 0, 1], # odd
+        [1, 1, 0], # even
+        [1, 1, 1], # odd
+    ]
+    values[::2] correspond to the corners with last coordinate == 0
+    [
+        [0, 0, 0],
+        [0, 1, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+    ]
+    values[1::2] correspond to the corners with last coordinate == 1
+    [
+        [0, 0, 1],
+        [0, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1],
+    ]
+
+    the weights correspond to the floor corners,
+    for example, when num_dimension = len(loc_shape) = num_bits = 3
+    weights = [w1, w2, w3] (ignoring the batch dimension)
+    so for corner with coords (x, y, z), x, y, z's values are 0 or 1
+        weight for x = w1 if x = 0 else 1-w1
+        weight for y = w2 if y = 0 else 1-w2
+        weight for z = w3 if z = 0 else 1-w3
+    so the weight for (x, y, z), denoted by W_xyz is
+          ((1-x) * w1 + x * (1-w1))
+        * ((1-y) * w2 + y * (1-w2))
+        * ((1-z) * w3 + z * (1-w3))
+    which equals
+        the weight for (x, y) * ((1-z) * w3 + z * (1-w3))
+    let W_xy = the weight for (x, y)
+    W_xyz equals
+          (W_xy * (1-z)) * w3
+        + (W_xy * z) * (1-w3)
+    So W_xy0 = W_xy * w3
+       W_xy1 = W_xy * (1-w3)
+
+    So V = sum over x,y,z (V_xyz * W_xyz)
+         = sum over x,y ( V_xy0 * W_xy0 + V_xy1 * W_xy1 )
+         = sum over x,y ( V_xy0 * W_xy * w3 + V_xy1 * W_xy * (1-w3) )
+         = sum over x,y ( W_xy * (V_xy0 * w3 + V_xy1 * W_xy * (1-w3)) )
+
+    That's why we call this pyramid combination,
+    it calculates the linear interpolation gradually, starting from the last dimension.
+    The key is that the weight of each corner is the product of the weights along each dimension.
+    """
+    if len(values[0].shape) != len(weights[0].shape):
+        raise ValueError(
+            "In pyramid_combination, elements of values and weights should have same dimension. "
+            "value shape = {}, weight = {}".format(values[0].shape, weights[0].shape)
+        )
+    if 2 ** len(weights) != len(values):
+        raise ValueError(
+            "In pyramid_combination, "
+            "num_dim = len(weights), "
+            "len(values) must be 2 ** num_dim, "
+            "But len(weights) = {}, len(values) = {}".format(len(weights), len(values))
+        )
+
+    if len(weights) == 1:  # one dimension
         return values[0] * weights[0] + values[1] * (1 - weights[0])
-    return pyramid_combination(values[::2], weights[:-1]) * weights[
-        -1
-    ] + pyramid_combination(values[1::2], weights[:-1]) * (1 - weights[-1])
+    # multi dimension
+    values_floor = pyramid_combination(values[::2], weights[:-1]) * weights[-1]
+    values_ceil = pyramid_combination(values[1::2], weights[:-1]) * (1 - weights[-1])
+    return values_floor + values_ceil
 
 
 def resample(vol, loc, interpolation="linear"):
