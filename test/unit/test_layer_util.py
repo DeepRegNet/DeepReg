@@ -29,7 +29,7 @@ class TestLayerUtil(unittest.TestCase):
                 ],
                 dtype=np.float32,
             )
-        )
+        )  # shape = (1, 2, 3, 3)
         got = layer_util.get_reference_grid(grid_size=[1, 2, 3])
         self.assertTensorsEqual(got, expected)
 
@@ -143,4 +143,45 @@ class TestLayerUtil(unittest.TestCase):
             )
         )  # shape = [1,3,3,2]
         got = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+        self.assertTensorsEqual(got, expected)
+
+    def test_warp_grid(self):
+        grid = tf.constant(
+            np.array(
+                [
+                    [
+                        [[0, 0, 0], [0, 0, 1], [0, 0, 2]],
+                        [[0, 1, 0], [0, 1, 1], [0, 1, 2]],
+                    ]
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 2, 3, 3)
+        theta = tf.constant(
+            np.array(
+                [
+                    [
+                        [0.86, 0.75, 0.48],
+                        [0.07, 0.98, 0.01],
+                        [0.72, 0.52, 0.97],
+                        [0.12, 0.4, 0.04],
+                    ]
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 4, 3)
+        expected = tf.constant(
+            np.array(
+                [
+                    [
+                        [
+                            [[0.12, 0.4, 0.04], [0.84, 0.92, 1.01], [1.56, 1.44, 1.98]],
+                            [[0.19, 1.38, 0.05], [0.91, 1.9, 1.02], [1.63, 2.42, 1.99]],
+                        ]
+                    ]
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 1, 2, 3, 3)
+        got = layer_util.warp_grid(grid=grid, theta=theta)
         self.assertTensorsEqual(got, expected)

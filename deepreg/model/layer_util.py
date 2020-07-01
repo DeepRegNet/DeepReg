@@ -326,24 +326,24 @@ def random_transform_generator(batch_size, scale=0.1):
     return tf.cast(theta, dtype=tf.float32)
 
 
-def warp_grid(grid, theta):
+def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     """
     perform transformation on the grid
 
-    :param grid: shape = [dim1, dim2, dim3, 3], grid[i,j,k,:] = [i j k]
-    :param theta: parameters of transformation, shape = [batch, 4, 3]
-    :return: shape = [batch, dim1, dim2, dim3, 3]
+    :param grid: shape = (dim1, dim2, dim3, 3), grid[i,j,k,:] = [i j k]
+    :param theta: parameters of transformation, shape = (batch, 4, 3)
+    :return: shape = (batch, dim1, dim2, dim3, 3)
 
     grid_padded[i,j,k,:] = [i j k 1]
     grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
-
-    using einsum is faster (8ms -> 5ms) per call
     """
 
     grid_size = grid.get_shape().as_list()
 
-    # [dim1, dim2, dim3, 4]
-    grid = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)
-    # [batch, dim1, dim2, dim3, 3]
-    grid_warped = tf.einsum("ijkq,bqp->bijkp", grid, theta)
+    # grid_padded[i,j,k,:] = [i j k 1], shape = (dim1, dim2, dim3, 4)
+    grid_padded = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)
+
+    # grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
+    # shape = (batch, dim1, dim2, dim3, 3)
+    grid_warped = tf.einsum("ijkq,bqp->bijkp", grid_padded, theta)
     return grid_warped
