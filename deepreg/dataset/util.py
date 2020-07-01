@@ -1,3 +1,7 @@
+"""
+Module for IO of files in relation to
+data loading.
+"""
 import glob
 import os
 import random
@@ -6,11 +10,21 @@ import h5py
 
 
 def get_h5_sorted_keys(filename):
-    with h5py.File(filename, "r") as hf:
-        return sorted(hf.keys())
+    """
+    Function to get sorted keys from filename
+    :param filename: h5 file.
+    :return: sorted keys of h5 file.
+    """
+    with h5py.File(filename, "r") as h5_file:
+        return sorted(h5_file.keys())
 
 
 def mkdir_if_not_exists(path):
+    """
+    Function to make a new directory at path
+    if directory does not exist
+    :param path: path to dir
+    """
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -31,10 +45,9 @@ def get_sorted_filenames_in_dir(dir_path: str, suffix: str = ""):
 def check_difference_between_two_lists(list1: list, list2: list):
     """
     Raise error if two lists are not identical
-    :param list1:
-    :param list2:
-    :param err_msg:
-    :return:
+    :param list1: list
+    :param list2: list
+    :return: error message if lists are not equal
     """
 
     list1_unique = sorted(set(list1) - set(list2))
@@ -48,6 +61,13 @@ def check_difference_between_two_lists(list1: list, list2: list):
 
 
 def get_label_indices(num_labels, sample_label):
+    """
+    Function to get sample label indices for a given number
+    of labels and a sampling policy
+    :param num_labels: int number of labels
+    :param sample_label: method for sampling the labels
+    :return: list of labels defined by the sampling method.
+    """
     if sample_label == "sample":  # sample a random label
         return [random.randrange(num_labels)]
     elif sample_label == "first":  # use the first label
