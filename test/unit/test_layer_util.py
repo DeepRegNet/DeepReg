@@ -33,6 +33,29 @@ class TestLayerUtil(unittest.TestCase):
         got = layer_util.get_reference_grid(grid_size=[1, 2, 3])
         self.assertTensorsEqual(got, expected)
 
+    def test_get_n_bits_combinations(self):
+        # num_bits = 1
+        expected = [[0], [1]]
+        got = layer_util.get_n_bits_combinations(1)
+        self.assertEqual(got, expected)
+        # num_bits = 2
+        expected = [[0, 0], [0, 1], [1, 0], [1, 1]]
+        got = layer_util.get_n_bits_combinations(2)
+        self.assertEqual(got, expected)
+        # num_bits = 3
+        expected = [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 1],
+            [1, 1, 0],
+            [1, 1, 1],
+        ]
+        got = layer_util.get_n_bits_combinations(3)
+        self.assertEqual(got, expected)
+
     def test_resample_linear_without_feature(self):
         # linear, vol has no feature channel
         interpolation = "linear"

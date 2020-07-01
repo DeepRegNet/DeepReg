@@ -69,12 +69,16 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     return grid
 
 
-def get_n_bits_combinations(n_bits):
+def get_n_bits_combinations(num_bits: int) -> list:
     """
-    Function returning list containing combinations of n bits.
-    :param n_bits: int, number of combinations to evaluate
+    Function returning list containing all combinations of n bits.
+    Given num_bits binary bits, each bit has value 0 or 1,
+    there are in total 2**n_bits
+    :param num_bits: int, number of combinations to evaluate
+    :return: a list of length 2**n_bits
     """
-    return [list(i) for i in itertools.product([0, 1], repeat=n_bits)]
+    assert num_bits >= 1
+    return [list(i) for i in itertools.product([0, 1], repeat=num_bits)]
 
 
 def pyramid_combination(x_list, w_f):
@@ -159,7 +163,7 @@ def resample(vol, loc, interpolation="linear"):
 
     # get vol values on n-dim hypercube corners
     # 2**n corners, each is of n binary values
-    corner_indices = get_n_bits_combinations(n_bits=len(vol_shape))
+    corner_indices = get_n_bits_combinations(num_bits=len(vol_shape))
 
     # range(batch_size) on axis 0 and repeated on other axises
     # add batch coords manually is faster than using batch_dims in tf.gather_nd
