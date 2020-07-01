@@ -34,10 +34,10 @@ def check_inputs(inputs, size, msg=""):
         )
 
 
-def get_reference_grid(grid_size):
+def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     """
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
-    :return: tf tensor, shape = [dim1, dim2, dim3, 3],
+    :return: shape = [dim1, dim2, dim3, 3],
              grid[i, j, k, :] = [i j k]
 
     for tf.meshgrid, in the 3-D case with inputs of length M, N and P,
@@ -49,15 +49,24 @@ def get_reference_grid(grid_size):
     neuron modifies meshgrid to make it faster, however local
     benchmark suggests tf.meshgrid is better
     """
+
+    # dim1, dim2, dim3 = grid_size
+    # mesh_grid has three elements, corresponding to i, j, k
+    # for i in range(dim1)
+    #     for j in range(dim2)
+    #         for k in range(dim3)
+    #             mesh_grid[0][i,j,k] = i
+    #             mesh_grid[1][i,j,k] = j
+    #             mesh_grid[2][i,j,k] = k
     mesh_grid = tf.meshgrid(
         tf.range(grid_size[0]),
         tf.range(grid_size[1]),
         tf.range(grid_size[2]),
         indexing="ij",
-    )
-    stacked_mesh = tf.stack(mesh_grid, axis=3)
-
-    return tf.cast(stacked_mesh, dtype=tf.float32)
+    )  # has three elements, each shape = (dim1, dim2, dim3)
+    grid = tf.stack(mesh_grid, axis=3)  # shape = (dim1, dim2, dim3, 3)
+    grid = tf.cast(grid, dtype=tf.float32)
+    return grid
 
 
 def get_n_bits_combinations(n_bits):
