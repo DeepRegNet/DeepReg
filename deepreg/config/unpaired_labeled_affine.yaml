@@ -1,17 +1,37 @@
+<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
 # TODO to update
 
 dataset:
   dir: "data/test/nifti/paired" # required
+=======
+data:
+  dir:
+    train: "data/test/nifti/unpaired/train" # required
+    valid: "data/test/nifti/unpaired/test" # required
+    test: "data/test/nifti/unpaired/test" # required
+>>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
   format: "nifti"
-  type: "paired" # paired / unpaired / grouped
+  type: "unpaired" # paired / unpaired / grouped
   labeled: true
+<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
   moving_image_shape: [16, 16, 16]
   fixed_image_shape: [8, 8, 8]
+=======
+  image_shape: [64, 64, 60]
+>>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
 
 train:
   model:
+<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
     method: "ddf" # ddf or conditional or seg
     backbone: "global"
+=======
+    method: "affine" # ddf or conditional or seg
+    backbone:
+      name: "global"
+      out_kernel_initializer: "zeros" # zeros or glorot_uniform
+      out_activation: ""
+>>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
@@ -19,7 +39,7 @@ train:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
     unet:
-      num_channel_initial: 4
+      num_channel_initial: 1
       depth: 2
       pooling: true
       concat_skip: false
@@ -27,7 +47,7 @@ train:
     dissimilarity:
       image:
         name: "lncc"
-        weight: 0.
+        weight: 0.1
       label:
         weight: 1.0
         name: "multi_scale"
@@ -37,7 +57,7 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 0.0
+      weight: 0.5
       energy_type: "bending"
   preprocess:
     batch_size: 2
