@@ -91,14 +91,14 @@ class TestLayerUtil(unittest.TestCase):
         interpolation = "linear"
         vol = tf.constant(
             np.array([[[0, 1, 2], [3, 4, 5]]], dtype=np.float32)
-        )  # shape = [1,2,3]
+        )  # shape = [1,2,3], vol[0,x,y] = 3x + y
         loc = tf.constant(
             np.array(
                 [
                     [
-                        [[0, 0], [0, 1], [0, 3]],  # outside frame
+                        [[0, 0], [0, 1], [0, 3]],  # [x,y]=[0,3] is outside frame
                         [[0.4, 0], [0.5, 1], [0.6, 2]],
-                        [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],  # resampled = 3x+y
+                        [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
                     ]
                 ],
                 dtype=np.float32,
@@ -111,6 +111,9 @@ class TestLayerUtil(unittest.TestCase):
         self.assertTensorsEqual(got, expected)
 
     def test_resample_linear_with_feature(self):
+        # compared to test_resample_linear_without_feature
+        # the volume is repeated to add a feature channel
+        # values should be repeated as well
         # linear, vol has feature channel
         interpolation = "linear"
         vol = tf.constant(
@@ -122,9 +125,9 @@ class TestLayerUtil(unittest.TestCase):
             np.array(
                 [
                     [
-                        [[0, 0], [0, 1], [0, 3]],  # outside frame
+                        [[0, 0], [0, 1], [0, 3]],
                         [[0.4, 0], [0.5, 1], [0.6, 2]],
-                        [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],  # resampled = 3x+y
+                        [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
                     ]
                 ],
                 dtype=np.float32,
