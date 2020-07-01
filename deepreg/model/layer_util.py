@@ -7,19 +7,12 @@ import numpy as np
 import tensorflow as tf
 
 
-def he_normal():
-    """
-    Returns a tf.keras initializer instance
-    """
-    return tf.keras.initializers.he_normal()
-
-
 def check_inputs(inputs, size, msg=""):
     """
     Function to assert correct input types and length
     :param inputs: list or tuple
     :param size: int, defines corect size of input tuple/list
-    :msg [default empty]: string type to return with raised ValueError
+    :param msg: string type to return with raised ValueError
     """
     if msg != "":
         msg += " "
