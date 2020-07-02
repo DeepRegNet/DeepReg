@@ -25,6 +25,7 @@ setup(
         "black",
         "flake8",
         "simple_http_server",
+        "testfixtures",
     ],
     entry_points={
         "console_scripts": [
