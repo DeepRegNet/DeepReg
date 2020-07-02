@@ -9,8 +9,8 @@ def build_model(
     index_size: int,
     labeled: bool,
     batch_size: int,
-    tf_model_config: dict,
-    tf_loss_config: dict,
+    model_config: dict,
+    loss_config: dict,
 ):
     """
     Parsing algorithm types to model building functions
@@ -20,37 +20,37 @@ def build_model(
     :param index_size: dataset size
     :param labeled: true if the label of moving/fixed images are provided
     :param batch_size: mini-batch size
-    :param tf_model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param tf_loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
+    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
-    if tf_model_config["method"] == "ddf":
+    if model_config["method"] == "ddf":
         return build_ddf_model(
             moving_image_size,
             fixed_image_size,
             index_size,
             labeled,
             batch_size,
-            tf_model_config,
-            tf_loss_config,
+            model_config,
+            loss_config,
         )
-    elif tf_model_config["method"] == "dvf":
+    elif model_config["method"] == "dvf":
         return build_dvf_model(
             moving_image_size,
             fixed_image_size,
             index_size,
             batch_size,
-            tf_model_config,
-            tf_loss_config,
+            model_config,
+            loss_config,
         )
-    elif tf_model_config["method"] == "conditional":
+    elif model_config["method"] == "conditional":
         return build_cond_model(
             moving_image_size,
             fixed_image_size,
             index_size,
             batch_size,
-            tf_model_config,
-            tf_loss_config,
+            model_config,
+            loss_config,
         )
     else:
         raise ValueError("Unknown model method")
