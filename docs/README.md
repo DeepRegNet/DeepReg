@@ -16,8 +16,8 @@ Multiple selected demos of image registration using open-sourced data.
 ## Documentation
 
 - Installation
-- [Configuration](api_configuration.md)
-- [Data Loader](api_data_loader.md)
+- [Configuration](doc_configuration.md)
+- [Data Loader](doc_data_loader.md)
 - Custom Model
 
 ## Contributions
