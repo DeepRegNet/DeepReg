@@ -21,7 +21,7 @@ The python scripts used along with their brief descriptions are as follows:
 
 - data.py: used to download, unzip and restructure and rescale the dataset to suit 
 the needs of the DeepReg toolbox
-- .yaml files: config file used to specify training options
+- unpaired_ct_lung.yaml files: config file used to specify training options
 - train.py: used to train the network using the DeepReg toolbox
 - predict.py: used to predict and visualise predictions from the trained network
 
