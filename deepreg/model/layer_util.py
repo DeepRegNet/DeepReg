@@ -89,7 +89,8 @@ def get_n_bits_combinations(num_bits: int) -> list:
 
 def pyramid_combination(values: list, weights: list) -> list:
     """
-    Calculate linear interpolation (a weighted sum) using values of hypercube corners in dimension n.
+    Calculate linear interpolation (a weighted sum) using values of
+    hypercube corners in dimension n.
 
     :param values: a list having values on the corner,
                    it has 2**n tensors of shape
@@ -155,13 +156,18 @@ def pyramid_combination(values: list, weights: list) -> list:
          = sum over x,y ( W_xy * (V_xy0 * w3 + V_xy1 * W_xy * (1-w3)) )
 
     That's why we call this pyramid combination,
-    it calculates the linear interpolation gradually, starting from the last dimension.
-    The key is that the weight of each corner is the product of the weights along each dimension.
+    it calculates the linear interpolation gradually, starting from
+    the last dimension.
+    The key is that the weight of each corner is the product of the weights
+    along each dimension.
     """
     if len(values[0].shape) != len(weights[0].shape):
         raise ValueError(
-            "In pyramid_combination, elements of values and weights should have same dimension. "
-            "value shape = {}, weight = {}".format(values[0].shape, weights[0].shape)
+            """In pyramid_combination, elements of values and
+            weights should have same dimension.
+            value shape = {}, weight = {}""".format(
+                values[0].shape, weights[0].shape
+            )
         )
     if 2 ** len(weights) != len(values):
         raise ValueError(
@@ -249,11 +255,11 @@ def resample(vol, loc, interpolation="linear"):
     #                        (batch, *loc_shape, 1) if volume has feature channel
     loc_unstack = tf.unstack(loc, axis=-1)
     loc_floor_ceil, weight_floor = [], []
-    for d, loc_d in enumerate(loc_unstack):
+    for dim, loc_d in enumerate(loc_unstack):
         # using for loop is faster than using list comprehension
         # clip to be inside 0 ~ (l_dim d - 1)
         clipped = tf.clip_by_value(
-            loc_d, clip_value_min=0, clip_value_max=vol_shape[d] - 1
+            loc_d, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
         )  # shape = (batch, *loc_shape)
         c_ceil = tf.math.ceil(clipped)  # shape = (batch, *loc_shape)
         c_floor = tf.maximum(c_ceil - 1, 0)  # shape = (batch, *loc_shape)
