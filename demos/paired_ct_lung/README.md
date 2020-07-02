@@ -1,4 +1,4 @@
-# CT Lung Registration
+# Paired CT Lung Registration
 
 Lungs experince motion due to breathing and the motion can be a problem when registering
 two images of the lung taken at different times in the breathing cycle. This demo uses
@@ -11,20 +11,19 @@ The dataset for this demo comes from [1] and can be downloaded from:
 https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 # Demo Description
+This is a paired intra subject registration. This means registration of inspiration
+images with expiration images for the same patient is demonstrated.
 
-- This is a paired intra subject registration. This means registration of inspiration
-  images with expiration images for the same patient is demonstrated.
-
-# Usage of the Python Scripts and Config Files (applicable to both demos)
+# Usage of the Python Scripts and Config File
 
 The python scripts used along with their brief descriptions are as follows:
 
-- data.py: used to download, unzip and restructure the dataset to suit the needs of the
+- demo_data.py: used to download, unzip and restructure the dataset to suit the needs of the
   DeepReg toolbox
-- .yaml files: config file used to specify training options
-- train.py: used to rescale images to 255 and train the network using the DeepReg
+- paired_ct_lung.yaml files: config file used to specify training options
+- demo_train.py: used to rescale images to 255 and train the network using the DeepReg
   toolbox
-- predict.py: used to predict and visualise predictions from the trained network
+- demo_predict.py: used to predict and visualise predictions from the trained network
 
 # References
 
