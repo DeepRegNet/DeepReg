@@ -287,11 +287,34 @@ def test_multi_scale_loss_true_len():
 
 
 def test_multi_scale_loss_kernel():
-    pass
+    loss_values = np.asarray([1, 2, 3])
+    array_eye = np.identity((3))
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_eye = np.zeros((3, 3, 3, 3))
+
+    tensor_eye[:, :, 0:3, 0:3] = array_eye
+    tensor_pred[:, :, 0, 0] = array_eye
+    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.double)
+    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.double)
+    list_losses = np.array(
+        [
+            label.single_scale_loss(
+                y_true=label.separable_filter3d(tensor_eye, label.gauss_kernel1d(s)),
+                y_pred=label.separable_filter3d(tensor_pred, label.gauss_kernel1d(s)),
+                loss_type="jaccard",
+            )
+            for s in loss_values
+        ]
+    )
+    expect = np.mean(list_losses, axis=0)
+    get = label.multi_scale_loss(tensor_eye, tensor_pred, "jaccard", loss_values)
+    assert assertTensorsEqual(get, expect)
 
 
 def test_similarity_fn_unknown_loss():
-    pass
+    config = {"name": "random"}
+    with pytest.raises(ValueError):
+        label.get_similarity_fn(config)
 
 
 def test_similarity_fn_multi_scale():
