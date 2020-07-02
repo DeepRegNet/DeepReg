@@ -94,7 +94,7 @@ types of losses:
 Depending on the availability of the data labels, we can split the registration network
 training into the following types:
 
-### Unsupervised learning
+### Unsupervised
 
 When the data label is unavailable, the training is driven by the unsupervised loss. The
 loss function often consists of the intensity based loss and deformation loss. Following
@@ -102,7 +102,7 @@ is an illustration of an unsupervised DDF-based registration network.
 
 ![Unsupervised DDF-based registration network](asset/registration-ddf-nn-unsupervised.svg ":size=600")
 
-### Weakly-supervised learning
+### Weakly-supervised
 
 The training may take an additional pair of corresponding moving and fixed labels,
 represented by binary masks, to compute a label dissimilarity (feature based loss) to
@@ -118,7 +118,7 @@ data set (epoch). Read [data sampling API](tutorial_sampling.md) for more detail
 
 ![Weakly-supervised DDF-based registration network](asset/registration-ddf-nn-weakly-supervised.svg ":size=600")
 
-### Unsupervised learning with weak supervision
+### Combined
 
 When the data label is available, combining intensity based, feature based, and
 deformation based losses together has shown superior registration accuracy, compared to
