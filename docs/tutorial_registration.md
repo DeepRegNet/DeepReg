@@ -107,10 +107,10 @@ following is an illustration of an unsupervised DDF-based registration network.
 
 ### Weakly-supervised
 
-When intensity based loss is not available for the image pair one would like to
-register, the training can take an additional pair of corresponding moving and fixed
-labels, represented by binary masks, to compute a label dissimilarity (feature based
-loss) to drive the registration.
+When there is no intensity based loss that is appropriate for the image pair one would
+like to register, the training can take a pair of corresponding moving and fixed labels
+(in addition to the image pair), represented by binary masks, to compute a label
+dissimilarity (feature based loss) to drive the registration.
 
 Combined with the regularisation on the predicted displacement field, this forms a
 weakly-supervised training. An illustration of an weakly-supervised DDF-based
