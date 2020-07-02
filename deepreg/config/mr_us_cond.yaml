@@ -8,7 +8,7 @@ data:
     train: "sample" # sample or first or all
     test: "first"
 
-tf:
+train:
   model:
     method: "conditional" # ddf or conditional or seg
     backbone:

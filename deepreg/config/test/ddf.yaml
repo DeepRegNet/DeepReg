@@ -1,4 +1,4 @@
-tf:
+train:
   model:
     method: "ddf" # ddf or conditional or seg
     backbone:

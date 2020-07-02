@@ -8,7 +8,7 @@ data:
   moving_image_shape: [64, 64, 60]
   fixed_image_shape: [44, 59, 41]
 
-tf:
+train:
   model:
     method: "ddf" # ddf or conditional or seg
     backbone:

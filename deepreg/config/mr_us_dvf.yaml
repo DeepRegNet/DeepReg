@@ -9,7 +9,7 @@ data:
     train: "sample" # sample or first or all
     test: "first"
 
-tf:
+train:
   model:
     method: "dvf" # ddf or dvf or conditional or seg
     backbone:

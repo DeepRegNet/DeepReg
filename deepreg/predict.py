@@ -230,11 +230,11 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     # load config
     config, log_dir = init(log_dir, ckpt_path)
     data_config = config["data"]
-    tf_data_config = config["tf"]["data"]
+    tf_data_config = config["train"]["data"]
     tf_data_config["batch_size"] = batch_size
-    tf_opt_config = config["tf"]["opt"]
-    tf_model_config = config["tf"]["model"]
-    tf_loss_config = config["tf"]["loss"]
+    tf_opt_config = config["train"]["opt"]
+    tf_model_config = config["train"]["model"]
+    tf_loss_config = config["train"]["loss"]
 
     # data
     data_loader = load.get_data_loader(data_config, mode)

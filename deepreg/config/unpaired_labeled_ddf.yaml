@@ -8,7 +8,7 @@ data:
   labeled: true
   image_shape: [64, 64, 60]
 
-tf:
+train:
   model:
     method: "ddf" # ddf or conditional or seg
     backbone:

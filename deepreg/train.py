@@ -65,13 +65,13 @@ def train(
     # load config
     config, log_dir = init(config_path, log_dir, ckpt_path)
     data_config = config["data"]
-    tf_data_config = config["tf"]["data"]
-    tf_opt_config = config["tf"]["opt"]
-    tf_model_config = config["tf"]["model"]
-    tf_loss_config = config["tf"]["loss"]
-    num_epochs = config["tf"]["epochs"]
-    save_period = config["tf"]["save_period"]
-    histogram_freq = config["tf"]["histogram_freq"]
+    tf_data_config = config["train"]["data"]
+    tf_opt_config = config["train"]["opt"]
+    tf_model_config = config["train"]["model"]
+    tf_loss_config = config["train"]["loss"]
+    num_epochs = config["train"]["epochs"]
+    save_period = config["train"]["save_period"]
+    histogram_freq = config["train"]["histogram_freq"]
 
     # data
     data_loader_train = get_data_loader(data_config, "train")
