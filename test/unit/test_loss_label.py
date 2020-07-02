@@ -124,7 +124,22 @@ def test_dice_binary():
 
 
 def test_dice_general():
-    pass
+    array_eye = 0.6 * np.identity((3))
+    tensor_eye = np.zeros((3, 3, 3, 3))
+    tensor_eye[:, :, 0:3, 0:3] = array_eye
+
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_pred[:, 0:2, :, :] = array_eye
+
+    y_prod = np.sum(tensor_eye * tensor_pred, axis=(1, 2, 3))
+    y_sum = np.sum(tensor_eye, axis=(1, 2, 3)) + np.sum(tensor_pred, axis=(1, 2, 3))
+
+    num = 2 * y_prod
+    den = y_sum
+    expect = num / den
+    get = label.dice_score_generalized(tensor_eye, tensor_pred)
+
+    assert assertTensorsEqual(get, expect)
 
 
 def test_weighted_bce():
@@ -150,12 +165,15 @@ def test_separable_filter_0():
 
 
 def test_separable_filter_else():
-    # kernel = np.empty((0))
-    # array_eye = np.identity((3))
-    # get = label.separable_filter3d(array_eye, kernel)
-    # expect = array_eye
-    # assert assertTensorsEqual(get, expect)
-    pass
+    k = np.ones((3, 3, 3, 3))
+    array_eye = np.identity((3))
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_pred[:, :, 0, 0] = array_eye
+
+    expect = np.ones((3, 3, 3, 3))
+
+    get = label.separable_filter3d(tensor_pred, k)
+    assert assertTensorsEqual(get, expect)
 
 
 def test_compute_centroid():
@@ -209,7 +227,21 @@ def test_single_scale_loss_bce():
 
 
 def test_single_scale_loss_dg():
-    pass
+    array_eye = 0.6 * np.identity((3))
+    tensor_eye = np.zeros((3, 3, 3, 3))
+    tensor_eye[:, :, 0:3, 0:3] = array_eye
+
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_pred[:, 0:2, :, :] = array_eye
+
+    y_prod = np.sum(tensor_eye * tensor_pred, axis=(1, 2, 3))
+    y_sum = np.sum(tensor_eye, axis=(1, 2, 3)) + np.sum(tensor_pred, axis=(1, 2, 3))
+
+    num = 2 * y_prod
+    den = y_sum
+    expect = 1 - num / den
+    get = label.single_scale_loss(tensor_eye, tensor_pred, "dice_generalized")
+    assert assertTensorsEqual(get, expect)
 
 
 def test_single_scale_loss_jacc():
@@ -236,9 +268,35 @@ def test_single_scale_loss_other():
         label.single_scale_loss(tensor_eye, tensor_pred, "random")
 
 
-def test_multi_scale_loss():
+def test_multi_scale_loss_pred_len():
+    tensor_true = np.zeros((3, 3, 3, 3))
+    tensor_pred = np.zeros((3, 3, 3))
+    with pytest.raises(AssertionError):
+        label.multi_scale_loss(
+            tensor_true, tensor_pred, loss_type="jaccard", loss_scales=[0, 1, 2]
+        )
+
+
+def test_multi_scale_loss_true_len():
+    tensor_true = np.zeros((3, 3, 3))
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    with pytest.raises(AssertionError):
+        label.multi_scale_loss(
+            tensor_true, tensor_pred, loss_type="jaccard", loss_scales=[0, 1, 2]
+        )
+
+
+def test_multi_scale_loss_kernel():
     pass
 
 
-def test_similarity_fn():
+def test_similarity_fn_unknown_loss():
+    pass
+
+
+def test_similarity_fn_multi_scale():
+    pass
+
+
+def test_similarity_fn_single_scale():
     pass
