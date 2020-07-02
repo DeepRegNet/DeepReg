@@ -8,6 +8,7 @@ import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 
+
 def check_equal(tensor_1, tensor_2):
     """
     Given two tf tensors return True/False (not tf tensor)
@@ -17,6 +18,7 @@ def check_equal(tensor_1, tensor_2):
     :return: True if difference less than 1e-6, False otherwise.
     """
     return tf.reduce_max(tf.abs(tensor_1 - tensor_2)).numpy() < 1e-6
+
 
 def test_check_inputs():
     """
@@ -32,20 +34,20 @@ def test_check_inputs():
     # Check inputs int - Fail
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs(0, 0)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple" in msg
 
     # Check inputs float - Fail
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs(0.0, 0)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple" in msg
 
     # Check size float - Fail
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs([1], 0.5)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple of size' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple of size" in msg
 
     # Check size 0 - Pass
     assert layer_util.check_inputs([], 0) is None
@@ -54,12 +56,12 @@ def test_check_inputs():
     # Check size 0 - Fail
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs([0], 0)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple of size' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple of size" in msg
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs((0,), 0)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple of size' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple of size" in msg
 
     # Check size 1 - Pass
     assert layer_util.check_inputs([0], 1) is None
@@ -68,27 +70,28 @@ def test_check_inputs():
     # Check size 1 - Fail
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs([], 1)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple of size' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple of size" in msg
     with pytest.raises(ValueError) as execinfo:
         layer_util.check_inputs((), 1)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'Inputs should be a list or tuple of size' in msg
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "Inputs should be a list or tuple of size" in msg
+
 
 def test_get_reference_grid():
     """
     Test get_reference_grid by confirming that it generates
     a sample grid test case to check_equal's tolerance level.
     """
-    want = tf.constant(np.array([[[[0, 0, 0],
-                                   [0, 0, 1],
-                                   [0, 0, 2]],
-                                  [[0, 1, 0],
-                                   [0, 1, 1],
-                                   [0, 1, 2]]]],
-                                dtype=np.float32))
+    want = tf.constant(
+        np.array(
+            [[[[0, 0, 0], [0, 0, 1], [0, 0, 2]], [[0, 1, 0], [0, 1, 1], [0, 1, 2]]]],
+            dtype=np.float32,
+        )
+    )
     get = layer_util.get_reference_grid(grid_size=[1, 2, 3])
     assert check_equal(want, get)
+
 
 def test_get_n_bits_combinations():
     """
@@ -96,23 +99,22 @@ def test_get_n_bits_combinations():
     appropriate solutions for 1D, 2D, and 3D cases.
     """
     # Check n=1 - Pass
-    assert layer_util.get_n_bits_combinations(1) == [[0],
-                                                     [1]]
+    assert layer_util.get_n_bits_combinations(1) == [[0], [1]]
     # Check n=2 - Pass
-    assert layer_util.get_n_bits_combinations(2) == [[0, 0],
-                                                     [0, 1],
-                                                     [1, 0],
-                                                     [1, 1]]
+    assert layer_util.get_n_bits_combinations(2) == [[0, 0], [0, 1], [1, 0], [1, 1]]
 
     # Check n=3 - Pass
-    assert layer_util.get_n_bits_combinations(3) == [[0, 0, 0],
-                                                     [0, 0, 1],
-                                                     [0, 1, 0],
-                                                     [0, 1, 1],
-                                                     [1, 0, 0],
-                                                     [1, 0, 1],
-                                                     [1, 1, 0],
-                                                     [1, 1, 1]]
+    assert layer_util.get_n_bits_combinations(3) == [
+        [0, 0, 0],
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1],
+    ]
+
 
 def test_pyramid_combinations():
     """
@@ -148,6 +150,7 @@ def test_pyramid_combinations():
     got = layer_util.pyramid_combination(values=values, weights=weights)
     assert check_equal(got, expected)
 
+
 def test_resample():
     """
     Test resample by confirming that it generates appropriate
@@ -156,83 +159,70 @@ def test_resample():
     """
     # linear, vol has no feature channel - Pass
     interpolation = "linear"
-    vol = tf.constant(np.array(
-        [[[0, 1, 2],
-          [3, 4, 5]]],
-        dtype=np.float32))          # shape = [1,2,3]
-    loc = tf.constant(np.array(
-        [[[[0, 0],
-           [0, 1],
-           [0, 3]],             # outside frame
-          [[0.4, 0],
-           [0.5, 1],
-           [0.6, 2]],
-          [[0.4, 0.7],
-           [0.5, 0.5],
-           [0.6, 0.3]]]],           # resampled = 3x+y
-        dtype=np.float32))          # shape = [1,3,3,2]
-    want = tf.constant(np.array(
-        [[[0, 1, 2],
-          [1.2, 2.5, 3.8],
-          [1.9, 2, 2.1]]],
-        dtype=np.float32))          # shape = [1,3,3]
-    get = layer_util.resample(vol=vol,
-                              loc=loc,
-                              interpolation=interpolation)
+    vol = tf.constant(
+        np.array([[[0, 1, 2], [3, 4, 5]]], dtype=np.float32)
+    )  # shape = [1,2,3]
+    loc = tf.constant(
+        np.array(
+            [
+                [
+                    [[0, 0], [0, 1], [0, 3]],  # outside frame
+                    [[0.4, 0], [0.5, 1], [0.6, 2]],
+                    [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
+                ]
+            ],  # resampled = 3x+y
+            dtype=np.float32,
+        )
+    )  # shape = [1,3,3,2]
+    want = tf.constant(
+        np.array([[[0, 1, 2], [1.2, 2.5, 3.8], [1.9, 2, 2.1]]], dtype=np.float32)
+    )  # shape = [1,3,3]
+    get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
     assert check_equal(want, get)
 
     # linear, vol has feature channel - Pass
     interpolation = "linear"
-    vol = tf.constant(np.array(
-        [[[[0, 0],
-           [1, 1],
-           [2, 2]],
-          [[3, 3],
-           [4, 4],
-           [5, 5]]]],
-        dtype=np.float32))          # shape = [1,2,3,2]
-    loc = tf.constant(np.array(
-        [[[[0, 0],
-           [0, 1],
-           [0, 3]],                 # outside frame
-          [[0.4, 0],
-           [0.5, 1],
-           [0.6, 2]],
-          [[0.4, 0.7],
-           [0.5, 0.5],
-           [0.6, 0.3]]]],           # resampled = 3x+y
-        dtype=np.float32))          # shape = [1,3,3,2]
-    want = tf.constant(np.array(
-        [[[[0, 0],
-           [1, 1],
-           [2, 2]],
-          [[1.2, 1.2],
-           [2.5, 2.5],
-           [3.8, 3.8]],
-          [[1.9, 1.9],
-           [2, 2],
-           [2.1, 2.1]]]],
-        dtype=np.float32))          # shape = [1,3,3,2]
-    get = layer_util.resample(vol=vol,
-                              loc=loc,
-                              interpolation=interpolation)
+    vol = tf.constant(
+        np.array(
+            [[[[0, 0], [1, 1], [2, 2]], [[3, 3], [4, 4], [5, 5]]]], dtype=np.float32
+        )
+    )  # shape = [1,2,3,2]
+    loc = tf.constant(
+        np.array(
+            [
+                [
+                    [[0, 0], [0, 1], [0, 3]],  # outside frame
+                    [[0.4, 0], [0.5, 1], [0.6, 2]],
+                    [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
+                ]
+            ],  # resampled = 3x+y
+            dtype=np.float32,
+        )
+    )  # shape = [1,3,3,2]
+    want = tf.constant(
+        np.array(
+            [
+                [
+                    [[0, 0], [1, 1], [2, 2]],
+                    [[1.2, 1.2], [2.5, 2.5], [3.8, 3.8]],
+                    [[1.9, 1.9], [2, 2], [2.1, 2.1]],
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = [1,3,3,2]
+    get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
     assert check_equal(want, get)
 
     # Inconsistent shapes for resampling - Fail
     interpolation = "linear"
-    vol = tf.constant(np.array(
-        [[0]],
-        dtype=np.float32))          # shape = [1,1]
-    loc = tf.constant(np.array(
-        [[0, 0],
-         [0, 0]],
-        dtype=np.float32))          # shape = [2,2]
+    vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
+    loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
     with pytest.raises(ValueError) as execinfo:
-        layer_util.resample(vol=vol,
-                            loc=loc,
-                            interpolation=interpolation)
-    msg = ' '.join(execinfo.value.args[0].split())
-    assert 'vol shape inconsistent with loc' in msg
+        layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "vol shape inconsistent with loc" in msg
+
 
 def test_random_transform_generator():
     """
@@ -266,6 +256,7 @@ def test_random_transform_generator():
     )
     assert check_equal(got, expected)
 
+
 def test_warp_grid():
     """
     Test warp_grid by confirming that it generates
@@ -273,12 +264,7 @@ def test_warp_grid():
     """
     grid = tf.constant(
         np.array(
-            [
-                [
-                    [[0, 0, 0], [0, 0, 1], [0, 0, 2]],
-                    [[0, 1, 0], [0, 1, 1], [0, 1, 2]],
-                ]
-            ],
+            [[[[0, 0, 0], [0, 0, 1], [0, 0, 2]], [[0, 1, 0], [0, 1, 1], [0, 1, 2]], ]],
             dtype=np.float32,
         )
     )  # shape = (1, 2, 3, 3)
