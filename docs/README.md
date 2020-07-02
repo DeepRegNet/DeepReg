@@ -6,12 +6,11 @@
 
 #### Image Registration
 
-A detailed [tutorial](tutorial_registration.md) on image registration with deep
-learning.
+A [tutorial](tutorial_registration.md) on image registration with deep learning.
 
 #### Demos
 
-Multiple selected demos of image registration using open-sourced data.
+Several demos of image registration using open-sourced data.
 
 ## Documentation
 

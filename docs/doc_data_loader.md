@@ -1,12 +1,12 @@
-# Data Loader
+# Dataset Loader
 
-## Existing Data Loaders
+## Existing Dataset Loaders
 
-DeepReg provides multiple data loaders to support different scenarios.
+DeepReg provides multiple dataset loaders to support different scenarios.
 
-### Data Structure
+### Dataset Structure
 
-We support the following three types of image structure.
+We support the following three types of dataset structure.
 
 #### Image
 
@@ -14,43 +14,43 @@ We support the following three types of image structure.
 
 Images are organized into moving and fixed image pairs.
 
-An example case is two-modalities intra-subject registration, like register one
+An example case is two-modalities intra-subject registration, such as registering one
 subject's MR image to the corresponding ultrasound image.
 
 ##### 2. Unpaired Images
 
-Images are independent samples and of the same modality.
+Images are independent samples.
 
-An example case is single-modality inter-subject registration, like register one
-subject's CT image to another subject's CT image.
+An example case is single-modality inter-subject registration, such as registering one
+CT image to another from different subjects.
 
 ##### 3. Grouped images
 
 Images are organized into multiple groups.
 
-An example case is single-modality intra-subject registration, like register one
-subject's CT image at time t0 to the same subject's CT image at time t1.
+An example case is single-modality intra-subject registration, such as registering
+time-series images within individual subjects, a group is a subject in this case.
 
 !> Currently, DeepReg only supports 3D images.
 
-!> All images have to have the same shape, `(m_dim1, m_dim2, m_dim3)`. <br> For paired
-images, the moving images and fixed images can have different shapes,
+!> All images arerequired to have the same shape, `(m_dim1, m_dim2, m_dim3)`. <br> For
+paired images, the moving images and fixed images can have different shapes,
 `(m_dim1, m_dim2, m_dim3)` and `(f_dim1, f_dim2, f_dim3)`.
 
 #### Label
 
-For all three cases above, the data can be either unlabeled or labeled.
+For all three above cases, the data can be either unlabeled or labeled.
 
-!> If an image is labeled, the label's shape has to be the same as the image. But one
+!> If an image is labeled, the label's shape has to be the same as the image. But each
 image can have more than one labels. So given an image of shape `(dim1, dim2, dim3)`,
 its label's shape can be `(dim1, dim2, dim3)` or `(dim1, dim2, dim3, num_labels)`.
 
 !> Currently, if the data are labeled, each data sample has to have at least one label.
-If only part of the data are labeled, it should be considered as unlabeled data.
+For missing labels, consider using all zeros as a work-around.
 
 ### Data Format
 
-Deepreg supports currently Nifti and h5 file format. Each image structure has specific
+Deepreg supports currently Nifti and h5 file format. Each dataset structure has specific
 requirements for the data storage.
 
 #### Nifti Data
@@ -58,7 +58,9 @@ requirements for the data storage.
 Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
 3D or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows.
+The requirements for different structures are as follows. `obs` is short for one
+observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
+can be any string.
 
 ##### 1. Paired Images
 
@@ -69,20 +71,20 @@ _top_ directories.
 File names should be consistent between top directories, e.g.:
 
 - moving_images/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 - fixed_images/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 - moving_labels/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 - fixed_labels/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 
 Check
@@ -100,12 +102,12 @@ All image data should be placed under `images/`. The label data should be placed
 File names should be consistent between top directories, e.g.:
 
 - images/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 - labels/
-  - subject1.nii.gz
-  - subject2.nii.gz
+  - obs1.nii.gz
+  - obs2.nii.gz
   - ...
 
 Check
@@ -122,14 +124,14 @@ consistent between top directories, e.g.:
 
 - images
   - group1
-    - subject1.nii.gz
-    - subject2.nii.gz
+    - obs1.nii.gz
+    - obs2.nii.gz
     - ...
   - ...
 - labels
   - group1
-    - subject1.nii.gz
-    - subject2.nii.gz
+    - obs1.nii.gz
+    - obs2.nii.gz
     - ...
   - ...
 
@@ -153,20 +155,20 @@ should be stored in `moving_labels.h5`, and `fixed_labels.h5`, if available.
 The keys should be consistent between files, e.g.:
 
 - moving_images.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 - fixed_images.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 - moving_labels.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 - fixed_labels.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 
 Check
@@ -181,12 +183,12 @@ All image data should be placed under `images.h5`. The label data should be plac
 The keys should be consistent between files, e.g.:
 
 - images.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 - labels.h5 has keys:
-  - "subject1"
-  - "subject2"
+  - "obs1"
+  - "obs2"
   - ...
 
 Check
@@ -206,14 +208,16 @@ observation from the third group.
 The keys should be consistent between files, e.g.:
 
 - images.h5 has keys:
-  - "group1-1"
-  - "group1-2"
-  - "group2-1"
+  - "group-1-1"
+  - "group-1-2"
+  - ...
+  - "group-2-1"
   - ...
 - labels.h5 has keys:
-  - "group1-1"
-  - "group1-2"
-  - "group2-1"
+  - "group-1-1"
+  - "group-1-2"
+  - ...
+  - "group-2-1"
   - ...
 
 Check
