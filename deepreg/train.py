@@ -66,7 +66,7 @@ def train(
     config, log_dir = init(config_path, log_dir, ckpt_path)
     data_config = config["data"]
     tf_data_config = config["train"]["data"]
-    optimizer_config = config["train"]["opt"]
+    optimizer_config = config["train"]["optimizer"]
     tf_model_config = config["train"]["model"]
     tf_loss_config = config["train"]["loss"]
     num_epochs = config["train"]["epochs"]

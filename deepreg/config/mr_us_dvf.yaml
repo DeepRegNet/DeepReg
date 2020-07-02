@@ -43,7 +43,7 @@ train:
   data:
     batch_size: 2
     shuffle_buffer_num_batch: 0
-  opt:
+  optimizer:
     name: "adam"
     adam:
       learning_rate: 1.0e-5
