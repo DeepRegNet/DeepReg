@@ -22,7 +22,7 @@ train:
       pooling: true
       concat_skip: false
   loss:
-    similarity:
+    dissimilarity:
       image:
         name: "lncc"
         weight: 0.

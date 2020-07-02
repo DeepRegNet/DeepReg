@@ -95,38 +95,42 @@ def ddf_add_loss_metric(
     )
 
     # image loss
-    if tf_loss_config["similarity"]["image"]["weight"] > 0:
+    if tf_loss_config["dissimilarity"]["image"]["weight"] > 0:
         loss_image = tf.reduce_mean(
-            image_loss.similarity_fn(
+            image_loss.dissimilarity_fn(
                 y_true=fixed_image,
                 y_pred=pred_fixed_image,
-                **tf_loss_config["similarity"]["image"],
+                **tf_loss_config["dissimilarity"]["image"],
             )
         )
         weighted_loss_image = (
-            loss_image * tf_loss_config["similarity"]["image"]["weight"]
+            loss_image * tf_loss_config["dissimilarity"]["image"]["weight"]
         )
         model.add_loss(weighted_loss_image)
-        model.add_metric(loss_image, name="loss/image_similarity", aggregation="mean")
+        model.add_metric(
+            loss_image, name="loss/image_dissimilarity", aggregation="mean"
+        )
         model.add_metric(
             weighted_loss_image,
-            name="loss/weighted_image_similarity",
+            name="loss/weighted_image_dissimilarity",
             aggregation="mean",
         )
 
     # label loss
     if fixed_label is not None:
         loss_label = tf.reduce_mean(
-            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(
-                y_true=fixed_label, y_pred=pred_fixed_label
-            )
+            label_loss.get_dissimilarity_fn(
+                config=tf_loss_config["dissimilarity"]["label"]
+            )(y_true=fixed_label, y_pred=pred_fixed_label)
         )
         weighted_loss_label = loss_label
         model.add_loss(weighted_loss_label)
-        model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
+        model.add_metric(
+            loss_label, name="loss/label_dissimilarity", aggregation="mean"
+        )
         model.add_metric(
             weighted_loss_label,
-            name="loss/weighted_label_similarity",
+            name="loss/weighted_label_dissimilarity",
             aggregation="mean",
         )
 

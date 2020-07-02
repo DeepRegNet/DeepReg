@@ -80,24 +80,24 @@ def build_dvf_model(
         :return: tf.keras.Model with loss and metric added
         """
         # image loss
-        if tf_loss_config["similarity"]["image"]["weight"] > 0:
+        if tf_loss_config["dissimilarity"]["image"]["weight"] > 0:
             loss_image = tf.reduce_mean(
-                image_loss.similarity_fn(
+                image_loss.dissimilarity_fn(
                     y_true=_fixed_image,
                     y_pred=_pred_fixed_image,
-                    **tf_loss_config["similarity"]["image"],
+                    **tf_loss_config["dissimilarity"]["image"],
                 )
             )
             weighted_loss_image = (
-                loss_image * tf_loss_config["similarity"]["image"]["weight"]
+                loss_image * tf_loss_config["dissimilarity"]["image"]["weight"]
             )
             model.add_loss(weighted_loss_image)
             model.add_metric(
-                loss_image, name="loss/image_similarity" + suffix, aggregation="mean"
+                loss_image, name="loss/image_dissimilarity" + suffix, aggregation="mean"
             )
             model.add_metric(
                 weighted_loss_image,
-                name="loss/weighted_image_similarity" + suffix,
+                name="loss/weighted_image_dissimilarity" + suffix,
                 aggregation="mean",
             )
 
@@ -120,8 +120,8 @@ def build_dvf_model(
 
         # label loss
         if _fixed_label is not None:
-            label_loss_fn = label_loss.get_similarity_fn(
-                config=tf_loss_config["similarity"]["label"]
+            label_loss_fn = label_loss.get_dissimilarity_fn(
+                config=tf_loss_config["dissimilarity"]["label"]
             )
             loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
             model.add_loss(loss_label)
