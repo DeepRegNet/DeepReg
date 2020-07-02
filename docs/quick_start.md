@@ -46,7 +46,7 @@ pip install git+https://github.com/ucl-candi/DeepReg.git
 
 ## Training
 
-Train a registration network using unpaired and labeled test data with a predefined
+Train a registration network using unpaired and labeled example data with a predefined
 configuration:
 
 ```bash
@@ -63,7 +63,7 @@ where
 
 ## Inference
 
-The trained network can be evaluated using unseen test data set:
+The trained network can be evaluated using unseen example test data set:
 
 ```bash
 predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
@@ -78,5 +78,5 @@ where
 - `--mode test` means the inference is performed on the test data set. Other options can
   be `train` or `valid`.
 
-This is a demo using data set to train a registration network. Read tutorials and
-documentation for more details.
+This is a demo using example data set to train a registration network. Read tutorials
+and documentation for more details.

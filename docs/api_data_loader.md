@@ -200,24 +200,24 @@ as an example.
 All image data should be placed under `images.h5`. The label data should be placed under
 `labels.h5`, if available.
 
-The keys have to satisfy a specific format, `group%d-%d`, where `%d` represents an
+The keys have to satisfy a specific format, `group-%d-%d`, where `%d` represents an
 integer number. The first number corresponds to the group index, and the second number
-corresponds to the observation index. For example, `group3-2` corresponds to the second
+corresponds to the observation index. For example, `group-3-2` corresponds to the second
 observation from the third group.
 
 The keys should be consistent between files, e.g.:
 
 - images.h5 has keys:
-  - "group1-1"
-  - "group1-2"
+  - "group-1-1"
+  - "group-1-2"
   - ...
-  - "group2-1"
+  - "group-2-1"
   - ...
 - labels.h5 has keys:
-  - "group1-1"
-  - "group1-2"
+  - "group-1-1"
+  - "group-1-2"
   - ...
-  - "group2-1"
+  - "group-2-1"
   - ...
 
 Check
