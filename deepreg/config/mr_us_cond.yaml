@@ -41,7 +41,7 @@ train:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_num_batch: 0
+    shuffle_buffer_num_batch: 1
   optimizer:
     name: "adam"
     adam:
