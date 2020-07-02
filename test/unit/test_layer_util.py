@@ -1,31 +1,22 @@
+"""
+Tests for deepreg/model/layer_util.py in
+pytest style
+"""
 import pytest
 import numpy as np
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 
-def check_equal(x, y):
+def check_equal(tensor_1, tensor_2):
     """
     Given two tf tensors return True/False (not tf tensor)
     Tolerate small errors (<1e-6)
-    :param x: Tensor to check equality to against y.
-    :param y: Tensor to check equality to against x.
+    :param tensor_1: Tensor to check equality to against tensor_2.
+    :param tensor_2: Tensor to check equality to against tensor_1.
     :return: True if difference less than 1e-6, False otherwise.
     """
-    return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
-
-def test_he_normal():
-    """
-    Test he_normal by confirming that it creates an initializer
-    which populates tf tensors.
-    """
-    # Create sample 2D and 3D tensors to check he_normal creates them
-    def make_variables(k, initializer):
-        return (tf.Variable(initializer(shape=[k, k], dtype=tf.float32)),
-                tf.Variable(initializer(shape=[k, k, k], dtype=tf.float32)))
-
-    two_dim_tensor, three_dim_tensor = make_variables(3, layer_util.he_normal())
-    assert two_dim_tensor.shape == (3, 3) and three_dim_tensor.shape == (3, 3, 3)
+    return tf.reduce_max(tf.abs(tensor_1 - tensor_2)).numpy() < 1e-6
 
 def test_check_inputs():
     """
@@ -102,15 +93,18 @@ def test_get_reference_grid():
 def test_get_n_bits_combinations():
     """
     Test get_n_bits_combinations by confirming that it generates
-    appropriate solutions for 0D, 1D, 2D, and 3D cases.
+    appropriate solutions for 1D, 2D, and 3D cases.
     """
-    assert layer_util.get_n_bits_combinations(0) == [[]]
+    # Check n=1 - Pass
     assert layer_util.get_n_bits_combinations(1) == [[0],
                                                      [1]]
+    # Check n=2 - Pass
     assert layer_util.get_n_bits_combinations(2) == [[0, 0],
                                                      [0, 1],
                                                      [1, 0],
                                                      [1, 1]]
+
+    # Check n=3 - Pass
     assert layer_util.get_n_bits_combinations(3) == [[0, 0, 0],
                                                      [0, 0, 1],
                                                      [0, 1, 0],
@@ -121,7 +115,38 @@ def test_get_n_bits_combinations():
                                                      [1, 1, 1]]
 
 def test_pyramid_combinations():
-    pass
+    """
+    Test pyramid_combinations by confirming that it generates
+    appropriate solutions for simple 1D and 2D cases.
+    """
+    # Check numerical outputs are correct for a simple 1D pair of weights, values - Pass
+    weights = tf.constant(np.array([[0.2]], dtype=np.float32))
+    values = tf.constant(np.array([[1], [2]], dtype=np.float32))
+    # expected = 1 * 0.2 + 2 * 2
+    expected = tf.constant(np.array([1.8], dtype=np.float32))
+    got = layer_util.pyramid_combination(values=values, weights=weights)
+    assert check_equal(got, expected)
+
+    # Check numerical outputs are correct for a 2D pair of weights, values - Pass
+    weights = tf.constant(np.array([[0.2], [0.3]], dtype=np.float32))
+    values = tf.constant(
+        np.array(
+            [
+                [1],  # value at corner (0, 0), weight = 0.2 * 0.3
+                [2],  # value at corner (0, 1), weight = 0.2 * 0.7
+                [3],  # value at corner (1, 0), weight = 0.8 * 0.3
+                [4],  # value at corner (1, 1), weight = 0.8 * 0.7
+            ],
+            dtype=np.float32,
+        )
+    )
+    # expected = 1 * 0.2 * 0.3
+    #          + 2 * 0.2 * 0.7
+    #          + 3 * 0.8 * 0.3
+    #          + 4 * 0.8 * 0.7
+    expected = tf.constant(np.array([3.3], dtype=np.float32))
+    got = layer_util.pyramid_combination(values=values, weights=weights)
+    assert check_equal(got, expected)
 
 def test_resample():
     """
@@ -129,7 +154,7 @@ def test_resample():
     resampling on two test cases with outputs within check_equal's
     tolerance level, and one which should fail (incompatible shapes).
     """
-    # linear, vol has no feature channel
+    # linear, vol has no feature channel - Pass
     interpolation = "linear"
     vol = tf.constant(np.array(
         [[[0, 1, 2],
@@ -156,7 +181,7 @@ def test_resample():
                               interpolation=interpolation)
     assert check_equal(want, get)
 
-    # linear, vol has feature channel
+    # linear, vol has feature channel - Pass
     interpolation = "linear"
     vol = tf.constant(np.array(
         [[[[0, 0],
@@ -193,7 +218,7 @@ def test_resample():
                               interpolation=interpolation)
     assert check_equal(want, get)
 
-    # Inconsistent shapes for resampling
+    # Inconsistent shapes for resampling - Fail
     interpolation = "linear"
     vol = tf.constant(np.array(
         [[0]],
@@ -210,7 +235,78 @@ def test_resample():
     assert 'vol shape inconsistent with loc' in msg
 
 def test_random_transform_generator():
-    pass
-    
+    """
+    Test random_transform_generator by confirming that it generates
+    appropriate solutions and output sizes for seeded examples.
+    """
+    # Check shapes are correct Batch Size = 1 - Pass
+    batch_size = 1
+    transforms = layer_util.random_transform_generator(batch_size, 0)
+    assert transforms.shape == (batch_size, 4, 3)
+
+    # Check numerical outputs are correct for a given seed - Pass
+    batch_size = 1
+    scale = 0.1
+    seed = 0
+    expected = tf.constant(
+        np.array(
+            [
+                [
+                    [9.4661278e-01, -3.8267835e-03, 3.6934228e-03],
+                    [5.5613145e-03, 9.8034811e-01, -1.8044969e-02],
+                    [1.9651605e-04, 1.4576728e-02, 9.6243286e-01],
+                    [-2.5107686e-03, 1.9579126e-02, -1.2195010e-02],
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = (1, 4, 3)
+    got = layer_util.random_transform_generator(
+        batch_size=batch_size, scale=scale, seed=seed
+    )
+    assert check_equal(got, expected)
+
 def test_warp_grid():
-    pass
+    """
+    Test warp_grid by confirming that it generates
+    appropriate solutions for a simple precomputed case.
+    """
+    grid = tf.constant(
+        np.array(
+            [
+                [
+                    [[0, 0, 0], [0, 0, 1], [0, 0, 2]],
+                    [[0, 1, 0], [0, 1, 1], [0, 1, 2]],
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = (1, 2, 3, 3)
+    theta = tf.constant(
+        np.array(
+            [
+                [
+                    [0.86, 0.75, 0.48],
+                    [0.07, 0.98, 0.01],
+                    [0.72, 0.52, 0.97],
+                    [0.12, 0.4, 0.04],
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = (1, 4, 3)
+    expected = tf.constant(
+        np.array(
+            [
+                [
+                    [
+                        [[0.12, 0.4, 0.04], [0.84, 0.92, 1.01], [1.56, 1.44, 1.98]],
+                        [[0.19, 1.38, 0.05], [0.91, 1.9, 1.02], [1.63, 2.42, 1.99]],
+                    ]
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = (1, 1, 2, 3, 3)
+    got = layer_util.warp_grid(grid=grid, theta=theta)
+    assert check_equal(got, expected)
