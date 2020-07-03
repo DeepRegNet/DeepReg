@@ -4,6 +4,8 @@
 Tests for deepreg/model/loss/label.py in
 pytest style
 """
+from types import FunctionType
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -196,6 +198,18 @@ def test_compute_centroid_d():
     pass
 
 
+def test_squared_error():
+    eye = np.eye(3)
+    tensor_mask = np.zeros((3, 3, 3, 3))
+    tensor_mask[:, :, 0, 0] = eye
+
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_pred[:, :, :, :] = 1
+    expect = np.mean((tensor_mask - tensor_pred) ** 2)
+    get = label.squared_error(tensor_mask, tensor_pred)
+    assert assertTensorsEqual(get, expect)
+
+
 def test_single_scale_loss_dice():
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
@@ -259,6 +273,19 @@ def test_single_scale_loss_jacc():
     assert assertTensorsEqual(get, expect)
 
 
+def test_single_scale_loss_mean_sq():
+    eye = np.eye(3)
+    tensor_mask = np.zeros((3, 3, 3, 3))
+    tensor_mask[:, :, 0, 0] = eye
+
+    tensor_pred = np.zeros((3, 3, 3, 3))
+    tensor_pred[:, :, :, :] = 1
+    expect = np.mean((tensor_mask - tensor_pred) ** 2)
+
+    get = label.single_scale_loss(tensor_mask, tensor_pred, "mean-squared")
+    assert assertTensorsEqual(get, expect)
+
+
 def test_single_scale_loss_other():
     tensor_eye = np.zeros((3, 3, 3, 3))
 
@@ -318,8 +345,10 @@ def test_similarity_fn_unknown_loss():
 
 
 def test_similarity_fn_multi_scale():
-    pass
+    config = {"name": "multi_scale", "multi_scale": "jaccard"}
+    assert isinstance(label.get_similarity_fn(config), FunctionType)
 
 
 def test_similarity_fn_single_scale():
-    pass
+    config = {"name": "multi_scale", "single_scale": "jaccard"}
+    assert isinstance(label.get_similarity_fn(config), FunctionType)
