@@ -304,7 +304,7 @@ def compute_centroid_distance(y_true, y_pred, grid):
     return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=[1]))
 
 
-def foreground_proportion(tensor):
+def foreground_proportion(y):
     """
     Calculating the percentage of foreground vs
     background per 3d volume.
@@ -312,7 +312,7 @@ def foreground_proportion(tensor):
     :param y: tensor, shape = [batch, dim1, dim2, dim3]
     :return: shape = [batch] of foreground percentage.
     """
-    tensor = tf.cast(tensor >= 0.5, dtype=tf.float32)
-    return tf.reduce_sum(tensor, axis=[1, 2, 3]) / tf.reduce_sum(
-        tf.ones_like(tensor), axis=[1, 2, 3]
+    y = tf.cast(y >= 0.5, dtype=tf.float32)
+    return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(
+        tf.ones_like(y), axis=[1, 2, 3]
     )
