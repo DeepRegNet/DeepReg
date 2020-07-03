@@ -65,13 +65,13 @@ def train(
     # load config
     config, log_dir = init(config_path, log_dir, ckpt_path)
     data_config = config["data"]
-    tf_data_config = config["tf"]["data"]
-    tf_opt_config = config["tf"]["opt"]
-    tf_model_config = config["tf"]["model"]
-    tf_loss_config = config["tf"]["loss"]
-    num_epochs = config["tf"]["epochs"]
-    save_period = config["tf"]["save_period"]
-    histogram_freq = config["tf"]["histogram_freq"]
+    train_data_config = config["train"]["data"]
+    optimizer_config = config["train"]["optimizer"]
+    model_config = config["train"]["model"]
+    loss_config = config["train"]["loss"]
+    num_epochs = config["train"]["epochs"]
+    save_period = config["train"]["save_period"]
+    histogram_freq = config["train"]["histogram_freq"]
 
     # data
     data_loader_train = get_data_loader(data_config, "train")
@@ -81,11 +81,11 @@ def train(
         )
     data_loader_val = get_data_loader(data_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(
-        training=True, repeat=True, **tf_data_config
+        training=True, repeat=True, **train_data_config
     )
     dataset_val = (
         data_loader_val.get_dataset_and_preprocess(
-            training=False, repeat=True, **tf_data_config
+            training=False, repeat=True, **train_data_config
         )
         if data_loader_val is not None
         else None
@@ -94,9 +94,11 @@ def train(
     dataset_size_val = (
         data_loader_val.num_samples if data_loader_val is not None else None
     )
-    steps_per_epoch_train = max(dataset_size_train // tf_data_config["batch_size"], 1)
+    steps_per_epoch_train = max(
+        dataset_size_train // train_data_config["batch_size"], 1
+    )
     steps_per_epoch_valid = (
-        max(dataset_size_val // tf_data_config["batch_size"], 1)
+        max(dataset_size_val // train_data_config["batch_size"], 1)
         if data_loader_val is not None
         else None
     )
@@ -109,13 +111,13 @@ def train(
             fixed_image_size=data_loader_train.fixed_image_shape,
             index_size=data_loader_train.num_indices,
             labeled=data_config["labeled"],
-            batch_size=tf_data_config["batch_size"],
-            tf_model_config=tf_model_config,
-            tf_loss_config=tf_loss_config,
+            batch_size=train_data_config["batch_size"],
+            model_config=model_config,
+            loss_config=loss_config,
         )
 
         # compile
-        optimizer = opt.get_optimizer(tf_opt_config)
+        optimizer = opt.get_optimizer(optimizer_config)
 
         model.compile(optimizer=optimizer)
 

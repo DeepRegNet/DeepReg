@@ -6,49 +6,43 @@ from deepreg.model.backbone.u_net import UNet
 
 
 def build_backbone(
-    image_size: tuple, out_channels: int, tf_model_config: dict
+    image_size: tuple, out_channels: int, model_config: dict
 ) -> tf.keras.Model:
     """
     backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
     and returns a single output of shape (batch, dim1, dim2, dim3, ch_out)
     :param image_size: (dim1, dim2, dim3)
     :param out_channels: ch_out
-    :param tf_model_config:model configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config:model configuration, e.g. dictionary return from parser.yaml.load
     :return:
     """
 
-    if tf_model_config["backbone"]["out_activation"] == "":  # no activation
-        tf_model_config["backbone"]["out_activation"] = None
+    if model_config["backbone"]["out_activation"] == "":  # no activation
+        model_config["backbone"]["out_activation"] = None
 
-    if tf_model_config["backbone"]["name"] == "local":
+    if model_config["backbone"]["name"] == "local":
         return LocalNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=tf_model_config["backbone"][
-                "out_kernel_initializer"
-            ],
-            out_activation=tf_model_config["backbone"]["out_activation"],
-            **tf_model_config["local"],
+            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
+            out_activation=model_config["backbone"]["out_activation"],
+            **model_config["local"],
         )
-    elif tf_model_config["backbone"]["name"] == "global":
+    elif model_config["backbone"]["name"] == "global":
         return GlobalNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=tf_model_config["backbone"][
-                "out_kernel_initializer"
-            ],
-            out_activation=tf_model_config["backbone"]["out_activation"],
-            **tf_model_config["global"],
+            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
+            out_activation=model_config["backbone"]["out_activation"],
+            **model_config["global"],
         )
-    elif tf_model_config["backbone"]["name"] == "unet":
+    elif model_config["backbone"]["name"] == "unet":
         return UNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=tf_model_config["backbone"][
-                "out_kernel_initializer"
-            ],
-            out_activation=tf_model_config["backbone"]["out_activation"],
-            **tf_model_config["unet"],
+            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
+            out_activation=model_config["backbone"]["out_activation"],
+            **model_config["unet"],
         )
     else:
         raise ValueError("Unknown model name")
