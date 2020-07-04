@@ -9,20 +9,23 @@ data:
   image_shape: [64, 64, 60]
 
 train:
+  # define neural network structure
   model:
-    method: "ddf" # ddf or conditional or seg
-    backbone:
-      name: "local"
+    method: "ddf" # the registration method, value should be ddf / dvf / conditional
+    backbone: # define the backbone of the network
+      name: "local" # value should be local / global / unet
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
     local:
-      num_channel_initial: 1
-      extract_levels: [0, 1, 2, 3, 4]
+      num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
+      extract_levels: [0, 1, 2, 3, 4] #
     unet:
       num_channel_initial: 1
       depth: 2
       pooling: true
       concat_skip: false
+
+  # define the loss function for training
   loss:
     dissimilarity:
       image:
@@ -39,11 +42,10 @@ train:
     regularization:
       weight: 0.5
       energy_type: "bending"
-  data:
-    batch_size: 2
-    shuffle_buffer_num_batch: 1
+
+  # define the optimizer
   optimizer:
-    name: "adam"
+    name: "adam" # value should be adam / sgd / rms
     adam:
       learning_rate: 1.0e-5
     sgd:
@@ -52,5 +54,12 @@ train:
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 2
-  save_period: 2
+
+  # define the batch size and some preprocessing hyper-parameter
+  data:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 2 # number of training epochs
+  save_period: 2 # the model will be saved every `save_period` epochs.
