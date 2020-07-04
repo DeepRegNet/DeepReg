@@ -18,12 +18,12 @@ train:
       out_activation: ""
     local:
       num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
-      extract_levels: [0, 1, 2, 3, 4] #
+      extract_levels: [0, 1, 2, 3, 4]
     unet:
-      num_channel_initial: 1
-      depth: 2
-      pooling: true
-      concat_skip: false
+      num_channel_initial: 1 # number of initial channel in u-net, controls the size of the network
+      depth: 2 # depth of u-net, the input is at depth = 0, and the bottom is at depth = depth
+      pooling: true # for downsampling, use non-parameterized pooling if true, otherwise use conv3d
+      concat_skip: false #　when upsampling, concatenate skipped tensor if true, otherwise use addition
 
   # define the loss function for training
   loss:
@@ -40,8 +40,8 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 0.5
-      energy_type: "bending"
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer
   optimizer:
