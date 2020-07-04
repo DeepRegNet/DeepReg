@@ -1,4 +1,4 @@
-data:
+dataset:
   dir:
     train: "demos/paired_ct_lung/data/train"
     valid: "demos/paired_ct_lung/data/valid"

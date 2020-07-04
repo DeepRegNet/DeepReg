@@ -229,7 +229,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
 
     # load config
     config, log_dir = init(log_dir, ckpt_path)
-    data_config = config["data"]
+    dataset_config = config["dataset"]
     preprocess_config = config["train"]["preprocess"]
     preprocess_config["batch_size"] = batch_size
     optimizer_config = config["train"]["optimizer"]
@@ -237,7 +237,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     loss_config = config["train"]["loss"]
 
     # data
-    data_loader = load.get_data_loader(data_config, mode)
+    data_loader = load.get_data_loader(dataset_config, mode)
     if data_loader is None:
         raise ValueError(
             "Data loader for prediction is None. Probably the data dir path is not defined."
@@ -254,7 +254,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
         moving_image_size=data_loader.moving_image_shape,
         fixed_image_size=data_loader.fixed_image_shape,
         index_size=data_loader.num_indices,
-        labeled=data_config["labeled"],
+        labeled=dataset_config["labeled"],
         batch_size=preprocess_config["batch_size"],
         model_config=model_config,
         loss_config=loss_config,

@@ -1,6 +1,6 @@
 # TODO to update
 
-data:
+dataset:
   dir: "data/test/nifti/demo" # required
   type: "nifti"
   moving_image_shape: [64, 64, 60]

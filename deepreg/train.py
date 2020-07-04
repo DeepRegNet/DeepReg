@@ -64,7 +64,7 @@ def train(
 
     # load config
     config, log_dir = init(config_path, log_dir, ckpt_path)
-    data_config = config["data"]
+    dataset_config = config["dataset"]
     preprocess_config = config["train"]["preprocess"]
     optimizer_config = config["train"]["optimizer"]
     model_config = config["train"]["model"]
@@ -74,12 +74,12 @@ def train(
     histogram_freq = save_period
 
     # data
-    data_loader_train = get_data_loader(data_config, "train")
+    data_loader_train = get_data_loader(dataset_config, "train")
     if data_loader_train is None:
         raise ValueError(
             "Training data loader is None. Probably the data dir path is not defined."
         )
-    data_loader_val = get_data_loader(data_config, "valid")
+    data_loader_val = get_data_loader(dataset_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(
         training=True, repeat=True, **preprocess_config
     )
@@ -110,7 +110,7 @@ def train(
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
             index_size=data_loader_train.num_indices,
-            labeled=data_config["labeled"],
+            labeled=dataset_config["labeled"],
             batch_size=preprocess_config["batch_size"],
             model_config=model_config,
             loss_config=loss_config,

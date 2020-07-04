@@ -1,4 +1,4 @@
-data:
+dataset:
   dir:
     train: "data/test/h5/grouped/train"
     valid: "data/test/h5/grouped/test"

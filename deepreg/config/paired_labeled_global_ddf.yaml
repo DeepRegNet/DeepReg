@@ -1,6 +1,6 @@
 # TODO to update
 
-data:
+dataset:
   dir: "data/test/nifti/paired" # required
   format: "nifti"
   type: "paired" # paired / unpaired / grouped
