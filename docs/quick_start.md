@@ -44,7 +44,7 @@ the repository:
 pip install git+https://github.com/ucl-candi/DeepReg.git
 ```
 
-## Training
+## Train
 
 Train a registration network using unpaired and labeled example data with a predefined
 configuration:
@@ -61,7 +61,7 @@ where
   for the training. Read configuration for more details.
 - `--log_dir test` specifies the output folder, the output will be saved in `logs/test`.
 
-## Inference
+## Predict
 
 The trained network can be evaluated using unseen example test data set:
 
