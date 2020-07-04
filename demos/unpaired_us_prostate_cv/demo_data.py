@@ -2,7 +2,10 @@
 
 import os
 
-DATA_PATH = "./data/demo"
+project_dir = r"demos/unpaired_us_prostate_cv"
+os.chdir(project_dir)
+
+DATA_PATH = "./data"
 
 temp_file = os.path.join(DATA_PATH, "master.zip")
 origin = "https://github.com/ucl-candi/dataset_trus3d/archive/master.zip"
