@@ -65,4 +65,13 @@ The `predict` accepts the following arguments:
 
 Besides the arguments provided to the command line tools, more configuration of the
 training or prediction is provided in a `yaml` file. The configuration file contains two
-sections, `data` and `train`.
+sections, `dataset` and `train`.
+
+The `dataset` section is for defining the dataset and corresponding loader. Read the
+[dataset loader configuration](doc_data_loader.md) for more details.
+
+The `train` section is for defining the neural network's structure, the training loss,
+and other hyper-parameters for training like batch size, optimizer, and learning rate.
+Read the
+[example configuration](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml)
+for more details.
