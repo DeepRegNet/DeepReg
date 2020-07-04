@@ -55,8 +55,8 @@ train:
       learning_rate: 1.0e-4
       momentum: 0.9
 
-  # define the batch size and some preprocessing hyper-parameter
-  data:
+  # define the hyper-parameters for preprocessing
+  preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 

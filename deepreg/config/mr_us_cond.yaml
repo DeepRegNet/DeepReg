@@ -39,7 +39,7 @@ train:
     regularization:
       weight: 0.5
       energy_type: "bending"
-  data:
+  preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
