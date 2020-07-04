@@ -54,4 +54,3 @@ train:
       momentum: 0.9
   epochs: 6
   save_period: 2
-  histogram_freq: 2

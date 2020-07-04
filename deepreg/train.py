@@ -71,7 +71,7 @@ def train(
     loss_config = config["train"]["loss"]
     num_epochs = config["train"]["epochs"]
     save_period = config["train"]["save_period"]
-    histogram_freq = config["train"]["histogram_freq"]
+    histogram_freq = save_period
 
     # data
     data_loader_train = get_data_loader(data_config, "train")
