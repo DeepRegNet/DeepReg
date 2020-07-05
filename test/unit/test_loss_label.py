@@ -179,33 +179,44 @@ def test_separable_filter_else():
 
 
 def test_compute_centroid():
-    pass
-    # array_ones = np.ones((2, 2))
-    # tensor_mask = np.zeros((3, 2, 2, 2))
-    # tensor_mask[0, :, :, :] = array_ones
-    # tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float64)
 
-    # tensor_grid = np.zeros((2, 2, 2, 3))
-    # tensor_grid[:, :, :, 0] = array_ones
-    # tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float64)
+    array_ones = np.ones((2, 2))
+    tensor_mask = np.zeros((3, 2, 2, 2))
+    tensor_mask[0, :, :, :] = array_ones
+    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
 
-    # expect = np.array([1, 1, 1])
-    # get = label.compute_centroid(tensor_mask, tensor_grid)
-    # assert assertTensorsEqual(get, expect)
+    tensor_grid = np.zeros((2, 2, 2, 3))
+    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
+
+    expect = np.ones((3, 3))
+    expect[0, 1:3] = 0
+    get = label.compute_centroid(tensor_mask, tensor_grid)
+    assert assertTensorsEqual(get, expect)
 
 
 def test_compute_centroid_d():
-    pass
+    array_ones = np.ones((2, 2))
+    tensor_mask = np.zeros((3, 2, 2, 2))
+    tensor_mask[0, :, :, :] = array_ones
+    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
+
+    tensor_grid = np.zeros((2, 2, 2, 3))
+    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
+
+    get = label.compute_centroid_distance(tensor_mask, tensor_mask, tensor_grid)
+    expect = np.zeros((3))
+    assert assertTensorsEqual(get, expect)
 
 
 def test_squared_error():
-    eye = np.eye(3)
     tensor_mask = np.zeros((3, 3, 3, 3))
-    tensor_mask[:, :, 0, 0] = eye
+    tensor_mask[0, 0, 0, 0] = 1
 
     tensor_pred = np.zeros((3, 3, 3, 3))
     tensor_pred[:, :, :, :] = 1
-    expect = np.mean((tensor_mask - tensor_pred) ** 2)
+    expect = np.array([26 / 27, 1.0, 1.0])
     get = label.squared_error(tensor_mask, tensor_pred)
     assert assertTensorsEqual(get, expect)
 
@@ -274,13 +285,11 @@ def test_single_scale_loss_jacc():
 
 
 def test_single_scale_loss_mean_sq():
-    eye = np.eye(3)
     tensor_mask = np.zeros((3, 3, 3, 3))
-    tensor_mask[:, :, 0, 0] = eye
+    tensor_mask[0, 0, 0, 0] = 1
 
-    tensor_pred = np.zeros((3, 3, 3, 3))
-    tensor_pred[:, :, :, :] = 1
-    expect = np.mean((tensor_mask - tensor_pred) ** 2)
+    tensor_pred = np.ones((3, 3, 3, 3))
+    expect = np.array([26 / 27, 1.0, 1.0])
 
     get = label.single_scale_loss(tensor_mask, tensor_pred, "mean-squared")
     assert assertTensorsEqual(get, expect)
