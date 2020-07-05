@@ -12,10 +12,7 @@ dataset:
 train:
   model:
     method: "dvf" # ddf or dvf or conditional or seg
-    backbone:
-      name: "local"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+    backbone: "local"
     local:
       num_channel_initial: 2
       extract_levels: [0, 1, 2, 3, 4]

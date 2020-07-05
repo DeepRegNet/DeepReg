@@ -1,10 +1,7 @@
 train:
   model:
     method: "ddf" # ddf or conditional or seg
-    backbone:
-      name: "local"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+    backbone: "local"
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
