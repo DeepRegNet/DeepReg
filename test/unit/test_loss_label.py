@@ -25,6 +25,9 @@ def assertTensorsEqual(x, y):
 
 
 def test_gauss_kernel1d_0():
+    """
+    Testing case where sigma = 0, expect 0 return
+    """
     sigma = 0
     get = label.gauss_kernel1d(sigma)
     expect = tf.constant(0)
@@ -32,6 +35,10 @@ def test_gauss_kernel1d_0():
 
 
 def test_gauss_kernel1d_else():
+    """
+    Testing case where sigma is not 0,
+    expect a tensor returned.
+    """
     sigma = 3
     get = tf.cast(label.gauss_kernel1d(sigma), dtype=tf.float64)
     list_vals = range(-sigma * 3, sigma * 3 + 1)
@@ -42,6 +49,9 @@ def test_gauss_kernel1d_else():
 
 
 def test_cauchy_kernel_0():
+    """
+    Test case where sigma = 0, expect 0 return.
+    """
     sigma = 0
     get = label.cauchy_kernel1d(sigma)
     expect = 0
@@ -49,6 +59,10 @@ def test_cauchy_kernel_0():
 
 
 def test_cauchy_kernel_else():
+    """
+    Test case where sigma is not 0, expect
+    tensor returned.
+    """
     sigma = 3
     get = tf.cast(label.cauchy_kernel1d(sigma), dtype=tf.float64)
     list_vals = range(-sigma * 5, sigma * 5 + 1)
@@ -59,6 +73,12 @@ def test_cauchy_kernel_else():
 
 
 def test_foreground_prop_binary():
+    """
+    Test foreground function with a
+    tensor of zeros with some ones, asserting
+    equal to known precomputed tensor.
+    Testing with binary case.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -68,6 +88,11 @@ def test_foreground_prop_binary():
 
 
 def test_foreground_prop_simple():
+    """
+    Test foreground functions with a tensor
+    of zeros with some ones and some values below
+    one to assert the thresholding works.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, 0, :, :] = 0.4 * array_eye  #  0
@@ -79,6 +104,10 @@ def test_foreground_prop_simple():
 
 
 def test_jaccard_index():
+    """
+    Testing jaccard index function with computed
+    tensor.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -94,6 +123,10 @@ def test_jaccard_index():
 
 
 def test_dice_not_binary():
+    """
+    Testing dice score with binary tensor
+    comparing to a precomputed value.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -110,6 +143,10 @@ def test_dice_not_binary():
 
 
 def test_dice_binary():
+    """
+    Testing dice score with not binary tensor
+    to assert thresholding works.
+    """
     array_eye = 0.6 * np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -126,6 +163,11 @@ def test_dice_binary():
 
 
 def test_dice_general():
+    """
+    Testing general dice function with
+    non binary features and checking
+    against precomputed tensor.
+    """
     array_eye = 0.6 * np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -145,6 +187,10 @@ def test_dice_general():
 
 
 def test_weighted_bce():
+    """
+    Checking binary cross entropy calculation
+    against a precomputed tensor.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -158,6 +204,10 @@ def test_weighted_bce():
 
 
 def test_separable_filter_0():
+    """
+    Testing separable filter with case where
+    0 length vector is passed.
+    """
     pass
     # kernel = np.empty((0))
     # array_eye = np.identity((3))
@@ -167,6 +217,11 @@ def test_separable_filter_0():
 
 
 def test_separable_filter_else():
+    """
+    Testing separable filter case where non
+    zero length tensor is passed to the
+    function.
+    """
     k = np.ones((3, 3, 3, 3))
     array_eye = np.identity((3))
     tensor_pred = np.zeros((3, 3, 3, 3))
@@ -179,7 +234,10 @@ def test_separable_filter_else():
 
 
 def test_compute_centroid():
-
+    """
+    Testing compute centroid function
+    and comparing to expected values.
+    """
     array_ones = np.ones((2, 2))
     tensor_mask = np.zeros((3, 2, 2, 2))
     tensor_mask[0, :, :, :] = array_ones
@@ -196,6 +254,10 @@ def test_compute_centroid():
 
 
 def test_compute_centroid_d():
+    """
+    Testing compute centroid distance between equal
+    tensors returns 0s.
+    """
     array_ones = np.ones((2, 2))
     tensor_mask = np.zeros((3, 2, 2, 2))
     tensor_mask[0, :, :, :] = array_ones
@@ -211,6 +273,10 @@ def test_compute_centroid_d():
 
 
 def test_squared_error():
+    """
+    Testing squared error function by comparing
+    to precomputed tensor.
+    """
     tensor_mask = np.zeros((3, 3, 3, 3))
     tensor_mask[0, 0, 0, 0] = 1
 
@@ -222,6 +288,11 @@ def test_squared_error():
 
 
 def test_single_scale_loss_dice():
+    """
+    Testing single sclare loss returns
+    precomputed, known dice loss for given
+    inputs.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -238,6 +309,10 @@ def test_single_scale_loss_dice():
 
 
 def test_single_scale_loss_bce():
+    """
+    Testing bce single scale loss entry
+    returns known loss tensor for given inputs.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -252,6 +327,11 @@ def test_single_scale_loss_bce():
 
 
 def test_single_scale_loss_dg():
+    """
+    Testing generalised dice loss single
+    scale loss function returns known loss
+    tensor for given inputs.
+    """
     array_eye = 0.6 * np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -270,6 +350,10 @@ def test_single_scale_loss_dg():
 
 
 def test_single_scale_loss_jacc():
+    """
+    Testing single scale loss returns known loss
+    tensor when called with jaccard argment.
+    """
     array_eye = np.identity((3))
     tensor_eye = np.zeros((3, 3, 3, 3))
     tensor_eye[:, :, 0:3, 0:3] = array_eye
@@ -285,6 +369,11 @@ def test_single_scale_loss_jacc():
 
 
 def test_single_scale_loss_mean_sq():
+    """
+    Test single scale loss function returns
+    known mean sq value tensor when passed with
+    mean squared arg,
+    """
     tensor_mask = np.zeros((3, 3, 3, 3))
     tensor_mask[0, 0, 0, 0] = 1
 
@@ -296,6 +385,10 @@ def test_single_scale_loss_mean_sq():
 
 
 def test_single_scale_loss_other():
+    """
+    Test value error raised if non supported
+    string passed to the single scale loss function.
+    """
     tensor_eye = np.zeros((3, 3, 3, 3))
 
     tensor_pred = np.zeros((3, 3, 3, 3))
@@ -305,6 +398,10 @@ def test_single_scale_loss_other():
 
 
 def test_multi_scale_loss_pred_len():
+    """
+    Test assertion error raised if a wrongly sized tensor
+    is passed to the multi-scale loss function.
+    """
     tensor_true = np.zeros((3, 3, 3, 3))
     tensor_pred = np.zeros((3, 3, 3))
     with pytest.raises(AssertionError):
@@ -314,6 +411,10 @@ def test_multi_scale_loss_pred_len():
 
 
 def test_multi_scale_loss_true_len():
+    """
+    Test assertion error raised if a wrongly sized tensor
+    is passed to the multi-scale loss function.
+    """
     tensor_true = np.zeros((3, 3, 3))
     tensor_pred = np.zeros((3, 3, 3, 3))
     with pytest.raises(AssertionError):
@@ -323,6 +424,10 @@ def test_multi_scale_loss_true_len():
 
 
 def test_multi_scale_loss_kernel():
+    """
+    Test multi-scale loss kernel returns the appropriate
+    loss tensor for same inputs and jaccard cal.
+    """
     loss_values = np.asarray([1, 2, 3])
     array_eye = np.identity((3))
     tensor_pred = np.zeros((3, 3, 3, 3))
@@ -348,16 +453,28 @@ def test_multi_scale_loss_kernel():
 
 
 def test_similarity_fn_unknown_loss():
+    """
+    Test dissimilarity function raises an error
+    if an unknonw loss type is passed.
+    """
     config = {"name": "random"}
     with pytest.raises(ValueError):
         label.get_dissimilarity_fn(config)
 
 
 def test_similarity_fn_multi_scale():
+    """
+    Asserting loss function returned by get dissimilarity
+    function when appropriate strings passed.
+    """
     config = {"name": "multi_scale", "multi_scale": "jaccard"}
     assert isinstance(label.get_dissimilarity_fn(config), FunctionType)
 
 
 def test_similarity_fn_single_scale():
-    config = {"name": "multi_scale", "single_scale": "jaccard"}
+    """
+    Asserting loss function returned by get dissimilarity
+    function when appropriate strings passed.
+    """
+    config = {"name": "single_scale", "single_scale": "jaccard"}
     assert isinstance(label.get_dissimilarity_fn(config), FunctionType)
