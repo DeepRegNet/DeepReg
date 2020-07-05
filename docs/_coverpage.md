@@ -2,7 +2,7 @@
 
 # DeepReg <small>beta</small>
 
-> Deep learning framework for image registration.
+> A deep learning framework for image registration.
 
 - Tensorflow 2 based.
 
