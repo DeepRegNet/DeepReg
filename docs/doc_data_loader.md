@@ -43,10 +43,10 @@ labels. Read each dataset loader for more details.
 
 - Image
 
-  - Currently, DeepReg only supports 3D images and all images are required to have the
-    same shape, e.g. `(m_dim1, m_dim2, m_dim3)`.<br> Except For paired images, the
-    moving images and fixed images can have different shapes, e.g.
-    `(m_dim1, m_dim2, m_dim3)` and `(f_dim1, f_dim2, f_dim3)`.
+  - Currently, DeepReg only supports 3D images and all images should have the same
+    shape, e.g. `(m_dim1, m_dim2, m_dim3)`.<br> Except For paired images, the moving
+    images and fixed images can have different shapes, e.g. `(m_dim1, m_dim2, m_dim3)`
+    and `(f_dim1, f_dim2, f_dim3)`.
 
 - Label
 
@@ -248,9 +248,8 @@ multiple labels.
 During training, the sampling results are different for each epoch. For validation or
 testing, the random seed is fixed to ensure consistency.
 
-To form pairs, all images will be first shuffled and then the pairs are formed
-two-by-two. Assuming there are N images, one epoch will thereby have floor(N / 2) image
-pairs. Equivalently, this can be considered as a sampling without replacement.
+To form pairs, during one epoch, image pairs will be sampled without replacement.
+Therefore, given N images, one epoch will thereby have floor(N / 2) image pairs.
 
 In case of multiple labels, the sampling method is the same as [paired data](#sampling).
 In particular, the sampled label will be always the same for the two chosen images.
@@ -367,7 +366,7 @@ In particular, the sampled label will be always the same for the two chosen imag
 For images, DeepReg mainly provides the following sampling methods:
 
 - **inter-group sampling**, where the moving image and fixed image come from different
-  groups.<br> For each epoch, the groups are
+  groups.
 - **intra-group sampling**, where the moving image and fixed image come from the same
   group.
 - **mixed sampling**, where the image pairs are mixed from inter-group sampling and
