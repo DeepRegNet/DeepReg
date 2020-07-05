@@ -25,9 +25,8 @@ def build_backbone(
 
     if method_name in ["ddf", "dvf"]:
         out_activation = None
-        out_kernel_initializer = (
-            "zeros"
-        )  # to ensure small ddf and dvf TODO maybe try random with smaller number
+        # TODO try random init with smaller number
+        out_kernel_initializer = "zeros"  # to ensure small ddf and dvf
     elif method_name in ["conditional"]:
         out_activation = "sigmoid"  # output is probability
         out_kernel_initializer = "glorot_uniform"

@@ -11,6 +11,7 @@ The dataset for this demo comes from [1] and can be downloaded from:
 https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 # Demo Description
+
 This is a paired intra subject registration. This means registration of inspiration
 images with expiration images for the same patient is demonstrated.
 
@@ -18,8 +19,8 @@ images with expiration images for the same patient is demonstrated.
 
 The python scripts used along with their brief descriptions are as follows:
 
-- demo_data.py: used to download, unzip and restructure the dataset to suit the needs of the
-  DeepReg toolbox
+- demo_data.py: used to download, unzip and restructure the dataset to suit the needs of
+  the DeepReg toolbox
 - paired_ct_lung.yaml files: config file used to specify training options
 - demo_train.py: used to rescale images to 255 and train the network using the DeepReg
   toolbox
