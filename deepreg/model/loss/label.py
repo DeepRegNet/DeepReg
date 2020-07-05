@@ -3,11 +3,11 @@ import tensorflow as tf
 EPS = 1.0e-6  # epsilon to prevent NaN
 
 """
-similarity
+dissimilarity for labels
 """
 
 
-def get_similarity_fn(config):
+def get_dissimilarity_fn(config):
     """
     :param config:
     :return:

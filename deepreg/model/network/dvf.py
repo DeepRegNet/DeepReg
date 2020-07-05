@@ -12,8 +12,8 @@ def build_dvf_model(
     fixed_image_size,
     index_size,
     batch_size,
-    tf_model_config,
-    tf_loss_config,
+    model_config,
+    loss_config,
 ):
     """
     Build the model if the output is DVF-integrated DDF (dense displacement field)
@@ -22,8 +22,8 @@ def build_dvf_model(
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
     :param index_size: dataset size
     :param batch_size: minibatch size
-    :param tf_model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param tf_loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
+    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
 
@@ -80,34 +80,32 @@ def build_dvf_model(
         :return: tf.keras.Model with loss and metric added
         """
         # image loss
-        if tf_loss_config["similarity"]["image"]["weight"] > 0:
+        if loss_config["dissimilarity"]["image"]["weight"] > 0:
             loss_image = tf.reduce_mean(
-                image_loss.similarity_fn(
+                image_loss.dissimilarity_fn(
                     y_true=_fixed_image,
                     y_pred=_pred_fixed_image,
-                    **tf_loss_config["similarity"]["image"],
+                    **loss_config["dissimilarity"]["image"],
                 )
             )
             weighted_loss_image = (
-                loss_image * tf_loss_config["similarity"]["image"]["weight"]
+                loss_image * loss_config["dissimilarity"]["image"]["weight"]
             )
             model.add_loss(weighted_loss_image)
             model.add_metric(
-                loss_image, name="loss/image_similarity" + suffix, aggregation="mean"
+                loss_image, name="loss/image_dissimilarity" + suffix, aggregation="mean"
             )
             model.add_metric(
                 weighted_loss_image,
-                name="loss/weighted_image_similarity" + suffix,
+                name="loss/weighted_image_dissimilarity" + suffix,
                 aggregation="mean",
             )
 
         # regularization loss
         loss_reg = tf.reduce_mean(
-            deform_loss.local_displacement_energy(
-                _ddf, **tf_loss_config["regularization"]
-            )
+            deform_loss.local_displacement_energy(_ddf, **loss_config["regularization"])
         )
-        weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
+        weighted_loss_reg = loss_reg * loss_config["regularization"]["weight"]
         model.add_loss(weighted_loss_reg)
         model.add_metric(
             loss_reg, name="loss/regularization" + suffix, aggregation="mean"
@@ -120,8 +118,8 @@ def build_dvf_model(
 
         # label loss
         if _fixed_label is not None:
-            label_loss_fn = label_loss.get_similarity_fn(
-                config=tf_loss_config["similarity"]["label"]
+            label_loss_fn = label_loss.get_dissimilarity_fn(
+                config=loss_config["dissimilarity"]["label"]
             )
             loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
             model.add_loss(loss_label)
@@ -134,7 +132,7 @@ def build_dvf_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=3, tf_model_config=tf_model_config
+        image_size=fixed_image_size, out_channels=3, model_config=model_config
     )
 
     # forward

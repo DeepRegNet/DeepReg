@@ -68,7 +68,7 @@ def ddf_add_loss_metric(
     fixed_label: (tf.Tensor, None),
     pred_fixed_image: tf.Tensor,
     pred_fixed_label: (tf.Tensor, None),
-    tf_loss_config: dict,
+    loss_config: dict,
 ):
     """
     Configure and add the training loss, including image and deformation regularisation,
@@ -80,14 +80,14 @@ def ddf_add_loss_metric(
     :param fixed_label:      (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_image: (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_label: (batch, f_dim1, f_dim2, f_dim3)
-    :param tf_loss_config:
+    :param loss_config:
     :return:
     """
     # regularization loss on ddf
     loss_reg = tf.reduce_mean(
-        deform_loss.local_displacement_energy(ddf, **tf_loss_config["regularization"])
+        deform_loss.local_displacement_energy(ddf, **loss_config["regularization"])
     )
-    weighted_loss_reg = loss_reg * tf_loss_config["regularization"]["weight"]
+    weighted_loss_reg = loss_reg * loss_config["regularization"]["weight"]
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
     model.add_metric(
@@ -95,38 +95,42 @@ def ddf_add_loss_metric(
     )
 
     # image loss
-    if tf_loss_config["similarity"]["image"]["weight"] > 0:
+    if loss_config["dissimilarity"]["image"]["weight"] > 0:
         loss_image = tf.reduce_mean(
-            image_loss.similarity_fn(
+            image_loss.dissimilarity_fn(
                 y_true=fixed_image,
                 y_pred=pred_fixed_image,
-                **tf_loss_config["similarity"]["image"],
+                **loss_config["dissimilarity"]["image"],
             )
         )
         weighted_loss_image = (
-            loss_image * tf_loss_config["similarity"]["image"]["weight"]
+            loss_image * loss_config["dissimilarity"]["image"]["weight"]
         )
         model.add_loss(weighted_loss_image)
-        model.add_metric(loss_image, name="loss/image_similarity", aggregation="mean")
+        model.add_metric(
+            loss_image, name="loss/image_dissimilarity", aggregation="mean"
+        )
         model.add_metric(
             weighted_loss_image,
-            name="loss/weighted_image_similarity",
+            name="loss/weighted_image_dissimilarity",
             aggregation="mean",
         )
 
     # label loss
     if fixed_label is not None:
         loss_label = tf.reduce_mean(
-            label_loss.get_similarity_fn(config=tf_loss_config["similarity"]["label"])(
-                y_true=fixed_label, y_pred=pred_fixed_label
-            )
+            label_loss.get_dissimilarity_fn(
+                config=loss_config["dissimilarity"]["label"]
+            )(y_true=fixed_label, y_pred=pred_fixed_label)
         )
         weighted_loss_label = loss_label
         model.add_loss(weighted_loss_label)
-        model.add_metric(loss_label, name="loss/label_similarity", aggregation="mean")
+        model.add_metric(
+            loss_label, name="loss/label_dissimilarity", aggregation="mean"
+        )
         model.add_metric(
             weighted_loss_label,
-            name="loss/weighted_label_similarity",
+            name="loss/weighted_label_dissimilarity",
             aggregation="mean",
         )
 
@@ -159,8 +163,8 @@ def build_ddf_model(
     index_size: int,
     labeled: bool,
     batch_size: int,
-    tf_model_config: dict,
-    tf_loss_config: dict,
+    model_config: dict,
+    loss_config: dict,
 ):
     """
 
@@ -169,8 +173,8 @@ def build_ddf_model(
     :param index_size:
     :param labeled:
     :param batch_size:
-    :param tf_model_config:
-    :param tf_loss_config:
+    :param model_config:
+    :param loss_config:
     :return:
     """
 
@@ -185,7 +189,7 @@ def build_ddf_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=3, tf_model_config=tf_model_config
+        image_size=fixed_image_size, out_channels=3, model_config=model_config
     )
 
     # forward
@@ -229,7 +233,7 @@ def build_ddf_model(
         fixed_label=fixed_label,
         pred_fixed_image=pred_fixed_image,
         pred_fixed_label=pred_fixed_label,
-        tf_loss_config=tf_loss_config,
+        loss_config=loss_config,
     )
 
     return model
