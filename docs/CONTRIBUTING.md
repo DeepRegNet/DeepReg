@@ -63,7 +63,7 @@ following commit guidelines.
      `Issue #<issue number>: add loader` - hard to tell explicitly what was changed
      without doing an in depth review.
 
-## Design Considerations
+## Design considerations
 
 1. As few dependencies as possible. Try to stick to standard scipy packages like numpy
    and pandas.
@@ -87,8 +87,22 @@ following commit guidelines.
 10. CI is enabled: for documentation changes/linting commits you may include [ci skip]
     in your commit messages. A reminder that CI checks are required before merge!
 
-## pre-commit setup
+## Pre-commit setup
 
-[Pre-commit](https://pre-commit.com/) is installed via `pip install -e .`, to activate
-pre-commit, run `pre-commit install` under the root of this repository and it will be
-activated.
+We use [pre-commit](https://pre-commit.com/) to ensure the consistency of code style for
+each commit. Specifically, we use
+
+- [seed-isort-config](https://github.com/asottile/seed-isort-config) and
+  [isort](https://github.com/timothycrosley/isort) to format package imports in python
+  files.
+- [Black](https://github.com/psf/black) to format python files.
+- [Flake9](https://gitlab.com/pycqa/flake8) to perform linting check,
+- [Prettier](https://prettier.io/) to format markdown files.
+
+Pre-commit is installed during the package installation via `pip install -e .`. To
+activate pre-commit, run `pre-commit install` under the root of this repository
+`DeepReg/`.
+
+Optionally, use `git commit --no-verify -m "This is a commit message placeholder."` to
+skip pre-commit, and use `pre-commit run --all-files` to format files before pull
+request.
