@@ -350,14 +350,14 @@ def test_multi_scale_loss_kernel():
 def test_similarity_fn_unknown_loss():
     config = {"name": "random"}
     with pytest.raises(ValueError):
-        label.get_similarity_fn(config)
+        label.get_dissimilarity_fn(config)
 
 
 def test_similarity_fn_multi_scale():
     config = {"name": "multi_scale", "multi_scale": "jaccard"}
-    assert isinstance(label.get_similarity_fn(config), FunctionType)
+    assert isinstance(label.get_dissimilarity_fn(config), FunctionType)
 
 
 def test_similarity_fn_single_scale():
     config = {"name": "multi_scale", "single_scale": "jaccard"}
-    assert isinstance(label.get_similarity_fn(config), FunctionType)
+    assert isinstance(label.get_dissimilarity_fn(config), FunctionType)

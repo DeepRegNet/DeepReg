@@ -5,10 +5,6 @@ import tensorflow as tf
 
 EPS = 1.0e-6  # epsilon to prevent NaN
 
-"""
-dissimilarity for labels
-"""
-
 
 def get_dissimilarity_fn(config):
     """
