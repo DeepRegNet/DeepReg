@@ -5,8 +5,12 @@ import tensorflow as tf
 
 EPS = 1.0e-6  # epsilon to prevent NaN
 
+"""
+dissimilarity for labels
+"""
 
-def get_similarity_fn(config):
+
+def get_dissimilarity_fn(config):
     """
     Function to parse args from a config dictionary
     and return the loss by averaging batch loss returned by

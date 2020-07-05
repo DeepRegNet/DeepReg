@@ -68,7 +68,7 @@ def config_sanity_check(config: dict):
 
     # check model
     if data_config["labeled"] is False:  # unlabeled
-        image_loss_weight = config["tf"]["loss"]["similarity"]["image"]["weight"]
+        image_loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
         if image_loss_weight <= 0:
             raise ValueError(
                 "For unlabeled data, the image loss must have positive weight, "

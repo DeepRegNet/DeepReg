@@ -1,16 +1,18 @@
 # Image Registration with Deep Learning
 
-A great scientific tutorial on deep learning for registration can be found at the
+A series of scientific tutorials on deep learning for registration can be found at the
 [learn2reg tutorial](https://learn2reg.github.io/), held in conjunction with
-MICCAI 2019. This tutorial provides a practical overview for a number of algorithms
-supported by DeepReg.
+MICCAI 2019.
+
+This tutorial provides a practical overview for a number of algorithms supported by
+DeepReg.
 
 ## Registration
 
 Image registration is the process of mapping the coordinate system of one image into
 another image. A registration method takes a pair of images as input, denoted as moving
 and fixed images. In this tutorial, we register the moving image into the fixed image,
-i.e. we map the coordinates of the moving image into the fixed image.
+i.e. maping the coordinates of the moving image onto the fixed image.
 
 <!---
 @Yunguan
@@ -40,7 +42,7 @@ subjects each having multiple available images, please see more sampling options
 
 - **Predict a dense velocity field**
 
-  Another option is topredict a dense velocity field (DVF), such that a diffeomorphic
+  Another option is to predict a dense velocity field (DVF), such that a diffeomorphic
   DDF can be numerically integrated. Read
   ["A fast diffeomorphic image registration algorithm"](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.474.1033&rep=rep1&type=pdf)
   for more details.
@@ -80,7 +82,8 @@ types of losses:
   moving image labels. The label is often an ROI in the image, like the segmentation of
   an organ in a CT image.
 
-  The common loss function is Dice loss.
+  The common loss function is Dice loss, Jacard and average cross-entropy over all
+  voxels.
 
 - **Deformation loss**
 
@@ -91,22 +94,23 @@ types of losses:
 
 ## Learning
 
-Depending on the availability of the data labels, we can split the registration network
-training into the following types:
+Depending on the availability of the data labels, registration networks can be trained
+with different approaches:
 
 ### Unsupervised
 
-When the data label is unavailable, the training is driven by the unsupervised loss. The
-loss function often consists of the intensity based loss and deformation loss. Following
-is an illustration of an unsupervised DDF-based registration network.
+When the data label is unavailable, the training can be driven by the unsupervised loss.
+The loss function often consists of the intensity based loss and deformation loss. The
+following is an illustration of an unsupervised DDF-based registration network.
 
 ![Unsupervised DDF-based registration network](asset/registration-ddf-nn-unsupervised.svg ":size=600")
 
 ### Weakly-supervised
 
-The training may take an additional pair of corresponding moving and fixed labels,
-represented by binary masks, to compute a label dissimilarity (feature based loss) to
-drive the registration.
+When there is no intensity based loss that is appropriate for the image pair one would
+like to register, the training can take a pair of corresponding moving and fixed labels
+(in addition to the image pair), represented by binary masks, to compute a label
+dissimilarity (feature based loss) to drive the registration.
 
 Combined with the regularisation on the predicted displacement field, this forms a
 weakly-supervised training. An illustration of an weakly-supervised DDF-based

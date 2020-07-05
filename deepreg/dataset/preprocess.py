@@ -102,7 +102,10 @@ def preprocess(
     """
     # shuffle / repeat / batch / preprocess
     if training and shuffle_buffer_num_batch > 0:
-        dataset = dataset.shuffle(buffer_size=batch_size * shuffle_buffer_num_batch)
+        dataset = dataset.shuffle(
+            buffer_size=batch_size * shuffle_buffer_num_batch,
+            reshuffle_each_iteration=True,
+        )
     if repeat:
         dataset = dataset.repeat()
     dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)

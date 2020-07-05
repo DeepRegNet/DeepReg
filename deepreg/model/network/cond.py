@@ -9,8 +9,8 @@ def build_cond_model(
     fixed_image_size,
     index_size,
     batch_size,
-    tf_model_config,
-    tf_loss_config,
+    model_config,
+    loss_config,
 ):
     """
     Build the model if using conditional segmentation algorithm
@@ -19,8 +19,8 @@ def build_cond_model(
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
     :param index_size: dataset size
     :param batch_size: mini-batch size
-    :param tf_model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param tf_loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
+    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
     # inputs
@@ -42,7 +42,7 @@ def build_cond_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=1, tf_model_config=tf_model_config
+        image_size=fixed_image_size, out_channels=1, model_config=model_config
     )
 
     # prediction

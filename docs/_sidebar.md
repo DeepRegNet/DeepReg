@@ -5,5 +5,5 @@
 - **Tutorial**
   - [Image Registration](tutorial_registration.md)
 - **Documentation**
-  - [Configuration](api_configuration.md)
-  - [Data Loader](api_data_loader.md)
+  - [Configuration](doc_configuration.md)
+  - [Data Loader](doc_data_loader.md)

@@ -22,7 +22,7 @@ train:
       pooling: true
       concat_skip: false
   loss:
-    similarity:
+    dissimilarity:
       image:
         name: "lncc"
         weight: 0.
@@ -39,8 +39,8 @@ train:
       energy_type: "bending"
   data:
     batch_size: 2
-    shuffle_buffer_num_batch: 0
-  opt:
+    shuffle_buffer_num_batch: 1
+  optimizer:
     name: "adam"
     adam:
       learning_rate: 1.0e-5

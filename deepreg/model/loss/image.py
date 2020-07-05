@@ -3,7 +3,7 @@ import tensorflow as tf
 EPS = 1.0e-6  # epsilon to prevent NaN
 
 
-def similarity_fn(y_true, y_pred, name, **kwargs):
+def dissimilarity_fn(y_true, y_pred, name, **kwargs):
     """
 
     :param y_true: fixed_image, shape = [batch, f_dim1, f_dim2, f_dim3]
