@@ -19,9 +19,18 @@ issues with other dependency. It can be easily created using
 
 #### ** Linux **
 
+With CPU only
+
 ```bash
-conda create --name deepreg python=3.7 tensorflow=2.2  # create the virtual environment
+conda create --name deepreg python=3.7
 conda activate deepreg # activate the environment
+```
+
+With GPU
+
+```bash
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # use conda to handle nvidia related packages
+conda activate deepreg
 ```
 
 <!-- tabs:end -->
