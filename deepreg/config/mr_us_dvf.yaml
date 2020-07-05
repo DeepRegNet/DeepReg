@@ -1,6 +1,6 @@
 # TODO to update
 
-data:
+dataset:
   dir: "data/test/nifti/demo" # required
   type: "nifti"
   moving_image_shape: [64, 64, 60]
@@ -40,7 +40,7 @@ train:
     regularization:
       weight: 0.5
       energy_type: "bending"
-  data:
+  preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
@@ -55,4 +55,3 @@ train:
       momentum: 0.9
   epochs: 2
   save_period: 2
-  histogram_freq: 2

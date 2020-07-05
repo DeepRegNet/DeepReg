@@ -23,7 +23,8 @@ class UNet(tf.keras.Model):
         :param depth: input is at level 0, bottom is at level depth
         :param out_kernel_initializer:
         :param out_activation:
-        :param pooling: true if use pooling to down sample
+        :param pooling: for downsampling, use non-parameterized pooling if true, otherwise use conv3d
+        :param concat_skip: when upsampling, concatenate skipped tensor if true, otherwise use addition
         :param kwargs:
         """
         super(UNet, self).__init__(**kwargs)

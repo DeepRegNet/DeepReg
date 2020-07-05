@@ -38,8 +38,8 @@ def config_sanity_check(config: dict):
     """check if the given config satisfies the requirements"""
 
     # check data
-    assert "data" in config.keys()
-    data_config = config["data"]
+    assert "dataset" in config.keys()
+    data_config = config["dataset"]
 
     if data_config["type"] not in ["paired", "unpaired", "grouped"]:
         raise ValueError(

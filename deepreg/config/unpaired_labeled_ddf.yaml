@@ -1,4 +1,4 @@
-data:
+dataset:
   dir:
     train: "data/test/nifti/unpaired/train" # required
     valid: "data/test/nifti/unpaired/test" # required
@@ -9,20 +9,23 @@ data:
   image_shape: [64, 64, 60]
 
 train:
+  # define neural network structure
   model:
-    method: "ddf" # ddf or conditional or seg
-    backbone:
-      name: "local"
+    method: "ddf" # the registration method, value should be ddf / dvf / conditional
+    backbone: # define the backbone of the network
+      name: "local" # value should be local / global / unet
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
     local:
-      num_channel_initial: 1
+      num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
       extract_levels: [0, 1, 2, 3, 4]
     unet:
-      num_channel_initial: 1
-      depth: 2
-      pooling: true
-      concat_skip: false
+      num_channel_initial: 1 # number of initial channel in u-net, controls the size of the network
+      depth: 2 # depth of u-net, the input is at depth = 0, and the bottom is at depth = depth
+      pooling: true # for downsampling, use non-parameterized pooling if true, otherwise use conv3d
+      concat_skip: false #　when upsampling, concatenate skipped tensor if true, otherwise use addition
+
+  # define the loss function for training
   loss:
     dissimilarity:
       image:
@@ -37,13 +40,12 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 0.5
-      energy_type: "bending"
-  data:
-    batch_size: 2
-    shuffle_buffer_num_batch: 1
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
+
+  # define the optimizer
   optimizer:
-    name: "adam"
+    name: "adam" # value should be adam / sgd / rms
     adam:
       learning_rate: 1.0e-5
     sgd:
@@ -52,6 +54,12 @@ train:
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 2
-  save_period: 2
-  histogram_freq: 2
+
+  # define the hyper-parameters for preprocessing
+  preprocess:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 2 # number of training epochs
+  save_period: 2 # the model will be saved every `save_period` epochs.
