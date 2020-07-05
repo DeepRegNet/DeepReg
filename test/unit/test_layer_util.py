@@ -2,8 +2,8 @@
 Tests for deepreg/model/layer_util.py in
 pytest style
 """
-import pytest
 import numpy as np
+import pytest
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
@@ -264,7 +264,7 @@ def test_warp_grid():
     """
     grid = tf.constant(
         np.array(
-            [[[[0, 0, 0], [0, 0, 1], [0, 0, 2]], [[0, 1, 0], [0, 1, 1], [0, 1, 2]], ]],
+            [[[[0, 0, 0], [0, 0, 1], [0, 0, 2]], [[0, 1, 0], [0, 1, 1], [0, 1, 2]]]],
             dtype=np.float32,
         )
     )  # shape = (1, 2, 3, 3)
