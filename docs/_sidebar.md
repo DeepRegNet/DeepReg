@@ -7,3 +7,4 @@
 - **Documentation**
   - [Configuration](doc_configuration.md)
   - [Dataset Loader](doc_data_loader.md)
+  - [Contributing to DeepReg](CONTRIBUTING.md)
