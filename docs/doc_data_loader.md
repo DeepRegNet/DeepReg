@@ -106,9 +106,9 @@ An example configuration for paired dataset is provided as follows.
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "paired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -120,28 +120,30 @@ where, the configuration can be split into common configurations that shared by 
 dataset types and specific configurations for paired images:
 
 - Common configurations
-  - The `dir/train` gives the directory containing training data. Same for `dir/valid`
-    and `dir/test`.
-  - The `format` can be only nifti or h5 currently. More details
-  - The `type` can be paired, unpaired or grouped, corresponding to the dataset type
+  - `dir/train` gives the directory containing training data. Same for `dir/valid` and
+    `dir/test`.
+  - `format` can only be nifti or h5 currently.
+  - `type` can be paired, unpaired or grouped, corresponding to the dataset type
     described above.
-  - The `labeled` is a boolean indicating if the data is labeled or not.
+  - `labeled` is a boolean indicating if the data is labeled or not.
 - Paired images configurations
-  - The `moving_image_shape` is the shape of moving images, a list of three integers.
-  - The `fixed_image_shape` is the shape of fixed images, a list of three integers.
+  - `moving_image_shape` is the shape of moving images, a list of three integers.
+  - `fixed_image_shape` is the shape of fixed images, a list of three integers.
 
-Optionally, we can provide more than two or more directories, so that the data come from
-multiple directories, for instance:
+Optionally, multiple dataset directories can be specified, such that the data will be
+sampled from several directories, for instance:
 
 ```yaml
 dataset:
   dir:
-    train: # folder saving training data
+    train: # folder contains training data
       - "data/test/h5/paired/train1"
       - "data/test/h5/paired/train2"
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
 ```
+
+This is particularly useful when conducting an experiment such as cross-validation.
 
 ### File loader
 
@@ -153,9 +155,8 @@ described as follows.
 Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
 3D or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `moving_images/`, `fixed_images/` with respect to
 the provided directory. The label data should be placed under `moving_labels/`, and
@@ -184,8 +185,8 @@ Check
 [test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/paired)
 as an example.
 
-Optionally, the data may not to be all saved directly under the top directory. They can
-be grouped in subdirectories as long as the data paths are consistent.
+Optionally, the data may not be all saved directly under the top directory. They can be
+further grouped in subdirectories as long as the data paths are consistent.
 
 #### H5
 
@@ -221,7 +222,7 @@ as an example.
 
 ## Unpaired images
 
-For unpaired images, all images are considered as independent and they should have the
+For unpaired images, all images are considered as independent and they must have the
 same shape. Optionally, there are corresponding labels for the images.
 
 Specifically,
@@ -237,12 +238,13 @@ Specifically,
 
 ### Sampling
 
-To sample image pairs, during one epoch, image pairs will be sampled without
-replacement. Therefore, given N images, one epoch will thereby have floor(N / 2) image
-pairs. For validation or testing, the random seed is fixed to ensure consistency.
+During each epoch, image pairs will be sampled without replacement. Therefore, given N
+images, one epoch will thereby have floor(N / 2) image pairs. For validation or testing,
+the random seed is fixed to ensure consistency.
 
-In case of multiple labels, the sampling method is the same as [paired data](#sampling).
-In particular, the sampled label will be always the same for the two chosen images.
+In case of multiple labels, the sampling method is the same as in
+[paired data](#sampling). In particular, the only corresponding label pairs will be
+sampled between the two sampled images.
 
 ### Configuration
 
@@ -251,9 +253,9 @@ An example configuration for unpaired dataset is provided as follows.
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "unpaired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -267,7 +269,7 @@ where
   Same as [paired images](#configuration).
 
 - Unpaired images configurations
-  - The `image_shape` is the shape of images, a list of three integers.
+  - `image_shape` is the shape of images, a list of three integers.
 
 ### File loader
 
@@ -276,12 +278,11 @@ described as follows.
 
 #### Nifti
 
-Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
-3D or 4D tensor, corresponding to an image or a label.
+Nifti data are stored in files with suffix `.nii.gz`. Each file must contain only one 3D
+or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `images/`. The label data should be placed under
 `labels/`, if available. These are _top_ directories.
@@ -327,7 +328,7 @@ as an example.
 
 ## Grouped images
 
-For grouped images, all images are unpaired but organized into multiple groups. Each
+For grouped images, images may not be paired but organized into multiple groups. Each
 group must have at least two images.
 
 The requirements are the same as unpaired images. Specifically,
@@ -355,25 +356,14 @@ For sampling image pairs, DeepReg provides the following options:
 For validation or testing, the random seed is fixed to ensure consistency.
 
 In case of multiple labels, the sampling method is the same as [paired data](#sampling).
-In particular, the sampled label will be always the same for the two chosen images.
-
-#### Inter-group
-
-To form pairs, we sample the group and image sequentially,
-
-1. Sample a group, denoted by A, as the group of moving image.
-2. Sample another different group, denoted by B, as the group of fixed image.
-3. Sample an image from the group A as moving image.
-4. Sample an image from the group B as fixed image.
-
-Assuming there are G groups, each epoch generates G pairs where all groups will be first
-shuffled and iterated as the group of moving image.
+In particular, only the corresponding label pairs will be sampled between the two
+sampled images.
 
 #### Intra-group
 
-To form pairs, we sample the group and image sequentially,
+To form image pairs, the group and image are sampled sequentially at two stages,
 
-1. Sample a group as the group of moving image.
+1. Sample a group from which the moving and fixed images will be sampled.
 2. Sample two different images from the group as moving and fixed images.<br> When
    sampling images from the same group, there are multiple options, denoted by
    `intra_group_option`:
@@ -382,8 +372,21 @@ To form pairs, we sample the group and image sequentially,
    - `unconstrained`: no constraint on the image index as long as the two images are
      different.
 
-Assuming there are G groups, each epoch generates G pairs where all groups will be first
-shuffled and iterated as the group of moving image.
+Therefore, each epoch generates the same number of image pairs as the number of groups,
+where all groups will be first shuffled and iterated. The `intra_group_option` is useful
+in implementing temporal-order sensitive sampling strategy.
+
+#### Inter-group
+
+To form image pairs, the group and image are sampled sequentially at two stages,
+
+1. Sample the first group, from which the moving image will be sampled.
+2. Sample the second group, from which the fixed image will be sampled.
+3. Sample an image from the first group as moving image.
+4. Sample an image from the second group as fixed image.
+
+Therefore, each epoch generates the same number of image pairs as the number of groups,
+where all groups will be first shuffled and iterated.
 
 #### Mixed
 
@@ -397,9 +400,10 @@ current intra-group images.
 
 #### Iterated
 
-Optionally, it is possible to generate all combination of inter-/intra-group image
+Optionally, it is possible to generate all combinations of inter-/intra-group image
 pairs, with `sample_image_in_group` set to false. This is originally designed for
-evaluation and mixing inter-/intra-group sampling is not supported.
+evaluation. Mixing inter-/intra-group sampling is not supported with with
+`sample_image_in_group` set to false.
 
 ### Configuration
 
@@ -408,9 +412,9 @@ An example configuration for grouped dataset is provided as follows.
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "unpaired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -431,7 +435,7 @@ where
     intra-group only.
   - `intra_group_option`,　 forward or backward or unconstrained, as described above.
   - `sample_image_in_group`, true if sampling one image at a time per group, false if
-    generate all pairs.
+    generating all possible pairs.
 
 ### File loader
 
@@ -443,9 +447,8 @@ described as follows.
 Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
 3D or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `images/`. The label data should be placed under
 `labels/`, if available. These are _top_ directories.
