@@ -6,42 +6,55 @@ from deepreg.model.backbone.u_net import UNet
 
 
 def build_backbone(
-    image_size: tuple, out_channels: int, model_config: dict
+    image_size: tuple, out_channels: int, model_config: dict, method_name: str
 ) -> tf.keras.Model:
     """
     backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
     and returns a single output of shape (batch, dim1, dim2, dim3, ch_out)
     :param image_size: (dim1, dim2, dim3)
     :param out_channels: ch_out
+    :param method_name: ddf or dvf or conditional
     :param model_config:model configuration, e.g. dictionary return from parser.yaml.load
     :return:
     """
+    if method_name not in ["ddf", "dvf", "conditional"]:
+        raise ValueError(
+            "method name has to be one of ddf / dvf / conditional in build_backbone, "
+            "got {}".format(method_name)
+        )
 
-    if model_config["backbone"]["out_activation"] == "":  # no activation
-        model_config["backbone"]["out_activation"] = None
+    if method_name in ["ddf", "dvf"]:
+        out_activation = None
+        # TODO try random init with smaller number
+        out_kernel_initializer = "zeros"  # to ensure small ddf and dvf
+    elif method_name in ["conditional"]:
+        out_activation = "sigmoid"  # output is probability
+        out_kernel_initializer = "glorot_uniform"
+    else:
+        raise ValueError("Unknown method name {}".format(method_name))
 
-    if model_config["backbone"]["name"] == "local":
+    if model_config["backbone"] == "local":
         return LocalNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
-            out_activation=model_config["backbone"]["out_activation"],
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
             **model_config["local"],
         )
-    elif model_config["backbone"]["name"] == "global":
+    elif model_config["backbone"] == "global":
         return GlobalNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
-            out_activation=model_config["backbone"]["out_activation"],
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
             **model_config["global"],
         )
-    elif model_config["backbone"]["name"] == "unet":
+    elif model_config["backbone"] == "unet":
         return UNet(
             image_size=image_size,
             out_channels=out_channels,
-            out_kernel_initializer=model_config["backbone"]["out_kernel_initializer"],
-            out_activation=model_config["backbone"]["out_activation"],
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
             **model_config["unet"],
         )
     else:

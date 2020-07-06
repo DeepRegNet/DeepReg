@@ -11,10 +11,7 @@ dataset:
 train:
   model:
     method: "conditional" # ddf or conditional or seg
-    backbone:
-      name: "local"
-      out_kernel_initializer: "glorot_uniform" # zeros or glorot_uniform
-      out_activation: "sigmoid"
+    backbone: "local"
     local:
       num_channel_initial: 2
       extract_levels: [0, 1, 2, 3, 4]

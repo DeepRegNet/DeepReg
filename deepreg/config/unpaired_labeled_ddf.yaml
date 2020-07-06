@@ -12,10 +12,7 @@ train:
   # define neural network structure
   model:
     method: "ddf" # the registration method, value should be ddf / dvf / conditional
-    backbone: # define the backbone of the network
-      name: "local" # value should be local / global / unet
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+    backbone: "local" # value should be local / global / unet
     local:
       num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
       extract_levels: [0, 1, 2, 3, 4]

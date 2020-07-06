@@ -13,7 +13,9 @@ jobs:
         - black --check .
         - flake8 .
     - stage: "Tests"
-      name: "Command Tests: Unpaired Unlabeled"
+      name: "Unit Tests"
+      script: pytest ./test/unit/
+    - name: "Command Tests: Unpaired Unlabeled"
       script:
         - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
         - predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
@@ -29,7 +31,5 @@ jobs:
       script: travis_wait 30 pytest ./test/output/test_grouped_unlabeled.py
     - name: "Output Tests: Grouped Labeled"
       script: travis_wait 30 pytest ./test/output/test_grouped_labeled.py
-    - name: "Unit Tests"
-      script: pytest ./test/unit/
     # - stage: "Coverage"
     #   script: pytest --cov=./
