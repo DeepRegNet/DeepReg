@@ -168,8 +168,8 @@ def build_ddf_model(
 ):
     """
 
-    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
-    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
+    :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
     :param index_size:
     :param labeled:
     :param batch_size:
