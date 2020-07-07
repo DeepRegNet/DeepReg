@@ -1,0 +1,3 @@
+train:
+  model:
+    method: "dvf" # ddf / dvf / conditional

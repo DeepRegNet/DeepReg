@@ -1,4 +1,3 @@
-from deepreg.model.network.cond import build_cond_model
 from deepreg.model.network.ddf import build_ddf_model
 from deepreg.model.network.dvf import build_dvf_model
 
@@ -39,18 +38,20 @@ def build_model(
             moving_image_size,
             fixed_image_size,
             index_size,
+            labeled,
             batch_size,
             model_config,
             loss_config,
         )
     elif model_config["method"] == "conditional":
-        return build_cond_model(
-            moving_image_size,
-            fixed_image_size,
-            index_size,
-            batch_size,
-            model_config,
-            loss_config,
-        )
+        raise NotImplementedError
+        # return build_cond_model(
+        #     moving_image_size,
+        #     fixed_image_size,
+        #     index_size,
+        #     batch_size,
+        #     model_config,
+        #     loss_config,
+        # )
     else:
         raise ValueError("Unknown model method")
