@@ -45,6 +45,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         fixed_label = inputs_dict.get("fixed_label", None)
 
         ddf = outputs_dict.get("ddf", None)
+        dvf = outputs_dict.get("dvf", None)
         pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
 
         labeled = moving_label is not None
@@ -129,22 +130,23 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                         cmap="gray",
                     )
 
-            # save ddf if exists
-            if ddf is not None:
-                if not os.path.exists(image_dir):
-                    os.makedirs(image_dir)
-                for fixed_depth_index in range(fixed_depth):
-                    ddf_d = ddf[
-                        sample_index, :, :, fixed_depth_index, :
-                    ]  # [f_dim1, f_dim2,  3]
-                    ddf_max, ddf_min = np.max(ddf_d), np.min(ddf_d)
-                    ddf_d = (ddf_d - ddf_min) / np.maximum(ddf_max - ddf_min, EPS)
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="ddf"
-                        ),
-                        ddf_d,
-                    )
+            # save ddf / dvf if exists
+            for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
+                if field is not None:
+                    for fixed_depth_index in range(fixed_depth):
+                        field_d = field[
+                            sample_index, :, :, fixed_depth_index, :
+                        ]  # [f_dim1, f_dim2,  3]
+                        field_max, field_min = np.max(field_d), np.min(field_d)
+                        field_d = (field_d - field_min) / np.maximum(
+                            field_max - field_min, EPS
+                        )
+                        plt.imsave(
+                            filename_format.format(
+                                depth_index=fixed_depth_index, name=field_name
+                            ),
+                            field_d,
+                        )
 
             # calculate metric
             if labeled:

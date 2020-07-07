@@ -89,8 +89,8 @@ following commit guidelines.
 
 ## Pre-commit setup
 
-We use [pre-commit](https://pre-commit.com/) to ensure the consistency of code style for
-each commit. Specifically, we use
+[pre-commit](https://pre-commit.com/) is recommended for code style consistency before
+each commit. Specifically,
 
 - [seed-isort-config](https://github.com/asottile/seed-isort-config) and
   [isort](https://github.com/timothycrosley/isort) to format package imports in python
@@ -109,8 +109,8 @@ request.
 
 ## Documentation Pages
 
-We use [Docsify](https://docsify.js.org/) to convert markdown files into pages and they
-are hosted on github page. Use `cd docs && python -m SimpleHTTPServer 3000` to visualize
-the pages locally. The required package
+[Docsify](https://docsify.js.org/) converts markdown files into pages and they are
+hosted on github page. Use `cd docs && python -m SimpleHTTPServer 3000` to visualize the
+pages locally. The required package
 [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
 installed during the package installation via `pip install -e .`.

@@ -2,8 +2,8 @@
 
 ## Dataset Type
 
-DeepReg provides multiple dataset loaders to support the following three different types
-of datasets:
+DeepReg provides six dataset loaders to support the following three different types of
+datasets:
 
 - **Paired images**
 
@@ -16,7 +16,7 @@ of datasets:
 
 - **Unpaired images**
 
-  Images are independent samples.
+  Images may be considered independent samples.
 
   An example case is single-modality inter-subject registration, such as registering one
   CT image to another from different subjects.
@@ -28,32 +28,33 @@ of datasets:
   Images are organized into multiple groups.
 
   An example case is single-modality intra-subject registration, such as registering
-  time-series images within individual subjects, a group is a subject in this case.
+  time-series images within individual subjects, a group is one subject in this case.
 
   Read [grouped images](#grouped-images) for more details.
 
-For all three above cases, the images can be either unlabeled or labeled. An label is
-considered as a boolean mask on the image, it can be a segmentation or a one-hot
-landmark.
+For all three above cases, the images can be either unlabeled or labeled. A label is
+represented by a boolean mask on the image, such as a segmentation of an anatomical
+structure or landmark.
 
 ## Dataset Requirements
 
-To use the provided dataset loaders, there are multiple requirements for the images and
-labels. Read each dataset loader for more details.
+To use the provided dataset loaders, other detailed images and labels requirements are
+described in individual dataset loader sections. Gnereal requirements are described as
+follows.
 
 - Image
 
-  - Currently, DeepReg only supports 3D images and all images should have the same
-    shape, e.g. `(m_dim1, m_dim2, m_dim3)`.<br> Except For paired images, the moving
-    images and fixed images can have different shapes, e.g. `(m_dim1, m_dim2, m_dim3)`
-    and `(f_dim1, f_dim2, f_dim3)`.
+  - Currently, DeepReg currently supports 3D images. All images should have the same
+    shape, e.g. `(m_dim1, m_dim2, m_dim3)`.<br> An exception is that, for paired image
+    loaders, the moving images and fixed images can have different shapes, e.g.
+    `(m_dim1, m_dim2, m_dim3)` and `(f_dim1, f_dim2, f_dim3)`.
 
 - Label
 
-  - If an image is labeled, the label's shape has to be the same as the image. But each
-    image can have more than one labels.<br>
+  - If an image is labeled, the label shape must be the same as the image shape. But
+    each image can have more than one labels.<br>
 
-    For instance, an image if of shape `(dim1, dim2, dim3)`, its label's shape can be
+    For instance, an image of shape `(dim1, dim2, dim3)`, its label shape can be
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
 
@@ -63,25 +64,25 @@ labels. Read each dataset loader for more details.
   - When there are multiple labels, it is assumed that the labels are ordered, such that
     the channel of index `label_idx` is the same anatomical or pathological structure.
 
-  - Currently, if the data are labeled, each data sample has to have at least one label.
+  - Currently, if the data are labeled, each data sample must have at least one label.
     For missing labels, consider using all zeros as a work-around.
 
 ## Paired images
 
-For paired images, each pair contains moving image and fixed image. Optionally, there
-are corresponding moving label and fixed label.
+For paired images, each pair contains a moving image and a fixed image. Optionally,
+corresponding moving label(s) and fixed label(s).
 
-Precisely, given a pair of images
+Specifically, given a pair of images
 
-- When the image is unlabeled, we have
+- When the image is unlabeled,
   - moving image of shape `(m_dim1, m_dim2, m_dim3)`
   - fixed image of shape `(f_dim1, f_dim2, f_dim3)`
-- When the image is labeled and there is only one label, we have
+- When the image is labeled and there is only one label,
   - moving image of shape `(m_dim1, m_dim2, m_dim3)`
   - fixed image of shape `(f_dim1, f_dim2, f_dim3)`
   - moving label of shape `(m_dim1, m_dim2, m_dim3)`
   - fixed label of shape `(f_dim1, f_dim2, f_dim3)`
-- When the image is labeled and there are multiple labels, we have
+- When the image is labeled and there are multiple labels,
   - moving image of shape `(m_dim1, m_dim2, m_dim3)`
   - fixed image of shape `(f_dim1, f_dim2, f_dim3)`
   - moving label of shape `(m_dim1, m_dim2, m_dim3, num_labels)`
@@ -89,30 +90,25 @@ Precisely, given a pair of images
 
 ### Sampling
 
-As the registration network takes only one pair of images (and the corresponding labels)
-at a time, some sampling strategy has to be used in case of multiple labels.
-
-During training, the sampling results are different for each epoch. For validation or
-testing, the random seed is fixed to ensure consistency.
-
-For paired images, one epoch of the dataset iterates all the pairs sequentially with
-random orders. So each image pair is sampled once in each epoch with equal chance.
+For paired images, one epoch of the dataset iterates all the image pairs sequentially
+with random orders. So each image pair is sampled once in each epoch with equal chance.
+For validation or testing, the random seed is fixed to ensure consistency.
 
 When an image has multiple labels, e.g. the segmentations of different organs in a CT
-image, only one label will be sampled during training. In particular, the sampled label
-will be always the same for moving and fixed images. In case of validation or testing,
-instead of sampling one label per image, all labels will be iterated.
+image, only one label will be sampled during training. In particular, only corresponding
+labels will be sampled between a pair of moving and fixed images. In case of validation
+or testing, instead of sampling one label per image, all labels will be iterated.
 
 ### Configuration
 
-Therefore, we use the following configuration for paired dataset.
+An example configuration for paired dataset is provided as follows.
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "paired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -124,28 +120,30 @@ where, the configuration can be split into common configurations that shared by 
 dataset types and specific configurations for paired images:
 
 - Common configurations
-  - The `dir/train` gives the directory containing training data. Same for `dir/valid`
-    and `dir/test`.
-  - The `format` can be only nifti or h5 currently. More details
-  - The `type` can be paired, unpaired or grouped, corresponding to the dataset type
+  - `dir/train` gives the directory containing training data. Same for `dir/valid` and
+    `dir/test`.
+  - `format` can only be nifti or h5 currently.
+  - `type` can be paired, unpaired or grouped, corresponding to the dataset type
     described above.
-  - The `labeled` is a boolean indicating if the data is labeled or not.
+  - `labeled` is a boolean indicating if the data is labeled or not.
 - Paired images configurations
-  - The `moving_image_shape` is the shape of moving images, a list of three integers.
-  - The `fixed_image_shape` is the shape of fixed images, a list of three integers.
+  - `moving_image_shape` is the shape of moving images, a list of three integers.
+  - `fixed_image_shape` is the shape of fixed images, a list of three integers.
 
-Optionally, we can provide more than two or more directories, so that the data come from
-multiple directories, for instance:
+Optionally, multiple dataset directories can be specified, such that the data will be
+sampled from several directories, for instance:
 
 ```yaml
 dataset:
   dir:
-    train: # folder saving training data
+    train: # folder contains training data
       - "data/test/h5/paired/train1"
       - "data/test/h5/paired/train2"
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
 ```
+
+This is particularly useful when conducting an experiment such as cross-validation.
 
 ### File loader
 
@@ -157,9 +155,8 @@ described as follows.
 Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
 3D or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `moving_images/`, `fixed_images/` with respect to
 the provided directory. The label data should be placed under `moving_labels/`, and
@@ -188,8 +185,8 @@ Check
 [test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/paired)
 as an example.
 
-Optionally, the data do not have to be all saved directly under the top directory. They
-can be grouped in subdirectories as long as the data paths are consistent.
+Optionally, the data may not be all saved directly under the top directory. They can be
+further grouped in subdirectories as long as the data paths are consistent.
 
 #### H5
 
@@ -225,45 +222,40 @@ as an example.
 
 ## Unpaired images
 
-For unpaired images, all images are considered as independent and they should have the
+For unpaired images, all images are considered as independent and they must have the
 same shape. Optionally, there are corresponding labels for the images.
 
-Precisely,
+Specifically,
 
-- When the image is unlabeled, we have
+- When the image is unlabeled,
   - image of shape `(dim1, dim2, dim3)`
-- When the image is labeled and there is only one label, we have
+- When the image is labeled and there is only one label,
   - image of shape `(dim1, dim2, dim3)`
   - label of shape `(dim1, dim2, dim3)`
-- When the image is labeled and there are multiple labels, we have
+- When the image is labeled and there are multiple labels,
   - image of shape `(dim1, dim2, dim3)`
   - label of shape `(dim1, dim2, dim3, num_labels)`
 
 ### Sampling
 
-As the registration network takes only one pair of images (and the corresponding labels)
-at a time, some sampling strategy has to be used to pair the images and also for
-multiple labels.
+During each epoch, image pairs will be sampled without replacement. Therefore, given N
+images, one epoch will thereby have floor(N / 2) image pairs. For validation or testing,
+the random seed is fixed to ensure consistency.
 
-During training, the sampling results are different for each epoch. For validation or
-testing, the random seed is fixed to ensure consistency.
-
-To form pairs, during one epoch, image pairs will be sampled without replacement.
-Therefore, given N images, one epoch will thereby have floor(N / 2) image pairs.
-
-In case of multiple labels, the sampling method is the same as [paired data](#sampling).
-In particular, the sampled label will be always the same for the two chosen images.
+In case of multiple labels, the sampling method is the same as in
+[paired data](#sampling). In particular, the only corresponding label pairs will be
+sampled between the two sampled images.
 
 ### Configuration
 
-We use the following configuration for unpaired dataset.
+An example configuration for unpaired dataset is provided as follows.
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "unpaired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -277,7 +269,7 @@ where
   Same as [paired images](#configuration).
 
 - Unpaired images configurations
-  - The `image_shape` is the shape of images, a list of three integers.
+  - `image_shape` is the shape of images, a list of three integers.
 
 ### File loader
 
@@ -286,12 +278,11 @@ described as follows.
 
 #### Nifti
 
-Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
-3D or 4D tensor, corresponding to an image or a label.
+Nifti data are stored in files with suffix `.nii.gz`. Each file must contain only one 3D
+or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `images/`. The label data should be placed under
 `labels/`, if available. These are _top_ directories.
@@ -337,33 +328,23 @@ as an example.
 
 ## Grouped images
 
-For grouped images, all images are unpaired but organized into multiple groups. Each
-group has to have at least two images.
+For grouped images, images may not be paired but organized into multiple groups. Each
+group must have at least two images.
 
-The requirements are the same as unpaired images. Precisely,
+The requirements are the same as unpaired images. Specifically,
 
-- When the image is unlabeled, we have
+- When the image is unlabeled,
   - image of shape `(dim1, dim2, dim3)`
-- When the image is labeled and there is only one label, we have
+- When the image is labeled and there is only one label,
   - image of shape `(dim1, dim2, dim3)`
   - label of shape `(dim1, dim2, dim3)`
-- When the image is labeled and there are multiple labels, we have
+- When the image is labeled and there are multiple labels,
   - image of shape `(dim1, dim2, dim3)`
   - label of shape `(dim1, dim2, dim3, num_labels)`
 
 ### Sampling
 
-As the registration network takes only one pair of images (and the corresponding labels)
-at a time, some sampling strategy has to be used to pair the images and also for
-multiple labels.
-
-During training, the sampling results are different for each epoch. For validation or
-testing, the random seed is fixed to ensure consistency.
-
-In case of multiple labels, the sampling method is the same as [paired data](#sampling).
-In particular, the sampled label will be always the same for the two chosen images.
-
-For images, DeepReg mainly provides the following sampling methods:
+For sampling image pairs, DeepReg provides the following options:
 
 - **inter-group sampling**, where the moving image and fixed image come from different
   groups.
@@ -372,23 +353,17 @@ For images, DeepReg mainly provides the following sampling methods:
 - **mixed sampling**, where the image pairs are mixed from inter-group sampling and
   intra-group sampling.
 
-#### Inter-group
+For validation or testing, the random seed is fixed to ensure consistency.
 
-To form pairs, we sample the group and image sequentially,
-
-1. Sample a group, denoted by A, as the group of moving image.
-2. Sample another different group, denoted by B, as the group of fixed image.
-3. Sample an image from the group A as moving image.
-4. Sample an image from the group B as fixed image.
-
-Assuming there are G groups, each epoch generates G pairs where all groups will be first
-shuffled and iterated as the group of moving image.
+In case of multiple labels, the sampling method is the same as [paired data](#sampling).
+In particular, only the corresponding label pairs will be sampled between the two
+sampled images.
 
 #### Intra-group
 
-To form pairs, we sample the group and image sequentially,
+To form image pairs, the group and image are sampled sequentially at two stages,
 
-1. Sample a group as the group of moving image.
+1. Sample a group from which the moving and fixed images will be sampled.
 2. Sample two different images from the group as moving and fixed images.<br> When
    sampling images from the same group, there are multiple options, denoted by
    `intra_group_option`:
@@ -397,8 +372,21 @@ To form pairs, we sample the group and image sequentially,
    - `unconstrained`: no constraint on the image index as long as the two images are
      different.
 
-Assuming there are G groups, each epoch generates G pairs where all groups will be first
-shuffled and iterated as the group of moving image.
+Therefore, each epoch generates the same number of image pairs as the number of groups,
+where all groups will be first shuffled and iterated. The `intra_group_option` is useful
+in implementing temporal-order sensitive sampling strategy.
+
+#### Inter-group
+
+To form image pairs, the group and image are sampled sequentially at two stages,
+
+1. Sample the first group, from which the moving image will be sampled.
+2. Sample the second group, from which the fixed image will be sampled.
+3. Sample an image from the first group as moving image.
+4. Sample an image from the second group as fixed image.
+
+Therefore, each epoch generates the same number of image pairs as the number of groups,
+where all groups will be first shuffled and iterated.
 
 #### Mixed
 
@@ -412,20 +400,21 @@ current intra-group images.
 
 #### Iterated
 
-Optionally, it is possible to generate all combination of inter-/intra-group image
+Optionally, it is possible to generate all combinations of inter-/intra-group image
 pairs, with `sample_image_in_group` set to false. This is originally designed for
-evaluation and mixing inter-/intra-group sampling is not supported.
+evaluation. Mixing inter-/intra-group sampling is not supported with with
+`sample_image_in_group` set to false.
 
 ### Configuration
 
-We use the following configuration for grouped dataset.
+An example configuration for grouped dataset is provided as follows.
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder saving training data
-    valid: "data/test/h5/paired/test" # folder saving validation data
-    test: "data/test/h5/paired/test" # folder saving test data
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/test" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti" # value should be nifti / h5
   type: "unpaired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
@@ -446,7 +435,7 @@ where
     intra-group only.
   - `intra_group_option`,　 forward or backward or unconstrained, as described above.
   - `sample_image_in_group`, true if sampling one image at a time per group, false if
-    generate all pairs.
+    generating all possible pairs.
 
 ### File loader
 
@@ -458,9 +447,8 @@ described as follows.
 Nifti data are stored in files with suffix `.nii.gz`. Each file should contain only one
 3D or 4D tensor, corresponding to an image or a label.
 
-The requirements for different structures are as follows. `obs` is short for one
-observation of a data sample - a 3D image volume or a 3D/4D label volume - and the name
-can be any string.
+`obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
+volume - and the name can be any string.
 
 All image data should be placed under `images/`. The label data should be placed under
 `labels/`, if available. These are _top_ directories.
@@ -494,8 +482,8 @@ Each file is equivalent to a top folder in Nifti cases.
 All image data should be placed under `images.h5`. The label data should be placed under
 `labels.h5`, if available.
 
-The keys have to satisfy a specific format, `group-%d-%d`, where `%d` represents an
-integer number. The first number corresponds to the group index, and the second number
+The keys must satisfy a specific format, `group-%d-%d`, where `%d` represents an integer
+number. The first number corresponds to the group index, and the second number
 corresponds to the observation index. For example, `group-3-2` corresponds to the second
 observation from the third group.
 

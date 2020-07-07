@@ -1,6 +1,6 @@
 train:
   model:
-    method: "ddf" # ddf or conditional or seg
+    method: "ddf" # ddf / dvf / conditional
     backbone: "local"
     local:
       num_channel_initial: 1
