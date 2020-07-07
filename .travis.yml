@@ -16,7 +16,7 @@ jobs:
         - flake8 .
     - stage: "Tests"
       name: "Unit Tests"
-      script:  pytest --cov-report=xml --cov=./test/unit/
+      script:  pytest --cov-report= --cov=deepreg ./test/unit/
       after_success: bash <(curl -s https://codecov.io/bash)
     - name: "Command Tests: Unpaired Unlabeled"
       script:
