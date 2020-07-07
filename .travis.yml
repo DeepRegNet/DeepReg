@@ -5,6 +5,8 @@ python:
   - "3.7" # current default Python on Travis CI
 install:
   - pip install -e . # install deepreg package with corresponding requirements
+  - pip install pytest-cov
+  - pip install codecov
 
 jobs:
   include:
@@ -14,7 +16,8 @@ jobs:
         - flake8 .
     - stage: "Tests"
       name: "Unit Tests"
-      script: pytest ./test/unit/
+      script:  pytest --cov-report xml ./test/unit/
+      after_success: bash <(curl -s https://codecov.io/bash)
     - name: "Command Tests: Unpaired Unlabeled"
       script:
         - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
@@ -31,5 +34,3 @@ jobs:
       script: travis_wait 30 pytest ./test/output/test_grouped_unlabeled.py
     - name: "Output Tests: Grouped Labeled"
       script: travis_wait 30 pytest ./test/output/test_grouped_labeled.py
-    # - stage: "Coverage"
-    #   script: pytest --cov=./
