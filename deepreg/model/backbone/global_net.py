@@ -1,3 +1,14 @@
+#  coding=utf-8
+
+"""
+Module to build GlobalNet based on:
+
+Y. Hu et al.,
+"Label-driven weakly-supervised learning for multimodal
+deformable image registration,"
+(ISBI 2018), pp. 1070-1074.
+https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+"""
 import tensorflow as tf
 
 from deepreg.model import layer as layer
@@ -16,8 +27,8 @@ class GlobalNet(tf.keras.Model):
         **kwargs,
     ):
         """
-        image is encoded gradually, i from level 0 to E
-        then a densely-connected layer outputs an affine
+        Image is encoded gradually, i from level 0 to E.
+        Then, a densely-connected layer outputs an affine
         transformation.
 
         :param out_channels: number of channels for the extractions
@@ -54,7 +65,8 @@ class GlobalNet(tf.keras.Model):
 
     def call(self, inputs, training=None, mask=None):
         """
-        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, ch]
+        Build GlobalNet graph based on built layers.
+        :param inputs: image batch, shape = [batch, f_dim1, f_dim2, f_dim3, ch]
         :param training:
         :param mask:
         :return:

@@ -1,3 +1,15 @@
+#  coding=utf-8
+
+"""
+Module to build LocalNet class based on:
+
+Y. Hu et al.,
+"Label-driven weakly-supervised learning for multimodal
+deformable image registration,"
+(ISBI 2018), pp. 1070-1074.
+https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+"""
+
 import tensorflow as tf
 
 from deepreg.model import layer as layer
@@ -15,17 +27,19 @@ class LocalNet(tf.keras.Model):
         **kwargs,
     ):
         """
-        image is encoded gradually, i from level 0 to E
+        Initialising LocalNet.
+        Image is encoded gradually, i from level 0 to E,
         then it is decoded gradually, j from level E to D
-        some of the decoded level are used for generating extractions
+        Some of the decoded levels are used for generating extractions
 
-        so extract_levels are between [0, E] with E = max(extract_levels) and D = min(extract_levels)
+        So, extract_levels are between [0, E] with E = max(extract_levels),
+        and D = min(extract_levels).
 
-        :param out_channels: number of channels for the extractions
-        :param num_channel_initial:
-        :param extract_levels:
-        :param out_kernel_initializer:
-        :param out_activation:
+        :param out_channels: int, number of channels for the extractions
+        :param num_channel_initial: int, number of initial channels.
+        :param extract_levels: int, number of extraction levels.
+        :param out_kernel_initializer: str, initialiser to use for kernels.
+        :param out_activation: str, activation to use at end layer.
         :param kwargs:
         """
         super(LocalNet, self).__init__(**kwargs)
@@ -67,8 +81,8 @@ class LocalNet(tf.keras.Model):
 
     def call(self, inputs, training=None, mask=None):
         """
-
-        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, ch]
+        Build LocalNet graph based on built layers.
+        :param inputs: image batch, shape = [batch, f_dim1, f_dim2, f_dim3, ch]
         :param training:
         :param mask:
         :return:
