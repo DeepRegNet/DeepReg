@@ -12,7 +12,7 @@ zcemsus@ucl.ac.uk
   - Download data using linux builtin function wget (if using other OS please use python
     package wget, instruction in the script)
   - Split the data into three sets train, valid and test (change
-    ratio_of_test_and_valid_samples variable to cahnge the ratio of test and valid
+    ratio_of_test_and_valid_samples variable to change the ratio of test and valid
     samples)
   - Restructure the files, for each of the train, valid and test sets, into a directory
     structure that is suitable for use with the paired loader in deepreg
@@ -30,13 +30,13 @@ changed (look at comments in the script to see what variables to change)
 
 - Run the demo_predict.py script: This script does the following:
   - Use the trained network to make predictions for the test set
-  - Use the predicitons to plot the results (the path to teh images generated in the
+  - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
 ## Application
 
-This is a registration between ct images for a patient acquired at different time
-points. The images being registered are taken at inspiration and expiration for each
+This is a registration between ct images acquired at different time points for a single
+patient. The images being registered are taken at inspiration and expiration for each
 subject. This is an intra subject registration. This type of intra subject registration
 is useful when there is a need to track certain features on a medical image such as
 tumor location when conducting invasive procedures.
