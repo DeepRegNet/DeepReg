@@ -75,6 +75,11 @@ def test_value_raised_if_unknown_config():
 
 
 def test_global_return():
+    """
+    Testing that build_backbone func returns an object
+    of type GlobalNet from backbone module when initialised
+    with the associated GlobalNet config.
+    """
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
@@ -91,6 +96,11 @@ def test_global_return():
 
 
 def test_local_return():
+    """
+    Testing that build_backbone func returns an object
+    of type LocalNet from backbone module when initialised
+    with the associated LocalNet config.
+    """
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
@@ -107,6 +117,11 @@ def test_local_return():
 
 
 def test_unet_return():
+    """
+    Testing that build_backbone func returns an object
+    of type UNet form backbone module when initialised
+    with the associated UNet config.
+    """
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
