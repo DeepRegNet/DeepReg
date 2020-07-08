@@ -1,3 +1,14 @@
+# coding=utf-8
+
+"""
+Module to build UNet class based on
+
+O. Ronneberger, P. Fischer, and T. Brox,
+“U-net: Convolutional networks for biomedical image segmentation,”,
+Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.
+https://arxiv.org/pdf/1505.04597.pdf
+"""
+
 import tensorflow as tf
 
 from deepreg.model import layer as layer
@@ -17,14 +28,16 @@ class UNet(tf.keras.Model):
         **kwargs,
     ):
         """
-        :param image_size: [f_dim1, f_dim2, f_dim3]
-        :param out_channels: number of channels for the output
-        :param num_channel_initial:
-        :param depth: input is at level 0, bottom is at level depth
-        :param out_kernel_initializer:
-        :param out_activation:
-        :param pooling: for downsampling, use non-parameterized pooling if true, otherwise use conv3d
-        :param concat_skip: when upsampling, concatenate skipped tensor if true, otherwise use addition
+        Initialise UNet.
+
+        :param image_size: list, [f_dim1, f_dim2, f_dim3], dims of input image.
+        :param out_channels: int, number of channels for the output
+        :param num_channel_initial: int, number of initial channels
+        :param depth: int, input is at level 0, bottom is at level depth
+        :param out_kernel_initializer: str, which kernel to use as initialiser
+        :param out_activation: str, activation at last layer
+        :param pooling: Boolean, for downsampling, use non-parameterized pooling if true, otherwise use conv3d
+        :param concat_skip: Boolean, when upsampling, concatenate skipped tensor if true, otherwise use addition
         :param kwargs:
         """
         super(UNet, self).__init__(**kwargs)
@@ -53,7 +66,7 @@ class UNet(tf.keras.Model):
 
     def call(self, inputs, training=None, mask=None):
         """
-
+        Builds graph based on built layers.
         :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, in_channels]
         :param training:
         :param mask:
