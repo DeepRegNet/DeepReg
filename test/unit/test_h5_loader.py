@@ -2,6 +2,7 @@
 Tests functionality of the H5FileLoader
 """
 import numpy as np
+import pytest
 
 from deepreg.dataset.loader.h5_loader import H5FileLoader
 
@@ -61,6 +62,22 @@ def test_set_group_structure():
     expected = [["1"], {"1": ["1", "2"]}]
     loader.close()
     assert got == expected
+
+
+def test_set_group_structure_ungrouped():
+    """
+    check if the set_group_structure method works as intended when data is
+    not grouped
+    """
+    dir_path = "data/test/h5/paired/test"
+    name = "fixed_images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
+    loader.set_group_structure()
+    with pytest.raises(AttributeError) as execinfo:
+        loader.group_ids
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "object has no attribute" in msg
 
 
 def test_get_data_ids():
@@ -129,5 +146,51 @@ def test_get_data():
     ]
     expected = [(44, 59, 41), [255.0, 0.0, 68.359276, 65.84009]]
     loader.close()
-    assert got[0] == expected[0]
-    assert check_equal(np.array(got[1]), np.array(expected[1])).all()
+    if got[0] == expected[0]:
+        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
+    else:
+        raise AssertionError
+
+
+def test_init_incompatible_conditions():
+    """
+    check if the initialisation works as expected and raises an error when
+    directories to ungrouped files is given but grouped variable is set to
+    True
+    """
+    dir_path = "data/test/h5/paired/test"
+    name = "fixed_images"
+    with pytest.raises(IndexError) as execinfo:
+        H5FileLoader(dir_path=dir_path, name=name, grouped=True)
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "index out of range" in msg
+
+
+def test_get_data_incompatible_args():
+    """
+    check if the get_data method works as expected and raises an error when
+    data is ungrouped but index is not an int
+    """
+    dir_path = "data/test/h5/paired/test"
+    name = "fixed_images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
+    index = (0, 1)
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
+def test_get_data_incorrect_args():
+    """
+    check if the get_data method works as expected and raises an error when
+    an incorrect data type is fed in
+    """
+    dir_path = "data/test/h5/paired/test"
+    name = "fixed_images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
+    index = "abc"
+    with pytest.raises(ValueError) as execinfo:
+        loader.get_data(index)
+    msg = " ".join(execinfo.value.args[0].split())
+    assert "must be int, or tuple" in msg
