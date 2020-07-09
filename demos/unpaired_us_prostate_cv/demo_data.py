@@ -1,23 +1,24 @@
-# download the demo data
-
+"""
+Download the demo data
+"""
 import os
+import shutil
 
-project_dir = r"demos/unpaired_us_prostate_cv"
-os.chdir(project_dir)
+from tensorflow.keras.utils import get_file
 
-DATA_PATH = "./data"
+PROJECT_DIR = r"demos/unpaired_us_prostate_cv"
+os.chdir(PROJECT_DIR)
 
-temp_file = os.path.join(DATA_PATH, "master.zip")
-origin = "https://github.com/ucl-candi/dataset_trus3d/archive/master.zip"
+DATA_PATH = "dataset"
+DATA_REPO = "dataset_trus3d-master"
+ZIP_PATH = "master.zip"
+ORIGIN = "https://github.com/ucl-candi/dataset_trus3d/archive/master.zip"
 
-if not os.path.exists(DATA_PATH):
-    os.makedirs(DATA_PATH)
+get_file(os.path.abspath(ZIP_PATH), ORIGIN, extract=True)
 
-os.system("wget -P %s  %s" % (DATA_PATH, origin))
-os.system("unzip %s -d %s" % (temp_file, DATA_PATH))
-os.remove(temp_file)
+if os.path.exists(DATA_PATH):
+    shutil.rmtree(DATA_PATH)
+shutil.move(DATA_REPO, DATA_PATH)
+os.remove(ZIP_PATH)
 
-print(
-    "TRUS 3d data downloaded: %s."
-    % os.path.abspath(os.path.join(DATA_PATH, "dataset_trus3d-master"))
-)
+print("TRUS 3d data downloaded: %s." % os.path.abspath(DATA_PATH))
