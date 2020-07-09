@@ -5,7 +5,6 @@ python:
   - "3.7" # current default Python on Travis CI
 install:
   - pip install -e . # install deepreg package with corresponding requirements
-  - pip install pytest-cov
   - pip install codecov
 
 jobs:
