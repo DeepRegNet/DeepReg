@@ -58,6 +58,9 @@ and `predict`.
 - `--gpu_allow_growth` or `-gr`, the same as with `train`.
 - `--log_dir` or `-l`, the same as with `train`.
 - `--batch_size` or `-b`, specifies the batch size for prediction. The default is 1.
+- `--config_path` or `-c`, specifies the configuration file for prediction. The path
+  must end with `.yaml`. The default will be to use the saved config in the directory of
+  the given checkpoint.
 
 ## Configuration file
 
