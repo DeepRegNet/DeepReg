@@ -4,7 +4,13 @@ import deepreg.model.layer as layer
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
-from deepreg.model.network.util import build_backbone, build_inputs
+from deepreg.model.network.util import (
+    add_ddf_loss,
+    add_image_loss,
+    add_label_loss,
+    build_backbone,
+    build_inputs,
+)
 
 
 def ddf_dvf_forward(
@@ -15,7 +21,7 @@ def ddf_dvf_forward(
     moving_image_size: tuple,
     fixed_image_size: tuple,
     output_dvf: bool,
-) -> [tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
+) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass
     :param backbone: model architecture object, e.g. model.backbone.local_net
@@ -25,7 +31,8 @@ def ddf_dvf_forward(
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
-    :return: tuple(ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
+    :return: tuple(dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
+    - dvf is the dense velocity field of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     - ddf is the dense displacement field of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
     - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -33,9 +40,10 @@ def ddf_dvf_forward(
     """
 
     # expand dims
+    # need to be squeezed later for warping
     moving_image = tf.expand_dims(
         moving_image, axis=4
-    )  # (batch, m_dim1, m_dim2, m_dim3, 1), need to be squeezed later for warping
+    )  # (batch, m_dim1, m_dim2, m_dim3, 1)
     fixed_image = tf.expand_dims(
         fixed_image, axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
@@ -175,7 +183,7 @@ def build_ddf_dvf_model(
     batch_size: int,
     model_config: dict,
     loss_config: dict,
-):
+) -> tf.keras.Model:
     """
     :param moving_image_size: (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
@@ -184,7 +192,7 @@ def build_ddf_dvf_model(
     :param batch_size: int, size of mini-batch
     :param model_config: config for the model
     :param loss_config: config for the loss
-    :return:
+    :return: the built tf.keras.Model
     """
 
     # inputs
@@ -237,14 +245,18 @@ def build_ddf_dvf_model(
             inputs=inputs, outputs=outputs, name=model_name + "WithLabel"
         )
 
-    # loss and metric
-    ddf_dvf_add_loss_metric(
+    # add loss and metric
+    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_image_loss(
         model=model,
-        ddf=ddf,
-        grid_fixed=grid_fixed,
         fixed_image=fixed_image,
-        fixed_label=fixed_label,
         pred_fixed_image=pred_fixed_image,
+        loss_config=loss_config,
+    )
+    model = add_label_loss(
+        model=model,
+        grid_fixed=grid_fixed,
+        fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
     )
