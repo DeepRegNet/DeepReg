@@ -11,7 +11,7 @@ The package is primarily distributed via Github with future support via PyPI.
 ### Create a virtual environment
 
 The recommended method is to install DeepReg in a dedicated virtual environment to avoid
-issues with other dependency. The conda enviroment is recommended:
+issues with other dependencies. The conda enviroment is recommended:
 [Anaconda](https://docs.anaconda.com/anaconda/install/) /
 [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 
@@ -22,7 +22,7 @@ issues with other dependency. The conda enviroment is recommended:
 With CPU only
 
 ```bash
-conda create --name deepreg python=3.7
+conda create --name deepreg python=3.7 tensorflow=2.2
 conda activate deepreg # activate the environment
 ```
 
@@ -65,7 +65,7 @@ train --gpu "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir 
 where
 
 - `--gpu ""` indicates using CPU. `--gpu "0"` uses the GPU of index 0 and `--gpu "0,1"`
-  useS two GPUs.
+  uses two GPUs.
 - `--config_path deepreg/config/unpaired_labeled_ddf.yaml` provides the configuration
   for the training. Read configuration for more details.
 - `--log_dir test` specifies the output folder, the output will be saved in `logs/test`.

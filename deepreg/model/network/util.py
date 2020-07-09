@@ -1,3 +1,9 @@
+# coding=utf-8
+
+"""
+Module to build backbone modules based on passed inputs.
+"""
+
 import tensorflow as tf
 
 from deepreg.model.backbone.global_net import GlobalNet
@@ -9,13 +15,14 @@ def build_backbone(
     image_size: tuple, out_channels: int, model_config: dict, method_name: str
 ) -> tf.keras.Model:
     """
-    backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
+    Backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
     and returns a single output of shape (batch, dim1, dim2, dim3, ch_out)
-    :param image_size: (dim1, dim2, dim3)
-    :param out_channels: ch_out
-    :param method_name: ddf or dvf or conditional
-    :param model_config:model configuration, e.g. dictionary return from parser.yaml.load
-    :return:
+
+    :param image_size: tuple, dims of image, (dim1, dim2, dim3)
+    :param out_channels: int, number of out channels, ch_out
+    :param method_name: str, one of ddf | dvf | conditional
+    :param model_config: dict, model configuration, returned from parser.yaml.load
+    :return: tf.keras.Model with shape (batch, dim1, dim2, dim3, ch_out)
     """
     if method_name not in ["ddf", "dvf", "conditional"]:
         raise ValueError(
@@ -69,15 +76,16 @@ def build_inputs(
     labeled: bool,
 ) -> [tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input, tf.keras.Input]:
     """
-    Configure a pair of moving and fixed images and a pair of moving and fixed labels as model input
+    Configure a pair of moving and fixed images and a pair of
+    moving and fixed labels as model input
     and returns model input tf.keras.Input
 
-    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
-    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param index_size: dataset size
-    :param batch_size: mini-batch size
-    :param labeled: true if we have label data
-    :return: tf.keras.Input objects
+    :param moving_image_size: tuple, dims of moving images, [m_dim1, m_dim2, m_dim3]
+    :param fixed_image_size: tuple, dims of fixed images, [f_dim1, f_dim2, f_dim3]
+    :param index_size: int, dataset size (number of images)
+    :param batch_size: int, mini-batch size
+    :param labeled: Boolean, true if we have label data
+    :return: 5 (if labeled=True) or 3 (if labeled=False) tf.keras.Input objects
     """
     moving_image = tf.keras.Input(
         shape=(*moving_image_size,), batch_size=batch_size, name="moving_image"
