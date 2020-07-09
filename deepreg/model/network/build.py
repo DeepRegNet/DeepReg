@@ -1,5 +1,4 @@
-from deepreg.model.network.ddf import build_ddf_model
-from deepreg.model.network.dvf import build_dvf_model
+from deepreg.model.network.ddf import build_ddf_dvf_model
 
 
 def build_model(
@@ -23,18 +22,8 @@ def build_model(
     :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
-    if model_config["method"] == "ddf":
-        return build_ddf_model(
-            moving_image_size,
-            fixed_image_size,
-            index_size,
-            labeled,
-            batch_size,
-            model_config,
-            loss_config,
-        )
-    elif model_config["method"] == "dvf":
-        return build_dvf_model(
+    if model_config["method"] in ["ddf", "dvf"]:
+        return build_ddf_dvf_model(
             moving_image_size,
             fixed_image_size,
             index_size,
