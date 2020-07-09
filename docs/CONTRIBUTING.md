@@ -100,8 +100,8 @@ each commit. Specifically,
 - [Prettier](https://prettier.io/) to format markdown files.
 
 Pre-commit is installed during the package installation via `pip install -e .`. To
-activate pre-commit, run `pre-commit install` under the root of this repository
-`DeepReg/`.
+activate pre-commit, make sure the git is installed (`sudo apt install git` for linux)
+and run `pre-commit install` under the root of this repository `DeepReg/`.
 
 Optionally, use `git commit --no-verify -m "This is a commit message placeholder."` to
 skip pre-commit, and use `pre-commit run --all-files` to format files before pull
