@@ -1,23 +1,42 @@
 """
 Tests for deepreg/dataset/preprocess.py in
 pytest style
+
+Some internals of the _gen_transform, _transform and
+transform function, such as:
+    - layer_util.random_transform_generator
+    - layer_util.warp_grid
+    - layer_util.resample
+Are assumed working, and are tested separately in
+test_layer_util.py; as such we just check output size here.
 """
 import numpy as np
 
 import deepreg.dataset.preprocess as preprocess
 
 
-def test_transform_no_labels():
+def test__gen_transforms():
     """
-    Test transform by comfirming that it transforms
-    images and labels only as necessary and when provided.
+    Test _gen_transforms by confirming that it generates
+    appropriate transform output sizes.
+    """
+    dims = (3, 3, 3)
+    batch_size = 2
+    moving_image = np.random.uniform(size=dims)
+    fixed_image = np.random.uniform(size=dims)
 
-    Internals of the transform function, such as:
-        - layer_util.random_transform_generator
-        - layer_util.warp_grid
-        - layer_util.resample
-    Are assumed working, and are tested separately in
-    test_layer_util.py.
+    affine_transform_3d = preprocess.AffineTransformation3D(
+        moving_image.shape, fixed_image.shape, batch_size
+    )
+
+    transforms = affine_transform_3d._gen_transforms()
+    assert transforms.shape == (batch_size, 4, 3)
+
+
+def test__transform():
+    """
+    Test _transform by confirming that it generates
+    appropriate transform output sizes.
     """
     dims = (3, 3, 3)
     batch_size = 2
@@ -34,7 +53,41 @@ def test_transform_no_labels():
     fixed_image_batched = np.float32(
         np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
     )
-    
+
+    moving_transforms = affine_transform_3d._gen_transforms()
+    transformed_moving_image = affine_transform_3d._transform(
+        moving_image_batched, affine_transform_3d._moving_grid_ref, moving_transforms
+    )
+    assert transformed_moving_image.shape == moving_image_batched.shape
+
+    fixed_transforms = affine_transform_3d._gen_transforms()
+    transformed_fixed_image = affine_transform_3d._transform(
+        fixed_image_batched, affine_transform_3d._fixed_grid_ref, fixed_transforms
+    )
+    assert transformed_fixed_image.shape == fixed_image_batched.shape
+
+
+def test_transform_no_labels():
+    """
+    Test transform by comfirming that it transforms
+    images and labels only as necessary and when provided.
+    """
+    dims = (3, 3, 3)
+    batch_size = 2
+    moving_image = np.random.uniform(size=dims)
+    fixed_image = np.random.uniform(size=dims)
+
+    affine_transform_3d = preprocess.AffineTransformation3D(
+        moving_image.shape, fixed_image.shape, batch_size
+    )
+
+    moving_image_batched = np.float32(
+        np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
+    )
+    fixed_image_batched = np.float32(
+        np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
+    )
+
     indices = range(batch_size)
 
     inputs = {
@@ -58,13 +111,6 @@ def test_transform_with_labels():
     """
     Test transform by comfirming that it transforms
     images and labels only as necessary and when provided.
-
-     Internals of the transform function, such as:
-        - layer_util.random_transform_generator
-        - layer_util.warp_grid
-        - layer_util.resample
-    Are assumed working, and are tested separately in
-    test_layer_util.py.
     """
     dims = (3, 3, 3)
     batch_size = 2
@@ -114,11 +160,3 @@ def test_transform_with_labels():
     assert outputs.get("moving_label").shape == moving_image_batched.shape
     assert outputs.get("fixed_label").shape == fixed_image_batched.shape
     assert len(outputs.get("indices")) == len(indices)
-
-
-def test_preprocess():
-    """
-    Test preprocess by confirming that it generates
-    appropriate datasets for given inputs, and output sizes.
-    """
-    pass
