@@ -367,7 +367,7 @@ def main(args=None):
     parser.add_argument(
         "--config_path",
         "-c",
-        help="Path of config, must endswith .yaml. Can pass multiple paths.",
+        help="Path of config, must end with .yaml. Can pass multiple paths.",
         type=str,
         nargs="+",
         default="",
