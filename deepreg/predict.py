@@ -369,7 +369,7 @@ def main(args=None):
         "-c",
         help="Path of config, must end with .yaml. Can pass multiple paths.",
         type=str,
-        nargs="+",
+        nargs="*",
         default="",
     )
 
