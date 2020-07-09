@@ -1,4 +1,4 @@
-from deepreg.model.network.ddf import build_ddf_dvf_model
+from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
 
 
 def build_model(
