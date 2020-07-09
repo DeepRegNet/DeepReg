@@ -211,6 +211,11 @@ def init(log_dir, ckpt_path, config_path):
             "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
         )
     else:
+        # use customized config
+        logging.warning(
+            "Using customized configuration."
+            "The code might break if the config of the model doesn't match the saved model."
+        )
         config = config_parser.load_configs(config_path)
     return config, log_dir
 
