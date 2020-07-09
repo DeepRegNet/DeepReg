@@ -12,7 +12,7 @@ def test_init_sufficient_args():
     check if init method of loader returns any errors when all required
     arguments given
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -24,7 +24,7 @@ def test_data_keys():
     """
     check if the data_keys are the same as expected
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -38,12 +38,12 @@ def test_h5_file():
     """
     check if the filename is the same as expected
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
     got = loader.h5_file.filename
-    expected = "data/test/h5/paired/test/fixed_images.h5"
+    expected = "./data/test/h5/paired/test/fixed_images.h5"
     loader.close()
     assert got == expected
 
@@ -53,7 +53,7 @@ def test_set_group_structure():
     check if the set_group_structure method works as intended when data is
     grouped
     """
-    dir_path = "data/test/h5/grouped/test"
+    dir_path = "./data/test/h5/grouped/test"
     name = "images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=True)
@@ -69,7 +69,7 @@ def test_set_group_structure_ungrouped():
     check if the set_group_structure method works as intended when data is
     not grouped
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -84,7 +84,7 @@ def test_get_data_ids():
     """
     check if the get_data_ids method works as expected
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -98,7 +98,7 @@ def test_get_num_images():
     """
     check if the get_num_images method works as expected
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -112,7 +112,7 @@ def test_close():
     """
     check if close method works as intended and closes file
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -134,7 +134,7 @@ def test_get_data():
     check if the get_data method works as expected and returns array
     as expected
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -158,7 +158,7 @@ def test_init_incompatible_conditions():
     directories to ungrouped files is given but grouped variable is set to
     True
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
     with pytest.raises(IndexError) as execinfo:
         H5FileLoader(dir_path=dir_path, name=name, grouped=True)
@@ -171,7 +171,7 @@ def test_get_data_incompatible_args():
     check if the get_data method works as expected and raises an error when
     data is ungrouped but index is not an int
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
@@ -185,7 +185,7 @@ def test_get_data_incorrect_args():
     check if the get_data method works as expected and raises an error when
     an incorrect data type is fed in
     """
-    dir_path = "data/test/h5/paired/test"
+    dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
