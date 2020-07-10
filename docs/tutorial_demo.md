@@ -24,8 +24,7 @@ whether images are paired, grouped or labelled.
 
 This tutorial describe several examples in the `DeepReg Demos` to explain how these
 different scenarios can be implemented with `DeepReg`. A complete list of demos can be
-found in the
-[DeepReg Demos Index](<(https://github.com/ucl-candi/DeepReg/blob/master/deepreg/demos/README.md)>)
+found in the [DeepReg Demos Index](#deepreg-demos-index)
 
 ## paired_ct_lung
 
@@ -34,3 +33,17 @@ found in the
 ## unpaired_ct_lung
 
 (under development)
+
+## DeepReg Demos Index
+
+### [paired_ct_lung](./paired_ct_lung)
+
+#### Paired CT Lung Registration
+
+#### Computed tomography
+
+### [unpaired_ct_lung](./unpaired_ct_lung)
+
+#### Unpaired CT Lung Registration
+
+#### Computed tomography
