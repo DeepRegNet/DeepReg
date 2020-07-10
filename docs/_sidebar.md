@@ -4,6 +4,7 @@
   - [Quick Start](quick_start.md)
 - **Tutorial**
   - [Image Registration](tutorial_registration.md)
+  - [DeepReg Demos](tutorial_demo.md)
 - **Documentation**
   - [Configuration](doc_configuration.md)
   - [Dataset Loader](doc_data_loader.md)
