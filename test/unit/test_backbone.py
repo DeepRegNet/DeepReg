@@ -3,6 +3,7 @@
 """
 Tests for deepreg/model/backbone
 """
+import numpy as np
 import tensorflow as tf
 
 import deepreg.model.backbone.global_net as g
@@ -90,7 +91,27 @@ def test_init_GlobalNet():
 
 
 def test_call_GlobalNet():
-    pass
+    """
+    Asserting that output shape of globalnet Call method
+    is correct.
+    """
+    out = 3
+    im_size = [1, 2, 3]
+    #  Initialising GlobalNet instance
+    global_test = g.GlobalNet(
+        image_size=im_size,
+        out_channels=out,
+        num_channel_initial=3,
+        extract_levels=[1, 2, 3],
+        out_kernel_initializer="softmax",
+        out_activation="softmax",
+    )
+    # Pass an input of all zeros
+    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    #  Get outputs by calling
+    output = global_test.call(inputs)
+    #  Expected shape is (5, 1, 2, 3, 3)
+    assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
 #  Testing LocalNet
@@ -140,7 +161,27 @@ def test_init_LocalNet():
 
 
 def test_call_LocalNet():
-    pass
+    """
+    Asserting that output shape of LocalNet call method
+    is correct.
+    """
+    out = 3
+    im_size = [1, 2, 3]
+    #  Initialising LocalNet instance
+    global_test = loc.LocalNet(
+        image_size=im_size,
+        out_channels=out,
+        num_channel_initial=3,
+        extract_levels=[1, 2, 3],
+        out_kernel_initializer="glorot_uniform",
+        out_activation="sigmoid",
+    )
+    # Pass an input of all zeros
+    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    #  Get outputs by calling
+    output = global_test.call(inputs)
+    #  Expected shape is (5, 1, 2, 3, 3)
+    assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
 #  Testing UNet
@@ -191,4 +232,24 @@ def test_init_UNet():
 
 
 def test_call_UNet():
-    pass
+    """
+    Asserting that output shape of UNet call method
+    is correct.
+    """
+    out = 3
+    im_size = [1, 2, 3]
+    #  Initialising LocalNet instance
+    global_test = u.UNet(
+        image_size=im_size,
+        out_channels=out,
+        num_channel_initial=3,
+        depth=6,
+        out_kernel_initializer="glorot_uniform",
+        out_activation="sigmoid",
+    )
+    # Pass an input of all zeros
+    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], 3))
+    #  Get outputs by calling
+    output = global_test.call(inputs)
+    #  Expected shape is (5, 1, 2, 3)
+    assert all(x == y for x, y in zip(inputs.shape, output.shape))
