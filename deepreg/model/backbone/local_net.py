@@ -1,9 +1,29 @@
+#  coding=utf-8
+
+"""
+Module to build LocalNet class based on:
+
+Y. Hu et al.,
+"Label-driven weakly-supervised learning for multimodal
+deformable image registration,"
+(ISBI 2018), pp. 1070-1074.
+https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+"""
+
 import tensorflow as tf
 
-from deepreg.model import layer as layer
+from deepreg.model import layer
 
 
 class LocalNet(tf.keras.Model):
+    """
+    Builds LocalNet for image registration based on
+    Y. Hu et al.,
+    "Label-driven weakly-supervised learning for multimodal
+    deformable image registration,"
+    (ISBI 2018), pp. 1070-1074.
+    """
+
     def __init__(
         self,
         image_size,
@@ -15,17 +35,19 @@ class LocalNet(tf.keras.Model):
         **kwargs,
     ):
         """
-        image is encoded gradually, i from level 0 to E
+        Initialising LocalNet.
+        Image is enum_channelsoded gradually, i from level 0 to E,
         then it is decoded gradually, j from level E to D
-        some of the decoded level are used for generating extractions
+        Some of the decoded levels are used for generating extractions
 
-        so extract_levels are between [0, E] with E = max(extract_levels) and D = min(extract_levels)
+        So, extract_levels are between [0, E] with E = max(extract_levels),
+        and D = min(extract_levels).
 
-        :param out_channels: number of channels for the extractions
-        :param num_channel_initial:
-        :param extract_levels:
-        :param out_kernel_initializer:
-        :param out_activation:
+        :param out_channels: int, number of channels for the extractions
+        :param num_channel_initial: int, number of initial channels.
+        :param extract_levels: int, number of extraction levels.
+        :param out_kernel_initializer: str, initialiser to use for kernels.
+        :param out_activation: str, activation to use at end layer.
         :param kwargs:
         """
         super(LocalNet, self).__init__(**kwargs)
@@ -37,18 +59,20 @@ class LocalNet(tf.keras.Model):
 
         # init layer variables
 
-        nc = [
+        num_channels = [
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
         self._downsample_blocks = [
-            layer.DownSampleResnetBlock(filters=nc[i], kernel_size=7 if i == 0 else 3)
+            layer.DownSampleResnetBlock(
+                filters=num_channels[i], kernel_size=7 if i == 0 else 3
+            )
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
-        self._conv3d_block = layer.Conv3dBlock(filters=nc[-1])  # level E
+        self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
 
         self._upsample_blocks = [
-            layer.LocalNetUpSampleResnetBlock(nc[level])
+            layer.LocalNetUpSampleResnetBlock(num_channels[level])
             for level in range(
                 self._extract_max_level - 1, self._extract_min_level - 1, -1
             )
@@ -67,34 +91,37 @@ class LocalNet(tf.keras.Model):
 
     def call(self, inputs, training=None, mask=None):
         """
-
-        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, ch]
+        Build LocalNet graph based on built layers.
+        :param inputs: image batch, shape = [batch, f_dim1, f_dim2, f_dim3, ch]
         :param training:
         :param mask:
         :return:
         """
 
         # down sample from level 0 to E
-        encoded = (
-            []
-        )  # outputs used for decoding, encoded[i] corresponds to level i, stored only 0 to E-1
-        h = inputs
+        enum_channelsoded = []
+        # outputs used for decoding, enum_channelsoded[i] corresponds -> level i
+        #  stored only 0 to E-1
+
+        h_in = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
-            h, hc = self._downsample_blocks[level](inputs=h, training=training)
-            encoded.append(hc)
-        hm = self._conv3d_block(
-            inputs=h, training=training
-        )  # level E of encoding/decoding
+            h_in, h_channel = self._downsample_blocks[level](
+                inputs=h_in, training=training
+            )
+            enum_channelsoded.append(h_channel)
+        h_bottom = self._conv3d_block(
+            inputs=h_in, training=training
+        )  # level E of enum_channelsoding/decoding
 
         # up sample from level E to D
-        decoded = [hm]  # level E
+        decoded = [h_bottom]  # level E
         for idx, level in enumerate(
             range(self._extract_max_level - 1, self._extract_min_level - 1, -1)
         ):  # level E-1 to D
-            hm = self._upsample_blocks[idx](
-                inputs=[hm, encoded[level]], training=training
+            h_bottom = self._upsample_blocks[idx](
+                inputs=[h_bottom, enum_channelsoded[level]], training=training
             )
-            decoded.append(hm)
+            decoded.append(h_bottom)
 
         # output
         output = tf.reduce_mean(

@@ -182,7 +182,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )
 
 
-def init(log_dir, ckpt_path):
+def init(log_dir, ckpt_path, config_path):
     """
     Function to create new directory to log directory
     to store results.
@@ -205,13 +205,31 @@ def init(log_dir, ckpt_path):
         os.makedirs(log_dir)
 
     # load config
-    config = config_parser.load_configs(
-        "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
-    )
+    if config_path == "":
+        # use default config, which should be provided in the log folder
+        config = config_parser.load_configs(
+            "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
+        )
+    else:
+        # use customized config
+        logging.warning(
+            "Using customized configuration."
+            "The code might break if the config of the model doesn't match the saved model."
+        )
+        config = config_parser.load_configs(config_path)
     return config, log_dir
 
 
-def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+def predict(
+    gpu,
+    gpu_allow_growth,
+    ckpt_path,
+    mode,
+    batch_size,
+    log_dir,
+    sample_label,
+    config_path,
+):
     """
     Function to predict some metrics from the saved model and logging results.
     :param gpu: str, which env gpu to use.
@@ -222,6 +240,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     :param batch_size: int, batch size to perform predictions in
     :param log_dir: str, path to store logs
     :param sample_label:
+    :param config_path: to overwrite the default config
     """
     logging.error("TODO sample_label is not used in predict")
 
@@ -230,7 +249,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config, log_dir = init(log_dir, ckpt_path)
+    config, log_dir = init(log_dir, ckpt_path, config_path)
     dataset_config = config["dataset"]
     preprocess_config = config["train"]["preprocess"]
     preprocess_config["batch_size"] = batch_size
@@ -345,6 +364,15 @@ def main(args=None):
         type=str,
     )
 
+    parser.add_argument(
+        "--config_path",
+        "-c",
+        help="Path of config, must end with .yaml. Can pass multiple paths.",
+        type=str,
+        nargs="*",
+        default="",
+    )
+
     args = parser.parse_args(args)
 
     predict(
@@ -355,6 +383,7 @@ def main(args=None):
         args.batch_size,
         args.log_dir,
         args.sample_label,
+        args.config_path,
     )
 
 
