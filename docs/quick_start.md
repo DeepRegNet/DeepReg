@@ -32,23 +32,23 @@ With GPU
 
 ```bash
 conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
-conda activate deepreg
+conda activate deepreg # Activate the environment
 ```
 
 #### ** MacOS **
 
 With CPU only
 
-```terminal
+```bash
 conda create --name deepreg python=3.7 tensorflow=2.2
-conda activate deepreg #Activate the environment
+conda activate deepreg # Activate the environment
 ```
 
 With GPU
 
-```terminal
-conda create --name deepreg python=3.7 tensorflow-gpu=2.2 #Use conda for nvidia related packages
-conda activate deepreg
+```bash
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
+conda activate deepreg # Activate the environment
 ```
 
 #### ** Windows **
