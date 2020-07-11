@@ -1,9 +1,6 @@
 import tensorflow as tf
 
 import deepreg.model.layer as layer
-import deepreg.model.loss.deform as deform_loss
-import deepreg.model.loss.image as image_loss
-import deepreg.model.loss.label as label_loss
 from deepreg.model.network.util import (
     add_ddf_loss,
     add_image_loss,
@@ -76,103 +73,6 @@ def ddf_dvf_forward(
         warping(inputs=[ddf, moving_label]) if moving_label is not None else None
     )
     return dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed
-
-
-def ddf_dvf_add_loss_metric(
-    model: tf.keras.Model,
-    ddf: tf.Tensor,
-    grid_fixed: tf.Tensor,
-    fixed_image: tf.Tensor,
-    fixed_label: (tf.Tensor, None),
-    pred_fixed_image: tf.Tensor,
-    pred_fixed_label: (tf.Tensor, None),
-    loss_config: dict,
-):
-    """
-    Configure and add the training loss, including image and deformation regularisation,
-    label loss is added using when compiling the model.
-    :param model:
-    :param ddf:              (batch, m_dim1, m_dim2, m_dim3, 3)
-    :param grid_fixed:       (f_dim1, f_dim2, f_dim3, 3)
-    :param fixed_image:      (batch, f_dim1, f_dim2, f_dim3)
-    :param fixed_label:      (batch, f_dim1, f_dim2, f_dim3)
-    :param pred_fixed_image: (batch, f_dim1, f_dim2, f_dim3)
-    :param pred_fixed_label: (batch, f_dim1, f_dim2, f_dim3)
-    :param loss_config:
-    :return:
-    """
-    # regularization loss on ddf
-    loss_reg = tf.reduce_mean(
-        deform_loss.local_displacement_energy(ddf, **loss_config["regularization"])
-    )
-    weighted_loss_reg = loss_reg * loss_config["regularization"]["weight"]
-    model.add_loss(weighted_loss_reg)
-    model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
-    model.add_metric(
-        weighted_loss_reg, name="loss/weighted_regularization", aggregation="mean"
-    )
-
-    # image loss
-    if loss_config["dissimilarity"]["image"]["weight"] > 0:
-        loss_image = tf.reduce_mean(
-            image_loss.dissimilarity_fn(
-                y_true=fixed_image,
-                y_pred=pred_fixed_image,
-                **loss_config["dissimilarity"]["image"],
-            )
-        )
-        weighted_loss_image = (
-            loss_image * loss_config["dissimilarity"]["image"]["weight"]
-        )
-        model.add_loss(weighted_loss_image)
-        model.add_metric(
-            loss_image, name="loss/image_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_image,
-            name="loss/weighted_image_dissimilarity",
-            aggregation="mean",
-        )
-
-    # label loss
-    if fixed_label is not None:
-        loss_label = tf.reduce_mean(
-            label_loss.get_dissimilarity_fn(
-                config=loss_config["dissimilarity"]["label"]
-            )(y_true=fixed_label, y_pred=pred_fixed_label)
-        )
-        weighted_loss_label = loss_label
-        model.add_loss(weighted_loss_label)
-        model.add_metric(
-            loss_label, name="loss/label_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_label,
-            name="loss/weighted_label_dissimilarity",
-            aggregation="mean",
-        )
-
-        # metrics
-        dice_binary = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=True
-        )
-        dice_float = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=False
-        )
-        tre = label_loss.compute_centroid_distance(
-            y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
-        )
-        foreground_label = label_loss.foreground_proportion(y=fixed_label)
-        foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
-        model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
-        model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
-        model.add_metric(tre, name="metric/tre", aggregation="mean")
-        model.add_metric(
-            foreground_label, name="metric/foreground_label", aggregation="mean"
-        )
-        model.add_metric(
-            foreground_pred, name="metric/foreground_pred", aggregation="mean"
-        )
 
 
 def build_ddf_dvf_model(
