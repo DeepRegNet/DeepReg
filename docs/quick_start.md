@@ -23,32 +23,44 @@ With CPU only
 
 ```bash
 conda create --name deepreg python=3.7 tensorflow=2.2
-conda activate deepreg # activate the environment
+conda activate deepreg # Activate the environment
 ```
 
 With GPU
 
 ```bash
-conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # use conda to handle nvidia related packages
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
 conda activate deepreg
 ```
 
 - Regularly tested on Ubuntu/Debian.
 
-#### ** Windows **
+#### ** MacOS **
 
 With CPU only
 
-```
-[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is recommended. Then follow the instructions with Linux.
-
+```terminal
+conda create --name deepreg python=3.7 tensorflow=2.2
+conda activate deepreg #Activate the environment
 ```
 
 With GPU
 
+```terminal
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 #Use conda for nvidia related packages
+conda activate deepreg
 ```
+
+#### ** Windows **
+
+With CPU only
+
+_[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+is recommended. Then follow the instructions with Linux._
+
+With GPU
+
 :warning: Not supported or tested.
-```
 
 - Regularly tested on WSL 1/2.
 
