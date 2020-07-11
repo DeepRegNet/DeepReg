@@ -33,7 +33,7 @@ conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia
 conda activate deepreg
 ```
 
-- Regularly tested on Ubuntu/Debian.
+- `DeepReg` is primarily supported and regularly tested with Linux distro Ubuntu/Debian.
 
 #### ** MacOS **
 
@@ -55,14 +55,13 @@ conda activate deepreg
 
 With CPU only
 
-_[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
-is recommended. Then follow the instructions with Linux._
+:warning: `DeepReg` is not fully supported under Windows, however,
+[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+may be recommended for use with CPU only. Then follow the instructions with Linux.
 
 With GPU
 
 :warning: Not supported or tested.
-
-- Regularly tested on WSL 1/2.
 
 <!-- tabs:end -->
 
