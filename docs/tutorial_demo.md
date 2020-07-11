@@ -3,10 +3,9 @@
 A typical workflow to develop a [registration network](tutorial_registration.md) using
 `DeepReg` includes:
 
-- Select a dataset loader, among the unpaired, paired and grouped, and preppare data
-  into folders as required by the dataset loader
-  [supported dataset loader details](doc_data_loader.md);
-- Configure the network training in the configuration yaml file(s)
+- Select a dataset loader, among the [unpaired, paired and grouped](doc_data_loader.md),
+  and preppare data into folders as required;
+- Configure the network training in the configuration yaml file(s), as specified in
   [supported configuration details](doc_configuration.md);
 - Train and tune the registration network with command line tool `train`;
 - Test or use the final registration network with command line tool `predict`.
