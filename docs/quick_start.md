@@ -33,6 +33,25 @@ conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # use conda to handle 
 conda activate deepreg
 ```
 
+- Regularly tested on Ubuntu/Debian.
+
+#### ** Windows **
+
+With CPU only
+
+```
+[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is recommended. Then follow the instructions with Linux.
+
+```
+
+With GPU
+
+```
+:warning: Not supported or tested.
+```
+
+- Regularly tested on WSL 1/2.
+
 <!-- tabs:end -->
 
 ### Install the package
