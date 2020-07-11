@@ -110,7 +110,7 @@ request.
 ## Documentation Pages
 
 [Docsify](https://docsify.js.org/) converts markdown files into pages and they are
-hosted on github page. Use `cd docs && python -m SimpleHTTPServer 3000` to visualize the
-pages locally. The required package
+hosted on github page. Use `cd docs && python -m http.server` to visualize the pages
+locally. The required package
 [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
 installed during the package installation via `pip install -e .`.
