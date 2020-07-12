@@ -42,7 +42,9 @@ def conditional_forward(
         moving_image = layer.Resize3d(size=fixed_image_size)(
             inputs=moving_image
         )  # (batch, f_dim1, f_dim2, f_dim3, 1)
-        moving_label = (layer.Resize3d(size=fixed_image_size)(inputs=moving_label),)
+        moving_label = layer.Resize3d(size=fixed_image_size)(
+            inputs=moving_label
+        )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # conditional
     inputs = tf.concat(
