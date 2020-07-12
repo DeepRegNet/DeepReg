@@ -64,28 +64,28 @@ def train(
 
     # load config
     config, log_dir = init(config_path, log_dir, ckpt_path)
-    data_config = config["data"]
-    train_data_config = config["train"]["data"]
+    dataset_config = config["dataset"]
+    preprocess_config = config["train"]["preprocess"]
     optimizer_config = config["train"]["optimizer"]
     model_config = config["train"]["model"]
     loss_config = config["train"]["loss"]
     num_epochs = config["train"]["epochs"]
     save_period = config["train"]["save_period"]
-    histogram_freq = config["train"]["histogram_freq"]
+    histogram_freq = save_period
 
     # data
-    data_loader_train = get_data_loader(data_config, "train")
+    data_loader_train = get_data_loader(dataset_config, "train")
     if data_loader_train is None:
         raise ValueError(
             "Training data loader is None. Probably the data dir path is not defined."
         )
-    data_loader_val = get_data_loader(data_config, "valid")
+    data_loader_val = get_data_loader(dataset_config, "valid")
     dataset_train = data_loader_train.get_dataset_and_preprocess(
-        training=True, repeat=True, **train_data_config
+        training=True, repeat=True, **preprocess_config
     )
     dataset_val = (
         data_loader_val.get_dataset_and_preprocess(
-            training=False, repeat=True, **train_data_config
+            training=False, repeat=True, **preprocess_config
         )
         if data_loader_val is not None
         else None
@@ -95,10 +95,10 @@ def train(
         data_loader_val.num_samples if data_loader_val is not None else None
     )
     steps_per_epoch_train = max(
-        dataset_size_train // train_data_config["batch_size"], 1
+        dataset_size_train // preprocess_config["batch_size"], 1
     )
     steps_per_epoch_valid = (
-        max(dataset_size_val // train_data_config["batch_size"], 1)
+        max(dataset_size_val // preprocess_config["batch_size"], 1)
         if data_loader_val is not None
         else None
     )
@@ -110,8 +110,8 @@ def train(
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
             index_size=data_loader_train.num_indices,
-            labeled=data_config["labeled"],
-            batch_size=train_data_config["batch_size"],
+            labeled=dataset_config["labeled"],
+            batch_size=preprocess_config["batch_size"],
             model_config=model_config,
             loss_config=loss_config,
         )
@@ -199,7 +199,7 @@ def main(args=None):
     parser.add_argument(
         "--config_path",
         "-c",
-        help="Path of config, must endswith .yaml. Can pass multiple paths.",
+        help="Path of config, must end with .yaml. Can pass multiple paths.",
         type=str,
         nargs="+",
         required=True,

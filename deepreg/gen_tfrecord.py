@@ -32,16 +32,16 @@ def main(args=None):
     args = parser.parse_args(args)
 
     config = config_parser.load_configs(args.config_path)
-    data_config = config["data"]
-    tfrecord_dir = data_config["tfrecord_dir"]
-    data_config["tfrecord_dir"] = ""
+    dataset_config = config["dataset"]
+    tfrecord_dir = dataset_config["tfrecord_dir"]
+    dataset_config["tfrecord_dir"] = ""
 
     if os.path.exists(tfrecord_dir) and os.path.isdir(tfrecord_dir):
         remove = input("%s exists. Remove it or not? Y/N\n" % tfrecord_dir)
         if remove.lower() == "y":
             shutil.rmtree(tfrecord_dir)
     for mode in ["train", "valid", "test"]:
-        data_loader = load.get_data_loader(data_config, mode)
+        data_loader = load.get_data_loader(dataset_config, mode)
         write_tfrecords(
             data_dir=os.path.join(tfrecord_dir, mode),
             data_generator=data_loader.data_generator(),

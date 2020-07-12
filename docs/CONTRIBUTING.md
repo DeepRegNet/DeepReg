@@ -63,7 +63,7 @@ following commit guidelines.
      `Issue #<issue number>: add loader` - hard to tell explicitly what was changed
      without doing an in depth review.
 
-## Design Considerations
+## Design considerations
 
 1. As few dependencies as possible. Try to stick to standard scipy packages like numpy
    and pandas.
@@ -87,8 +87,30 @@ following commit guidelines.
 10. CI is enabled: for documentation changes/linting commits you may include [ci skip]
     in your commit messages. A reminder that CI checks are required before merge!
 
-## pre-commit setup
+## Pre-commit setup
 
-[Pre-commit](https://pre-commit.com/) is installed via `pip install -e .`, to activate
-pre-commit, run `pre-commit install` under the root of this repository and it will be
-activated.
+[pre-commit](https://pre-commit.com/) is recommended for code style consistency before
+each commit. Specifically,
+
+- [seed-isort-config](https://github.com/asottile/seed-isort-config) and
+  [isort](https://github.com/timothycrosley/isort) to format package imports in python
+  files.
+- [Black](https://github.com/psf/black) to format python files.
+- [Flake9](https://gitlab.com/pycqa/flake8) to perform linting check,
+- [Prettier](https://prettier.io/) to format markdown files.
+
+Pre-commit is installed during the package installation via `pip install -e .`. To
+activate pre-commit, make sure the git is installed (`sudo apt install git` for linux)
+and run `pre-commit install` under the root of this repository `DeepReg/`.
+
+Optionally, use `git commit --no-verify -m "This is a commit message placeholder."` to
+skip pre-commit, and use `pre-commit run --all-files` to format files before pull
+request.
+
+## Documentation Pages
+
+[Docsify](https://docsify.js.org/) converts markdown files into pages and they are
+hosted on github page. Use `cd docs && python -m http.server` to visualize the pages
+locally. The required package
+[simple_http_server](https://github.com/keijack/python-simple-http-server) has been
+installed during the package installation via `pip install -e .`.

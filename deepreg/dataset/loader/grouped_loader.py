@@ -117,7 +117,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                         intra_sample_indices.append(
                             ((group_index, i), (group_index, j))
                         )
-            elif self.intra_group_option == "bidirectional":
+            elif self.intra_group_option == "unconstrained":
                 for i in range(num_images_in_group):
                     for j in range(i):
                         # j < i, i > j
@@ -129,7 +129,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                         )
             else:
                 raise ValueError(
-                    "Unknown intra_group_option, must be forward/backward/bidirectional"
+                    "Unknown intra_group_option, must be forward/backward/unconstrained"
                 )
         return intra_sample_indices
 

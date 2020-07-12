@@ -38,8 +38,8 @@ def config_sanity_check(config: dict):
     """check if the given config satisfies the requirements"""
 
     # check data
-    assert "data" in config.keys()
-    data_config = config["data"]
+    assert "dataset" in config.keys()
+    data_config = config["dataset"]
 
     if data_config["type"] not in ["paired", "unpaired", "grouped"]:
         raise ValueError(
@@ -67,6 +67,13 @@ def config_sanity_check(config: dict):
             )
 
     # check model
+    if config["train"]["model"]["method"] == "conditional":
+        if data_config["labeled"] is False:  # unlabeled
+            raise ValueError(
+                "For conditional model, data have to be labeled, got unlabeled data."
+            )
+
+    # check loss
     if data_config["labeled"] is False:  # unlabeled
         image_loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
         if image_loss_weight <= 0:

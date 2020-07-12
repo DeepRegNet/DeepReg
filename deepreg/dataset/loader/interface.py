@@ -1,12 +1,13 @@
 """
 Interface between the data loaders and file loaders
 """
+import logging
 from abc import ABC
 
 import numpy as np
 import tensorflow as tf
 
-from deepreg.dataset.preprocess import preprocess
+from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
 
@@ -55,32 +56,61 @@ class DataLoader:
         """
         raise NotImplementedError
 
-    def get_dataset(self):
+    def get_dataset(self) -> tf.data.Dataset:
         """
         defined in GeneratorDataLoader
         """
         raise NotImplementedError
 
     def get_dataset_and_preprocess(
-        self, training, batch_size, repeat: bool, shuffle_buffer_num_batch
-    ):
+        self,
+        training: bool,
+        batch_size: int,
+        repeat: bool,
+        shuffle_buffer_num_batch: int,
+    ) -> tf.data.Dataset:
         """
-        :param training :
-        :param batch_size :
-        :param repeat : bool
-        :param shuffle_buffer_num_batch :
+        :param training: bool, indicating if it's training or not
+        :param batch_size: int, size of mini batch
+        :param repeat: bool, indicating if we need to repeat the dataset
+        :param shuffle_buffer_num_batch: int, when shuffling, the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
         :returns dataset:
         """
-        dataset = preprocess(
-            dataset=self.get_dataset(),
-            moving_image_shape=self.moving_image_shape,
-            fixed_image_shape=self.fixed_image_shape,
-            training=training,
-            shuffle_buffer_num_batch=shuffle_buffer_num_batch,
-            repeat=repeat,
-            batch_size=batch_size,
+
+        dataset = self.get_dataset()
+
+        # resize
+        dataset = dataset.map(
+            lambda x: resize_inputs(
+                inputs=x,
+                moving_image_size=self.moving_image_shape,
+                fixed_image_size=self.fixed_image_shape,
+            ),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
+
+        # shuffle / repeat / batch / preprocess
+        if training and shuffle_buffer_num_batch > 0:
+            dataset = dataset.shuffle(
+                buffer_size=batch_size * shuffle_buffer_num_batch,
+                reshuffle_each_iteration=True,
+            )
+        if repeat:
+            dataset = dataset.repeat()
+        dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        if training:
+            # TODO add cropping, but crop first or rotation first?
+            affine_transform = AffineTransformation3D(
+                moving_image_size=self.moving_image_shape,
+                fixed_image_size=self.fixed_image_shape,
+                batch_size=batch_size,
+            )
+            dataset = dataset.map(
+                affine_transform.transform,
+                num_parallel_calls=tf.data.experimental.AUTOTUNE,
+            )
         return dataset
 
     def close(self):
@@ -198,10 +228,10 @@ class GeneratorDataLoader(DataLoader, ABC):
                     indices=tf.float32,
                 ),
                 output_shapes=dict(
-                    moving_image=self.moving_image_shape,
-                    fixed_image=self.fixed_image_shape,
-                    moving_label=self.moving_image_shape,
-                    fixed_label=self.fixed_image_shape,
+                    moving_image=tf.TensorShape([None, None, None]),
+                    fixed_image=tf.TensorShape([None, None, None]),
+                    moving_label=tf.TensorShape([None, None, None]),
+                    fixed_label=tf.TensorShape([None, None, None]),
                     indices=self.num_indices,
                 ),
             )
@@ -212,8 +242,8 @@ class GeneratorDataLoader(DataLoader, ABC):
                     moving_image=tf.float32, fixed_image=tf.float32, indices=tf.float32
                 ),
                 output_shapes=dict(
-                    moving_image=self.moving_image_shape,
-                    fixed_image=self.fixed_image_shape,
+                    moving_image=tf.TensorShape([None, None, None]),
+                    fixed_image=tf.TensorShape([None, None, None]),
                     indices=self.num_indices,
                 ),
             )
@@ -253,8 +283,8 @@ class GeneratorDataLoader(DataLoader, ABC):
         """
         raise NotImplementedError
 
+    @staticmethod
     def validate_images_and_labels(
-        self,
         moving_image: np.ndarray,
         fixed_image: np.ndarray,
         moving_label: (np.ndarray, None),
@@ -264,19 +294,20 @@ class GeneratorDataLoader(DataLoader, ABC):
         """
         check that all file names match according to naming convention
         only used in sample_image_label
-        :param moving_image : np.ndarray
-        :param fixed_image : np.ndarray
-        :param moving_label : (np.ndarray, None)
-        :param fixed_label : (np.ndarray, None)
-        :param image_indices : list
+        :param moving_image: np.ndarray of shape (m_dim1, m_dim2, m_dim3)
+        :param fixed_image: np.ndarray of shape (f_dim1, f_dim2, f_dim3)
+        :param moving_label: np.ndarray of shape (m_dim1, m_dim2, m_dim3) or (m_dim1, m_dim2, m_dim3, num_labels) or None
+        :param fixed_label: np.ndarray of shape (f_dim1, f_dim2, f_dim3) or (f_dim1, f_dim2, f_dim3, num_labels) or None
+        :param image_indices: list
         """
+        # images should never be None, and labels should all be non-None or None
         if moving_image is None or fixed_image is None:
             raise ValueError("moving image and fixed image must not be None")
         if (moving_label is None) != (fixed_label is None):
             raise ValueError(
                 "moving label and fixed label must be both None or non-None"
             )
-
+        # image and label's values should be between [0, 1]
         for arr, name in zip(
             [moving_image, fixed_image, moving_label, fixed_label],
             ["moving_image", "fixed_image", "moving_label", "fixed_label"],
@@ -285,34 +316,42 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    "Sample {}'s {} has value outside of [0,1]."
-                    "Images are assumed to be between [0, 255] "
-                    "and labels are assumed to be between [0, 1]".format(
-                        image_indices, name
-                    )
+                    f"Sample {image_indices}'s {name} has value outside of [0,1]."
+                    f"Images are assumed to be between [0, 255] "
+                    f"and labels are assumed to be between [0, 1]"
                 )
-
+        # images should be 3D arrays
+        for arr, name in zip(
+            [moving_image, fixed_image], ["moving_image", "fixed_image"]
+        ):
+            if len(arr.shape) != 3:
+                raise ValueError(
+                    f"Sample {image_indices}'s {name}'s shape should have dimension of 3. "
+                    f"Got {arr.shape}."
+                )
+        # when data are labeled
         if moving_label is not None:
+            # labels should be 3D or 4D arrays
             for arr, name in zip(
-                [moving_image, moving_label], ["moving_image", "moving_label"]
+                [moving_label, fixed_label], ["moving_label", "fixed_label"]
             ):
-                if arr.shape[:3] != self.moving_image_shape:
+                if len(arr.shape) not in [3, 4]:
                     raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.moving_image_shape, arr.shape[:3]
-                        )
+                        f"Sample {image_indices}'s {name}'s shape should have dimension of 3 or 4. "
+                        f"Got {arr.shape}."
                     )
-            for arr, name in zip(
-                [fixed_image, fixed_label], ["fixed_image", "fixed_label"]
-            ):
-                if arr.shape[:3] != self.fixed_image_shape:
-                    raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.fixed_image_shape, arr.shape[:3]
-                        )
-                    )
+            # image and label is better to have the same shape
+            if moving_image.shape[:3] != moving_label.shape[:3]:
+                logging.warning(
+                    f"Sample {image_indices}'s moving image and label have different shapes. "
+                    f"moving_image.shape = {moving_image.shape}, moving_label.shape = {moving_label.shape}"
+                )
+            if fixed_image.shape[:3] != fixed_label.shape[:3]:
+                logging.warning(
+                    f"Sample {image_indices}'s fixed image and label have different shapes. "
+                    f"fixed_image.shape = {fixed_image.shape}, fixed_label.shape = {fixed_label.shape}"
+                )
+            # number of labels for fixed and fixed images should be the same
             num_labels_moving = (
                 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
             )
@@ -321,10 +360,8 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
             if num_labels_moving != num_labels_fixed:
                 raise ValueError(
-                    "Sample {}'s moving image and fixed image have different numbers of labels."
-                    "moving: {}, fixed: {}".format(
-                        image_indices, num_labels_moving, num_labels_fixed
-                    )
+                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels."
+                    f"moving: {num_labels_moving}, fixed: {num_labels_fixed}"
                 )
 
     def sample_image_label(

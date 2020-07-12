@@ -1,4 +1,4 @@
-data:
+dataset:
   dir:
     train:
       - "data/test/nifti/unpaired/train"
@@ -8,4 +8,4 @@ data:
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
   labeled: true
-  image_shape: [64, 64, 60]
+  image_shape: [16, 16, 16]

@@ -1,20 +1,17 @@
 # TODO to update
 
-data:
+dataset:
   dir: "data/test/nifti/paired" # required
   format: "nifti"
   type: "paired" # paired / unpaired / grouped
   labeled: true
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
+  moving_image_shape: [16, 16, 16]
+  fixed_image_shape: [8, 8, 8]
 
 train:
   model:
     method: "ddf" # ddf or conditional or seg
-    backbone:
-      name: "global"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+    backbone: "global"
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
@@ -42,7 +39,7 @@ train:
     regularization:
       weight: 0.0
       energy_type: "bending"
-  data:
+  preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
@@ -57,4 +54,3 @@ train:
       momentum: 0.9
   epochs: 2
   save_period: 2
-  histogram_freq: 2
