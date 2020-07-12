@@ -47,10 +47,9 @@ def ddf_dvf_forward(
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # adjust moving image
-    if moving_image_size != fixed_image_size:
-        moving_image = layer_util.resize3d(
-            image=moving_image, size=fixed_image_size
-        )  # (batch, f_dim1, f_dim2, f_dim3, 1)
+    moving_image = layer_util.resize3d(
+        image=moving_image, size=fixed_image_size
+    )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # ddf, dvf
     inputs = tf.concat(

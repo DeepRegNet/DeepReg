@@ -325,8 +325,7 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         :return: shape = [batch, out_dim1, out_dim2, out_dim3, channels]
         """
         output = self._conv3d(inputs=inputs)
-        if inputs.shape[1:4] != self._output_shape:
-            output = layer_util.resize3d(image=output, size=self._output_shape)
+        output = layer_util.resize3d(image=output, size=self._output_shape)
         return output
 
 

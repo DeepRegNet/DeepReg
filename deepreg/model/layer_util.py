@@ -445,6 +445,8 @@ def resize3d(
         )
     if len(size) != 3:
         raise ValueError("resize3d takes size of type tuple/list and of length 3")
+    if image.shape[1:4] == tuple(size):
+        return image
     has_channel = len(image.shape) == 5
     if not has_channel:  # convert to channel mode
         image = tf.expand_dims(image, axis=4)
