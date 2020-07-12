@@ -425,8 +425,8 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
 
 
 def resize3d(
-    image: tf.Tensor, size: tuple, method: str = tf.image.ResizeMethod.BILINEAR
-):
+    image: tf.Tensor, size: (tuple, list), method: str = tf.image.ResizeMethod.BILINEAR
+) -> tf.Tensor:
     """
     tensorflow does not have resize 3d, therefore the resize is performed two folds.
     - resize dim2 and dim3
@@ -437,16 +437,18 @@ def resize3d(
     :return: tensor of shape = (batch, out_dim1, out_dim2, out_dim3, channels) or shape = (batch, dim1, dim2, dim3)
     """
 
-    image_shape = image.shape
-    if len(image_shape) not in [4, 5]:
+    if len(image.shape) not in [4, 5]:
         raise ValueError(
             "resize3d takes input image of dimension 4 or 5,"
             "corresponding to (batch, dim1, dim2, dim3, channels) or (batch, dim1, dim2, dim3),"
-            "got image shape{}".format(image_shape)
+            "got image shape{}".format(image.shape)
         )
+    if len(size) != 3:
+        raise ValueError("resize3d takes size of type tuple/list and of length 3")
     has_channel = len(image.shape) == 5
     if not has_channel:  # convert to channel mode
         image = tf.expand_dims(image, axis=4)
+    image_shape = image.shape
 
     # merge axis 0 and 1
     output = tf.reshape(
