@@ -62,13 +62,17 @@ class DataLoader:
         raise NotImplementedError
 
     def get_dataset_and_preprocess(
-        self, training, batch_size, repeat: bool, shuffle_buffer_num_batch
-    ):
+        self,
+        training: bool,
+        batch_size: int,
+        repeat: bool,
+        shuffle_buffer_num_batch: int,
+    ) -> tf.data.Dataset:
         """
-        :param training :
-        :param batch_size :
-        :param repeat : bool
-        :param shuffle_buffer_num_batch :
+        :param training: bool, indicating if it's training or not
+        :param batch_size: int, size of mini batch
+        :param repeat: bool, indicating if we need to repeat the dataset
+        :param shuffle_buffer_num_batch: int, when shuffling, the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
         :returns dataset:
         """
@@ -198,10 +202,10 @@ class GeneratorDataLoader(DataLoader, ABC):
                     indices=tf.float32,
                 ),
                 output_shapes=dict(
-                    moving_image=self.moving_image_shape,
-                    fixed_image=self.fixed_image_shape,
-                    moving_label=self.moving_image_shape,
-                    fixed_label=self.fixed_image_shape,
+                    moving_image=tf.TensorShape([None, None, None]),
+                    fixed_image=tf.TensorShape([None, None, None]),
+                    moving_label=tf.TensorShape([None, None, None]),
+                    fixed_label=tf.TensorShape([None, None, None]),
                     indices=self.num_indices,
                 ),
             )
@@ -212,8 +216,8 @@ class GeneratorDataLoader(DataLoader, ABC):
                     moving_image=tf.float32, fixed_image=tf.float32, indices=tf.float32
                 ),
                 output_shapes=dict(
-                    moving_image=self.moving_image_shape,
-                    fixed_image=self.fixed_image_shape,
+                    moving_image=tf.TensorShape([None, None, None]),
+                    fixed_image=tf.TensorShape([None, None, None]),
                     indices=self.num_indices,
                 ),
             )

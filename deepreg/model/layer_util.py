@@ -457,22 +457,22 @@ def resize3d(
     if image_dim == 5:
         has_channel = True
         has_batch = True
-        image_shape = image.shape[1:4]
+        input_image_shape = image.shape[1:4]
     elif image_dim == 4:
         has_channel = False
         has_batch = True
-        image_shape = image.shape[1:4]
+        input_image_shape = image.shape[1:4]
     elif image_dim == 3:
         has_channel = False
         has_batch = False
-        image_shape = image.shape[0:3]
+        input_image_shape = image.shape[0:3]
     else:
         raise ValueError(
             f"Unknown image_dim in resize3d. It should be 3 or 4 or 5, got {image_dim}"
         )
 
     # no need of resize
-    if image_shape == tuple(size):
+    if input_image_shape == tuple(size):
         return image
 
     # expand to five dimensions
@@ -481,10 +481,11 @@ def resize3d(
     if not has_channel:
         image = tf.expand_dims(image, axis=-1)
     assert len(image.shape) == 5  # (batch, dim1, dim2, dim3, channels)
+    image_shape = tf.shape(image)
 
     # merge axis 0 and 1
     output = tf.reshape(
-        image, (-1, *image.shape[2:])
+        image, (-1, image_shape[2], image_shape[3], image_shape[4])
     )  # (batch * dim1, dim2, dim3, channels)
 
     # resize dim2 and dim3
@@ -494,7 +495,7 @@ def resize3d(
 
     # split axis 0 and merge axis 3 and 4
     output = tf.reshape(
-        output, shape=(-1, image.shape[1], size[1], size[2] * image.shape[4])
+        output, shape=(-1, image_shape[1], size[1], size[2] * image_shape[4])
     )  # (batch, dim1, out_dim2, out_dim3 * channels)
 
     # resize dim1 and dim2
@@ -504,7 +505,7 @@ def resize3d(
 
     # reshape
     output = tf.reshape(
-        output, shape=[-1, *size, image.shape[4]]
+        output, shape=[-1, *size, image_shape[4]]
     )  # (batch, out_dim1, out_dim2, out_dim3, channels)
 
     # squeeze to original dimension
