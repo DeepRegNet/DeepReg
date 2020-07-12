@@ -297,26 +297,6 @@ class GeneratorDataLoader(DataLoader, ABC):
                 )
 
         if moving_label is not None:
-            for arr, name in zip(
-                [moving_image, moving_label], ["moving_image", "moving_label"]
-            ):
-                if arr.shape[:3] != self.moving_image_shape:
-                    raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.moving_image_shape, arr.shape[:3]
-                        )
-                    )
-            for arr, name in zip(
-                [fixed_image, fixed_label], ["fixed_image", "fixed_label"]
-            ):
-                if arr.shape[:3] != self.fixed_image_shape:
-                    raise ValueError(
-                        "Sample {}'s {} has different shape (width, height, depth) from required."
-                        "Expected {} but got {}.".format(
-                            image_indices, name, self.fixed_image_shape, arr.shape[:3]
-                        )
-                    )
             num_labels_moving = (
                 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
             )
