@@ -144,7 +144,7 @@ dataset:
 ```
 
 This is particularly useful when performing an
-[experiment such as cross-validation](experiment.md).
+[experiment such as cross-validation](tutorial_experiment.md).
 
 ### File loader
 

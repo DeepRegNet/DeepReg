@@ -4,7 +4,7 @@ A series of scientific tutorials on deep learning for registration can be found 
 [learn2reg tutorial](https://learn2reg.github.io/), held in conjunction with
 MICCAI 2019.
 
-This tutorial provides a practical overview for a number of algorithms supported by
+This document provides a practical overview for a number of algorithms supported by
 DeepReg.
 
 ## Registration
