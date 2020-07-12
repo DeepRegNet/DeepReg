@@ -1,6 +1,7 @@
 """
 Interface between the data loaders and file loaders
 """
+import logging
 from abc import ABC
 
 import numpy as np
@@ -282,8 +283,8 @@ class GeneratorDataLoader(DataLoader, ABC):
         """
         raise NotImplementedError
 
+    @staticmethod
     def validate_images_and_labels(
-        self,
         moving_image: np.ndarray,
         fixed_image: np.ndarray,
         moving_label: (np.ndarray, None),
@@ -293,19 +294,20 @@ class GeneratorDataLoader(DataLoader, ABC):
         """
         check that all file names match according to naming convention
         only used in sample_image_label
-        :param moving_image : np.ndarray
-        :param fixed_image : np.ndarray
-        :param moving_label : (np.ndarray, None)
-        :param fixed_label : (np.ndarray, None)
-        :param image_indices : list
+        :param moving_image: np.ndarray of shape (m_dim1, m_dim2, m_dim3)
+        :param fixed_image: np.ndarray of shape (f_dim1, f_dim2, f_dim3)
+        :param moving_label: np.ndarray of shape (m_dim1, m_dim2, m_dim3) or (m_dim1, m_dim2, m_dim3, num_labels) or None
+        :param fixed_label: np.ndarray of shape (f_dim1, f_dim2, f_dim3) or (f_dim1, f_dim2, f_dim3, num_labels) or None
+        :param image_indices: list
         """
+        # images should never be None, and labels should all be non-None or None
         if moving_image is None or fixed_image is None:
             raise ValueError("moving image and fixed image must not be None")
         if (moving_label is None) != (fixed_label is None):
             raise ValueError(
                 "moving label and fixed label must be both None or non-None"
             )
-
+        # image and label's values should be between [0, 1]
         for arr, name in zip(
             [moving_image, fixed_image, moving_label, fixed_label],
             ["moving_image", "fixed_image", "moving_label", "fixed_label"],
@@ -314,14 +316,42 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    "Sample {}'s {} has value outside of [0,1]."
-                    "Images are assumed to be between [0, 255] "
-                    "and labels are assumed to be between [0, 1]".format(
-                        image_indices, name
-                    )
+                    f"Sample {image_indices}'s {name} has value outside of [0,1]."
+                    f"Images are assumed to be between [0, 255] "
+                    f"and labels are assumed to be between [0, 1]"
                 )
-
+        # images should be 3D arrays
+        for arr, name in zip(
+            [moving_image, fixed_image], ["moving_image", "fixed_image"]
+        ):
+            if len(arr.shape) != 3:
+                raise ValueError(
+                    f"Sample {image_indices}'s {name}'s shape should have dimension of 3. "
+                    f"Got {arr.shape}."
+                )
+        # when data are labeled
         if moving_label is not None:
+            # labels should be 3D or 4D arrays
+            for arr, name in zip(
+                [moving_label, fixed_label], ["moving_label", "fixed_label"]
+            ):
+                if len(arr.shape) not in [3, 4]:
+                    raise ValueError(
+                        f"Sample {image_indices}'s {name}'s shape should have dimension of 3 or 4. "
+                        f"Got {arr.shape}."
+                    )
+            # image and label is better to have the same shape
+            if moving_image.shape[:3] != moving_label.shape[:3]:
+                logging.warning(
+                    f"Sample {image_indices}'s moving image and label have different shapes. "
+                    f"moving_image.shape = {moving_image.shape}, moving_label.shape = {moving_label.shape}"
+                )
+            if fixed_image.shape[:3] != fixed_label.shape[:3]:
+                logging.warning(
+                    f"Sample {image_indices}'s fixed image and label have different shapes. "
+                    f"fixed_image.shape = {fixed_image.shape}, fixed_label.shape = {fixed_label.shape}"
+                )
+            # number of labels for fixed and fixed images should be the same
             num_labels_moving = (
                 1 if len(moving_label.shape) == 3 else moving_label.shape[-1]
             )
@@ -330,10 +360,8 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
             if num_labels_moving != num_labels_fixed:
                 raise ValueError(
-                    "Sample {}'s moving image and fixed image have different numbers of labels."
-                    "moving: {}, fixed: {}".format(
-                        image_indices, num_labels_moving, num_labels_fixed
-                    )
+                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels."
+                    f"moving: {num_labels_moving}, fixed: {num_labels_fixed}"
                 )
 
     def sample_image_label(
