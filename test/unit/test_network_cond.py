@@ -28,12 +28,12 @@ def test_conditional_forward():
         method_name="conditional",
     )
 
-    # conditional mode
+    # Check conditional mode network output shapes - Pass
     pred_fixed_label, grid_fixed = conditional_forward(
         backbone=local_net,
-        moving_image=tf.random.uniform((batch_size,) + moving_image_size),
-        fixed_image=tf.random.uniform((batch_size,) + fixed_image_size),
-        moving_label=tf.random.uniform((batch_size,) + moving_image_size),
+        moving_image=tf.ones((batch_size,) + moving_image_size),
+        fixed_image=tf.ones((batch_size,) + fixed_image_size),
+        moving_label=tf.ones((batch_size,) + moving_image_size),
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
     )

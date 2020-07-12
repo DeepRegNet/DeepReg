@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-import deepreg.model.layer as layer
+from deepreg.model import layer, layer_util
 from deepreg.model.network.util import (
     add_ddf_loss,
     add_image_loss,
@@ -46,10 +46,9 @@ def ddf_dvf_forward(
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # adjust moving image
-    if moving_image_size != fixed_image_size:
-        moving_image = layer.Resize3d(size=fixed_image_size)(
-            inputs=moving_image
-        )  # (batch, f_dim1, f_dim2, f_dim3, 1)
+    moving_image = layer_util.resize3d(
+        image=moving_image, size=fixed_image_size
+    )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # ddf, dvf
     inputs = tf.concat(

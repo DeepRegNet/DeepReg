@@ -28,12 +28,12 @@ def test_ddf_dvf_forward():
         method_name="ddf",
     )
 
-    # ddf mode
+    # Check DDF mode network output shapes - Pass
     dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_dvf_forward(
         backbone=local_net,
-        moving_image=tf.random.uniform((batch_size,) + moving_image_size),
-        fixed_image=tf.random.uniform((batch_size,) + fixed_image_size),
-        moving_label=tf.random.uniform((batch_size,) + moving_image_size),
+        moving_image=tf.ones((batch_size,) + moving_image_size),
+        fixed_image=tf.ones((batch_size,) + fixed_image_size),
+        moving_label=tf.ones((batch_size,) + moving_image_size),
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         output_dvf=False,
@@ -44,12 +44,12 @@ def test_ddf_dvf_forward():
     assert pred_fixed_label.shape == (batch_size,) + fixed_image_size
     assert grid_fixed.shape == fixed_image_size + (3,)
 
-    # dvf mode
+    # Check DVF mode network output shapes - Pass
     dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_dvf_forward(
         backbone=local_net,
-        moving_image=tf.random.uniform((batch_size,) + moving_image_size),
-        fixed_image=tf.random.uniform((batch_size,) + fixed_image_size),
-        moving_label=tf.random.uniform((batch_size,) + moving_image_size),
+        moving_image=tf.ones((batch_size,) + moving_image_size),
+        fixed_image=tf.ones((batch_size,) + fixed_image_size),
+        moving_label=tf.ones((batch_size,) + moving_image_size),
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         output_dvf=True,

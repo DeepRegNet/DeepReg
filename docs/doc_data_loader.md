@@ -39,20 +39,19 @@ structure or landmark.
 ## Dataset Requirements
 
 To use the provided dataset loaders, other detailed images and labels requirements are
-described in individual dataset loader sections. Gnereal requirements are described as
+described in individual dataset loader sections. General requirements are described as
 follows.
 
 - Image
 
-  - Currently, DeepReg currently supports 3D images. All images should have the same
-    shape, e.g. `(m_dim1, m_dim2, m_dim3)`.<br> An exception is that, for paired image
-    loaders, the moving images and fixed images can have different shapes, e.g.
-    `(m_dim1, m_dim2, m_dim3)` and `(f_dim1, f_dim2, f_dim3)`.
+  - Currently, DeepReg currently supports 3D images. But images do not have to be of the
+    same shape, and it will be resized to the required shape using linear interpolation.
 
 - Label
 
-  - If an image is labeled, the label shape must be the same as the image shape. But
-    each image can have more than one labels.<br>
+  - If an image is labeled, the label shape is recommended to be the same as the image
+    shape. Otherwise, the resize might give unexpected behaviours. But each image can
+    have more than one labels.<br>
 
     For instance, an image of shape `(dim1, dim2, dim3)`, its label shape can be
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
@@ -94,7 +93,7 @@ For paired images, one epoch of the dataset iterates all the image pairs sequent
 with random orders. So each image pair is sampled once in each epoch with equal chance.
 For validation or testing, the random seed is fixed to ensure consistency.
 
-When an image has multiple labels, e.g. the segmentations of different organs in a CT
+When an image has multiple labels, e.g. the segmentation of different organs in a CT
 image, only one label will be sampled during training. In particular, only corresponding
 labels will be sampled between a pair of moving and fixed images. In case of validation
 or testing, instead of sampling one label per image, all labels will be iterated.
@@ -112,8 +111,8 @@ dataset:
   format: "nifti" # value should be nifti / h5
   type: "paired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
-  moving_image_shape: [64, 64, 60] # value should be like [dim1, dim2, dim3]
-  fixed_image_shape: [44, 59, 41] # value should be like [dim1, dim2, dim3]
+  moving_image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
+  fixed_image_shape: [8, 8, 8] # value should be like [dim1, dim2, dim3]
 ```
 
 where, the configuration can be split into common configurations that shared by all
@@ -260,7 +259,7 @@ dataset:
   format: "nifti" # value should be nifti / h5
   type: "unpaired" # value should be paired / unpaired / grouped
   labeled: true # value should be true / false
-  image_shape: [64, 64, 60] # value should be like [dim1, dim2, dim3]
+  image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
 ```
 
 where
@@ -422,7 +421,7 @@ dataset:
   intra_group_prob: 1 # probability of intra-group sampling, value should be between 0 and 1
   intra_group_option: "forward" # option for intra-group sampling, value should be forward / backward / unconstrained
   sample_image_in_group: true # true if sampling one image per group, value should be true / false
-  image_shape: [64, 64, 60] # value should be like [dim1, dim2, dim3]
+  image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
 ```
 
 where

@@ -296,3 +296,65 @@ def test_warp_grid():
     )  # shape = (1, 1, 2, 3, 3)
     got = layer_util.warp_grid(grid=grid, theta=theta)
     assert check_equal(got, expected)
+
+
+def test_resize3d():
+    """
+    Test resize3d by confirming the output shapes.
+    """
+
+    # Check resize3d for images with different size and without channel nor batch - Pass
+    input_shape = (1, 3, 5)
+    output_shape = (2, 4, 6)
+    size = (2, 4, 6)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with different size and without channel - Pass
+    input_shape = (1, 1, 3, 5)
+    output_shape = (1, 2, 4, 6)
+    size = (2, 4, 6)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with different size and with one channel - Pass
+    input_shape = (1, 1, 3, 5, 1)
+    output_shape = (1, 2, 4, 6, 1)
+    size = (2, 4, 6)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with different size and with multiple channels - Pass
+    input_shape = (1, 1, 3, 5, 3)
+    output_shape = (1, 2, 4, 6, 3)
+    size = (2, 4, 6)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with the same size and without channel nor batch - Pass
+    input_shape = (1, 3, 5)
+    output_shape = (1, 3, 5)
+    size = (1, 3, 5)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with the same size and without channel - Pass
+    input_shape = (1, 1, 3, 5)
+    output_shape = (1, 1, 3, 5)
+    size = (1, 3, 5)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with the same size and with one channel - Pass
+    input_shape = (1, 1, 3, 5, 1)
+    output_shape = (1, 1, 3, 5, 1)
+    size = (1, 3, 5)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
+
+    # Check resize3d for images with the same size and with multiple channels - Pass
+    input_shape = (1, 1, 3, 5, 3)
+    output_shape = (1, 1, 3, 5, 3)
+    size = (1, 3, 5)
+    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
+    assert got.shape == output_shape
