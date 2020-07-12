@@ -9,4 +9,4 @@ dataset:
   intra_group_prob: 1
   intra_group_option: "forward"
   sample_image_in_group: true
-  image_shape: [64, 64, 60]
+  image_shape: [16, 16, 16]

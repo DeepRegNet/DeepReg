@@ -5,8 +5,8 @@ dataset:
   format: "nifti"
   type: "paired" # paired / unpaired / grouped
   labeled: true
-  moving_image_shape: [64, 64, 60]
-  fixed_image_shape: [44, 59, 41]
+  moving_image_shape: [16, 16, 16]
+  fixed_image_shape: [8, 8, 8]
 
 train:
   model:

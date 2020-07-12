@@ -15,6 +15,8 @@ issues with other dependencies. The conda enviroment is recommended:
 [Anaconda](https://docs.anaconda.com/anaconda/install/) /
 [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 
+`DeepReg` is primarily supported and regularly tested with Linux distro Ubuntu/Debian.
+
 <!-- tabs:start -->
 
 #### ** Linux **
@@ -23,15 +25,43 @@ With CPU only
 
 ```bash
 conda create --name deepreg python=3.7 tensorflow=2.2
-conda activate deepreg # activate the environment
+conda activate deepreg # Activate the environment
 ```
 
 With GPU
 
 ```bash
-conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # use conda to handle nvidia related packages
-conda activate deepreg
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
+conda activate deepreg # Activate the environment
 ```
+
+#### ** MacOS **
+
+With CPU only
+
+```bash
+conda create --name deepreg python=3.7 tensorflow=2.2
+conda activate deepreg # Activate the environment
+```
+
+With GPU
+
+```bash
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
+conda activate deepreg # Activate the environment
+```
+
+#### ** Windows **
+
+With CPU only
+
+:warning: `DeepReg` is not fully supported under Windows, however,
+[Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+may be recommended for use with CPU only. Then follow the instructions with Linux.
+
+With GPU
+
+:warning: Not supported or tested.
 
 <!-- tabs:end -->
 
