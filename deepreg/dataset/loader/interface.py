@@ -97,8 +97,8 @@ class DataLoader:
             )
         if repeat:
             dataset = dataset.repeat()
-        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
         if training:
             # TODO add cropping, but crop first or rotation first?
             affine_transform = AffineTransformation3D(
