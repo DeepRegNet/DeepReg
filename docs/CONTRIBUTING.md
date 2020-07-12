@@ -100,8 +100,8 @@ each commit. Specifically,
 - [Prettier](https://prettier.io/) to format markdown files.
 
 Pre-commit is installed during the package installation via `pip install -e .`. To
-activate pre-commit, run `pre-commit install` under the root of this repository
-`DeepReg/`.
+activate pre-commit, make sure the git is installed (`sudo apt install git` for linux)
+and run `pre-commit install` under the root of this repository `DeepReg/`.
 
 Optionally, use `git commit --no-verify -m "This is a commit message placeholder."` to
 skip pre-commit, and use `pre-commit run --all-files` to format files before pull
@@ -110,7 +110,7 @@ request.
 ## Documentation Pages
 
 [Docsify](https://docsify.js.org/) converts markdown files into pages and they are
-hosted on github page. Use `cd docs && python -m SimpleHTTPServer 3000` to visualize the
-pages locally. The required package
+hosted on github page. Use `cd docs && python -m http.server` to visualize the pages
+locally. The required package
 [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
 installed during the package installation via `pip install -e .`.

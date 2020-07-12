@@ -143,7 +143,8 @@ dataset:
     test: "data/test/h5/paired/test" # folder contains test data
 ```
 
-This is particularly useful when conducting an experiment such as cross-validation.
+This is particularly useful when performing an
+[experiment such as cross-validation](tutorial_experiment.md).
 
 ### File loader
 
