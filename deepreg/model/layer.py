@@ -149,54 +149,6 @@ class Deconv3d(tf.keras.layers.Layer):
         return self._Conv3DTranspose(inputs=inputs)
 
 
-class Resize3d(tf.keras.layers.Layer):
-    def __init__(self, size, method=tf.image.ResizeMethod.BILINEAR, **kwargs):
-        """
-        :param size: [out_dim1, out_dim2, out_dim3], list or tuple
-        :param method:
-        :param kwargs:
-        """
-        super(Resize3d, self).__init__(**kwargs)
-        # save parameters
-        self._size = size
-        self._method = method
-
-    def call(self, inputs, **kwargs):
-        """
-        tensorflow does not have resize 3d, therefore the resize is performed two folds.
-        - resize dim2 and dim3
-        - resize dim1 and dim2
-        :param inputs: shape = [batch, dim1, dim2, dim3, channels], assuming channels_last
-        :return: shape = [batch, out_dim1, out_dim2, out_dim3, channels]
-        """
-
-        input_shape = inputs.shape
-        # merge axis 0 and 1
-        output = tf.reshape(
-            inputs, [-1, input_shape[2], input_shape[3], input_shape[4]]
-        )  # [batch * dim1, dim2, dim3, channels]
-        # resize dim2 and dim3
-        output = tf.image.resize(
-            images=output, size=[self._size[1], self._size[2]], method=self._method
-        )  # [batch * dim1, out_dim2, out_dim3, channels]
-
-        # split axis 0 and merge axis 3 and 4
-        output = tf.reshape(
-            output,
-            shape=[-1, input_shape[1], self._size[1], self._size[2] * input_shape[4]],
-        )  # [batch, dim1, out_dim2, out_dim3 * channels]
-        # resize dim1 and dim2
-        output = tf.image.resize(
-            images=output, size=[self._size[0], self._size[1]], method=self._method
-        )  # [batch, out_dim1, out_dim2, out_dim3 * channels]
-        # reshape
-        output = tf.reshape(
-            output,
-            shape=[-1, self._size[0], self._size[1], self._size[2], input_shape[4]],
-        )  # [batch, out_dim1, out_dim2, out_dim3, channels]
-        return output
-
-
 class Conv3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, padding="same", **kwargs):
         super(Conv3dBlock, self).__init__(**kwargs)
@@ -365,7 +317,6 @@ class Conv3dWithResize(tf.keras.layers.Layer):
             kernel_initializer=kernel_initializer,
             activation=activation,
         )  # if not zero, with init NN, ddf may be too large
-        self._resize3d = Resize3d(size=output_shape)
 
     def call(self, inputs, **kwargs):
         """
@@ -375,7 +326,7 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         """
         output = self._conv3d(inputs=inputs)
         if inputs.shape[1:4] != self._output_shape:
-            output = self._resize3d(inputs=output)
+            output = layer_util.resize3d(image=output, size=self._output_shape)
         return output
 
 
@@ -472,8 +423,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         super(AdditiveUpSampling, self).__init__(**kwargs)
         # save parameters
         self._stride = stride
-        # init layer variables
-        self._resize3d = Resize3d(size=output_shape)
+        self._output_shape = output_shape
 
     def call(self, inputs, **kwargs):
         """
@@ -483,7 +433,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         """
         if inputs.shape[4] % self._stride != 0:
             raise ValueError("The channel dimension can not be divided by the stride")
-        output = self._resize3d(inputs=inputs)
+        output = layer_util.resize3d(image=inputs, size=self._output_shape)
         output = tf.split(
             output, num_or_size_splits=self._stride, axis=4
         )  # a list of [batch, out_dim1, out_dim2, out_dim3, channels//stride], num = stride

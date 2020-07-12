@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from deepreg.model import layer as layer
+import deepreg.model.layer_util as layer_util
 from deepreg.model.network.util import build_backbone, build_inputs
 
 
@@ -25,16 +25,20 @@ def build_cond_model(
     """
     # inputs
     moving_image, fixed_image, moving_label, indices = build_inputs(
-        moving_image_size, fixed_image_size, index_size, batch_size
+        moving_image_size=moving_image_size,
+        fixed_image_size=fixed_image_size,
+        index_size=index_size,
+        batch_size=batch_size,
+        labeled=True,  # for conditional network, data must be labeled
     )
     backbone_input = tf.concat(
         [
-            layer.Resize3d(size=fixed_image_size)(
-                inputs=tf.expand_dims(moving_image, axis=4)
+            layer_util.resize3d(
+                image=tf.expand_dims(moving_image, axis=4), size=fixed_image_size
             ),
             tf.expand_dims(fixed_image, axis=4),
-            layer.Resize3d(size=fixed_image_size)(
-                inputs=tf.expand_dims(moving_label, axis=4)
+            layer_util.resize3d(
+                image=tf.expand_dims(moving_label, axis=4), size=fixed_image_size
             ),
         ],
         axis=4,

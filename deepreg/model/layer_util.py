@@ -227,7 +227,6 @@ def resample(vol, loc, interpolation="linear"):
     batch_size = vol.shape[0]
     loc_shape = loc.shape[1:-1]
     dim_vol = loc.shape[-1]  # dimension of vol
-    has_ch = None
     if dim_vol == len(vol.shape) - 1:
         # vol.shape = (batch, *vol_shape)
         has_ch = False
@@ -307,7 +306,8 @@ def random_transform_generator(
     Function that generates a random 3D transformation parameters for a batch of data
 
     :param batch_size: int
-    :param scale:
+    :param scale: a float number between 0 and 1
+    :param seed: control the randomness
     :return: shape = (batch, 4, 3)
 
     for 3D coordinates, affine transformation is
@@ -382,6 +382,7 @@ def random_transform_generator(
     A — — — — — — — — B
     """
 
+    assert 0 <= scale <= 1
     np.random.seed(seed=seed)
     noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # shape = (batch, 4, 3)
 
@@ -421,3 +422,54 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     # shape = (batch, dim1, dim2, dim3, 3)
     grid_warped = tf.einsum("ijkq,bqp->bijkp", grid_padded, theta)
     return grid_warped
+
+
+def resize3d(
+    image: tf.Tensor, size: tuple, method: str = tf.image.ResizeMethod.BILINEAR
+):
+    """
+    tensorflow does not have resize 3d, therefore the resize is performed two folds.
+    - resize dim2 and dim3
+    - resize dim1 and dim2
+    :param image: tensor of shape = (batch, dim1, dim2, dim3, channels) or (batch, dim1, dim2, dim3)
+    :param size: tuple, (out_dim1, out_dim2, out_dim3)
+    :param method: str, one of tf.image.ResizeMethod
+    :return: tensor of shape = (batch, out_dim1, out_dim2, out_dim3, channels) or shape = (batch, dim1, dim2, dim3)
+    """
+
+    image_shape = image.shape
+    if len(image_shape) not in [4, 5]:
+        raise ValueError(
+            "resize3d takes input image of dimension 4 or 5,"
+            "corresponding to (batch, dim1, dim2, dim3, channels) or (batch, dim1, dim2, dim3),"
+            "got image shape{}".format(image_shape)
+        )
+    has_channel = len(image.shape) == 5
+    if not has_channel:  # convert to channel mode
+        image = tf.expand_dims(image, axis=4)
+
+    # merge axis 0 and 1
+    output = tf.reshape(
+        image, [-1, image_shape[2], image_shape[3], image_shape[4]]
+    )  # [batch * dim1, dim2, dim3, channels]
+    # resize dim2 and dim3
+    output = tf.image.resize(
+        images=output, size=[size[1], size[2]], method=method
+    )  # [batch * dim1, out_dim2, out_dim3, channels]
+
+    # split axis 0 and merge axis 3 and 4
+    output = tf.reshape(
+        output, shape=[-1, image_shape[1], size[1], size[2] * image_shape[4]]
+    )  # [batch, dim1, out_dim2, out_dim3 * channels]
+    # resize dim1 and dim2
+    output = tf.image.resize(
+        images=output, size=[size[0], size[1]], method=method
+    )  # [batch, out_dim1, out_dim2, out_dim3 * channels]
+    # reshape
+    output = tf.reshape(
+        output, shape=[-1, size[0], size[1], size[2], image_shape[4]]
+    )  # [batch, out_dim1, out_dim2, out_dim3, channels]
+
+    if not has_channel:  # remove the channel axis
+        output = tf.squeeze(output, axis=4)
+    return output
