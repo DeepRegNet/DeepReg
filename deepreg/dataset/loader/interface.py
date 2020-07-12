@@ -6,7 +6,7 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
-from deepreg.dataset.preprocess import preprocess
+from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
 
@@ -55,7 +55,7 @@ class DataLoader:
         """
         raise NotImplementedError
 
-    def get_dataset(self):
+    def get_dataset(self) -> tf.data.Dataset:
         """
         defined in GeneratorDataLoader
         """
@@ -76,15 +76,40 @@ class DataLoader:
 
         :returns dataset:
         """
-        dataset = preprocess(
-            dataset=self.get_dataset(),
-            moving_image_shape=self.moving_image_shape,
-            fixed_image_shape=self.fixed_image_shape,
-            training=training,
-            shuffle_buffer_num_batch=shuffle_buffer_num_batch,
-            repeat=repeat,
-            batch_size=batch_size,
+
+        dataset = self.get_dataset()
+
+        # resize
+        dataset = dataset.map(
+            lambda x: resize_inputs(
+                inputs=x,
+                moving_image_size=self.moving_image_shape,
+                fixed_image_size=self.fixed_image_shape,
+            ),
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
         )
+
+        # shuffle / repeat / batch / preprocess
+        if training and shuffle_buffer_num_batch > 0:
+            dataset = dataset.shuffle(
+                buffer_size=batch_size * shuffle_buffer_num_batch,
+                reshuffle_each_iteration=True,
+            )
+        if repeat:
+            dataset = dataset.repeat()
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
+        if training:
+            # TODO add cropping, but crop first or rotation first?
+            affine_transform = AffineTransformation3D(
+                moving_image_size=self.moving_image_shape,
+                fixed_image_size=self.fixed_image_shape,
+                batch_size=batch_size,
+            )
+            dataset = dataset.map(
+                affine_transform.transform,
+                num_parallel_calls=tf.data.experimental.AUTOTUNE,
+            )
         return dataset
 
     def close(self):
