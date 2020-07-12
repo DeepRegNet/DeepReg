@@ -431,49 +431,85 @@ def resize3d(
     tensorflow does not have resize 3d, therefore the resize is performed two folds.
     - resize dim2 and dim3
     - resize dim1 and dim2
-    :param image: tensor of shape = (batch, dim1, dim2, dim3, channels) or (batch, dim1, dim2, dim3)
+    :param image: tensor of shape = (batch, dim1, dim2, dim3, channels)
+                                 or (batch, dim1, dim2, dim3)
+                                 or (dim1, dim2, dim3)
     :param size: tuple, (out_dim1, out_dim2, out_dim3)
     :param method: str, one of tf.image.ResizeMethod
-    :return: tensor of shape = (batch, out_dim1, out_dim2, out_dim3, channels) or shape = (batch, dim1, dim2, dim3)
+    :return: tensor of shape = (batch, out_dim1, out_dim2, out_dim3, channels)
+                            or (batch, dim1, dim2, dim3)
+                            or (dim1, dim2, dim3)
     """
-
-    if len(image.shape) not in [4, 5]:
+    # sanity check
+    image_dim = len(image.shape)
+    if image_dim not in [3, 4, 5]:
         raise ValueError(
-            "resize3d takes input image of dimension 4 or 5,"
-            "corresponding to (batch, dim1, dim2, dim3, channels) or (batch, dim1, dim2, dim3),"
+            "resize3d takes input image of dimension 3 or 4 or 5,"
+            "corresponding to (dim1, dim2, dim3) "
+            "or (batch, dim1, dim2, dim3)"
+            "or (batch, dim1, dim2, dim3, channels),"
             "got image shape{}".format(image.shape)
         )
     if len(size) != 3:
         raise ValueError("resize3d takes size of type tuple/list and of length 3")
-    if image.shape[1:4] == tuple(size):
+
+    # init
+    if image_dim == 5:
+        has_channel = True
+        has_batch = True
+        image_shape = image.shape[1:4]
+    elif image_dim == 4:
+        has_channel = False
+        has_batch = True
+        image_shape = image.shape[1:4]
+    elif image_dim == 3:
+        has_channel = False
+        has_batch = False
+        image_shape = image.shape[0:3]
+    else:
+        raise ValueError(
+            f"Unknown image_dim in resize3d. It should be 3 or 4 or 5, got {image_dim}"
+        )
+
+    # no need of resize
+    if image_shape == tuple(size):
         return image
-    has_channel = len(image.shape) == 5
-    if not has_channel:  # convert to channel mode
-        image = tf.expand_dims(image, axis=4)
-    image_shape = image.shape
+
+    # expand to five dimensions
+    if not has_batch:
+        image = tf.expand_dims(image, axis=0)
+    if not has_channel:
+        image = tf.expand_dims(image, axis=-1)
+    assert len(image.shape) == 5  # (batch, dim1, dim2, dim3, channels)
 
     # merge axis 0 and 1
     output = tf.reshape(
-        image, [-1, image_shape[2], image_shape[3], image_shape[4]]
-    )  # [batch * dim1, dim2, dim3, channels]
+        image, (-1, *image.shape[2:])
+    )  # (batch * dim1, dim2, dim3, channels)
+
     # resize dim2 and dim3
     output = tf.image.resize(
-        images=output, size=[size[1], size[2]], method=method
-    )  # [batch * dim1, out_dim2, out_dim3, channels]
+        images=output, size=size[1:], method=method
+    )  # (batch * dim1, out_dim2, out_dim3, channels)
 
     # split axis 0 and merge axis 3 and 4
     output = tf.reshape(
-        output, shape=[-1, image_shape[1], size[1], size[2] * image_shape[4]]
-    )  # [batch, dim1, out_dim2, out_dim3 * channels]
+        output, shape=(-1, image.shape[1], size[1], size[2] * image.shape[4])
+    )  # (batch, dim1, out_dim2, out_dim3 * channels)
+
     # resize dim1 and dim2
     output = tf.image.resize(
-        images=output, size=[size[0], size[1]], method=method
-    )  # [batch, out_dim1, out_dim2, out_dim3 * channels]
+        images=output, size=size[:2], method=method
+    )  # (batch, out_dim1, out_dim2, out_dim3 * channels)
+
     # reshape
     output = tf.reshape(
-        output, shape=[-1, size[0], size[1], size[2], image_shape[4]]
-    )  # [batch, out_dim1, out_dim2, out_dim3, channels]
+        output, shape=[-1, *size, image.shape[4]]
+    )  # (batch, out_dim1, out_dim2, out_dim3, channels)
 
-    if not has_channel:  # remove the channel axis
-        output = tf.squeeze(output, axis=4)
+    # squeeze to original dimension
+    if not has_batch:
+        output = tf.squeeze(output, axis=0)
+    if not has_channel:
+        output = tf.squeeze(output, axis=-1)
     return output
