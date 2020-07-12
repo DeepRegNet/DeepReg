@@ -106,10 +106,16 @@ def build_conditional_model(
     )  # (batch, f_dim1, f_dim2, f_dim3)
 
     # build model
+    inputs = {
+        "moving_image": moving_image,
+        "fixed_image": fixed_image,
+        "moving_label": moving_label,
+        "fixed_label": fixed_label,
+        "indices": indices,
+    }
+    outputs = {"pred_fixed_label": pred_fixed_label}
     model = tf.keras.Model(
-        inputs=[moving_image, fixed_image, moving_label, indices],
-        outputs=[pred_fixed_label],
-        name="ConditionalRegModel",
+        inputs=inputs, outputs=outputs, name="ConditionalRegistrationModel"
     )
 
     # loss and metric
