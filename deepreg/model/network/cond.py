@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from deepreg.model import layer as layer
+from deepreg.model import layer, layer_util
 from deepreg.model.network.util import add_label_loss, build_backbone, build_inputs
 
 
@@ -39,11 +39,11 @@ def conditional_forward(
 
     # adjust moving image
     if moving_image_size != fixed_image_size:
-        moving_image = layer.Resize3d(size=fixed_image_size)(
-            inputs=moving_image
+        moving_image = layer_util.resize3d(
+            image=moving_image, size=fixed_image_size
         )  # (batch, f_dim1, f_dim2, f_dim3, 1)
-        moving_label = layer.Resize3d(size=fixed_image_size)(
-            inputs=moving_label
+        moving_label = layer_util.resize3d(
+            image=moving_label, size=fixed_image_size
         )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
     # conditional
