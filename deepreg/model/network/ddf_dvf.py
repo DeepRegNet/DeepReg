@@ -1,37 +1,46 @@
 import tensorflow as tf
 
 import deepreg.model.layer as layer
-from deepreg.model.network.ddf import ddf_add_loss_metric
-from deepreg.model.network.util import build_backbone, build_inputs
+from deepreg.model.network.util import (
+    add_ddf_loss,
+    add_image_loss,
+    add_label_loss,
+    build_backbone,
+    build_inputs,
+)
 
 
-def dvf_forward(
+def ddf_dvf_forward(
     backbone: tf.keras.Model,
     moving_image: tf.Tensor,
     fixed_image: tf.Tensor,
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-) -> [tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
+    output_dvf: bool,
+) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
-    :param moving_image_size:
-    :param fixed_image_size:
-    :return: tuple(ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-    - dvf is the dense velocity field of shape (batch, m_dim1, m_dim2, m_dim3, 3)
+    :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
+    :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
+    :return: tuple(dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
+    - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
+    - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
     - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
     - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
     - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
     # expand dims
+    # need to be squeezed later for warping
     moving_image = tf.expand_dims(
         moving_image, axis=4
-    )  # (batch, m_dim1, m_dim2, m_dim3, 1), need to be squeezed later for warping
+    )  # (batch, m_dim1, m_dim2, m_dim3, 1)
     fixed_image = tf.expand_dims(
         fixed_image, axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 1)
@@ -42,14 +51,19 @@ def dvf_forward(
             inputs=moving_image
         )  # (batch, f_dim1, f_dim2, f_dim3, 1)
 
-    # ddf
+    # ddf, dvf
     inputs = tf.concat(
         [moving_image, fixed_image], axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 2)
-    dvf = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
-    ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(
-        dvf
-    )  # (batch, f_dim1, f_dim2, f_dim3, 3)
+    backbone_out = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
+    if output_dvf:
+        dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(
+            dvf
+        )  # (batch, f_dim1, f_dim2, f_dim3, 3)
+    else:
+        dvf = None
+        ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
 
     # prediction, (batch, f_dim1, f_dim2, f_dim3)
     warping = layer.Warping(fixed_image_size=fixed_image_size)
@@ -61,7 +75,7 @@ def dvf_forward(
     return dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed
 
 
-def build_dvf_model(
+def build_ddf_dvf_model(
     moving_image_size: tuple,
     fixed_image_size: tuple,
     index_size: int,
@@ -69,17 +83,16 @@ def build_dvf_model(
     batch_size: int,
     model_config: dict,
     loss_config: dict,
-):
+) -> tf.keras.Model:
     """
-
     :param moving_image_size: (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-    :param index_size:
-    :param labeled:
-    :param batch_size:
-    :param model_config:
-    :param loss_config:
-    :return:
+    :param index_size: int, the number of indices for identifying a sample
+    :param labeled: bool, indicating if the data is labeled
+    :param batch_size: int, size of mini-batch
+    :param model_config: config for the model
+    :param loss_config: config for the loss
+    :return: the built tf.keras.Model
     """
 
     # inputs
@@ -96,49 +109,54 @@ def build_dvf_model(
         image_size=fixed_image_size,
         out_channels=3,
         model_config=model_config,
-        method_name="dvf",
+        method_name=model_config["method"],
     )
 
     # forward
-    dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = dvf_forward(
+    dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_dvf_forward(
         backbone=backbone,
         moving_image=moving_image,
         fixed_image=fixed_image,
         moving_label=moving_label,
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
+        output_dvf=model_config["method"] == "dvf",
     )
 
     # build model
+    inputs = {
+        "moving_image": moving_image,
+        "fixed_image": fixed_image,
+        "indices": indices,
+    }
+    outputs = {"ddf": ddf}
+    if dvf is not None:
+        outputs["dvf"] = dvf
+    model_name = model_config["method"].upper() + "RegistrationModel"
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
-            inputs=dict(
-                moving_image=moving_image, fixed_image=fixed_image, indices=indices
-            ),
-            outputs=dict(dvf=dvf, ddf=ddf),
-            name="DVFRegModelWithoutLabel",
+            inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
         )
     else:  # labeled
+        inputs["moving_label"] = moving_label
+        inputs["fixed_label"] = fixed_label
+        outputs["pred_fixed_label"] = pred_fixed_label
         model = tf.keras.Model(
-            inputs=dict(
-                moving_image=moving_image,
-                fixed_image=fixed_image,
-                indices=indices,
-                moving_label=moving_label,
-                fixed_label=fixed_label,
-            ),
-            outputs=dict(dvf=dvf, ddf=ddf, pred_fixed_label=pred_fixed_label),
-            name="DVFRegModelWithLabel",
+            inputs=inputs, outputs=outputs, name=model_name + "WithLabel"
         )
 
-    # loss and metric
-    ddf_add_loss_metric(
+    # add loss and metric
+    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_image_loss(
         model=model,
-        ddf=ddf,
-        grid_fixed=grid_fixed,
         fixed_image=fixed_image,
-        fixed_label=fixed_label,
         pred_fixed_image=pred_fixed_image,
+        loss_config=loss_config,
+    )
+    model = add_label_loss(
+        model=model,
+        grid_fixed=grid_fixed,
+        fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
     )
