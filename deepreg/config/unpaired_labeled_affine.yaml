@@ -1,37 +1,19 @@
-<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
-# TODO to update
-
 dataset:
-  dir: "data/test/nifti/paired" # required
-=======
-data:
   dir:
     train: "data/test/nifti/unpaired/train" # required
     valid: "data/test/nifti/unpaired/test" # required
     test: "data/test/nifti/unpaired/test" # required
->>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
   labeled: true
-<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
-  moving_image_shape: [16, 16, 16]
-  fixed_image_shape: [8, 8, 8]
-=======
   image_shape: [64, 64, 60]
->>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
-
 train:
   model:
-<<<<<<< HEAD:deepreg/config/paired_labeled_global_ddf.yaml
-    method: "ddf" # ddf or conditional or seg
-    backbone: "global"
-=======
     method: "affine" # ddf or conditional or seg
     backbone:
       name: "global"
       out_kernel_initializer: "zeros" # zeros or glorot_uniform
       out_activation: ""
->>>>>>> issue #59 update affine config file:deepreg/config/unpaired_labeled_affine.yaml
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]

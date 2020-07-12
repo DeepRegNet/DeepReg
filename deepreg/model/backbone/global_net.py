@@ -37,20 +37,11 @@ class GlobalNet(tf.keras.Model):
         Image is encoded gradually, i from level 0 to E.
         Then, a densely-connected layer outputs an affine
         transformation.
-<<<<<<< HEAD
-
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
         :param extract_levels: list, which levels from net to extract
         :param out_activation: str, activation at last layer
         :param out_kernel_initializer: str, which kernel to use as initialiser
-=======
-        :param out_channels: number of channels for the extractions
-        :param num_channel_initial:
-        :param extract_levels:
-        :param out_kernel_initializer:
-        :param out_activation:
->>>>>>> issue #59 affine transform as instance attribute of globalnet
         :param kwargs:
         """
         super(GlobalNet, self).__init__(**kwargs)
@@ -88,10 +79,8 @@ class GlobalNet(tf.keras.Model):
         :return:
         """
         # down sample from level 0 to E
-        h_in = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
-<<<<<<< HEAD
-            h_in, _ = self._downsample_blocks[level](inputs=h_in, training=training)
+            h_in, _ = self._downsample_blocks[level](inputs=inputs, training=training)
         h_out = self._conv3d_block(
             inputs=h_in, training=training
         )  # level E of encoding
@@ -99,14 +88,7 @@ class GlobalNet(tf.keras.Model):
         # predict affine parameters theta of shape = [batch, 4, 3]
         theta = self._dense_layer(h_out)
         theta = self._reshape(theta)
-
-=======
-            h, _ = self._downsample_blocks[level](inputs=h, training=training)
-        hm = self._conv3d_block(inputs=h, training=training)  # level E of encoding
-        # predict affine parameters theta of shape = [batch, 4, 3]
-        self.theta = self._dense_layer(hm)
-        self.theta = self._reshape(self.theta)
->>>>>>> issue #59 affine transform as instance attribute of globalnet
+        
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
         output = grid_warped - self.reference_grid
