@@ -119,7 +119,7 @@ def build_affine_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=3, model_config=model_config
+        image_size=fixed_image_size, out_channels=3, model_config=model_config, model_name=model_config["method"]
     )
 
     # forward

@@ -86,9 +86,8 @@ class GlobalNet(tf.keras.Model):
         )  # level E of encoding
 
         # predict affine parameters theta of shape = [batch, 4, 3]
-        theta = self._dense_layer(h_out)
-        theta = self._reshape(theta)
-        
+        self.theta = self._dense_layer(h_out)
+        self.theta = self._reshape(self.theta)
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
         output = grid_warped - self.reference_grid
