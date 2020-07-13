@@ -13,8 +13,8 @@ def build_affine_model(
     index_size,
     labeled,
     batch_size,
-    tf_model_config,
-    tf_loss_config,
+    model_config,
+    loss_config,
 ):
     """
     Build the model if the output is an affine-based DDF (dense displacement field)
@@ -22,8 +22,8 @@ def build_affine_model(
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
     :param index_size: dataset size
     :param batch_size: minibatch size
-    :param tf_model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param tf_loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
+    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
 
@@ -78,16 +78,16 @@ def build_affine_model(
         :return: tf.keras.Model with loss and metric added
         """
         # image loss
-        if tf_loss_config["similarity"]["image"]["weight"] > 0:
+        if loss_config["similarity"]["image"]["weight"] > 0:
             loss_image = tf.reduce_mean(
                 image_loss.similarity_fn(
                     y_true=_fixed_image,
                     y_pred=_pred_fixed_image,
-                    **tf_loss_config["similarity"]["image"],
+                    **loss_config["similarity"]["image"],
                 )
             )
             weighted_loss_image = (
-                loss_image * tf_loss_config["similarity"]["image"]["weight"]
+                loss_image * loss_config["similarity"]["image"]["weight"]
             )
             model.add_loss(weighted_loss_image)
             model.add_metric(
@@ -102,7 +102,7 @@ def build_affine_model(
         # label loss
         if _fixed_label is not None:
             label_loss_fn = label_loss.get_similarity_fn(
-                config=tf_loss_config["similarity"]["label"]
+                config=loss_config["similarity"]["label"]
             )
             loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
             model.add_loss(loss_label)
@@ -119,7 +119,7 @@ def build_affine_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=3, tf_model_config=tf_model_config
+        image_size=fixed_image_size, out_channels=3, model_config=model_config
     )
 
     # forward
