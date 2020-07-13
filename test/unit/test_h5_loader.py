@@ -152,6 +152,29 @@ def test_get_data():
         raise AssertionError
 
 
+def test_get_data_grouped():
+    """
+    check if the get_data method works as expected and returns array
+    as expected
+    """
+    dir_path = "./data/test/h5/grouped/test"
+    name = "images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=True)
+    index = (0, 1)
+    array = loader.get_data(index)
+    got = [
+        np.shape(array),
+        [np.amax(array), np.amin(array), np.mean(array), np.std(array)],
+    ]
+    expected = [(64, 64, 60), [255.0, 0.0, 60.073948, 47.27648]]
+    loader.close()
+    if got[0] == expected[0]:
+        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
+    else:
+        raise AssertionError
+
+
 def test_init_incompatible_conditions():
     """
     check if the initialisation works as expected and raises an error when
