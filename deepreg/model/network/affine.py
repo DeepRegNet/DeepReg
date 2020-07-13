@@ -1,112 +1,90 @@
 import tensorflow as tf
 
-import deepreg.model.layer as layer
-import deepreg.model.loss.deform as deform_loss
-import deepreg.model.loss.image as image_loss
-import deepreg.model.loss.label as label_loss
-from deepreg.model.network.util import build_backbone, build_inputs
+from deepreg.model import layer, layer_util
+from deepreg.model.network.util import (
+    add_ddf_loss,
+    add_image_loss,
+    add_label_loss,
+    build_backbone,
+    build_inputs,
+)
+
+
+def affine_forward(
+    backbone: tf.keras.Model,
+    moving_image: tf.Tensor,
+    fixed_image: tf.Tensor,
+    moving_label: (tf.Tensor, None),
+    moving_image_size: tuple,
+    fixed_image_size: tuple,
+):
+    """
+    Perform the network forward pass
+    :param backbone: model architecture object, e.g. model.backbone.local_net
+    :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
+    :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
+    :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
+    :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
+    :return: tuple(_affine, _ddf, _pred_fixed_image, _pred_fixed_label)
+    :return: tuple(affine, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
+    - affine is the affine transformation matrix predicted by the network (batch, 4, 3)
+    - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
+    - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
+    - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+    - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
+    """
+
+    # expand dims
+    # need to be squeezed later for warping
+    moving_image = tf.expand_dims(
+        moving_image, axis=4
+    )  # (batch, m_dim1, m_dim2, m_dim3, 1)
+    fixed_image = tf.expand_dims(
+        fixed_image, axis=4
+    )  # (batch, f_dim1, f_dim2, f_dim3, 1)
+
+    # adjust moving image
+    moving_image = layer_util.resize3d(
+        image=moving_image, size=fixed_image_size
+    )  # (batch, f_dim1, f_dim2, f_dim3, 1)
+
+    # ddf, dvf
+    inputs = tf.concat(
+        [moving_image, fixed_image], axis=4
+    )  # (batch, f_dim1, f_dim2, f_dim3, 2)
+    ddf = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
+    affine = backbone.theta
+
+    # prediction, (batch, f_dim1, f_dim2, f_dim3)
+    warping = layer.Warping(fixed_image_size=fixed_image_size)
+    grid_fixed = tf.squeeze(warping.grid_ref, axis=0)  # (f_dim1, f_dim2, f_dim3, 3)
+    pred_fixed_image = warping(inputs=[ddf, tf.squeeze(moving_image, axis=4)])
+    pred_fixed_label = (
+        warping(inputs=[ddf, moving_label]) if moving_label is not None else None
+    )
+    return affine, ddf, pred_fixed_image, pred_fixed_label, grid_fixed
 
 
 def build_affine_model(
-    moving_image_size,
-    fixed_image_size,
-    index_size,
-    labeled,
-    batch_size,
-    model_config,
-    loss_config,
+    moving_image_size: tuple,
+    fixed_image_size: tuple,
+    index_size: int,
+    labeled: bool,
+    batch_size: int,
+    model_config: dict,
+    loss_config: dict,
 ):
     """
-    Build the model if the output is an affine-based DDF (dense displacement field)
-    :param moving_image_size: [m_dim1, m_dim2, m_dim3]
-    :param fixed_image_size: [f_dim1, f_dim2, f_dim3]
-    :param index_size: dataset size
-    :param batch_size: minibatch size
-    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
+    :param index_size: int, the number of indices for identifying a sample
+    :param labeled: bool, indicating if the data is labeled
+    :param batch_size: int, size of mini-batch
+    :param model_config: config for the model
+    :param loss_config: config for the loss
     :return: the built tf.keras.Model
     """
-
-    def forward(_backbone, _moving_image, _moving_label, _fixed_image):
-        """
-        Perform the network forward pass
-        :param _backbone: model architecture object, e.g. return from model.backbone.global_net
-        :param _moving_image: [batch, m_dim1, m_dim2, m_dim3]
-        :param _moving_label: [batch, m_dim1, m_dim2, m_dim3]
-        :param _fixed_image:  [batch, f_dim1, f_dim2, f_dim3]
-        :return: tuple(_affine, _ddf, _pred_fixed_image, _pred_fixed_label)
-            WHERE
-            str _affine is the affine transformation matrix predicted by the network [batch, 3, 4]
-            str _ddf is the dense displacement field [batch, m_dim1, m_dim2, m_dim3, 3]
-            str _pred_fixed_image is the predicted (warped) moving image [batch, f_dim1, f_dim2, f_dim3]
-            str _pred_fixed_label is the predicted (warped) moving label [batch, f_dim1, f_dim2, f_dim3]
-        """
-        # ddf
-        backbone_input = tf.concat(
-            [
-                layer.Resize3d(size=fixed_image_size)(
-                    inputs=tf.expand_dims(_moving_image, axis=4)
-                ),
-                tf.expand_dims(_fixed_image, axis=4),
-            ],
-            axis=4,
-        )  # [batch, f_dim1, f_dim2, f_dim3, 2]
-
-        _ddf = _backbone(inputs=backbone_input)  # [batch, f_dim1, f_dim2, f_dim3, 3]
-        _affine = _backbone.theta
-
-        # prediction image ang label shape = [batch, f_dim1, f_dim2, f_dim3]
-        _pred_fixed_image = layer.Warping(fixed_image_size=fixed_image_size)(
-            [_ddf, _moving_image]
-        )
-        _pred_fixed_label = layer.Warping(fixed_image_size=fixed_image_size)(
-            [_ddf, _moving_label]
-        )
-        return _affine, _ddf, _pred_fixed_image, _pred_fixed_label
-
-    def add_loss_metric(
-        _fixed_image, _pred_fixed_image, _ddf, _fixed_label, _pred_fixed_label, suffix
-    ):
-        """
-        Configure and add the training loss, including image, label and deformation regularisation
-        :param _fixed_image:      [batch, f_dim1, f_dim2, f_dim3]
-        :param _pred_fixed_image: [batch, f_dim1, f_dim2, f_dim3]
-        :param _ddf:              [batch, f_dim1, f_dim2, f_dim3, 3]
-        :param _fixed_label:      [batch, f_dim1, f_dim2, f_dim3]
-        :param _pred_fixed_label: [batch, f_dim1, f_dim2, f_dim3]
-        :param suffix: string reserved or extra information
-        :return: tf.keras.Model with loss and metric added
-        """
-        # image loss
-        if loss_config["similarity"]["image"]["weight"] > 0:
-            loss_image = tf.reduce_mean(
-                image_loss.similarity_fn(
-                    y_true=_fixed_image,
-                    y_pred=_pred_fixed_image,
-                    **loss_config["similarity"]["image"],
-                )
-            )
-            weighted_loss_image = (
-                loss_image * loss_config["similarity"]["image"]["weight"]
-            )
-            model.add_loss(weighted_loss_image)
-            model.add_metric(
-                loss_image, name="loss/image_similarity" + suffix, aggregation="mean"
-            )
-            model.add_metric(
-                weighted_loss_image,
-                name="loss/weighted_image_similarity" + suffix,
-                aggregation="mean",
-            )
-
-        # label loss
-        if _fixed_label is not None:
-            label_loss_fn = label_loss.get_similarity_fn(
-                config=loss_config["similarity"]["label"]
-            )
-            loss_label = label_loss_fn(y_true=_fixed_label, y_pred=_pred_fixed_label)
-            model.add_loss(loss_label)
-            model.add_metric(loss_label, name="loss/label" + suffix, aggregation="mean")
 
     # inputs
     (moving_image, fixed_image, moving_label, fixed_label, indices) = build_inputs(
@@ -119,34 +97,58 @@ def build_affine_model(
 
     # backbone
     backbone = build_backbone(
-        image_size=fixed_image_size, out_channels=3, model_config=model_config, model_name=model_config["method"]
+        image_size=fixed_image_size,
+        out_channels=3,
+        model_config=model_config,
+        method_name=model_config["method"],
     )
 
     # forward
-    affine, ddf, pred_fixed_image, pred_fixed_label = forward(
-        _backbone=backbone,
-        _moving_image=moving_image,
-        _moving_label=moving_label,
-        _fixed_image=fixed_image,
+    affine, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = affine_forward(
+        backbone=backbone,
+        moving_image=moving_image,
+        fixed_image=fixed_image,
+        moving_label=moving_label,
+        moving_image_size=moving_image_size,
+        fixed_image_size=fixed_image_size
     )
 
     # build model
-    model = tf.keras.Model(
-        inputs=[moving_image, fixed_image, moving_label, indices],
-        outputs=[pred_fixed_label],
-        name="DDFRegModel",
+    inputs = {
+        "moving_image": moving_image,
+        "fixed_image": fixed_image,
+        "indices": indices,
+    }
+    outputs = {"ddf": ddf,
+               "affine": affine
+               }
+    model_name = model_config["method"].upper() + "RegistrationModel"
+    if moving_label is None:  # unlabeled
+        model = tf.keras.Model(
+            inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
+        )
+    else:  # labeled
+        inputs["moving_label"] = moving_label
+        inputs["fixed_label"] = fixed_label
+        outputs["pred_fixed_label"] = pred_fixed_label
+        model = tf.keras.Model(
+            inputs=inputs, outputs=outputs, name=model_name + "WithLabel"
+        )
+
+    # add loss and metric
+    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_image_loss(
+        model=model,
+        fixed_image=fixed_image,
+        pred_fixed_image=pred_fixed_image,
+        loss_config=loss_config,
+    )
+    model = add_label_loss(
+        model=model,
+        grid_fixed=grid_fixed,
+        fixed_label=fixed_label,
+        pred_fixed_label=pred_fixed_label,
+        loss_config=loss_config,
     )
 
-    model.ddf = ddf
-    model.affine = affine
-
-    # loss and metric
-    add_loss_metric(
-        _fixed_image=fixed_image,
-        _pred_fixed_image=pred_fixed_image,
-        _ddf=ddf,
-        _fixed_label=None,
-        _pred_fixed_label=None,
-        suffix="",
-    )
     return model
