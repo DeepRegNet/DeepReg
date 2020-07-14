@@ -68,7 +68,6 @@ class GlobalNet(tf.keras.Model):
         self._dense_layer = layer.Dense(
             units=12, bias_initializer=self.transform_initial
         )
-        self._reshape = tf.keras.layers.Reshape(target_shape=(4, 3))
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -79,15 +78,16 @@ class GlobalNet(tf.keras.Model):
         :return:
         """
         # down sample from level 0 to E
+        h_in = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
-            h_in, _ = self._downsample_blocks[level](inputs=inputs, training=training)
+            h_in, _ = self._downsample_blocks[level](inputs=h_in, training=training)
         h_out = self._conv3d_block(
             inputs=h_in, training=training
         )  # level E of encoding
 
         # predict affine parameters theta of shape = [batch, 4, 3]
         self.theta = self._dense_layer(h_out)
-        self.theta = self._reshape(self.theta)
+        self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
         output = grid_warped - self.reference_grid
