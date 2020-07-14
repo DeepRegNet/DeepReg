@@ -4,6 +4,8 @@
 Tests for deepreg/dataset/util.py in
 pytest style
 """
+from os.path import join
+
 import numpy as np
 
 from deepreg.dataset.loader.h5_loader import H5FileLoader
@@ -11,9 +13,7 @@ from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 from deepreg.dataset.loader.unpaired_loader import UnpairedDataLoader
 
 FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
-DataPaths = dict(
-    nifti="../../data/test/nifti/unpaired/train", h5="../../data/test/h5/unpaired/train"
-)
+DataPaths = dict(nifti="data/test/nifti/unpaired", h5="data/test/h5/unpaired")
 
 
 def test_sample_index_generator():
@@ -22,7 +22,7 @@ def test_sample_index_generator():
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
-            data_dir_path = DataPaths[key_file_loader]
+            data_dir_path = join(DataPaths[key_file_loader], split)
             image_shape = (64, 64, 60)
             common_args = dict(
                 file_loader=file_loader,
@@ -67,7 +67,7 @@ def test_validate_data_files():
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
 
-            data_dir_path = DataPaths[key_file_loader]
+            data_dir_path = join(DataPaths[key_file_loader], split)
             image_shape = (64, 64, 60)
             common_args = dict(
                 file_loader=file_loader,
@@ -87,7 +87,7 @@ def test_close():
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
 
-            data_dir_path = DataPaths[key_file_loader]
+            data_dir_path = join(DataPaths[key_file_loader], split)
             image_shape = (64, 64, 60)
             common_args = dict(
                 file_loader=file_loader,
