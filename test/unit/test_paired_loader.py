@@ -3,12 +3,12 @@ Tests functionality of the PairedDataLoader
 """
 import pytest
 
-from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.h5_loader import H5FileLoader
+from deepreg.dataset.loader.paired_loader import PairedDataLoader
 
 # assign values to input vars
 data_dir_path = "./data/test/h5/paired/test"
-sample_label = 'sample label'
+sample_label = "sample label"
 seed = 42
 moving_image_shape_arr = (999, 999, 999)
 fixed_image_shape_arr = (999, 999, 999)
@@ -21,11 +21,24 @@ def test_init_sufficient_args():
     arguments given
     """
 
-    loader = PairedDataLoader(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True,
-                              sample_label=sample_label, moving_image_shape=moving_image_shape_arr,
-                              fixed_image_shape=fixed_image_shape_arr, seed=seed)
-    loader.__init__(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True, sample_label=sample_label,
-                    moving_image_shape=moving_image_shape_arr, fixed_image_shape=fixed_image_shape_arr, seed=seed)
+    loader = PairedDataLoader(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
+    loader.__init__(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
     loader.close()
 
 
@@ -34,25 +47,40 @@ def test_init_num_images():
     check init reads expected number of image pairs from given data path
     """
 
-    loader = PairedDataLoader(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True,
-                              sample_label=sample_label, moving_image_shape=moving_image_shape_arr,
-                              fixed_image_shape=fixed_image_shape_arr, seed=seed)
+    loader = PairedDataLoader(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
     got = loader.num_images
     expected = 1
     loader.close()
     assert got == expected
+
 
 def test_file_loader_init():
     """
     check file loader is correctly called in __init__:
     """
 
-    loader = PairedDataLoader(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True,
-                              sample_label=sample_label, moving_image_shape=moving_image_shape_arr,
-                              fixed_image_shape=fixed_image_shape_arr, seed=seed)
-    file_loader = H5FileLoader(dir_path=data_dir_path, name='moving_images', grouped=False)
+    loader = PairedDataLoader(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
+    file_loader = H5FileLoader(
+        dir_path=data_dir_path, name="moving_images", grouped=False
+    )
 
-    expected = ['case000025.nii.gz']
+    expected = ["case000025.nii.gz"]
 
     loader_got = loader.loader_moving_image.get_data_ids()
     file_loader_got = file_loader.get_data_ids()
@@ -67,12 +95,18 @@ def test_validate_data_files_label():
     check validate_data_files throws exception when moving and fixed label IDs vary
     """
 
-    loader = PairedDataLoader(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True,
-                              sample_label=sample_label, moving_image_shape=moving_image_shape_arr,
-                              fixed_image_shape=fixed_image_shape_arr, seed=seed)
+    loader = PairedDataLoader(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
 
     # alter a data ID to cause error
-    loader.loader_moving_label.data_keys = 'foo'
+    loader.loader_moving_label.data_keys = "foo"
     with pytest.raises(Exception) as execinfo:
         PairedDataLoader.validate_data_files(loader)
     msg = " ".join(execinfo.value.args[0].split())
@@ -85,15 +119,18 @@ def test_sample_index_generator():
     check image index is expected value and format
     """
 
-    loader = PairedDataLoader(file_loader=H5FileLoader, data_dir_path=data_dir_path, labeled=True,
-                              sample_label=sample_label, moving_image_shape=moving_image_shape_arr,
-                              fixed_image_shape=fixed_image_shape_arr, seed=seed)
+    loader = PairedDataLoader(
+        file_loader=H5FileLoader,
+        data_dir_path=data_dir_path,
+        labeled=True,
+        sample_label=sample_label,
+        moving_image_shape=moving_image_shape_arr,
+        fixed_image_shape=fixed_image_shape_arr,
+        seed=seed,
+    )
 
     expected = (0, 0, [0])
     image_index = PairedDataLoader.sample_index_generator(loader)
     got = next(image_index)
     loader.close()
     assert expected == got
-
-
-
