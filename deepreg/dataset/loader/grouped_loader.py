@@ -185,6 +185,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         """
         rnd = random.Random(self.seed)  # set random seed
         if self.sample_image_in_group:
+            # for each group sample one image pair only
             group_indices = [i for i in range(self.num_groups)]
             rnd.shuffle(group_indices)
             for group_index in group_indices:
@@ -221,7 +222,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                         )
                 else:
                     # inter-group sampling
-                    # we sample two groups, then in each group we sample one image
+                    # we sample another group, then in each group we sample one image
                     group_index1 = group_index
                     group_index2 = rnd.choice(
                         [i for i in range(self.num_groups) if i != group_index]
@@ -230,12 +231,11 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                     num_images_in_group2 = self.num_images_per_group[group_index2]
                     image_index1 = rnd.choice([i for i in range(num_images_in_group1)])
                     image_index2 = rnd.choice([i for i in range(num_images_in_group2)])
-                yield (group_index1, image_index1), (group_index2, image_index2), [
-                    group_index1,
-                    image_index1,
-                    group_index2,
-                    image_index2,
-                ]
+
+                moving_index = (group_index1, image_index1)
+                fixed_index = (group_index2, image_index2)
+                image_indices = [group_index1, image_index1, group_index2, image_index2]
+                yield moving_index, fixed_index, image_indices
         else:
             # sample indices are pre-calculated
             assert self.sample_indices is not None
@@ -243,12 +243,10 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             rnd.shuffle(sample_indices)  # shuffle in place
             for sample_index in sample_indices:
                 group_index1, image_index1, group_index2, image_index2 = sample_index
-                yield (group_index1, image_index1), (group_index2, image_index2), [
-                    group_index1,
-                    image_index1,
-                    group_index2,
-                    image_index2,
-                ]
+                moving_index = (group_index1, image_index1)
+                fixed_index = (group_index2, image_index2)
+                image_indices = [group_index1, image_index1, group_index2, image_index2]
+                yield moving_index, fixed_index, image_indices
 
     def close(self):
         """close file loaders"""
