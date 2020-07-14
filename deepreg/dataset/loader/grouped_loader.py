@@ -59,9 +59,8 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             seed=seed,
         )
         # init
-        self.num_indices = (
-            5
-        )  # the indices for identifying an image pair is (group1, sample1, group2, sample2, label)
+        # the indices for identifying an image pair is (group1, sample1, group2, sample2, label)
+        self.num_indices = 5
         self.intra_group_option = intra_group_option
         self.intra_group_prob = intra_group_prob
         self.sample_image_in_group = sample_image_in_group
