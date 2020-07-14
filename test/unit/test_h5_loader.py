@@ -175,6 +175,34 @@ def test_get_data_grouped():
         raise AssertionError
 
 
+def test_get_data_index_out_of_range():
+    """
+    check if the get_data method works as expected and raises an error when
+    the index is out of range
+    """
+    dir_path = "./data/test/h5/paired/test"
+    name = "fixed_images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
+    index = 64
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
+def test_get_data_negative_index():
+    """
+    check if the get_data method works as expected and raises an error when
+    the index is out of range
+    """
+    dir_path = "./data/test/h5/paired/test"
+    name = "fixed_images"
+
+    loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
+    index = -1
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
 def test_init_incompatible_conditions():
     """
     check if the initialisation works as expected and raises an error when
