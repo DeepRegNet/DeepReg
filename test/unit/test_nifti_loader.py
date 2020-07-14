@@ -170,6 +170,48 @@ def test_get_data_grouped():
         raise AssertionError
 
 
+def test_get_data_incorrect_group_index():
+    """
+    check if the get_data method works as expected and raises error when
+    incorrect group index is supplied
+    """
+    dir_path = "./data/test/nifti/grouped/test"
+    name = "images"
+
+    loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=True)
+    index = (-1, 1)
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
+def test_get_data_negative_sample_index():
+    """
+    check if the get_data method works as expected and raises error when
+    incorrect group index is supplied
+    """
+    dir_path = "./data/test/nifti/grouped/test"
+    name = "images"
+
+    loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=True)
+    index = (0, -1)
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
+def test_get_data_out_of_range_sample_index():
+    """
+    check if the get_data method works as expected and raises error when
+    incorrect group index is supplied
+    """
+    dir_path = "./data/test/nifti/grouped/test"
+    name = "images"
+
+    loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=True)
+    index = (0, 32)
+    with pytest.raises(AssertionError):
+        loader.get_data(index)
+
+
 def test_get_data_incompatible_args():
     """
     check if the get_data method works as expected and raises an error when
