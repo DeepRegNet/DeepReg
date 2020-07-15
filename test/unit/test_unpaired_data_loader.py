@@ -62,7 +62,8 @@ def test_sample_index_generator():
 
 def test_validate_data_files():
     """
-    Test to check the randomness and deterministic index generator for train/test respectively.
+    Test the validate_data_files functions that looks for inconsistencies in the fixed/moving image and label lists.
+    If there is any issue it will raise an error, otherwise it returns None.
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
@@ -106,5 +107,3 @@ def test_close():
                 assert data_loader.loader_moving_image.h5_file.__bool__() is False
                 assert data_loader.loader_fixed_label.h5_file.__bool__() is False
                 assert data_loader.loader_moving_image.h5_file.__bool__() is False
-            else:
-                pass
