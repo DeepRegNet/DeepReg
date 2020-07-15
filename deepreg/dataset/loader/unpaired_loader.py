@@ -62,6 +62,10 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def validate_data_files(self):
         """Verify all loader have the same files"""
         if self.labeled:
+            image_ids = self.loader_fixed_image.get_data_ids()
+            label_ids = self.loader_fixed_label.get_data_ids()
+            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
+
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
             check_difference_between_two_lists(list1=image_ids, list2=label_ids)
