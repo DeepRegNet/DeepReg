@@ -60,7 +60,10 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         self._num_samples = self.num_images // 2
 
     def validate_data_files(self):
-        """Verify all loader have the same files"""
+        """
+        Verify all loader have the same files.
+        Since fixed and moving loaders come from the same file_loader, there's no need to check both (avoid duplicate)
+        """
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
