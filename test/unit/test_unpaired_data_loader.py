@@ -103,7 +103,5 @@ def test_close():
 
             if key_file_loader == "h5":
                 data_loader.close()
-                assert data_loader.loader_fixed_image.h5_file.__bool__() is False
                 assert data_loader.loader_moving_image.h5_file.__bool__() is False
-                assert data_loader.loader_fixed_label.h5_file.__bool__() is False
                 assert data_loader.loader_moving_image.h5_file.__bool__() is False
