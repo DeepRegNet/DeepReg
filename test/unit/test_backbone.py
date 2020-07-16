@@ -86,9 +86,6 @@ def test_init_GlobalNet():
     #  Asserting type is dense_layer, Pass
     assert isinstance(global_test._dense_layer, type(layer.Dense(12)))
 
-    #  Asserting type of reshape is the same, Pass
-    assert isinstance(global_test._reshape, type(tf.keras.layers.Reshape((4, 3))))
-
 
 def test_call_GlobalNet():
     """
