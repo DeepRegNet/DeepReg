@@ -68,11 +68,12 @@ def test__transform():
     assert transformed_fixed_image.shape == fixed_image_batched.shape
 
 
-def test_transform_no_labels():
+def test_transform():
     """
     Test transform by comfirming that it transforms
     images and labels only as necessary and when provided.
     """
+    # Common test setup.
     dims = (3, 3, 3)
     batch_size = 2
     moving_image = np.random.uniform(size=dims)
@@ -91,6 +92,7 @@ def test_transform_no_labels():
 
     indices = range(batch_size)
 
+    # Test with no labels provided.
     inputs = {
         "moving_image": moving_image_batched,
         "fixed_image": fixed_image_batched,
@@ -107,28 +109,7 @@ def test_transform_no_labels():
     assert outputs.get("fixed_image").shape == fixed_image_batched.shape
     assert len(outputs.get("indices")) == len(indices)
 
-
-def test_transform_with_labels():
-    """
-    Test transform by comfirming that it transforms
-    images and labels only as necessary and when provided.
-    """
-    dims = (3, 3, 3)
-    batch_size = 2
-    moving_image = np.random.uniform(size=dims)
-    fixed_image = np.random.uniform(size=dims)
-
-    affine_transform_3d = preprocess.AffineTransformation3D(
-        moving_image.shape, fixed_image.shape, batch_size
-    )
-
-    moving_image_batched = np.float32(
-        np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
-    )
-    fixed_image_batched = np.float32(
-        np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
-    )
-
+    # Test with labels provided.
     moving_label = np.round(np.random.uniform(size=dims))
     fixed_label = np.round(np.random.uniform(size=dims))
     moving_label_batched = np.float32(
@@ -137,8 +118,6 @@ def test_transform_with_labels():
     fixed_label_batched = np.float32(
         np.repeat(fixed_label[np.newaxis, :, :, :], batch_size, axis=0)
     )
-
-    indices = range(batch_size)
 
     inputs = {
         "moving_image": moving_image_batched,
