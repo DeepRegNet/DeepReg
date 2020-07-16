@@ -85,6 +85,10 @@ def test_validate_data_files():
 
 
 def test_close():
+    """
+    Test the close function. Only needed for H5 data loaders for now. Since fixed/moving loaders are the same for
+    unpaired data loader, only need to test the moving.
+    """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
 

@@ -85,7 +85,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def close(self):
         """
-        Close the moving and reference files opened by the file_loaders
+        Close the moving files opened by the file_loaders
         """
         self.loader_moving_image.close()
         if self.labeled:
