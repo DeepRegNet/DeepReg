@@ -1,6 +1,6 @@
+from deepreg.model.network.affine import build_affine_model
 from deepreg.model.network.cond import build_conditional_model
 from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
-from deepreg.model.network.affine import build_affine_model
 
 
 def build_model(

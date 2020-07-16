@@ -5,7 +5,7 @@ Tests for deepreg/model/network/cond.py
 """
 import tensorflow as tf
 
-from deepreg.model.network.cond import conditional_forward, build_conditional_model
+from deepreg.model.network.cond import build_conditional_model, conditional_forward
 from deepreg.model.network.util import build_backbone
 
 
@@ -62,15 +62,18 @@ def test_build_conditional_model():
         },
         loss_config={
             "dissimilarity": {
-                "image": {"name": "lncc",
-                          "weight": 0.0
-                          },
-                "label": {"name": "multi_scale",
-                          "weight": 1,
-                          "multi_scale": {"loss_type": "dice",
-                                          "loss_scales": [0, 1, 2, 4, 8, 16, 32]}}},
+                "image": {"name": "lncc", "weight": 0.0},
+                "label": {
+                    "name": "multi_scale",
+                    "weight": 1,
+                    "multi_scale": {
+                        "loss_type": "dice",
+                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                    },
+                },
+            },
             "regularization": {"weight": 0.5, "energy_type": "bending"},
-        }
+        },
     )
 
     inputs = {
