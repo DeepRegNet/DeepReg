@@ -38,4 +38,5 @@ def train_and_predict_with_config(test_name, config_path):
         batch_size=1,
         log_dir=log_dir,
         sample_label="all",
+        config_path="",
     )

@@ -67,6 +67,13 @@ def config_sanity_check(config: dict):
             )
 
     # check model
+    if config["train"]["model"]["method"] == "conditional":
+        if data_config["labeled"] is False:  # unlabeled
+            raise ValueError(
+                "For conditional model, data have to be labeled, got unlabeled data."
+            )
+
+    # check loss
     if data_config["labeled"] is False:  # unlabeled
         image_loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
         if image_loss_weight <= 0:

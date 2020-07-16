@@ -96,21 +96,34 @@ each commit. Specifically,
   [isort](https://github.com/timothycrosley/isort) to format package imports in python
   files.
 - [Black](https://github.com/psf/black) to format python files.
-- [Flake9](https://gitlab.com/pycqa/flake8) to perform linting check,
+- [Flake8](https://gitlab.com/pycqa/flake8) to perform linting check,
 - [Prettier](https://prettier.io/) to format markdown files.
 
 Pre-commit is installed during the package installation via `pip install -e .`. To
-activate pre-commit, run `pre-commit install` under the root of this repository
-`DeepReg/`.
+activate pre-commit, make sure the git is installed (`sudo apt install git` for linux)
+and run `pre-commit install` under the root of this repository `DeepReg/`.
 
 Optionally, use `git commit --no-verify -m "This is a commit message placeholder."` to
 skip pre-commit, and use `pre-commit run --all-files` to format files before pull
 request.
 
+Sometimes, black might have conflicts with prettier or flake8 and below are some
+possible cases and work around
+
+- If a code is followed by a long comment in the same line, Black attempts to break
+  lines. So we should put comment in the line above instead.
+- For lists/tuples, do not add comma after the last element, unless it's a single
+  element tuple, like `(1,)`.
+
+To check if Black is causing conflicts, run `black .` in the root of DeepReg you will
+see the formatted files by Black, run `pre-commit run --all-files`, you will see the
+final versions. Compare them to understand an issue. If there's a new case and there's
+an workaround, please update this section. Otherwise, please raise an issue.
+
 ## Documentation Pages
 
 [Docsify](https://docsify.js.org/) converts markdown files into pages and they are
-hosted on github page. Use `cd docs && python -m SimpleHTTPServer 3000` to visualize the
-pages locally. The required package
+hosted on github page. Use `cd docs && python -m http.server` to visualize the pages
+locally. The required package
 [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
 installed during the package installation via `pip install -e .`.
