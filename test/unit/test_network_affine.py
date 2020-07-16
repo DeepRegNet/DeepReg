@@ -23,7 +23,7 @@ def test_affine_forward():
         out_channels=3,
         model_config={
             "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]}
+            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
         },
         method_name="affine",
     )
@@ -61,18 +61,22 @@ def test_build_affine_model():
         model_config={
             "method": "affine",
             "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]}
+            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
         },
         loss_config={
             "dissimilarity": {
-                "image": {"name": "lncc",
-                          "weight": 0.1},
-                "label": {"name": "multi_scale",
-                          "weight": 1,
-                          "multi_scale": {"loss_type": "dice",
-                                          "loss_scales": [0, 1, 2, 4, 8, 16, 32]}}},
-            "regularization": {"weight": 0.0, "energy_type": "bending"}
-        }
+                "image": {"name": "lncc", "weight": 0.1},
+                "label": {
+                    "name": "multi_scale",
+                    "weight": 1,
+                    "multi_scale": {
+                        "loss_type": "dice",
+                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                    },
+                },
+            },
+            "regularization": {"weight": 0.0, "energy_type": "bending"},
+        },
     )
 
     inputs = {
@@ -80,7 +84,7 @@ def test_build_affine_model():
         "fixed_image": tf.ones((batch_size,) + fixed_image_size),
         "indices": 1,
         "moving_label": tf.ones((batch_size,) + moving_image_size),
-        "fixed_label": tf.ones((batch_size,) + fixed_image_size)
+        "fixed_label": tf.ones((batch_size,) + fixed_image_size),
     }
 
     outputs = model(inputs)

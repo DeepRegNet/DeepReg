@@ -110,7 +110,7 @@ def build_affine_model(
         fixed_image=fixed_image,
         moving_label=moving_label,
         moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size
+        fixed_image_size=fixed_image_size,
     )
 
     # build model
@@ -119,9 +119,7 @@ def build_affine_model(
         "fixed_image": fixed_image,
         "indices": indices,
     }
-    outputs = {"ddf": ddf,
-               "affine": affine
-               }
+    outputs = {"ddf": ddf, "affine": affine}
     model_name = model_config["method"].upper() + "RegistrationModel"
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(

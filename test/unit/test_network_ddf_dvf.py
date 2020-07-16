@@ -3,10 +3,10 @@
 """
 Tests for deepreg/model/network/ddf_dvf.py
 """
-import tensorflow as tf
 import pytest
+import tensorflow as tf
 
-from deepreg.model.network.ddf_dvf import ddf_dvf_forward, build_ddf_dvf_model
+from deepreg.model.network.ddf_dvf import build_ddf_dvf_model, ddf_dvf_forward
 from deepreg.model.network.util import build_backbone
 
 
@@ -76,12 +76,16 @@ def test_build_ddf_dvf_model():
     }
     loss_config = {
         "dissimilarity": {
-            "image": {"name": "lncc",
-                      "weight": 0.1},
-            "label": {"name": "multi_scale",
-                      "weight": 1,
-                      "multi_scale": {"loss_type": "dice",
-                                      "loss_scales": [0, 1, 2, 4, 8, 16, 32]}}},
+            "image": {"name": "lncc", "weight": 0.1},
+            "label": {
+                "name": "multi_scale",
+                "weight": 1,
+                "multi_scale": {
+                    "loss_type": "dice",
+                    "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                },
+            },
+        },
         "regularization": {"weight": 0.0, "energy_type": "bending"},
     }
 
@@ -93,7 +97,7 @@ def test_build_ddf_dvf_model():
         labeled=True,
         batch_size=batch_size,
         model_config=model_config,
-        loss_config=loss_config
+        loss_config=loss_config,
     )
 
     # Create DVF model
@@ -105,7 +109,7 @@ def test_build_ddf_dvf_model():
         labeled=True,
         batch_size=batch_size,
         model_config=model_config,
-        loss_config=loss_config
+        loss_config=loss_config,
     )
     inputs = {
         "moving_image": tf.ones((batch_size,) + moving_image_size),
