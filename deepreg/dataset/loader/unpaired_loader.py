@@ -60,7 +60,10 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         self._num_samples = self.num_images // 2
 
     def validate_data_files(self):
-        """Verify all loader have the same files"""
+        """
+        Verify all loader have the same files.
+        Since fixed and moving loaders come from the same file_loader, there's no need to check both (avoid duplicate)
+        """
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
@@ -68,16 +71,22 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def sample_index_generator(self):
         """
-        generates smaple indexes in orer to laod data using the
+        generates sample indexes in order to load data using the
         GeneratorDataLoader class
         """
         image_indices = [i for i in range(self.num_images)]
         random.Random(self.seed).shuffle(image_indices)
         for sample_index in range(self.num_samples):
-            moving_index, fixed_index = 2 * sample_index, 2 * sample_index + 1
+            moving_index, fixed_index = (
+                image_indices[2 * sample_index],
+                image_indices[2 * sample_index + 1],
+            )
             yield moving_index, fixed_index, [moving_index, fixed_index]
 
     def close(self):
+        """
+        Close the moving files opened by the file_loaders
+        """
         self.loader_moving_image.close()
         if self.labeled:
             self.loader_moving_label.close()
