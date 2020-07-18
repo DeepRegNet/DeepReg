@@ -122,35 +122,34 @@ an workaround, please update this section. Otherwise, please raise an issue.
 
 ## Documentation Pages
 
-Below are instructions for creating and modifying pages on this website, as found
- within the `docs` folder of the repository.
+Below are instructions for creating and modifying pages on this website, as found within
+the `docs` folder of the repository.
 
 ### Linux
 
 - [Docsify](https://docsify.js.org/) converts markdown files into pages and they are
-hosted on github page. 
-- Use `cd docs && python -m http.server` to visualize the pages
-locally.
+  hosted on github page.
+- Use `cd docs && python -m http.server` to visualize the pages locally.
 - The required package
-[simple_http_server](https://github.com/keijack/python-simple-http-server) has been
-installed during the package installation via `pip install -e .`.
+  [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
+  installed during the package installation via `pip install -e .`.
 
 ### Windows
 
 - Install [Jekyll](https://jekyllrb.com/docs/installation/windows/) via RubyInstaller,
- and follow the install instructions on that page.
-- In a Windows Command Prompt (WCP) started with Ruby, use `gem install github-pages`
- to install the required packages.
+  and follow the install instructions on that page.
+- In a Windows Command Prompt (WCP) started with Ruby, use `gem install github-pages` to
+  install the required packages.
 - Next, the same WCP - navigate to the `docs` folder in DeepReg, and use `jekyll serve`
- to create a directory located at `../docs/_site`. 
-  - You should now see a local version of the site at http://127.0.0.1:4000. 
+  to create a directory located at `../docs/_site`.
+  - You should now see a local version of the site at http://127.0.0.1:4000.
   - You will need to work in the newly created `../docs/_site` folder to make your
-   changes, and copy them back to `../docs` in order to commit them here.
+    changes, and copy them back to `../docs` in order to commit them here.
 
-_Note:_ Make sure to frequently update the GitHub pages gem with 
+_Note:_ Make sure to frequently update the GitHub pages gem with
 `gem update github-pages`. There are dependencies and various packages that are updated
- frequently - and the website may not display locally the same as it will when pushed
-  if you do not have the most recent versions.
+frequently - and the website may not display locally the same as it will when pushed if
+you do not have the most recent versions.
 
 ### MacOS
 
