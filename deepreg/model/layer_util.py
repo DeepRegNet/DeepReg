@@ -224,7 +224,7 @@ def resample(vol, loc, interpolation="linear"):
         raise ValueError("resample supports only linear interpolation")
 
     # init
-    batch_size = vol.shape[0]
+    batch_size = tf.shape(vol)[0]
     loc_shape = loc.shape[1:-1]
     dim_vol = loc.shape[-1]  # dimension of vol
     if dim_vol == len(vol.shape) - 1:
