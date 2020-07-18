@@ -75,13 +75,10 @@ def build_dataset(dataset_config, preprocess_config):
         if data_loader_val is not None
         else None
     )
+
     return (
-        data_loader_train,
-        dataset_train,
-        steps_per_epoch_train,
-        data_loader_val,
-        dataset_val,
-        steps_per_epoch_valid,
+        (data_loader_train, dataset_train, steps_per_epoch_train),
+        (data_loader_val, dataset_val, steps_per_epoch_valid),
     )
 
 
@@ -117,10 +114,12 @@ def train(
     config, log_dir = init(config_path, log_dir, ckpt_path)
 
     # build dataset
-    data_loader_train, dataset_train, steps_per_epoch_train, data_loader_val, dataset_val, steps_per_epoch_valid = build_dataset(
+    data_out_train, data_out_val = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
     )
+    data_loader_train, dataset_train, steps_per_epoch_train = data_out_train
+    data_loader_val, dataset_val, steps_per_epoch_val = data_out_val
 
     # build callbacks
     callbacks = build_callbacks(
@@ -163,7 +162,7 @@ def train(
         steps_per_epoch=steps_per_epoch_train,
         epochs=config["train"]["epochs"],
         validation_data=dataset_val,
-        validation_steps=steps_per_epoch_valid,
+        validation_steps=steps_per_epoch_val,
         callbacks=callbacks,
     )
 
