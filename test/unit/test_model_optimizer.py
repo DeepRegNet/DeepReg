@@ -5,7 +5,7 @@ Tests for deepreg/model/optimizer.py
 pytest style
 """
 import pytest
-import tensorflow
+import tensorflow as tf
 
 import deepreg.model.optimizer as optimizer
 
@@ -26,7 +26,7 @@ def test_get_optimizer_adam():
     """
     dict_config = {"name": "adam", "adam": {}}
     opt_get = optimizer.get_optimizer(dict_config)
-    assert isinstance(opt_get, tensorflow.python.keras.optimizer_v2.adam.Adam)
+    assert isinstance(opt_get, tf.keras.optimizers.Adam)
 
 
 def test_get_optimizer_sgd():
@@ -37,9 +37,7 @@ def test_get_optimizer_sgd():
     """
     dict_config = {"name": "sgd", "sgd": {}}
     opt_get = optimizer.get_optimizer(dict_config)
-    assert isinstance(
-        opt_get, tensorflow.python.keras.optimizer_v2.gradient_descent.SGD
-    )
+    assert isinstance(opt_get, tf.keras.optimizers.SGD)
 
 
 def test_get_optimizer_rms():
@@ -50,7 +48,7 @@ def test_get_optimizer_rms():
     """
     dict_config = {"name": "rms", "rms": {}}
     opt_get = optimizer.get_optimizer(dict_config)
-    assert isinstance(opt_get, tensorflow.python.keras.optimizer_v2.rmsprop.RMSprop)
+    assert isinstance(opt_get, tf.keras.optimizers.RMSprop)
 
 
 def test_get_optimizer_error():
