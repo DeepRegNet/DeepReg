@@ -46,34 +46,7 @@ def init(config_path, log_dir, ckpt_path):
     return config, log_dir
 
 
-def train(
-    gpu: str, config_path: list, gpu_allow_growth: bool, ckpt_path: str, log_dir: str
-):
-    """
-    Function to train a model
-    :param gpu: str, which local gpu to use to train
-    :param config_path: str, path to configuration set up
-    :param gpu_allow_growth: bool, whether or not to allocate
-                             whole GPU memory to training
-    :param ckpt_path: str, where to store training ckpts
-    :param log_dir: str, where to store logs in training
-    """
-    # env vars
-    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
-
-    # load config
-    config, log_dir = init(config_path, log_dir, ckpt_path)
-    dataset_config = config["dataset"]
-    preprocess_config = config["train"]["preprocess"]
-    optimizer_config = config["train"]["optimizer"]
-    model_config = config["train"]["model"]
-    loss_config = config["train"]["loss"]
-    num_epochs = config["train"]["epochs"]
-    save_period = config["train"]["save_period"]
-    histogram_freq = save_period
-
-    # data
+def build_dataset(dataset_config, preprocess_config):
     data_loader_train = get_data_loader(dataset_config, "train")
     if data_loader_train is None:
         raise ValueError(
@@ -102,50 +75,99 @@ def train(
         if data_loader_val is not None
         else None
     )
+    return (
+        data_loader_train,
+        dataset_train,
+        steps_per_epoch_train,
+        data_loader_val,
+        dataset_val,
+        steps_per_epoch_valid,
+    )
 
-    strategy = tf.distribute.MirroredStrategy()
-    with strategy.scope():
-        # model
+
+def build_callbacks(log_dir, histogram_freq, save_period):
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(
+        log_dir=log_dir, histogram_freq=histogram_freq
+    )
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt",
+        save_weights_only=True,
+        period=save_period,
+    )
+    return [tensorboard_callback, checkpoint_callback]
+
+
+def train(
+    gpu: str, config_path: list, gpu_allow_growth: bool, ckpt_path: str, log_dir: str
+):
+    """
+    Function to train a model
+    :param gpu: str, which local gpu to use to train
+    :param config_path: str, path to configuration set up
+    :param gpu_allow_growth: bool, whether or not to allocate
+                             whole GPU memory to training
+    :param ckpt_path: str, where to store training checkpoints
+    :param log_dir: str, where to store logs in training
+    """
+    # set env variables
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
+
+    # load config
+    config, log_dir = init(config_path, log_dir, ckpt_path)
+
+    # build dataset
+    data_loader_train, dataset_train, steps_per_epoch_train, data_loader_val, dataset_val, steps_per_epoch_valid = build_dataset(
+        dataset_config=config["dataset"],
+        preprocess_config=config["train"]["preprocess"],
+    )
+
+    # build callbacks
+    callbacks = build_callbacks(
+        log_dir=log_dir,
+        histogram_freq=config["train"][
+            "save_period"
+        ],  # use save_period for histogram_freq
+        save_period=config["train"]["save_period"],
+    )
+
+    # use strategy to support multiple GPUs
+    # the network is mirrored in each GPU so that we can use larger batch size
+    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    # only model, optimizer and metrics need to be defined inside the strategy
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    with mirrored_strategy.scope():
         model = build_model(
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
             index_size=data_loader_train.num_indices,
-            labeled=dataset_config["labeled"],
-            batch_size=preprocess_config["batch_size"],
-            model_config=model_config,
-            loss_config=loss_config,
+            labeled=config["dataset"]["labeled"],
+            batch_size=config["train"]["preprocess"]["batch_size"],
+            model_config=config["train"]["model"],
+            loss_config=config["train"]["loss"],
         )
+        optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
-        # compile
-        optimizer = opt.get_optimizer(optimizer_config)
+    # compile
+    model.compile(optimizer=optimizer)
 
-        model.compile(optimizer=optimizer)
+    # load weights
+    if ckpt_path != "":
+        model.load_weights(ckpt_path)
 
-        # load weights
-        if ckpt_path != "":
-            model.load_weights(ckpt_path)
+    # train
+    # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
+    # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
+    model.fit(
+        x=dataset_train,
+        steps_per_epoch=steps_per_epoch_train,
+        epochs=config["train"]["epochs"],
+        validation_data=dataset_val,
+        validation_steps=steps_per_epoch_valid,
+        callbacks=callbacks,
+    )
 
-        # train
-        # callbacks
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(
-            log_dir=log_dir, histogram_freq=histogram_freq
-        )
-        checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-            filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt",
-            save_weights_only=True,
-            period=save_period,
-        )
-        # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
-        # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
-        model.fit(
-            x=dataset_train,
-            steps_per_epoch=steps_per_epoch_train,
-            epochs=num_epochs,
-            validation_data=dataset_val,
-            validation_steps=steps_per_epoch_valid,
-            callbacks=[tensorboard_callback, checkpoint_callback],
-        )
-
+    # close file loaders in data loaders after training
     data_loader_train.close()
     if data_loader_val is not None:
         data_loader_val.close()
