@@ -403,8 +403,9 @@ def test_single_scale_loss_mean_sq():
     known mean sq value tensor when passed with
     mean squared arg,
     """
-    tensor_mask = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
+    tensor_mask = np.zeros((3, 3, 3, 3))
     tensor_mask[0, 0, 0, 0] = 1
+    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
 
     tensor_pred = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
     expect = tf.convert_to_tensor(np.array([26 / 27, 1.0, 1.0]), dtype=tf.float32)
