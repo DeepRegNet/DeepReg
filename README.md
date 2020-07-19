@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/ucl-candi/DeepReg.svg?branch=master)](https://travis-ci.org/ucl-candi/DeepReg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![codecov](https://codecov.io/gh/ucl-candi/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/ucl-candi/DeepReg)
+[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
 
 **DeepReg is an open-source toolkit for research in medical image registration using
 deep learning.**
@@ -18,4 +18,4 @@ This is still under development. However, some functionalities can be accessed a
 
 ## Tutorials and Documentations
 
-Read the tutorials and documentation at [DeepReg](https://ucl-candi.github.io/DeepReg/).
+Read the tutorials and documentation at [DeepReg](https://deepregnet.github.io/DeepReg/).

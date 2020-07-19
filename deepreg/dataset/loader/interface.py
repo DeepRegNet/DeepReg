@@ -512,9 +512,19 @@ class FileLoader:
         assert self.grouped
         return len(self.group_ids)
 
-    def get_num_images_per_group(self):
+    def get_num_images_per_group(self) -> list:
+        """
+        calculate the number of images in each group
+        each group must have at least one image
+        """
         assert self.grouped
-        return [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        if min(num_images_per_group) == 0:
+            group_ids = [
+                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+            ]
+            raise ValueError(f"Groups of ID {group_ids} are empty.")
+        return num_images_per_group
 
     def close(self):
         """close opened file handles"""

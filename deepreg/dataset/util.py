@@ -60,7 +60,7 @@ def check_difference_between_two_lists(list1: list, list2: list):
         )
 
 
-def get_label_indices(num_labels, sample_label):
+def get_label_indices(num_labels: int, sample_label: str) -> list:
     """
     Function to get sample label indices for a given number
     of labels and a sampling policy
