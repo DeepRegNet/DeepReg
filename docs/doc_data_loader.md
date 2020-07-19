@@ -66,9 +66,9 @@ follows.
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
 
-    **All labels are assumed to be binary masks / segmentation.** In case of multi-class
-    labels, please transform them into multiple labels such that each class has its own
-    binary label.
+    **All labels are assumed to be binary masks / segmentation.** In case of multi
+    labels, please use one-hot encoding to transform them into multiple channels such
+    that each class has its own binary label.
 
   - When the images are paired, the moving and fixed images must have the same number of
     labels.
