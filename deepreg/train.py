@@ -12,10 +12,11 @@ import tensorflow as tf
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
 from deepreg.dataset.load import get_data_loader
+from deepreg.dataset.loader.interface import DataLoader
 from deepreg.model.network.build import build_model
 
 
-def init(config_path, log_dir, ckpt_path):
+def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
     """
     Function to initialise log directories,
     assert that checkpointed model is the right
@@ -24,6 +25,9 @@ def init(config_path, log_dir, ckpt_path):
     :param log_dir: str, path to where training logs
                     to be stored.
     :param ckpt_path: str, path where model is stored.
+    :return:
+    - config: a dictionary saving configuration
+    - log_dir: the path of directory to save logs
     """
 
     # init log directory
@@ -46,7 +50,17 @@ def init(config_path, log_dir, ckpt_path):
     return config, log_dir
 
 
-def build_dataset(dataset_config, preprocess_config):
+def build_dataset(
+    dataset_config: dict, preprocess_config: dict
+) -> [[DataLoader, tf.data.Dataset, int], [DataLoader, tf.data.Dataset, int]]:
+    """
+    Function to prepare dataset for training and validation.
+    :param dataset_config: configuration for dataset
+    :param preprocess_config: configuration for preprocess
+    :return:
+    - (data_loader_train, dataset_train, steps_per_epoch_train)
+    - (data_loader_val, dataset_val, steps_per_epoch_valid)
+    """
     data_loader_train = get_data_loader(dataset_config, "train")
     if data_loader_train is None:
         raise ValueError(
@@ -82,7 +96,14 @@ def build_dataset(dataset_config, preprocess_config):
     )
 
 
-def build_callbacks(log_dir, histogram_freq, save_period):
+def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list:
+    """
+    Function to prepare callbacks for training.
+    :param log_dir: directory of logs
+    :param histogram_freq: save the histogram every X epochs
+    :param save_period: save the checkpoint every X epochs
+    :return: a list of callbacks
+    """
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir, histogram_freq=histogram_freq
     )
@@ -95,7 +116,11 @@ def build_callbacks(log_dir, histogram_freq, save_period):
 
 
 def train(
-    gpu: str, config_path: list, gpu_allow_growth: bool, ckpt_path: str, log_dir: str
+    gpu: str,
+    config_path: (str, list),
+    gpu_allow_growth: bool,
+    ckpt_path: str,
+    log_dir: str,
 ):
     """
     Function to train a model
@@ -111,7 +136,9 @@ def train(
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
 
     # load config
-    config, log_dir = init(config_path, log_dir, ckpt_path)
+    config, log_dir = build_config(
+        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
+    )
 
     # build dataset
     data_out_train, data_out_val = build_dataset(
