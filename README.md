@@ -18,4 +18,5 @@ This is still under development. However, some functionalities can be accessed a
 
 ## Tutorials and Documentations
 
-Read the tutorials and documentation at [DeepReg](https://deepregnet.github.io/DeepReg/).
+Read the tutorials and documentation at
+[DeepReg](https://deepregnet.github.io/DeepReg/).
