@@ -457,7 +457,7 @@ def test_multi_scale_loss_kernel():
     Test multi-scale loss kernel returns the appropriate
     loss tensor for same inputs and jaccard cal.
     """
-    loss_values = np.asarray([1, 2, 3], dtype=np.float32)
+    loss_values = [1, 2, 3]
     array_eye = np.identity(3, dtype=np.float32)
     tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
     tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
@@ -466,17 +466,7 @@ def test_multi_scale_loss_kernel():
     tensor_pred[:, :, 0, 0] = array_eye
     tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
     tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-    list_losses = np.array(
-        [
-            label.single_scale_loss(
-                y_true=label.separable_filter3d(tensor_eye, label.gauss_kernel1d(s)),
-                y_pred=label.separable_filter3d(tensor_pred, label.gauss_kernel1d(s)),
-                loss_type="jaccard",
-            )
-            for s in loss_values
-        ]
-    )
-    expect = tf.convert_to_tensor(np.mean(list_losses, axis=0), dtype=tf.float32)
+    expect = tf.constant([0.9938445, 0.9924956, 0.9938445], dtype=tf.float32)
     get = label.multi_scale_loss(tensor_eye, tensor_pred, "jaccard", loss_values)
     assert assertTensorsEqual(get, expect)
 
