@@ -111,7 +111,9 @@ def test_call_GlobalNet():
         out_activation="softmax",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3, 3)
@@ -181,7 +183,9 @@ def test_call_LocalNet():
         out_activation="sigmoid",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3, 3)
@@ -252,7 +256,9 @@ def test_call_UNet():
         out_activation="sigmoid",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], 3))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3)
