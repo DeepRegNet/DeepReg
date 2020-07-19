@@ -21,6 +21,8 @@ def assertTensorsEqual(x, y):
     :param y:
     :return:
     """
+    x = tf.cast(x, dtype=tf.float32)
+    y = tf.cast(y, dtype=tf.float32)
     return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
 
 
