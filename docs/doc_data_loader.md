@@ -182,7 +182,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/paired)
+[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/paired)
 as an example.
 
 Optionally, the data may not be all saved directly under the top directory. They can be
@@ -217,7 +217,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/paired)
+[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/paired)
 as an example.
 
 ## Unpaired images
@@ -299,7 +299,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/unpaired)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/unpaired)
 as an example.
 
 #### H5
@@ -323,7 +323,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/unpaired)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/unpaired)
 as an example.
 
 ## Grouped images
@@ -470,7 +470,7 @@ consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/grouped)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/grouped)
 as an example.
 
 #### H5
@@ -503,5 +503,5 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/grouped)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/grouped)
 as an example.

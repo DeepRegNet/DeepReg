@@ -6,4 +6,4 @@
 
 - TensorFlow 2 based.
 
-[GitHub](https://github.com/ucl-candi/DeepReg/) [Get Started](quick_start.md)
+[GitHub](https://github.com/DeepRegNet/DeepReg/) [Get Started](quick_start.md)
