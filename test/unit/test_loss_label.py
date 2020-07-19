@@ -236,13 +236,14 @@ def test_separable_filter_else():
     zero length tensor is passed to the
     function.
     """
-    k = np.ones((3, 3, 3, 3))
+    k = np.ones((3, 3, 3, 3), dtype=np.float32)
     array_eye = np.identity(3, dtype=np.float32)
     tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
     tensor_pred[:, :, 0, 0] = array_eye
     tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
+    k = tf.convert_to_tensor(k, dtype=tf.float32)
 
-    expect = np.ones((3, 3, 3, 3))
+    expect = np.ones((3, 3, 3, 3), dtype=np.float32)
     expect = tf.convert_to_tensor(expect, dtype=tf.float32)
 
     get = label.separable_filter3d(tensor_pred, k)
