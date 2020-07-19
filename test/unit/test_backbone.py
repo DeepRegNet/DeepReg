@@ -55,7 +55,8 @@ def test_init_GlobalNet():
                 [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 2.0]],
                 [[0.0, 1.0, 0.0], [0.0, 1.0, 1.0], [0.0, 1.0, 2.0]],
             ]
-        ]
+        ],
+        dtype=tf.float32,
     )
     assert assert_tensors_equal(global_test.reference_grid, expected_ref_grid)
 
@@ -63,14 +64,17 @@ def test_init_GlobalNet():
     #  We initialize the expected tensor and initialise another from the
     #  class variable using tf.Variable
     test_tensor_return = tf.convert_to_tensor(
-        [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [1.0, 0.0]]
+        [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [1.0, 0.0]],
+        dtype=tf.float32,
     )
     global_return = tf.Variable(
         global_test.transform_initial(shape=[6, 2], dtype=tf.float32)
     )
 
     # Asserting they are equal - Pass
-    assert assert_tensors_equal(test_tensor_return, tf.convert_to_tensor(global_return))
+    assert assert_tensors_equal(
+        test_tensor_return, tf.convert_to_tensor(global_return, dtype=tf.float32)
+    )
 
     # Assert downsample blocks type is correct, Pass
     assert all(

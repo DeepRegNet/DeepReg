@@ -40,10 +40,10 @@ def test_gauss_kernel1d_else():
     expect a tensor returned.
     """
     sigma = 3
-    get = tf.cast(label.gauss_kernel1d(sigma), dtype=tf.float64)
+    get = tf.cast(label.gauss_kernel1d(sigma), dtype=tf.float32)
     list_vals = range(-sigma * 3, sigma * 3 + 1)
     exp = [np.exp(-0.5 * x ** 2 / sigma ** 2) for x in list_vals]
-    expect = tf.convert_to_tensor(exp, dtype=tf.float64)
+    expect = tf.convert_to_tensor(exp, dtype=tf.float32)
     expect = expect / tf.reduce_sum(expect)
     assert assertTensorsEqual(get, expect)
 
@@ -64,10 +64,10 @@ def test_cauchy_kernel_else():
     tensor returned.
     """
     sigma = 3
-    get = tf.cast(label.cauchy_kernel1d(sigma), dtype=tf.float64)
+    get = tf.cast(label.cauchy_kernel1d(sigma), dtype=tf.float32)
     list_vals = range(-sigma * 5, sigma * 5 + 1)
     exp = [1 / ((x / sigma) ** 2 + 1) for x in list_vals]
-    expect = tf.convert_to_tensor(exp, dtype=tf.float64)
+    expect = tf.convert_to_tensor(exp, dtype=tf.float32)
     expect = expect / tf.reduce_sum(expect)
     assert assertTensorsEqual(get, expect)
 
@@ -435,8 +435,8 @@ def test_multi_scale_loss_kernel():
 
     tensor_eye[:, :, 0:3, 0:3] = array_eye
     tensor_pred[:, :, 0, 0] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.double)
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.double)
+    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
+    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
     list_losses = np.array(
         [
             label.single_scale_loss(
