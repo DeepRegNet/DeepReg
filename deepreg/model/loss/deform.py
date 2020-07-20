@@ -51,3 +51,4 @@ def local_displacement_energy(ddf, energy_type, **kwargs):
         return compute_gradient_norm(ddf, l1=True)
     else:
         raise ValueError("Unknown regularizer.")
+
