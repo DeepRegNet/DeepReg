@@ -1,16 +1,21 @@
 import tensorflow as tf
 
+
 def gradient_dx(fv):
     return (fv[:, 2:, 1:-1, 1:-1] - fv[:, :-2, 1:-1, 1:-1]) / 2
+
 
 def gradient_dy(fv):
     return (fv[:, 1:-1, 2:, 1:-1] - fv[:, 1:-1, :-2, 1:-1]) / 2
 
+
 def gradient_dz(fv):
     return (fv[:, 1:-1, 1:-1, 2:] - fv[:, 1:-1, 1:-1, :-2]) / 2
 
+
 def gradient_txyz(Txyz, fn):
     return tf.stack([fn(Txyz[..., i]) for i in [0, 1, 2]], axis=4)
+
 
 def compute_gradient_norm(displacement, l1=False):
     dTdx = gradient_txyz(displacement, gradient_dx)
@@ -21,6 +26,7 @@ def compute_gradient_norm(displacement, l1=False):
     else:
         norms = dTdx ** 2 + dTdy ** 2 + dTdz ** 2
     return tf.reduce_mean(norms, [1, 2, 3, 4])
+
 
 def compute_bending_energy(displacement):
     dTdx = gradient_txyz(displacement, gradient_dx)
@@ -42,6 +48,7 @@ def compute_bending_energy(displacement):
         [1, 2, 3, 4],
     )
 
+
 def local_displacement_energy(ddf, energy_type, **kwargs):
     if energy_type == "bending":
         return compute_bending_energy(ddf)
@@ -51,4 +58,3 @@ def local_displacement_energy(ddf, energy_type, **kwargs):
         return compute_gradient_norm(ddf, l1=True)
     else:
         raise ValueError("Unknown regularizer.")
-
