@@ -39,7 +39,6 @@ def test_dissimilarity_fn():
     assert assertTensorsEqual(get_ncc, expect_ncc)
     assert assertTensorsEqual(get_ssd,expect_ssd)
       
-
 def test_local_normalized_cross_correlation():
     """
     Testing computed local normalized cross correlation function by comparing to precomputed 
