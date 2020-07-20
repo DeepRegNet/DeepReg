@@ -124,10 +124,14 @@ def test_deconv3dBlock():
     Test the layer.Deconv3dBlock class and its default attributes. No need to test the call() function since a
     concatenation of tensorflow classes
     """
+
     deconv3dBlock = layer.Deconv3dBlock(8)
-    deconv3dBlock.build((8, 8))
 
     assert isinstance(deconv3dBlock._deconv3d, layer.Deconv3d)
+    assert deconv3dBlock._deconv3d._Conv3DTranspose is None
+
+    deconv3dBlock._deconv3d.build((8, 8))
+
     assert isinstance(
         deconv3dBlock._deconv3d._Conv3DTranspose,
         type(tf.keras.layers.Conv3DTranspose(8, 3)),

@@ -214,10 +214,6 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         self._norm = Norm()
         self._act = Activation()
 
-    def build(self, input_shape):
-        super(Deconv3dBlock, self).build(input_shape)
-        self._deconv3d.build(input_shape)
-
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: shape = [batch_size, in_dim1, in_dim2, in_dim3, channels]
