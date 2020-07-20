@@ -1,9 +1,18 @@
+"""
+Module for generating the preprocessing
+3D Affine Transforms for moving and fixed images.
+"""
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 
 
 class AffineTransformation3D:
+    """
+    AffineTransformation3D class for maintaining and updating
+    the transformed grids for the moving and fixed images.
+    """
+
     def __init__(self, moving_image_size, fixed_image_size, batch_size, scale=0.1):
         self._batch_size = batch_size
         self._scale = scale
@@ -13,6 +22,12 @@ class AffineTransformation3D:
         self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
     def _gen_transforms(self):
+        """
+        Function that generates a random 3D transformation parameters
+        for a batch of data.
+
+        :return: shape = (batch, 4, 3)
+        """
         return layer_util.random_transform_generator(
             batch_size=self._batch_size, scale=self._scale
         )
@@ -20,6 +35,8 @@ class AffineTransformation3D:
     @staticmethod
     def _transform(image, grid_ref, transforms):
         """
+        Resamples an input image from the reference grid by the series
+        of input transforms.
 
         :param image: shape = [batch, dim1, dim2, dim3]
         :param grid_ref: shape = [dim1, dim2, dim3, 3]
@@ -34,7 +51,8 @@ class AffineTransformation3D:
     @tf.function
     def transform(self, inputs: dict):
         """
-        Apply random transformation on the inputs
+        Creates random transforms for the input images and their labels,
+        and transforms them based on the resampled reference grids.
         :param inputs:
             if labeled:
                 moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
