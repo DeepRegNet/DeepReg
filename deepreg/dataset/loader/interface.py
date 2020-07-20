@@ -316,9 +316,14 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name} has value outside of [0,1]."
-                    f"Images are assumed to be between [0, 255] "
-                    f"and labels are assumed to be between [0, 1]"
+                    f"Sample {image_indices}'s {name}'s values have been normalized to [0,1]."
+                    f"Images are assumed to have values between [0, 255] after loading"
+                    f"and labels are assumed to be binary. "
+                    f"If the label values are intended to represent multiple labels, "
+                    f"please convert them to binary masks in multiple channels, "
+                    f"with each channel representing one label only. "
+                    f"Please read the dataset requirements section "
+                    f"in docs/doc_data_loader.md for more detailed information."
                 )
         # images should be 3D arrays
         for arr, name in zip(

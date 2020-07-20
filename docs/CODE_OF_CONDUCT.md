@@ -55,11 +55,11 @@ offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to
-the community leaders responsible for enforcement at deepreg@outlook.com. All complaints
-will be reviewed and investigated promptly and fairly - community leaders will aim for a
-first response to complaints under 48h. The community leaders will aim to respond within
-one week to the person who filed the report with either a resolution or an explanation
-as to why the situation has not been resolved.
+the community leaders responsible for enforcement at DeepRegNet@gmail.com. All
+complaints will be reviewed and investigated promptly and fairly - community leaders
+will aim for a first response to complaints under 48h. The community leaders will aim to
+respond within one week to the person who filed the report with either a resolution or
+an explanation as to why the situation has not been resolved.
 
 All community leaders are obligated to respect the privacy and security of the reporter
 of any incident.
@@ -68,7 +68,7 @@ of any incident.
 should the reporter not feel comfortable sharing the report with such member, reports
 can be made privately to any of the members of the community leaders by contacting them
 privately. Contact methods are listed at
-https://github.com/ucl-candi/DeepReg/wiki/Contact. The enforcement process will be
+https://github.com/DeepRegNet/DeepReg/wiki/Contact. The enforcement process will be
 followed, but will exclude the member or members that the report concerns from
 discussion and decision making.
 

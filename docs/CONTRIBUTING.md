@@ -4,7 +4,7 @@ We welcome contributions to DeepReg.
 
 ## Reporting bugs and feature requests
 
-Please create a new issue on: https://github.com/ucl-candi/DeepReg/issues/new
+Please create a new issue on: https://github.com/DeepRegNet/DeepReg/issues/new
 
 When reporting a bug, please include:
 
@@ -16,11 +16,11 @@ When reporting a bug, please include:
 
 The easiest way to contribute is to follow these guidelines:
 
-1. Look through the issues on https://github.com/ucl-candi/DeepReg/issues and assign the
-   relevant issue to yourself. If there is not an existing issue that covers your work,
-   please create one: https://github.com/ucl-candi/DeepReg/issues/new
+1. Look through the issues on https://github.com/DeepRegNet/DeepReg/issues and assign
+   the relevant issue to yourself. If there is not an existing issue that covers your
+   work, please create one: https://github.com/DeepRegNet/DeepReg/issues/new
 2. Read the design considerations below.
-3. Fork the repository: https://github.com/ucl-candi/DeepReg/forks/new
+3. Fork the repository: https://github.com/DeepRegNet/DeepReg/forks/new
 4. Create a branch for your changes. The branch name should start with the issue number,
    followed by hyphen separated words describing the issue. For example:
    1-update-contribution-guidelines
@@ -29,7 +29,7 @@ The easiest way to contribute is to follow these guidelines:
    `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small,
    related chunks. Review each commit and explain its purpose in the commit message.
    Refer to the commit style section below for a more detailed guide.
-7. Submit a merge request: https://github.com/ucl-candi/DeepReg/merge-requests/new
+7. Submit a merge request: https://github.com/DeepRegNet/DeepReg/merge-requests/new
 8. Merge request will be reviewed and, if necessary, changes suggested before merge to
    master.
 
