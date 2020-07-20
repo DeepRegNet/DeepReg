@@ -9,9 +9,9 @@ from deepreg.dataset.loader.paired_loader import PairedDataLoader
 # assign values to input vars
 data_dir_path = "./data/test/h5/paired/test"
 sample_label = "sample"
-seed = (8, 8, 8)
-moving_image_shape_arr = (999, 999, 999)
-fixed_image_shape_arr = (999, 999, 999)
+seed = 1
+moving_image_shape_arr = (8, 8, 8)
+fixed_image_shape_arr = (8, 8, 8)
 
 
 # in __init__: seed needs var spec, and sample_label should be optional
