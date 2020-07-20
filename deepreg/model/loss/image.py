@@ -3,7 +3,7 @@ import tensorflow as tf
 EPS = 1.0e-6  # epsilon to prevent NaN
 
 
-def similarity_fn(y_true, y_pred, name, **kwargs):
+def dissimilarity_fn(y_true, y_pred, name, **kwargs):
     """
 
     :param y_true: fixed_image, shape = [batch, f_dim1, f_dim2, f_dim3]
@@ -34,7 +34,9 @@ def local_normalized_cross_correlation(y_true, y_pred, kernel_size=9):
     """
 
     kernel_vol = kernel_size ** 3
-    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, 1, 1])  # [dim1, dim2, dim3, d_in, d_out]
+    filters = tf.ones(
+        shape=[kernel_size, kernel_size, kernel_size, 1, 1]
+    )  # [dim1, dim2, dim3, d_in, d_out]
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 

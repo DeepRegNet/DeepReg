@@ -1,10 +1,16 @@
-from deepreg.model.network.cond import build_cond_model
-from deepreg.model.network.ddf import build_ddf_model
-from deepreg.model.network.dvf import build_dvf_model
+from deepreg.model.network.cond import build_conditional_model
+from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
 
 
-def build_model(moving_image_size: tuple, fixed_image_size: tuple, index_size: int, labeled: bool, batch_size: int,
-                tf_model_config: dict, tf_loss_config: dict):
+def build_model(
+    moving_image_size: tuple,
+    fixed_image_size: tuple,
+    index_size: int,
+    labeled: bool,
+    batch_size: int,
+    model_config: dict,
+    loss_config: dict,
+):
     """
     Parsing algorithm types to model building functions
 
@@ -13,18 +19,29 @@ def build_model(moving_image_size: tuple, fixed_image_size: tuple, index_size: i
     :param index_size: dataset size
     :param labeled: true if the label of moving/fixed images are provided
     :param batch_size: mini-batch size
-    :param tf_model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param tf_loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
+    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
-    if tf_model_config["method"] == "ddf":
-        return build_ddf_model(moving_image_size, fixed_image_size, index_size, labeled, batch_size, tf_model_config,
-                               tf_loss_config)
-    elif tf_model_config["method"] == "dvf":
-        return build_dvf_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
-                               tf_loss_config)
-    elif tf_model_config["method"] == "conditional":
-        return build_cond_model(moving_image_size, fixed_image_size, index_size, batch_size, tf_model_config,
-                                tf_loss_config)
+    if model_config["method"] in ["ddf", "dvf"]:
+        return build_ddf_dvf_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
+        )
+    elif model_config["method"] == "conditional":
+        return build_conditional_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
+        )
     else:
         raise ValueError("Unknown model method")
