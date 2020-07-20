@@ -6,7 +6,7 @@ pytest style
 """
 import tensorflow as tf
 
-import deepreg.model.loss.deform2 as deform
+import deepreg.model.loss.deform as deform
 
 
 def assertTensorsEqual(x, y):
