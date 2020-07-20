@@ -9,7 +9,6 @@ import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.image as image
-
 def assertTensorsEqual(x, y):
     """
     given two tf tensors return True/False (not tf tensor)
@@ -50,7 +49,6 @@ def test_local_normalized_cross_correlation():
     expect       = [0.7281439, 0.9847701]
     get = image.local_normalized_cross_correlation( tensor_true, tensor_pred, kernel_size = 9)  
     assert assertTensorsEqual(get,expect)
-
 
 def test_ssd():
     """
