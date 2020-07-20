@@ -7,7 +7,6 @@ from types import FunctionType
 import numpy as np
 import pytest
 import tensorflow as tf
-
 import deepreg.model.loss.image as image
 
 def assertTensorsEqual(x, y):
