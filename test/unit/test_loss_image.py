@@ -9,6 +9,7 @@ import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.image as image
+
 def assertTensorsEqual(x, y):
     """
     given two tf tensors return True/False (not tf tensor)
