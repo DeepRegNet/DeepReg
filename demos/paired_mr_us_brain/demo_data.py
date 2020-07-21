@@ -11,8 +11,8 @@ os.chdir(project_dir)
 
 os.system('git clone https://github.com/ucl-candi/dataset_respect.git')
 
-if os.path.exists()
-os.remove('dataset_respect/README.md')
+if os.path.exists('dataset_respect/README.md'):
+    os.remove('dataset_respect/README.md')
 
 data_folder = 'dataset_respect/paired_mr_us_brain'
 
