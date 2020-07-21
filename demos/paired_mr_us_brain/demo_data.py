@@ -7,9 +7,9 @@ project_dir = r'demos/paired_mr_us_brain'
 os.chdir(project_dir)
 
 
-# os.system('git clone https://github.com/ucl-candi/dataset_respect.git')
+os.system('git clone https://github.com/ucl-candi/dataset_respect.git')
 
-# os.remove('dataset_respect/README.md')
+os.remove('dataset_respect/README.md')
 
 data_folder = 'dataset_respect/paired_mr_us_brain'
 
