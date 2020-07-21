@@ -42,4 +42,4 @@ DeepReg is maintained and led by a team of developers and researchers. People wi
 
 This open-source initiative started within University College London, with support from the Wellcome/EPSRC Centre for Interventional and Surgical Sciences ([WEISS](https://www.ucl.ac.uk/interventional-surgical-sciences/)).
 
-<p style="text-align: center"><img src='../asset/weiss.jpg' alt='WEISS Logo' width='250'/></p>
+<p style="text-align: center"><img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='250'/></p>
