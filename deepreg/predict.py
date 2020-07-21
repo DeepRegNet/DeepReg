@@ -250,7 +250,10 @@ def predict(
 
     # data
     data_loader, dataset, _ = build_dataset(
-        dataset_config=config["dataset"], preprocess_config=preprocess_config, mode=mode
+        dataset_config=config["dataset"],
+        preprocess_config=preprocess_config,
+        mode=mode,
+        training=False,
     )
 
     # optimizer

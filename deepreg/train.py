@@ -90,12 +90,14 @@ def train(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
         mode="train",
+        training=True,
     )
     assert data_loader_train is not None  # train data should not be None
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
         mode="valid",
+        training=False,
     )
 
     # build callbacks

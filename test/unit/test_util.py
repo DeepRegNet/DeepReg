@@ -28,6 +28,7 @@ def test_build_dataset():
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
         mode="train",
+        training=True,
     )
 
     # check output types
@@ -43,6 +44,7 @@ def test_build_dataset():
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
         mode="valid",
+        training=False,
     )
 
     assert data_loader_valid is None
