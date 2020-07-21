@@ -19,6 +19,9 @@ def build_dataset(
     :return:
     - (data_loader_train, dataset_train, steps_per_epoch_train)
     - (data_loader_val, dataset_val, steps_per_epoch_valid)
+
+    Cannot move this function into deepreg/dataset/util.py
+    as we need DataLoader to define the output
     """
     assert mode in ["train", "valid", "test"]
     data_loader = get_data_loader(dataset_config, mode)
