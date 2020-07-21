@@ -1,6 +1,6 @@
 <!-- _coverpage.md -->
 
-<img src='../asset/deepreg_logo_purple_beta.svg' alt='DeepReg Logo' width='300'/>
+<img src='/asset/deepreg_logo_purple_beta.svg' alt='DeepReg Logo' width='300'/>
 
 > Deep learning for image registration
 
