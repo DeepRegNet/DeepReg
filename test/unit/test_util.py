@@ -1,8 +1,11 @@
+import os
+import re
+
 import tensorflow as tf
 
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.train import build_config
-from deepreg.util import build_dataset
+from deepreg.util import build_dataset, build_log_dir
 
 
 def test_build_dataset():
@@ -45,3 +48,22 @@ def test_build_dataset():
     assert data_loader_valid is None
     assert dataset_valid is None
     assert steps_per_epoch_valid is None
+
+
+def test_build_log_dir():
+    """
+    Test build_log_dir for default directory and custom directory
+    """
+
+    # use default timestamp based directory
+    log_dir = build_log_dir(log_dir="")
+    head, tail = os.path.split(log_dir)
+    assert head == "logs"
+    pattern = re.compile("[0-9]{8}-[0-9]{6}")
+    assert pattern.match(tail)
+
+    # use custom directory
+    log_dir = build_log_dir(log_dir="custom")
+    head, tail = os.path.split(log_dir)
+    assert head == "logs"
+    assert tail == "custom"
