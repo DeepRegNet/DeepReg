@@ -23,7 +23,7 @@ The easiest way to contribute is to follow these guidelines:
 3. [Fork the repository](https://github.com/DeepRegNet/DeepReg/forks/new)
 4. Create a branch for your changes. The branch name should start with the issue number,
    followed by hyphen separated words describing the issue.
-   * Example: `1-update-contribution-guidelines`
+   - Example: `1-update-contribution-guidelines`
 5. Make your changes following the coding guidelines below.
 6. Commit and push your changes to your fork. The commit message should start with
    `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small,
@@ -65,8 +65,8 @@ following commit guidelines.
 
 ## Design considerations
 
-1. As few dependencies as possible. Try to stick to standard `scipy` packages like `numpy`
-   and `pandas`.
+1. As few dependencies as possible. Try to stick to standard `scipy` packages like
+   `numpy` and `pandas`.
 2. Discuss extra dependencies with the team and maybe the outcome will be to create a
    new separate package, where you can be more specific and more modular.
 3. Unit test well, using `pytest`, with good coverage.
@@ -140,8 +140,8 @@ the `docs` folder of the repository.
   and follow the install instructions on that page.
 - In a Windows Command Prompt (WCP) started with Ruby, use `gem install github-pages` to
   install the required packages.
-- Next, the same WCP - navigate to the `docs` folder in `DeepReg`, and use `jekyll serve`
-  to create a directory located at `../docs/_site`.
+- Next, the same WCP - navigate to the `docs` folder in `DeepReg`, and use
+  `jekyll serve` to create a directory located at `../docs/_site`.
   - You should now see a local version of the site at http://127.0.0.1:4000.
   - You will need to work in the newly created `../docs/_site` folder to make your
     changes, and copy them back to `../docs` in order to commit them here.
