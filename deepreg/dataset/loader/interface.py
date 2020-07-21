@@ -316,9 +316,14 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name} has value outside of [0,1]."
-                    f"Images are assumed to be between [0, 255] "
-                    f"and labels are assumed to be between [0, 1]"
+                    f"Sample {image_indices}'s {name}'s values have been normalized to [0,1]."
+                    f"Images are assumed to have values between [0, 255] after loading"
+                    f"and labels are assumed to be binary. "
+                    f"If the label values are intended to represent multiple labels, "
+                    f"please convert them to binary masks in multiple channels, "
+                    f"with each channel representing one label only. "
+                    f"Please read the dataset requirements section "
+                    f"in docs/doc_data_loader.md for more detailed information."
                 )
         # images should be 3D arrays
         for arr, name in zip(
@@ -512,9 +517,19 @@ class FileLoader:
         assert self.grouped
         return len(self.group_ids)
 
-    def get_num_images_per_group(self):
+    def get_num_images_per_group(self) -> list:
+        """
+        calculate the number of images in each group
+        each group must have at least one image
+        """
         assert self.grouped
-        return [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        if min(num_images_per_group) == 0:
+            group_ids = [
+                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+            ]
+            raise ValueError(f"Groups of ID {group_ids} are empty.")
+        return num_images_per_group
 
     def close(self):
         """close opened file handles"""

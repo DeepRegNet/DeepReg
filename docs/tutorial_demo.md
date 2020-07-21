@@ -25,15 +25,21 @@ This tutorial describe several examples in the `DeepReg Demos` to explain how th
 different scenarios can be implemented with `DeepReg`. A complete list of demos can be
 found in the [DeepReg Demos Index](#deepreg-demos-index)
 
-## paired_ct_lung
+## Registering paired CT lung images
+
+[paired_ct_lung](./paired_ct_lung)
 
 (under development)
 
-## unpaired_ct_lung
+## Registering unpaired CT lung images
+
+[unpaired_ct_lung](./unpaired_ct_lung)
 
 (under development)
 
 ## DeepReg Demos Index
+
+A complete list of demos is provided below.
 
 ### [paired_ct_lung](./paired_ct_lung)
 
