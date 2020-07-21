@@ -35,9 +35,18 @@ def test_dissimilarity_fn():
     name_ncc = "lncc"
     get_ncc = image.dissimilarity_fn(tensor_true, tensor_pred, name_ncc)
     expect_ncc = [-0.68002254, -0.9608879]
+
+    tensor_true1 = np.zeros((2, 1, 2, 3))
+    tensor_pred1 = 0.6 * np.ones((2, 1, 2, 3))
+    tensor_true1 = tf.convert_to_tensor(tensor_true1)
+    tensor_pred1 = tf.convert_to_tensor(tensor_pred1)
+    tensor_true1 = tf.cast(tensor_true1, dtype=tf.float32)
+    tensor_pred1 = tf.cast(tensor_pred1, dtype=tf.float32)
+
     name_ssd = "ssd"
-    get_ssd = image.dissimilarity_fn(tensor_true, tensor_pred, name_ssd)
-    expect_ssd = [6.52666667, 65.32666667]
+    get_ssd = image.dissimilarity_fn(tensor_true1, tensor_pred1, name_ssd)
+    expect_ssd = [0.36, 0.36]
+
     assert assertTensorsEqual(get_ncc, expect_ncc)
     assert assertTensorsEqual(get_ssd, expect_ssd)
     with pytest.raises(ValueError):
