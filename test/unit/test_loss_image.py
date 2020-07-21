@@ -32,11 +32,6 @@ def test_dissimilarity_fn():
     tensor_true = tf.cast(tensor_true, dtype=tf.float32)
     tensor_pred = tf.cast(tensor_pred, dtype=tf.float32)
 
-    # tensor_true_expand = tf.expand_dims(tensor_true, axis=4)
-    # tensor_pred_expand = tf.expand_dims(tensor_pred, axis=4)
-    # tensor_true_expand_np = np.array(tensor_true_expand)
-    # tensor_pred_expand_np = np.array(tensor_pred_expand)
-
     name_ncc = "lncc"
     get_ncc = image.dissimilarity_fn(tensor_true, tensor_pred, name_ncc)
     expect_ncc = [-0.68002254, -0.9608879]
