@@ -18,5 +18,8 @@ This is still under development. However, some functionalities can be accessed a
 
 ## Tutorials and Documentations
 
+The MICCAI Educational Challenge notebook, which provides an overview of MIR and the
+repository, can be accessed [here](./docs/Intro_to_Medical_Image_Regsitration.ipynb)
+
 Read the tutorials and documentation at
 [DeepReg](https://deepregnet.github.io/DeepReg/).
