@@ -10,9 +10,6 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 
-# https://github.com/YipengHu/example-data/blob/master/hnct/demo.h5
-
-
 ## registration parameters
 image_loss_name = "ssd"
 deform_loss_name = "bending"

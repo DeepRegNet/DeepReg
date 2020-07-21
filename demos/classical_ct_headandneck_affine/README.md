@@ -1,16 +1,24 @@
 # Classical affine registration for head-and-neck CT images
 
+This is a special demo that demonstrates using the DeepReg package for claissical image
+registration, which iteratively solve an optimisation problem. Gradient descent is used
+to minimise the image dissimilarity function of a given pair of moving anf fixed images.
+
 ## Author
 
 Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
 ## Instructions
 
+- Run the demo_data.py script to download an example CT volumes with 21 labels;
 - Run the demo_register.py script.
 
 ## Application
 
-radiotherapy
+Although, in this demo, the moving images are simulated using a randomly generated
+transformation. The registration technique can be used in radiotherapy to compensate the
+difference between CT acquired at different time points, such as pre-treatment and
+intra-treatment.
 
 ## Data
 
