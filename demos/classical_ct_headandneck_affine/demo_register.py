@@ -1,12 +1,21 @@
 """
-Classical affine iterative pairwise registration algorithms as integration tests
+A DeepReg Demo for classical affine iterative pairwise registration algorithms
 """
+import os
+
+import h5py
 import matplotlib.pyplot as plt
-import nibabel
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.image as image_loss
+
+current_path = os.getcwd()
+PROJECT_DIR = r"demos/classical_ct_headandneck_affine"
+os.chdir(PROJECT_DIR)
+
+DATA_PATH = "dataset"
+FILE_PATH = os.path.join(DATA_PATH, "demo.h5")
 
 ## registration parameters
 image_loss_name = "ssd"
@@ -15,19 +24,23 @@ total_iter = int(1000)
 
 
 ## load image
-def load_image(fn):
-    return tf.cast(tf.expand_dims(nibabel.load(fn).dataobj, axis=0), dtype=tf.float32)
+if not os.path.exists(DATA_PATH):
+    raise ("Download the data using demo_data.py script")
+if not os.path.exists(FILE_PATH):
+    raise ("Download the data using demo_data.py script")
 
+fid = h5py.File(FILE_PATH, "r")
+fixed_image = fid["image"]
 
-moving_image = load_image("./data/mr_us/unpaired/train/images/case000000.nii.gz")
+# moving_image = load_image("./data/mr_us/unpaired/train/images/case000000.nii.gz")
 # fixed_image = load_image('./data/mr_us/unpaired/train/images/case000001.nii.gz')
 
 # random affine-transformed fixed image
-fixed_image_size = moving_image.shape
+fixed_image_size = fixed_image.shape
 random_transform = layer_util.random_transform_generator(batch_size=1, scale=0.2)
 grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size[1:4])
-fixed_image = layer_util.resample(
-    vol=moving_image, loc=layer_util.warp_grid(grid_ref, random_transform)
+moving_image = layer_util.resample(
+    vol=fixed_image, loc=layer_util.warp_grid(grid_ref, random_transform)
 )
 
 
@@ -86,3 +99,5 @@ for idx in range(len(idx_slices)):
     axs.imshow(pred_fixed_image[0, ..., idx_slices[idx]], cmap="gray")
     axs.axis("off")
 plt.show()
+
+os.chdir(current_path)
