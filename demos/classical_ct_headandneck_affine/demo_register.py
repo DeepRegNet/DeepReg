@@ -137,5 +137,7 @@ for idx_label in range(fixed_labels.shape[4]):
     plt.ion()
     plt.show()
 
+plt.pause(0.001)
+input("Press [enter] to continue.")
 
 os.chdir(current_path)

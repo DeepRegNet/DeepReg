@@ -11,14 +11,19 @@ Yipeng Hu (yipeng.hu@ucl.ac.uk)
 ## Instructions
 
 - Run the demo_data.py script to download an example CT volumes with 21 labels;
-- Run the demo_register.py script.
+- Run the demo_register.py script. This script will register two images. The fixed image
+  will be the downloaded data and the moving image will be simulated by applying a
+  random affine transformation, such that the ground-truth is available for. The
+  optimised transformation will be applied to the moving images, as well as the moving
+  labels. The results will be plotted to compare the warped image/labels with the
+  ground-truth image/labels.
 
 ## Application
 
 Although, in this demo, the moving images are simulated using a randomly generated
 transformation. The registration technique can be used in radiotherapy to compensate the
 difference between CT acquired at different time points, such as pre-treatment and
-intra-treatment.
+intra-/post-treatment.
 
 ## Data
 
