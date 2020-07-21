@@ -3,7 +3,7 @@ import os
 import shutil
 import nibabel as nib
 
-project_dir = r'demos/paired_mr_us_brain'
+project_dir = r'./demos/paired_mr_us_brain'
 os.chdir(project_dir)
 
 
