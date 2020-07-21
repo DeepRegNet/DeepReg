@@ -1,3 +1,7 @@
+import logging
+import os
+from datetime import datetime
+
 import tensorflow as tf
 
 from deepreg.dataset.load import get_data_loader
@@ -26,3 +30,18 @@ def build_dataset(
     dataset_size = data_loader.num_samples
     steps_per_epoch = max(dataset_size // preprocess_config["batch_size"], 1)
     return data_loader, dataset, steps_per_epoch
+
+
+def build_log_dir(log_dir: str) -> str:
+    """
+    :param log_dir: str, path to where training logs to be stored.
+    :return: the path of directory to save logs
+    """
+    log_dir = os.path.join(
+        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
+    )
+    if os.path.exists(log_dir):
+        logging.warning("Log directory {} exists already.".format(log_dir))
+    else:
+        os.makedirs(log_dir)
+    return log_dir

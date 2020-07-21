@@ -6,17 +6,16 @@ command line interface
 import argparse
 import logging
 import os
-from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 import deepreg.config.parser as config_parser
-import deepreg.dataset.load as load
 import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
+from deepreg.util import build_dataset, build_log_dir
 
 EPS = 1.0e-6
 
@@ -182,7 +181,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )
 
 
-def init(log_dir, ckpt_path, config_path):
+def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
     """
     Function to create new directory to log directory
     to store results.
@@ -196,13 +195,7 @@ def init(log_dir, ckpt_path, config_path):
         )
 
     # init log directory
-    log_dir = os.path.join(
-        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
-    )
-    if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
-    else:
-        os.makedirs(log_dir)
+    log_dir = build_log_dir(log_dir)
 
     # load config
     if config_path == "":
@@ -249,36 +242,29 @@ def predict(
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config, log_dir = init(log_dir, ckpt_path, config_path)
-    dataset_config = config["dataset"]
+    config, log_dir = build_config(
+        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
+    )
     preprocess_config = config["train"]["preprocess"]
     preprocess_config["batch_size"] = batch_size
-    optimizer_config = config["train"]["optimizer"]
-    model_config = config["train"]["model"]
-    loss_config = config["train"]["loss"]
 
     # data
-    data_loader = load.get_data_loader(dataset_config, mode)
-    if data_loader is None:
-        raise ValueError(
-            "Data loader for prediction is None. Probably the data dir path is not defined."
-        )
-    dataset = data_loader.get_dataset_and_preprocess(
-        training=False, repeat=False, **preprocess_config
+    data_loader, dataset, _ = build_dataset(
+        dataset_config=config["dataset"], preprocess_config=preprocess_config, mode=mode
     )
 
     # optimizer
-    optimizer = opt.build_optimizer(optimizer_config)
+    optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # model
     model = build_model(
         moving_image_size=data_loader.moving_image_shape,
         fixed_image_size=data_loader.fixed_image_shape,
         index_size=data_loader.num_indices,
-        labeled=dataset_config["labeled"],
+        labeled=config["dataset"]["labeled"],
         batch_size=preprocess_config["batch_size"],
-        model_config=model_config,
-        loss_config=loss_config,
+        model_config=config["train"]["model"],
+        loss_config=config["train"]["loss"],
     )
 
     # metrics

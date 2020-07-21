@@ -3,16 +3,14 @@ Module to train a network using init files and a CLI
 """
 
 import argparse
-import logging
 import os
-from datetime import datetime
 
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
-from deepreg.util import build_dataset
+from deepreg.util import build_dataset, build_log_dir
 
 
 def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
@@ -30,13 +28,7 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
     """
 
     # init log directory
-    log_dir = os.path.join(
-        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
-    )
-    if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
-    else:
-        os.makedirs(log_dir)
+    log_dir = build_log_dir(log_dir)
 
     # check checkpoint path
     if ckpt_path != "":
@@ -99,6 +91,7 @@ def train(
         preprocess_config=config["train"]["preprocess"],
         mode="train",
     )
+    assert data_loader_train is not None  # train data should not be None
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
