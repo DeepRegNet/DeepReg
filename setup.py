@@ -26,6 +26,7 @@ setup(
         "flake8",
         "simple_http_server",
         "testfixtures",
+        "notebook",
     ],
     entry_points={
         "console_scripts": ["train=deepreg.train:main", "predict=deepreg.predict:main"]
