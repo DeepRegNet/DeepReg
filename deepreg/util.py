@@ -1,42 +1,28 @@
-"""
-Help functions for output unit tests.
-"""
-
-import os
-
 import tensorflow as tf
 
-from deepreg.predict import predict
-from deepreg.train import train
+from deepreg.dataset.load import get_data_loader
+from deepreg.dataset.loader.interface import DataLoader
 
 
-def train_and_predict_with_config(test_name, config_path):
+def build_dataset(
+    dataset_config: dict, preprocess_config: dict, mode: str
+) -> [(DataLoader, None), (tf.data.Dataset, None), (int, None)]:
     """
-    Function that helps unit test whether a session with a given config
-    runs the train and predict functions
+    Function to prepare dataset for training and validation.
+    :param dataset_config: configuration for dataset
+    :param preprocess_config: configuration for preprocess
+    :param mode: train or valid or test
+    :return:
+    - (data_loader_train, dataset_train, steps_per_epoch_train)
+    - (data_loader_val, dataset_val, steps_per_epoch_valid)
     """
-    tf.get_logger().setLevel(3)
-    tf.keras.backend.clear_session()  # needed for pytest, otherwise model output name will change
-    gpu = ""
-    gpu_allow_growth = False
-    ckpt_path = ""
-    log_dir = "pytest_train_" + test_name
-    train(
-        gpu=gpu,
-        config_path=config_path,
-        gpu_allow_growth=gpu_allow_growth,
-        ckpt_path=ckpt_path,
-        log_dir=log_dir,
+    assert mode in ["train", "valid", "test"]
+    data_loader = get_data_loader(dataset_config, mode)
+    if data_loader is None:
+        return None, None, None
+    dataset = data_loader.get_dataset_and_preprocess(
+        training=mode == "train", repeat=True, **preprocess_config
     )
-    ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch2.ckpt")
-    log_dir = "pytest_predict_" + test_name
-    predict(
-        gpu=gpu,
-        gpu_allow_growth=gpu_allow_growth,
-        ckpt_path=ckpt_path,
-        mode="test",
-        batch_size=1,
-        log_dir=log_dir,
-        sample_label="all",
-        config_path="",
-    )
+    dataset_size = data_loader.num_samples
+    steps_per_epoch = max(dataset_size // preprocess_config["batch_size"], 1)
+    return data_loader, dataset, steps_per_epoch
