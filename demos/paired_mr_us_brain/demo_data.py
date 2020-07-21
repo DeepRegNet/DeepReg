@@ -3,7 +3,9 @@ import os
 import shutil
 import nibabel as nib
 
-project_dir = os.getcwd()
+main_path = os.getcwd()
+
+project_dir = os.path.join(main_path, r'demos/paired_mr_us_brain')
 os.chdir(project_dir)
 
 
