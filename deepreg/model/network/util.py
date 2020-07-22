@@ -27,7 +27,7 @@ def build_backbone(
     :param model_config: dict, model configuration, returned from parser.yaml.load
     :return: tf.keras.Model
     """
-    if method_name not in ["ddf", "dvf", "conditional"]:
+    if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
             "method name has to be one of ddf / dvf / conditional in build_backbone, "
             "got {}".format(method_name)
@@ -40,6 +40,9 @@ def build_backbone(
     elif method_name in ["conditional"]:
         out_activation = "sigmoid"  # output is probability
         out_kernel_initializer = "glorot_uniform"
+    elif method_name in ["affine"]:
+        out_activation = None
+        out_kernel_initializer = "zeros"
     else:
         raise ValueError("Unknown method name {}".format(method_name))
 
