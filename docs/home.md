@@ -22,7 +22,7 @@ Our development and all related work involved in the project is public, and **re
 
 ## Contributors
 
-DeepReg is maintained and led by a team of developers and researchers. People with signifigant contrubutions to `DeepReg` are listed below (in alphabetical order).
+DeepReg is maintained and led by a team of developers and researchers. People with signifigant contributions to `DeepReg` are listed below (in alphabetical order).
 
 | Name               | Affiliation (at time of contribution)             |
 |--------------------|---------------------------------------------------|

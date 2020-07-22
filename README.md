@@ -1,4 +1,4 @@
-<p style="text-align: center"><img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="150" /></p>
+<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="150" />
 
 # DeepReg
 
@@ -29,7 +29,7 @@ Our development and all related work involved in the project is public, and **re
 
 ## Contributors
 
-DeepReg is maintained and led by a team of developers and researchers. People with signifigant contrubutions to `DeepReg` are listed below (in alphabetical order).
+DeepReg is maintained and led by a team of developers and researchers. People with signifigant contributions to `DeepReg` are listed below (in alphabetical order).
 
 | Name               | Affiliation (at time of contribution)             |
 |--------------------|---------------------------------------------------|
@@ -49,4 +49,4 @@ DeepReg is maintained and led by a team of developers and researchers. People wi
 
 This open-source initiative started within University College London, with support from the Wellcome/EPSRC Centre for Interventional and Surgical Sciences ([WEISS](https://www.ucl.ac.uk/interventional-surgical-sciences/)).
 
-<p style="text-align: center"><img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='250'/></p>
+<img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='150'/>
