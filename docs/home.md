@@ -30,7 +30,7 @@ under the Apache 2.0 license**.
 ## Contributors
 
 DeepReg is maintained and led by a team of developers and researchers. People with
-signifigant contrubutions to `DeepReg` are listed below (in alphabetical order).
+signifigant contributions to `DeepReg` are listed below (in alphabetical order).
 
 | Name               | Affiliation (at time of contribution)             |
 | ------------------ | ------------------------------------------------- |
