@@ -1,5 +1,5 @@
 """
-Classical nonrigid iterative pairwise registration algorithms as integration tests
+A DeepReg Demo for classical nonrigid iterative pairwise registration algorithms
 """
 import os
 
