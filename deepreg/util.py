@@ -9,14 +9,19 @@ from deepreg.dataset.loader.interface import DataLoader
 
 
 def build_dataset(
-    dataset_config: dict, preprocess_config: dict, mode: str, training: bool
+    dataset_config: dict,
+    preprocess_config: dict,
+    mode: str,
+    training: bool,
+    repeat: bool,
 ) -> [(DataLoader, None), (tf.data.Dataset, None), (int, None)]:
     """
     Function to prepare dataset for training and validation.
     :param dataset_config: configuration for dataset
     :param preprocess_config: configuration for preprocess
     :param mode: train or valid or test
-    :param training: bool, if true, dataset won't be repeated
+    :param training: bool, if true, data augmentation and shuffling will be added
+    :param repeat: bool, if true, dataset will be repeated, true for train/valid dataset during model.fit
     :return:
     - (data_loader_train, dataset_train, steps_per_epoch_train)
     - (data_loader_val, dataset_val, steps_per_epoch_valid)
@@ -29,7 +34,7 @@ def build_dataset(
     if data_loader is None:
         return None, None, None
     dataset = data_loader.get_dataset_and_preprocess(
-        training=training, repeat=True, **preprocess_config
+        training=training, repeat=repeat, **preprocess_config
     )
     dataset_size = data_loader.num_samples
     steps_per_epoch = max(dataset_size // preprocess_config["batch_size"], 1)

@@ -310,6 +310,7 @@ def predict(
         preprocess_config=preprocess_config,
         mode=mode,
         training=False,
+        repeat=False,
     )
 
     # optimizer
