@@ -2,18 +2,29 @@
 
 ## Author
 
-DeepReg Core Development Team
+Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
 ## Instruction
 
+<!---
 """bash config_generator cross --data_folders dataset/fold0 dataset/fold1 dataset/fold2
 dataset/fold3 dataset/fold4 dataset/fold5 dataset/fold6 dataset/fold7 dataset/fold8
 dataset/fold9 --prefix unpaired_us_prostate_cv_run
+-->
 
-train --gpu "" --config_path
+```bash
+train --gpu "1, 2, 3" --config_path
 demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml
 demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir
 demos/unpaired_us_prostate_cv/log """
+```
+
+```
+predict --gpu "" --config_path
+demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml
+demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir
+demos/unpaired_us_prostate_cv/log """
+```
 
 ## Application
 
