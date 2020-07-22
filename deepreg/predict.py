@@ -12,12 +12,12 @@ import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
-import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
 from deepreg.util import build_dataset, build_log_dir, get_mean_median_std, save_array
 
+# import deepreg.model.loss.image as image_loss
 EPS = 1.0e-6
 OUT_FILE_PATH_FORMAT = os.path.join(
     "{sample_dir:s}", "depth{depth_index:d}_{name:s}.png"
@@ -63,7 +63,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     :param model:
     :param save_dir: str, path to store dir
     """
-    image_metric_map = dict()  # map[image_index][metric_name] = metric_value
+    # image_metric_map = dict()  # map[image_index][metric_name] = metric_value
     label_metric_map = (
         dict()
     )  # map[image_index][label_index][metric_name] = metric_value
@@ -92,11 +92,11 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         pred_fixed_label = outputs_dict.get(
             "pred_fixed_label", None
         )  # (batch, f_dim1, f_dim2, f_dim3)
-        moving_image_warped = (
-            layer_util.resample(vol=moving_image, loc=fixed_grid_ref + ddf)
-            if ddf is not None
-            else None
-        )  # (batch, f_dim1, f_dim2, f_dim3)
+        # moving_image_warped = (
+        #     layer_util.resample(vol=moving_image, loc=fixed_grid_ref + ddf)
+        #     if ddf is not None
+        #     else None
+        # )  # (batch, f_dim1, f_dim2, f_dim3)
 
         # save images of inputs and outputs
         for sample_index in range(moving_image.shape[0]):
@@ -121,14 +121,14 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 name="image",
                 gray=True,
             )
-            if moving_image_warped is not None:
-                save_array(
-                    sample_dir=sample_dir,
-                    arr=moving_image_warped[sample_index, :, :, :],
-                    prefix="fixed",
-                    name="warped_image",
-                    gray=True,
-                )
+            # if moving_image_warped is not None:
+            #     save_array(
+            #         sample_dir=sample_dir,
+            #         arr=moving_image_warped[sample_index, :, :, :],
+            #         prefix="fixed",
+            #         name="warped_image",
+            #         gray=True,
+            #     )
 
             # save label
             if labeled:
@@ -177,15 +177,16 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                     )
 
             # calculate metric
-            if moving_image_warped is not None:
-                if image_index in image_metric_map.keys():
-                    raise ValueError(
-                        "Image index is repeated, maybe the dataset has been repeated."
-                    )
-                y_true = fixed_image[sample_index : (sample_index + 1), :, :, :]
-                y_pred = moving_image_warped[sample_index : (sample_index + 1), :, :, :]
-                ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
-                image_metric_map[image_index] = dict(ssd=ssd)
+            # TODO buggy code
+            # if moving_image_warped is not None:
+            #     if image_index in image_metric_map.keys():
+            #         raise ValueError(
+            #             "Image index is repeated, maybe the dataset has been repeated."
+            #         )
+            #     y_true = fixed_image[sample_index : (sample_index + 1), :, :, :]
+            #     y_pred = moving_image_warped[sample_index : (sample_index + 1), :, :, :]
+            #     ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
+            #     image_metric_map[image_index] = dict(ssd=ssd)
 
             if labeled:
                 y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
@@ -226,10 +227,10 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         file.write("\n\n")
         for label_index in sorted(label_metric_per_label["dice"].keys()):
             dice_mean, dice_median, dice_std = get_mean_median_std(
-                label_metric_per_label["dice"]
+                label_metric_per_label["dice"][label_index]
             )
             tre_mean, tre_median, tre_std = get_mean_median_std(
-                label_metric_per_label["tre"]
+                label_metric_per_label["tre"][label_index]
             )
             file.write(
                 f"label {label_index}, "
@@ -238,8 +239,8 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             )
         # save stats overall
         file.write("\n\n")
-        dices = [v for k, vs in label_metric_per_label["dice"] for v in vs]
-        tres = [v for k, vs in label_metric_per_label["tre"] for v in vs]
+        dices = [v for vs in label_metric_per_label["dice"].values() for v in vs]
+        tres = [v for vs in label_metric_per_label["tre"].values() for v in vs]
         dice_mean, dice_median, dice_std = get_mean_median_std(dices)
         tre_mean, tre_median, tre_std = get_mean_median_std(tres)
         file.write(
