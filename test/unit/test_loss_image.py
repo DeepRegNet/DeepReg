@@ -27,10 +27,8 @@ def test_dissimilarity_fn():
     """
     tensor_true = np.array(range(12)).reshape((2, 1, 2, 3))
     tensor_pred = 0.6 * np.ones((2, 1, 2, 3))
-    tensor_true = tf.convert_to_tensor(tensor_true)
-    tensor_pred = tf.convert_to_tensor(tensor_pred)
-    tensor_true = tf.cast(tensor_true, dtype=tf.float32)
-    tensor_pred = tf.cast(tensor_pred, dtype=tf.float32)
+    tensor_true = tf.convert_to_tensor(tensor_true, dtype=tf.float32)
+    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
 
     name_ncc = "lncc"
     get_ncc = image.dissimilarity_fn(tensor_true, tensor_pred, name_ncc)
@@ -38,19 +36,28 @@ def test_dissimilarity_fn():
 
     tensor_true1 = np.zeros((2, 1, 2, 3))
     tensor_pred1 = 0.6 * np.ones((2, 1, 2, 3))
-    tensor_true1 = tf.convert_to_tensor(tensor_true1)
-    tensor_pred1 = tf.convert_to_tensor(tensor_pred1)
-    tensor_true1 = tf.cast(tensor_true1, dtype=tf.float32)
-    tensor_pred1 = tf.cast(tensor_pred1, dtype=tf.float32)
+    tensor_true1 = tf.convert_to_tensor(tensor_true1, dtype=tf.float32)
+    tensor_pred1 = tf.convert_to_tensor(tensor_pred1, dtype=tf.float32)
 
     name_ssd = "ssd"
     get_ssd = image.dissimilarity_fn(tensor_true1, tensor_pred1, name_ssd)
     expect_ssd = [0.36, 0.36]
 
+    get_zero_similarity_ssd = image.dissimilarity_fn(
+        tensor_true1, tensor_true1, name_ssd
+    )
+    get_zero_similarity_ncc = image.dissimilarity_fn(
+        tensor_pred1, tensor_pred1, name_ncc
+    )
+
     assert assertTensorsEqual(get_ncc, expect_ncc)
     assert assertTensorsEqual(get_ssd, expect_ssd)
+    assert assertTensorsEqual(get_zero_similarity_ssd, [0, 0])
+    assert assertTensorsEqual(get_zero_similarity_ncc, [-1, -1])
     with pytest.raises(ValueError):
-        raise ValueError
+        image.dissimilarity_fn(
+            tensor_true1, tensor_pred1, "some random string that isn't ssd or lncc"
+        )
 
 
 def test_local_normalized_cross_correlation():
