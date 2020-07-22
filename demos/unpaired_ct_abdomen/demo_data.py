@@ -74,7 +74,17 @@ for label_file in train_label_files:
     shutil.move(os.path.join(label_folder_name,label_file),os.path.join(train_folder,"labels",label_file))
 
 # 6.- Copy data into validation folder
+valid_folder = os.path.join(data_folder, "valid")
 
+if os.path.exists(valid_folder) is not True:
+    os.mkdir(valid_folder)
+    os.mkdir(os.path.join(valid_folder, "images"))
+    os.mkdir(os.path.join(valid_folder, "labels"))
+    
+for nii_file in validation_img_files:
+    shutil.move(os.path.join(img_folder_name,nii_file),os.path.join(valid_folder,"images",nii_file))
+for label_file in validation_label_files:
+    shutil.move(os.path.join(label_folder_name,label_file),os.path.join(valid_folder,"labels",label_file))
 
 # 7.- Copy data into test directory
 
