@@ -61,7 +61,17 @@ print("The following files will be used in training: ")
 print(train_img_files)
 
 # 5.- Copy data into train folder
+train_folder = os.path.join(data_folder, "train")
 
+if os.path.exists(train_folder) is not True:
+    os.mkdir(train_folder)
+    os.mkdir(os.path.join(train_folder, "images"))
+    os.mkdir(os.path.join(train_folder, "labels"))
+    
+for nii_file in train_img_files:
+    shutil.move(os.path.join(img_folder_name,nii_file),os.path.join(train_folder,"images",nii_file))
+for label_file in train_label_files:
+    shutil.move(os.path.join(label_folder_name,label_file),os.path.join(train_folder,"labels",label_file))
 
 # 6.- Copy data into validation folder
 
