@@ -99,4 +99,4 @@ for nii_file in test_img_files:
 for label_file in test_label_files:
     shutil.move(os.path.join(label_folder_name,label_file),os.path.join(test_folder,"labels",label_file))
 
-os.remove(os.path.join(data_folder,"Training"))
+shutil.rmtree(os.path.join(data_folder,"Training"))
