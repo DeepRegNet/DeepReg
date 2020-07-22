@@ -25,30 +25,35 @@ This tutorial describe several examples in the `DeepReg Demos` to explain how th
 different scenarios can be implemented with `DeepReg`. A complete list of demos can be
 found in the [DeepReg Demos Index](#deepreg-demos-index)
 
-## Registering paired CT lung images
+## Paired image registration
 
-[paired_ct_lung](./paired_ct_lung)
+- [paired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
+
+This demo registers paired CT lung images.
+
+## Unpaired image registration
+
+- [unpaired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
+
+This demo registers unpaired CT lung images.
+
+## Grouped image registration
 
 (under development)
 
-## Registering unpaired CT lung images
+## Experiment with cross-validation
 
-[unpaired_ct_lung](./unpaired_ct_lung)
+- [unpaired_us_prostate_cv](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
 
-(under development)
+This demo registers 3D ultrasound images with a 10-fold cross-validation (under
+develpment).
 
-## DeepReg Demos Index
+## Classical image registration
 
-A complete list of demos is provided below.
+- [classical_ct_headandneck_affine](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headandneck_affine)
 
-### [paired_ct_lung](./paired_ct_lung)
+This demo registers head-and-neck CT images using iterative affine registration.
 
-#### Paired CT Lung Registration
+- [classical_mr_prostate_nonrigid](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_mr_prostate_nonrigid)
 
-#### Computed tomography
-
-### [unpaired_ct_lung](./unpaired_ct_lung)
-
-#### Unpaired CT Lung Registration
-
-#### Computed tomography
+This demo registers prostate MR images using iterative nonrigid registration.
