@@ -11,7 +11,7 @@ Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
 ## Instructions
 
-- Change current directory to DeepReg project root directory;
+- Change current directory to the root directory of DeepReg project;
 - Run `demo_data.py` script to download an example CT volumes with two labels;
 
 ```bash
