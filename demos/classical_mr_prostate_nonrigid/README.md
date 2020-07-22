@@ -24,10 +24,8 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
   results will be plotted to compare the warped image/labels with the ground-truth
   image/labels.
 
-  ```bash
-  python demos/classical_mr_prostate_nonrigid/demo_register.py
-  ```
-
+```bash
+python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
 
 ## Application
@@ -49,4 +47,7 @@ Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.
 Vincent, G., Guillard, G., Birbeck, N., Zhang, J. and Strand, R., 2014. Evaluation of
 prostate segmentation algorithms for MRI: the PROMISE12 challenge. Medical image
 analysis, 18(2), pp.359-373.
+
+```
+
 ```
