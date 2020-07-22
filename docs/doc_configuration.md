@@ -73,5 +73,5 @@ The `dataset` section defines the dataset and corresponding loader. Read the
 
 The `train` section defines the neural network, training loss and other training
 hyper-parameters, such as batch size, optimizer, and learning rate. Read the
-[example configuration](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml)
+[example configuration](https://github.com/DeepRegNet/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml)
 for more details.

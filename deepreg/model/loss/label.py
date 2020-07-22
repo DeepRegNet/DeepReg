@@ -209,7 +209,7 @@ def jaccard_index(y_true, y_pred):
     return numerator / denominator
 
 
-def gauss_kernel1d(sigma):
+def gauss_kernel1d(sigma: int):
     """
     Calculates a gaussian kernel.
 
@@ -218,14 +218,14 @@ def gauss_kernel1d(sigma):
     :return: tensor, shape [range(-3*sigma, 3*sigma + 1)]
     """
     if sigma == 0:
-        return tf.constant(0)
+        return tf.constant(0, tf.float32)
     else:
         tail = int(sigma * 3)
         k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
         return k / tf.reduce_sum(k)
 
 
-def cauchy_kernel1d(sigma):
+def cauchy_kernel1d(sigma: int):
     """
     Approximating cauchy kernel in 1d.
 
@@ -233,7 +233,7 @@ def cauchy_kernel1d(sigma):
     :return: tensor, shape [range(-3*sigma, 3*sigma + 1)]
     """
     if sigma == 0:
-        return 0
+        return tf.constant(0, tf.float32)
     else:
         tail = int(sigma * 5)
         k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
