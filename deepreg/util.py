@@ -2,6 +2,8 @@ import logging
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 
 from deepreg.dataset.load import get_data_loader
@@ -54,3 +56,34 @@ def build_log_dir(log_dir: str) -> str:
     else:
         os.makedirs(log_dir)
     return log_dir
+
+
+def save_array(sample_dir: str, arr: np.ndarray, prefix: str, name: str, gray: bool):
+    """
+    :param sample_dir: path of the directory to save
+    :param arr: 3D or 4D array to be saved
+    :param prefix: "moving" or "fixed"
+    :param name: name of the array, e.g. image, label, etc.
+    :param gray: true if the array is between 0,1
+    """
+    assert len(arr.shape) in [3, 4]
+    is_4d = len(arr.shape) == 4
+    if is_4d:
+        # if 4D array, it must be 3 channels
+        assert arr.shape[3] == 3
+    assert prefix in ["fixed", "moving"]
+
+    for depth_index in range(arr.shape[2]):
+        plt.imsave(
+            fname=os.path.join(
+                f"{sample_dir}", f"{prefix}_depth{depth_index}_{name}.png"
+            ),
+            arr=arr[:, :, depth_index, :] if is_4d else arr[:, :, depth_index],
+            vmin=0 if gray else None,
+            vmax=1 if gray else None,
+            cmap="gray" if gray else "PiYG",
+        )
+
+
+def get_mean_median_std(values):
+    return np.mean(values), np.median(values), np.std(values)

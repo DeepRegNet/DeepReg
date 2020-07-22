@@ -7,15 +7,16 @@ import argparse
 import logging
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
+import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt
 from deepreg.model.network.build import build_model
-from deepreg.util import build_dataset, build_log_dir
+from deepreg.util import build_dataset, build_log_dir, get_mean_median_std, save_array
 
 EPS = 1.0e-6
 OUT_FILE_PATH_FORMAT = os.path.join(
@@ -58,183 +59,194 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     """
     Function to predict results from a dataset from some model
     :param dataset: where data is stored
-    :param fixed_grid_ref:
+    :param fixed_grid_ref: (1, f_dim1, f_dim2, f_dim3, 3)
     :param model:
     :param save_dir: str, path to store dir
     """
-    metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
-    for _, inputs_dict in enumerate(dataset):
-        # inputs
-        # - moving_image (batch, m_dim1, m_dim2, m_dim3)
-        # - fixed_image  (batch, f_dim1, f_dim2, f_dim3)
-        # - moving_label (batch, m_dim1, m_dim2, m_dim3), available if data is labeled
-        # - fixed_label  (batch, f_dim1, f_dim2, f_dim3), available if data is labeled
-        # - indices
-        # outputs
-        # - ddf    (batch, f_dim1, f_dim2, f_dim3, 3), available if model is ddf / dvf / affine
-        # - dvf    (batch, f_dim1, f_dim2, f_dim3, 3), available if model is dvf
-        # - affine (batch, 4, 3), available if model is affine
-        # - pred_fixed_label (batch, f_dim1, f_dim2, f_dim3), available if data is labeled
+    image_metric_map = dict()  # map[image_index][metric_name] = metric_value
+    label_metric_map = (
+        dict()
+    )  # map[image_index][label_index][metric_name] = metric_value
 
+    for _, inputs_dict in enumerate(dataset):
         outputs_dict = model.predict(x=inputs_dict)
 
-        moving_image = inputs_dict.get("moving_image")
-        fixed_image = inputs_dict.get("fixed_image")
-        moving_label = inputs_dict.get("moving_label", None)
-        fixed_label = inputs_dict.get("fixed_label", None)
-        indices = inputs_dict.get("indices")
-
-        ddf = outputs_dict.get("ddf", None)
-        dvf = outputs_dict.get("dvf", None)
-        # affine = outputs_dict.get("affine", None)
-        pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
-
+        moving_image = inputs_dict.get(
+            "moving_image"
+        )  # (batch, m_dim1, m_dim2, m_dim3)
+        fixed_image = inputs_dict.get("fixed_image")  # (batch, f_dim1, f_dim2, f_dim3)
+        moving_label = inputs_dict.get(
+            "moving_label", None
+        )  # (batch, m_dim1, m_dim2, m_dim3)
+        fixed_label = inputs_dict.get(
+            "fixed_label", None
+        )  # (batch, f_dim1, f_dim2, f_dim3)
+        indices = inputs_dict.get(
+            "indices"
+        )  # (batch, num_indices) last indice is for label if labeled
         labeled = moving_label is not None
 
-        num_samples = moving_image.shape[0]
-        moving_depth = moving_image.shape[3]
-        fixed_depth = fixed_image.shape[3]
-        for sample_index in range(num_samples):
+        ddf = outputs_dict.get("ddf", None)  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        dvf = outputs_dict.get("dvf", None)  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        # affine = outputs_dict.get("affine", None) # (batch, 4, 3)
+        pred_fixed_label = outputs_dict.get(
+            "pred_fixed_label", None
+        )  # (batch, f_dim1, f_dim2, f_dim3)
+        moving_image_warped = (
+            layer_util.resample(vol=moving_image, loc=fixed_grid_ref + ddf)
+            if ddf is not None
+            else None
+        )  # (batch, f_dim1, f_dim2, f_dim3)
+
+        # save images of inputs and outputs
+        for sample_index in range(moving_image.shape[0]):
             # init output path
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
             image_index, label_index, sample_dir = build_sample_output_path(
                 indices=indices_i, save_dir=save_dir, labeled=labeled
             )
 
-            for fixed_depth_index in range(fixed_depth):
-                fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
-                # value range for h5 and nifti might be different
+            # save image
+            save_array(
+                sample_dir=sample_dir,
+                arr=fixed_image[sample_index, :, :, :],
+                prefix="fixed",
+                name="image",
+                gray=True,
+            )
+            save_array(
+                sample_dir=sample_dir,
+                arr=moving_image[sample_index, :, :, :],
+                prefix="moving",
+                name="image",
+                gray=True,
+            )
+            if moving_image_warped is not None:
                 save_array(
                     sample_dir=sample_dir,
-                    depth_index=fixed_depth_index,
-                    arr=fixed_image_d,
-                    name="fixed_image",
+                    arr=moving_image_warped[sample_index, :, :, :],
+                    prefix="fixed",
+                    name="warped_image",
+                    gray=True,
                 )
 
-                if labeled:
-                    fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
-                    fixed_pred_d = pred_fixed_label[
-                        sample_index, :, :, fixed_depth_index
-                    ]
-
-                    save_array(
-                        sample_dir=sample_dir,
-                        depth_index=fixed_depth_index,
-                        arr=fixed_label_d,
-                        vmin=0,
-                        vmax=1,
-                        name="fixed_label",
-                    )
-                    save_array(
-                        sample_dir=sample_dir,
-                        depth_index=fixed_depth_index,
-                        arr=fixed_pred_d,
-                        vmin=0,
-                        vmax=1,
-                        name="fixed_label_pred",
-                    )
-
-            # save moving
-            for moving_depth_index in range(moving_depth):
-                moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
-                # value range for h5 and nifti might be different
+            # save label
+            if labeled:
                 save_array(
                     sample_dir=sample_dir,
-                    depth_index=moving_depth_index,
-                    arr=moving_image_d,
-                    name="moving_image",
+                    arr=fixed_label[sample_index, :, :, :],
+                    prefix="fixed",
+                    name="label",
+                    gray=True,
                 )
-
-                if labeled:
-                    moving_label_d = moving_label[
-                        sample_index, :, :, moving_depth_index
-                    ]
-                    save_array(
-                        sample_dir=sample_dir,
-                        depth_index=moving_depth_index,
-                        arr=moving_label_d,
-                        vmin=0,
-                        vmax=1,
-                        name="moving_label",
-                    )
+                save_array(
+                    sample_dir=sample_dir,
+                    arr=moving_label[sample_index, :, :, :],
+                    prefix="moving",
+                    name="label",
+                    gray=True,
+                )
+                save_array(
+                    sample_dir=sample_dir,
+                    arr=pred_fixed_label[sample_index, :, :, :],
+                    prefix="fixed",
+                    name="label_pred",
+                    gray=True,
+                )
 
             # save ddf / dvf if exists
             for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
                 if field is not None:
-                    for fixed_depth_index in range(fixed_depth):
-                        field_d = field[
-                            sample_index, :, :, fixed_depth_index, :
-                        ]  # [f_dim1, f_dim2,  3]
-                        field_max, field_min = np.max(field_d), np.min(field_d)
-                        field_d = (field_d - field_min) / np.maximum(
-                            field_max - field_min, EPS
-                        )
-                        save_array(
-                            sample_dir=sample_dir,
-                            depth_index=fixed_depth_index,
-                            arr=field_d,
-                            name=field_name,
-                        )
+                    # normalize field values into 0-1
+                    arr = field[sample_index, :, :, :, :]
+                    field_max, field_min = np.max(arr), np.min(arr)
+                    arr = (arr - field_min) / np.maximum(field_max - field_min, EPS)
+                    save_array(
+                        sample_dir=sample_dir,
+                        arr=arr,
+                        prefix="fixed",
+                        name=field_name,
+                        gray=False,
+                    )
+                    save_array(
+                        sample_dir=sample_dir,
+                        arr=arr,
+                        prefix="fixed",
+                        name=field_name + "_gray",
+                        gray=True,
+                    )
 
             # calculate metric
-            if labeled:
-                label = fixed_label[sample_index : (sample_index + 1), :, :, :]
-                pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-                dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
-                dist = label_loss.compute_centroid_distance(
-                    y_true=label, y_pred=pred, grid=fixed_grid_ref
-                )
-
-                # save metric
-                if image_index not in metric_map.keys():
-                    metric_map[image_index] = dict()
-                # label should not be repeated - assert that it is not in keys
-                assert label_index not in metric_map[image_index].keys()
-                metric_map[image_index][label_index] = dict(
-                    dice=dice.numpy()[0], dist=dist.numpy()[0]
-                )
-
-    # print metric
-    line_format = (
-        "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
-    )
-    with open(save_dir + "/metric.log", "w+") as file:
-        for image_index in sorted(metric_map.keys()):
-            for label_index in sorted(metric_map[image_index].keys()):
-                file.write(
-                    line_format.format(
-                        image_index=image_index,
-                        label_index=label_index,
-                        **metric_map[image_index][label_index],
+            if moving_image_warped is not None:
+                if image_index in image_metric_map.keys():
+                    raise ValueError(
+                        "Image index is repeated, maybe the dataset has been repeated."
                     )
+                y_true = fixed_image[sample_index : (sample_index + 1), :, :, :]
+                y_pred = moving_image_warped[sample_index : (sample_index + 1), :, :, :]
+                ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
+                image_metric_map[image_index] = dict(ssd=ssd)
+
+            if labeled:
+                y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
+                y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
+                dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True)
+                tre = label_loss.compute_centroid_distance(
+                    y_true=y_true, y_pred=y_pred, grid=fixed_grid_ref
                 )
 
+                if image_index not in label_metric_map.keys():
+                    label_metric_map[image_index] = dict()
+                if label_index in label_metric_map[image_index].keys():
+                    raise ValueError(
+                        "Label index is repeated, maybe the dataset has been repeated."
+                    )
+                label_metric_map[image_index][label_index] = dict(
+                    dice=dice.numpy()[0], tre=tre.numpy()[0]
+                )
 
-def save_array(
-    sample_dir: str,
-    depth_index: int,
-    arr: np.ndarray,
-    name: str,
-    vmin: (float, None) = None,
-    vmax: (float, None) = None,
-):
-    """
-    :param sample_dir: path of the directory to save
-    :param depth_index: index of the depth
-    :param arr: array to be saved
-    :param name: name of the array
-    :param vmin: minimum of the value in the image, None means auto set based on array
-    :param vmax: maximum of the value in the image, None means auto set based on array
-    """
-    plt.imsave(
-        fname=OUT_FILE_PATH_FORMAT.format(
-            sample_dir=sample_dir, depth_index=depth_index, name=name
-        ),
-        arr=arr,
-        vmin=vmin,
-        vmax=vmax,
-        cmap="gray",
-    )
+    # save metric
+    with open(save_dir + "/label_metric.log", "w+") as file:
+        # save details of each image and label
+        label_metric_per_label = dict(dice={}, tre={})
+        for image_index in sorted(label_metric_map.keys()):
+            for label_index in sorted(label_metric_map[image_index].keys()):
+                dice = label_metric_map[image_index][label_index]["dice"]
+                tre = label_metric_map[image_index][label_index]["tre"]
+                if label_index not in label_metric_per_label["dice"]:
+                    label_metric_per_label["dice"][label_index] = []
+                if label_index not in label_metric_per_label["tre"]:
+                    label_metric_per_label["tre"][label_index] = []
+                label_metric_per_label["dice"][label_index].append(dice)
+                label_metric_per_label["tre"][label_index].append(tre)
+                file.write(
+                    f"{image_index}, label {label_index}, dice {dice}, tre {tre}\n"
+                )
+        # save stats on each label
+        file.write("\n\n")
+        for label_index in sorted(label_metric_per_label["dice"].keys()):
+            dice_mean, dice_median, dice_std = get_mean_median_std(
+                label_metric_per_label["dice"]
+            )
+            tre_mean, tre_median, tre_std = get_mean_median_std(
+                label_metric_per_label["tre"]
+            )
+            file.write(
+                f"label {label_index}, "
+                f"dice mean={dice_mean}, median={dice_median}, std={dice_std}, "
+                f"tre mean={tre_mean}, median={tre_median}, std={tre_std}, \n"
+            )
+        # save stats overall
+        file.write("\n\n")
+        dices = [v for k, vs in label_metric_per_label["dice"] for v in vs]
+        tres = [v for k, vs in label_metric_per_label["tre"] for v in vs]
+        dice_mean, dice_median, dice_std = get_mean_median_std(dices)
+        tre_mean, tre_median, tre_std = get_mean_median_std(tres)
+        file.write(
+            f"All, "
+            f"dice mean={dice_mean}, median={dice_median}, std={dice_std}, "
+            f"tre mean={tre_mean}, median={tre_median}, std={tre_std}, \n"
+        )
 
 
 def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
@@ -335,9 +347,9 @@ def predict(
     model.load_weights(ckpt_path).expect_partial()
 
     # predict
-    fixed_grid_ref = layer_util.get_reference_grid(
-        grid_size=data_loader.fixed_image_shape
-    )
+    fixed_grid_ref = tf.expand_dims(
+        layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape), axis=0
+    )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
     predict_on_dataset(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
