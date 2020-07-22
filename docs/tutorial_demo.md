@@ -45,8 +45,8 @@ This demo registers unpaired CT lung images.
 
 - [unpaired_us_prostate_cv](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
 
-This demo registers 3D ultrasound images with a 10-fold cross-validation (under
-develpment).
+This demo registers 3D ultrasound images with a 9-fold cross-validation. This strategy
+is applicable for any of the available dataset loaders.
 
 ## Classical image registration
 

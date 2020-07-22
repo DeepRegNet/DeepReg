@@ -27,7 +27,7 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 1.0 # weight of regularization loss
+      weight: 10.0 # weight of regularization loss
       energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer
@@ -44,7 +44,7 @@ train:
 
   # define the hyper-parameters for preprocessing
   preprocess:
-    batch_size: 4
+    batch_size: 6
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
   # other training hyper-parameters
