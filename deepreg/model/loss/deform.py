@@ -1,23 +1,63 @@
+"""
+Module for calculating local displacement energy.
+"""
 import tensorflow as tf
 
 
 def gradient_dx(fv):
+    """
+    Function to calculate gradients on x-axis of a 3D tensor.
+
+    :param fv: a 3D tensor
+
+    :return: the gradients on x-axis
+    """
     return (fv[:, 2:, 1:-1, 1:-1] - fv[:, :-2, 1:-1, 1:-1]) / 2
 
 
 def gradient_dy(fv):
+    """
+    Function to calculate gradients on y-axis of a 3D tensor.
+
+    :param fv: a 3D tensor
+
+    :return: the gradients on y-axis
+    """
     return (fv[:, 1:-1, 2:, 1:-1] - fv[:, 1:-1, :-2, 1:-1]) / 2
 
 
 def gradient_dz(fv):
+    """
+    Function to calculate gradients on z-axis of a 3D tensor.
+
+    :param fv: a 3D tensor
+
+    :return: the gradients on z-axis
+    """
     return (fv[:, 1:-1, 1:-1, 2:] - fv[:, 1:-1, 1:-1, :-2]) / 2
 
 
 def gradient_txyz(Txyz, fn):
+    """
+    Function to calculate gradients on a 4D tensor (DDF).
+
+    :param Txyz: a DDF
+    :param fn: a gradient calculating function
+
+    :return: the gradients of the ddf on each channel
+    """
     return tf.stack([fn(Txyz[..., i]) for i in [0, 1, 2]], axis=4)
 
 
 def compute_gradient_norm(displacement, l1=False):
+    """
+    Function to calculate l1/l2-norm for a DDF.
+
+    :param displacement: a DDF
+    :param l1: choose to calculate l1 or l2-norm
+
+    :return: the l1 or l2-norm for a DDF
+    """
     dTdx = gradient_txyz(displacement, gradient_dx)
     dTdy = gradient_txyz(displacement, gradient_dy)
     dTdz = gradient_txyz(displacement, gradient_dz)
@@ -29,6 +69,13 @@ def compute_gradient_norm(displacement, l1=False):
 
 
 def compute_bending_energy(displacement):
+    """
+    Function to calculate the bending energy of a DDF.
+
+    :param displacement: a DDF
+
+    :return: the bending energy for a DDF
+    """
     dTdx = gradient_txyz(displacement, gradient_dx)
     dTdy = gradient_txyz(displacement, gradient_dy)
     dTdz = gradient_txyz(displacement, gradient_dz)
@@ -50,6 +97,14 @@ def compute_bending_energy(displacement):
 
 
 def local_displacement_energy(ddf, energy_type, **kwargs):
+    """
+    Function to calculate the energy of a DDF.
+
+    :param ddf: a DDF
+    :param energy_type: bending/gradient-l2/gradient-l1
+
+    :return: the energy for a DDF
+    """
     if energy_type == "bending":
         return compute_bending_energy(ddf)
     elif energy_type == "gradient-l2":

@@ -4,6 +4,7 @@
 Tests for deepreg/model/loss/deform.py in
 pytest style
 """
+import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.deform as deform
@@ -101,3 +102,13 @@ def test_local_displacement_energy_l2norm():
     get = deform.local_displacement_energy(tensor, "gradient-l2")
     expect = tf.zeros([4])
     assert assertTensorsEqual(get, expect)
+
+
+def test_local_displacement_energy_other():
+    """
+    Test value error raised if non supported
+    string passed to the local displacement energy function.
+    """
+    tensor = tf.ones([4, 50, 50, 50, 3])
+    with pytest.raises(ValueError):
+        deform.local_displacement_energy(tensor, "a wrong string")
