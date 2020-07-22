@@ -1,6 +1,8 @@
 """
 Tests for deepreg/model/loss/image.py in
 pytest style
+Notes: The format of inputs to the image.dissimilarity_fn
+should be better converted into tf tensor type beforehand.
 """
 import numpy as np
 import pytest
