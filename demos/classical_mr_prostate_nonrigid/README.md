@@ -11,12 +11,24 @@ Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
 ## Instructions
 
-- Run the demo_data.py script to download an example MR volumes with the prostate gland
+- Change current directory to DeepReg project root directory;
+- Run `demo_data.py` script to download an example MR volumes with the prostate gland
   segmenation;
-- Run the demo_register.py script. This script will register two images. The optimised
+
+```bash
+python demos/classical_mr_prostate_nonrigid/demo_data.py
+```
+
+- Run `demo_register.py` script. This script will register two images. The optimised
   transformation will be applied to the moving images, as well as the moving labels. The
   results will be plotted to compare the warped image/labels with the ground-truth
   image/labels.
+
+  ```bash
+  python demos/classical_mr_prostate_nonrigid/demo_register.py
+  ```
+
+```
 
 ## Application
 
@@ -37,3 +49,4 @@ Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.
 Vincent, G., Guillard, G., Birbeck, N., Zhang, J. and Strand, R., 2014. Evaluation of
 prostate segmentation algorithms for MRI: the PROMISE12 challenge. Medical image
 analysis, 18(2), pp.359-373.
+```

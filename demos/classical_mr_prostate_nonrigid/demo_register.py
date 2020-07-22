@@ -11,7 +11,7 @@ import deepreg.model.layer as layer
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 
-current_path = os.getcwd()
+MAIN_PATH = os.getcwd()
 PROJECT_DIR = r"demos/classical_mr_prostate_nonrigid"
 os.chdir(PROJECT_DIR)
 
@@ -132,4 +132,4 @@ plt.show()
 plt.pause(0.001)
 input("Press [enter] to continue.")
 
-os.chdir(current_path)
+os.chdir(MAIN_PATH)

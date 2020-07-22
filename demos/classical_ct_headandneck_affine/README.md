@@ -11,13 +11,23 @@ Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
 ## Instructions
 
-- Run the demo_data.py script to download an example CT volumes with 2 labels;
-- Run the demo_register.py script. This script will register two images. The fixed image
+- Change current directory to DeepReg project root directory;
+- Run `demo_data.py` script to download an example CT volumes with two labels;
+
+```bash
+python demos/classical_ct_headandneck_affine/demo_data.py
+```
+
+- Run `demo_register.py` script. This script will register two images. The fixed image
   will be the downloaded data and the moving image will be simulated by applying a
   random affine transformation, such that the ground-truth is available for. The
   optimised transformation will be applied to the moving images, as well as the moving
   labels. The results will be plotted to compare the warped image/labels with the
   ground-truth image/labels.
+
+```bash
+python demos/classical_ct_headandneck_affine/demo_register.py
+```
 
 ## Application
 

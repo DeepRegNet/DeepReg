@@ -10,7 +10,7 @@ import tensorflow as tf
 import deepreg.model.layer_util as util
 import deepreg.model.loss.image as image_loss
 
-current_path = os.getcwd()
+MAIN_PATH = os.getcwd()
 PROJECT_DIR = r"demos/classical_ct_headandneck_affine"
 os.chdir(PROJECT_DIR)
 
@@ -140,4 +140,4 @@ for idx_label in range(fixed_labels.shape[4]):
 plt.pause(0.001)
 input("Press [enter] to continue.")
 
-os.chdir(current_path)
+os.chdir(MAIN_PATH)
