@@ -1,0 +1,10 @@
+dataset:
+  dir:
+    train: "demos/unpaired_ct_abdomen/data/train"
+    valid: "demos/unpaired_ct_abdomen/data/valid"
+    test: "demos/unpaired_ct_abdomen/data/test"
+  format: "nifti"
+  type: "unpaired" # paired / unpaired / grouped
+  labeled: true
+  moving_image_shape: [192, 160, 256]
+  fixed_image_shape: [192, 160, 256]
