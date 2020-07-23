@@ -1,3 +1,4 @@
+from deepreg.model.network.affine import build_affine_model
 from deepreg.model.network.cond import build_conditional_model
 from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
 
@@ -35,6 +36,16 @@ def build_model(
         )
     elif model_config["method"] == "conditional":
         return build_conditional_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
+        )
+    elif model_config["method"] == "affine":
+        return build_affine_model(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             index_size=index_size,

@@ -28,10 +28,6 @@ setup(
         "testfixtures",
     ],
     entry_points={
-        "console_scripts": [
-            "train=deepreg.train:main",
-            "predict=deepreg.predict:main",
-            "gen_tfrecord=deepreg.gen_tfrecord:main",
-        ]
+        "console_scripts": ["train=deepreg.train:main", "predict=deepreg.predict:main"]
     },
 )

@@ -1,21 +1,14 @@
-<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="150" />
-
 # DeepReg
-
-[![Build Status](https://travis-ci.org/ucl-candi/DeepReg.svg?branch=master)](https://travis-ci.org/ucl-candi/DeepReg)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
 
 **DeepReg is a freely available, community-supported open-source toolkit for research in medical image registration using
 deep learning.**
 
 The current version is implemented as a Tensorflow 2-based framework, and contains implementations for
-unsupervised- and weaky-supervised algorithms with their combinations and variants. `DeepReg` has a practical focus on growing and diverse clinical applications, as seen in the provided [examples](./docs/tutorial_demo.md).
+unsupervised- and weaky-supervised algorithms with their combinations and variants. `DeepReg` has a practical focus on growing and diverse clinical applications, as seen in the provided [examples](tutorial_demo.md).
 
 _Right now, `DeepReg` is still under-development - however, many tutorials, demos and much of the core funtionality are already accessible._
 
-[Get involved](./docs/CONTRIBUTING.md) and help make `DeepReg` better!
+[Get involved](CONTRIBUTING.md) and help make `DeepReg` better!
 
 ## Features
 
@@ -49,4 +42,4 @@ DeepReg is maintained and led by a team of developers and researchers. People wi
 
 This open-source initiative started within University College London, with support from the Wellcome/EPSRC Centre for Interventional and Surgical Sciences ([WEISS](https://www.ucl.ac.uk/interventional-surgical-sciences/)).
 
-<img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='150'/>
+<p style="text-align: center"><img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='250'/></p>

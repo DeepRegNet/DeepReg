@@ -37,7 +37,6 @@ class GlobalNet(tf.keras.Model):
         Image is encoded gradually, i from level 0 to E.
         Then, a densely-connected layer outputs an affine
         transformation.
-
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
         :param extract_levels: list, which levels from net to extract
@@ -54,7 +53,6 @@ class GlobalNet(tf.keras.Model):
         self.transform_initial = tf.constant_initializer(
             value=[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
         )
-
         # init layer variables
         num_channels = [
             num_channel_initial * (2 ** level)
@@ -70,7 +68,6 @@ class GlobalNet(tf.keras.Model):
         self._dense_layer = layer.Dense(
             units=12, bias_initializer=self.transform_initial
         )
-        self._reshape = tf.keras.layers.Reshape(target_shape=(4, 3))
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -89,10 +86,9 @@ class GlobalNet(tf.keras.Model):
         )  # level E of encoding
 
         # predict affine parameters theta of shape = [batch, 4, 3]
-        theta = self._dense_layer(h_out)
-        theta = self._reshape(theta)
-
+        self.theta = self._dense_layer(h_out)
+        self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
         # warp the reference grid with affine parameters to output a ddf
-        grid_warped = layer_util.warp_grid(self.reference_grid, theta)
+        grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
         output = grid_warped - self.reference_grid
         return output

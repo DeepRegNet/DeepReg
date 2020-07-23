@@ -466,10 +466,6 @@ def resize3d(
         has_channel = False
         has_batch = False
         input_image_shape = image.shape[0:3]
-    else:
-        raise ValueError(
-            f"Unknown image_dim in resize3d. It should be 3 or 4 or 5, got {image_dim}"
-        )
 
     # no need of resize
     if input_image_shape == tuple(size):

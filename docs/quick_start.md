@@ -71,16 +71,16 @@ The recommended method is to clone the repository and install it locally. All ne
 dependencies will be installed automatically.
 
 ```bash
-git clone https://github.com/ucl-candi/DeepReg.git # clone the repository
+git clone https://github.com/DeepRegNet/DeepReg.git # clone the repository
 pip install -e . # install the package
 ```
 
 Optionally, you can install the
-[master branch](https://github.com/ucl-candi/DeepReg.git) of the package directly from
+[master branch](https://github.com/DeepRegNet/DeepReg.git) of the package directly from
 the repository:
 
 ```bash
-pip install git+https://github.com/ucl-candi/DeepReg.git
+pip install git+https://github.com/DeepRegNet/DeepReg.git
 ```
 
 ## Train
