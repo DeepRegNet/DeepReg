@@ -45,6 +45,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         fixed_label = inputs_dict.get("fixed_label", None)
 
         ddf = outputs_dict.get("ddf", None)
+        dvf = outputs_dict.get("dvf", None)
         pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
 
         labeled = moving_label is not None
@@ -129,22 +130,23 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                         cmap="gray",
                     )
 
-            # save ddf if exists
-            if ddf is not None:
-                if not os.path.exists(image_dir):
-                    os.makedirs(image_dir)
-                for fixed_depth_index in range(fixed_depth):
-                    ddf_d = ddf[
-                        sample_index, :, :, fixed_depth_index, :
-                    ]  # [f_dim1, f_dim2,  3]
-                    ddf_max, ddf_min = np.max(ddf_d), np.min(ddf_d)
-                    ddf_d = (ddf_d - ddf_min) / np.maximum(ddf_max - ddf_min, EPS)
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="ddf"
-                        ),
-                        ddf_d,
-                    )
+            # save ddf / dvf if exists
+            for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
+                if field is not None:
+                    for fixed_depth_index in range(fixed_depth):
+                        field_d = field[
+                            sample_index, :, :, fixed_depth_index, :
+                        ]  # [f_dim1, f_dim2,  3]
+                        field_max, field_min = np.max(field_d), np.min(field_d)
+                        field_d = (field_d - field_min) / np.maximum(
+                            field_max - field_min, EPS
+                        )
+                        plt.imsave(
+                            filename_format.format(
+                                depth_index=fixed_depth_index, name=field_name
+                            ),
+                            field_d,
+                        )
 
             # calculate metric
             if labeled:
@@ -180,7 +182,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 )
 
 
-def init(log_dir, ckpt_path):
+def init(log_dir, ckpt_path, config_path):
     """
     Function to create new directory to log directory
     to store results.
@@ -203,13 +205,31 @@ def init(log_dir, ckpt_path):
         os.makedirs(log_dir)
 
     # load config
-    config = config_parser.load_configs(
-        "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
-    )
+    if config_path == "":
+        # use default config, which should be provided in the log folder
+        config = config_parser.load_configs(
+            "/".join(ckpt_path.split("/")[:-2]) + "/config.yaml"
+        )
+    else:
+        # use customized config
+        logging.warning(
+            "Using customized configuration."
+            "The code might break if the config of the model doesn't match the saved model."
+        )
+        config = config_parser.load_configs(config_path)
     return config, log_dir
 
 
-def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_label):
+def predict(
+    gpu,
+    gpu_allow_growth,
+    ckpt_path,
+    mode,
+    batch_size,
+    log_dir,
+    sample_label,
+    config_path,
+):
     """
     Function to predict some metrics from the saved model and logging results.
     :param gpu: str, which env gpu to use.
@@ -220,6 +240,7 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     :param batch_size: int, batch size to perform predictions in
     :param log_dir: str, path to store logs
     :param sample_label:
+    :param config_path: to overwrite the default config
     """
     logging.error("TODO sample_label is not used in predict")
 
@@ -228,34 +249,34 @@ def predict(gpu, gpu_allow_growth, ckpt_path, mode, batch_size, log_dir, sample_
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config, log_dir = init(log_dir, ckpt_path)
-    data_config = config["data"]
-    train_data_config = config["train"]["data"]
-    train_data_config["batch_size"] = batch_size
+    config, log_dir = init(log_dir, ckpt_path, config_path)
+    dataset_config = config["dataset"]
+    preprocess_config = config["train"]["preprocess"]
+    preprocess_config["batch_size"] = batch_size
     optimizer_config = config["train"]["optimizer"]
     model_config = config["train"]["model"]
     loss_config = config["train"]["loss"]
 
     # data
-    data_loader = load.get_data_loader(data_config, mode)
+    data_loader = load.get_data_loader(dataset_config, mode)
     if data_loader is None:
         raise ValueError(
             "Data loader for prediction is None. Probably the data dir path is not defined."
         )
     dataset = data_loader.get_dataset_and_preprocess(
-        training=False, repeat=False, **train_data_config
+        training=False, repeat=False, **preprocess_config
     )
 
     # optimizer
-    optimizer = opt.get_optimizer(optimizer_config)
+    optimizer = opt.build_optimizer(optimizer_config)
 
     # model
     model = build_model(
         moving_image_size=data_loader.moving_image_shape,
         fixed_image_size=data_loader.fixed_image_shape,
         index_size=data_loader.num_indices,
-        labeled=data_config["labeled"],
-        batch_size=train_data_config["batch_size"],
+        labeled=dataset_config["labeled"],
+        batch_size=preprocess_config["batch_size"],
         model_config=model_config,
         loss_config=loss_config,
     )
@@ -343,6 +364,15 @@ def main(args=None):
         type=str,
     )
 
+    parser.add_argument(
+        "--config_path",
+        "-c",
+        help="Path of config, must end with .yaml. Can pass multiple paths.",
+        type=str,
+        nargs="*",
+        default="",
+    )
+
     args = parser.parse_args(args)
 
     predict(
@@ -353,6 +383,7 @@ def main(args=None):
         args.batch_size,
         args.log_dir,
         args.sample_label,
+        args.config_path,
     )
 
 

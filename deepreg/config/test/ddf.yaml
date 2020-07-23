@@ -1,10 +1,7 @@
 train:
   model:
-    method: "ddf" # ddf or conditional or seg
-    backbone:
-      name: "local"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
-      out_activation: ""
+    method: "ddf" # ddf / dvf / conditional
+    backbone: "local"
     local:
       num_channel_initial: 1
       extract_levels: [0, 1, 2, 3, 4]
@@ -29,7 +26,7 @@ train:
     regularization:
       weight: 0.5
       energy_type: "bending"
-  data:
+  preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
@@ -44,4 +41,3 @@ train:
       momentum: 0.9
   epochs: 2
   save_period: 2
-  histogram_freq: 2

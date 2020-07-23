@@ -1,6 +1,6 @@
-from deepreg.model.network.cond import build_cond_model
-from deepreg.model.network.ddf import build_ddf_model
-from deepreg.model.network.dvf import build_dvf_model
+from deepreg.model.network.affine import build_affine_model
+from deepreg.model.network.cond import build_conditional_model
+from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
 
 
 def build_model(
@@ -24,33 +24,35 @@ def build_model(
     :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
     :return: the built tf.keras.Model
     """
-    if model_config["method"] == "ddf":
-        return build_ddf_model(
-            moving_image_size,
-            fixed_image_size,
-            index_size,
-            labeled,
-            batch_size,
-            model_config,
-            loss_config,
-        )
-    elif model_config["method"] == "dvf":
-        return build_dvf_model(
-            moving_image_size,
-            fixed_image_size,
-            index_size,
-            batch_size,
-            model_config,
-            loss_config,
+    if model_config["method"] in ["ddf", "dvf"]:
+        return build_ddf_dvf_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
         )
     elif model_config["method"] == "conditional":
-        return build_cond_model(
-            moving_image_size,
-            fixed_image_size,
-            index_size,
-            batch_size,
-            model_config,
-            loss_config,
+        return build_conditional_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
+        )
+    elif model_config["method"] == "affine":
+        return build_affine_model(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            model_config=model_config,
+            loss_config=loss_config,
         )
     else:
         raise ValueError("Unknown model method")
