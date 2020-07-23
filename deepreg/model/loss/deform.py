@@ -97,14 +97,8 @@ def compute_bending_energy(ddf: tf.Tensor) -> tf.Tensor:
     dfdxz = gradient_txyz(dfdx, gradient_dz)
 
     # (dx + dy + dz) ** 2 = dxx + dyy + dzz + 2*(dxy + dyz + dzx)
-    energy = (
-        dfdxx ** 2
-        + dfdyy ** 2
-        + dfdzz ** 2
-        + 2 * dfdxy ** 2
-        + 2 * dfdxz ** 2
-        + 2 * dfdyz ** 2
-    )
+    energy = dfdxx ** 2 + dfdyy ** 2 + dfdzz ** 2
+    energy += 2 * dfdxy ** 2 + 2 * dfdxz ** 2 + 2 * dfdyz ** 2
     return tf.reduce_mean(energy, [1, 2, 3, 4])
 
 
