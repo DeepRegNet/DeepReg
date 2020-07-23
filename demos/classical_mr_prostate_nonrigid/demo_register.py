@@ -22,7 +22,7 @@ FILE_PATH = os.path.join(DATA_PATH, "demo2.h5")
 ## registration parameters
 image_loss_name = "lncc"
 deform_loss_name = "bending"
-weight_deform_loss = 1e3
+weight_deform_loss = 10
 learning_rate = 0.1
 total_iter = int(3000)
 
