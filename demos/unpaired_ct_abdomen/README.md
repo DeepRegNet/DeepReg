@@ -28,7 +28,7 @@ After running the command you should see this:
 DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
 L2R_Task3_AbdominalCT.tar  test  train  valid
 ```
-Where L2R_Task3_AbdominalCT.tar is the original dataset file downloaded previously, test is a folder that contains the images and labels for testing, train is a folder that contains the images for training, and valid is a folder that contains the images for validation.
+Where L2R_Task3_AbdominalCT.tar is the original dataset file downloaded previously, test is a folder that contains the images and labels for testing, train is a folder that contains the images and labels for training, and valid is a folder that contains the images and labels for validation.
 
 3.- The next step is to train the network using DeepReg. To train the network, run demo_train.py:
 
