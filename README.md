@@ -47,6 +47,6 @@ DeepReg is maintained and led by a team of developers and researchers. People wi
 | Zachary Baum       | University College London                         |
 | Zhe Min            |                                                   |
 
-This open-source initiative started within University College London, with support from the Wellcome/EPSRC Centre for Interventional and Surgical Sciences ([WEISS](https://www.ucl.ac.uk/interventional-surgical-sciences/)).
+This open-source initiative started within University College London, with support from the Wellcome/EPSRC Centre for Interventional and Surgical Sciences ([WEISS](https://www.ucl.ac.uk/interventional-surgical-sciences/)), and partial support from the Wellcome/EPSRC Centre for Medical Engineering ([CME](https://medicalengineering.org.uk/)).
 
-<img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' width='150'/>
+<img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg' alt='WEISS Logo' height="80" style="padding: 10px;" /><img src='https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg' alt='CME Logo' height="80" style="padding: 10px;"/>
