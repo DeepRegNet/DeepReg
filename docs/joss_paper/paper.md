@@ -7,7 +7,7 @@ tags:
   - image fusion
   - deep learning
   - neural networks
-authors:  # not-ordered and many others :)
+authors:  # not-ordered yet
   - name: Yunguan Fu
     orcid: 0000-0002-1184-7421
     affiliation: "1, 2, 3" # (Multiple affiliations must be quoted)
@@ -17,16 +17,19 @@ authors:  # not-ordered and many others :)
   - name: Shaheer Saeed
     orcid: 0000-0002-5004-0663
     affiliation: "1, 2"
+  - name: Adrià Casamitjana
+    affiliation: 2
+  - name: Zachary Baum
+    orcid: 0000-0001-6838-335X
   - name: Rémi Delaunay
     affiliation: "1, 2, 4"
   - name: Qianye Yang
     orcid: 0000-0003-4401-5311
     affiliation: "1, 2"
-  - name: Zachary Baum
-    orcid: 0000-0001-6838-335X
+  - name: Alexander Grimwood
     affiliation: "1, 2"
-  - name: Adrià Casamitjana
-    affiliation: 2
+  - name: Zhe Min
+    affiliation: 1
   - name: Ester Bonmati
     affiliation: "1, 2"
   - name: Matthew J. Clarkson
@@ -44,7 +47,7 @@ affiliations:
    index: 2
  - name: InstaDeep
    index: 3
- - name: Department of Surgical & Interventional Engineering, King’s College London, London, UK
+ - name: Department of Surgical & Interventional Engineering, King’s College London
    index: 4
 date: 12 August 2020
 bibliography: paper.bib
@@ -118,7 +121,7 @@ Prostate MR (unsupervised +/- supervision with inter-subject sampling)
 
 # Acknowledgements
 
-This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z).
+This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (NS/A000049/1) and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34).
 
 # References
 <!-- This will be filled in by references in paper.bib -->
