@@ -5,7 +5,7 @@ import shutil
 
 # 1.- Extract data --> This will create a new folder "Training"
 project_dir = r"demos/unpaired_ct_abdomen"
-data_folder = os.path.join(project_dir, "data")
+data_folder = os.path.join(project_dir, "dataset")
 data_file = os.path.join(data_folder, "L2R_Task3_AbdominalCT.tar") #need to be changed to settings or similar
 
 # TODO if Training folder exists --> eliminate
