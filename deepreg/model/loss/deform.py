@@ -8,7 +8,7 @@ import tensorflow as tf
 
 def gradient_dx(fx: tf.Tensor) -> tf.Tensor:
     """
-    Function to calculate gradients on x-axis of a 3D tensor.
+    Function to calculate gradients on x-axis of a 3D tensor using central finite difference.
     It moves the tensor along axis 1 to calculate the approximate gradient, the x axis,
     dx[i] = (x[i+1] - x[i-1]) / 2
 
@@ -20,7 +20,7 @@ def gradient_dx(fx: tf.Tensor) -> tf.Tensor:
 
 def gradient_dy(fy: tf.Tensor) -> tf.Tensor:
     """
-    Function to calculate gradients on y-axis of a 3D tensor.
+    Function to calculate gradients on y-axis of a 3D tensor using central finite difference.
     It moves the tensor along axis 2 to calculate the approximate gradient, the y axis,
     dy[i] = (y[i+1] - y[i-1]) / 2
 
@@ -32,7 +32,7 @@ def gradient_dy(fy: tf.Tensor) -> tf.Tensor:
 
 def gradient_dz(fz: tf.Tensor) -> tf.Tensor:
     """
-    Function to calculate gradients on z-axis of a 3D tensor.
+    Function to calculate gradients on z-axis of a 3D tensor using central finite difference.
     It moves the tensor along axis 3 to calculate the approximate gradient, the z axis,
     dz[i] = (z[i+1] - z[i-1]) / 2
 
@@ -44,7 +44,7 @@ def gradient_dz(fz: tf.Tensor) -> tf.Tensor:
 
 def gradient_txyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
     """
-    Function to calculate gradients on x,y,z-axis of a tensor.
+    Function to calculate gradients on x,y,z-axis of a tensor using central finite difference.
     It calculates the gradient along x, y, z separately then stack them together
 
     :param fxyz: shape = (..., 3)
@@ -56,7 +56,7 @@ def gradient_txyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
 
 def compute_gradient_norm(ddf: tf.Tensor, l1: bool = False) -> tf.Tensor:
     """
-    Function to calculate the L1/L2 norm of the first order finite differentiation of ddf
+    Function to calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference
 
     :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
     :param l1: bool true if calculate L1 norm, otherwise L2 norm
@@ -76,7 +76,7 @@ def compute_gradient_norm(ddf: tf.Tensor, l1: bool = False) -> tf.Tensor:
 
 def compute_bending_energy(ddf: tf.Tensor) -> tf.Tensor:
     """
-    Function to calculate the norm of the second order finite differentiation of ddf
+    Function to calculate the bending energy based on second-order differentiation of ddf using central finite difference
 
     :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
     :return: shape = (batch, )
@@ -104,7 +104,7 @@ def compute_bending_energy(ddf: tf.Tensor) -> tf.Tensor:
 
 def local_displacement_energy(ddf: tf.Tensor, energy_type: str, **kwargs) -> tf.Tensor:
     """
-    Function to calculate the displacement energy of the ddf based on finite differentiation
+    Function to calculate the displacement energy of the ddf based on finite difference
 
     :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
     :param energy_type: type of the energy
