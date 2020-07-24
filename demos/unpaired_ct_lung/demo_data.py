@@ -248,4 +248,3 @@ for folder in folders:
                             os.path.join(data_dir, folder, subfolder, file),
                         )
                     nib.save(img, os.path.join(data_dir, folder, subfolder, file))
-                    

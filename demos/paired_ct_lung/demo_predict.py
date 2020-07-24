@@ -1,8 +1,8 @@
-from deepreg.predict import predict
+import os
 
 import matplotlib.pyplot as plt
 
-import os
+from deepreg.predict import predict
 
 ######## PREDICTION ########
 
@@ -42,30 +42,36 @@ plt.title("Label")
 plt.axis("off")
 
 plt.subplot(3, 2, 2)
-pred144 = plt.imread(os.path.join(path_to_image0_label0,"depth144_fixed_label_pred.png"))
+pred144 = plt.imread(
+    os.path.join(path_to_image0_label0, "depth144_fixed_label_pred.png")
+)
 plt.imshow(pred144)
 plt.title("Prediction")
 plt.axis("off")
 
 
 plt.subplot(3, 2, 3)
-label145 = plt.imread(os.path.join(path_to_image0_label0,"depth145_fixed_label.png"))
+label145 = plt.imread(os.path.join(path_to_image0_label0, "depth145_fixed_label.png"))
 plt.imshow(label145)
 plt.axis("off")
 
 plt.subplot(3, 2, 4)
-pred145 = plt.imread(os.path.join(path_to_image0_label0,"depth145_fixed_label_pred.png"))
+pred145 = plt.imread(
+    os.path.join(path_to_image0_label0, "depth145_fixed_label_pred.png")
+)
 plt.imshow(pred145)
 plt.axis("off")
 
 
 plt.subplot(3, 2, 5)
-label184 = plt.imread(os.path.join(path_to_image0_label0,"depth184_fixed_label.png"))
+label184 = plt.imread(os.path.join(path_to_image0_label0, "depth184_fixed_label.png"))
 plt.imshow(label184)
 plt.axis("off")
 
 plt.subplot(3, 2, 6)
-pred184 = plt.imread(os.path.join(path_to_image0_label0,"depth184_fixed_label_pred.png"))
+pred184 = plt.imread(
+    os.path.join(path_to_image0_label0, "depth184_fixed_label_pred.png")
+)
 plt.imshow(pred184)
 plt.axis("off")
 # this is the path where you want to save the visualisation as a png
