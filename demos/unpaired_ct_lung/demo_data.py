@@ -29,7 +29,7 @@ fname = "training.zip"
 
 # if training.zip is already downloaded in the correct directory then
 # comment out the following line
-# os.system("wget " + url)
+os.system("wget " + url)
 
 print("The file ", fname, " has successfully been downloaded!")
 
