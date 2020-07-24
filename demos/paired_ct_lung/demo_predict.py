@@ -1,5 +1,9 @@
 from deepreg.predict import predict
 
+import matplotlib.pyplot as plt
+
+import os
+
 ######## PREDICTION ########
 
 
@@ -21,10 +25,6 @@ predict(
 )
 
 # the numerical metrics are saved in the logs directory specified
-
-######## VISUALISATION ########
-
-import matplotlib.pyplot as plt
 
 ######## VISUALISATION ########
 
