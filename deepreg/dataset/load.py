@@ -1,3 +1,5 @@
+import os
+
 from deepreg.dataset.loader.grouped_loader import GroupedDataLoader
 from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.interface import ConcatenatedDataLoader
@@ -30,6 +32,11 @@ def get_data_loader(data_config, mode):
         return None
     if isinstance(data_dir_paths, str):
         data_dir_paths = [data_dir_paths]
+    for data_dir_path in data_dir_paths:
+        if not os.path.isdir(data_dir_path):
+            raise ValueError(
+                f"Data directory path {data_dir_path} for mode {mode} is not a directory or does not exist"
+            )
 
     data_loaders = []
     for data_dir_path in data_dir_paths:
@@ -74,8 +81,6 @@ def get_single_data_loader(data_type, data_config, common_args, data_dir_path):
         )
     else:
         raise ValueError(
-            "Unknown data format. "
-            "Supported types are paired, unpaired, and grouped, got {}\n".format(
-                data_type
-            )
+            f"Unknown data format {data_type}. "
+            f"Supported types are paired, unpaired, and grouped.\n"
         )
