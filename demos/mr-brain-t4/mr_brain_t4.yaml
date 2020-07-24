@@ -1,8 +1,8 @@
 dataset:
   dir:
-    train: "/home/acasamitjana/Data/Learn2Reg/train"
-    valid: "/home/acasamitjana/Data/Learn2Reg/valid"
-    test: "/home/acasamitjana/Data/Learn2Reg/valid"
+    train: "/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/data/train"
+    valid: "/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/data/test"
+    test: "/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/data/test"
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
   labeled: True
@@ -23,31 +23,31 @@ train:
   loss:
     dissimilarity:
       image:
-        name: "lncc"
-        weight: 0.0
+        name: "ssd"
+        weight: 1.0
       label:
-        weight: 2.0
+        weight: 1.0
         name: "single_scale"
         multi_scale:
           loss_type: "dice"
           loss_scales: [0, 1, 2, 4, 8, 16, 32]
         single_scale:
-          loss_type: "dice"
+          loss_type: "cross-entropy"
     regularization:
-      weight: 0.1
+      weight: 0.2
       energy_type: "gradient-l2" # bending / gradient-l2 / gradient-l1
   preprocess:
-    batch_size: 5
+    batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
     name: "adam"
     adam:
-      learning_rate: 1.0e-5
+      learning_rate: 1.0e-4
     sgd:
       learning_rate: 1.0e-4
       momentum: 0.9
     rms:
       learning_rate: 1.0e-4
       momentum: 0.9
-  epochs: 1000
+  epochs: 200
   save_period: 2

@@ -6,12 +6,10 @@ from deepreg.predict import predict
 
 ######## PREDICTION ########
 
-log_dir = "/home/acasamitjana/Repositories/DeepReg/demos/mr-brain-t4/learn2reg_t4_unpaired_train_logs"
-ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch100.ckpt")
-config_path = [
-    "/home/acasamitjana/Repositories/DeepReg/demos/mr-brain-t4/mr_brain_t4.yaml"
-]
-gpu = "0"
+log_dir = "/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/learn2reg_t4_unpaired_train_logs"
+config_path = ["/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/mr_brain_t4.yaml"]
+ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch200.ckpt")
+gpu = 'none'
 gpu_allow_growth = False
 predict(
     gpu=gpu,
@@ -26,6 +24,8 @@ predict(
 
 exit()
 # the numerical metrics are saved in the logs directory specified
+
+
 
 ######## VISUALISATION ########
 

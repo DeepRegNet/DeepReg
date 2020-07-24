@@ -24,22 +24,22 @@ os.chdir(join(main_path,project_dir))
 data_folder_name = "data"
 path_to_data_folder = join(main_path, project_dir, data_folder_name)
 
-# Download data
-url = '\'https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA\''
-system('wget ' + ' -O ' + FNAME + ' ' + url )
-print("The file ", FNAME, " has successfully been downloaded!")
-
-# Extract data
-if exists(path_to_data_folder) is not True:
-    makedirs(path_to_data_folder)
-
-with tarfile.open(join(main_path,project_dir, FNAME), "r") as tar_ref:
-    tar_ref.extractall(data_folder_name)
-# with zipfile.ZipFile(join(main_path,project_dir, FNAME), "r") as zip_ref:
-#     zip_ref.extractall(data_folder_name)
-
-remove(FNAME)
-print("Files unzipped!")
+# # Download data
+# url = '\'https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA\''
+# system('wget ' + ' -O ' + FNAME + ' ' + url )
+# print("The file ", FNAME, " has successfully been downloaded!")
+#
+# # Extract data
+# if exists(path_to_data_folder) is not True:
+#     makedirs(path_to_data_folder)
+#
+# with tarfile.open(join(main_path,project_dir, FNAME), "r") as tar_ref:
+#     tar_ref.extractall(data_folder_name)
+# # with zipfile.ZipFile(join(main_path,project_dir, FNAME), "r") as zip_ref:
+# #     zip_ref.extractall(data_folder_name)
+#
+# remove(FNAME)
+# print("Files unzipped!")
 
 # Rename directories
 path_to_init_img = join(path_to_data_folder, 'Training', 'img')
@@ -142,10 +142,12 @@ for ds in data_splits:
     for f in files:
         proxy = nib.load(join(path, f))
         labels = np.asarray(proxy.dataobj)
-        labels_one_hot = [np.zeros_like(labels)]*num_labels
-        for it_l in range(num_labels):
+        labels_one_hot = []
+        for it_l in range(1,num_labels):
             index_labels = np.where(labels == it_l)
-            labels_one_hot[it_l][index_labels] = 1
+            mask = np.zeros_like(labels)
+            mask[index_labels] = 1
+            labels_one_hot.append(mask)
         labels_one_hot = np.stack(labels_one_hot, axis=-1)
         img = nib.Nifti1Image(labels_one_hot, proxy.affine)
         nib.save(img, join(path, f))
