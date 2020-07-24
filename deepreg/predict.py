@@ -10,6 +10,7 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
+import nibabel as nib
 
 import deepreg.config.parser as config_parser
 import deepreg.dataset.load as load
@@ -29,6 +30,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     :param model:
     :param save_dir: str, path to store dir
     """
+
     metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
     for _, inputs_dict in enumerate(dataset):
         # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
@@ -47,6 +49,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         ddf = outputs_dict.get("ddf", None)
         dvf = outputs_dict.get("dvf", None)
         pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
+        pred_fixed_image = outputs_dict.get("pred_fixed_image", None)
 
         labeled = moving_label is not None
 
@@ -58,113 +61,132 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
             image_index = "_".join([str(x) for x in indices_i[:-1]])
             label_index = str(indices_i[-1])
-
             # save fixed
-            image_dir = os.path.join(save_dir, "image%s" % image_index)
+            sample_dir = os.path.join(save_dir, image_index)
+            image_dir = os.path.join(sample_dir, "image%s" % image_index)
             if labeled:
-                image_dir = os.path.join(save_dir, "label%s" % label_index)
+                label_dir = os.path.join(sample_dir, "label%s" % label_index)
 
-            filename_format = os.path.join(
-                image_dir, "depth{depth_index:d}_{name:s}.png"
-            )
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            for fixed_depth_index in range(fixed_depth):
-                fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
-                plt.imsave(
-                    filename_format.format(
-                        depth_index=fixed_depth_index, name="fixed_image"
-                    ),
-                    fixed_image_d,
-                    cmap="gray",
-                )  # value range for h5 and nifti might be different
+            if not os.path.exists(sample_dir):
+                os.makedirs(sample_dir)
 
-                if labeled:
-                    fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
-                    fixed_pred_d = pred_fixed_label[
-                        sample_index, :, :, fixed_depth_index
-                    ]
+            img = nib.Nifti1Image(fixed_image[sample_index].numpy(), affine=None)
+            nib.save(img, os.path.join(sample_dir, 'fixed_image'))
 
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="fixed_label"
-                        ),
-                        fixed_label_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
-                    )
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="fixed_label_pred"
-                        ),
-                        fixed_pred_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
-                    )
+            img = nib.Nifti1Image(moving_image[sample_index].numpy(), affine=None)
+            nib.save(img, os.path.join(sample_dir, 'moving_image'))
 
-            # save moving
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            for moving_depth_index in range(moving_depth):
-                moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
-                plt.imsave(
-                    filename_format.format(
-                        depth_index=moving_depth_index, name="moving_image"
-                    ),
-                    moving_image_d,
-                    cmap="gray",
-                )  # value range for h5 and nifti might be different
-                if labeled:
-                    moving_label_d = moving_label[
-                        sample_index, :, :, moving_depth_index
-                    ]
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=moving_depth_index, name="moving_label"
-                        ),
-                        moving_label_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
-                    )
+            img = nib.Nifti1Image(pred_fixed_image[sample_index], affine=None)
+            nib.save(img, os.path.join(sample_dir, 'warped_image'))
 
-            # save ddf / dvf if exists
-            for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
-                if field is not None:
-                    for fixed_depth_index in range(fixed_depth):
-                        field_d = field[
-                            sample_index, :, :, fixed_depth_index, :
-                        ]  # [f_dim1, f_dim2,  3]
-                        field_max, field_min = np.max(field_d), np.min(field_d)
-                        field_d = (field_d - field_min) / np.maximum(
-                            field_max - field_min, EPS
-                        )
-                        plt.imsave(
-                            filename_format.format(
-                                depth_index=fixed_depth_index, name=field_name
-                            ),
-                            field_d,
-                        )
+            img = nib.Nifti1Image(pred_fixed_label[sample_index], affine=None)
+            nib.save(img, os.path.join(sample_dir, 'warped_label_' + label_index))
 
-            # calculate metric
-            if labeled:
-                label = fixed_label[sample_index : (sample_index + 1), :, :, :]
-                pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-                dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
-                dist = label_loss.compute_centroid_distance(
-                    y_true=label, y_pred=pred, grid=fixed_grid_ref
-                )
+            img = nib.Nifti1Image(ddf[sample_index], affine=None)
+            nib.save(img, os.path.join(sample_dir, 'ddf'))
 
-                # save metric
-                if image_index not in metric_map.keys():
-                    metric_map[image_index] = dict()
-                # label should not be repeated - assert that it is not in keys
-                assert label_index not in metric_map[image_index].keys()
-                metric_map[image_index][label_index] = dict(
-                    dice=dice.numpy()[0], dist=dist.numpy()[0]
-                )
+
+            # filename_format = os.path.join(
+            #     image_dir, "depth{depth_index:d}_{name:s}.png"
+            # )
+            # if not os.path.exists(image_dir):
+            #     os.makedirs(image_dir)
+            # for fixed_depth_index in range(fixed_depth):
+            #     fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
+            #     plt.imsave(
+            #         filename_format.format(
+            #             depth_index=fixed_depth_index, name="fixed_image"
+            #         ),
+            #         fixed_image_d,
+            #         cmap="gray",
+            #     )  # value range for h5 and nifti might be different
+            #
+            #     if labeled:
+            #         fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
+            #         fixed_pred_d = pred_fixed_label[
+            #             sample_index, :, :, fixed_depth_index
+            #         ]
+            #
+            #         plt.imsave(
+            #             filename_format.format(
+            #                 depth_index=fixed_depth_index, name="fixed_label"
+            #             ),
+            #             fixed_label_d,
+            #             vmin=0,
+            #             vmax=1,
+            #             cmap="gray",
+            #         )
+            #         plt.imsave(
+            #             filename_format.format(
+            #                 depth_index=fixed_depth_index, name="fixed_label_pred"
+            #             ),
+            #             fixed_pred_d,
+            #             vmin=0,
+            #             vmax=1,
+            #             cmap="gray",
+            #         )
+            #
+            # # save moving
+            # if not os.path.exists(image_dir):
+            #     os.makedirs(image_dir)
+            # for moving_depth_index in range(moving_depth):
+            #     moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
+            #     plt.imsave(
+            #         filename_format.format(
+            #             depth_index=moving_depth_index, name="moving_image"
+            #         ),
+            #         moving_image_d,
+            #         cmap="gray",
+            #     )  # value range for h5 and nifti might be different
+            #     if labeled:
+            #         moving_label_d = moving_label[
+            #             sample_index, :, :, moving_depth_index
+            #         ]
+            #         plt.imsave(
+            #             filename_format.format(
+            #                 depth_index=moving_depth_index, name="moving_label"
+            #             ),
+            #             moving_label_d,
+            #             vmin=0,
+            #             vmax=1,
+            #             cmap="gray",
+            #         )
+            #
+            # # save ddf / dvf if exists
+            # for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
+            #     if field is not None:
+            #         for fixed_depth_index in range(fixed_depth):
+            #             field_d = field[
+            #                 sample_index, :, :, fixed_depth_index, :
+            #             ]  # [f_dim1, f_dim2,  3]
+            #             field_max, field_min = np.max(field_d), np.min(field_d)
+            #             field_d = (field_d - field_min) / np.maximum(
+            #                 field_max - field_min, EPS
+            #             )
+            #             plt.imsave(
+            #                 filename_format.format(
+            #                     depth_index=fixed_depth_index, name=field_name
+            #                 ),
+            #                 field_d,
+            #             )
+            #
+            # # calculate metric
+            # if labeled:
+            #     label = fixed_label[sample_index : (sample_index + 1), :, :, :]
+            #     pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
+            #     dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
+            #     dist = label_loss.compute_centroid_distance(
+            #         y_true=label, y_pred=pred, grid=fixed_grid_ref
+            #     )
+            #
+            #     # save metric
+            #     if image_index not in metric_map.keys():
+            #         metric_map[image_index] = dict()
+            #     # label should not be repeated - assert that it is not in keys
+            #     assert label_index not in metric_map[image_index].keys()
+            #     metric_map[image_index][label_index] = dict(
+            #         dice=dice.numpy()[0], dist=dist.numpy()[0]
+            #     )
 
     # print metric
     line_format = (
