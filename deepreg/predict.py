@@ -62,7 +62,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             # save fixed
             image_dir = os.path.join(save_dir, "image%s" % image_index)
             if labeled:
-                image_dir = os.path.join(save_dir, "label%s" % label_index)
+                image_dir = os.path.join(image_dir, "label%s" % label_index)
 
             filename_format = os.path.join(
                 image_dir, "depth{depth_index:d}_{name:s}.png"
