@@ -242,7 +242,10 @@ def predict(
     :param sample_label:
     :param config_path: to overwrite the default config
     """
-    logging.error("TODO sample_label is not used in predict")
+    # TODO support custom sample_label
+    logging.warning(
+        "sample_label is not used in predict. It is True if and only if mode == 'train'."
+    )
 
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
