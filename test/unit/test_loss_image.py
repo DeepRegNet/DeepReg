@@ -62,7 +62,7 @@ def test_dissimilarity_fn():
     assert assertTensorsEqual(get_ssd, expect_ssd)
     assert assertTensorsEqual(get_zero_similarity_ncc, [-1, -1])
     assert assertTensorsEqual(get_zero_similarity_ssd, [0, 0])
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         image.dissimilarity_fn(
             tensor_true1, tensor_pred1, "some random string that isn't ssd or lncc"
         )
