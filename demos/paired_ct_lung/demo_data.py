@@ -5,6 +5,7 @@ import zipfile
 
 import nibabel as nib
 import numpy as np
+from tensorflow.keras.utils import get_file
 from tqdm import tqdm
 
 # if wget is installed remove the following line from comment
@@ -27,7 +28,9 @@ url = "https://zenodo.org/record/3835682/files/training.zip"
 # fname = wget.download(url)
 fname = "training.zip"
 
-os.system("wget " + url)
+# os.system("wget " + url)
+
+get_file(fname, url)
 
 print("The file ", fname, " has successfully been downloaded!")
 
