@@ -11,7 +11,7 @@ DeepReg includes:
 - Test or use the final registration network with command line tool `predict`.
 
 DeepReg has been tested with a wide range of applications with real-world clinical image
-and label data. `DeepReg Demos` all consisted of open-accesible datasets, step-by-step
+and label data. DeepReg Demos all consisted of open-accesible datasets, step-by-step
 instructions, pre-trained models and numerical-and-graphical inference results for
 demonstration purposes. These applications range from ultrasound, CT and MR images,
 covering many clinical specialities such as neurology, urology, gastroentrology,
@@ -21,7 +21,7 @@ In particular, the built-in dataset loaders, supporting nifti and h5 file format
 provide a varity of training strategies often encountered in real clinical scenarios,
 whether images are paired, grouped or labelled.
 
-This tutorial describe several examples in the `DeepReg Demos` to explain how these
+This tutorial describe several examples in the DeepReg Demos to explain how these
 different scenarios can be implemented with DeepReg.
 
 ## Train with paired images
