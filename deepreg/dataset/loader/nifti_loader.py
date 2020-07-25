@@ -17,10 +17,6 @@ class NiftiFileLoader(FileLoader):
         self.file_paths = get_sorted_filenames_in_dir(
             dir_path=os.path.join(dir_path, name), suffix="nii.gz"
         )
-        self.file_paths = self.file_paths + get_sorted_filenames_in_dir(
-            dir_path=os.path.join(dir_path, name), suffix="nii"
-        )
-        self.file_paths = sorted(self.file_paths)
         self.set_group_structure()
 
     def get_data(self, index: (int, tuple)):
