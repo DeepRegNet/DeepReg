@@ -11,7 +11,7 @@ A typical workflow to develop a [registration network](tutorial_registration.md)
 - Test or use the final registration network with command line tool `predict`.
 
 `DeepReg` has been tested with a wide range of applications with real-world clinical
-image and label data. `DeepReg Demos` all consisted of open-accesible dataset,
+image and label data. `DeepReg Demos` all consisted of open-accesible datasets,
 step-by-step instructions, pre-trained models and numerical-and-graphical inference
 results for demonstration purposes. These applications range from ultrasound, CT and MR
 images, covering many clinical specialities such as neurology, urology, gastroentrology,
