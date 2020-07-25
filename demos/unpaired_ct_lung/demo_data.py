@@ -32,7 +32,8 @@ fname = "training.zip"
 # comment out the following line
 # os.system("wget " + url)
 
-get_file(fname, url)
+
+get_file(os.path.join(os.getcwd(), fname), url)
 
 
 print("The file ", fname, " has successfully been downloaded!")
