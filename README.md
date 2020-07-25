@@ -12,15 +12,14 @@ medical image registration using deep learning.**
 
 The current version is implemented as a Tensorflow 2-based framework, and contains
 implementations for unsupervised- and weaky-supervised algorithms with their
-combinations and variants. `DeepReg` has a practical focus on growing and diverse
-clinical applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read
-the [documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more
-details.
+combinations and variants. DeepReg has a practical focus on growing and diverse clinical
+applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read the
+[documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more details.
 
-_Right now, `DeepReg` is still under-development - however, many tutorials, demos and
-much of the core funtionality are already accessible._
+_Right now, DeepReg is still under-development - however, many tutorials, demos and much
+of the core funtionality are already accessible._
 
-[Get involved](./docs/CONTRIBUTING.md) and help make `DeepReg` better!
+[Get involved](./docs/CONTRIBUTING.md) and help make DeepReg better!
 
 ## Features
 
@@ -39,7 +38,7 @@ under the Apache 2.0 license**.
 ## Contributors
 
 DeepReg is maintained and led by a team of developers and researchers. People with
-signifigant contributions to `DeepReg` are listed below (in alphabetical order).
+signifigant contributions to DeepReg are listed below (in alphabetical order).
 
 | Name               | Affiliation (at time of contribution)             |
 | ------------------ | ------------------------------------------------- |
