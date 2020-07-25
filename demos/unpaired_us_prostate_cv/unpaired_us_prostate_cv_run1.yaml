@@ -1,0 +1,17 @@
+dataset:
+  dir:
+    train:
+      - "demos/unpaired_us_prostate_cv/dataset/fold0"
+      - "demos/unpaired_us_prostate_cv/dataset/fold1"
+      - "demos/unpaired_us_prostate_cv/dataset/fold2"
+      - "demos/unpaired_us_prostate_cv/dataset/fold3"
+      - "demos/unpaired_us_prostate_cv/dataset/fold4"
+      - "demos/unpaired_us_prostate_cv/dataset/fold5"
+      - "demos/unpaired_us_prostate_cv/dataset/fold6"
+      - "demos/unpaired_us_prostate_cv/dataset/fold7"
+    valid: "demos/unpaired_us_prostate_cv/dataset/fold8"
+    test: "demos/unpaired_us_prostate_cv/dataset/fold9"
+  format: "h5"
+  type: "unpaired" # paired / unpaired / grouped
+  labeled: false
+  image_shape: [64, 100, 100]

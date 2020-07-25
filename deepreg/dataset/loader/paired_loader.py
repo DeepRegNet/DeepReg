@@ -1,5 +1,5 @@
 """
-Loads paired data
+Loads paired image data
 supports h5 and nifti formats
 supports labeled and unlabeled data
 """
@@ -13,8 +13,8 @@ from deepreg.dataset.util import check_difference_between_two_lists
 
 class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     """
-    Loads paired data using given file loader, handles both labeled and
-    unlabeled cases
+    Loads paired data using given file loader
+    Handles both labeled and unlabeled cases
     The function sample_index_generator needs to be defined for the
     GeneratorDataLoader class
     """
@@ -67,7 +67,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         self.num_images = self.loader_moving_image.get_num_images()
 
     def validate_data_files(self):
-        """Verify all loader have the same files"""
+        """Verify all loaders have the same files"""
         moving_image_ids = self.loader_moving_image.get_data_ids()
         fixed_image_ids = self.loader_fixed_image.get_data_ids()
         check_difference_between_two_lists(
@@ -84,8 +84,10 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
             )
 
     def sample_index_generator(self):
-        """generates indexes in order to load data using the
-        GeneratorDataLoader class"""
+        """
+        Generate indexes in order to load data using the
+        GeneratorDataLoader class
+        """
         for image_index in range(self.num_images):
             yield image_index, image_index, [image_index]
 
