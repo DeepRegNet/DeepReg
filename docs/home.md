@@ -7,8 +7,7 @@ The current version is implemented as a TensorFlow 2-based framework, and contai
 implementations for unsupervised- and weaky-supervised algorithms with their
 combinations and variants. `DeepReg` has a practical focus on growing and diverse
 clinical applications, as seen in the provided [examples](tutorial_demo.md). Read the
-[documentation and the tutorials](https://deepregnet.github.io/DeepReg/#/) for more
-details.
+[documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more details.
 
 _Right now, `DeepReg` is still under-development - however, many tutorials, demos and
 much of the core funtionality are already accessible._

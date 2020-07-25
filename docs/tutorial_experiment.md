@@ -9,7 +9,7 @@ information leakage), both in code development and subsequent applications.
 ## Random-split
 
 Every call of the `train` or `predict` function uses a dataset "physically" seperated by
-folders, such as 'train', 'val' and 'test' sets used in a random-split experiment. In
+folders, including 'train', 'val' and 'test' sets used in a random-split experiment. In
 this case, user needs to randomly assign available experiment image and label files into
 the three folders. Again, for more details see the [Dataset loader](doc_data_loader.md).
 
