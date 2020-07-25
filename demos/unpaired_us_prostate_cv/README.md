@@ -4,7 +4,12 @@
 
 Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
-## Instruction
+## Application
+
+Transrectal ultrasound (TRUS) images are aqcuired from prostate cancer patients.
+Registering
+
+## Instructions
 
 <!---
 """bash config_generator cross --data_folders dataset/fold0 dataset/fold1 dataset/fold2
@@ -39,11 +44,6 @@ train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_pr
 ```bash
 predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
 ```
-
-## Application
-
-Transrectal ultrasound (TRUS) images are aqcuired from prostate cancer patients.
-Registering
 
 ## Data
 

@@ -9,6 +9,13 @@ images.
 
 Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
+## Application
+
+Although, in this demo, the moving images are simulated using a randomly generated
+transformation. The registration technique can be used in radiotherapy to compensate the
+difference between CT acquired at different time points, such as pre-treatment and
+intra-/post-treatment.
+
 ## Instructions
 
 - Change current directory to the root directory of DeepReg project;
@@ -28,13 +35,6 @@ python demos/classical_ct_headandneck_affine/demo_data.py
 ```bash
 python demos/classical_ct_headandneck_affine/demo_register.py
 ```
-
-## Application
-
-Although, in this demo, the moving images are simulated using a randomly generated
-transformation. The registration technique can be used in radiotherapy to compensate the
-difference between CT acquired at different time points, such as pre-treatment and
-intra-/post-treatment.
 
 ## Data
 

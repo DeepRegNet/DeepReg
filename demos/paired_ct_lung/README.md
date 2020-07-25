@@ -6,6 +6,14 @@ Shaheer U. Saeed
 
 zcemsus@ucl.ac.uk
 
+## Application
+
+This is a registration between ct images acquired at different time points for a single
+patient. The images being registered are taken at inspiration and expiration for each
+subject. This is an intra subject registration. This type of intra subject registration
+is useful when there is a need to track certain features on a medical image such as
+tumor location when conducting invasive procedures.
+
 ## Instructions
 
 - Run the demo_data.py script: This script does the following:
@@ -27,14 +35,6 @@ zcemsus@ucl.ac.uk
   - Use the trained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
-
-## Application
-
-This is a registration between ct images acquired at different time points for a single
-patient. The images being registered are taken at inspiration and expiration for each
-subject. This is an intra subject registration. This type of intra subject registration
-is useful when there is a need to track certain features on a medical image such as
-tumor location when conducting invasive procedures.
 
 ## Data
 

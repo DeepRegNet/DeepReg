@@ -9,6 +9,11 @@ anf fixed images, often regularised by a deformation smoothness function.
 
 Yipeng Hu (yipeng.hu@ucl.ac.uk)
 
+## Application
+
+Registering inter-subject prostate MR images may be useful to align different glands in
+a common space for investigating the spatial distribution of cancer.
+
 ## Instructions
 
 - Change current directory to the root directory of DeepReg project;
@@ -27,11 +32,6 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
-
-## Application
-
-Registering inter-subject prostate MR images may be useful to align different glands in
-a common space for investigating the spatial distribution of cancer.
 
 ## Data
 
