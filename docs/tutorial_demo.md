@@ -36,7 +36,7 @@ This demo registers paired CT lung images.
 
 This demo registers unpaired CT lung images.
 
-## Train with grouped image registration
+## Train with grouped images
 
 (under development)
 
