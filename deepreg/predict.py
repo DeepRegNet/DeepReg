@@ -46,7 +46,7 @@ def build_sample_output_path(
     sample_dir = os.path.join(save_dir, f"image{image_index}")
     if labeled:
         # add label to the output path
-        sample_dir = os.path.join(save_dir, f"label{label_index}")
+        sample_dir = os.path.join(sample_dir, f"label{label_index}")
 
     # create the directory of the path
     if not os.path.exists(sample_dir):

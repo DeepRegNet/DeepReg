@@ -6,6 +6,16 @@ Shaheer U. Saeed
 
 zcemsus@ucl.ac.uk
 
+## Application
+
+This is a registration between ct images from different patients. The images are all
+from acquired at the same timepoint in the breathing cycle. This is an inter subject
+registration. This kind of registration is useful for determining how one stimulus
+affects multiple patietns. If a drug or invasive procedure is administered to multiple
+patients, registering the images from different patients can give medical professsionals
+a sense of how each patient is responding in comparison to others. An example of such an
+application can be seen in [2].
+
 ## Instructions
 
 - Run the demo_data.py script: This script does the following:
@@ -28,16 +38,6 @@ zcemsus@ucl.ac.uk
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
-## Application
-
-This is a registration between ct images from different patients. The images are all
-from acquired at the same timepoint in the breathing cycle. This is an inter subject
-registration. This kind of registration is useful for determining how one stimulus
-affects multiple patietns. If a drug or invasive procedure is administered to multiple
-patients, registering the images from different patients can give medical professsionals
-a sense of how each patient is responding in comparison to others. An example of such an
-application can be seen in [2].
-
 ## Data
 
 The dataset for this demo comes from [1] and can be downloaded from:
@@ -46,7 +46,7 @@ https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
-v0.1.4
+Last commit at which demo was tested: b891985ab2c8f19a23b6a686050eac82f6d90e7c
 
 ## References
 

@@ -1,6 +1,6 @@
 # Contributing to DeepReg
 
-We welcome contributions to `DeepReg`.
+We welcome contributions to DeepReg.
 
 ## Reporting bugs and feature requests
 
@@ -8,7 +8,7 @@ Found a bug? Create a [new issue](https://github.com/DeepRegNet/DeepReg/issues/n
 
 When reporting a bug, please include:
 
-1. The version of `DeepReg` you are using
+1. The version of DeepReg you are using
 2. Your OS version (for example Windows 10 64-bit, macOS High Sierra, Ubuntu 16.04)
 3. Detailed steps to reproduce the bug.
 
@@ -115,7 +115,7 @@ possible cases and work around
 - For lists/tuples, do not add comma after the last element, unless it's a single
   element tuple, like `(1,)`.
 
-To check if Black is causing conflicts, run `black .` in the root of `DeepReg` you will
+To check if Black is causing conflicts, run `black .` in the root of DeepReg you will
 see the formatted files by Black, run `pre-commit run --all-files`, you will see the
 final versions. Compare them to understand an issue. If there's a new case and there's
 an workaround, please update this section. Otherwise, please raise an issue.
