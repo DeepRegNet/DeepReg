@@ -3,9 +3,13 @@ import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+import nibabel as nib
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
+import deepreg.model.loss.image as image_loss
+import deepreg.model.loss.label as label_loss
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 
@@ -58,26 +62,33 @@ def build_log_dir(log_dir: str) -> str:
     return log_dir
 
 
-def save_array(sample_dir: str, arr: np.ndarray, prefix: str, name: str, gray: bool):
+def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: bool):
     """
-    :param sample_dir: path of the directory to save
+    :param pair_dir: path of the directory to save
     :param arr: 3D or 4D array to be saved
-    :param prefix: "moving" or "fixed"
     :param name: name of the array, e.g. image, label, etc.
     :param gray: true if the array is between 0,1
     """
+    if isinstance(arr, tf.Tensor):
+        arr = arr.numpy()
     assert len(arr.shape) in [3, 4]
     is_4d = len(arr.shape) == 4
     if is_4d:
         # if 4D array, it must be 3 channels
         assert arr.shape[3] == 3
-    assert prefix in ["fixed", "moving"]
 
+    # save in nifti format
+    nib.save(
+        img=nib.Nifti2Image(arr, affine=np.eye(4)),
+        filename=os.path.join(pair_dir, name + ".nii.gz"),
+    )
+
+    # save in png
+    png_dir = os.path.join(pair_dir, name)
+    os.makedirs(png_dir, exist_ok=True)
     for depth_index in range(arr.shape[2]):
         plt.imsave(
-            fname=os.path.join(
-                f"{sample_dir}", f"{prefix}_depth{depth_index}_{name}.png"
-            ),
+            fname=os.path.join(png_dir, f"depth{depth_index}_{name}.png"),
             arr=arr[:, :, depth_index, :] if is_4d else arr[:, :, depth_index],
             vmin=0 if gray else None,
             vmax=1 if gray else None,
@@ -85,5 +96,83 @@ def save_array(sample_dir: str, arr: np.ndarray, prefix: str, name: str, gray: b
         )
 
 
-def get_mean_median_std(values):
-    return np.mean(values), np.median(values), np.std(values)
+def calculate_metrics(
+    fixed_image: tf.Tensor,
+    fixed_label: tf.Tensor,
+    pred_moving_image: tf.Tensor,
+    pred_fixed_label: tf.Tensor,
+    fixed_grid_ref: tf.Tensor,
+    sample_index: int,
+) -> dict:
+    """
+    Calculate image/label based metrics
+    :param fixed_image: shape=(batch, f_dim1, f_dim2, f_dim3)
+    :param fixed_label: shape=(batch, f_dim1, f_dim2, f_dim3) or None
+    :param pred_moving_image: shape=(batch, f_dim1, f_dim2, f_dim3)
+    :param pred_fixed_label: shape=(batch, f_dim1, f_dim2, f_dim3) or None
+    :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
+    :param sample_index: int,
+    :return: dictionary of metrics
+    """
+
+    if pred_moving_image is not None:
+        y_true = fixed_image[sample_index : (sample_index + 1), :, :, :]
+        y_pred = pred_moving_image[sample_index : (sample_index + 1), :, :, :]
+        y_true = tf.expand_dims(y_true, axis=4)
+        y_pred = tf.expand_dims(y_pred, axis=4)
+        ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
+    else:
+        ssd = None
+
+    if fixed_label is not None:
+        y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
+        y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
+        dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True).numpy()[
+            0
+        ]
+        tre = label_loss.compute_centroid_distance(
+            y_true=y_true, y_pred=y_pred, grid=fixed_grid_ref[0, :, :, :, :]
+        ).numpy()[0]
+    else:
+        dice = None
+        tre = None
+
+    return dict(image_ssd=ssd, label_binary_dice=dice, label_tre=tre)
+
+
+def save_metric_dict(save_dir: str, metrics: list):
+    """
+    :param save_dir: directory to save outputs
+    :param metrics: list of dicts
+    """
+    # build dataframe
+    # column is pair_index, label_index, and metrics
+    df = pd.DataFrame(metrics)
+
+    # save overall dataframe
+    df.to_csv(os.path.join(save_dir, "metrics.csv"), index=False)
+
+    # calculate mean/median/std per label
+    df_per_label = df.drop(["pair_index"], axis=1)
+    df_per_label = df_per_label.groupby(["label_index"])
+    df_per_label = pd.concat(
+        [
+            df_per_label.mean().add_suffix("_mean"),
+            df_per_label.median().add_suffix("_median"),
+            df_per_label.std().add_suffix("_std"),
+        ],
+        axis=1,
+        sort=True,
+    )
+    df_per_label = df_per_label.reindex(
+        sorted(df_per_label.columns), axis=1
+    )  # sort columns
+    df_per_label.to_csv(
+        os.path.join(save_dir, "metrics_stats_per_label.csv"), index=True
+    )
+
+    # calculate overall mean/median/std
+    df_all = df.drop(["pair_index", "label_index"], axis=1)
+    df_all.describe().to_csv(
+        os.path.join(save_dir, "metrics_stats_overall.csv"), index=True
+    )
