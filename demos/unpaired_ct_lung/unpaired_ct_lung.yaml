@@ -1,7 +1,7 @@
 dataset:
   dir:
     train: "demos/unpaired_ct_lung/data/train"
-    valid: "demos/unpaired_ct_lung/data/valid"
+    valid: "demos/unpaired_ct_lung/data/test"
     test: "demos/unpaired_ct_lung/data/test"
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped

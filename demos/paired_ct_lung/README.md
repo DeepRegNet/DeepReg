@@ -6,6 +6,14 @@ Shaheer U. Saeed
 
 zcemsus@ucl.ac.uk
 
+## Application
+
+This is a registration between ct images acquired at different time points for a single
+patient. The images being registered are taken at inspiration and expiration for each
+subject. This is an intra subject registration. This type of intra subject registration
+is useful when there is a need to track certain features on a medical image such as
+tumor location when conducting invasive procedures.
+
 ## Instructions
 
 - Run the demo_data.py script: This script does the following:
@@ -28,14 +36,6 @@ zcemsus@ucl.ac.uk
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
-## Application
-
-This is a registration between ct images acquired at different time points for a single
-patient. The images being registered are taken at inspiration and expiration for each
-subject. This is an intra subject registration. This type of intra subject registration
-is useful when there is a need to track certain features on a medical image such as
-tumor location when conducting invasive procedures.
-
 ## Data
 
 The dataset for this demo comes from [1] and can be downloaded from:
@@ -44,7 +44,7 @@ https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
-v0.1.4
+Last commit at which demo was tested: b891985ab2c8f19a23b6a686050eac82f6d90e7c
 
 ## References
 
