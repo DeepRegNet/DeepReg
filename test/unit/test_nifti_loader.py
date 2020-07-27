@@ -72,9 +72,9 @@ def test_set_group_structure_ungrouped():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     loader.set_group_structure()
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError) as exec_info:
         loader.group_ids
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "object has no attribute" in msg
 
 
@@ -236,7 +236,7 @@ def test_get_data_incorrect_args():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     index = "abc"
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         loader.get_data(index)
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "must be int, or tuple" in msg
