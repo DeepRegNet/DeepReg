@@ -1,11 +1,20 @@
 import os
 import re
+import shutil
 
+import numpy as np
+import pytest
 import tensorflow as tf
 
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.train import build_config
-from deepreg.util import build_dataset, build_log_dir
+from deepreg.util import (
+    build_dataset,
+    build_log_dir,
+    calculate_metrics,
+    save_array,
+    save_metric_dict,
+)
 
 
 def test_build_dataset():
@@ -71,3 +80,150 @@ def test_build_log_dir():
     head, tail = os.path.split(log_dir)
     assert head == "logs"
     assert tail == "custom"
+
+
+def test_save_array():
+    """
+    Test save_array by testing different shapes and count output files
+    """
+
+    def get_num_pngs_in_dir(dir_path):
+        return len([x for x in os.listdir(dir_path) if x.endswith(".png")])
+
+    pair_dir = "logs/test_util_save_array"
+
+    # test 3D tf tensor
+    name = "3d_tf"
+    out_dir = os.path.join(pair_dir, name)
+    arr = tf.random.uniform(shape=(2, 3, 4))
+    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    assert get_num_pngs_in_dir(out_dir) == 4
+    shutil.rmtree(out_dir)
+
+    # test 4D tf tensor
+    name = "4d_tf"
+    out_dir = os.path.join(pair_dir, name)
+    arr = tf.random.uniform(shape=(2, 3, 4, 3))
+    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    assert get_num_pngs_in_dir(out_dir) == 4
+    shutil.rmtree(out_dir)
+
+    # test 3D np tensor
+    name = "3d_np"
+    out_dir = os.path.join(pair_dir, name)
+    arr = np.random.rand(2, 3, 4)
+    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    assert get_num_pngs_in_dir(out_dir) == 4
+    shutil.rmtree(out_dir)
+
+    # test 4D np tensor
+    name = "4d_np"
+    out_dir = os.path.join(pair_dir, name)
+    arr = np.random.rand(2, 3, 4, 3)
+    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    assert get_num_pngs_in_dir(out_dir) == 4
+    shutil.rmtree(out_dir)
+
+    # test 5D np tensor
+    name = "5d_np"
+    arr = np.random.rand(2, 3, 4, 1, 3)
+    with pytest.raises(ValueError) as exec_info:
+        save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "arr must be 3d or 4d numpy array or tf tensor" in msg
+
+    # test 4D np tensor with wrong shape
+    name = "5d_np"
+    arr = np.random.rand(2, 3, 4, 1)
+    with pytest.raises(ValueError) as exec_info:
+        save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "4d arr must have 3 channels as last dimension" in msg
+
+
+def test_calculate_metrics():
+    """
+    Test calculate_metrics by checking output keys.
+    Assuming the metrics functions are correct.
+    """
+
+    batch_size = 2
+    fixed_image_shape = (4, 4, 4)  # (f_dim1, f_dim2, f_dim3)
+
+    fixed_image = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
+    fixed_label = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
+    pred_moving_image = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
+    pred_fixed_label = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
+    fixed_grid_ref = tf.random.uniform(shape=(1,) + fixed_image_shape + (3,))
+    sample_index = 0
+
+    # labeled and have pred_moving_image
+    got = calculate_metrics(
+        fixed_image=fixed_image,
+        fixed_label=fixed_label,
+        pred_moving_image=pred_moving_image,
+        pred_fixed_label=pred_fixed_label,
+        fixed_grid_ref=fixed_grid_ref,
+        sample_index=sample_index,
+    )
+    assert got["image_ssd"] is not None
+    assert got["label_binary_dice"] is not None
+    assert got["label_tre"] is not None
+    assert sorted(list(got.keys())) == sorted(
+        ["image_ssd", "label_binary_dice", "label_tre"]
+    )
+
+    # labeled and do not have pred_moving_image
+    got = calculate_metrics(
+        fixed_image=fixed_image,
+        fixed_label=fixed_label,
+        pred_moving_image=None,
+        pred_fixed_label=pred_fixed_label,
+        fixed_grid_ref=fixed_grid_ref,
+        sample_index=sample_index,
+    )
+    assert got["image_ssd"] is None
+    assert got["label_binary_dice"] is not None
+    assert got["label_tre"] is not None
+
+    # unlabeled and have pred_moving_image
+    got = calculate_metrics(
+        fixed_image=fixed_image,
+        fixed_label=None,
+        pred_moving_image=pred_moving_image,
+        pred_fixed_label=None,
+        fixed_grid_ref=fixed_grid_ref,
+        sample_index=sample_index,
+    )
+    assert got["image_ssd"] is not None
+    assert got["label_binary_dice"] is None
+    assert got["label_tre"] is None
+
+    # unlabeled and do not have pred_moving_image
+    got = calculate_metrics(
+        fixed_image=fixed_image,
+        fixed_label=None,
+        pred_moving_image=None,
+        pred_fixed_label=None,
+        fixed_grid_ref=fixed_grid_ref,
+        sample_index=sample_index,
+    )
+    assert got["image_ssd"] is None
+    assert got["label_binary_dice"] is None
+    assert got["label_tre"] is None
+
+
+def test_save_metric_dict():
+    """
+    Test save_metric_dict by checking output files.
+    """
+
+    save_dir = "logs/test_save_metric_dict"
+    metrics = [
+        dict(image_ssd=0.1, label_dice=0.8, pair_index=[0], label_index=0),
+        dict(image_ssd=0.2, label_dice=0.7, pair_index=[1], label_index=1),
+        dict(image_ssd=0.3, label_dice=0.6, pair_index=[2], label_index=0),
+    ]
+    save_metric_dict(save_dir=save_dir, metrics=metrics)
+    assert len([x for x in os.listdir(save_dir) if x.endswith(".csv")]) == 3
+    shutil.rmtree(save_dir)

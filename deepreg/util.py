@@ -71,13 +71,21 @@ def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: boo
     """
     if isinstance(arr, tf.Tensor):
         arr = arr.numpy()
-    assert len(arr.shape) in [3, 4]
+    if len(arr.shape) not in [3, 4]:
+        raise ValueError(
+            f"arr must be 3d or 4d numpy array or tf tensor, " f"got {arr}"
+        )
     is_4d = len(arr.shape) == 4
     if is_4d:
         # if 4D array, it must be 3 channels
-        assert arr.shape[3] == 3
+        if arr.shape[3] != 3:
+            raise ValueError(
+                f"4d arr must have 3 channels as last dimension, "
+                f"got arr.shape = {arr.shape}"
+            )
 
     # save in nifti format
+    os.makedirs(pair_dir, exist_ok=True)
     nib.save(
         img=nib.Nifti2Image(arr, affine=np.eye(4)),
         filename=os.path.join(pair_dir, name + ".nii.gz"),
@@ -98,9 +106,9 @@ def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: boo
 
 def calculate_metrics(
     fixed_image: tf.Tensor,
-    fixed_label: tf.Tensor,
-    pred_moving_image: tf.Tensor,
-    pred_fixed_label: tf.Tensor,
+    fixed_label: (tf.Tensor, None),
+    pred_moving_image: (tf.Tensor, None),
+    pred_fixed_label: (tf.Tensor, None),
     fixed_grid_ref: tf.Tensor,
     sample_index: int,
 ) -> dict:
@@ -124,7 +132,7 @@ def calculate_metrics(
     else:
         ssd = None
 
-    if fixed_label is not None:
+    if fixed_label is not None and pred_fixed_label is not None:
         y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
         y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
         dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True).numpy()[
@@ -143,8 +151,10 @@ def calculate_metrics(
 def save_metric_dict(save_dir: str, metrics: list):
     """
     :param save_dir: directory to save outputs
-    :param metrics: list of dicts
+    :param metrics: list of dicts, dict must have key pair_index and label_index
     """
+    os.makedirs(name=save_dir, exist_ok=True)
+
     # build dataframe
     # column is pair_index, label_index, and metrics
     df = pd.DataFrame(metrics)
