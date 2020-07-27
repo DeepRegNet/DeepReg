@@ -10,6 +10,7 @@ import os
 import pytest
 import tensorflow as tf
 
+from deepreg.predict import predict
 from deepreg.train import build_callbacks, build_config, train
 
 
@@ -53,19 +54,28 @@ def test_build_callbacks():
         assert isinstance(callback, tf.keras.callbacks.Callback)
 
 
-def test_train():
+def test_train_and_predict():
     """
-    Test train by checking it can run.
+    Test train and predict by checking it can run.
     """
     gpu = ""
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
     gpu_allow_growth = False
-    ckpt_path = ""
-    log_dir = "test_train"
+
     train(
         gpu=gpu,
-        config_path=config_path,
+        config_path="deepreg/config/unpaired_labeled_ddf.yaml",
         gpu_allow_growth=gpu_allow_growth,
-        ckpt_path=ckpt_path,
-        log_dir=log_dir,
+        ckpt_path="",
+        log_dir="test_train",
+    )
+
+    predict(
+        gpu=gpu,
+        gpu_allow_growth=gpu_allow_growth,
+        ckpt_path="logs/test_train/save/weights-epoch2.ckpt",
+        mode="test",
+        batch_size=1,
+        log_dir="test_predict",
+        sample_label="all",
+        config_path="",
     )

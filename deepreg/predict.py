@@ -23,9 +23,6 @@ from deepreg.util import (
 )
 
 EPS = 1.0e-6
-OUT_FILE_PATH_FORMAT = os.path.join(
-    "{sample_dir:s}", "depth{depth_index:d}_{name:s}.png"
-)
 
 
 def build_pair_output_path(indices: list, save_dir: str) -> str:
@@ -39,7 +36,7 @@ def build_pair_output_path(indices: list, save_dir: str) -> str:
     # cast indices to string
     pair_index = "pair_" + "_".join([str(x) for x in indices[:-1]])
     if indices[-1] >= 0:
-        pair_index += f"_label{indices[-1]}"
+        pair_index += f"_label_{indices[-1]}"
 
     # init directory name
     sample_dir = os.path.join(save_dir, pair_index)
