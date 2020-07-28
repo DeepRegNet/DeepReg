@@ -69,6 +69,12 @@ def test_train_and_predict():
         log_dir="test_train",
     )
 
+    # check output folders
+    assert os.path.isdir("logs/test_train/save")
+    assert os.path.isdir("logs/test_train/train")
+    assert os.path.isdir("logs/test_train/validation")
+    assert os.path.isfile("logs/test_train/config.yaml")
+
     predict(
         gpu=gpu,
         gpu_allow_growth=gpu_allow_growth,
@@ -79,3 +85,11 @@ def test_train_and_predict():
         sample_label="all",
         config_path="",
     )
+
+    # check output folders
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_0")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_1")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_2")
+    assert os.path.isfile("logs/test_predict/test/metrics.csv")
+    assert os.path.isfile("logs/test_predict/test/metrics_stats_per_label.csv")
+    assert os.path.isfile("logs/test_predict/test/metrics_stats_overall.csv")
