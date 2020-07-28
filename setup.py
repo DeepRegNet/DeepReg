@@ -10,6 +10,7 @@ setup(
     install_requires=[
         "h5py",
         "numpy>=1.16",
+        "pandas",
         "nibabel",
         "pyyaml",
         "matplotlib",

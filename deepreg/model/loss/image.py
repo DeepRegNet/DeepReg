@@ -18,6 +18,7 @@ def dissimilarity_fn(
     :return: shape = (batch,)
     """
     assert name in ["lncc", "ssd"]
+    # shape = (batch, f_dim1, f_dim2, f_dim3, 1)
     y_true = tf.expand_dims(y_true, axis=4)
     y_pred = tf.expand_dims(y_pred, axis=4)
     if name == "lncc":

@@ -74,24 +74,24 @@ def test_get_data_loader():
     # check not a directory error
     config = load_yaml("deepreg/config/test/paired_nifti.yaml")
     config["dataset"]["dir"]["train"] += ".h5"
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_data_loader(data_config=config["dataset"], mode="train")
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "is not a directory or does not exist" in msg
 
     # check directory not existed error
     config = load_yaml("deepreg/config/test/paired_nifti.yaml")
     config["dataset"]["dir"]["train"] = "/this_should_not_existed"
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_data_loader(data_config=config["dataset"], mode="train")
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "is not a directory or does not exist" in msg
 
     # check mode
     config = load_yaml("deepreg/config/test/paired_nifti.yaml")
-    with pytest.raises(AssertionError) as execinfo:
+    with pytest.raises(AssertionError) as exec_info:
         load.get_data_loader(data_config=config["dataset"], mode="example")
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "mode must be one of train/valid/test" in msg
 
 
@@ -136,14 +136,14 @@ def test_get_single_data_loader():
 
     # not supported data loader
     config = load_yaml("deepreg/config/test/paired_nifti.yaml")
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_single_data_loader(
             data_type="NotSupported",
             data_config=config["dataset"],
             common_args=common_args,
             data_dir_path=config["dataset"]["dir"]["train"],
         )
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "Unknown data format" in msg
 
     # wrong keys for paired loader
@@ -151,40 +151,40 @@ def test_get_single_data_loader():
     # delete correct keys and add wrong one
     config["dataset"].pop("moving_image_shape", None)
     config["dataset"].pop("fixed_image_shape", None)
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_single_data_loader(
             data_type="paired",
             data_config=config["dataset"],
             common_args=common_args,
             data_dir_path=config["dataset"]["dir"]["train"],
         )
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "Paired Loader requires 'moving_image_shape' and 'fixed_image_shape'" in msg
 
     # wrong keys for unpaired loader
     config = load_yaml("deepreg/config/test/unpaired_nifti.yaml")
     # delete correct keys and add wrong one
     config["dataset"].pop("image_shape", None)
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_single_data_loader(
             data_type="unpaired",
             data_config=config["dataset"],
             common_args=common_args,
             data_dir_path=config["dataset"]["dir"]["train"],
         )
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "Unpaired Loader requires 'image_shape'" in msg
 
     # wrong keys for grouped loader
     config = load_yaml("deepreg/config/test/unpaired_nifti.yaml")
     # delete correct keys and add wrong one
     config["dataset"].pop("intra_group_prob", None)
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         load.get_single_data_loader(
             data_type="grouped",
             data_config=config["dataset"],
             common_args=common_args,
             data_dir_path=config["dataset"]["dir"]["train"],
         )
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "Grouped Loader requires 'image_shape'" in msg
