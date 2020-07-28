@@ -250,7 +250,7 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def data_generator(self):
         """
-        yeild samples of data to feed model
+        yield samples of data to feed model
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
             moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
