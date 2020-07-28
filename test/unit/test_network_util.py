@@ -10,17 +10,6 @@ import deepreg.model.network.util as util
 from deepreg.model.backbone import global_net, local_net, u_net
 
 
-def assertTensorsEqual(x, y):
-    """
-    given two tf tensors return True/False (not tf tensor)
-    tolerate small errors
-    :param x:
-    :param y:
-    :return:
-    """
-    return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
-
-
 def test_wrong_inputs():
     """
     Function to test wrong input types passed to build backbone func
