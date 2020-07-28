@@ -107,7 +107,7 @@ def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: boo
 def calculate_metrics(
     fixed_image: tf.Tensor,
     fixed_label: (tf.Tensor, None),
-    pred_moving_image: (tf.Tensor, None),
+    pred_fixed_image: (tf.Tensor, None),
     pred_fixed_label: (tf.Tensor, None),
     fixed_grid_ref: tf.Tensor,
     sample_index: int,
@@ -116,16 +116,16 @@ def calculate_metrics(
     Calculate image/label based metrics
     :param fixed_image: shape=(batch, f_dim1, f_dim2, f_dim3)
     :param fixed_label: shape=(batch, f_dim1, f_dim2, f_dim3) or None
-    :param pred_moving_image: shape=(batch, f_dim1, f_dim2, f_dim3)
+    :param pred_fixed_image: shape=(batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_label: shape=(batch, f_dim1, f_dim2, f_dim3) or None
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param sample_index: int,
     :return: dictionary of metrics
     """
 
-    if pred_moving_image is not None:
+    if pred_fixed_image is not None:
         y_true = fixed_image[sample_index : (sample_index + 1), :, :, :]
-        y_pred = pred_moving_image[sample_index : (sample_index + 1), :, :, :]
+        y_pred = pred_fixed_image[sample_index : (sample_index + 1), :, :, :]
         y_true = tf.expand_dims(y_true, axis=4)
         y_pred = tf.expand_dims(y_pred, axis=4)
         ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]

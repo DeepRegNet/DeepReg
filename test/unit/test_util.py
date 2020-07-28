@@ -152,16 +152,16 @@ def test_calculate_metrics():
 
     fixed_image = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
     fixed_label = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
-    pred_moving_image = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
+    pred_fixed_image = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
     pred_fixed_label = tf.random.uniform(shape=(batch_size,) + fixed_image_shape)
     fixed_grid_ref = tf.random.uniform(shape=(1,) + fixed_image_shape + (3,))
     sample_index = 0
 
-    # labeled and have pred_moving_image
+    # labeled and have pred_fixed_image
     got = calculate_metrics(
         fixed_image=fixed_image,
         fixed_label=fixed_label,
-        pred_moving_image=pred_moving_image,
+        pred_fixed_image=pred_fixed_image,
         pred_fixed_label=pred_fixed_label,
         fixed_grid_ref=fixed_grid_ref,
         sample_index=sample_index,
@@ -173,11 +173,11 @@ def test_calculate_metrics():
         ["image_ssd", "label_binary_dice", "label_tre"]
     )
 
-    # labeled and do not have pred_moving_image
+    # labeled and do not have pred_fixed_image
     got = calculate_metrics(
         fixed_image=fixed_image,
         fixed_label=fixed_label,
-        pred_moving_image=None,
+        pred_fixed_image=None,
         pred_fixed_label=pred_fixed_label,
         fixed_grid_ref=fixed_grid_ref,
         sample_index=sample_index,
@@ -186,11 +186,11 @@ def test_calculate_metrics():
     assert got["label_binary_dice"] is not None
     assert got["label_tre"] is not None
 
-    # unlabeled and have pred_moving_image
+    # unlabeled and have pred_fixed_image
     got = calculate_metrics(
         fixed_image=fixed_image,
         fixed_label=None,
-        pred_moving_image=pred_moving_image,
+        pred_fixed_image=pred_fixed_image,
         pred_fixed_label=None,
         fixed_grid_ref=fixed_grid_ref,
         sample_index=sample_index,
@@ -199,11 +199,11 @@ def test_calculate_metrics():
     assert got["label_binary_dice"] is None
     assert got["label_tre"] is None
 
-    # unlabeled and do not have pred_moving_image
+    # unlabeled and do not have pred_fixed_image
     got = calculate_metrics(
         fixed_image=fixed_image,
         fixed_label=None,
-        pred_moving_image=None,
+        pred_fixed_image=None,
         pred_fixed_label=None,
         fixed_grid_ref=fixed_grid_ref,
         sample_index=sample_index,

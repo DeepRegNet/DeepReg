@@ -83,7 +83,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
         # prediction
         # (batch, f_dim1, f_dim2, f_dim3)
         pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
-        pred_moving_image = (
+        pred_fixed_image = (
             layer_util.resample(vol=moving_image, loc=fixed_grid_ref + ddf)
             if ddf is not None
             else None
@@ -101,7 +101,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 moving_label,
                 fixed_image,
                 fixed_label,
-                pred_moving_image,
+                pred_fixed_image,
                 pred_fixed_label,
             ]
             names = [
@@ -109,7 +109,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 "moving_label",
                 "fixed_image",
                 "fixed_label",
-                "pred_moving_image",
+                "pred_fixed_image",
                 "pred_fixed_label",
             ]
             for arr, name in zip(arrs, names):
@@ -140,7 +140,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             metric = calculate_metrics(
                 fixed_image=fixed_image,
                 fixed_label=fixed_label,
-                pred_moving_image=pred_moving_image,
+                pred_fixed_image=pred_fixed_image,
                 pred_fixed_label=pred_fixed_label,
                 fixed_grid_ref=fixed_grid_ref,
                 sample_index=sample_index,
