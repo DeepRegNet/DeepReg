@@ -31,7 +31,7 @@ predict(
 # Now lets load in a few samples from the predicitons and plot them
 
 # change the following line to the path to image0 label0
-path_to_image0_label0 = r"logs/learn2reg_t2_paired_train_logs/test"
+path_to_image0_label0 = r"logs/learn2reg_t2_unpaired_train_logs/test"
 path_to_pred_fixed_label = os.path.join(
     path_to_image0_label0, r"pair_1_label_0/pred_fixed_label"
 )
@@ -65,6 +65,6 @@ for ind in inds_to_plot:
 
     sub_plot_counter = sub_plot_counter + 2
 
-path_to_vis = r"logs/learn2reg_t2_paired_train_logs/visualisation.png"
+path_to_vis = r"logs/learn2reg_t2_unpaired_train_logs/visualisation.png"
 plt.savefig(path_to_vis)
 print("Visualisation saved to:", path_to_vis)
