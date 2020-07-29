@@ -33,9 +33,11 @@ predict(
 # change the following line to the path to image0 label0
 path_to_image0_label0 = r"logs/learn2reg_t2_unpaired_train_logs/test"
 path_to_pred_fixed_label = os.path.join(
-    path_to_image0_label0, r"pair_1_label_0/pred_fixed_label"
+    path_to_image0_label0, r"pair_1_3_label_0/pred_fixed_label"
 )
-path_to_fixed_label = os.path.join(path_to_image0_label0, r"pair_1_label_0/fixed_label")
+path_to_fixed_label = os.path.join(
+    path_to_image0_label0, r"pair_1_3_label_0/fixed_label"
+)
 
 # change inds_to_plot if different images need to be plotted instead
 
