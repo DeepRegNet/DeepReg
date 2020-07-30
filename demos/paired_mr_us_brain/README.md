@@ -34,7 +34,8 @@ following order:
     and preprocess the full dataset. The code block titled "FULL DATA DOWNLOAD AND
     PREPROCESS" must be uncommented and the code block titled "PARTIAL PREPROCESSED DATA
     DOWNLOAD" must be commented out in order to download and use the full data (further
-    instructions provided in the script).
+    instructions provided in the script). To use the full data please edit eh config
+    file to specify the moving_image_shape as [256, 256, 288] as well.
   - Split the data into train and test sets (change ratio_of_test variable to change the
     ratio of test samples)
   - Restructure the files, for each of the train and test sets, into a directory

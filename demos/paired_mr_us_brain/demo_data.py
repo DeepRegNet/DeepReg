@@ -62,8 +62,7 @@ os.chdir(project_dir)
 #                     arr = nib.load(
 #                         os.path.join(path_to_data, folder, sub_folder, file)
 #                     ).get_data()
-#                     resize_arr = np.resize(arr, (64, 64, 72))
-#                     img = nib.Nifti1Image(resize_arr, affine=np.eye(4))
+#                     img = nib.Nifti1Image(arr, affine=np.eye(4))
 #                     img.to_filename(
 #                         os.path.join(
 #                             path_to_data,
