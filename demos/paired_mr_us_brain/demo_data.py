@@ -162,12 +162,8 @@ for folder in folders:
     for sub_folder in sub_folders:
         files = os.listdir(os.path.join(project_dir, data_folder, folder, sub_folder))
         for file in files:
-            if "fixed" in sub_folder:
-                if "13" in file or "2." in file:
-                    os.remove(
-                        os.path.join(project_dir, data_folder, folder, sub_folder, file)
-                    )
-                else:
+            try:
+                if "fixed" in sub_folder:
                     im_data = np.asarray(
                         nib.load(
                             os.path.join(
@@ -186,3 +182,17 @@ for folder in folders:
                             project_dir, data_folder, folder, sub_folder, file
                         ),
                     )
+                    img = nib.load(
+                        os.path.join(
+                            project_dir, data_folder, folder, "moving_image", file
+                        )
+                    )
+            except nib.filebasedimages.ImageFileError:
+                os.remove(
+                    os.path.join(project_dir, data_folder, folder, "fixed_images", file)
+                )
+                os.remove(
+                    os.path.join(
+                        project_dir, data_folder, folder, "moving_images", file
+                    )
+                )
