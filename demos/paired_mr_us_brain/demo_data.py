@@ -164,17 +164,26 @@ for folder in folders:
         files = os.listdir(os.path.join(project_dir, data_folder, folder, sub_folder))
         for file in files:
             if "fixed" in sub_folder:
-                im_data = np.asarray(
-                    nib.load(
+                if "13" in file:
+                    os.remove(
                         os.path.join(project_dir, data_folder, folder, sub_folder, file)
-                    ).dataobj,
-                    dtype=np.float32,
-                )
+                    )
+                else:
+                    im_data = np.asarray(
+                        nib.load(
+                            os.path.join(
+                                project_dir, data_folder, folder, sub_folder, file
+                            )
+                        ).dataobj,
+                        dtype=np.float32,
+                    )
 
-                im_data = ((im_data + 150) / (1200 + 150)) * 255.0  # rescale image
+                    im_data = ((im_data + 150) / (1200 + 150)) * 255.0  # rescale image
 
-                img = nib.Nifti1Image(im_data, affine=None)
-                nib.save(
-                    img,
-                    os.path.join(project_dir, data_folder, folder, sub_folder, file),
-                )
+                    img = nib.Nifti1Image(im_data, affine=None)
+                    nib.save(
+                        img,
+                        os.path.join(
+                            project_dir, data_folder, folder, sub_folder, file
+                        ),
+                    )
