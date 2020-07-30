@@ -81,10 +81,8 @@ for folder in folders:
                             file.split(".ni")[0] + ".nii.gz",
                         ),
                     )
-os.remove(
-    r"demos/paired_mr_us_brain/dataset_respect/paired_mr_us_brain/train/EASY-RESECT"
-)
-os.remove(r"demos/paired_mr_us_brain/dataset_respect/paired_mr_us_brain/train/_MACOSX")
+os.remove(r"dataset_respect/paired_mr_us_brain/train/EASY-RESECT")
+os.remove(r"dataset_respect/paired_mr_us_brain/train/__MACOSX")
 
 ######## PARTIAL PREPROCESSED DATA DOWNLOAD ########
 
