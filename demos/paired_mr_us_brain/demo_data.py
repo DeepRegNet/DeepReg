@@ -75,7 +75,7 @@ for folder in folders:
                         path_to_data,
                         folder,
                         sub_folder,
-                        file.split(".ni")[0] + "nii.gz",
+                        file.split(".ni")[0] + ".nii.gz",
                     ),
                 )
 
