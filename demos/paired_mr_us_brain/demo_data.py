@@ -31,9 +31,10 @@ for folder in all_folders:
     source = os.path.join(path_to_nifti, folder)
     destination = r"dataset_respect/paired_mr_us_brain"
     shutil.move(source, destination)
+print("Files restructured!")
 test_ratio = 0.25
 path_to_data = r"dataset_respect/paired_mr_us_brain"
-cases_list = os.list_dir(path_to_data)
+cases_list = os.listdir(path_to_data)
 os.mkdir(os.path.join(path_to_data, "test"))
 os.mkdir(os.path.join(path_to_data, "train"))
 num_test = round(len(cases_list) * test_ratio)
