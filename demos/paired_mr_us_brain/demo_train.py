@@ -1,10 +1,6 @@
 from deepreg.train import train
-import tensorflow as tf
 
 ######## NOW WE DO THE TRAINING ########
-
-tf.get_logger().setLevel(3)
-tf.keras.backend.clear_session()
 
 gpu = ""
 gpu_allow_growth = False
