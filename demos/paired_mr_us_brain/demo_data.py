@@ -70,7 +70,13 @@ for folder in folders:
             elif "US" in file:
                 img = nib.load(os.path.join(path_to_data, folder, sub_folder, file))
                 nib.save(
-                    img, os.path.join(path_to_data, folder, sub_folder, file + "nii.gz")
+                    img,
+                    os.path.join(
+                        path_to_data,
+                        folder,
+                        sub_folder,
+                        file.split(".ni")[0] + "nii.gz",
+                    ),
                 )
 
 
