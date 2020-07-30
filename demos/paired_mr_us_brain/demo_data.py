@@ -164,7 +164,7 @@ for folder in folders:
         files = os.listdir(os.path.join(project_dir, data_folder, folder, sub_folder))
         for file in files:
             if "fixed" in sub_folder:
-                if "13" in file:
+                if "13" in file or "2." in file:
                     os.remove(
                         os.path.join(project_dir, data_folder, folder, sub_folder, file)
                     )
