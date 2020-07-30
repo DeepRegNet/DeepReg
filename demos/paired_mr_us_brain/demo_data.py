@@ -184,7 +184,7 @@ for folder in folders:
                     )
                     img = nib.load(
                         os.path.join(
-                            project_dir, data_folder, folder, "moving_image", file
+                            project_dir, data_folder, folder, "moving_images", file
                         )
                     )
             except nib.filebasedimages.ImageFileError:
