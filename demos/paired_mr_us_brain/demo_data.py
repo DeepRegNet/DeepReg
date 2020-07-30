@@ -50,7 +50,10 @@ folders = os.listdir(path_to_data)
 for folder in folders:
     sub_folders = os.listdir(os.path.join(path_to_data, folder))
     for sub_folder in tqdm(sub_folders):
-        files = os.listdir(os.path.join(path_to_data, folder, sub_folder))
+        if "DS_St" in sub_folder:
+            os.remove(os.path.join(path_to_data, folder, sub_folder))
+        else:
+            files = os.listdir(os.path.join(path_to_data, folder, sub_folder))
         for file in files:
             if "T1" in file:
                 arr = nib.load(
