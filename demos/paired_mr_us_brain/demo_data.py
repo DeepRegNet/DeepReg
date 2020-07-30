@@ -60,7 +60,7 @@ for folder in folders:
                         os.path.join(path_to_data, folder, sub_folder, file)
                     ).get_data()
                     resize_arr = np.resize(arr, (64, 64, 72))
-                    img = nib.Nifti1Image(resize_arr, None)
+                    img = nib.Nifti1Image(resize_arr, affine=np.eye(4))
                     nib.save(
                         img,
                         os.path.join(
