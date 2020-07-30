@@ -44,8 +44,8 @@ follows.
 
 - Image
 
-  - Currently, DeepReg currently supports 3D images. But images do not have to be of the
-    same shape, and it will be resized to the required shape using linear interpolation.
+  - DeepReg currently supports 3D images. But images do not have to be of the same
+    shape, and it will be resized to the required shape using linear interpolation.
 
   - Currently, DeepReg only supports images stored in Nifti files or H5 files. We assume
     once loaded, the numpy arrays of **images have values ranged between 0 and 255**.

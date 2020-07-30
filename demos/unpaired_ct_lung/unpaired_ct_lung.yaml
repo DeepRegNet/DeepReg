@@ -1,10 +1,9 @@
 dataset:
   dir:
     train: "demos/unpaired_ct_lung/data/train"
-    valid: "demos/unpaired_ct_lung/data/valid"
+    valid: "demos/unpaired_ct_lung/data/test"
     test: "demos/unpaired_ct_lung/data/test"
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
   labeled: true
-  moving_image_shape: [192, 192, 208]
-  fixed_image_shape: [192, 192, 208]
+  image_shape: [192, 192, 208]
