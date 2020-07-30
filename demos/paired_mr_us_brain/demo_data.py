@@ -54,33 +54,33 @@ for folder in folders:
             os.remove(os.path.join(path_to_data, folder, sub_folder))
         else:
             files = os.listdir(os.path.join(path_to_data, folder, sub_folder))
-        for file in files:
-            if "T1" in file:
-                arr = nib.load(
-                    os.path.join(path_to_data, folder, sub_folder, file)
-                ).get_data()
-                resize_arr = np.resize(arr, (64, 64, 72))
-                img = nib.Nifti1Image(resize_arr, None)
-                nib.save(
-                    img,
-                    os.path.join(
-                        path_to_data,
-                        folder,
-                        sub_folder,
-                        file.split(".nii")[0] + "_resized.nii.gz",
-                    ),
-                )
-            elif "US" in file:
-                img = nib.load(os.path.join(path_to_data, folder, sub_folder, file))
-                nib.save(
-                    img,
-                    os.path.join(
-                        path_to_data,
-                        folder,
-                        sub_folder,
-                        file.split(".ni")[0] + ".nii.gz",
-                    ),
-                )
+            for file in files:
+                if "T1" in file:
+                    arr = nib.load(
+                        os.path.join(path_to_data, folder, sub_folder, file)
+                    ).get_data()
+                    resize_arr = np.resize(arr, (64, 64, 72))
+                    img = nib.Nifti1Image(resize_arr, None)
+                    nib.save(
+                        img,
+                        os.path.join(
+                            path_to_data,
+                            folder,
+                            sub_folder,
+                            file.split(".nii")[0] + "_resized.nii.gz",
+                        ),
+                    )
+                elif "US" in file:
+                    img = nib.load(os.path.join(path_to_data, folder, sub_folder, file))
+                    nib.save(
+                        img,
+                        os.path.join(
+                            path_to_data,
+                            folder,
+                            sub_folder,
+                            file.split(".ni")[0] + ".nii.gz",
+                        ),
+                    )
 
 
 ######## ########
