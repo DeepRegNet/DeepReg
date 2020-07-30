@@ -61,14 +61,13 @@ for folder in folders:
                     ).get_data()
                     resize_arr = np.resize(arr, (64, 64, 72))
                     img = nib.Nifti1Image(resize_arr, affine=np.eye(4))
-                    nib.save(
-                        img,
+                    img.to_filename(
                         os.path.join(
                             path_to_data,
                             folder,
                             sub_folder,
                             file.split(".nii")[0] + "_resized.nii.gz",
-                        ),
+                        )
                     )
                 elif "US" in file:
                     img = nib.load(os.path.join(path_to_data, folder, sub_folder, file))
