@@ -28,7 +28,7 @@ path_to_nifti = os.path.join(
 )
 all_folders = os.listdir(path_to_nifti)
 for folder in all_folders:
-    source = (path_to_nifti, folder)
+    source = os.path.join(path_to_nifti, folder)
     destination = r"dataset_respect/paired_mr_us_brain"
     shutil.move(source, destination)
 test_ratio = 0.25
