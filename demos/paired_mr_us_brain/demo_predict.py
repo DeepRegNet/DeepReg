@@ -37,7 +37,7 @@ path_to_moving_img = os.path.join(path_to_image0_label0, r"pair_0/pred_fixed_ima
 
 # change inds_to_plot if different images need to be plotted instead
 
-inds_to_plot = [144, 145, 184, 34, 90, 21]
+inds_to_plot = [10, 23, 45, 59, 62, 70]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:
