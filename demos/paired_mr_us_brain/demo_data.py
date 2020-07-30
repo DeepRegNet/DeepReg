@@ -64,7 +64,7 @@ for folder in folders:
                         path_to_data,
                         folder,
                         sub_folder,
-                        file.split[".nii"][0] + "_resized.nii.gz",
+                        file.split(".nii")[0] + "_resized.nii.gz",
                     ),
                 )
             elif "US" in file:
