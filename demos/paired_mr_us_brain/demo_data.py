@@ -176,7 +176,7 @@ for folder in folders:
                         dtype=np.float32,
                     )
 
-                    im_data = ((im_data + 150) / (1200 + 150)) * 255.0  # rescale image
+                    im_data = ((im_data + 150) / (1700 + 150)) * 255.0  # rescale image
 
                     img = nib.Nifti1Image(im_data, affine=None)
                     nib.save(
