@@ -288,6 +288,8 @@ def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     :return: shape = (batch, 3), batch of vectors denoting
              location of centroids.
     """
+    assert len(mask.shape) == 4
+    assert len(grid.shape) == 4
     bool_mask = tf.expand_dims(
         tf.cast(mask >= 0.5, dtype=tf.float32), axis=4
     )  # (batch, dim1, dim2, dim3, 1)
@@ -312,7 +314,7 @@ def compute_centroid_distance(
     """
     centroid_1 = compute_centroid(mask=y_pred, grid=grid)  # (batch, 3)
     centroid_2 = compute_centroid(mask=y_true, grid=grid)  # (batch, 3)
-    return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=[1]))
+    return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=1))
 
 
 def foreground_proportion(y: tf.Tensor) -> tf.Tensor:

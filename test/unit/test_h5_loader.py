@@ -74,9 +74,9 @@ def test_set_group_structure_ungrouped():
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
     loader.set_group_structure()
-    with pytest.raises(AttributeError) as execinfo:
+    with pytest.raises(AttributeError) as exec_info:
         loader.group_ids
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "object has no attribute" in msg
 
 
@@ -211,9 +211,9 @@ def test_init_incompatible_conditions():
     """
     dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
-    with pytest.raises(IndexError) as execinfo:
+    with pytest.raises(IndexError) as exec_info:
         H5FileLoader(dir_path=dir_path, name=name, grouped=True)
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "index out of range" in msg
 
 
@@ -241,7 +241,7 @@ def test_get_data_incorrect_args():
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
     index = "abc"
-    with pytest.raises(ValueError) as execinfo:
+    with pytest.raises(ValueError) as exec_info:
         loader.get_data(index)
-    msg = " ".join(execinfo.value.args[0].split())
+    msg = " ".join(exec_info.value.args[0].split())
     assert "must be int, or tuple" in msg

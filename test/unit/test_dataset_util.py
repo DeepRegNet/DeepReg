@@ -1,9 +1,10 @@
 # coding=utf-8
 
 """
-Tests for deepreg/dataset/util.py in
+Tests for deepreg/dataset/test_util.py in
 pytest style
 """
+
 import h5py
 import numpy as np
 import pytest

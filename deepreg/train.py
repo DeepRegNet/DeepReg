@@ -3,17 +3,14 @@ Module to train a network using init files and a CLI
 """
 
 import argparse
-import logging
 import os
-from datetime import datetime
 
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
-from deepreg.dataset.load import get_data_loader
-from deepreg.dataset.loader.interface import DataLoader
 from deepreg.model.network.build import build_model
+from deepreg.util import build_dataset, build_log_dir
 
 
 def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
@@ -31,13 +28,7 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
     """
 
     # init log directory
-    log_dir = os.path.join(
-        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
-    )
-    if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
-    else:
-        os.makedirs(log_dir)
+    log_dir = build_log_dir(log_dir)
 
     # check checkpoint path
     if ckpt_path != "":
@@ -48,52 +39,6 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
     config = config_parser.load_configs(config_path)
     config_parser.save(config=config, out_dir=log_dir)
     return config, log_dir
-
-
-def build_dataset(
-    dataset_config: dict, preprocess_config: dict
-) -> [[DataLoader, tf.data.Dataset, int], [DataLoader, tf.data.Dataset, int]]:
-    """
-    Function to prepare dataset for training and validation.
-    :param dataset_config: configuration for dataset
-    :param preprocess_config: configuration for preprocess
-    :return:
-    - (data_loader_train, dataset_train, steps_per_epoch_train)
-    - (data_loader_val, dataset_val, steps_per_epoch_valid)
-    """
-    data_loader_train = get_data_loader(dataset_config, "train")
-    if data_loader_train is None:
-        raise ValueError(
-            "Training data loader is None. Probably the data dir path is not defined."
-        )
-    data_loader_val = get_data_loader(dataset_config, "valid")
-    dataset_train = data_loader_train.get_dataset_and_preprocess(
-        training=True, repeat=True, **preprocess_config
-    )
-    dataset_val = (
-        data_loader_val.get_dataset_and_preprocess(
-            training=False, repeat=True, **preprocess_config
-        )
-        if data_loader_val is not None
-        else None
-    )
-    dataset_size_train = data_loader_train.num_samples
-    dataset_size_val = (
-        data_loader_val.num_samples if data_loader_val is not None else None
-    )
-    steps_per_epoch_train = max(
-        dataset_size_train // preprocess_config["batch_size"], 1
-    )
-    steps_per_epoch_valid = (
-        max(dataset_size_val // preprocess_config["batch_size"], 1)
-        if data_loader_val is not None
-        else None
-    )
-
-    return (
-        (data_loader_train, dataset_train, steps_per_epoch_train),
-        (data_loader_val, dataset_val, steps_per_epoch_valid),
-    )
 
 
 def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list:
@@ -141,12 +86,21 @@ def train(
     )
 
     # build dataset
-    data_out_train, data_out_val = build_dataset(
+    data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
+        mode="train",
+        training=True,
+        repeat=True,
     )
-    data_loader_train, dataset_train, steps_per_epoch_train = data_out_train
-    data_loader_val, dataset_val, steps_per_epoch_val = data_out_val
+    assert data_loader_train is not None  # train data should not be None
+    data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
+        dataset_config=config["dataset"],
+        preprocess_config=config["train"]["preprocess"],
+        mode="valid",
+        training=False,
+        repeat=True,
+    )
 
     # build callbacks
     callbacks = build_callbacks(

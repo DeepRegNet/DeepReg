@@ -316,9 +316,13 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}'s values have been normalized to [0,1]."
-                    f"Images are assumed to have values between [0, 255] after loading"
-                    f"and labels are assumed to be binary. "
+                    f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
+                    f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
+                    f"The tensors/arrays are normalized as follows:\n"
+                    f"Images are assumed to have values between [0, 255] after loading, "
+                    f"so it is divided by 255 after loading by default,\n"
+                    f"and labels are assumed to be binary, i.e. values are between [0,1], "
+                    f"so it is not changed\n"
                     f"If the label values are intended to represent multiple labels, "
                     f"please convert them to binary masks in multiple channels, "
                     f"with each channel representing one label only. "
