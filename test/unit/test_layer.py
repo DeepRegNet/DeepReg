@@ -10,17 +10,6 @@ import tensorflow as tf
 import deepreg.model.layer as layer
 
 
-def assert_tensors_equal(tensor_1, tensor_2):
-    """
-    given two tf tensors return True/False (not tf tensor)
-    tolerate small errors
-    :param tensor_1:
-    :param tensor_2:
-    :return: Boolean
-    """
-    return tf.reduce_max(tf.abs(tensor_1 - tensor_2)).numpy() < 1e-6
-
-
 def test_activation():
     """
     Test the layer.Activation class and its default attributes. No need to test the call() function since its
