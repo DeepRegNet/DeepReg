@@ -4,7 +4,28 @@ Tests functionality of the NiftiFileLoader
 import numpy as np
 import pytest
 
-from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
+from deepreg.dataset.loader.nifti_loader import NiftiFileLoader, load_nifti_file
+
+
+def test_load_nifti_file():
+    """
+    check if the nifti files can be correctly loaded
+    """
+
+    # nii.gz
+    nii_gz_filepath = "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz"
+    load_nifti_file(filepath=nii_gz_filepath)
+
+    # nii
+    nii_filepath = "./data/test/nifti/unit_test/case000026.nii"
+    load_nifti_file(filepath=nii_filepath)
+
+    # wrong file type
+    h5_filepath = "./data/test/h5/paired/test/fixed_images.h5"
+    with pytest.raises(ValueError) as exec_info:
+        load_nifti_file(filepath=h5_filepath)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "Nifti file path must end with .nii or .nii.gz" in msg
 
 
 def test_init_sufficient_args():
