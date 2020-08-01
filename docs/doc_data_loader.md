@@ -47,12 +47,15 @@ follows.
   - DeepReg currently supports 3D images. But images do not have to be of the same
     shape, and it will be resized to the required shape using linear interpolation.
 
-  - Currently, DeepReg only supports images stored in Nifti files or H5 files. We assume
-    once loaded, the numpy arrays of **images have values ranged between 0 and 255**.
-    And the values are divided by 255 before being fed to the neural networks. Check
-    [nifti_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py),
-    [h5_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py),
-    and `GeneratorDataLoader.data_generator` in
+  - Currently, DeepReg only supports images stored in Nifti files or H5 files. Check
+    [nifti_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
+    and
+    [h5_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
+    for more details.
+
+  - **Images are automatically normalized** at per-image level: the intensity values x
+    equals to `(x-min(x)+EPS) / (max(x)-min(x)+EPS)` so that its values are between
+    [0,1]. Check `GeneratorDataLoader.data_generator` in
     [loader interface](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/interface.py)
     for more details.
 
@@ -66,9 +69,11 @@ follows.
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
 
-    **All labels are assumed to be binary masks / segmentation.** In case of multi
-    labels, please use one-hot encoding to transform them into multiple channels such
-    that each class has its own binary label.
+  - **All labels are assumed to have values bettwen [0, 1].** So DeepReg accepts binary
+    segmentation mask or soft labels with float values between [0,1]. This is to prevent
+    accidental use of non-one-hot encoding to represent multiple class labels. In case
+    of multi labels, please use one-hot encoding to transform them into multiple
+    channels such that each class has its own binary label.
 
   - When the images are paired, the moving and fixed images must have the same number of
     labels.
