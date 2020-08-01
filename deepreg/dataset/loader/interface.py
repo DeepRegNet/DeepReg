@@ -7,6 +7,7 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
+from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
@@ -253,8 +254,10 @@ class GeneratorDataLoader(DataLoader, ABC):
         yield samples of data to feed model
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
-            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
-            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
+            moving_image = self.loader_moving_image.get_data(index=moving_index)
+            moving_image = normalize_array(moving_image)
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+            fixed_image = normalize_array(fixed_image)
             moving_label = (
                 self.loader_moving_label.get_data(index=moving_index)
                 if self.labeled
@@ -318,14 +321,14 @@ class GeneratorDataLoader(DataLoader, ABC):
                 raise ValueError(
                     f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
                     f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
-                    f"The tensors/arrays are normalized as follows:\n"
-                    f"Images are assumed to have values between [0, 255] after loading, "
-                    f"so it is divided by 255 after loading by default,\n"
-                    f"and labels are assumed to be binary, i.e. values are between [0,1], "
-                    f"so it is not changed\n"
+                    f"The images are automatically normalized on image level: "
+                    f"x = (x - min(x) + EPS) / (max(x) - min(x) + EPS). \n"
+                    f"Labels are assumed to have values between [0,1] and they are not normalised. "
+                    f"This is to prevent accidental use of other encoding methods "
+                    f"other than one-hot to represent multiple class labels.\n"
                     f"If the label values are intended to represent multiple labels, "
-                    f"please convert them to binary masks in multiple channels, "
-                    f"with each channel representing one label only. "
+                    f"please convert them to one hot / binary masks in multiple channels, "
+                    f"with each channel representing one label only.\n"
                     f"Please read the dataset requirements section "
                     f"in docs/doc_data_loader.md for more detailed information."
                 )
