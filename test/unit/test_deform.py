@@ -49,8 +49,21 @@ def test_gradient_dz():
 
 def test_gradient_dxyz():
     """test the calculation of gradient of a 3D images along xyz-axis"""
+    # gradient_dx
     tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.gradient_dz(tensor)
+    get = deform.gradient_dxyz(tensor, deform.gradient_dx)
+    expect = tf.zeros([4, 48, 48, 48, 3])
+    assert assertTensorsEqual(get, expect)
+
+    # gradient_dy
+    tensor = tf.ones([4, 50, 50, 50, 3])
+    get = deform.gradient_dxyz(tensor, deform.gradient_dy)
+    expect = tf.zeros([4, 48, 48, 48, 3])
+    assert assertTensorsEqual(get, expect)
+
+    # gradient_dz
+    tensor = tf.ones([4, 50, 50, 50, 3])
+    get = deform.gradient_dxyz(tensor, deform.gradient_dz)
     expect = tf.zeros([4, 48, 48, 48, 3])
     assert assertTensorsEqual(get, expect)
 
