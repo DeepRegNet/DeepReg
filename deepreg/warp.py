@@ -5,6 +5,7 @@ Module to warp a image with given ddf. A CLI tool is provided.
 """
 
 import argparse
+import logging
 import os
 
 import nibabel as nib
@@ -25,8 +26,10 @@ def warp(image_path: str, ddf_path: str, out_path: str):
         out_path = "warped.nii.gz"
     else:
         if not (out_path.endswith(".nii") or out_path.endswith(".nii.gz")):
-            raise ValueError(
-                f"Output file path must end with .nii or .nii.gz, got {out_path}."
+            out_path = os.path.join(os.path.dirname(out_path), "warped.nii.gz")
+            logging.warning(
+                f"Output file path should end with .nii or .nii.gz, "
+                f"will save output in {out_path}."
             )
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
