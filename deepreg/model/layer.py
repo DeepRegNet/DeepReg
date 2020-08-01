@@ -151,7 +151,6 @@ class Deconv3d(tf.keras.layers.Layer):
 
 class Conv3dBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, strides=1, padding="same", **kwargs):
-
         """
         :param filters: number of channels of the output
         :param kernel_size: e.g. (3,3,3) or 3
@@ -413,15 +412,12 @@ class Warping(tf.keras.layers.Layer):
                         image.shape = (batch, m_dim1, m_dim2, m_dim3)
                         ddf.type = float32
                         image.type = float32
-
         :param kwargs:
         :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         """
-        grid_warped = self.grid_ref + inputs[0]  # (batch, f_dim1, f_dim2, f_dim3, 3)
-        image_warped = layer_util.resample(
-            vol=inputs[1], loc=grid_warped
-        )  # (batch, f_dim1, f_dim2, f_dim3)
-        return image_warped
+        return layer_util.warp_image_ddf(
+            image=inputs[1], ddf=inputs[0], grid_ref=self.grid_ref
+        )
 
 
 class IntDVF(tf.keras.layers.Layer):

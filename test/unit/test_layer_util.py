@@ -326,6 +326,57 @@ def test_warp_grid():
     assert is_equal_tf(got, expected)
 
 
+def test_warp_image_ddf():
+    """
+    Test warp_image_ddf by checking input/output shapes
+    """
+    batch_size = 2
+    fixed_image_size = (32, 32, 16)
+    moving_image_size = (24, 24, 16)
+    channel = 6
+    image = tf.ones((batch_size, *moving_image_size), dtype="float32")
+    image_ch = tf.ones((batch_size, *moving_image_size, channel), dtype="float32")
+    ddf = tf.ones((batch_size, *fixed_image_size, 3), dtype="float32")
+    grid_ref = tf.ones((1, *fixed_image_size, 3), dtype="float32")
+
+    # without channel, with grid_ref
+    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=grid_ref)
+    assert got.shape == (batch_size, *fixed_image_size)
+
+    # without channel, without grid_ref
+    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
+    assert got.shape == (batch_size, *fixed_image_size)
+
+    # with channel, with grid_ref
+    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=grid_ref)
+    assert got.shape == (batch_size, *fixed_image_size, channel)
+
+    # with channel, without grid_ref
+    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=None)
+    assert got.shape == (batch_size, *fixed_image_size, channel)
+
+    # wrong image shape
+    wrong_image = tf.ones(moving_image_size, dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=wrong_image, ddf=ddf, grid_ref=grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "image shape must be (batch, m_dim1, m_dim2, m_dim3)" in msg
+
+    # wrong ddf shape
+    wrong_ddf = tf.ones((batch_size, *fixed_image_size, 2), dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=image, ddf=wrong_ddf, grid_ref=grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3)" in msg
+
+    # wrong grid_ref shape
+    wrong_grid_ref = tf.ones((batch_size, *moving_image_size, 3), dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=wrong_grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None" in msg
+
+
 def test_resize3d():
     """
     Test resize3d by confirming the output shapes.
