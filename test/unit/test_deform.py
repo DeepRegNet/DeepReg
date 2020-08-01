@@ -55,16 +55,15 @@ def test_gradient_dxyz():
     assert assertTensorsEqual(get, expect)
 
 
-def test_compute_gradient_l1norm():
-    """test the calculation of l1 norm for image gradients"""
+def test_compute_gradient_norm():
+    """test the calculation of l1/l2 norm for image gradients"""
+    # l1 norm
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.compute_gradient_norm(tensor, l1=True)
     expect = tf.zeros([4])
     assert assertTensorsEqual(get, expect)
 
-
-def test_compute_gradient_else():
-    """test the calculation of l2 norm for image gradients"""
+    # l2 norm
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.compute_gradient_norm(tensor)
     expect = tf.zeros([4])
@@ -79,35 +78,27 @@ def test_compute_bending_energy():
     assert assertTensorsEqual(get, expect)
 
 
-def test_local_displacement_energy_bending():
-    """compute bending energy for ddf"""
+def test_local_displacement_energy():
+    """test the computation of local displacement energy for ddf"""
+    # bending energy
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.local_displacement_energy(tensor, "bending")
     expect = tf.zeros([4])
     assert assertTensorsEqual(get, expect)
 
-
-def test_local_displacement_energy_l1norm():
-    """compute l1 norm for ddf"""
+    # l1 norm on gradient
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.local_displacement_energy(tensor, "gradient-l1")
     expect = tf.zeros([4])
     assert assertTensorsEqual(get, expect)
 
-
-def test_local_displacement_energy_l2norm():
-    """compute l2 norm for ddf"""
+    # l2 norm on gradient
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.local_displacement_energy(tensor, "gradient-l2")
     expect = tf.zeros([4])
     assert assertTensorsEqual(get, expect)
 
-
-def test_local_displacement_energy_other():
-    """
-    Test value error raised if non supported
-    string passed to the local displacement energy function.
-    """
+    # not supported energy type
     tensor = tf.ones([4, 50, 50, 50, 3])
     with pytest.raises(ValueError):
         deform.local_displacement_energy(tensor, "a wrong string")
