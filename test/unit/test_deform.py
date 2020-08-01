@@ -1,8 +1,7 @@
 # coding=utf-8
 
 """
-Tests for deepreg/model/loss/deform.py in
-pytest style
+Tests for deepreg/model/loss/deform.py in pytest style
 """
 import pytest
 import tensorflow as tf
@@ -48,7 +47,7 @@ def test_gradient_dz():
     assert assertTensorsEqual(get, expect)
 
 
-def test_gradient_txyz():
+def test_gradient_dxyz():
     """test the calculation of gradient of a 3D images along xyz-axis"""
     tensor = tf.ones([4, 50, 50, 50, 3])
     get = deform.gradient_dz(tensor)
