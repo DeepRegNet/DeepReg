@@ -111,7 +111,7 @@ if os.path.exists(path_to_test) is not True:
     os.mkdir(os.path.join(path_to_test, "moving_images"))
     os.mkdir(os.path.join(path_to_test, "moving_labels"))
 
-    ratio_of_test_and_valid_samples = 0.2
+    ratio_of_test_and_valid_samples = 0.4
 
     unique_case_names = []
     for file in images_fnames:
