@@ -40,12 +40,13 @@ python demos/paired_mrus_prostate/demo_data.py
 train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --log_dir paired_mrus_prostate
 ```
 
-- Call `predict` from command line to use the saved ckpt file for testing on the 10th
-  fold data. The following example uses a pre-trained model, on CPU. If not specified,
+- Call `predict` from command line to use the saved ckpt file for testing on the data
+  partitions specified in the config file, a copy of which woule be saved in the
+  [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
   the results will be saves at the created timestamp-named directories under /logs.
 
 ```bash
-predict --gpu "" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --ckpt_path logs/paired_mrus_prostate/save/weights-epoch200.ckpt --mode test
+predict --gpu "" --config_path logs/demos/paired_mrus_prostate/config.yaml --ckpt_path logs/demos/paired_mrus_prostate/save/weights-epoch500.ckpt --mode test
 ```
 
 ## Data
