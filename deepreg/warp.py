@@ -24,6 +24,9 @@ def warp(image_path: str, ddf_path: str, out_path: str):
     """
     if out_path == "":
         out_path = "warped.nii.gz"
+        logging.warning(
+            f"Output file path is not provided, will save output in {out_path}."
+        )
     else:
         if not (out_path.endswith(".nii") or out_path.endswith(".nii.gz")):
             out_path = os.path.join(os.path.dirname(out_path), "warped.nii.gz")
