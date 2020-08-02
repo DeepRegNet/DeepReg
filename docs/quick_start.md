@@ -102,7 +102,7 @@ where
 The trained network can be evaluated using unseen example test dataset:
 
 ```bash
-deepreg_predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+deepreg_predict --gpu "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
 ```
 
 where
