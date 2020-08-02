@@ -296,8 +296,8 @@ described as follows.
 
 #### Nifti
 
-Nifti data are stored in files with suffix `.nii.gz`. Each file must contain only one 3D
-or 4D tensor, corresponding to an image or a label.
+Nifti data are stored in files with suffix `.nii.gz` or `.nii`. Each file must contain
+only one 3D or 4D tensor, corresponding to an image or a label.
 
 `obs` is short for one observation of a data sample - a 3D image volume or a 3D/4D label
 volume - and the name can be any string.
