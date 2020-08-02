@@ -5,6 +5,7 @@ import zipfile
 
 import nibabel as nib
 import numpy as np
+from tensorflow.keras.utils import get_file
 from tqdm import tqdm
 
 # if wget is installed remove the following line from comment
@@ -30,6 +31,10 @@ fname = "training.zip"
 # if training.zip is already downloaded in the correct directory then
 # comment out the following line
 # os.system("wget " + url)
+
+
+get_file(os.path.join(os.getcwd(), fname), url)
+
 
 print("The file ", fname, " has successfully been downloaded!")
 
@@ -106,7 +111,7 @@ if os.path.exists(path_to_test) is not True:
     os.mkdir(os.path.join(path_to_test, "moving_images"))
     os.mkdir(os.path.join(path_to_test, "moving_labels"))
 
-    ratio_of_test_and_valid_samples = 0.2
+    ratio_of_test_and_valid_samples = 0.4
 
     unique_case_names = []
     for file in images_fnames:

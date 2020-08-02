@@ -197,7 +197,9 @@ def add_label_loss(
                 config=loss_config["dissimilarity"]["label"]
             )(y_true=fixed_label, y_pred=pred_fixed_label)
         )
-        weighted_loss_label = loss_label
+        weighted_loss_label = (
+            loss_label * loss_config["dissimilarity"]["label"]["weight"]
+        )
         model.add_loss(weighted_loss_label)
         model.add_metric(
             loss_label, name="loss/label_dissimilarity", aggregation="mean"

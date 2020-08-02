@@ -42,9 +42,11 @@ subjects each having multiple available images, please see more sampling options
 
 - **Predict a dense velocity field**
 
-  Another option is to predict a dense velocity field (DVF), such that a diffeomorphic
-  DDF can be numerically integrated. Read
+  Another option is to predict a dense (static) velocity field (DVF), such that a
+  diffeomorphic DDF can be numerically integrated. Read
   ["A fast diffeomorphic image registration algorithm"](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.474.1033&rep=rep1&type=pdf)
+  and
+  ["Diffeomorphic demons: Efficient non-parametric image registration"](http://www-sop.inria.fr/asclepios/Publications/Tom.Vercauteren/DiffeoDemons-NeuroImage08-Vercauteren.pdf)
   for more details.
 
 - **Predict an affine transformation**

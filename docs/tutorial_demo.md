@@ -1,48 +1,58 @@
 # DeepReg Demos
 
 A typical workflow to develop a [registration network](tutorial_registration.md) using
-`DeepReg` includes:
+DeepReg includes:
 
 - Select a dataset loader, among the [unpaired, paired and grouped](doc_data_loader.md),
-  and preppare data into folders as required;
+  and prepare data into folders as required;
 - Configure the network training in the configuration yaml file(s), as specified in
   [supported configuration details](doc_configuration.md);
 - Train and tune the registration network with command line tool `train`;
 - Test or use the final registration network with command line tool `predict`.
 
-`DeepReg` has been tested with a wide range of applications with real-world clinical
-image and label data. `DeepReg Demos` all consisted of open-accesible dataset,
-step-by-step instructions, pre-trained models and numerical-and-graphical inference
-results for demonstration purposes. These applications range from ultrasound, CT and MR
-images, covering many clinical specialities such as neurology, urology, gastroentrology,
-oncology, respirotory and cadiovescular diseases.
+DeepReg has been tested with a wide range of applications with real-world clinical image
+and label data. DeepReg Demos all consisted of open-accesible datasets, step-by-step
+instructions, pre-trained models and numerical-and-graphical inference results for
+demonstration purposes. These applications range from ultrasound, CT and MR images,
+covering many clinical specialities such as neurology, urology, gastroentrology,
+oncology, respirotory and cadiovascular diseases.
 
 In particular, the built-in dataset loaders, supporting nifti and h5 file format,
 provide a varity of training strategies often encountered in real clinical scenarios,
 whether images are paired, grouped or labelled.
 
-This tutorial describe several examples in the `DeepReg Demos` to explain how these
-different scenarios can be implemented with `DeepReg`. A complete list of demos can be
-found in the [DeepReg Demos Index](#deepreg-demos-index)
+This tutorial describe several examples in the DeepReg Demos to explain how these
+different scenarios can be implemented with DeepReg.
 
-## paired_ct_lung
+## Train with paired images
+
+- [paired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
+
+This demo registers paired CT lung images.
+
+## Train with unpaired images
+
+- [unpaired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
+
+This demo registers unpaired CT lung images.
+
+## Train with grouped images
 
 (under development)
 
-## unpaired_ct_lung
+## Experiment with cross-validation
 
-(under development)
+- [unpaired_us_prostate_cv](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
 
-## DeepReg Demos Index
+This demo registers 3D ultrasound images with a 9-fold cross-validation. This strategy
+is applicable for any of the available dataset loaders.
 
-### [paired_ct_lung](./paired_ct_lung)
+## Classical image registration
 
-#### Paired CT Lung Registration
+- [classical_ct_headandneck_affine](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headandneck_affine)
 
-#### Computed tomography
+This demo registers head-and-neck CT images using iterative affine registration.
 
-### [unpaired_ct_lung](./unpaired_ct_lung)
+- [classical_mr_prostate_nonrigid](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_mr_prostate_nonrigid)
 
-#### Unpaired CT Lung Registration
-
-#### Computed tomography
+This demo registers prostate MR images using iterative nonrigid registration.

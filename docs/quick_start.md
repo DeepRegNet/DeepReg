@@ -15,7 +15,7 @@ issues with other dependencies. The conda enviroment is recommended:
 [Anaconda](https://docs.anaconda.com/anaconda/install/) /
 [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 
-`DeepReg` is primarily supported and regularly tested with Linux distro Ubuntu/Debian.
+DeepReg is primarily supported and regularly tested with Linux distros Ubuntu/Debian.
 
 <!-- tabs:start -->
 
@@ -46,16 +46,13 @@ conda activate deepreg # Activate the environment
 
 With GPU
 
-```bash
-conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
-conda activate deepreg # Activate the environment
-```
+:warning: Not supported or tested.
 
 #### ** Windows **
 
 With CPU only
 
-:warning: `DeepReg` is not fully supported under Windows, however,
+:warning: DeepReg is not fully supported under Windows, however,
 [Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 may be recommended for use with CPU only. Then follow the instructions with Linux.
 
@@ -71,16 +68,16 @@ The recommended method is to clone the repository and install it locally. All ne
 dependencies will be installed automatically.
 
 ```bash
-git clone https://github.com/ucl-candi/DeepReg.git # clone the repository
+git clone https://github.com/DeepRegNet/DeepReg.git # clone the repository
 pip install -e . # install the package
 ```
 
 Optionally, you can install the
-[master branch](https://github.com/ucl-candi/DeepReg.git) of the package directly from
+[master branch](https://github.com/DeepRegNet/DeepReg.git) of the package directly from
 the repository:
 
 ```bash
-pip install git+https://github.com/ucl-candi/DeepReg.git
+pip install git+https://github.com/DeepRegNet/DeepReg.git
 ```
 
 ## Train
@@ -89,7 +86,7 @@ Train a registration network using unpaired and labeled example data with a pred
 configuration:
 
 ```bash
-train --gpu "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
+deepreg_train --gpu "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
 ```
 
 where
@@ -105,7 +102,7 @@ where
 The trained network can be evaluated using unseen example test dataset:
 
 ```bash
-predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+deepreg_predict --gpu "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
 ```
 
 where
@@ -119,3 +116,25 @@ where
 
 This is a demo using example dataset to train a registration network. Read tutorials and
 documentation for more details.
+
+## Warp
+
+DeepReg provides a command line interface (CLI) tool to warp an image / label with a
+dense displacement field (DDF):
+
+```bash
+deepreg_warp --image data/test/nifti/unit_test/moving_image.nii.gz --ddf data/test/nifti/unit_test/ddf.nii.gz --out logs/test_warp/out.nii.gz
+```
+
+where
+
+- `--image` provides the file path of the image/label. The image/label should be saved
+  in a nifti file with suffix `.nii` or `.nii.gz`. The image/label should be a 3D / 4D
+  tensor, where the first three dimensions correspond to the moving image shape and the
+  fourth can be a channel of features.
+- `--ddf` provides the file path of the ddf. The ddf should be saved in a nifti file
+  with suffix `.nii` or `.nii.gz`. The ddf should be a 4D tensor, where the first three
+  dimensions correspond to the fixed image shape and the fourth dimension has 3 channels
+  corresponding to x, y, z axises.
+- `--out`, provides the file path for the output. It should end with `.nii` or
+  `.nii.gz`.

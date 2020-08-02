@@ -3,6 +3,8 @@
 """
 Tests for deepreg/model/backbone
 """
+from test.unit.util import is_equal_tf
+
 import numpy as np
 import tensorflow as tf
 
@@ -10,20 +12,6 @@ import deepreg.model.backbone.global_net as g
 import deepreg.model.backbone.local_net as loc
 import deepreg.model.backbone.u_net as u
 import deepreg.model.layer as layer
-
-
-def assert_tensors_equal(tensor_1, tensor_2):
-    """
-    given two tf tensors return True/False (not tf tensor)
-    tolerate small errors
-    :param tensor_1:
-    :param tensor_2:
-    :return: Boolean
-    """
-    return tf.reduce_max(tf.abs(tensor_1 - tensor_2)).numpy() < 1e-6
-
-
-# Testing GlobalNet
 
 
 def test_init_GlobalNet():
@@ -55,22 +43,26 @@ def test_init_GlobalNet():
                 [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 0.0, 2.0]],
                 [[0.0, 1.0, 0.0], [0.0, 1.0, 1.0], [0.0, 1.0, 2.0]],
             ]
-        ]
+        ],
+        dtype=tf.float32,
     )
-    assert assert_tensors_equal(global_test.reference_grid, expected_ref_grid)
+    assert is_equal_tf(global_test.reference_grid, expected_ref_grid)
 
     # Testing constant initializer
     #  We initialize the expected tensor and initialise another from the
     #  class variable using tf.Variable
     test_tensor_return = tf.convert_to_tensor(
-        [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [1.0, 0.0]]
+        [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [1.0, 0.0]],
+        dtype=tf.float32,
     )
     global_return = tf.Variable(
         global_test.transform_initial(shape=[6, 2], dtype=tf.float32)
     )
 
     # Asserting they are equal - Pass
-    assert assert_tensors_equal(test_tensor_return, tf.convert_to_tensor(global_return))
+    assert is_equal_tf(
+        test_tensor_return, tf.convert_to_tensor(global_return, dtype=tf.float32)
+    )
 
     # Assert downsample blocks type is correct, Pass
     assert all(
@@ -104,7 +96,9 @@ def test_call_GlobalNet():
         out_activation="softmax",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3, 3)
@@ -174,7 +168,9 @@ def test_call_LocalNet():
         out_activation="sigmoid",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], out))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3, 3)
@@ -245,7 +241,9 @@ def test_call_UNet():
         out_activation="sigmoid",
     )
     # Pass an input of all zeros
-    inputs = np.zeros((5, im_size[0], im_size[1], im_size[2], 3))
+    inputs = tf.constant(
+        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    )
     #  Get outputs by calling
     output = global_test.call(inputs)
     #  Expected shape is (5, 1, 2, 3)

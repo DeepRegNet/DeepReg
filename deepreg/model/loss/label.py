@@ -1,19 +1,20 @@
 """
-Module to perform label and prediction operations.
+Module provides different loss functions for calculating the dissimilarities between labels.
 """
+from typing import Callable
+
 import tensorflow as tf
 
 EPS = 1.0e-6  # epsilon to prevent NaN
 
 
-def get_dissimilarity_fn(config):
+def get_dissimilarity_fn(config: dict) -> Callable:
     """
     Function to parse args from a config dictionary
     and return the loss by averaging batch loss returned by
     multi- or single-scale loss functions.
 
     :param config: dict, containing configuration for training.
-
     :return: loss function, to calculate float
     """
     if config["name"] == "multi_scale":
@@ -21,7 +22,7 @@ def get_dissimilarity_fn(config):
         def loss(y_true, y_pred):
             return tf.reduce_mean(
                 multi_scale_loss(y_true=y_true, y_pred=y_pred, **config["multi_scale"])
-            )  # [batch]
+            )  # (batch,)
 
         return loss
     elif config["name"] == "single_scale":
@@ -31,20 +32,22 @@ def get_dissimilarity_fn(config):
                 single_scale_loss(
                     y_true=y_true, y_pred=y_pred, **config["single_scale"]
                 )
-            )  # [batch]
+            )  # (batch,)
 
         return loss
     else:
-        raise ValueError("Unknown loss type.")
+        raise ValueError(f"Unknown loss type {config['name']}.")
 
 
-def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
+def multi_scale_loss(
+    y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str, loss_scales: list
+) -> tf.Tensor:
     """
     Apply the loss at different scales (gaussian smoothing)
     assuming values are between 0 and 1.
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
+    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
+    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
     :param loss_type: string, indicating which loss to pass to
                       function single_scale_loss. Supported:
                       [
@@ -56,7 +59,7 @@ def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
                       ]
     :param loss_scales: list, values of sigma to pass to func
                         gauss_kernel_1d.
-    :return: [batch] of losses.
+    :return: (batch,)
     """
     assert len(y_true.shape) == 4
     assert len(y_pred.shape) == 4
@@ -74,13 +77,15 @@ def multi_scale_loss(y_true, y_pred, loss_type, loss_scales):
     return tf.reduce_mean(label_loss_all, axis=1)
 
 
-def single_scale_loss(y_true, y_pred, loss_type):
+def single_scale_loss(
+    y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str
+) -> tf.Tensor:
     """
     Calculate the loss on two tensors based on defined
     loss.
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
+    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
+    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
     :param loss_type: string, indicating which loss to pass to
                       function single_scale_loss. Supported:
                       [
@@ -90,7 +95,7 @@ def single_scale_loss(y_true, y_pred, loss_type):
                           dice_generalized |
                           jaccard
                       ]
-    :return: shape = [batch] of losses
+    :return: shape = (batch,)
     """
     if loss_type == "cross-entropy":
         return weighted_binary_cross_entropy(y_true, y_pred)
@@ -106,26 +111,28 @@ def single_scale_loss(y_true, y_pred, loss_type):
         raise ValueError("Unknown loss type.")
 
 
-def squared_error(y_true, y_pred):
+def squared_error(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     Calculates the mean squared difference between y_true, y_pred.
-    - mean((y_true - y_pred)(y_true - y_pred))
+        mean((y_true - y_pred)(y_true - y_pred))
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
-    :return: tensor, shape = [batch]
+    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
+    :param y_pred: shape = (batch, dim1, dim2, dim3)
+    :return: shape = (batch,)
     """
     return tf.reduce_mean(tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3])
 
 
-def weighted_binary_cross_entropy(y_true, y_pred, pos_weight=1):
+def weighted_binary_cross_entropy(
+    y_true: tf.Tensor, y_pred: tf.Tensor, pos_weight: float = 1
+) -> tf.Tensor:
     """
     Calculates weighted binary cross- entropy:
         -loss = − pos_w * y_true log(y_pred) - (1−y_true) log(1−y_pred)
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
-    :param pos_weight: weight of positive class, scalar. Default, [1]
-    :return: shape = [batch] of losses.
+    :param y_true: shape = (batch, dim1, dim2, dim3)
+    :param y_pred: shape = (batch, dim1, dim2, dim3)
+    :param pos_weight: weight of positive class, scalar. Default value is 1
+    :return: shape = (batch,)
     """
     y_pred = tf.clip_by_value(y_pred, EPS, 1 - EPS)
     return -pos_weight * tf.reduce_mean(
@@ -133,7 +140,7 @@ def weighted_binary_cross_entropy(y_true, y_pred, pos_weight=1):
     ) - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred), axis=[1, 2, 3])
 
 
-def dice_score(y_true, y_pred, binary=False):
+def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf.Tensor:
     """
     Calculates dice score:
     - num = 2 * y_true * y_pred
@@ -141,10 +148,10 @@ def dice_score(y_true, y_pred, binary=False):
     - dice score = num / denom
 
     where num and denom are summed over the entire image first.
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
+    :param y_true: shape = (batch, dim1, dim2, dim3)
+    :param y_pred: shape = (batch, dim1, dim2, dim3)
     :param binary: True if the y should be projected to 0 or 1
-    :return: shape = [batch] of losses.
+    :return: shape = (batch,)
     """
     if binary:
         y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
@@ -158,7 +165,9 @@ def dice_score(y_true, y_pred, binary=False):
     return numerator / denominator
 
 
-def dice_score_generalized(y_true, y_pred, pos_weight=1, neg_weight=0):
+def dice_score_generalized(
+    y_true: tf.Tensor, y_pred: tf.Tensor, pos_weight: float = 1, neg_weight: float = 0
+) -> tf.Tensor:
     """
     Calculates weighted dice score:
     -   let y_prod = y_true * y_pred
@@ -170,11 +179,11 @@ def dice_score_generalized(y_true, y_pred, pos_weight=1, neg_weight=0):
     - dice score = num / denom
     Where num and denom are summed over the entire image first.
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
+    :param y_true: shape = (batch, dim1, dim2, dim3)
+    :param y_pred: shape = (batch, dim1, dim2, dim3)
     :param pos_weight: weight of positive class, default = 1
     :param neg_weight: weight of negative class, default = 0
-    :return: shape = [batch] of losses.
+    :return: shape = (batch,)
     """
     y_prod = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
     y_sum = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
@@ -188,16 +197,16 @@ def dice_score_generalized(y_true, y_pred, pos_weight=1, neg_weight=0):
     return numerator / denominator
 
 
-def jaccard_index(y_true, y_pred):
+def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
     Calculates jaccard index:
     - num = y_true * y_pred
     - denom = y_true + y_pred - y_true * y_pred
     - jaccard index = num / denom
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
-    :return: shape = [batch] of losses.
+    :param y_true: shape = (batch, dim1, dim2, dim3)
+    :param y_pred: shape = (batch, dim1, dim2, dim3)
+    :return: shape = (batch,)
     """
     numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) + EPS
     denominator = (
@@ -209,44 +218,44 @@ def jaccard_index(y_true, y_pred):
     return numerator / denominator
 
 
-def gauss_kernel1d(sigma):
+def gauss_kernel1d(sigma: int) -> tf.Tensor:
     """
     Calculates a gaussian kernel.
 
     :param sigma: number defining standard deviation for
                   gaussian kernel.
-    :return: tensor, shape [range(-3*sigma, 3*sigma + 1)]
+    :return: shape = (dim, ) or ()
     """
     if sigma == 0:
-        return tf.constant(0)
+        return tf.constant(0, tf.float32)
     else:
         tail = int(sigma * 3)
         k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
         return k / tf.reduce_sum(k)
 
 
-def cauchy_kernel1d(sigma):
+def cauchy_kernel1d(sigma: int) -> tf.Tensor:
     """
     Approximating cauchy kernel in 1d.
 
-    :param sigma: number, defining standard deviation of kernel.
-    :return: tensor, shape [range(-3*sigma, 3*sigma + 1)]
+    :param sigma: int, defining standard deviation of kernel.
+    :return: shape = (dim, ) or ()
     """
     if sigma == 0:
-        return 0
+        return tf.constant(0, tf.float32)
     else:
         tail = int(sigma * 5)
         k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
         return k / tf.reduce_sum(k)
 
 
-def separable_filter3d(tensor, kernel):
+def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
     Creates a 3d separable filter.
 
-    :param tensor: tensor, shape = [batch, dim1, dim2, dim3]
-    :param kernel: tensor, shape = [dim4]
-    :return: tensor, shape = [batch, dim1, dim2, dim3]
+    :param tensor: shape = (batch, dim1, dim2, dim3)
+    :param kernel: shape = (dim4,)
+    :return: shape = (batch, dim1, dim2, dim3)
     """
     if len(kernel.shape) == 0:
         return tensor
@@ -271,46 +280,50 @@ def separable_filter3d(tensor, kernel):
         return tensor[:, :, :, :, 0]
 
 
-def compute_centroid(mask, grid):
+def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     """
     Calculate the centroid of the mask.
-    :param mask: tensor, shape = [batch, dim1, dim2, dim3]
-    :param grid: tensor, shape = [dim1, dim2, dim3, 3]
-    :return: shape = [batch, 3], batch of vectors denoting
+    :param mask: shape = (batch, dim1, dim2, dim3)
+    :param grid: shape = (dim1, dim2, dim3, 3)
+    :return: shape = (batch, 3), batch of vectors denoting
              location of centroids.
     """
+    assert len(mask.shape) == 4
+    assert len(grid.shape) == 4
     bool_mask = tf.expand_dims(
         tf.cast(mask >= 0.5, dtype=tf.float32), axis=4
-    )  # [batch, dim1, dim2, dim3, 1]
+    )  # (batch, dim1, dim2, dim3, 1)
     masked_grid = bool_mask * tf.expand_dims(
         grid, axis=0
-    )  # [batch, dim1, dim2, dim3, 3]
-    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3]) + EPS  # [batch, 3]
-    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + EPS  # [batch, 1]
-    return numerator / denominator  # [batch, 3]
+    )  # (batch, dim1, dim2, dim3, 3)
+    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3]) + EPS  # (batch, 3)
+    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + EPS  # (batch, 1)
+    return numerator / denominator  # (batch, 3)
 
 
-def compute_centroid_distance(y_true, y_pred, grid):
+def compute_centroid_distance(
+    y_true: tf.Tensor, y_pred: tf.Tensor, grid: tf.Tensor
+) -> tf.Tensor:
     """
     Calculate the L2-distance between two tensors' centroids.
 
-    :param y_true: tensor, shape = [batch, dim1, dim2, dim3]
-    :param y_pred: tensor, shape = [batch, dim1, dim2, dim3]
-    :param grid: tensor, shape = [dim1, dim2, dim3, 3]
-    :return: shape = [batch] of distances.
+    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
+    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
+    :param grid: tensor, shape = (dim1, dim2, dim3, 3)
+    :return: shape = (batch,)
     """
-    centroid_1 = compute_centroid(mask=y_pred, grid=grid)  # shape = [batch, 3]
-    centroid_2 = compute_centroid(mask=y_true, grid=grid)  # shape = [batch, 3]
-    return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=[1]))
+    centroid_1 = compute_centroid(mask=y_pred, grid=grid)  # (batch, 3)
+    centroid_2 = compute_centroid(mask=y_true, grid=grid)  # (batch, 3)
+    return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=1))
 
 
-def foreground_proportion(y):
+def foreground_proportion(y: tf.Tensor) -> tf.Tensor:
     """
     Calculating the percentage of foreground vs
     background per 3d volume.
 
-    :param y: tensor, shape = [batch, dim1, dim2, dim3]
-    :return: shape = [batch] of foreground percentage.
+    :param y: shape = (batch, dim1, dim2, dim3), a 3D label tensor
+    :return: shape = (batch,)
     """
     y = tf.cast(y >= 0.5, dtype=tf.float32)
     return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(

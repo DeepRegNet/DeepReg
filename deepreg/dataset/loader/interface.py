@@ -7,6 +7,7 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
+from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
@@ -250,11 +251,13 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def data_generator(self):
         """
-        yeild samples of data to feed model
+        yield samples of data to feed model
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
-            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
-            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
+            moving_image = self.loader_moving_image.get_data(index=moving_index)
+            moving_image = normalize_array(moving_image)
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+            fixed_image = normalize_array(fixed_image)
             moving_label = (
                 self.loader_moving_label.get_data(index=moving_index)
                 if self.labeled
@@ -316,9 +319,18 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name} has value outside of [0,1]."
-                    f"Images are assumed to be between [0, 255] "
-                    f"and labels are assumed to be between [0, 1]"
+                    f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
+                    f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
+                    f"The images are automatically normalized on image level: "
+                    f"x = (x - min(x) + EPS) / (max(x) - min(x) + EPS). \n"
+                    f"Labels are assumed to have values between [0,1] and they are not normalised. "
+                    f"This is to prevent accidental use of other encoding methods "
+                    f"other than one-hot to represent multiple class labels.\n"
+                    f"If the label values are intended to represent multiple labels, "
+                    f"please convert them to one hot / binary masks in multiple channels, "
+                    f"with each channel representing one label only.\n"
+                    f"Please read the dataset requirements section "
+                    f"in docs/doc_data_loader.md for more detailed information."
                 )
         # images should be 3D arrays
         for arr, name in zip(
@@ -512,9 +524,19 @@ class FileLoader:
         assert self.grouped
         return len(self.group_ids)
 
-    def get_num_images_per_group(self):
+    def get_num_images_per_group(self) -> list:
+        """
+        calculate the number of images in each group
+        each group must have at least one image
+        """
         assert self.grouped
-        return [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        if min(num_images_per_group) == 0:
+            group_ids = [
+                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+            ]
+            raise ValueError(f"Groups of ID {group_ids} are empty.")
+        return num_images_per_group
 
     def close(self):
         """close opened file handles"""

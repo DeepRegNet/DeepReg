@@ -44,8 +44,20 @@ follows.
 
 - Image
 
-  - Currently, DeepReg currently supports 3D images. But images do not have to be of the
-    same shape, and it will be resized to the required shape using linear interpolation.
+  - DeepReg currently supports 3D images. But images do not have to be of the same
+    shape, and it will be resized to the required shape using linear interpolation.
+
+  - Currently, DeepReg only supports images stored in Nifti files or H5 files. Check
+    [nifti_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
+    and
+    [h5_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
+    for more details.
+
+  - **Images are automatically normalized** at per-image level: the intensity values x
+    equals to `(x-min(x)+EPS) / (max(x)-min(x)+EPS)` so that its values are between
+    [0,1]. Check `GeneratorDataLoader.data_generator` in
+    [loader interface](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/interface.py)
+    for more details.
 
 - Label
 
@@ -56,6 +68,12 @@ follows.
     For instance, an image of shape `(dim1, dim2, dim3)`, its label shape can be
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
+
+  - **All labels are assumed to have values bettwen [0, 1].** So DeepReg accepts binary
+    segmentation mask or soft labels with float values between [0,1]. This is to prevent
+    accidental use of non-one-hot encoding to represent multiple class labels. In case
+    of multi labels, please use one-hot encoding to transform them into multiple
+    channels such that each class has its own binary label.
 
   - When the images are paired, the moving and fixed images must have the same number of
     labels.
@@ -182,7 +200,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/paired)
+[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/paired)
 as an example.
 
 Optionally, the data may not be all saved directly under the top directory. They can be
@@ -217,7 +235,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/paired)
+[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/paired)
 as an example.
 
 ## Unpaired images
@@ -299,7 +317,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/unpaired)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/unpaired)
 as an example.
 
 #### H5
@@ -323,7 +341,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/unpaired)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/unpaired)
 as an example.
 
 ## Grouped images
@@ -470,7 +488,7 @@ consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/nifti/grouped)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/grouped)
 as an example.
 
 #### H5
@@ -503,5 +521,5 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/ucl-candi/DeepReg/tree/master/data/test/h5/grouped)
+[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/grouped)
 as an example.

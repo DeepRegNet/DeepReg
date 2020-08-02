@@ -4,7 +4,7 @@ We welcome contributions to DeepReg.
 
 ## Reporting bugs and feature requests
 
-Please create a new issue on: https://github.com/ucl-candi/DeepReg/issues/new
+Found a bug? Create a [new issue](https://github.com/DeepRegNet/DeepReg/issues/new)!
 
 When reporting a bug, please include:
 
@@ -16,20 +16,20 @@ When reporting a bug, please include:
 
 The easiest way to contribute is to follow these guidelines:
 
-1. Look through the issues on https://github.com/ucl-candi/DeepReg/issues and assign the
-   relevant issue to yourself. If there is not an existing issue that covers your work,
-   please create one: https://github.com/ucl-candi/DeepReg/issues/new
+1. Look through the [issues](https://github.com/DeepRegNet/DeepReg/issues) and assign
+   the relevant issue to yourself. If there is not an existing issue that covers your
+   work, please create [one](https://github.com/DeepRegNet/DeepReg/issues/new).
 2. Read the design considerations below.
-3. Fork the repository: https://github.com/ucl-candi/DeepReg/forks/new
+3. [Fork the repository](https://github.com/DeepRegNet/DeepReg/forks/new)
 4. Create a branch for your changes. The branch name should start with the issue number,
-   followed by hyphen separated words describing the issue. For example:
-   1-update-contribution-guidelines
+   followed by hyphen separated words describing the issue.
+   - Example: `1-update-contribution-guidelines`
 5. Make your changes following the coding guidelines below.
 6. Commit and push your changes to your fork. The commit message should start with
    `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small,
    related chunks. Review each commit and explain its purpose in the commit message.
    Refer to the commit style section below for a more detailed guide.
-7. Submit a merge request: https://github.com/ucl-candi/DeepReg/merge-requests/new
+7. [Submit a pull request](https://github.com/DeepRegNet/DeepReg/merge-requests/new)
 8. Merge request will be reviewed and, if necessary, changes suggested before merge to
    master.
 
@@ -65,25 +65,25 @@ following commit guidelines.
 
 ## Design considerations
 
-1. As few dependencies as possible. Try to stick to standard scipy packages like numpy
-   and pandas.
+1. As few dependencies as possible. Try to stick to standard `scipy` packages like
+   `numpy` and `pandas`.
 2. Discuss extra dependencies with the team and maybe the outcome will be to create a
    new separate package, where you can be more specific and more modular.
-3. Unit test well, using pytest, with good coverage.
+3. Unit test well, using `pytest`, with good coverage.
 4. All errors as exceptions rather than return codes.
 
 ## Coding guidelines
 
-1. Please follow PEP8 guidelines https://www.python.org/dev/peps/pep-0008/
-2. Create a python virtual environment (virtualenv) for development
+1. Please follow [PEP8 guidelines](https://www.python.org/dev/peps/pep-0008/).
+2. Create a python virtual environment (virtualenv) for development.
 3. Make sure that pylint passes. You may disable specific warnings within the code where
-   it is reasonable to do so
-4. Add unit tests for new and modified code
-5. Make sure all existing and new tests pass
-6. Make sure all docstrings have been added
-7. Make sure all dependencies have been added to requirements
-8. Make sure your code works for all required versions of Python
-9. Make sure your code works for all required operating systems
+   it is reasonable to do so.
+4. Add unit tests for new and modified code.
+5. Make sure all existing and new tests pass.
+6. Make sure all docstrings have been added.
+7. Make sure all dependencies have been added to requirements.
+8. Make sure your code works for all required versions of Python.
+9. Make sure your code works for all required operating systems.
 10. CI is enabled: for documentation changes/linting commits you may include [ci skip]
     in your commit messages. A reminder that CI checks are required before merge!
 
@@ -96,7 +96,7 @@ each commit. Specifically,
   [isort](https://github.com/timothycrosley/isort) to format package imports in python
   files.
 - [Black](https://github.com/psf/black) to format python files.
-- [Flake9](https://gitlab.com/pycqa/flake8) to perform linting check,
+- [Flake8](https://gitlab.com/pycqa/flake8) to perform linting check,
 - [Prettier](https://prettier.io/) to format markdown files.
 
 Pre-commit is installed during the package installation via `pip install -e .`. To
@@ -107,10 +107,50 @@ Optionally, use `git commit --no-verify -m "This is a commit message placeholder
 skip pre-commit, and use `pre-commit run --all-files` to format files before pull
 request.
 
+Sometimes, black might have conflicts with prettier or flake8 and below are some
+possible cases and work around
+
+- If a code is followed by a long comment in the same line, Black attempts to break
+  lines. So we should put comment in the line above instead.
+- For lists/tuples, do not add comma after the last element, unless it's a single
+  element tuple, like `(1,)`.
+
+To check if Black is causing conflicts, run `black .` in the root of DeepReg you will
+see the formatted files by Black, run `pre-commit run --all-files`, you will see the
+final versions. Compare them to understand an issue. If there's a new case and there's
+an workaround, please update this section. Otherwise, please raise an issue.
+
 ## Documentation Pages
 
-[Docsify](https://docsify.js.org/) converts markdown files into pages and they are
-hosted on github page. Use `cd docs && python -m http.server` to visualize the pages
-locally. The required package
-[simple_http_server](https://github.com/keijack/python-simple-http-server) has been
-installed during the package installation via `pip install -e .`.
+Below are instructions for creating and modifying pages on this website, as found within
+the `docs` folder of the repository.
+
+### Linux
+
+- [Docsify](https://docsify.js.org/) converts markdown files into pages and they are
+  hosted on github page.
+- Use `cd docs && python -m http.server` to visualize the pages locally.
+- The required package
+  [simple_http_server](https://github.com/keijack/python-simple-http-server) has been
+  installed during the package installation via `pip install -e .`.
+
+### Windows
+
+- Install [Jekyll](https://jekyllrb.com/docs/installation/windows/) via RubyInstaller,
+  and follow the install instructions on that page.
+- In a Windows Command Prompt (WCP) started with Ruby, use `gem install github-pages` to
+  install the required packages.
+- Next, the same WCP - navigate to the `docs` folder in `DeepReg`, and use
+  `jekyll serve` to create a directory located at `../docs/_site`.
+  - You should now see a local version of the site at http://127.0.0.1:4000.
+  - You will need to work in the newly created `../docs/_site` folder to make your
+    changes, and copy them back to `../docs` in order to commit them here.
+
+_Note:_ Make sure to frequently update the GitHub pages gem with
+`gem update github-pages`. There are dependencies and various packages that are updated
+frequently - and the website may not display locally the same as it will when pushed if
+you do not have the most recent versions.
+
+### MacOS
+
+TBC

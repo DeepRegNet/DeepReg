@@ -7,6 +7,14 @@ from deepreg.dataset.loader.interface import FileLoader
 from deepreg.dataset.util import get_sorted_filenames_in_dir
 
 
+def load_nifti_file(filepath):
+    if not (filepath.endswith(".nii") or filepath.endswith(".nii.gz")):
+        raise ValueError(
+            f"Nifti file path must end with .nii or .nii.gz, got {filepath}."
+        )
+    return np.asarray(nib.load(filepath).dataobj, dtype=np.float32)
+
+
 class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files"""
 
@@ -43,7 +51,7 @@ class NiftiFileLoader(FileLoader):
                 )
             )
 
-        arr = np.asarray(nib.load(filepath).dataobj, dtype=np.float32)
+        arr = load_nifti_file(filepath=filepath)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
             # for labels, if there's only one label, remove the last dimension
             arr = arr[:, :, :, 0]
