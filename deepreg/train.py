@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Module to train a network using init files and a CLI
 """
@@ -160,7 +162,6 @@ def main(args=None):
         description="train", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    ## ADD POSITIONAL ARGUMENTS
     parser.add_argument(
         "--gpu",
         "-g",
