@@ -29,17 +29,21 @@ def mkdir_if_not_exists(path):
         os.makedirs(path)
 
 
-def get_sorted_filenames_in_dir(dir_path: str, suffix: str = ""):
+def get_sorted_filenames_in_dir_with_suffix(dir_path: str, suffix: (str, list)):
     """
     Return the path of all files under the given directory.
 
     :param dir_path: path of the directory
-    :param suffix: suffix of filenames like h5, nii.gz, should not start with .
+    :param suffix: suffix of file names like h5, nii.gz, nii, should not start with .
     :return: list of file paths
     """
-    return sorted(
-        glob.glob(os.path.join(dir_path, "**", "*." + suffix), recursive=True)
-    )
+    if isinstance(suffix, str):
+        suffix = [suffix]
+
+    paths = []
+    for s in suffix:
+        paths += glob.glob(os.path.join(dir_path, "**", "*." + s), recursive=True)
+    return sorted(paths)
 
 
 def check_difference_between_two_lists(list1: list, list2: list):

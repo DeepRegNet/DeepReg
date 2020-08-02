@@ -4,7 +4,7 @@ import nibabel as nib
 import numpy as np
 
 from deepreg.dataset.loader.interface import FileLoader
-from deepreg.dataset.util import get_sorted_filenames_in_dir
+from deepreg.dataset.util import get_sorted_filenames_in_dir_with_suffix
 
 
 def load_nifti_file(filepath):
@@ -22,7 +22,7 @@ class NiftiFileLoader(FileLoader):
         super(NiftiFileLoader, self).__init__(
             dir_path=dir_path, name=name, grouped=grouped
         )
-        self.file_paths = get_sorted_filenames_in_dir(
+        self.file_paths = get_sorted_filenames_in_dir_with_suffix(
             dir_path=os.path.join(dir_path, name), suffix="nii.gz"
         )
         self.set_group_structure()
