@@ -42,7 +42,7 @@ def gradient_dz(fz: tf.Tensor) -> tf.Tensor:
     return (fz[:, 1:-1, 1:-1, 2:] - fz[:, 1:-1, 1:-1, :-2]) / 2
 
 
-def gradient_txyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
+def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
     """
     Function to calculate gradients on x,y,z-axis of a tensor using central finite difference.
     It calculates the gradient along x, y, z separately then stack them together
@@ -64,9 +64,9 @@ def compute_gradient_norm(ddf: tf.Tensor, l1: bool = False) -> tf.Tensor:
     """
     # first order gradient
     # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
-    dfdx = gradient_txyz(ddf, gradient_dx)
-    dfdy = gradient_txyz(ddf, gradient_dy)
-    dfdz = gradient_txyz(ddf, gradient_dz)
+    dfdx = gradient_dxyz(ddf, gradient_dx)
+    dfdy = gradient_dxyz(ddf, gradient_dy)
+    dfdz = gradient_dxyz(ddf, gradient_dz)
     if l1:
         norms = tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)
     else:
@@ -83,18 +83,18 @@ def compute_bending_energy(ddf: tf.Tensor) -> tf.Tensor:
     """
     # first order gradient
     # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
-    dfdx = gradient_txyz(ddf, gradient_dx)
-    dfdy = gradient_txyz(ddf, gradient_dy)
-    dfdz = gradient_txyz(ddf, gradient_dz)
+    dfdx = gradient_dxyz(ddf, gradient_dx)
+    dfdy = gradient_dxyz(ddf, gradient_dy)
+    dfdz = gradient_dxyz(ddf, gradient_dz)
 
     # second order gradient
     # (batch, m_dim1-4, m_dim2-4, m_dim3-4, 3)
-    dfdxx = gradient_txyz(dfdx, gradient_dx)
-    dfdyy = gradient_txyz(dfdy, gradient_dy)
-    dfdzz = gradient_txyz(dfdz, gradient_dz)
-    dfdxy = gradient_txyz(dfdx, gradient_dy)
-    dfdyz = gradient_txyz(dfdy, gradient_dz)
-    dfdxz = gradient_txyz(dfdx, gradient_dz)
+    dfdxx = gradient_dxyz(dfdx, gradient_dx)
+    dfdyy = gradient_dxyz(dfdy, gradient_dy)
+    dfdzz = gradient_dxyz(dfdz, gradient_dz)
+    dfdxy = gradient_dxyz(dfdx, gradient_dy)
+    dfdyz = gradient_dxyz(dfdy, gradient_dz)
+    dfdxz = gradient_dxyz(dfdx, gradient_dz)
 
     # (dx + dy + dz) ** 2 = dxx + dyy + dzz + 2*(dxy + dyz + dzx)
     energy = dfdxx ** 2 + dfdyy ** 2 + dfdzz ** 2

@@ -1,6 +1,8 @@
 """
 Tests functionality of the H5FileLoader
 """
+from test.unit.util import is_equal_np
+
 import numpy as np
 import pytest
 
@@ -122,13 +124,6 @@ def test_close():
     assert got is expected
 
 
-def check_equal(array1, array2):
-    """
-    cehck if two arrays are equal
-    """
-    return np.abs(np.subtract(array1, array2)) < 1e-3
-
-
 def test_get_data():
     """
     check if the get_data method works as expected and returns array
@@ -146,10 +141,8 @@ def test_get_data():
     ]
     expected = [(44, 59, 41), [255.0, 0.0, 68.359276, 65.84009]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert is_equal_np(np.array(got[0]), np.array(expected[0]))
+    assert is_equal_np(np.array(got[1]), np.array(expected[1]))
 
 
 def test_get_data_grouped():
@@ -169,10 +162,8 @@ def test_get_data_grouped():
     ]
     expected = [(64, 64, 60), [255.0, 0.0, 60.073948, 47.27648]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert is_equal_np(np.array(got[0]), np.array(expected[0]))
+    assert is_equal_np(np.array(got[1]), np.array(expected[1]))
 
 
 def test_get_data_index_out_of_range():
