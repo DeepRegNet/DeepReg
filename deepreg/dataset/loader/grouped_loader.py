@@ -97,10 +97,11 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                     "Mixing intra and inter groups is not supported when not sampling pairs."
                 )
             if intra_group_prob == 0:  # inter group
-                sample_indices = self.get_inter_sample_indices()
+                self.sample_indices = self.get_inter_sample_indices()
             else:  # intra group
-                sample_indices = self.get_intra_sample_indices()
-            self._num_samples = len(sample_indices)
+                self.sample_indices = self.get_intra_sample_indices()
+
+            self._num_samples = len(self.sample_indices)
 
     def validate_data_files(self):
         """If the data are labeled, verify image loader and label loader have the same files"""

@@ -3,11 +3,13 @@ Tests for deepreg/dataset/loader/grouped_loader.py in
 pytest style
 """
 from os.path import join
+
 import numpy as np
 import pytest
+
+from deepreg.dataset.loader.grouped_loader import GroupedDataLoader
 from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
-from deepreg.dataset.loader.grouped_loader import GroupedDataLoader
 
 FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
 nifti_path = join("data", "test", "nifti", "grouped")
@@ -60,8 +62,8 @@ def test_num_intra_group_probs():
             seed=0,
         )
         data_loader = GroupedDataLoader(
-                        data_dir_path=data_dir_path, image_shape=image_shape, **common_args
-                    )
+            data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+        )
         data_loader.close()
 
         assert "we need at least two groups" in str(e_info.value)
@@ -87,7 +89,7 @@ def test_sample_indices_intra():
     )
 
     assert data_loader.sample_indices is None
-    assert data_loader._num_samples is 2
+    assert data_loader._num_samples == 2
 
 
 def test_group_indices_inter():
@@ -110,7 +112,7 @@ def test_group_indices_inter():
     )
 
     ni = np.array(data_loader.num_images_per_group)
-    num_samples = np.sum(ni) * (np.sum(ni)-1) - sum(ni * (ni-1))
+    num_samples = np.sum(ni) * (np.sum(ni) - 1) - sum(ni * (ni - 1))
 
     sample_indices = data_loader.sample_indices
     sample_indices.sort()
@@ -219,16 +221,16 @@ def test_close():
             data_dir_path = join(DataPaths[key_file_loader], split)
             image_shape = (64, 64, 60)
             data_loader = GroupedDataLoader(
-                    data_dir_path=data_dir_path,
-                    image_shape=image_shape,
-                    file_loader=file_loader,
-                    labeled=True,
-                    sample_label="all",
-                    intra_group_prob=1,
-                    intra_group_option="forward",
-                    sample_image_in_group=True,
-                    seed=0,
-                )
+                data_dir_path=data_dir_path,
+                image_shape=image_shape,
+                file_loader=file_loader,
+                labeled=True,
+                sample_label="all",
+                intra_group_prob=1,
+                intra_group_option="forward",
+                sample_image_in_group=True,
+                seed=0,
+            )
 
             if key_file_loader == "h5":
                 data_loader.close()
