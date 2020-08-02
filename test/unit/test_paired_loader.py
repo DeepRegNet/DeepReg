@@ -109,9 +109,9 @@ def test_validate_data_files_label():
     loader.loader_moving_label.data_keys = "foo"
     with pytest.raises(Exception) as exec_info:
         PairedDataLoader.validate_data_files(loader)
-    msg = " ".join(exec_info.value.args[0].split())
+
     loader.close()
-    assert "two lists are not identical" in msg
+    assert "two lists are not identical" in str(exec_info.value)
 
 
 def test_sample_index_generator():

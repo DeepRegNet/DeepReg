@@ -524,8 +524,6 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         self._act = Activation()
 
     def call(self, inputs, training=None, **kwargs):
-        layer_util.check_inputs(inputs, 2, "ResidualBlock")
-
         return self._act(
             self._norm(inputs=self._conv3d(inputs=inputs[0]), training=training)
             + inputs[1]
@@ -555,7 +553,6 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         :return: None
         """
         super(LocalNetUpSampleResnetBlock, self).build(input_shape)
-        layer_util.check_inputs(input_shape, 2, "UpSampleResnetBlock build")
 
         output_shape = input_shape[1][1:4]
         self._deconv3d_block = Deconv3dBlock(
@@ -571,8 +568,6 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         :param kwargs:
         :return:
         """
-        layer_util.check_inputs(inputs, 2, "UpSampleResnetBlock call")
-
         inputs_nonskip, inputs_skip = inputs[0], inputs[1]
         h0 = self._deconv3d_block(inputs=inputs_nonskip, training=training)
         if self._use_additive_upsampling:

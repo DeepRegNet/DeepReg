@@ -129,16 +129,14 @@ def test_save_array():
     arr = np.random.rand(2, 3, 4, 1, 3)
     with pytest.raises(ValueError) as exec_info:
         save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "arr must be 3d or 4d numpy array or tf tensor" in msg
+    assert "arr must be 3d or 4d numpy array or tf tensor" in str(exec_info.value)
 
     # test 4D np tensor with wrong shape
     name = "5d_np"
     arr = np.random.rand(2, 3, 4, 1)
     with pytest.raises(ValueError) as exec_info:
         save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "4d arr must have 3 channels as last dimension" in msg
+    assert "4d arr must have 3 channels as last dimension" in str(exec_info.value)
 
 
 def test_calculate_metrics():

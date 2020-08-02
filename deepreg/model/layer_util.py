@@ -7,26 +7,6 @@ import numpy as np
 import tensorflow as tf
 
 
-def check_inputs(inputs, size, msg=""):
-    """
-    Function to assert correct input types and length
-    :param inputs: list or tuple
-    :param size: int, defines corect size of input tuple/list
-    :param msg: string type to return with raised ValueError
-    """
-    if msg != "":
-        msg += " "
-    if not isinstance(inputs, (list, tuple)):
-        raise ValueError(msg + "Inputs should be a list or tuple")
-    if len(inputs) != size:
-        raise ValueError(
-            msg
-            + """Inputs should be a list or tuple\
-                     of size %d, but received %d"""
-            % (size, len(inputs))
-        )
-
-
 def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     """
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
@@ -163,11 +143,10 @@ def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     """
     if len(values[0].shape) != len(weights[0].shape):
         raise ValueError(
-            """In pyramid_combination, elements of values and
-            weights should have same dimension.
-            value shape = {}, weight = {}""".format(
-                values[0].shape, weights[0].shape
-            )
+            f"In pyramid_combination, "
+            f"elements of values and weights should have same dimension. "
+            f"value shape = {values[0].shape}, "
+            f"weight = {weights[0].shape}"
         )
     if 2 ** len(weights) != len(values):
         raise ValueError(
