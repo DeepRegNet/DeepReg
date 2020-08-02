@@ -2,22 +2,13 @@
 Tests for deepreg/model/layer_util.py in
 pytest style
 """
+from test.unit.util import is_equal_tf
+
 import numpy as np
 import pytest
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
-
-
-def check_equal(tensor_1, tensor_2):
-    """
-    Given two tf tensors return True/False (not tf tensor)
-    Tolerate small errors (<1e-6)
-    :param tensor_1: Tensor to check equality to against tensor_2.
-    :param tensor_2: Tensor to check equality to against tensor_1.
-    :return: True if difference less than 1e-6, False otherwise.
-    """
-    return tf.reduce_max(tf.abs(tensor_1 - tensor_2)).numpy() < 1e-6
 
 
 def test_check_inputs():
@@ -87,7 +78,7 @@ def test_check_inputs():
 def test_get_reference_grid():
     """
     Test get_reference_grid by confirming that it generates
-    a sample grid test case to check_equal's tolerance level.
+    a sample grid test case to is_equal_tf's tolerance level.
     """
     want = tf.constant(
         np.array(
@@ -96,7 +87,7 @@ def test_get_reference_grid():
         )
     )
     get = layer_util.get_reference_grid(grid_size=[1, 2, 3])
-    assert check_equal(want, get)
+    assert is_equal_tf(want, get)
 
 
 def test_get_n_bits_combinations():
@@ -133,7 +124,7 @@ def test_pyramid_combinations():
     # expected = 1 * 0.2 + 2 * 2
     expected = tf.constant(np.array([1.8], dtype=np.float32))
     got = layer_util.pyramid_combination(values=values, weights=weights)
-    assert check_equal(got, expected)
+    assert is_equal_tf(got, expected)
 
     # Check numerical outputs are correct for a 2D pair of weights, values - Pass
     weights = tf.constant(np.array([[0.2], [0.3]], dtype=np.float32))
@@ -154,7 +145,7 @@ def test_pyramid_combinations():
     #          + 4 * 0.8 * 0.7
     expected = tf.constant(np.array([3.3], dtype=np.float32))
     got = layer_util.pyramid_combination(values=values, weights=weights)
-    assert check_equal(got, expected)
+    assert is_equal_tf(got, expected)
 
     # Check input lengths match - Fail
     weights = tf.constant(np.array([[[0.2]], [[0.2]]], dtype=np.float32))
@@ -182,7 +173,7 @@ def test_pyramid_combinations():
 def test_resample():
     """
     Test resample by confirming that it generates appropriate
-    resampling on two test cases with outputs within check_equal's
+    resampling on two test cases with outputs within is_equal_tf's
     tolerance level, and one which should fail (incompatible shapes).
     """
     # linear, vol has no feature channel - Pass
@@ -206,7 +197,7 @@ def test_resample():
         np.array([[[0, 1, 2], [1.2, 2.5, 3.8], [1.9, 2, 2.1]]], dtype=np.float32)
     )  # shape = [1,3,3]
     get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert check_equal(want, get)
+    assert is_equal_tf(want, get)
 
     # linear, vol has feature channel - Pass
     interpolation = "linear"
@@ -240,7 +231,7 @@ def test_resample():
         )
     )  # shape = [1,3,3,2]
     get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert check_equal(want, get)
+    assert is_equal_tf(want, get)
 
     # Inconsistent shapes for resampling - Fail
     interpolation = "linear"
@@ -291,7 +282,7 @@ def test_random_transform_generator():
     got = layer_util.random_transform_generator(
         batch_size=batch_size, scale=scale, seed=seed
     )
-    assert check_equal(got, expected)
+    assert is_equal_tf(got, expected)
 
 
 def test_warp_grid():
@@ -332,7 +323,58 @@ def test_warp_grid():
         )
     )  # shape = (1, 1, 2, 3, 3)
     got = layer_util.warp_grid(grid=grid, theta=theta)
-    assert check_equal(got, expected)
+    assert is_equal_tf(got, expected)
+
+
+def test_warp_image_ddf():
+    """
+    Test warp_image_ddf by checking input/output shapes
+    """
+    batch_size = 2
+    fixed_image_size = (32, 32, 16)
+    moving_image_size = (24, 24, 16)
+    channel = 6
+    image = tf.ones((batch_size, *moving_image_size), dtype="float32")
+    image_ch = tf.ones((batch_size, *moving_image_size, channel), dtype="float32")
+    ddf = tf.ones((batch_size, *fixed_image_size, 3), dtype="float32")
+    grid_ref = tf.ones((1, *fixed_image_size, 3), dtype="float32")
+
+    # without channel, with grid_ref
+    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=grid_ref)
+    assert got.shape == (batch_size, *fixed_image_size)
+
+    # without channel, without grid_ref
+    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
+    assert got.shape == (batch_size, *fixed_image_size)
+
+    # with channel, with grid_ref
+    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=grid_ref)
+    assert got.shape == (batch_size, *fixed_image_size, channel)
+
+    # with channel, without grid_ref
+    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=None)
+    assert got.shape == (batch_size, *fixed_image_size, channel)
+
+    # wrong image shape
+    wrong_image = tf.ones(moving_image_size, dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=wrong_image, ddf=ddf, grid_ref=grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "image shape must be (batch, m_dim1, m_dim2, m_dim3)" in msg
+
+    # wrong ddf shape
+    wrong_ddf = tf.ones((batch_size, *fixed_image_size, 2), dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=image, ddf=wrong_ddf, grid_ref=grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3)" in msg
+
+    # wrong grid_ref shape
+    wrong_grid_ref = tf.ones((batch_size, *moving_image_size, 3), dtype="float32")
+    with pytest.raises(ValueError) as exec_info:
+        layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=wrong_grid_ref)
+    msg = " ".join(exec_info.value.args[0].split())
+    assert "grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None" in msg
 
 
 def test_resize3d():
