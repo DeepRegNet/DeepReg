@@ -69,7 +69,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
-        if self.labeled:
+        if self.labeled is True:
             loader_label = file_loader(
                 dir_path=data_dir_path, name="labels", grouped=True
             )
@@ -86,7 +86,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                     f"we need at least two groups for inter group sampling"
                 )
         # calculate number of samples and save pre-calculated sample indices if available
-        if self.sample_image_in_group:
+        if self.sample_image_in_group is True:
             # one image pair in each group (pair) will be yielded
             self.sample_indices = None
             self._num_samples = self.num_groups
@@ -105,7 +105,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def validate_data_files(self):
         """If the data are labeled, verify image loader and label loader have the same files"""
-        if self.labeled:
+        if self.labeled is True:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
             check_difference_between_two_lists(list1=image_ids, list2=label_ids)
@@ -184,7 +184,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         - image_indices = [group1, image1, group2, image2]
         """
         rnd = random.Random(self.seed)  # set random seed
-        if self.sample_image_in_group:
+        if self.sample_image_in_group is True:
             # for each group sample one image pair only
             group_indices = [i for i in range(self.num_groups)]
             rnd.shuffle(group_indices)
@@ -251,5 +251,5 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def close(self):
         """close file loaders"""
         self.loader_moving_image.close()
-        if self.labeled:
+        if self.labeled is True:
             self.loader_moving_label.close()
