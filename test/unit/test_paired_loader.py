@@ -107,11 +107,11 @@ def test_validate_data_files_label():
 
     # alter a data ID to cause error
     loader.loader_moving_label.data_keys = "foo"
-    with pytest.raises(Exception) as exec_info:
+    with pytest.raises(Exception) as err_info:
         PairedDataLoader.validate_data_files(loader)
 
     loader.close()
-    assert "two lists are not identical" in str(exec_info.value)
+    assert "two lists are not identical" in str(err_info.value)
 
 
 def test_sample_index_generator():
