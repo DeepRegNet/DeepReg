@@ -11,70 +11,6 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 
 
-def test_check_inputs():
-    """
-    Test check_inputs by confirming that it accepts proper
-    types and handles a few simple cases.
-    """
-    # Check inputs list - Pass
-    assert layer_util.check_inputs([], 0) is None
-
-    # Check inputs tuple - Pass
-    assert layer_util.check_inputs((), 0) is None
-
-    # Check inputs int - Fail
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs(0, 0)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple" in msg
-
-    # Check inputs float - Fail
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs(0.0, 0)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple" in msg
-
-    # Check size float - Fail
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs([1], 0.5)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple of size" in msg
-
-    # Check size 0 - Pass
-    assert layer_util.check_inputs([], 0) is None
-    assert layer_util.check_inputs((), 0) is None
-
-    # Check size 0 - Fail
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs([0], 0)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple of size" in msg
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs((0,), 0)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple of size" in msg
-
-    # Check size 1 - Pass
-    assert layer_util.check_inputs([0], 1) is None
-    assert layer_util.check_inputs((0,), 1) is None
-
-    # Check size 1 - Fail
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs([], 1)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple of size" in msg
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs((), 1)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Inputs should be a list or tuple of size" in msg
-
-    # Check msg spacing - Pass
-    with pytest.raises(ValueError) as exec_info:
-        layer_util.check_inputs(0, 0, msg="Start of message")
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Start of message" in msg
-
-
 def test_get_reference_grid():
     """
     Test get_reference_grid by confirming that it generates
@@ -150,23 +86,21 @@ def test_pyramid_combinations():
     # Check input lengths match - Fail
     weights = tf.constant(np.array([[[0.2]], [[0.2]]], dtype=np.float32))
     values = tf.constant(np.array([[1], [2]], dtype=np.float32))
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.pyramid_combination(values=values, weights=weights)
-    msg = " ".join(exec_info.value.args[0].split())
     assert (
         "In pyramid_combination, elements of values and weights should have same dimension"
-        in msg
+        in str(err_info.value)
     )
 
     # Check input lengths match - Fail
     weights = tf.constant(np.array([[0.2]], dtype=np.float32))
     values = tf.constant(np.array([[1]], dtype=np.float32))
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.pyramid_combination(values=values, weights=weights)
-    msg = " ".join(exec_info.value.args[0].split())
     assert (
         "In pyramid_combination, num_dim = len(weights), len(values) must be 2 ** num_dim"
-        in msg
+        in str(err_info.value)
     )
 
 
@@ -237,19 +171,17 @@ def test_resample():
     interpolation = "linear"
     vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
     loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "vol shape inconsistent with loc" in msg
+    assert "vol shape inconsistent with loc" in str(err_info.value)
 
     # Non-'linear' resampling - Fail
     interpolation = "some-string"
     vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
     loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "resample supports only linear interpolation" in msg
+    assert "resample supports only linear interpolation" in str(err_info.value)
 
 
 def test_random_transform_generator():
@@ -357,24 +289,23 @@ def test_warp_image_ddf():
 
     # wrong image shape
     wrong_image = tf.ones(moving_image_size, dtype="float32")
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.warp_image_ddf(image=wrong_image, ddf=ddf, grid_ref=grid_ref)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "image shape must be (batch, m_dim1, m_dim2, m_dim3)" in msg
+    assert "image shape must be (batch, m_dim1, m_dim2, m_dim3)" in str(err_info.value)
 
     # wrong ddf shape
     wrong_ddf = tf.ones((batch_size, *fixed_image_size, 2), dtype="float32")
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.warp_image_ddf(image=image, ddf=wrong_ddf, grid_ref=grid_ref)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3)" in msg
+    assert "ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3)" in str(err_info.value)
 
     # wrong grid_ref shape
     wrong_grid_ref = tf.ones((batch_size, *moving_image_size, 3), dtype="float32")
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=wrong_grid_ref)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None" in msg
+    assert "grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None" in str(
+        err_info.value
+    )
 
 
 def test_resize3d():
@@ -441,15 +372,15 @@ def test_resize3d():
     # Check resize3d for proper image dimensions - Fail
     input_shape = (1, 1)
     size = (1, 1, 1)
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "resize3d takes input image of dimension 3 or 4 or 5" in msg
+    assert "resize3d takes input image of dimension 3 or 4 or 5" in str(err_info.value)
 
     # Check resize3d for proper size - Fail
     input_shape = (1, 1, 1)
     size = (1, 1)
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "resize3d takes size of type tuple/list and of length 3" in msg
+    assert "resize3d takes size of type tuple/list and of length 3" in str(
+        err_info.value
+    )

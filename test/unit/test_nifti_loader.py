@@ -22,10 +22,9 @@ def test_load_nifti_file():
 
     # wrong file type
     h5_filepath = "./data/test/h5/paired/test/fixed_images.h5"
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         load_nifti_file(filepath=h5_filepath)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "Nifti file path must end with .nii or .nii.gz" in msg
+    assert "Nifti file path must end with .nii or .nii.gz" in str(err_info.value)
 
 
 def test_init_sufficient_args():
@@ -93,10 +92,9 @@ def test_set_group_structure_ungrouped():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     loader.set_group_structure()
-    with pytest.raises(AttributeError) as exec_info:
+    with pytest.raises(AttributeError) as err_info:
         loader.group_ids
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "object has no attribute" in msg
+    assert "object has no attribute" in str(err_info.value)
 
 
 def test_get_data_ids():
@@ -257,7 +255,6 @@ def test_get_data_incorrect_args():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     index = "abc"
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         loader.get_data(index)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "must be int, or tuple" in msg
+    assert "must be int, or tuple" in str(err_info.value)
