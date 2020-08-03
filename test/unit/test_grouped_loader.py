@@ -64,14 +64,14 @@ def test_init():
                 )
                 if train_split == "test" and prob < 1:
                     # catch exception when trying to sample between fewer than 2 groups
-                    with pytest.raises(Exception) as e_info:
+                    with pytest.raises(Exception) as err_info:
                         data_loader = GroupedDataLoader(
                             data_dir_path=data_dir_path,
                             image_shape=image_shape,
                             **common_args,
                         )
                         data_loader.close()
-                        assert "we need at least two groups" in str(e_info.value)
+                        assert "we need at least two groups" in str(err_info.value)
                 elif sample_in_group is True and train_split == "train":
                     # ensure sample count is accurate (only for train dir, test dir uses same logic)
                     data_loader = GroupedDataLoader(
@@ -84,7 +84,7 @@ def test_init():
                     data_loader.close()
                 elif sample_in_group is False and 0 < prob < 1:
                     # catch exception when specifying conflicting intra/inter group parameters
-                    with pytest.raises(Exception) as e_info:
+                    with pytest.raises(Exception) as err_info:
                         data_loader = GroupedDataLoader(
                             data_dir_path=data_dir_path,
                             image_shape=image_shape,
@@ -92,7 +92,7 @@ def test_init():
                         )
                         data_loader.close()
                         assert "Mixing intra and inter groups is not supported" in str(
-                            e_info.value
+                            err_info.value
                         )
 
 
@@ -162,14 +162,14 @@ def test_get_intra_sample_indices():
 
         # test exception thrown for unsupported group option
         common_args["intra_group_option"] = "Forward"
-        with pytest.raises(Exception) as e_info:
+        with pytest.raises(Exception) as err_info:
 
             data_loader = GroupedDataLoader(
                 data_dir_path=data_dir_path, image_shape=image_shape, **common_args
             )
             data_loader.close()
 
-            assert "Unknown intra_group_option," in str(e_info.value)
+            assert "Unknown intra_group_option," in str(err_info.value)
 
 
 def sample_count(ni, direction):
@@ -247,9 +247,9 @@ def test_sample_index_generator():
             # test exception thrown for unsupported group option
             data_loader.sample_image_in_group = True
             data_loader.intra_group_option = "Forward"
-            with pytest.raises(Exception) as e_info:
+            with pytest.raises(Exception) as err_info:
                 next(data_loader.sample_index_generator())
-                assert "got Forward," in str(e_info.value)
+                assert "got Forward," in str(err_info.value)
 
 
 def test_close():
