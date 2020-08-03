@@ -24,7 +24,7 @@ def test_validate_data_files():
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for train_split in ["train", "test"]:
-            for labeled in ["True", "False", 1, 0]:
+            for labeled in [True, False]:
                 data_dir_path = join(DataPaths[key_file_loader], train_split)
                 image_shape = (64, 64, 60)
                 common_args = dict(
@@ -134,13 +134,14 @@ def test_get_intra_sample_indices():
     """
     data_dir_path = join(DataPaths["h5"], "train")
     image_shape = (64, 64, 60)
-    for group_option in ["forward", "backward", "unconstrained"]:
+    # test feasible intra_group_option
+    for intra_group_option in ["forward", "backward", "unconstrained"]:
         common_args = dict(
             file_loader=FileLoaderDict["h5"],
             labeled=True,
             sample_label="all",
             intra_group_prob=1,
-            intra_group_option=group_option,
+            intra_group_option=intra_group_option,
             sample_image_in_group=False,
             seed=None,
         )
@@ -149,7 +150,7 @@ def test_get_intra_sample_indices():
         )
 
         ni = data_loader.num_images_per_group
-        num_samples = sample_count(ni, group_option)
+        num_samples = sample_count(ni, intra_group_option)
 
         sample_indices = data_loader.sample_indices
         sample_indices.sort()
@@ -173,7 +174,7 @@ def test_get_intra_sample_indices():
 
 
 def sample_count(ni, direction):
-    # helper function calculates number of samples
+    """helper function calculates number of samples"""
     ni = np.array(ni)
     if direction == "unconstrained":
         sample_total = sum(ni * (ni - 1))
@@ -192,6 +193,7 @@ def test_sample_index_generator():
     for key_file_loader, file_loader in FileLoaderDict.items():
         data_dir_path = join(DataPaths[key_file_loader], "train")
 
+        # test feasible intra_group_option
         for direction in ["forward", "backward", "unconstrained"]:
             for sample_in_group in [False, True]:
                 if sample_in_group is False:
