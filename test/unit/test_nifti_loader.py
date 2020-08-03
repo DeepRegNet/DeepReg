@@ -108,7 +108,7 @@ def test_get_data_ids():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     got = loader.get_data_ids()
-    expected = ["/case000025.nii.gz", "/case000026.nii.gz"]
+    expected = ["/case000025", "/case000026"]
     loader.close()
     assert got == expected
 

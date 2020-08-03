@@ -48,3 +48,20 @@ def test_normalize_array():
     got = util.normalize_array(arr=arr, v_min=-3)
     expected = np.array([0.2, 0.6, 0.8, 1])
     assert is_equal_np(got, expected)
+
+
+def test_remove_prefix_suffix():
+    """
+    Test remove_prefix_suffix by verifying outputs
+    """
+    x = "sample000.nii"
+
+    # single prefix, suffix
+    got = util.remove_prefix_suffix(x=x, prefix="sample", suffix=".nii")
+    expected = "000"
+    assert got == expected
+
+    # multiple prefixes, suffixes
+    got = util.remove_prefix_suffix(x=x, prefix=["sample"], suffix=[".nii.gz", ".nii"])
+    expected = "000"
+    assert got == expected
