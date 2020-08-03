@@ -66,14 +66,18 @@ def test_init():
                     # catch exception when trying to sample between fewer than 2 groups
                     with pytest.raises(Exception) as e_info:
                         data_loader = GroupedDataLoader(
-                            data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                            data_dir_path=data_dir_path,
+                            image_shape=image_shape,
+                            **common_args,
                         )
                         data_loader.close()
                         assert "we need at least two groups" in str(e_info.value)
                 elif sample_in_group is True and train_split is "train":
                     # ensure sample count is accurate (only for train dir, test dir uses same logic)
                     data_loader = GroupedDataLoader(
-                        data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                        data_dir_path=data_dir_path,
+                        image_shape=image_shape,
+                        **common_args,
                     )
                     assert data_loader.sample_indices is None
                     assert data_loader._num_samples == 2
@@ -82,10 +86,14 @@ def test_init():
                     # catch exception when specifying conflicting intra/inter group parameters
                     with pytest.raises(Exception) as e_info:
                         data_loader = GroupedDataLoader(
-                            data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                            data_dir_path=data_dir_path,
+                            image_shape=image_shape,
+                            **common_args,
                         )
                         data_loader.close()
-                        assert "Mixing intra and inter groups is not supported" in str(e_info.value)
+                        assert "Mixing intra and inter groups is not supported" in str(
+                            e_info.value
+                        )
 
 
 def test_get_inter_sample_indices():
@@ -208,7 +216,7 @@ def test_sample_index_generator():
                         data_loader = GroupedDataLoader(
                             data_dir_path=data_dir_path,
                             image_shape=image_shape,
-                            **common_args
+                            **common_args,
                         )
 
                         data_indices = []
@@ -226,9 +234,15 @@ def test_sample_index_generator():
                         indices_to_compare.append(data_indices)
 
                     # test different seeds give different indices
-                    assert np.allclose(indices_to_compare[0], indices_to_compare[1]) is False
+                    assert (
+                        np.allclose(indices_to_compare[0], indices_to_compare[1])
+                        is False
+                    )
                     # test same seeds give the same indices
-                    assert np.allclose(indices_to_compare[0], indices_to_compare[2]) is True
+                    assert (
+                        np.allclose(indices_to_compare[0], indices_to_compare[2])
+                        is True
+                    )
 
             # test exception thrown for unsupported group option
             data_loader.sample_image_in_group = True
