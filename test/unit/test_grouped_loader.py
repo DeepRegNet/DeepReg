@@ -62,7 +62,7 @@ def test_init():
                     sample_image_in_group=sample_in_group,
                     seed=None,
                 )
-                if train_split is "test" and prob < 1:
+                if train_split == "test" and prob < 1:
                     # catch exception when trying to sample between fewer than 2 groups
                     with pytest.raises(Exception) as e_info:
                         data_loader = GroupedDataLoader(
@@ -72,7 +72,7 @@ def test_init():
                         )
                         data_loader.close()
                         assert "we need at least two groups" in str(e_info.value)
-                elif sample_in_group is True and train_split is "train":
+                elif sample_in_group is True and train_split == "train":
                     # ensure sample count is accurate (only for train dir, test dir uses same logic)
                     data_loader = GroupedDataLoader(
                         data_dir_path=data_dir_path,
