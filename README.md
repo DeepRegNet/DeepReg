@@ -25,7 +25,7 @@ clinical applications, as seen in the provided [examples](./docs/tutorial_demo.m
 of the core functionality are already accessible._
 
 DeepReg **extends and simplifies workflows for medical imaging researchers** working in
-Tensorflow 2, and can be easily installed and used across multiple platforms for **rapid
+TensorFlow 2, and can be easily installed and used across multiple platforms for **rapid
 deployment of deep-learning algorithms**.
 
 DeepReg is designed to be used with **minimal programming or scripting**, owing to its
