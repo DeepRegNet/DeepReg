@@ -29,20 +29,23 @@ def mkdir_if_not_exists(path):
         os.makedirs(path)
 
 
-def get_sorted_filenames_in_dir_with_suffix(dir_path: str, suffix: (str, list)):
+def get_sorted_filenames_in_dir_with_suffix(dir_path: (str, list), suffix: (str, list)):
     """
     Return the path of all files under the given directory.
 
-    :param dir_path: path of the directory
+    :param dir_path: path(s) of the directory, can be string or list of strings
     :param suffix: suffix of file names like h5, nii.gz, nii, should not start with .
     :return: list of file paths
     """
+    if isinstance(dir_path, str):
+        dir_path = [dir_path]
     if isinstance(suffix, str):
         suffix = [suffix]
 
     paths = []
-    for s in suffix:
-        paths += glob.glob(os.path.join(dir_path, "**", "*." + s), recursive=True)
+    for p in dir_path:
+        for s in suffix:
+            paths += glob.glob(os.path.join(p, "**", "*." + s), recursive=True)
     return sorted(paths)
 
 
