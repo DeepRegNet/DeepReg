@@ -4,7 +4,27 @@ Tests functionality of the NiftiFileLoader
 import numpy as np
 import pytest
 
-from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
+from deepreg.dataset.loader.nifti_loader import NiftiFileLoader, load_nifti_file
+
+
+def test_load_nifti_file():
+    """
+    check if the nifti files can be correctly loaded
+    """
+
+    # nii.gz
+    nii_gz_filepath = "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz"
+    load_nifti_file(filepath=nii_gz_filepath)
+
+    # nii
+    nii_filepath = "./data/test/nifti/unit_test/case000026.nii"
+    load_nifti_file(filepath=nii_filepath)
+
+    # wrong file type
+    h5_filepath = "./data/test/h5/paired/test/fixed_images.h5"
+    with pytest.raises(ValueError) as err_info:
+        load_nifti_file(filepath=h5_filepath)
+    assert "Nifti file path must end with .nii or .nii.gz" in str(err_info.value)
 
 
 def test_init_sufficient_args():
@@ -72,10 +92,9 @@ def test_set_group_structure_ungrouped():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     loader.set_group_structure()
-    with pytest.raises(AttributeError) as exec_info:
+    with pytest.raises(AttributeError) as err_info:
         loader.group_ids
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "object has no attribute" in msg
+    assert "object has no attribute" in str(err_info.value)
 
 
 def test_get_data_ids():
@@ -87,7 +106,7 @@ def test_get_data_ids():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     got = loader.get_data_ids()
-    expected = ["/case000025.nii.gz", "/case000026.nii.gz"]
+    expected = ["/case000025", "/case000026"]
     loader.close()
     assert got == expected
 
@@ -236,7 +255,6 @@ def test_get_data_incorrect_args():
 
     loader = NiftiFileLoader(dir_path=dir_path, name=name, grouped=False)
     index = "abc"
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         loader.get_data(index)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "must be int, or tuple" in msg
+    assert "must be int, or tuple" in str(err_info.value)

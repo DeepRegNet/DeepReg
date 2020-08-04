@@ -4,6 +4,7 @@
 Tests for deepreg/model/loss/label.py in
 pytest style
 """
+from test.unit.util import is_equal_tf
 from types import FunctionType
 
 import numpy as np
@@ -11,19 +12,6 @@ import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.label as label
-
-
-def assertTensorsEqual(x, y):
-    """
-    given two tf tensors return True/False (not tf tensor)
-    tolerate small errors
-    :param x:
-    :param y:
-    :return:
-    """
-    x = tf.cast(x, dtype=tf.float32)
-    y = tf.cast(y, dtype=tf.float32)
-    return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
 
 
 def test_gauss_kernel1d_0():
@@ -48,7 +36,7 @@ def test_gauss_kernel1d_else():
     ]
     expect = tf.convert_to_tensor(expect, dtype=tf.float32)
     expect = expect / tf.reduce_sum(expect)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_cauchy_kernel_0():
@@ -71,7 +59,7 @@ def test_cauchy_kernel_else():
     expect = [1 / ((x / sigma) ** 2 + 1) for x in range(-sigma * 5, sigma * 5 + 1)]
     expect = tf.convert_to_tensor(expect, dtype=tf.float32)
     expect = expect / tf.reduce_sum(expect)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_foreground_prop_binary():
@@ -86,7 +74,7 @@ def test_foreground_prop_binary():
     tensor_eye[:, :, 0:3, 0:3] = array_eye
     expect = tf.convert_to_tensor([1.0 / 3, 1.0 / 3, 1.0 / 3], dtype=tf.float32)
     get = label.foreground_proportion(tensor_eye)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_foreground_prop_simple():
@@ -103,7 +91,7 @@ def test_foreground_prop_simple():
     tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
     expect = [54 / (27 * 9), 54 / (27 * 9), 54 / (27 * 9)]
     get = label.foreground_proportion(tensor_eye)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_jaccard_index():
@@ -125,7 +113,7 @@ def test_jaccard_index():
 
     get = num / denom
     expect = label.jaccard_index(tensor_eye, tensor_pred)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_dice_not_binary():
@@ -147,7 +135,7 @@ def test_dice_not_binary():
 
     get = num / denom
     expect = label.dice_score(tensor_eye, tensor_pred)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_dice_binary():
@@ -169,7 +157,7 @@ def test_dice_binary():
 
     get = num / denom
     expect = label.dice_score(tensor_eye, tensor_pred, binary=True)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_dice_general():
@@ -195,7 +183,7 @@ def test_dice_general():
     expect = num / den
     get = label.dice_score_generalized(tensor_eye, tensor_pred)
 
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_weighted_bce():
@@ -214,7 +202,7 @@ def test_weighted_bce():
 
     expect = [1.535057, 1.535057, 1.535057]
     get = label.weighted_binary_cross_entropy(tensor_eye, tensor_pred)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_separable_filter_0():
@@ -227,7 +215,7 @@ def test_separable_filter_0():
     # array_eye = np.identity(3, dtype=np.float32)
     # get = label.separable_filter3d(array_eye, kernel)
     # expect = array_eye
-    # assert assertTensorsEqual(get, expect)
+    # assert is_equal_tf(get, expect)
 
 
 def test_separable_filter_else():
@@ -247,7 +235,7 @@ def test_separable_filter_else():
     expect = tf.convert_to_tensor(expect, dtype=tf.float32)
 
     get = label.separable_filter3d(tensor_pred, k)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_compute_centroid():
@@ -267,7 +255,7 @@ def test_compute_centroid():
     expect = np.ones((3, 3))
     expect[0, 1:3] = 0
     get = label.compute_centroid(tensor_mask, tensor_grid)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_compute_centroid_d():
@@ -286,7 +274,7 @@ def test_compute_centroid_d():
 
     get = label.compute_centroid_distance(tensor_mask, tensor_mask, tensor_grid)
     expect = np.zeros((3))
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_squared_error():
@@ -304,7 +292,7 @@ def test_squared_error():
 
     expect = np.array([26 / 27, 1.0, 1.0])
     get = label.squared_error(tensor_mask, tensor_pred)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_dice():
@@ -327,7 +315,7 @@ def test_single_scale_loss_dice():
 
     expect = 1 - (num / denom)
     get = label.single_scale_loss(tensor_eye, tensor_pred, "dice")
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_bce():
@@ -347,7 +335,7 @@ def test_single_scale_loss_bce():
     expect = [1.535057, 1.535057, 1.535057]
     get = label.single_scale_loss(tensor_eye, tensor_pred, "cross-entropy")
 
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_dg():
@@ -372,7 +360,7 @@ def test_single_scale_loss_dg():
     den = y_sum
     expect = 1 - num / den
     get = label.single_scale_loss(tensor_eye, tensor_pred, "dice_generalized")
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_jacc():
@@ -394,7 +382,7 @@ def test_single_scale_loss_jacc():
 
     expect = 1 - (num / denom)
     get = label.single_scale_loss(tensor_eye, tensor_pred, "jaccard")
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_mean_sq():
@@ -411,7 +399,7 @@ def test_single_scale_loss_mean_sq():
     expect = tf.convert_to_tensor(np.array([26 / 27, 1.0, 1.0]), dtype=tf.float32)
 
     get = label.single_scale_loss(tensor_mask, tensor_pred, "mean-squared")
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_single_scale_loss_other():
@@ -468,7 +456,7 @@ def test_multi_scale_loss_kernel():
     tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
     expect = tf.constant([0.9938445, 0.9924956, 0.9938445], dtype=tf.float32)
     get = label.multi_scale_loss(tensor_eye, tensor_pred, "jaccard", loss_values)
-    assert assertTensorsEqual(get, expect)
+    assert is_equal_tf(get, expect)
 
 
 def test_similarity_fn_unknown_loss():

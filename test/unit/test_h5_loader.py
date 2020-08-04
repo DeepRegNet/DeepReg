@@ -1,6 +1,8 @@
 """
 Tests functionality of the H5FileLoader
 """
+from test.unit.util import is_equal_np
+
 import numpy as np
 import pytest
 
@@ -74,10 +76,9 @@ def test_set_group_structure_ungrouped():
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
     loader.set_group_structure()
-    with pytest.raises(AttributeError) as exec_info:
+    with pytest.raises(AttributeError) as err_info:
         loader.group_ids
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "object has no attribute" in msg
+    assert "object has no attribute" in str(err_info.value)
 
 
 def test_get_data_ids():
@@ -122,13 +123,6 @@ def test_close():
     assert got is expected
 
 
-def check_equal(array1, array2):
-    """
-    cehck if two arrays are equal
-    """
-    return np.abs(np.subtract(array1, array2)) < 1e-3
-
-
 def test_get_data():
     """
     check if the get_data method works as expected and returns array
@@ -146,10 +140,8 @@ def test_get_data():
     ]
     expected = [(44, 59, 41), [255.0, 0.0, 68.359276, 65.84009]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert is_equal_np(np.array(got[0]), np.array(expected[0]))
+    assert is_equal_np(np.array(got[1]), np.array(expected[1]))
 
 
 def test_get_data_grouped():
@@ -169,10 +161,8 @@ def test_get_data_grouped():
     ]
     expected = [(64, 64, 60), [255.0, 0.0, 60.073948, 47.27648]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert is_equal_np(np.array(got[0]), np.array(expected[0]))
+    assert is_equal_np(np.array(got[1]), np.array(expected[1]))
 
 
 def test_get_data_index_out_of_range():
@@ -211,10 +201,9 @@ def test_init_incompatible_conditions():
     """
     dir_path = "./data/test/h5/paired/test"
     name = "fixed_images"
-    with pytest.raises(IndexError) as exec_info:
+    with pytest.raises(IndexError) as err_info:
         H5FileLoader(dir_path=dir_path, name=name, grouped=True)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "index out of range" in msg
+    assert "index out of range" in str(err_info.value)
 
 
 def test_get_data_incompatible_args():
@@ -241,7 +230,6 @@ def test_get_data_incorrect_args():
 
     loader = H5FileLoader(dir_path=dir_path, name=name, grouped=False)
     index = "abc"
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError) as err_info:
         loader.get_data(index)
-    msg = " ".join(exec_info.value.args[0].split())
-    assert "must be int, or tuple" in msg
+    assert "must be int, or tuple" in str(err_info.value)

@@ -72,10 +72,12 @@ def test_mkdirs_path_nonexistent():
         tempdir.cleanup()
 
 
-def test_get_sorted_filenames():
+def test_get_sorted_filenames_in_dir_with_suffix():
     """
-    Checking sorted filenames returned by util function
+    Checking sorted file names returned by get_sorted_filenames_in_dir_with_suffix function
     """
+
+    # single suffix
     with TempDirectory() as tempdir:
         tempdir.write((tempdir.path + "/a.txt"), (bytes(1)))
         tempdir.write((tempdir.path + "/b.txt"), (bytes(1)))
@@ -85,7 +87,22 @@ def test_get_sorted_filenames():
             tempdir.path + "/b.txt",
             tempdir.path + "/c.txt",
         ]
-        actual = util.get_sorted_filenames_in_dir(tempdir.path, "txt")
+        actual = util.get_sorted_filenames_in_dir_with_suffix(tempdir.path, "txt")
+        assert expected == actual
+
+    # multiple suffixes
+    with TempDirectory() as tempdir:
+        tempdir.write((tempdir.path + "/a.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/b.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/c.md"), (bytes(1)))
+        expected = [
+            tempdir.path + "/a.txt",
+            tempdir.path + "/b.txt",
+            tempdir.path + "/c.md",
+        ]
+        actual = util.get_sorted_filenames_in_dir_with_suffix(
+            tempdir.path, ["txt", "md"]
+        )
         assert expected == actual
 
 

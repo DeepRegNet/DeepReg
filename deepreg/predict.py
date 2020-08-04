@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Module to perform predictions on data using
 command line interface
@@ -277,7 +279,6 @@ def main(args=None):
         description="predict", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    ## ADD POSITIONAL ARGUMENTS
     parser.add_argument(
         "--gpu",
         "-g",
