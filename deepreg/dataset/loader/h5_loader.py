@@ -14,11 +14,11 @@ DATA_KEY_FORMAT = "group-{}-{}"
 class H5FileLoader(FileLoader):
     """Generalized loader for h5 files"""
 
-    def __init__(self, dir_path: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: str, name: str, grouped: bool):
         super(H5FileLoader, self).__init__(
-            dir_path=dir_path, name=name, grouped=grouped
+            dir_paths=dir_paths, name=name, grouped=grouped
         )
-        self.h5_file = h5py.File(os.path.join(dir_path, name + ".h5"), "r")
+        self.h5_file = h5py.File(os.path.join(dir_paths, name + ".h5"), "r")
         self.data_keys = sorted(self.h5_file.keys())
         self.set_group_structure()
 

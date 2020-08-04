@@ -77,7 +77,7 @@ def test_file_loader_init():
         seed=seed,
     )
     file_loader = H5FileLoader(
-        dir_path=data_dir_path, name="moving_images", grouped=False
+        dir_paths=data_dir_path, name="moving_images", grouped=False
     )
 
     expected = ["case000025.nii.gz"]

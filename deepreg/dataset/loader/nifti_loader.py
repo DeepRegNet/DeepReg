@@ -19,12 +19,12 @@ def load_nifti_file(filepath):
 class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files"""
 
-    def __init__(self, dir_path: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: str, name: str, grouped: bool):
         super(NiftiFileLoader, self).__init__(
-            dir_path=dir_path, name=name, grouped=grouped
+            dir_paths=dir_paths, name=name, grouped=grouped
         )
         self.file_paths = get_sorted_filenames_in_dir_with_suffix(
-            dir_path=os.path.join(dir_path, name), suffix=["nii.gz", "nii"]
+            dir_paths=os.path.join(dir_paths, name), suffix=["nii.gz", "nii"]
         )
         self.set_group_structure()
 
@@ -56,7 +56,7 @@ class NiftiFileLoader(FileLoader):
         return arr
 
     def get_data_ids(self):
-        prefix = os.path.join(self.dir_path, self.name)
+        prefix = os.path.join(self.dir_paths, self.name)
         suffix = [".nii.gz", ".nii"]
         return [
             remove_prefix_suffix(x=p, prefix=prefix, suffix=suffix)

@@ -66,12 +66,12 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         self.sample_image_in_group = sample_image_in_group
         # set file loaders
         # grouped data are not paired data, so moving/fixed share the same file loader for images/labels
-        loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=True)
+        loader_image = file_loader(dir_paths=data_dir_path, name="images", grouped=True)
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled is True:
             loader_label = file_loader(
-                dir_path=data_dir_path, name="labels", grouped=True
+                dir_paths=data_dir_path, name="labels", grouped=True
             )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label

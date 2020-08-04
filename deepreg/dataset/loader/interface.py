@@ -475,13 +475,13 @@ class FileLoader:
     contians funcitons which need to be defined for different file formats
     """
 
-    def __init__(self, dir_path: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: str, name: str, grouped: bool):
         """
-        :param dir_path: path to the directory of the data set
+        :param dir_paths: path to the directory of the data set
         :param name: name is used to identify the subdirectories or file names
         :param grouped: true if the data is grouped
         """
-        self.dir_path = dir_path
+        self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
         if grouped:

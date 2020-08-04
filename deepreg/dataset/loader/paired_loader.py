@@ -51,17 +51,17 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         )
 
         self.loader_moving_image = file_loader(
-            dir_path=data_dir_path, name="moving_images", grouped=False
+            dir_paths=data_dir_path, name="moving_images", grouped=False
         )
         self.loader_fixed_image = file_loader(
-            dir_path=data_dir_path, name="fixed_images", grouped=False
+            dir_paths=data_dir_path, name="fixed_images", grouped=False
         )
         if self.labeled:
             self.loader_moving_label = file_loader(
-                dir_path=data_dir_path, name="moving_labels", grouped=False
+                dir_paths=data_dir_path, name="moving_labels", grouped=False
             )
             self.loader_fixed_label = file_loader(
-                dir_path=data_dir_path, name="fixed_labels", grouped=False
+                dir_paths=data_dir_path, name="fixed_labels", grouped=False
             )
         self.validate_data_files()
         self.num_images = self.loader_moving_image.get_num_images()
