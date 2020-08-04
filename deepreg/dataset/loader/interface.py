@@ -30,6 +30,23 @@ class DataLoader:
         :param sample_label : (str, None)
         :param seed : (int, None), optional
         """
+        assert labeled in [
+            True,
+            False,
+            None,
+        ], f"labeled must be boolean, True or False or None, got {labeled}"
+        assert sample_label in [
+            "sample",
+            "all",
+            None,
+        ], f"sample_label must be sample or all or None, got {sample_label}"
+        assert (
+            num_indices is None or num_indices >= 1
+        ), f"num_indices must be int >=1 or None, got {num_indices}"
+        assert seed is None or isinstance(
+            seed, int
+        ), f"seed must be None or int, got {seed}"
+
         self.labeled = labeled
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
@@ -137,8 +154,10 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
-                "moving_image_shape and fixed_image_shape have to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"moving_image_shape and fixed_image_shape have to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got moving_image_shape = {moving_image_shape} "
+                f"and fixed_image_shape = {fixed_image_shape}"
             )
         self._moving_image_shape = tuple(moving_image_shape)
         self._fixed_image_shape = tuple(fixed_image_shape)
@@ -183,8 +202,9 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
-                "image_shape has to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"image_shape has to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got {image_shape}"
             )
         self.image_shape = tuple(image_shape)
         self._num_samples = None
