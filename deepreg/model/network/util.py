@@ -27,9 +27,20 @@ def build_backbone(
     :param model_config: dict, model configuration, returned from parser.yaml.load
     :return: tf.keras.Model
     """
+    if not (
+        (isinstance(image_size, tuple) or isinstance(image_size, list))
+        and len(image_size) == 3
+    ):
+        raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
+    if not (isinstance(out_channels, int) and out_channels >= 1):
+        raise ValueError(f"out_channels must be int >=1, got {out_channels}")
+    if not (isinstance(model_config, dict) and "backbone" in model_config.keys()):
+        raise ValueError(
+            f"model_config must be a dict having key 'backbone', got{model_config}"
+        )
     if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
-            "method name has to be one of ddf / dvf / conditional in build_backbone, "
+            "method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
             "got {}".format(method_name)
         )
 
