@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="150" />
+	<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
 </p>
 
 # DeepReg
@@ -12,7 +12,7 @@
 **DeepReg is a freely available, community-supported open-source toolkit for research in
 medical image registration using deep learning.**
 
-The current version is implemented as a [Tensorflow 2](https://www.tensorflow.org/)-based framework, and contains implementations for unsupervised- and weaky-supervised algorithms 
+The current version is implemented as a [TensorFlow 2](https://www.tensorflow.org/)-based framework, and contains implementations for unsupervised- and weaky-supervised algorithms 
 with their combinations and variants. DeepReg has a practical focus on growing and diverse 
 clinical applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read the
 [documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more details.
@@ -33,8 +33,6 @@ built-in command line tools.
 
 Our development and all related work involved in the project is public, and **released
 under the Apache 2.0 license**.
-
----
 
 ## Getting Started
 
