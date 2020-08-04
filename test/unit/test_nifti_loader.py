@@ -32,7 +32,7 @@ def test_init_sufficient_args():
     check if init method of loader returns any errors when all required
     arguments given
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -44,14 +44,16 @@ def test_file_paths():
     """
     check if the filepaths are the same as expected
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.file_paths
     expected = [
-        "./data/test/nifti/paired/test/fixed_images/case000025.nii.gz",
-        "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz",
+        [
+            "./data/test/nifti/paired/test/fixed_images/case000025.nii.gz",
+            "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz",
+        ]
     ]
     loader.close()
     assert got == expected
@@ -62,16 +64,16 @@ def test_set_group_structure():
     check if the set_group_structure method works as intended when data is
     grouped
     """
-    dir_paths = "./data/test/nifti/grouped/test"
+    dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     loader.set_group_structure()
     got = [loader.group_ids, loader.group_sample_dict]
     expected = [
-        ["./data/test/nifti/grouped/test/images/group1"],
+        [(0, "./data/test/nifti/grouped/test/images/group1")],
         {
-            "./data/test/nifti/grouped/test/images/group1": [
+            (0, "./data/test/nifti/grouped/test/images/group1"): [
                 "./data/test/nifti/grouped/test/images/group1/case000025.nii.gz",
                 "./data/test/nifti/grouped/test/images/group1/case000026.nii.gz",
             ]
@@ -87,7 +89,7 @@ def test_set_group_structure_ungrouped():
     check if the set_group_structure method works as intended when data is
     not grouped
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -101,7 +103,7 @@ def test_get_data_ids():
     """
     check if the get_data_ids method works as expected
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -115,7 +117,7 @@ def test_get_num_images():
     """
     check if the get_num_images method works as expected
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -129,7 +131,7 @@ def test_close():
     """
     check if close method works as intended
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -148,7 +150,7 @@ def test_get_data():
     check if the get_data method works as expected and returns array
     as expected
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -171,7 +173,7 @@ def test_get_data_grouped():
     check if the get_data method works as expected and returns array
     as expected
     """
-    dir_paths = "./data/test/nifti/grouped/test"
+    dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
@@ -194,7 +196,7 @@ def test_get_data_incorrect_group_index():
     check if the get_data method works as expected and raises error when
     incorrect group index is supplied
     """
-    dir_paths = "./data/test/nifti/grouped/test"
+    dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
@@ -208,7 +210,7 @@ def test_get_data_negative_sample_index():
     check if the get_data method works as expected and raises error when
     incorrect group index is supplied
     """
-    dir_paths = "./data/test/nifti/grouped/test"
+    dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
@@ -222,7 +224,7 @@ def test_get_data_out_of_range_sample_index():
     check if the get_data method works as expected and raises error when
     incorrect group index is supplied
     """
-    dir_paths = "./data/test/nifti/grouped/test"
+    dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
@@ -236,7 +238,7 @@ def test_get_data_incompatible_args():
     check if the get_data method works as expected and raises an error when
     data is ungrouped but index is not an int
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
@@ -250,7 +252,7 @@ def test_get_data_incorrect_args():
     check if the get_data method works as expected and raises an error when
     an incorrect data type is fed in
     """
-    dir_paths = "./data/test/nifti/paired/test"
+    dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)

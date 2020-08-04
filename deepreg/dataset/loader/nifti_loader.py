@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import nibabel as nib
 import numpy as np
@@ -19,20 +20,37 @@ def load_nifti_file(filepath):
 class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files"""
 
-    def __init__(self, dir_paths: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: List[str], name: str, grouped: bool):
         super(NiftiFileLoader, self).__init__(
             dir_paths=dir_paths, name=name, grouped=grouped
         )
-        self.file_paths = get_sorted_filenames_in_dir_with_suffix(
-            dir_paths=os.path.join(dir_paths, name), suffix=["nii.gz", "nii"]
-        )
+        self.file_paths = [
+            get_sorted_filenames_in_dir_with_suffix(
+                dir_paths=[os.path.join(p, name)], suffix=["nii.gz", "nii"]
+            )
+            for p in dir_paths
+        ]
+        self.data_keys = self.get_data_keys(file_paths=self.file_paths)
         self.set_group_structure()
+
+    @staticmethod
+    def get_data_keys(file_paths):
+        """
+        each data key is (dir_index, path_index) such that
+        data_path = self.file_paths[dir_index][path_index]
+        """
+        data_keys = []
+        for i, paths in enumerate(file_paths):
+            data_keys += [(i, j) for j, _ in enumerate(paths)]
+        data_keys = sorted(data_keys)
+        return data_keys
 
     def get_data(self, index: (int, tuple)):
         if isinstance(index, int):  # paired or unpaired
             assert not self.grouped
-            assert 0 <= index < len(self.file_paths)
-            filepath = self.file_paths[index]
+            assert 0 <= index < len(self.data_keys)
+            dir_index, path_index = self.data_keys[index]
+            filepath = self.file_paths[dir_index][path_index]
         elif isinstance(index, tuple):  # grouped
             assert self.grouped
             group_index, sample_index = index
@@ -56,24 +74,30 @@ class NiftiFileLoader(FileLoader):
         return arr
 
     def get_data_ids(self):
-        prefix = os.path.join(self.dir_paths, self.name)
-        suffix = [".nii.gz", ".nii"]
-        return [
-            remove_prefix_suffix(x=p, prefix=prefix, suffix=suffix)
-            for p in self.file_paths
-        ]
+        data_ids = []
+        for dir_index, dir_path in enumerate(self.dir_paths):
+            prefix = os.path.join(dir_path, self.name)
+            suffix = [".nii.gz", ".nii"]
+            data_ids += [
+                remove_prefix_suffix(x=p, prefix=prefix, suffix=suffix)
+                for p in self.file_paths[dir_index]
+            ]
+        return data_ids
 
     def get_num_images(self) -> int:
-        return len(self.file_paths)
+        return len(self.data_keys)
 
     def set_group_structure(self):
         if self.grouped:
-            group_sample_dict = dict()  # dict[group_path] = [file_path]
-            for path in self.file_paths:
-                head, _ = os.path.split(path)
-                if head not in group_sample_dict.keys():
-                    group_sample_dict[head] = []
-                group_sample_dict[head].append(path)
+            group_sample_dict = dict()  # dict[(file_index, group_path)] = [file_path]
+            for dir_index, paths in enumerate(self.file_paths):
+                # paths are nifti file paths under the dir_index-th directory
+                for path in paths:
+                    head, _ = os.path.split(path)
+                    group_id = (dir_index, head)
+                    if group_id not in group_sample_dict.keys():
+                        group_sample_dict[group_id] = []
+                    group_sample_dict[group_id].append(path)
             for k in group_sample_dict.keys():  # sort paths under the same group
                 group_sample_dict[k] = sorted(group_sample_dict[k])
             self.group_ids = sorted(list(group_sample_dict.keys()))

@@ -432,55 +432,20 @@ class GeneratorDataLoader(DataLoader, ABC):
                 )
 
 
-class ConcatenatedDataLoader(DataLoader):
-    """
-    Given multiple data_dir_paths, build a data_loader for each path,
-    and concatenate all data loaders
-    """
-
-    def __init__(self, data_loaders):
-        super(ConcatenatedDataLoader, self).__init__(
-            labeled=None, num_indices=None, sample_label=None, seed=None
-        )
-        assert len(data_loaders) > 0
-        self.loaders = data_loaders
-
-    @property
-    def moving_image_shape(self) -> tuple:
-        return self.loaders[0].moving_image_shape
-
-    @property
-    def fixed_image_shape(self) -> tuple:
-        return self.loaders[0].fixed_image_shape
-
-    @property
-    def num_samples(self) -> int:
-        return sum([loader.num_samples for loader in self.loaders])
-
-    def get_dataset(self):
-        for i, loader in enumerate(self.loaders):
-            if i == 0:
-                dataset = loader.get_dataset()
-            else:
-                dataset = dataset.concatenate(loader.get_dataset())
-        return dataset
-
-    def close(self):
-        for loader in self.loaders:
-            loader.close()
-
-
 class FileLoader:
     """
     contians funcitons which need to be defined for different file formats
     """
 
-    def __init__(self, dir_paths: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: list, name: str, grouped: bool):
         """
         :param dir_paths: path to the directory of the data set
         :param name: name is used to identify the subdirectories or file names
         :param grouped: true if the data is grouped
         """
+        assert isinstance(
+            dir_paths, list
+        ), f"dir_paths must be list of strings, got {dir_paths}"
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped

@@ -25,7 +25,7 @@ def test_validate_data_files():
     for key_file_loader, file_loader in FileLoaderDict.items():
         for train_split in ["train", "test"]:
             for labeled in [True, False]:
-                data_dir_path = join(DataPaths[key_file_loader], train_split)
+                data_dir_paths = [join(DataPaths[key_file_loader], train_split)]
                 image_shape = (64, 64, 60)
                 common_args = dict(
                     file_loader=file_loader,
@@ -38,7 +38,9 @@ def test_validate_data_files():
                 )
 
                 data_loader = GroupedDataLoader(
-                    data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                    data_dir_paths=data_dir_paths,
+                    image_shape=image_shape,
+                    **common_args,
                 )
 
                 assert data_loader.validate_data_files() is None
@@ -51,7 +53,7 @@ def test_init():
     for train_split in ["test", "train"]:
         for prob in [0, 0.5, 1]:
             for sample_in_group in [True, False]:
-                data_dir_path = join(DataPaths["h5"], train_split)
+                data_dir_paths = [join(DataPaths["h5"], train_split)]
                 image_shape = (64, 64, 60)
                 common_args = dict(
                     file_loader=H5FileLoader,
@@ -66,7 +68,7 @@ def test_init():
                     # catch exception when trying to sample between fewer than 2 groups
                     with pytest.raises(ValueError) as err_info:
                         data_loader = GroupedDataLoader(
-                            data_dir_path=data_dir_path,
+                            data_dir_paths=data_dir_paths,
                             image_shape=image_shape,
                             **common_args,
                         )
@@ -76,7 +78,7 @@ def test_init():
                 elif sample_in_group is True and train_split == "train":
                     # ensure sample count is accurate (only for train dir, test dir uses same logic)
                     data_loader = GroupedDataLoader(
-                        data_dir_path=data_dir_path,
+                        data_dir_paths=data_dir_paths,
                         image_shape=image_shape,
                         **common_args,
                     )
@@ -87,7 +89,7 @@ def test_init():
                     # catch exception when specifying conflicting intra/inter group parameters
                     with pytest.raises(ValueError) as err_info:
                         data_loader = GroupedDataLoader(
-                            data_dir_path=data_dir_path,
+                            data_dir_paths=data_dir_paths,
                             image_shape=image_shape,
                             **common_args,
                         )
@@ -101,7 +103,7 @@ def test_get_inter_sample_indices():
     """
     Test all possible intergroup sampling indices are correctly calculated
     """
-    data_dir_path = join(DataPaths["h5"], "train")
+    data_dir_paths = [join(DataPaths["h5"], "train")]
     image_shape = (64, 64, 60)
     common_args = dict(
         file_loader=FileLoaderDict["h5"],
@@ -113,7 +115,7 @@ def test_get_inter_sample_indices():
         seed=None,
     )
     data_loader = GroupedDataLoader(
-        data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+        data_dir_paths=data_dir_paths, image_shape=image_shape, **common_args
     )
 
     ni = np.array(data_loader.num_images_per_group)
@@ -133,7 +135,7 @@ def test_get_intra_sample_indices():
     Test all possible intragroup sampling indices are correctly calculated
     Ensure exception is thrown for unsupported group_option
     """
-    data_dir_path = join(DataPaths["h5"], "train")
+    data_dir_paths = [join(DataPaths["h5"], "train")]
     image_shape = (64, 64, 60)
     common_args = dict(
         file_loader=FileLoaderDict["h5"],
@@ -146,7 +148,7 @@ def test_get_intra_sample_indices():
     # test feasible intra_group_option
     for intra_group_option in ["forward", "backward", "unconstrained"]:
         data_loader = GroupedDataLoader(
-            data_dir_path=data_dir_path,
+            data_dir_paths=data_dir_paths,
             image_shape=image_shape,
             intra_group_option=intra_group_option,
             **common_args,
@@ -167,7 +169,7 @@ def test_get_intra_sample_indices():
     # test exception thrown for unsupported group option
     with pytest.raises(ValueError) as err_info:
         data_loader = GroupedDataLoader(
-            data_dir_path=data_dir_path,
+            data_dir_paths=data_dir_paths,
             image_shape=image_shape,
             intra_group_option="wrong",
             **common_args,
@@ -196,7 +198,7 @@ def test_sample_index_generator():
     for key_file_loader, file_loader in FileLoaderDict.items():
         common_args = dict(
             image_shape=image_shape,
-            data_dir_path=join(DataPaths[key_file_loader], "train"),
+            data_dir_paths=[join(DataPaths[key_file_loader], "train")],
             file_loader=file_loader,
             labeled=True,
             sample_label="all",
@@ -258,11 +260,10 @@ def test_close():
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
-
-            data_dir_path = join(DataPaths[key_file_loader], split)
+            data_dir_paths = [join(DataPaths[key_file_loader], split)]
             image_shape = (64, 64, 60)
             data_loader = GroupedDataLoader(
-                data_dir_path=data_dir_path,
+                data_dir_paths=data_dir_paths,
                 image_shape=image_shape,
                 file_loader=file_loader,
                 labeled=True,
@@ -275,5 +276,5 @@ def test_close():
 
             if key_file_loader == "h5":
                 data_loader.close()
-                assert not data_loader.loader_moving_image.h5_file.__bool__()
-                assert not data_loader.loader_moving_image.h5_file.__bool__()
+                for f in data_loader.loader_moving_image.h5_files:
+                    assert not f.__bool__()
