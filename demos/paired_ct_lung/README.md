@@ -16,10 +16,21 @@ tumor location when conducting invasive procedures.
 
 ## Instructions
 
+- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- Change current directory to the root directory of DeepReg project;
+- The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
+  the following command:
+
+```bash
+python3 demos/paired_ct_lung/script_name.py
+```
+
+A short description of the scripts is provided below. The scripts must be run in the
+following order:
+
 - Run the demo_data.py script: This script does the following:
-  - Download data using linux builtin function wget (if using other OS please use python
-    package wget, instruction in the script). Data is downloaded to the demo directory
-    but this can be changed (instructions in the comments in the script).
+  - Download data using `tf.keras.utils.get_file`. Data is downloaded to the demo
+    directory but this can be changed (instructions in the comments in the script).
   - Split the data into three sets train, valid and test (change
     ratio_of_test_and_valid_samples variable to change the ratio of test and valid
     samples)
@@ -44,7 +55,7 @@ https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested: b891985ab2c8f19a23b6a686050eac82f6d90e7c
+Last commit at which demo was tested: 1793fab50adc83c8a287093bddb080ce585ce1ae
 
 ## References
 

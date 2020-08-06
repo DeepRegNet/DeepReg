@@ -10,8 +10,8 @@ import os
 import pytest
 import tensorflow as tf
 
-from deepreg.dataset.loader.interface import DataLoader
-from deepreg.train import build_callbacks, build_config, build_dataset, train
+from deepreg.predict import predict
+from deepreg.train import build_callbacks, build_config, train
 
 
 def test_build_config():
@@ -40,39 +40,6 @@ def test_build_config():
         build_config(config_path=config_path, log_dir=log_dir, ckpt_path="example.h5")
 
 
-def test_build_dataset():
-    """
-    Test build_dataset by checking the output types
-    """
-
-    # init arguments
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
-    log_dir = "test_build_dataset"
-    ckpt_path = ""
-
-    # load config
-    config, log_dir = build_config(
-        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
-    )
-
-    # build dataset
-    data_out_train, data_out_val = build_dataset(
-        dataset_config=config["dataset"],
-        preprocess_config=config["train"]["preprocess"],
-    )
-
-    data_loader_train, dataset_train, steps_per_epoch_train = data_out_train
-    data_loader_val, dataset_val, steps_per_epoch_val = data_out_val
-
-    # check output types
-    assert isinstance(data_loader_train, DataLoader)
-    assert isinstance(dataset_train, tf.data.Dataset)
-    assert isinstance(steps_per_epoch_train, int)
-    assert isinstance(data_loader_val, DataLoader)
-    assert isinstance(dataset_val, tf.data.Dataset)
-    assert isinstance(steps_per_epoch_val, int)
-
-
 def test_build_callbacks():
     """
     Test build_callbacks by checking the output types
@@ -87,19 +54,42 @@ def test_build_callbacks():
         assert isinstance(callback, tf.keras.callbacks.Callback)
 
 
-def test_train():
+def test_train_and_predict():
     """
-    Test train by checking it can run.
+    Test train and predict by checking it can run.
     """
     gpu = ""
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
     gpu_allow_growth = False
-    ckpt_path = ""
-    log_dir = "test_train"
+
     train(
         gpu=gpu,
-        config_path=config_path,
+        config_path="deepreg/config/unpaired_labeled_ddf.yaml",
         gpu_allow_growth=gpu_allow_growth,
-        ckpt_path=ckpt_path,
-        log_dir=log_dir,
+        ckpt_path="",
+        log_dir="test_train",
     )
+
+    # check output folders
+    assert os.path.isdir("logs/test_train/save")
+    assert os.path.isdir("logs/test_train/train")
+    assert os.path.isdir("logs/test_train/validation")
+    assert os.path.isfile("logs/test_train/config.yaml")
+
+    predict(
+        gpu=gpu,
+        gpu_allow_growth=gpu_allow_growth,
+        ckpt_path="logs/test_train/save/weights-epoch2.ckpt",
+        mode="test",
+        batch_size=1,
+        log_dir="test_predict",
+        sample_label="all",
+        config_path="",
+    )
+
+    # check output folders
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_0")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_1")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_2")
+    assert os.path.isfile("logs/test_predict/test/metrics.csv")
+    assert os.path.isfile("logs/test_predict/test/metrics_stats_per_label.csv")
+    assert os.path.isfile("logs/test_predict/test/metrics_stats_overall.csv")

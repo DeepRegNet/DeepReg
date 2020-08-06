@@ -1,7 +1,7 @@
 """
 Unit test for paired unlabeled data
 """
-from deepreg.util import train_and_predict_with_config
+from deepreg.test_util import train_and_predict_with_config
 
 
 def test_paired_unlabeled():
