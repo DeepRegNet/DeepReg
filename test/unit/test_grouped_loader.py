@@ -276,5 +276,5 @@ def test_close():
 
             if key_file_loader == "h5":
                 data_loader.close()
-                for f in data_loader.loader_moving_image.h5_files:
+                for f in data_loader.loader_moving_image.h5_files.values():
                     assert not f.__bool__()

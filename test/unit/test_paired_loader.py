@@ -80,7 +80,7 @@ def test_file_loader_init():
         dir_paths=data_dir_path, name="moving_images", grouped=False
     )
 
-    expected = [(0, "case000025.nii.gz")]
+    expected = [("./data/test/h5/paired/test", "case000025.nii.gz")]
 
     loader_got = loader.loader_moving_image.get_data_ids()
     file_loader_got = file_loader.get_data_ids()
@@ -106,7 +106,7 @@ def test_validate_data_files_label():
     )
 
     # alter a data ID to cause error
-    loader.loader_moving_label.data_keys = "foo"
+    loader.loader_moving_label.data_path_splits = ["foo"]
     with pytest.raises(ValueError) as err_info:
         PairedDataLoader.validate_data_files(loader)
     loader.close()
