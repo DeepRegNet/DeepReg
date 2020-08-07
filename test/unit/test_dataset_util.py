@@ -87,7 +87,7 @@ def test_get_sorted_filenames_in_dir_with_suffix():
             tempdir.path + "/b.txt",
             tempdir.path + "/c.txt",
         ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(tempdir.path, "txt")
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(tempdir.path, "txt")
         assert expected == actual
 
     # one dir, multiple suffixes
@@ -100,7 +100,7 @@ def test_get_sorted_filenames_in_dir_with_suffix():
             tempdir.path + "/b.txt",
             tempdir.path + "/c.md",
         ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(
             tempdir.path, ["txt", "md"]
         )
         assert expected == actual
@@ -121,7 +121,7 @@ def test_get_sorted_filenames_in_dir_with_suffix():
             tempdir.path + "/2/b.txt",
             tempdir.path + "/2/c.txt",
         ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(tempdir.path, "txt")
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(tempdir.path, "txt")
         assert expected == actual
 
     # multiple dirs, multiple suffixes
@@ -140,7 +140,7 @@ def test_get_sorted_filenames_in_dir_with_suffix():
             tempdir.path + "/2/b.txt",
             tempdir.path + "/2/c.md",
         ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(
             tempdir.path, ["txt", "md"]
         )
         assert expected == actual

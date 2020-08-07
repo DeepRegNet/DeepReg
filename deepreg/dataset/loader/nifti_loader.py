@@ -6,7 +6,7 @@ import numpy as np
 
 from deepreg.dataset.loader.interface import FileLoader
 from deepreg.dataset.loader.util import remove_prefix_suffix
-from deepreg.dataset.util import get_sorted_filenames_in_dir_with_suffix
+from deepreg.dataset.util import get_sorted_file_paths_in_dir_with_suffix
 
 
 def load_nifti_file(filepath):
@@ -25,7 +25,7 @@ class NiftiFileLoader(FileLoader):
             dir_paths=dir_paths, name=name, grouped=grouped
         )
         self.file_paths = [
-            get_sorted_filenames_in_dir_with_suffix(
+            get_sorted_file_paths_in_dir_with_suffix(
                 dir_paths=[os.path.join(p, name)], suffix=["nii.gz", "nii"]
             )
             for p in dir_paths
