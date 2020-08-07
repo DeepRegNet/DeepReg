@@ -30,8 +30,10 @@ def test_data_keys():
     name = "fixed_images"
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    got = loader.data_keys
-    expected = [(0, "case000025.nii.gz")]  # (dir_index, path)
+    got = loader.data_path_splits
+    expected = [
+        ("./data/test/h5/paired/test", "case000025.nii.gz")
+    ]  # (dir_index, path)
     loader.close()
     assert got == expected
 
@@ -44,7 +46,7 @@ def test_h5_file():
     name = "fixed_images"
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    got = [f.filename for f in loader.h5_files]
+    got = [f.filename for f in loader.h5_files.values()]
     expected = ["./data/test/h5/paired/test/fixed_images.h5"]
     loader.close()
     assert got == expected
@@ -59,9 +61,14 @@ def test_set_group_structure():
     name = "images"
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    loader.set_group_structure()
-    got = [loader.group_ids, loader.group_sample_dict]
-    expected = [[(0, "1")], {(0, "1"): ["1", "2"]}]
+    got = [loader.data_path_splits, loader.group_struct]
+    expected = [
+        [
+            ("./data/test/h5/grouped/test", "1", "1"),
+            ("./data/test/h5/grouped/test", "1", "2"),
+        ],
+        [[0, 1]],
+    ]
     loader.close()
     assert got == expected
 
@@ -75,9 +82,8 @@ def test_set_group_structure_ungrouped():
     name = "fixed_images"
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    loader.set_group_structure()
     with pytest.raises(AttributeError) as err_info:
-        loader.group_ids
+        loader.group_struct
     assert "object has no attribute" in str(err_info.value)
 
 
@@ -90,7 +96,7 @@ def test_get_data_ids():
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.get_data_ids()
-    expected = [(0, "case000025.nii.gz")]
+    expected = [("./data/test/h5/paired/test", "case000025.nii.gz")]
     loader.close()
     assert got == expected
 
@@ -118,7 +124,7 @@ def test_close():
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
     loader.close()
-    for f in loader.h5_files:
+    for f in loader.h5_files.values():
         assert not f.__bool__()
 
 
@@ -174,7 +180,7 @@ def test_get_data_index_out_of_range():
 
     loader = H5FileLoader(dir_paths=dir_paths, name=name, grouped=False)
     index = 64
-    with pytest.raises(AssertionError):
+    with pytest.raises(IndexError):
         loader.get_data(index)
 
 
@@ -200,9 +206,9 @@ def test_init_incompatible_conditions():
     """
     dir_paths = ["./data/test/h5/paired/test"]
     name = "fixed_images"
-    with pytest.raises(IndexError) as err_info:
+    with pytest.raises(AssertionError) as err_info:
         H5FileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    assert "index out of range" in str(err_info.value)
+    assert "h5_file keys must be of form group-X-Y" in str(err_info.value)
 
 
 def test_get_data_incompatible_args():

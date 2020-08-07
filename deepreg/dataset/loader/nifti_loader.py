@@ -73,7 +73,12 @@ class NiftiFileLoader(FileLoader):
             group_struct.append(group_struct_dict[k])
         self.group_struct = group_struct
 
-    def get_data(self, index: (int, tuple)):
+    def get_data(self, index: (int, tuple)) -> np.ndarray:
+        """
+        Get one data array by specifying an index
+        :param index: the data index which is required
+        :returns arr: the data array at the specified index
+        """
         if isinstance(index, int):  # paired or unpaired
             assert not self.grouped
             assert 0 <= index
