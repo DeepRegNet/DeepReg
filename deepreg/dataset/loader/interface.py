@@ -469,9 +469,24 @@ class FileLoader:
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
-        if grouped:
-            self.group_ids = None
-            self.group_sample_dict = None
+        if self.grouped:
+            # group_struct[group_index] = list of data_index
+            self.group_struct = None
+
+    def set_data_structure(self):
+        """
+        store the data structure in the memory so that
+        we can retrieve data using data_index
+        """
+        raise NotImplementedError
+
+    def set_group_structure(self):
+        """
+        in addition to set_data_structure
+        store the group structure in the memory so that
+        we can retrieve data using (group_index, in_group_data_index)
+        """
+        raise NotImplementedError
 
     def get_data(self, index: (int, tuple)):
         """
@@ -497,17 +512,9 @@ class FileLoader:
         """
         raise NotImplementedError
 
-    def set_group_structure(self):
-        """
-        save variables to store the structure of the groups
-        set group_ids and group_sample_dict
-        :return:
-        """
-        raise NotImplementedError
-
     def get_num_groups(self) -> int:
         assert self.grouped
-        return len(self.group_ids)
+        return len(self.group_struct)
 
     def get_num_images_per_group(self) -> list:
         """
@@ -515,10 +522,10 @@ class FileLoader:
         each group must have at least one image
         """
         assert self.grouped
-        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(group) for group in self.group_struct]
         if min(num_images_per_group) == 0:
             group_ids = [
-                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+                len(group) for group_index, group in enumerate(self.group_struct)
             ]
             raise ValueError(f"Groups of ID {group_ids} are empty.")
         return num_images_per_group

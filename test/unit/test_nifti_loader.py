@@ -42,18 +42,16 @@ def test_init_sufficient_args():
 
 def test_file_paths():
     """
-    check if the filepaths are the same as expected
+    check if the data_path_splits are the same as expected
     """
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    got = loader.file_paths
+    got = loader.data_path_splits
     expected = [
-        [
-            "./data/test/nifti/paired/test/fixed_images/case000025.nii.gz",
-            "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz",
-        ]
+        ("./data/test/nifti/paired/test", "case000025", "nii.gz"),
+        ("./data/test/nifti/paired/test", "case000026", "nii.gz"),
     ]
     loader.close()
     assert got == expected
@@ -61,23 +59,19 @@ def test_file_paths():
 
 def test_set_group_structure():
     """
-    check if the set_group_structure method works as intended when data is
-    grouped
+    check if the data_path_splits and group_struct are the same as expected
     """
     dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    loader.set_group_structure()
-    got = [loader.group_ids, loader.group_sample_dict]
+    got = [loader.data_path_splits, loader.group_struct]
     expected = [
-        [(0, "./data/test/nifti/grouped/test/images/group1")],
-        {
-            (0, "./data/test/nifti/grouped/test/images/group1"): [
-                "./data/test/nifti/grouped/test/images/group1/case000025.nii.gz",
-                "./data/test/nifti/grouped/test/images/group1/case000026.nii.gz",
-            ]
-        },
+        [
+            ("./data/test/nifti/grouped/test", "group1", "case000025", "nii.gz"),
+            ("./data/test/nifti/grouped/test", "group1", "case000026", "nii.gz"),
+        ],
+        [[0, 1]],
     ]
 
     loader.close()
@@ -93,9 +87,8 @@ def test_set_group_structure_ungrouped():
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    loader.set_group_structure()
     with pytest.raises(AttributeError) as err_info:
-        loader.group_ids
+        loader.group_struct
     assert "object has no attribute" in str(err_info.value)
 
 
@@ -108,7 +101,10 @@ def test_get_data_ids():
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.get_data_ids()
-    expected = ["/case000025", "/case000026"]
+    expected = [
+        ("./data/test/nifti/paired/test", "case000025"),
+        ("./data/test/nifti/paired/test", "case000026"),
+    ]
     loader.close()
     assert got == expected
 
@@ -229,7 +225,7 @@ def test_get_data_out_of_range_sample_index():
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     index = (0, 32)
-    with pytest.raises(AssertionError):
+    with pytest.raises(IndexError):
         loader.get_data(index)
 
 
