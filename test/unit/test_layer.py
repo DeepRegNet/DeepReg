@@ -242,25 +242,8 @@ def test_warping():
 
     # Pass an input of all zeros
     inputs = [
-        np.ones(
-            (
-                batch_size,
-                fixed_image_size[0],
-                fixed_image_size[1],
-                fixed_image_size[2],
-                ndims,
-            ),
-            dtype="float32",
-        ),
-        np.ones(
-            (
-                batch_size,
-                moving_image_size[0],
-                moving_image_size[1],
-                moving_image_size[2],
-            ),
-            dtype="float32",
-        ),
+        np.ones((batch_size, *fixed_image_size, ndims), dtype="float32"),
+        np.ones((batch_size, *moving_image_size), dtype="float32"),
     ]
     #  Get outputs by calling
     output = model.call(inputs)
@@ -282,15 +265,7 @@ def test_initDVF():
     assert isinstance(model._warping, type(layer.Warping(fixed_image_size)))
     assert model._num_steps == 7
 
-    inputs = np.ones(
-        (
-            batch_size,
-            fixed_image_size[0],
-            fixed_image_size[1],
-            fixed_image_size[2],
-            ndims,
-        )
-    )
+    inputs = np.ones((batch_size, *fixed_image_size, ndims))
     output = model.call(inputs)
     assert all(
         x == y

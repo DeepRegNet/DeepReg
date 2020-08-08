@@ -30,6 +30,23 @@ class DataLoader:
         :param sample_label : (str, None)
         :param seed : (int, None), optional
         """
+        assert labeled in [
+            True,
+            False,
+            None,
+        ], f"labeled must be boolean, True or False or None, got {labeled}"
+        assert sample_label in [
+            "sample",
+            "all",
+            None,
+        ], f"sample_label must be sample or all or None, got {sample_label}"
+        assert (
+            num_indices is None or num_indices >= 1
+        ), f"num_indices must be int >=1 or None, got {num_indices}"
+        assert seed is None or isinstance(
+            seed, int
+        ), f"seed must be None or int, got {seed}"
+
         self.labeled = labeled
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
@@ -137,8 +154,10 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
-                "moving_image_shape and fixed_image_shape have to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"moving_image_shape and fixed_image_shape have to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got moving_image_shape = {moving_image_shape} "
+                f"and fixed_image_shape = {fixed_image_shape}"
             )
         self._moving_image_shape = tuple(moving_image_shape)
         self._fixed_image_shape = tuple(fixed_image_shape)
@@ -183,8 +202,9 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
-                "image_shape has to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"image_shape has to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got {image_shape}"
             )
         self.image_shape = tuple(image_shape)
         self._num_samples = None
@@ -432,61 +452,41 @@ class GeneratorDataLoader(DataLoader, ABC):
                 )
 
 
-class ConcatenatedDataLoader(DataLoader):
-    """
-    Given multiple data_dir_paths, build a data_loader for each path,
-    and concatenate all data loaders
-    """
-
-    def __init__(self, data_loaders):
-        super(ConcatenatedDataLoader, self).__init__(
-            labeled=None, num_indices=None, sample_label=None, seed=None
-        )
-        assert len(data_loaders) > 0
-        self.loaders = data_loaders
-
-    @property
-    def moving_image_shape(self) -> tuple:
-        return self.loaders[0].moving_image_shape
-
-    @property
-    def fixed_image_shape(self) -> tuple:
-        return self.loaders[0].fixed_image_shape
-
-    @property
-    def num_samples(self) -> int:
-        return sum([loader.num_samples for loader in self.loaders])
-
-    def get_dataset(self):
-        for i, loader in enumerate(self.loaders):
-            if i == 0:
-                dataset = loader.get_dataset()
-            else:
-                dataset = dataset.concatenate(loader.get_dataset())
-        return dataset
-
-    def close(self):
-        for loader in self.loaders:
-            loader.close()
-
-
 class FileLoader:
     """
     contians funcitons which need to be defined for different file formats
     """
 
-    def __init__(self, dir_path: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: list, name: str, grouped: bool):
         """
-        :param dir_path: path to the directory of the data set
+        :param dir_paths: path to the directory of the data set
         :param name: name is used to identify the subdirectories or file names
         :param grouped: true if the data is grouped
         """
-        self.dir_path = dir_path
+        assert isinstance(
+            dir_paths, list
+        ), f"dir_paths must be list of strings, got {dir_paths}"
+        self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
-        if grouped:
-            self.group_ids = None
-            self.group_sample_dict = None
+        if self.grouped:
+            # group_struct[group_index] = list of data_index
+            self.group_struct = None
+
+    def set_data_structure(self):
+        """
+        store the data structure in the memory so that
+        we can retrieve data using data_index
+        """
+        raise NotImplementedError
+
+    def set_group_structure(self):
+        """
+        in addition to set_data_structure
+        store the group structure in the memory so that
+        we can retrieve data using (group_index, in_group_data_index)
+        """
+        raise NotImplementedError
 
     def get_data(self, index: (int, tuple)):
         """
@@ -512,17 +512,9 @@ class FileLoader:
         """
         raise NotImplementedError
 
-    def set_group_structure(self):
-        """
-        save variables to store the structure of the groups
-        set group_ids and group_sample_dict
-        :return:
-        """
-        raise NotImplementedError
-
     def get_num_groups(self) -> int:
         assert self.grouped
-        return len(self.group_ids)
+        return len(self.group_struct)
 
     def get_num_images_per_group(self) -> list:
         """
@@ -530,10 +522,10 @@ class FileLoader:
         each group must have at least one image
         """
         assert self.grouped
-        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(group) for group in self.group_struct]
         if min(num_images_per_group) == 0:
             group_ids = [
-                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+                len(group) for group_index, group in enumerate(self.group_struct)
             ]
             raise ValueError(f"Groups of ID {group_ids} are empty.")
         return num_images_per_group
