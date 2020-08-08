@@ -27,6 +27,17 @@ class H5FileLoader(FileLoader):
             self.set_group_structure()
 
     def set_data_structure(self):
+        """
+        store the data structure in the memory so that
+        we can retrieve data using data_index
+        this function sets two attributes
+        - h5_files, a dict such that h5_files[dir_path] = opened h5 file handle
+        - data_path_splits, a list of string tuples to identify path of data
+          - if grouped, a split is (dir_path, group_name, data_key) such that
+            data = h5_files[dir_path]["group-{group_name}-{data_key}"]
+          - if not grouped, a split is (dir_path, data_key) such that
+            data = h5_files[dir_path][data_key]
+        """
         h5_files = dict()
         data_path_splits = []
         for dir_path in self.dir_paths:
@@ -48,7 +59,16 @@ class H5FileLoader(FileLoader):
         self.data_path_splits = data_path_splits
 
     def set_group_structure(self):
-        """same code as NiftiLoader"""
+        """
+        same code as NiftiLoader,
+        as the first two tokens of a split forms a group_id
+
+        in addition to set_data_structure
+        store the group structure in the group_struct so that
+        group_struct[group_index] = list of data_index
+        we can retrieve data using (group_index, in_group_data_index)
+        data_index = group_struct[group_index][in_group_data_index]
+        """
         # group_struct_dict[group_id] = list of data_index
         group_struct_dict = dict()
         for data_index, split in enumerate(self.data_path_splits):
@@ -66,6 +86,8 @@ class H5FileLoader(FileLoader):
         """
         Get one data array by specifying an index
         :param index: the data index which is required
+        for paired or unpaired, the index is one single int, data_index
+        for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -82,9 +104,8 @@ class H5FileLoader(FileLoader):
             data_key = DATA_KEY_FORMAT.format(group_name, data_key)
         else:
             raise ValueError(
-                "index for H5FileLoader.get_data must be int, or tuple of length two, got {}".format(
-                    index
-                )
+                f"index for H5FileLoader.get_data must be int, "
+                f"or tuple of length two, got {index}"
             )
         arr = np.asarray(self.h5_files[dir_path][data_key], dtype=np.float32)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
@@ -93,11 +114,21 @@ class H5FileLoader(FileLoader):
         return arr
 
     def get_data_ids(self):
+        """
+        return the unique IDs of the data in this data set
+        this function is used to verify the consistency between
+        images and label, moving and fixed
+        :return: data_path_splits as the data can be identified using dir_path and data_key
+        """
         return self.data_path_splits
 
     def get_num_images(self) -> int:
+        """
+        :return: int, number of images in this data set
+        """
         return len(self.data_path_splits)
 
     def close(self):
+        """close opened h5 file handles"""
         for f in self.h5_files.values():
             f.close()

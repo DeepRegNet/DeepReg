@@ -14,16 +14,16 @@ def test_load_nifti_file():
 
     # nii.gz
     nii_gz_filepath = "./data/test/nifti/paired/test/fixed_images/case000026.nii.gz"
-    load_nifti_file(filepath=nii_gz_filepath)
+    load_nifti_file(file_path=nii_gz_filepath)
 
     # nii
     nii_filepath = "./data/test/nifti/unit_test/case000026.nii"
-    load_nifti_file(filepath=nii_filepath)
+    load_nifti_file(file_path=nii_filepath)
 
     # wrong file type
     h5_filepath = "./data/test/h5/paired/test/fixed_images.h5"
     with pytest.raises(ValueError) as err_info:
-        load_nifti_file(filepath=h5_filepath)
+        load_nifti_file(file_path=h5_filepath)
     assert "Nifti file path must end with .nii or .nii.gz" in str(err_info.value)
 
 
