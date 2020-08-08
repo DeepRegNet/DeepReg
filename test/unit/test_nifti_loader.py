@@ -1,6 +1,8 @@
 """
 Tests functionality of the NiftiFileLoader
 """
+from test.unit.util import is_equal_np
+
 import numpy as np
 import pytest
 
@@ -27,23 +29,15 @@ def test_load_nifti_file():
     assert "Nifti file path must end with .nii or .nii.gz" in str(err_info.value)
 
 
-def test_init_sufficient_args():
+def test_init():
     """
-    check if init method of loader returns any errors when all required
-    arguments given
+    check init of NiftiFileLoader
+    this includes some test on set_data_structure/set_group_structure
+    as these functions are called in init
     """
-    dir_paths = ["./data/test/nifti/paired/test"]
-    name = "fixed_images"
 
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    loader.__init__(dir_paths=dir_paths, name=name, grouped=False)
-    loader.close()
-
-
-def test_file_paths():
-    """
-    check if the data_path_splits are the same as expected
-    """
+    # paired
+    # test data_path_splits
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
@@ -56,11 +50,22 @@ def test_file_paths():
     loader.close()
     assert got == expected
 
+    # unpaired
+    # test data_path_splits
+    dir_paths = ["./data/test/nifti/unpaired/test"]
+    name = "images"
 
-def test_set_group_structure():
-    """
-    check if the data_path_splits and group_struct are the same as expected
-    """
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    got = loader.data_path_splits
+    expected = [
+        ("./data/test/nifti/unpaired/test", "case000025", "nii.gz"),
+        ("./data/test/nifti/unpaired/test", "case000026", "nii"),
+    ]
+    loader.close()
+    assert got == expected
+
+    # grouped
+    # test data_path_splits and group_struct
     dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
@@ -73,16 +78,51 @@ def test_set_group_structure():
         ],
         [[0, 1]],
     ]
+    loader.close()
+    assert got == expected
 
+    # multi dirs
+    # test data_path_splits and group_struct
+    dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
+    name = "images"
+
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    got = [loader.data_path_splits, loader.group_struct]
+    expected = [
+        [
+            ("./data/test/nifti/grouped/test", "group1", "case000025", "nii.gz"),
+            ("./data/test/nifti/grouped/test", "group1", "case000026", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group1", "case000000", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group1", "case000001", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group1", "case000003", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group1", "case000008", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group2", "case000009", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group2", "case000011", "nii.gz"),
+            ("./data/test/nifti/grouped/train", "group2", "case000012", "nii.gz"),
+        ],
+        [[0, 1], [2, 3, 4, 5], [6, 7, 8]],
+    ]
     loader.close()
     assert got == expected
 
 
-def test_set_group_structure_ungrouped():
+def test_set_data_structure():
     """
-    check if the set_group_structure method works as intended when data is
-    not grouped
+    test set_data_structure in addition to tests above in test_init
     """
+    # test not existed directories
+    dir_paths = ["./data/test/nifti/paired/test"]
+    name = "images"
+    with pytest.raises(AssertionError) as err_info:
+        NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    assert "does not exist" in str(err_info.value)
+
+
+def test_set_group_structure():
+    """
+    test set_group_structure in addition to tests above in test_init
+    """
+    # data is not grouped but try using group_struct
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
@@ -92,60 +132,11 @@ def test_set_group_structure_ungrouped():
     assert "object has no attribute" in str(err_info.value)
 
 
-def test_get_data_ids():
-    """
-    check if the get_data_ids method works as expected
-    """
-    dir_paths = ["./data/test/nifti/paired/test"]
-    name = "fixed_images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    got = loader.get_data_ids()
-    expected = [
-        ("./data/test/nifti/paired/test", "case000025"),
-        ("./data/test/nifti/paired/test", "case000026"),
-    ]
-    loader.close()
-    assert got == expected
-
-
-def test_get_num_images():
-    """
-    check if the get_num_images method works as expected
-    """
-    dir_paths = ["./data/test/nifti/paired/test"]
-    name = "fixed_images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    got = int(loader.get_num_images())
-    expected = int(2)
-    loader.close()
-    assert got == expected
-
-
-def test_close():
-    """
-    check if close method works as intended
-    """
-    dir_paths = ["./data/test/nifti/paired/test"]
-    name = "fixed_images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    loader.close()
-
-
-def check_equal(array1, array2):
-    """
-    cehck if two arrays are equal
-    """
-    return np.abs(np.subtract(array1, array2)) < 1e-3
-
-
 def test_get_data():
     """
-    check if the get_data method works as expected and returns array
-    as expected
+    test get_data method by verifying returns' shape and value stats
     """
+    # paired
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
@@ -158,17 +149,12 @@ def test_get_data():
     ]
     expected = [(44, 59, 41), [255.0, 0.0, 68.359276, 65.84009]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert got[0] == expected[0]
+    assert is_equal_np(got[1], expected[1])
 
+    # TODO unpaired
 
-def test_get_data_grouped():
-    """
-    check if the get_data method works as expected and returns array
-    as expected
-    """
+    # grouped
     dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
 
@@ -181,78 +167,129 @@ def test_get_data_grouped():
     ]
     expected = [(64, 64, 60), [255.0, 0.0, 85.67942, 49.193127]]
     loader.close()
-    if got[0] == expected[0]:
-        assert check_equal(np.array(got[1]), np.array(expected[1])).all()
-    else:
-        raise AssertionError
+    assert got[0] == expected[0]
+    assert is_equal_np(got[1], expected[1])
 
-
-def test_get_data_incorrect_group_index():
-    """
-    check if the get_data method works as expected and raises error when
-    incorrect group index is supplied
-    """
-    dir_paths = ["./data/test/nifti/grouped/test"]
+    # multi dirs
+    dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
     name = "images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    index = (-1, 1)
-    with pytest.raises(AssertionError):
-        loader.get_data(index)
-
-
-def test_get_data_negative_sample_index():
-    """
-    check if the get_data method works as expected and raises error when
-    incorrect group index is supplied
-    """
-    dir_paths = ["./data/test/nifti/grouped/test"]
-    name = "images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    index = (0, -1)
-    with pytest.raises(AssertionError):
-        loader.get_data(index)
-
-
-def test_get_data_out_of_range_sample_index():
-    """
-    check if the get_data method works as expected and raises error when
-    incorrect group index is supplied
-    """
-    dir_paths = ["./data/test/nifti/grouped/test"]
-    name = "images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
-    index = (0, 32)
-    with pytest.raises(IndexError):
-        loader.get_data(index)
-
-
-def test_get_data_incompatible_args():
-    """
-    check if the get_data method works as expected and raises an error when
-    data is ungrouped but index is not an int
-    """
-    dir_paths = ["./data/test/nifti/paired/test"]
-    name = "fixed_images"
-
-    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     index = (0, 1)
+    array = loader.get_data(index)
+    got = [
+        np.shape(array),
+        [np.amax(array), np.amin(array), np.mean(array), np.std(array)],
+    ]
+    expected = [(64, 64, 60), [255.0, 0.0, 85.67942, 49.193127]]
+    loader.close()
+    assert got[0] == expected[0]
+    assert is_equal_np(got[1], expected[1])
+
+
+def test_get_data_ids():
+    """
+    check if the get_data_ids method works as expected
+    """
+    # paired
+    dir_paths = ["./data/test/nifti/paired/test"]
+    name = "fixed_images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    got = loader.get_data_ids()
+    expected = [
+        ("./data/test/nifti/paired/test", "case000025"),
+        ("./data/test/nifti/paired/test", "case000026"),
+    ]
+    loader.close()
+    assert got == expected
+
+    # TODO unpaired
+
+    # TODO grouped
+
+    # multi dirs
+    dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    got = loader.get_data_ids()
+    expected = [
+        ("./data/test/nifti/grouped/test", "group1", "case000025"),
+        ("./data/test/nifti/grouped/test", "group1", "case000026"),
+        ("./data/test/nifti/grouped/train", "group1", "case000000"),
+        ("./data/test/nifti/grouped/train", "group1", "case000001"),
+        ("./data/test/nifti/grouped/train", "group1", "case000003"),
+        ("./data/test/nifti/grouped/train", "group1", "case000008"),
+        ("./data/test/nifti/grouped/train", "group2", "case000009"),
+        ("./data/test/nifti/grouped/train", "group2", "case000011"),
+        ("./data/test/nifti/grouped/train", "group2", "case000012"),
+    ]
+    loader.close()
+    assert got == expected
+
+    # wrong index for paired
+    dir_paths = ["./data/test/nifti/paired/test"]
+    name = "fixed_images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     with pytest.raises(AssertionError):
-        loader.get_data(index)
+        loader.get_data(index=(0, 1))
+    with pytest.raises(ValueError) as err_info:
+        loader.get_data(index=[0])
+    assert "must be int, or tuple" in str(err_info.value)
+
+    # wrong index for grouped
+    dir_paths = ["./data/test/nifti/grouped/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    with pytest.raises(AssertionError):
+        # negative group_index
+        loader.get_data(index=(-1, 1))
+    with pytest.raises(IndexError):
+        # out of range group_index
+        loader.get_data(index=(32, 1))
+    with pytest.raises(AssertionError):
+        # negative in_group_data_index
+        loader.get_data(index=(0, -1))
+    with pytest.raises(IndexError):
+        # out of range in_group_data_index
+        loader.get_data(index=(0, 32))
 
 
-def test_get_data_incorrect_args():
+def test_get_num_images():
     """
-    check if the get_data method works as expected and raises an error when
-    an incorrect data type is fed in
+    check if the get_num_images method works as expected
     """
+    # paired
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
 
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
-    index = "abc"
-    with pytest.raises(ValueError) as err_info:
-        loader.get_data(index)
-    assert "must be int, or tuple" in str(err_info.value)
+    got = loader.get_num_images()
+    expected = 2
+    loader.close()
+    assert got == expected
+
+    # TODO unpaired
+
+    # TODO grouped
+
+    # multi dirs
+    dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    got = loader.get_num_images()
+    expected = 9
+    loader.close()
+    assert got == expected
+
+
+def test_close():
+    """
+    check if close method works as intended
+    close for nifti does nothing, so no need to test all cases
+    """
+    # paired
+    dir_paths = ["./data/test/nifti/paired/test"]
+    name = "fixed_images"
+
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    loader.close()

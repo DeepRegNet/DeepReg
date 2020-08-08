@@ -466,6 +466,8 @@ class FileLoader:
         assert isinstance(
             dir_paths, list
         ), f"dir_paths must be list of strings, got {dir_paths}"
+        if len(set(dir_paths)) != len(dir_paths):
+            logging.warning(f"dir_paths have repeated elements: {dir_paths}")
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped

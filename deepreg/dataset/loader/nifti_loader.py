@@ -50,6 +50,9 @@ class NiftiFileLoader(FileLoader):
         for dir_path in self.dir_paths:
             # dir_path/name
             named_dir_path = os.path.join(dir_path, self.name)
+            assert os.path.exists(
+                named_dir_path
+            ), f"directory {named_dir_path} does not exist"
             # each element is (file_path, suffix)
             data_paths = get_sorted_file_paths_in_dir_with_suffix(
                 dir_path=named_dir_path, suffix=DATA_FILE_SUFFIX
