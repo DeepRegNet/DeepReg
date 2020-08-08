@@ -7,26 +7,6 @@ import numpy as np
 import tensorflow as tf
 
 
-def check_inputs(inputs, size, msg=""):
-    """
-    Function to assert correct input types and length
-    :param inputs: list or tuple
-    :param size: int, defines corect size of input tuple/list
-    :param msg: string type to return with raised ValueError
-    """
-    if msg != "":
-        msg += " "
-    if not isinstance(inputs, (list, tuple)):
-        raise ValueError(msg + "Inputs should be a list or tuple")
-    if len(inputs) != size:
-        raise ValueError(
-            msg
-            + """Inputs should be a list or tuple\
-                     of size %d, but received %d"""
-            % (size, len(inputs))
-        )
-
-
 def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     """
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
@@ -87,7 +67,7 @@ def get_n_bits_combinations(num_bits: int) -> list:
     return [list(i) for i in itertools.product([0, 1], repeat=num_bits)]
 
 
-def pyramid_combination(values: list, weights: list) -> list:
+def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     """
     Calculate linear interpolation (a weighted sum) using values of
     hypercube corners in dimension n.
@@ -163,11 +143,10 @@ def pyramid_combination(values: list, weights: list) -> list:
     """
     if len(values[0].shape) != len(weights[0].shape):
         raise ValueError(
-            """In pyramid_combination, elements of values and
-            weights should have same dimension.
-            value shape = {}, weight = {}""".format(
-                values[0].shape, weights[0].shape
-            )
+            f"In pyramid_combination, "
+            f"elements of values and weights should have same dimension. "
+            f"value shape = {values[0].shape}, "
+            f"weight = {weights[0].shape}"
         )
     if 2 ** len(weights) != len(values):
         raise ValueError(
@@ -424,6 +403,43 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     return grid_warped
 
 
+def warp_image_ddf(
+    image: tf.Tensor, ddf: tf.Tensor, grid_ref: (tf.Tensor, None)
+) -> tf.Tensor:
+    """
+    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3) or (batch, m_dim1, m_dim2, m_dim3, ch)
+    :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
+    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3) or None, if None grid_reg will be calculated based on ddf
+    :return: shape = (batch, f_dim1, f_dim2, f_dim3) or (batch, f_dim1, f_dim2, f_dim3, ch)
+    """
+    if len(image.shape) not in [4, 5]:
+        raise ValueError(
+            f"image shape must be (batch, m_dim1, m_dim2, m_dim3) "
+            f"or (batch, m_dim1, m_dim2, m_dim3, ch),"
+            f" got {image.shape}"
+        )
+    if not (len(ddf.shape) == 5 and ddf.shape[-1] == 3):
+        raise ValueError(
+            f"ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3), got {ddf.shape}"
+        )
+
+    if grid_ref is None:
+        # shape = (1, f_dim1, f_dim2, f_dim3, 3)
+        grid_ref = tf.expand_dims(get_reference_grid(grid_size=ddf.shape[1:4]), axis=0)
+    if not (
+        len(grid_ref.shape) == 5
+        and grid_ref.shape[0] == 1
+        and grid_ref.shape[2:] == ddf.shape[2:]
+    ):
+        raise ValueError(
+            f"grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None, "
+            f"(f_dim1, f_dim2, f_dim3) must be the same as ddf, "
+            f"got grid_ref.shape = {grid_ref.shape} and ddf.shape = {ddf.shape}."
+        )
+
+    return resample(vol=image, loc=grid_ref + ddf)
+
+
 def resize3d(
     image: tf.Tensor, size: (tuple, list), method: str = tf.image.ResizeMethod.BILINEAR
 ) -> tf.Tensor:
@@ -466,10 +482,6 @@ def resize3d(
         has_channel = False
         has_batch = False
         input_image_shape = image.shape[0:3]
-    else:
-        raise ValueError(
-            f"Unknown image_dim in resize3d. It should be 3 or 4 or 5, got {image_dim}"
-        )
 
     # no need of resize
     if input_image_shape == tuple(size):

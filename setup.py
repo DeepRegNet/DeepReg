@@ -10,6 +10,7 @@ setup(
     install_requires=[
         "h5py",
         "numpy>=1.16",
+        "pandas",
         "nibabel",
         "pyyaml",
         "matplotlib",
@@ -29,6 +30,10 @@ setup(
         "notebook",
     ],
     entry_points={
-        "console_scripts": ["train=deepreg.train:main", "predict=deepreg.predict:main"]
+        "console_scripts": [
+            "deepreg_train=deepreg.train:main",
+            "deepreg_predict=deepreg.predict:main",
+            "deepreg_warp=deepreg.warp:main",
+        ]
     },
 )
