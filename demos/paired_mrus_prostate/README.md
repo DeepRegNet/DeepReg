@@ -30,23 +30,23 @@ driven by expert-defined anatomical landmarks, such as the prostate gland segmen
 python demos/paired_mrus_prostate/demo_data.py
 ```
 
-- Call `train` from command line. The following example uses two GPUs and launches the
-  first of the ten runs of a 9-fold cross-validation, as specified in the
+- Call `deepreg_train` from command line. The following example uses two GPUs and
+  launches the first of the ten runs of a 9-fold cross-validation, as specified in the
   [`dataset` section](./paired_mrus_prostate_dataset0.yaml) and the
   [`train` section](./paired_mrus_prostate_train.yaml), which can be specified in
   [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation);
 
 ```bash
-train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --log_dir paired_mrus_prostate
+deepreg_train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --log_dir paired_mrus_prostate
 ```
 
-- Call `predict` from command line to use the saved ckpt file for testing on the data
-  partitions specified in the config file, a copy of which woule be saved in the
+- Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
+  data partitions specified in the config file, a copy of which woule be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
   the results will be saves at the created timestamp-named directories under /logs.
 
 ```bash
-predict --gpu "" --config_path logs/demos/paired_mrus_prostate/config.yaml --ckpt_path logs/demos/paired_mrus_prostate/save/weights-epoch500.ckpt --mode test
+deepreg_predict --gpu "" --config_path logs/demos/paired_mrus_prostate/config.yaml --ckpt_path logs/demos/paired_mrus_prostate/save/weights-epoch500.ckpt --mode test
 ```
 
 ## Data
