@@ -4,6 +4,7 @@ supports h5 and nifti formats
 supports labeled and unlabeled data
 """
 import random
+from typing import List
 
 from deepreg.dataset.loader.interface import (
     AbstractUnpairedDataLoader,
@@ -23,7 +24,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def __init__(
         self,
         file_loader,
-        data_dir_path: str,
+        data_dir_paths: List[str],
         labeled: bool,
         sample_label: str,
         seed,
@@ -33,7 +34,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         Load data which are unpaired, labeled or unlabeled
 
         :param file_loader:
-        :param data_dir_path: path of the directory storing data,  the data has to be saved under four different
+        :param data_dir_paths: paths of the directories storing data,  the data has to be saved under four different
                               sub-directories: images, labels
         :param sample_label:
         :param seed:
@@ -45,12 +46,17 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             sample_label=sample_label,
             seed=seed,
         )
-        loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=False)
+        assert isinstance(
+            data_dir_paths, list
+        ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
+        loader_image = file_loader(
+            dir_paths=data_dir_paths, name="images", grouped=False
+        )
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled:
             loader_label = file_loader(
-                dir_path=data_dir_path, name="labels", grouped=False
+                dir_paths=data_dir_paths, name="labels", grouped=False
             )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label

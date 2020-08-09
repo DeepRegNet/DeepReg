@@ -7,7 +7,7 @@ from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.paired_loader import PairedDataLoader
 
 # assign values to input vars
-data_dir_path = "./data/test/h5/paired/test"
+data_dir_path = ["./data/test/h5/paired/test"]
 sample_label = "sample"
 seed = 1
 moving_image_shape_arr = (8, 8, 8)
@@ -23,7 +23,7 @@ def test_init_sufficient_args():
 
     loader = PairedDataLoader(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,
@@ -32,7 +32,7 @@ def test_init_sufficient_args():
     )
     loader.__init__(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,
@@ -49,7 +49,7 @@ def test_init_num_images():
 
     loader = PairedDataLoader(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,
@@ -69,7 +69,7 @@ def test_file_loader_init():
 
     loader = PairedDataLoader(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,
@@ -77,10 +77,10 @@ def test_file_loader_init():
         seed=seed,
     )
     file_loader = H5FileLoader(
-        dir_path=data_dir_path, name="moving_images", grouped=False
+        dir_paths=data_dir_path, name="moving_images", grouped=False
     )
 
-    expected = ["case000025.nii.gz"]
+    expected = [("./data/test/h5/paired/test", "case000025.nii.gz")]
 
     loader_got = loader.loader_moving_image.get_data_ids()
     file_loader_got = file_loader.get_data_ids()
@@ -97,7 +97,7 @@ def test_validate_data_files_label():
 
     loader = PairedDataLoader(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,
@@ -106,7 +106,7 @@ def test_validate_data_files_label():
     )
 
     # alter a data ID to cause error
-    loader.loader_moving_label.data_keys = "foo"
+    loader.loader_moving_label.data_path_splits = ["foo"]
     with pytest.raises(ValueError) as err_info:
         PairedDataLoader.validate_data_files(loader)
     loader.close()
@@ -120,7 +120,7 @@ def test_sample_index_generator():
 
     loader = PairedDataLoader(
         file_loader=H5FileLoader,
-        data_dir_path=data_dir_path,
+        data_dir_paths=data_dir_path,
         labeled=True,
         sample_label=sample_label,
         moving_image_shape=moving_image_shape_arr,

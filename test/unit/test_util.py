@@ -87,8 +87,8 @@ def test_save_array():
     Test save_array by testing different shapes and count output files
     """
 
-    def get_num_pngs_in_dir(dir_path):
-        return len([x for x in os.listdir(dir_path) if x.endswith(".png")])
+    def get_num_pngs_in_dir(dir_paths):
+        return len([x for x in os.listdir(dir_paths) if x.endswith(".png")])
 
     pair_dir = "logs/test_util_save_array"
 

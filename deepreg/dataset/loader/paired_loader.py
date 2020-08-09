@@ -3,6 +3,7 @@ Loads paired image data
 supports h5 and nifti formats
 supports labeled and unlabeled data
 """
+from typing import List
 
 from deepreg.dataset.loader.interface import (
     AbstractPairedDataLoader,
@@ -22,7 +23,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     def __init__(
         self,
         file_loader,
-        data_dir_path: str,
+        data_dir_paths: List[str],
         labeled: bool,
         sample_label: str,
         seed,
@@ -32,7 +33,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         """
         Load data which are paired, labeled or unlabeled.
         :param file_loader:
-        :param data_dir_path: path of the directory storing data,
+        :param data_dir_paths: path of the directories storing data,
         the data has to be saved under four different
         sub-directories: moving_images, fixed_images, moving_labels,
         fixed_labels
@@ -49,19 +50,21 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
             sample_label=sample_label,
             seed=seed,
         )
-
+        assert isinstance(
+            data_dir_paths, list
+        ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
         self.loader_moving_image = file_loader(
-            dir_path=data_dir_path, name="moving_images", grouped=False
+            dir_paths=data_dir_paths, name="moving_images", grouped=False
         )
         self.loader_fixed_image = file_loader(
-            dir_path=data_dir_path, name="fixed_images", grouped=False
+            dir_paths=data_dir_paths, name="fixed_images", grouped=False
         )
         if self.labeled:
             self.loader_moving_label = file_loader(
-                dir_path=data_dir_path, name="moving_labels", grouped=False
+                dir_paths=data_dir_paths, name="moving_labels", grouped=False
             )
             self.loader_fixed_label = file_loader(
-                dir_path=data_dir_path, name="fixed_labels", grouped=False
+                dir_paths=data_dir_paths, name="fixed_labels", grouped=False
             )
         self.validate_data_files()
         self.num_images = self.loader_moving_image.get_num_images()
