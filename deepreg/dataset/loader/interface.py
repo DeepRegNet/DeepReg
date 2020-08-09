@@ -454,7 +454,7 @@ class GeneratorDataLoader(DataLoader, ABC):
 
 class FileLoader:
     """
-    contians funcitons which need to be defined for different file formats
+    Interface / abstract class to load data from multiple directories
     """
 
     def __init__(self, dir_paths: list, name: str, grouped: bool):
@@ -466,6 +466,8 @@ class FileLoader:
         assert isinstance(
             dir_paths, list
         ), f"dir_paths must be list of strings, got {dir_paths}"
+        if len(set(dir_paths)) != len(dir_paths):
+            logging.warning(f"dir_paths have repeated elements: {dir_paths}")
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
@@ -483,16 +485,20 @@ class FileLoader:
     def set_group_structure(self):
         """
         in addition to set_data_structure
-        store the group structure in the memory so that
+        store the group structure in the group_struct so that
+        group_struct[group_index] = list of data_index
         we can retrieve data using (group_index, in_group_data_index)
+        data_index = group_struct[group_index][in_group_data_index]
         """
         raise NotImplementedError
 
     def get_data(self, index: (int, tuple)):
         """
-        return the data corresponding to the given index
-        :param index:
-        :return:
+        Get one data array by specifying an index
+        :param index: the data index which is required
+        for paired or unpaired, the index is one single int, data_index
+        for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+        :returns arr: the data array at the specified index
         """
         raise NotImplementedError
 
@@ -507,12 +513,14 @@ class FileLoader:
 
     def get_num_images(self) -> int:
         """
-        return the number of images in this data set
-        :return:
+        :return: int, number of images in this data set
         """
         raise NotImplementedError
 
     def get_num_groups(self) -> int:
+        """
+        :return: int, number of groups in this data set, if grouped
+        """
         assert self.grouped
         return len(self.group_struct)
 
@@ -531,5 +539,5 @@ class FileLoader:
         return num_images_per_group
 
     def close(self):
-        """close opened file handles"""
+        """close opened file handles if exist"""
         raise NotImplementedError
