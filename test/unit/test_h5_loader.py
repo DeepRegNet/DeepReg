@@ -103,6 +103,13 @@ def test_init():
     loader.close()
     assert got == expected
 
+    # duplicated dir_paths
+    dir_paths = ["./data/test/h5/grouped/test", "./data/test/h5/grouped/test"]
+    name = "images"
+    with pytest.raises(ValueError) as err_info:
+        H5FileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    assert "dir_paths have repeated elements" in str(err_info.value)
+
 
 def test_set_data_structure():
     """
