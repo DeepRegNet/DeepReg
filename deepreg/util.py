@@ -62,12 +62,23 @@ def build_log_dir(log_dir: str) -> str:
     return log_dir
 
 
-def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: bool):
+def save_array(
+    save_dir: str,
+    arr: (np.ndarray, tf.Tensor),
+    name: str,
+    gray: bool,
+    save_nifti: bool = True,
+    save_png: bool = True,
+    overwrite: bool = True,
+):
     """
-    :param pair_dir: path of the directory to save
+    :param save_dir: path of the directory to save
     :param arr: 3D or 4D array to be saved
     :param name: name of the array, e.g. image, label, etc.
     :param gray: true if the array is between 0,1
+    :param save_nifti: if true, array will be saved in nifti
+    :param save_png: if true, array will be saved in png
+    :param overwrite: if false, will not save the file in case the file exists
     """
     if isinstance(arr, tf.Tensor):
         arr = arr.numpy()
@@ -85,23 +96,31 @@ def save_array(pair_dir: str, arr: (np.ndarray, tf.Tensor), name: str, gray: boo
             )
 
     # save in nifti format
-    os.makedirs(pair_dir, exist_ok=True)
-    nib.save(
-        img=nib.Nifti2Image(arr, affine=np.eye(4)),
-        filename=os.path.join(pair_dir, name + ".nii.gz"),
-    )
+    if save_nifti:
+        nifti_file_path = os.path.join(save_dir, name + ".nii.gz")
+        if overwrite or (not os.path.exists(nifti_file_path)):
+            # save only if need to overwrite or doesn't exist
+            os.makedirs(save_dir, exist_ok=True)
+            nib.save(
+                img=nib.Nifti2Image(arr, affine=np.eye(4)), filename=nifti_file_path
+            )
 
     # save in png
-    png_dir = os.path.join(pair_dir, name)
-    os.makedirs(png_dir, exist_ok=True)
-    for depth_index in range(arr.shape[2]):
-        plt.imsave(
-            fname=os.path.join(png_dir, f"depth{depth_index}_{name}.png"),
-            arr=arr[:, :, depth_index, :] if is_4d else arr[:, :, depth_index],
-            vmin=0 if gray else None,
-            vmax=1 if gray else None,
-            cmap="gray" if gray else "PiYG",
-        )
+    if save_png:
+        png_dir = os.path.join(save_dir, name)
+        dir_existed = os.path.exists(png_dir)
+        for depth_index in range(arr.shape[2]):
+            png_file_path = os.path.join(png_dir, f"depth{depth_index}_{name}.png")
+            if overwrite or (not os.path.exists(png_file_path)):
+                if not dir_existed:
+                    os.makedirs(png_dir, exist_ok=True)
+                plt.imsave(
+                    fname=png_file_path,
+                    arr=arr[:, :, depth_index, :] if is_4d else arr[:, :, depth_index],
+                    vmin=0 if gray else None,
+                    vmax=1 if gray else None,
+                    cmap="gray" if gray else "PiYG",
+                )
 
 
 def calculate_metrics(
