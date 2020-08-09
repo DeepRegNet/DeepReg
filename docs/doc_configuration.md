@@ -7,7 +7,7 @@ and `predict`.
 
 ### Train
 
-`train` accepts the following arguments:
+`deepreg_train` accepts the following arguments:
 
 **Required:**
 
@@ -37,7 +37,7 @@ and `predict`.
 
 ### Predict
 
-`predict` accepts the following arguments:
+`deepreg_predict` accepts the following arguments:
 
 **Required:**
 
@@ -61,6 +61,28 @@ and `predict`.
 - `--config_path` or `-c`, specifies the configuration file for prediction. The path
   must end with `.yaml`. The default will be to use the saved config in the directory of
   the given checkpoint.
+
+### Warp
+
+`deepreg_warp` accepts the following arguments:
+
+**Required:**
+
+- `--image` or `-i`, specifies the file path of the image/label. The image/label should
+  be saved in a nifti file with suffix `.nii` or `.nii.gz`. The image/label should be a
+  3D / 4D tensor, where the first three dimensions correspond to the moving image shape
+  and the fourth can be a channel of features.
+- `--ddf` or `-d`, specifies the file path of the ddf. The ddf should be saved in a
+  nifti file with suffix `.nii` or `.nii.gz`. The ddf should be a 4D tensor, where the
+  first three dimensions correspond to the fixed image shape and the fourth dimension
+  has 3 channels corresponding to x, y, z axises.
+
+**Optional:**
+
+- `--out` or `-o`, specifies the file path for the output. If this argument is not
+  provided, the output will be saved as `warped.nii.gz` in the current directory. If it
+  is provided, it should end with `.nii` or `.nii.gz`, otherwise the output path will be
+  corrected automatically based on the given path.
 
 ## Configuration file
 

@@ -10,41 +10,40 @@ import deepreg.model.network.util as util
 from deepreg.model.backbone import global_net, local_net, u_net
 
 
-def assertTensorsEqual(x, y):
-    """
-    given two tf tensors return True/False (not tf tensor)
-    tolerate small errors
-    :param x:
-    :param y:
-    :return:
-    """
-    return tf.reduce_max(tf.abs(x - y)).numpy() < 1e-6
-
-
 def test_wrong_inputs():
     """
     Function to test wrong input types passed to build backbone func
     """
     #  Wrong image_size type: int, vs tuple, Fail
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=1, out_channels=1, model_config={}, method_name="ddf"
         )
+    assert "image_size must be tuple of length 3" in str(err_info.value)
     #  Wrong out_channels type: str, vs int, Fail
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3), out_channels="", model_config={}, method_name="ddf"
         )
-    #  Wrong out_channels type: list, vs dic, Fail
-    with pytest.raises(Exception):
+    assert "out_channels must be int >=1" in str(err_info.value)
+    #  Wrong model_config type: list, vs dic, Fail
+    with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3), out_channels=1, model_config=[], method_name="ddf"
         )
-    #  Wrong out_channels type: int, vs str, Fail
-    with pytest.raises(Exception):
+    assert "model_config must be a dict having key 'backbone'" in str(err_info.value)
+    #  Wrong method_name
+    with pytest.raises(ValueError) as err_info:
         util.build_backbone(
-            image_size=(1, 2, 3), out_channels=1, model_config={}, method_name=1
+            image_size=(1, 2, 3),
+            out_channels=1,
+            model_config={"backbone": "local"},
+            method_name="wrong",
         )
+    assert (
+        "method name has to be one of ddf/dvf/conditional/affine in build_backbone"
+        in str(err_info.value)
+    )
 
 
 def test_value_raised_if_wrong_method():
@@ -157,7 +156,7 @@ def test_wrong_inputs_build_inputs():
             labeled=True,
         )
 
-    #  Wrong indx_sie type: list, vs int, Fail
+    #  Wrong index_size type: list, vs int, Fail
     with pytest.raises(Exception):
         util.build_inputs(
             moving_image_size=(),

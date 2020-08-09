@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Module to perform predictions on data using
 command line interface
@@ -6,183 +8,154 @@ command line interface
 import argparse
 import logging
 import os
-from datetime import datetime
 
-import matplotlib.pyplot as plt
-import numpy as np
+import tensorflow as tf
 
 import deepreg.config.parser as config_parser
-import deepreg.dataset.load as load
 import deepreg.model.layer_util as layer_util
-import deepreg.model.loss.label as label_loss
 import deepreg.model.optimizer as opt
+from deepreg.dataset.loader.util import normalize_array
 from deepreg.model.network.build import build_model
+from deepreg.util import (
+    build_dataset,
+    build_log_dir,
+    calculate_metrics,
+    save_array,
+    save_metric_dict,
+)
 
 EPS = 1.0e-6
+
+
+def build_pair_output_path(indices: list, save_dir: str) -> str:
+    """
+    Create directory for saving the paired data
+    :param indices: indices of the pair, the last one is for label
+    :param save_dir: directory of output
+    :return: sample_dir, str, directory for saving the pair
+    """
+
+    # cast indices to string
+    pair_index = "pair_" + "_".join([str(x) for x in indices[:-1]])
+    if indices[-1] >= 0:
+        pair_index += f"_label_{indices[-1]}"
+
+    # init directory name
+    sample_dir = os.path.join(save_dir, pair_index)
+
+    # create the directory of the path
+    if not os.path.exists(sample_dir):
+        os.makedirs(sample_dir)
+
+    return sample_dir
 
 
 def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     """
     Function to predict results from a dataset from some model
     :param dataset: where data is stored
-    :param fixed_grid_ref:
+    :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model:
     :param save_dir: str, path to store dir
     """
-    metric_map = dict()  # map[image_index][label_index][metric_name] = metric_value
+
+    sample_index_strs = []
+    metric_lists = []
     for _, inputs_dict in enumerate(dataset):
-        # pred_fixed_label [batch, f_dim1, f_dim2, f_dim3]
-        # moving_image     [batch, m_dim1, m_dim2, m_dim3]
-        # fixed_image      [batch, f_dim1, f_dim2, f_dim3]
-        # moving_label     [batch, m_dim1, m_dim2, m_dim3]
-        # fixed_label      [batch, f_dim1, f_dim2, f_dim3]
         outputs_dict = model.predict(x=inputs_dict)
 
-        moving_image = inputs_dict.get("moving_image")
-        fixed_image = inputs_dict.get("fixed_image")
-        indices = inputs_dict.get("indices")
+        # moving image/label
+        # (batch, m_dim1, m_dim2, m_dim3)
+        moving_image = inputs_dict["moving_image"]
         moving_label = inputs_dict.get("moving_label", None)
+        # fixed image/labelimage_index
+        # (batch, f_dim1, f_dim2, f_dim3)
+        fixed_image = inputs_dict["fixed_image"]
         fixed_label = inputs_dict.get("fixed_label", None)
 
+        # indices to identify the pair
+        # (batch, num_indices) last indice is for label, -1 means unlabeled data
+        indices = inputs_dict.get("indices")
+        # ddf / dvf
+        # (batch, f_dim1, f_dim2, f_dim3, 3)
         ddf = outputs_dict.get("ddf", None)
         dvf = outputs_dict.get("dvf", None)
+        # affine = outputs_dict.get("affine", None) # (batch, 4, 3)
+
+        # prediction
+        # (batch, f_dim1, f_dim2, f_dim3)
         pred_fixed_label = outputs_dict.get("pred_fixed_label", None)
+        pred_fixed_image = (
+            layer_util.resample(vol=moving_image, loc=fixed_grid_ref + ddf)
+            if ddf is not None
+            else None
+        )
 
-        labeled = moving_label is not None
-
-        num_samples = moving_image.shape[0]
-        moving_depth = moving_image.shape[3]
-        fixed_depth = fixed_image.shape[3]
-
-        for sample_index in range(num_samples):
+        # save images of inputs and outputs
+        for sample_index in range(moving_image.shape[0]):
+            # init output path
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
-            image_index = "_".join([str(x) for x in indices_i[:-1]])
-            label_index = str(indices_i[-1])
+            pair_dir = build_pair_output_path(indices=indices_i, save_dir=save_dir)
 
-            # save fixed
-            image_dir = os.path.join(save_dir, "image%s" % image_index)
-            if labeled:
-                image_dir = os.path.join(save_dir, "label%s" % label_index)
-
-            filename_format = os.path.join(
-                image_dir, "depth{depth_index:d}_{name:s}.png"
-            )
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            for fixed_depth_index in range(fixed_depth):
-                fixed_image_d = fixed_image[sample_index, :, :, fixed_depth_index]
-                plt.imsave(
-                    filename_format.format(
-                        depth_index=fixed_depth_index, name="fixed_image"
-                    ),
-                    fixed_image_d,
-                    cmap="gray",
-                )  # value range for h5 and nifti might be different
-
-                if labeled:
-                    fixed_label_d = fixed_label[sample_index, :, :, fixed_depth_index]
-                    fixed_pred_d = pred_fixed_label[
-                        sample_index, :, :, fixed_depth_index
-                    ]
-
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="fixed_label"
-                        ),
-                        fixed_label_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
-                    )
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=fixed_depth_index, name="fixed_label_pred"
-                        ),
-                        fixed_pred_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
+            # save image/label
+            arrs = [
+                moving_image,
+                moving_label,
+                fixed_image,
+                fixed_label,
+                pred_fixed_image,
+                pred_fixed_label,
+            ]
+            names = [
+                "moving_image",
+                "moving_label",
+                "fixed_image",
+                "fixed_label",
+                "pred_fixed_image",
+                "pred_fixed_label",
+            ]
+            for arr, name in zip(arrs, names):
+                if arr is not None:
+                    save_array(
+                        pair_dir=pair_dir,
+                        arr=arr[sample_index, :, :, :],
+                        name=name,
+                        gray=True,
                     )
 
-            # save moving
-            if not os.path.exists(image_dir):
-                os.makedirs(image_dir)
-            for moving_depth_index in range(moving_depth):
-                moving_image_d = moving_image[sample_index, :, :, moving_depth_index]
-                plt.imsave(
-                    filename_format.format(
-                        depth_index=moving_depth_index, name="moving_image"
-                    ),
-                    moving_image_d,
-                    cmap="gray",
-                )  # value range for h5 and nifti might be different
-                if labeled:
-                    moving_label_d = moving_label[
-                        sample_index, :, :, moving_depth_index
-                    ]
-                    plt.imsave(
-                        filename_format.format(
-                            depth_index=moving_depth_index, name="moving_label"
-                        ),
-                        moving_label_d,
-                        vmin=0,
-                        vmax=1,
-                        cmap="gray",
-                    )
-
-            # save ddf / dvf if exists
-            for field, field_name in zip([ddf, dvf], ["ddf", "dvf"]):
-                if field is not None:
-                    for fixed_depth_index in range(fixed_depth):
-                        field_d = field[
-                            sample_index, :, :, fixed_depth_index, :
-                        ]  # [f_dim1, f_dim2,  3]
-                        field_max, field_min = np.max(field_d), np.min(field_d)
-                        field_d = (field_d - field_min) / np.maximum(
-                            field_max - field_min, EPS
-                        )
-                        plt.imsave(
-                            filename_format.format(
-                                depth_index=fixed_depth_index, name=field_name
-                            ),
-                            field_d,
-                        )
+            # save ddf / dvf
+            arrs = [ddf, dvf]
+            names = ["ddf", "dvf"]
+            for arr, name in zip(arrs, names):
+                if arr is not None:
+                    arr = normalize_array(arr=arr[sample_index, :, :, :])
+                    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=False)
 
             # calculate metric
-            if labeled:
-                label = fixed_label[sample_index : (sample_index + 1), :, :, :]
-                pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-                dice = label_loss.dice_score(y_true=label, y_pred=pred, binary=True)
-                dist = label_loss.compute_centroid_distance(
-                    y_true=label, y_pred=pred, grid=fixed_grid_ref
+            sample_index_str = "_".join([str(x) for x in indices_i])
+            if sample_index_str in sample_index_strs:
+                raise ValueError(
+                    "Sample is repeated, maybe the dataset has been repeated."
                 )
+            sample_index_strs.append(sample_index_str)
 
-                # save metric
-                if image_index not in metric_map.keys():
-                    metric_map[image_index] = dict()
-                # label should not be repeated - assert that it is not in keys
-                assert label_index not in metric_map[image_index].keys()
-                metric_map[image_index][label_index] = dict(
-                    dice=dice.numpy()[0], dist=dist.numpy()[0]
-                )
+            metric = calculate_metrics(
+                fixed_image=fixed_image,
+                fixed_label=fixed_label,
+                pred_fixed_image=pred_fixed_image,
+                pred_fixed_label=pred_fixed_label,
+                fixed_grid_ref=fixed_grid_ref,
+                sample_index=sample_index,
+            )
+            metric["pair_index"] = indices_i[:-1]
+            metric["label_index"] = indices_i[-1]
+            metric_lists.append(metric)
 
-    # print metric
-    line_format = (
-        "{image_index:s}, label {label_index:s}, dice {dice:.4f}, dist {dist:.4f}\n"
-    )
-    with open(save_dir + "/metric.log", "w+") as file:
-        for image_index in sorted(metric_map.keys()):
-            for label_index in sorted(metric_map[image_index].keys()):
-                file.write(
-                    line_format.format(
-                        image_index=image_index,
-                        label_index=label_index,
-                        **metric_map[image_index][label_index],
-                    )
-                )
+    # save metric
+    save_metric_dict(save_dir=save_dir, metrics=metric_lists)
 
 
-def init(log_dir, ckpt_path, config_path):
+def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
     """
     Function to create new directory to log directory
     to store results.
@@ -196,13 +169,7 @@ def init(log_dir, ckpt_path, config_path):
         )
 
     # init log directory
-    log_dir = os.path.join(
-        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
-    )
-    if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
-    else:
-        os.makedirs(log_dir)
+    log_dir = build_log_dir(log_dir)
 
     # load config
     if config_path == "":
@@ -242,43 +209,43 @@ def predict(
     :param sample_label:
     :param config_path: to overwrite the default config
     """
-    logging.error("TODO sample_label is not used in predict")
+    # TODO support custom sample_label
+    logging.warning(
+        "sample_label is not used in predict. It is True if and only if mode == 'train'."
+    )
 
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config, log_dir = init(log_dir, ckpt_path, config_path)
-    dataset_config = config["dataset"]
+    config, log_dir = build_config(
+        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
+    )
     preprocess_config = config["train"]["preprocess"]
     preprocess_config["batch_size"] = batch_size
-    optimizer_config = config["train"]["optimizer"]
-    model_config = config["train"]["model"]
-    loss_config = config["train"]["loss"]
 
     # data
-    data_loader = load.get_data_loader(dataset_config, mode)
-    if data_loader is None:
-        raise ValueError(
-            "Data loader for prediction is None. Probably the data dir path is not defined."
-        )
-    dataset = data_loader.get_dataset_and_preprocess(
-        training=False, repeat=False, **preprocess_config
+    data_loader, dataset, _ = build_dataset(
+        dataset_config=config["dataset"],
+        preprocess_config=preprocess_config,
+        mode=mode,
+        training=False,
+        repeat=False,
     )
 
     # optimizer
-    optimizer = opt.build_optimizer(optimizer_config)
+    optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # model
     model = build_model(
         moving_image_size=data_loader.moving_image_shape,
         fixed_image_size=data_loader.fixed_image_shape,
         index_size=data_loader.num_indices,
-        labeled=dataset_config["labeled"],
+        labeled=config["dataset"]["labeled"],
         batch_size=preprocess_config["batch_size"],
-        model_config=model_config,
-        loss_config=loss_config,
+        model_config=config["train"]["model"],
+        loss_config=config["train"]["loss"],
     )
 
     # metrics
@@ -289,9 +256,9 @@ def predict(
     model.load_weights(ckpt_path).expect_partial()
 
     # predict
-    fixed_grid_ref = layer_util.get_reference_grid(
-        grid_size=data_loader.fixed_image_shape
-    )
+    fixed_grid_ref = tf.expand_dims(
+        layer_util.get_reference_grid(grid_size=data_loader.fixed_image_shape), axis=0
+    )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
     predict_on_dataset(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
@@ -299,6 +266,7 @@ def predict(
         save_dir=log_dir + "/test",
     )
 
+    # close the opened files in data loaders
     data_loader.close()
 
 
@@ -311,7 +279,6 @@ def main(args=None):
         description="predict", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    ## ADD POSITIONAL ARGUMENTS
     parser.add_argument(
         "--gpu",
         "-g",

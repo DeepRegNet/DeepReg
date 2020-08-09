@@ -7,6 +7,7 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
+from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
@@ -29,6 +30,23 @@ class DataLoader:
         :param sample_label : (str, None)
         :param seed : (int, None), optional
         """
+        assert labeled in [
+            True,
+            False,
+            None,
+        ], f"labeled must be boolean, True or False or None, got {labeled}"
+        assert sample_label in [
+            "sample",
+            "all",
+            None,
+        ], f"sample_label must be sample or all or None, got {sample_label}"
+        assert (
+            num_indices is None or num_indices >= 1
+        ), f"num_indices must be int >=1 or None, got {num_indices}"
+        assert seed is None or isinstance(
+            seed, int
+        ), f"seed must be None or int, got {seed}"
+
         self.labeled = labeled
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
@@ -136,8 +154,10 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
-                "moving_image_shape and fixed_image_shape have to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"moving_image_shape and fixed_image_shape have to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got moving_image_shape = {moving_image_shape} "
+                f"and fixed_image_shape = {fixed_image_shape}"
             )
         self._moving_image_shape = tuple(moving_image_shape)
         self._fixed_image_shape = tuple(fixed_image_shape)
@@ -182,8 +202,9 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
-                "image_shape has to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"image_shape has to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got {image_shape}"
             )
         self.image_shape = tuple(image_shape)
         self._num_samples = None
@@ -250,11 +271,13 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def data_generator(self):
         """
-        yeild samples of data to feed model
+        yield samples of data to feed model
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
-            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
-            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
+            moving_image = self.loader_moving_image.get_data(index=moving_index)
+            moving_image = normalize_array(moving_image)
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+            fixed_image = normalize_array(fixed_image)
             moving_label = (
                 self.loader_moving_label.get_data(index=moving_index)
                 if self.labeled
@@ -316,12 +339,16 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}'s values have been normalized to [0,1]."
-                    f"Images are assumed to have values between [0, 255] after loading"
-                    f"and labels are assumed to be binary. "
+                    f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
+                    f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
+                    f"The images are automatically normalized on image level: "
+                    f"x = (x - min(x) + EPS) / (max(x) - min(x) + EPS). \n"
+                    f"Labels are assumed to have values between [0,1] and they are not normalised. "
+                    f"This is to prevent accidental use of other encoding methods "
+                    f"other than one-hot to represent multiple class labels.\n"
                     f"If the label values are intended to represent multiple labels, "
-                    f"please convert them to binary masks in multiple channels, "
-                    f"with each channel representing one label only. "
+                    f"please convert them to one hot / binary masks in multiple channels, "
+                    f"with each channel representing one label only.\n"
                     f"Please read the dataset requirements section "
                     f"in docs/doc_data_loader.md for more detailed information."
                 )

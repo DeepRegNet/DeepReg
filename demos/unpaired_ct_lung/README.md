@@ -6,12 +6,33 @@ Shaheer U. Saeed
 
 zcemsus@ucl.ac.uk
 
+## Application
+
+This is a registration between ct images from different patients. The images are all
+from acquired at the same timepoint in the breathing cycle. This is an inter subject
+registration. This kind of registration is useful for determining how one stimulus
+affects multiple patietns. If a drug or invasive procedure is administered to multiple
+patients, registering the images from different patients can give medical professsionals
+a sense of how each patient is responding in comparison to others. An example of such an
+application can be seen in [2].
+
 ## Instructions
 
+- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- Change current directory to the root directory of DeepReg project;
+- The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
+  the following command:
+
+```bash
+python3 demos/unpaired_ct_lung/script_name.py
+```
+
+A short description of the scripts is provided below. The scripts must be run in the
+following order:
+
 - Run the demo_data.py script: This script does the following:
-  - Download data using linux builtin function wget (if using other OS please use python
-    package wget, instruction in the script). Data is downloaded to the demo directory
-    but this can be changed (instructions in the comments in the script).
+  - Download data using `tf.keras.utils.get_file`. Data is downloaded to the demo
+    directory but this can be changed (instructions in the comments in the script).
   - Split the data into three sets train, valid and test (change
     ratio_of_test_and_valid_samples variable to change the ratio of test and valid
     samples)
@@ -28,16 +49,6 @@ zcemsus@ucl.ac.uk
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
-## Application
-
-This is a registration between ct images from different patients. The images are all
-from acquired at the same timepoint in the breathing cycle. This is an inter subject
-registration. This kind of registration is useful for determining how one stimulus
-affects multiple patietns. If a drug or invasive procedure is administered to multiple
-patients, registering the images from different patients can give medical professsionals
-a sense of how each patient is responding in comparison to others. An example of such an
-application can be seen in [2].
-
 ## Data
 
 The dataset for this demo comes from [1] and can be downloaded from:
@@ -46,7 +57,7 @@ https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
-v0.1.4
+Last commit at which demo was tested: 1793fab50adc83c8a287093bddb080ce585ce1ae
 
 ## References
 
