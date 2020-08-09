@@ -19,16 +19,6 @@ def get_h5_sorted_keys(filename):
         return sorted(h5_file.keys())
 
 
-def mkdir_if_not_exists(path):
-    """
-    Function to make a new directory at path
-    if directory does not exist
-    :param path: path to dir
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 def get_sorted_file_paths_in_dir_with_suffix(dir_path: str, suffix: (str, list)):
     """
     Return the path of all files under the given directory.
