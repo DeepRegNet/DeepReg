@@ -40,7 +40,6 @@ def test_init():
     # test data_path_splits
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.data_path_splits
     expected = [
@@ -54,7 +53,6 @@ def test_init():
     # test data_path_splits
     dir_paths = ["./data/test/nifti/unpaired/test"]
     name = "images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.data_path_splits
     expected = [
@@ -68,7 +66,6 @@ def test_init():
     # test data_path_splits and group_struct
     dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     got = [loader.data_path_splits, loader.group_struct]
     expected = [
@@ -85,7 +82,6 @@ def test_init():
     # test data_path_splits and group_struct
     dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
     name = "images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     got = [loader.data_path_splits, loader.group_struct]
     expected = [
@@ -125,7 +121,6 @@ def test_set_group_structure():
     # data is not grouped but try using group_struct
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     with pytest.raises(AttributeError) as err_info:
         loader.group_struct
@@ -139,7 +134,6 @@ def test_get_data():
     # paired
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     index = 0
     array = loader.get_data(index)
@@ -152,12 +146,24 @@ def test_get_data():
     assert got[0] == expected[0]
     assert is_equal_np(got[1], expected[1])
 
-    # TODO unpaired
+    # unpaired
+    dir_paths = ["./data/test/nifti/unpaired/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    index = 0
+    array = loader.get_data(index)
+    got = [
+        np.shape(array),
+        [np.amax(array), np.amin(array), np.mean(array), np.std(array)],
+    ]
+    expected = [(64, 64, 60), [255.0, 0.0, 60.073948, 47.27648]]
+    loader.close()
+    assert got[0] == expected[0]
+    assert is_equal_np(got[1], expected[1])
 
     # grouped
     dir_paths = ["./data/test/nifti/grouped/test"]
     name = "images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     index = (0, 1)
     array = loader.get_data(index)
@@ -173,7 +179,6 @@ def test_get_data():
     # multi dirs
     dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
     name = "images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
     index = (0, 1)
     array = loader.get_data(index)
@@ -203,9 +208,29 @@ def test_get_data_ids():
     loader.close()
     assert got == expected
 
-    # TODO unpaired
+    # unpaired
+    dir_paths = ["./data/test/nifti/unpaired/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    got = loader.get_data_ids()
+    expected = [
+        ("./data/test/nifti/unpaired/test", "case000025"),
+        ("./data/test/nifti/unpaired/test", "case000026"),
+    ]
+    loader.close()
+    assert got == expected
 
-    # TODO grouped
+    # grouped
+    dir_paths = ["./data/test/nifti/grouped/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    got = loader.get_data_ids()
+    expected = [
+        ("./data/test/nifti/grouped/test", "group1", "case000025"),
+        ("./data/test/nifti/grouped/test", "group1", "case000026"),
+    ]
+    loader.close()
+    assert got == expected
 
     # multi dirs
     dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
@@ -261,16 +286,29 @@ def test_get_num_images():
     # paired
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     got = loader.get_num_images()
     expected = 2
     loader.close()
     assert got == expected
 
-    # TODO unpaired
+    # unpaired
+    dir_paths = ["./data/test/nifti/unpaired/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
+    got = loader.get_num_images()
+    expected = 2
+    loader.close()
+    assert got == expected
 
-    # TODO grouped
+    # grouped
+    dir_paths = ["./data/test/nifti/grouped/test"]
+    name = "images"
+    loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=True)
+    got = loader.get_num_images()
+    expected = 2
+    loader.close()
+    assert got == expected
 
     # multi dirs
     dir_paths = ["./data/test/nifti/grouped/train", "./data/test/nifti/grouped/test"]
@@ -290,6 +328,5 @@ def test_close():
     # paired
     dir_paths = ["./data/test/nifti/paired/test"]
     name = "fixed_images"
-
     loader = NiftiFileLoader(dir_paths=dir_paths, name=name, grouped=False)
     loader.close()
