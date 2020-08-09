@@ -22,7 +22,7 @@ authors:  # not-ordered yet
   - name: Zachary Baum
     orcid: 0000-0001-6838-335X
   - name: Rémi Delaunay
-    affiliation: "1, 2, 4"
+    affiliation: "1, 4"
   - name: Qianye Yang
     orcid: 0000-0003-4401-5311
     affiliation: "1, 2"
@@ -97,24 +97,17 @@ Registration networks are trained using standard minibatch gradient descent, wit
 
 
 # Example applications
-
-## Unpaired images
-Unpaired images are found in applications such as single-modality inter-subject registration. Two dataset loaders for unpaired images are implemented, (Case 1-1) UnpairedImages and (Case 1-2) UnpairedLabelledImages.
-
-Neural MR (unsupervised +/- supervision)
-3D ultrasound fetal?
-
-## Grouped images
-Unpaired images can also be grouped in applications such as single-modality intra-subject registration, in which each subject has multiple images acquired at different time points. Two dataset loaders are implemented, (Case 2-1) GroupedImages and (Case 2-2) GroupedLabelled images.
-
-Lung 4DCT (unsupervised +/- supervision with inter-subject sampling)
-Prostate logitudinal MR (unsupervised +/- supervision with inter-subject sampling)
+`DeepReg` provides a collection of demonstrations, _DeepReg Demos_, using open-accesible data with real clinical applications.
 
 ## Paired images
-If images are available in pairs, such as two-modality intra-subject registration. Two further dataset loaders are implemneted for (Case 3-1) PairedImages and (Case 3-2) PairedLabelledImages.
+If images are available in pairs, two dataset loaders are currently available for paired images with- and without labels. Many clinical application for tracking organ motion and other temporal changes between two time points require _intra-subject_ _single-modality_ image registration. Registering lung CT images for the same patient, acquired at expritory and inspritory, is such an example of both unsupervised (without labels) and combined supervision (with segmentation of anatomical structures). Furthermore, registering prostate MR, aquired before surgery, and the intra-operative trasnrectal ultrasound images is an example of weakly-supervised training for multimodal image registration.
 
-Lung 4DCT (unsupervised +/- supervision with inter-subject sampling)
-Prostate MR (unsupervised +/- supervision with inter-subject sampling)
+## Unpaired images
+Unpaired images are found in applications such as single-modality inter-subject registration. Two dataset loaders for labelled and unlabelled image data. Registering different MR images of brain from different subjects has played a fundamental role in population studies in neuroimaging. An example registering 3D ultrasound images from different surgical patients are also provided, especially to demonstrate the support for experiments such as cross-validation in DeepReg.
+
+## Grouped images
+Unpaired images can also be grouped in applications such as single-modality intra-subject registration, in which each subject has multiple images acquired, e.g. at different time points. Two dataset loaders are implemented for grouped image data, with- and without labels. Paired dataset loader is a special case of the grouped dataset loader. Prostate logitudinal MR is proposed to track the progression of prostate cancer patients at an early stage during the active surveilence programme [@yang2020longitudinal]. One DeepReg demo illustrates how the grouped dataset loader can be used for deep-learning based feature reigstration by aligning intra-patient organ masks.
+
 
 # Conclusion
 `DeepReg` provides a structured code architecture to facilitate a number of deep learning algorithms to train medical image registration, which provides a reference of basic functionality and performance to further research in medical image analysis and computer assisted intervention. It is in its current open-source format not only providing a tool for scientific research, but also welcoming contributions from wider communities above and beyond medical, engineering and computer sicence.
