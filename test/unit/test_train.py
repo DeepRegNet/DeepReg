@@ -83,6 +83,8 @@ def test_train_and_predict():
         batch_size=1,
         log_dir="test_predict",
         sample_label="all",
+        save_nifti=True,
+        save_png=True,
         config_path="",
     )
 

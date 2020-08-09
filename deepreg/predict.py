@@ -53,13 +53,22 @@ def build_pair_output_path(indices: list, save_dir: str) -> (str, str):
     return pair_dir, label_dir
 
 
-def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
+def predict_on_dataset(
+    dataset: tf.data.Dataset,
+    fixed_grid_ref: tf.Tensor,
+    model: tf.keras.Model,
+    save_dir: str,
+    save_nifti: bool,
+    save_png: bool,
+):
     """
     Function to predict results from a dataset from some model
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
-    :param model:
+    :param model: model to be used for prediction
     :param save_dir: str, path to store dir
+    :param save_nifti: if true, outputs will be saved in nifti format
+    :param save_png: if true, outputs will be saved in png format
     """
     # remove the save_dir in case it exists
     if os.path.exists(save_dir):
@@ -99,11 +108,9 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
 
         # save images of inputs and outputs
         for sample_index in range(moving_image.shape[0]):
-            # save moving/fixed image under pair dir
-            # if labeled:
-            #   save moving/fixed label, pred fixed image/label, ddf/dvf under label dir
-            # else, unlabeled:
-            #   save pred fixed image, ddf/dvf under pair dir
+            # save moving/fixed image under pair_dir
+            # save moving/fixed label, pred fixed image/label, ddf/dvf under label dir
+            # if labeled, label dir is a sub dir of pair_dir, otherwise = pair_dir
 
             # init output path
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
@@ -126,8 +133,8 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                 "fixed_image",
                 "moving_label",
                 "fixed_label",
-                "pred_fixed_image",
-                "pred_fixed_label",
+                "pred_fixed_image",  # or warped moving image
+                "pred_fixed_label",  # or warped moving label
             ]
             for arr_save_dir, arr, name in zip(arr_save_dirs, arrs, names):
                 if arr is not None:
@@ -137,6 +144,8 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
                         arr=arr[sample_index, :, :, :],
                         name=name,
                         gray=True,
+                        save_nifti=save_nifti,
+                        save_png=save_png,
                         overwrite=arr_save_dir == label_dir,
                     )
 
@@ -146,7 +155,14 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             for arr, name in zip(arrs, names):
                 if arr is not None:
                     arr = normalize_array(arr=arr[sample_index, :, :, :])
-                    save_array(save_dir=label_dir, arr=arr, name=name, gray=False)
+                    save_array(
+                        save_dir=label_dir,
+                        arr=arr,
+                        name=name,
+                        gray=False,
+                        save_nifti=save_nifti,
+                        save_png=save_png,
+                    )
 
             # calculate metric
             sample_index_str = "_".join([str(x) for x in indices_i])
@@ -205,14 +221,16 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
 
 
 def predict(
-    gpu,
-    gpu_allow_growth,
-    ckpt_path,
-    mode,
-    batch_size,
-    log_dir,
-    sample_label,
-    config_path,
+    gpu: str,
+    gpu_allow_growth: bool,
+    ckpt_path: str,
+    mode: str,
+    batch_size: int,
+    log_dir: str,
+    sample_label: str,
+    config_path: (str, list),
+    save_nifti: bool = True,
+    save_png: bool = True,
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -223,7 +241,9 @@ def predict(
     :param mode: which mode to load the data ??
     :param batch_size: int, batch size to perform predictions in
     :param log_dir: str, path to store logs
-    :param sample_label:
+    :param sample_label: sample/all, not used
+    :param save_nifti: if true, outputs will be saved in nifti format
+    :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
     """
     # TODO support custom sample_label
@@ -281,6 +301,8 @@ def predict(
         fixed_grid_ref=fixed_grid_ref,
         model=model,
         save_dir=log_dir + "/test",
+        save_nifti=save_nifti,
+        save_png=save_png,
     )
 
     # close the opened files in data loaders
@@ -340,6 +362,7 @@ def main(args=None):
         "--log_dir", "-l", help="Path of log directory", default="", type=str
     )
 
+    # TODO use this argument
     parser.add_argument(
         "--sample_label",
         "-s",
@@ -347,6 +370,14 @@ def main(args=None):
         default="all",
         type=str,
     )
+
+    parser.add_argument("--save_nifti", dest="nifti", action="store_true")
+    parser.add_argument("--no_nifti", dest="nifti", action="store_false")
+    parser.set_defaults(nifti=True)
+
+    parser.add_argument("--save_png", dest="png", action="store_true")
+    parser.add_argument("--no_png", dest="png", action="store_false")
+    parser.set_defaults(png=False)
 
     parser.add_argument(
         "--config_path",
@@ -368,6 +399,8 @@ def main(args=None):
         args.log_dir,
         args.sample_label,
         args.config_path,
+        args.nifti,
+        args.png,
     )
 
 
