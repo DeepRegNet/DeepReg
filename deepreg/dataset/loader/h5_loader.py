@@ -41,7 +41,11 @@ class H5FileLoader(FileLoader):
         h5_files = dict()
         data_path_splits = []
         for dir_path in self.dir_paths:
-            h5_file = h5py.File(os.path.join(dir_path, self.name + ".h5"), "r")
+            h5_file_path = os.path.join(dir_path, self.name + ".h5")
+            assert os.path.exists(
+                h5_file_path
+            ), f"h5 file {h5_file_path} does not exist"
+            h5_file = h5py.File(h5_file_path, "r")
             h5_files[dir_path] = h5_file
 
             if self.grouped:

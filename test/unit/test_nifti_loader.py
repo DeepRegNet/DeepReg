@@ -323,7 +323,7 @@ def test_get_num_images():
 def test_close():
     """
     check if close method works as intended
-    close for nifti does nothing, so no need to test all cases
+    close is the same code for all cases, so no need to test all cases
     """
     # paired
     dir_paths = ["./data/test/nifti/paired/test"]
