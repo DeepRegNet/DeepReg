@@ -87,9 +87,9 @@ def test_train_and_predict():
     )
 
     # check output folders
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_0")
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_1")
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_2")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_0")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_1")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_2")
     assert os.path.isfile("logs/test_predict/test/metrics.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_per_label.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_overall.csv")

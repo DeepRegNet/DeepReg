@@ -8,6 +8,7 @@ command line interface
 import argparse
 import logging
 import os
+import shutil
 
 import tensorflow as tf
 
@@ -27,27 +28,29 @@ from deepreg.util import (
 EPS = 1.0e-6
 
 
-def build_pair_output_path(indices: list, save_dir: str) -> str:
+def build_pair_output_path(indices: list, save_dir: str) -> (str, str):
     """
     Create directory for saving the paired data
     :param indices: indices of the pair, the last one is for label
     :param save_dir: directory of output
-    :return: sample_dir, str, directory for saving the pair
+    :return:
+    - save_dir, str, directory for saving the moving/fixed image
+    - label_dir, str, directory for saving the rest outputs
     """
 
-    # cast indices to string
+    # cast indices to string and init directory name
     pair_index = "pair_" + "_".join([str(x) for x in indices[:-1]])
+    pair_dir = os.path.join(save_dir, pair_index)
+    os.makedirs(pair_dir, exist_ok=True)
+
     if indices[-1] >= 0:
-        pair_index += f"_label_{indices[-1]}"
+        label_index = f"label_{indices[-1]}"
+        label_dir = os.path.join(pair_dir, label_index)
+        os.makedirs(label_dir, exist_ok=True)
+    else:
+        label_dir = pair_dir
 
-    # init directory name
-    sample_dir = os.path.join(save_dir, pair_index)
-
-    # create the directory of the path
-    if not os.path.exists(sample_dir):
-        os.makedirs(sample_dir)
-
-    return sample_dir
+    return pair_dir, label_dir
 
 
 def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
@@ -58,6 +61,9 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
     :param model:
     :param save_dir: str, path to store dir
     """
+    # remove the save_dir in case it exists
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
 
     sample_index_strs = []
     metric_lists = []
@@ -93,34 +99,45 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
 
         # save images of inputs and outputs
         for sample_index in range(moving_image.shape[0]):
+            # save moving/fixed image under pair dir
+            # if labeled:
+            #   save moving/fixed label, pred fixed image/label, ddf/dvf under label dir
+            # else, unlabeled:
+            #   save pred fixed image, ddf/dvf under pair dir
+
             # init output path
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
-            pair_dir = build_pair_output_path(indices=indices_i, save_dir=save_dir)
+            pair_dir, label_dir = build_pair_output_path(
+                indices=indices_i, save_dir=save_dir
+            )
 
             # save image/label
+            arr_save_dirs = [pair_dir] * 2 + [label_dir] * 4
             arrs = [
                 moving_image,
-                moving_label,
                 fixed_image,
+                moving_label,
                 fixed_label,
                 pred_fixed_image,
                 pred_fixed_label,
             ]
             names = [
                 "moving_image",
-                "moving_label",
                 "fixed_image",
+                "moving_label",
                 "fixed_label",
                 "pred_fixed_image",
                 "pred_fixed_label",
             ]
-            for arr, name in zip(arrs, names):
+            for arr_save_dir, arr, name in zip(arr_save_dirs, arrs, names):
                 if arr is not None:
+                    # for files under pair_dir, do not overwrite
                     save_array(
-                        pair_dir=pair_dir,
+                        save_dir=arr_save_dir,
                         arr=arr[sample_index, :, :, :],
                         name=name,
                         gray=True,
+                        overwrite=arr_save_dir == label_dir,
                     )
 
             # save ddf / dvf
@@ -129,7 +146,7 @@ def predict_on_dataset(dataset, fixed_grid_ref, model, save_dir):
             for arr, name in zip(arrs, names):
                 if arr is not None:
                     arr = normalize_array(arr=arr[sample_index, :, :, :])
-                    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=False)
+                    save_array(save_dir=label_dir, arr=arr, name=name, gray=False)
 
             # calculate metric
             sample_index_str = "_".join([str(x) for x in indices_i])
