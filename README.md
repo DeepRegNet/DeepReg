@@ -59,4 +59,4 @@ For guidance on making a contribution to DeepReg, see the
 
 The **MICCAI Educational Challenge** notebook can be accessed
 [here](./docs/Intro_to_Medical_Image_Registration.ipynb) or run it on
-[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/tree/master/docs/Intro_to_Medical_Image_Registration.ipynb).
+[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/tree/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb).
