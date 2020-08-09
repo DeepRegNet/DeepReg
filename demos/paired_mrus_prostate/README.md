@@ -64,4 +64,4 @@ ultrasound images used are simulated dummy images.
 
 ## Tested DeepReg Tag
 
-tbc
+#7ec0f5157a81cd5e60cadd61bd617b433039d0e6
