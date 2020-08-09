@@ -27,6 +27,7 @@ setup(
         "flake8",
         "simple_http_server",
         "testfixtures",
+        "notebook",
     ],
     entry_points={
         "console_scripts": [
