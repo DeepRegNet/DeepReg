@@ -56,9 +56,9 @@ bibliography: paper.bib
 # Summary
 Image fusion is a fundamental task in medical image analysis and computer assisted intervetnion. Medical image registration, a class of algorithms to align different images together, has in recent years turned the research attention towards deep learning. Indeed, the representation ability to learn from population data with deep neural networks opened new possibilities for accelerated registration excuation during inference, improved registration accuracy and more robust generalisation that is less dependent on hand-engineered image features and similarity measures, for feature-based- and intensity-based image registration algorithms, respectively.
 
-`DeepReg` is a Python package that implements a class of image registration algorithms based on deep neural networks. Both unsupervised algorithms [@de2019deep] and weakly-supervised algortihms [@hu2018label] have been implemented. In addition, combining unsupervised losses, such as those derived from image similarity measures, and weak supervision, such as overlap between corresponding anatomical and pathological regions, is at the core of this framework. In this paper, we outline the algorithms and several representative clinical applications, avalibale as 'demos' at the time of writing. An summary of data input and output is also provided to describe the implemented dataset loaders and training data sampling methods. Collectively, we demonstrate the versatility of the package, by providing a wide range of clinical applications as example demonstrations in the `demos` folder.
+`DeepReg` is a Python package that implements a class of image registration algorithms based on deep neural networks. Both unsupervised algorithms [@de2019deep] and weakly-supervised algortihms [@hu2018label] have been implemented. In addition, combining unsupervised losses, such as those derived from image similarity measures, and weak supervision, such as overlap between corresponding anatomical and pathological regions, is at the core of this framework. In this paper, we outline the algorithms and several representative clinical applications, available as 'demos' at the time of writing. A summary of data input and output is also provided to describe the implemented dataset loaders and training data sampling methods. Collectively, we demonstrate the versatility of the package, by providing a wide range of clinical applications as example demonstrations in the `demos` folder.
 
-`DeepReg` is primarily a command line tool that provides basic training and prediction functionalities, with options and configurations being specified though the command line arguments and/or configuration files in .yaml format.
+`DeepReg` provides a command line tool option that implements basic functionalities including model training, prediction and image warping, with options and configurations being specified through the command line arguments and/or configuration files in .yaml format.
 
 # Algorithms
 ## Unsupervised learning
@@ -85,7 +85,7 @@ The latest result from a different registration formulation challenged the use o
 ## Model
 A pair of moving image and fixed image is the input of the network. When available, pairs of moving labels and/or fixed labels can also be the input of the network, regardless of whether they are used to compute the loss. The network predicts a dense displacement field (DDF). Options are also available for the DDF being integrated by a predicted dense velocity field (DFV) or computed from a predicted affine transformation. For conditional segmentation, the network directly predicts warped moving labels [@hu2019conditional].
 
-An encoder-decoder architecture, such as an adapted U-Net and the local-net [@hu2018weakly] is used for dense prediction such as direct DDF or DVF. An encoder-only architecture, such as ResNet and VGG, is used to predict the parameters of an affine (or rigid) transformation model, with 12 (or 6) degrees of freedom.
+An encoder-decoder architecture, such as an adapted U-Net and the local-net [@hu2018weakly] is used for dense prediction such as direct DDF or DVF. An encoder-only architecture, such as ResNet and VGG, is used to predict the parameters of an affine transformation model, with 12 degrees of freedom.
 
 ## Model training
 Registration networks are trained using standard minibatch gradient descent, with each minibatch sampling pairs of moving-fixed images and, when available, moving-and-fixed labels.
@@ -110,7 +110,7 @@ Unpaired images can also be grouped in applications such as single-modality intr
 
 
 # Conclusion
-`DeepReg` provides a structured code architecture to facilitate a number of deep learning algorithms to train medical image registration, which provides a reference of basic functionality and performance to further research in medical image analysis and computer assisted intervention. It is in its current open-source format not only providing a tool for scientific research, but also welcoming contributions from wider communities above and beyond medical, engineering and computer sicence.
+`DeepReg` facilitates a number of deep learning algorithms to train image registration networks, which provides a reference of basic functionality and performance to further research in fields such as medical image analysis and computer assisted intervention. It is in its current open-source format not only providing a tool for scientific research, but also welcoming contributions from wider communities above and beyond medical imaging, biomedical engineering and computer sicence.
 
 # Acknowledgements
 
