@@ -48,30 +48,6 @@ def test_sorted_h5_keys_many():
         assert expected == actual
 
 
-def test_mkdirs_path_exists():
-    """
-    Testing case where path already exists
-    """
-    with TempDirectory() as tempdir:
-        tempdir.makedir((tempdir.path + "/directory/"))
-        util.mkdir_if_not_exists(tempdir.path + "/directory/")
-        #  Checking correct dir structure
-        tempdir.check_dir(tempdir.path + "/directory/")
-        tempdir.cleanup()
-
-
-def test_mkdirs_path_nonexistent():
-    """
-    Testing case where path doesn't exist
-    """
-    with TempDirectory() as tempdir:
-        tempdir.makedir((tempdir.path + "/directory/"))
-        util.mkdir_if_not_exists(tempdir.path + "/directory/new/")
-        #  Checking new directory written
-        tempdir.check_dir(tempdir.path + "/directory/new")
-        tempdir.cleanup()
-
-
 def test_get_sorted_file_paths_in_dir_with_suffix():
     """
     Checking sorted file names returned by get_sorted_file_paths_in_dir_with_suffix function
