@@ -25,6 +25,8 @@ def dissimilarity_fn(
         return -local_normalized_cross_correlation(y_true, y_pred, **kwargs)
     elif name == "ssd":
         return ssd(y_true, y_pred)
+    elif name == "gmi":
+        return -global_mutual_information(y_true, y_pred, **kwargs)
     else:
         raise ValueError("Unknown loss type.")
 
@@ -82,3 +84,44 @@ def ssd(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     :return: shape = (batch,)
     """
     return tf.reduce_mean(tf.square(y_true - y_pred), axis=[1, 2, 3, 4])
+
+
+def global_mutual_information(
+    t1: tf.Tensor, t2: tf.Tensor, bin_centers: tf.Tensor = tf.linspace(0.0, 1.1, 23)
+) -> tf.Tensor:
+    """
+    differentiable global mutual information loss via Parzen windowing method.
+    reference: https://dspace.mit.edu/handle/1721.1/123142
+
+    :t1: shape = (batch, dim1, dim2, dim3, ch)
+    :t2: shape = (batch, dim1, dim2, dim3, ch)
+    :return: shape = (batch,)
+    """
+    sigma_ratio = 0.5
+    eps = 1.19209e-07
+
+    sigma = tf.reduce_mean(bin_centers[1:] - bin_centers[:-1]) * sigma_ratio
+    preterm = 1 / (2 * tf.math.square(sigma))
+
+    batch, w, h, z, c = t1.shape
+    t1 = tf.reshape(t1, [batch, w * h * z, 1])
+    t2 = tf.reshape(t2, [batch, w * h * z, 1])
+    nb_voxels = t1.shape[1] * 1.0  # number of voxels
+
+    vbc = bin_centers[None, None, ...]
+
+    I_a = tf.math.exp(-preterm * tf.math.square(t1 - vbc))
+    I_a /= tf.reduce_sum(I_a, -1, keepdims=True)
+    pa = tf.reduce_mean(I_a, axis=1, keepdims=True)
+    I_a_permute = tf.transpose(I_a, (0, 2, 1))
+
+    I_b = tf.math.exp(-preterm * tf.math.square(t2 - vbc))
+    I_b /= tf.reduce_sum(I_b, -1, keepdims=True)
+    pb = tf.reduce_mean(I_b, axis=1, keepdims=True)
+
+    pa = tf.transpose(pa, (0, 2, 1))
+    papb = tf.keras.backend.batch_dot(pa, pb, axes=(2, 1)) + eps
+    pab = tf.keras.backend.batch_dot(I_a_permute, I_b, axes=(2, 1))
+    pab /= nb_voxels
+
+    return tf.reduce_sum(pab * tf.math.log(pab / papb + eps), axis=[1, 2])
