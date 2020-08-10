@@ -358,7 +358,7 @@ class GeneratorDataLoader(DataLoader, ABC):
         ):
             if len(arr.shape) != 3:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}'s shape should have dimension of 3. "
+                    f"Sample {image_indices}'s {name}' shape should have dimension of 3. "
                     f"Got {arr.shape}."
                 )
         # when data are labeled
@@ -369,7 +369,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             ):
                 if len(arr.shape) not in [3, 4]:
                     raise ValueError(
-                        f"Sample {image_indices}'s {name}'s shape should have dimension of 3 or 4. "
+                        f"Sample {image_indices}'s {name}' shape should have dimension of 3 or 4. "
                         f"Got {arr.shape}."
                     )
             # image and label is better to have the same shape
@@ -492,7 +492,7 @@ class ConcatenatedDataLoader(DataLoader):
 
 class FileLoader:
     """
-    contians funcitons which need to be defined for different file formats
+    contains functions which need to be defined for different file formats
     """
 
     def __init__(self, dir_path: str, name: str, grouped: bool):
