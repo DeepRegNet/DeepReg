@@ -17,7 +17,7 @@ def dissimilarity_fn(
     :param kwargs: absorb additional parameters
     :return: shape = (batch,)
     """
-    assert name in ["lncc", "ssd"]
+    assert name in ["lncc", "ssd", "gmi"]
     # shape = (batch, f_dim1, f_dim2, f_dim3, 1)
     y_true = tf.expand_dims(y_true, axis=4)
     y_pred = tf.expand_dims(y_pred, axis=4)
