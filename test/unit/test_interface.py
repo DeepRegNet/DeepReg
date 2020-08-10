@@ -309,11 +309,20 @@ def test_file_loader():
     """
     # init, no error means passed
     loader_grouped = FileLoader(
-        dir_path=["/path/grouped_loader/"], name="grouped_loader", grouped=True
+        dir_paths=["/path/grouped_loader/"], name="grouped_loader", grouped=True
     )
     loader_ungrouped = FileLoader(
-        dir_path="/path/ungrouped_loader/", name="ungrouped_loader", grouped=False
+        dir_paths=["/path/ungrouped_loader/"], name="ungrouped_loader", grouped=False
     )
+
+    # init fails
+    with pytest.raises(ValueError) as err_info:
+        FileLoader(
+            dir_paths=["/path/ungrouped_loader/", "/path/ungrouped_loader/"],
+            name="ungrouped_loader",
+            grouped=False,
+        )
+    assert "dir_paths have repeated elements" in str(err_info.value)
 
     # not implemented properties / functions
     with pytest.raises(NotImplementedError):
@@ -331,6 +340,10 @@ def test_file_loader():
     loader_grouped.group_struct = [[1, 2], [3, 4], [5, 6]]
     assert loader_grouped.get_num_groups() == 3
     assert loader_grouped.get_num_images_per_group() == [2, 2, 2]
+    with pytest.raises(ValueError) as err_info:
+        loader_grouped.group_struct = [[], [3, 4], [5, 6]]
+        loader_grouped.get_num_images_per_group()
+    assert "Groups of ID [0, 2, 2] are empty." in str(err_info.value)
 
     # test ungrouped file loader
     with pytest.raises(AttributeError):
