@@ -10,8 +10,9 @@ import os
 import pytest
 import tensorflow as tf
 
-from deepreg.predict import predict
-from deepreg.train import build_callbacks, build_config, train
+from deepreg.predict import main as predict_main
+from deepreg.train import build_callbacks, build_config
+from deepreg.train import main as train_main
 
 
 def test_build_config():
@@ -55,18 +56,23 @@ def test_build_callbacks():
 
 
 def test_train_and_predict():
-    """
-    Test train and predict by checking it can run.
-    """
-    gpu = ""
-    gpu_allow_growth = False
+    """Covered by test_train_and_predict_main"""
+    pass
 
-    train(
-        gpu=gpu,
-        config_path="deepreg/config/unpaired_labeled_ddf.yaml",
-        gpu_allow_growth=gpu_allow_growth,
-        ckpt_path="",
-        log_dir="test_train",
+
+def test_train_and_predict_main():
+    """
+    Test main in train and predict by checking it can run.
+    """
+    train_main(
+        args=[
+            "--gpu",
+            "",
+            "--log_dir",
+            "test_train",
+            "--config_path",
+            "deepreg/config/unpaired_labeled_ddf.yaml",
+        ]
     )
 
     # check output folders
@@ -75,21 +81,25 @@ def test_train_and_predict():
     assert os.path.isdir("logs/test_train/validation")
     assert os.path.isfile("logs/test_train/config.yaml")
 
-    predict(
-        gpu=gpu,
-        gpu_allow_growth=gpu_allow_growth,
-        ckpt_path="logs/test_train/save/weights-epoch2.ckpt",
-        mode="test",
-        batch_size=1,
-        log_dir="test_predict",
-        sample_label="all",
-        config_path="",
+    predict_main(
+        args=[
+            "--gpu",
+            "",
+            "--ckpt_path",
+            "logs/test_train/save/weights-epoch2.ckpt",
+            "--mode",
+            "test",
+            "--log_dir",
+            "test_predict",
+            "--save_nifti",
+            "--save_png",
+        ]
     )
 
     # check output folders
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_0")
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_1")
-    assert os.path.isdir("logs/test_predict/test/pair_0_1_label_2")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_0")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_1")
+    assert os.path.isdir("logs/test_predict/test/pair_0_1/label_2")
     assert os.path.isfile("logs/test_predict/test/metrics.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_per_label.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_overall.csv")

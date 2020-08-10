@@ -45,7 +45,7 @@ signifigant contributions to DeepReg are listed below (in alphabetical order).
 | Shaheer Saaed      | University College London                         |
 | Tom Vercauteren    | King's College London                             |
 | Yipeng Hu          | University College London                         |
-| Yunguan Fu         | University College London                         |
+| Yunguan Fu         | University College London / InstaDeep             |
 | Zachary Baum       | University College London                         |
 | Zhe Min            |                                                   |
 
