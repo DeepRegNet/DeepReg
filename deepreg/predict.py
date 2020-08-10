@@ -10,6 +10,7 @@ import logging
 import os
 import shutil
 
+import numpy as np
 import tensorflow as tf
 
 import deepreg.config.parser as config_parser
@@ -97,7 +98,7 @@ def predict_on_dataset(
         # (batch, f_dim1, f_dim2, f_dim3, 3)
         ddf = outputs_dict.get("ddf", None)
         dvf = outputs_dict.get("dvf", None)
-        # affine = outputs_dict.get("affine", None) # (batch, 4, 3)
+        affine = outputs_dict.get("affine", None)  # (batch, 4, 3)
 
         # prediction
         # (batch, f_dim1, f_dim2, f_dim3)
@@ -174,6 +175,16 @@ def predict_on_dataset(
                         save_nifti=save_nifti,
                         save_png=save_png,
                     )
+
+            # save affine
+            if affine is not None:
+                np.savetxt(
+                    fname=os.path.join(
+                        label_dir if conditional else pair_dir, "affine.txt"
+                    ),
+                    x=affine[sample_index, :, :].numpy(),
+                    delimiter=",",
+                )
 
             # calculate metric
             sample_index_str = "_".join([str(x) for x in indices_i])
