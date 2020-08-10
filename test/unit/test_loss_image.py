@@ -98,6 +98,6 @@ def test_gmi():
     """
     t1 = 0.01 * np.array(range(108)).reshape((4, 3, 3, 3, 1))
     t2 = t1 + 0.05
-    get = image.global_mutual_information(t1, t2, bin_centers=tf.linspace(0.0, 1.1, 23))
+    get = image.global_mutual_information(t1, t2)
     expect = [0.8291252, 0.82830703, 0.8305362, 0.8224261]
     assert is_equal_tf(get, expect)
