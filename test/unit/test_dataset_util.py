@@ -72,35 +72,67 @@ def test_mkdirs_path_nonexistent():
         tempdir.cleanup()
 
 
-def test_get_sorted_filenames_in_dir_with_suffix():
+def test_get_sorted_file_paths_in_dir_with_suffix():
     """
-    Checking sorted file names returned by get_sorted_filenames_in_dir_with_suffix function
+    Checking sorted file names returned by get_sorted_file_paths_in_dir_with_suffix function
     """
 
-    # single suffix
+    # one dir, single suffix
     with TempDirectory() as tempdir:
         tempdir.write((tempdir.path + "/a.txt"), (bytes(1)))
         tempdir.write((tempdir.path + "/b.txt"), (bytes(1)))
         tempdir.write((tempdir.path + "/c.txt"), (bytes(1)))
-        expected = [
-            tempdir.path + "/a.txt",
-            tempdir.path + "/b.txt",
-            tempdir.path + "/c.txt",
-        ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(tempdir.path, "txt")
+        expected = [("a", "txt"), ("b", "txt"), ("c", "txt")]
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(tempdir.path, "txt")
         assert expected == actual
 
-    # multiple suffixes
+    # one dir, multiple suffixes
     with TempDirectory() as tempdir:
         tempdir.write((tempdir.path + "/a.txt"), (bytes(1)))
         tempdir.write((tempdir.path + "/b.txt"), (bytes(1)))
         tempdir.write((tempdir.path + "/c.md"), (bytes(1)))
+        expected = [("a", "txt"), ("b", "txt"), ("c", "md")]
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(
+            tempdir.path, ["txt", "md"]
+        )
+        assert expected == actual
+
+    # multiple sub-dirs, single suffix
+    with TempDirectory() as tempdir:
+        tempdir.write((tempdir.path + "/1/a.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/1/b.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/1/c.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/a.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/b.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/c.txt"), (bytes(1)))
         expected = [
-            tempdir.path + "/a.txt",
-            tempdir.path + "/b.txt",
-            tempdir.path + "/c.md",
+            ("1/a", "txt"),
+            ("1/b", "txt"),
+            ("1/c", "txt"),
+            ("2/a", "txt"),
+            ("2/b", "txt"),
+            ("2/c", "txt"),
         ]
-        actual = util.get_sorted_filenames_in_dir_with_suffix(
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(tempdir.path, "txt")
+        assert expected == actual
+
+    # multiple sub-dirs, multiple suffixes
+    with TempDirectory() as tempdir:
+        tempdir.write((tempdir.path + "/1/a.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/1/b.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/1/c.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/a.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/b.txt"), (bytes(1)))
+        tempdir.write((tempdir.path + "/2/c.md"), (bytes(1)))
+        expected = [
+            ("1/a", "txt"),
+            ("1/b", "txt"),
+            ("1/c", "txt"),
+            ("2/a", "txt"),
+            ("2/b", "txt"),
+            ("2/c", "md"),
+        ]
+        actual = util.get_sorted_file_paths_in_dir_with_suffix(
             tempdir.path, ["txt", "md"]
         )
         assert expected == actual

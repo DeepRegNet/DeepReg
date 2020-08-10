@@ -1,0 +1,39 @@
+train:
+  # define neural network structure
+  model:
+    method: "ddf" # the registration method, value should be ddf / dvf / conditional
+    backbone: "local" # value should be local / global / unet
+    local:
+      num_channel_initial: 16 # number of initial channel in local net, controls the size of the network
+      extract_levels: [0, 1, 2, 3]
+
+  # define the loss function for training
+  loss:
+    dissimilarity:
+      image:
+        name: "ssd"
+        weight: 0
+      label:
+        weight: 1.0
+        name: "multi_scale"
+        multi_scale:
+          loss_type: "dice"
+          loss_scales: [0, 1, 2, 4, 8, 16]
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
+
+  # define the optimizer
+  optimizer:
+    name: "adam" # value should be adam / sgd / rms
+    adam:
+      learning_rate: 1.0e-5
+
+  # define the hyper-parameters for preprocessing
+  preprocess:
+    batch_size: 4
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 500 # number of training epochs
+  save_period: 50 # the model will be saved every `save_period` epochs.

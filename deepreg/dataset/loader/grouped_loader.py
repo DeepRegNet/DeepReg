@@ -5,6 +5,7 @@ supports labeled and unlabeled data
 Read https://ucl-candi.github.io/DeepReg/#/doc_data_loader?id=grouped-images for more details.
 """
 import random
+from typing import List
 
 from deepreg.dataset.loader.interface import (
     AbstractUnpairedDataLoader,
@@ -24,7 +25,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def __init__(
         self,
         file_loader,
-        data_dir_path: str,
+        data_dir_paths: List[str],
         labeled: bool,
         sample_label: (str, None),
         intra_group_prob: float,
@@ -35,7 +36,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     ):
         """
         :param file_loader: a subclass of FileLoader
-        :param data_dir_path: path of the directory storing data,
+        :param data_dir_paths: paths of the directory storing data,
                               the data has to be saved under two different sub-directories:
                               - images
                               - labels
@@ -58,6 +59,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             sample_label=sample_label,
             seed=seed,
         )
+        assert isinstance(
+            data_dir_paths, list
+        ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
         # init
         # the indices for identifying an image pair is (group1, sample1, group2, sample2, label)
         self.num_indices = 5
@@ -66,12 +70,14 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         self.sample_image_in_group = sample_image_in_group
         # set file loaders
         # grouped data are not paired data, so moving/fixed share the same file loader for images/labels
-        loader_image = file_loader(dir_path=data_dir_path, name="images", grouped=True)
+        loader_image = file_loader(
+            dir_paths=data_dir_paths, name="images", grouped=True
+        )
         self.loader_moving_image = loader_image
         self.loader_fixed_image = loader_image
         if self.labeled is True:
             loader_label = file_loader(
-                dir_path=data_dir_path, name="labels", grouped=True
+                dir_paths=data_dir_paths, name="labels", grouped=True
             )
             self.loader_moving_label = loader_label
             self.loader_fixed_label = loader_label

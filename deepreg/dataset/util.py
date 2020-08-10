@@ -29,20 +29,28 @@ def mkdir_if_not_exists(path):
         os.makedirs(path)
 
 
-def get_sorted_filenames_in_dir_with_suffix(dir_path: str, suffix: (str, list)):
+def get_sorted_file_paths_in_dir_with_suffix(dir_path: str, suffix: (str, list)):
     """
     Return the path of all files under the given directory.
 
     :param dir_path: path of the directory
     :param suffix: suffix of file names like h5, nii.gz, nii, should not start with .
-    :return: list of file paths
+    :return: list of relative file path, each element is (file_path, suffix)
+    assuming the full path of the file is dir_path/file_path.suffix
     """
     if isinstance(suffix, str):
         suffix = [suffix]
-
     paths = []
-    for s in suffix:
-        paths += glob.glob(os.path.join(dir_path, "**", "*." + s), recursive=True)
+    for suffix_i in suffix:
+        # full_path is dir_path/file_path.suffix
+        full_paths = glob.glob(
+            os.path.join(dir_path, "**", "*." + suffix_i), recursive=True
+        )
+        file_paths = [
+            os.path.relpath(path=p, start=dir_path)[: -(len(suffix_i) + 1)]
+            for p in full_paths
+        ]
+        paths += [(p, suffix_i) for p in file_paths]
     return sorted(paths)
 
 
