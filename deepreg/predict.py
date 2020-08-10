@@ -57,6 +57,7 @@ def predict_on_dataset(
     dataset: tf.data.Dataset,
     fixed_grid_ref: tf.Tensor,
     model: tf.keras.Model,
+    model_method: str,
     save_dir: str,
     save_nifti: bool,
     save_png: bool,
@@ -66,6 +67,7 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
+    :param model_method: str, ddf / dvf / affine / conditional
     :param save_dir: str, path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
@@ -119,21 +121,30 @@ def predict_on_dataset(
             )
 
             # save image/label
-            arr_save_dirs = [pair_dir] * 2 + [label_dir] * 4
+            # if model is conditional, the pred_fixed_image depends on the input label
+            conditional = model_method == "conditional"
+            arr_save_dirs = [
+                pair_dir,
+                pair_dir,
+                label_dir if conditional else pair_dir,
+                label_dir,
+                label_dir,
+                label_dir,
+            ]
             arrs = [
                 moving_image,
                 fixed_image,
+                pred_fixed_image,
                 moving_label,
                 fixed_label,
-                pred_fixed_image,
                 pred_fixed_label,
             ]
             names = [
                 "moving_image",
                 "fixed_image",
+                "pred_fixed_image",  # or warped moving image
                 "moving_label",
                 "fixed_label",
-                "pred_fixed_image",  # or warped moving image
                 "pred_fixed_label",  # or warped moving label
             ]
             for arr_save_dir, arr, name in zip(arr_save_dirs, arrs, names):
@@ -156,7 +167,7 @@ def predict_on_dataset(
                 if arr is not None:
                     arr = normalize_array(arr=arr[sample_index, :, :, :])
                     save_array(
-                        save_dir=label_dir,
+                        save_dir=label_dir if conditional else pair_dir,
                         arr=arr,
                         name=name,
                         gray=False,
@@ -300,6 +311,7 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
+        model_method=config["train"]["model"]["method"],
         save_dir=log_dir + "/test",
         save_nifti=save_nifti,
         save_png=save_png,
