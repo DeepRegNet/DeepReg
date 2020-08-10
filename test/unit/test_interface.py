@@ -9,7 +9,6 @@ import pytest
 from deepreg.dataset.loader.interface import (
     AbstractPairedDataLoader,
     AbstractUnpairedDataLoader,
-    ConcatenatedDataLoader,
     DataLoader,
     FileLoader,
     GeneratorDataLoader,
@@ -304,71 +303,39 @@ def test_generator_data_loader(caplog):
         )
 
 
-def test_concatenated_data_loader():
-    """
-    Test the functions in ConcatenatedDataLoader
-    """
-    image_shape = (8, 8, 4)
-    data_loader = AbstractUnpairedDataLoader(
-        image_shape=image_shape, labeled=True, sample_label="sample", seed=1
-    )
-    data_loader._num_samples = 2
-    data_loaders = [data_loader, data_loader]
-
-    # inputs, no error means passed
-    concatenated_loader = ConcatenatedDataLoader(data_loaders)
-
-    # check init fails with empty list
-    with pytest.raises(AssertionError):
-        ConcatenatedDataLoader(data_loaders=[])
-
-    # not implemented properties / functions
-    with pytest.raises(NotImplementedError):
-        concatenated_loader.get_dataset()
-
-    # implemented property/funtion
-    assert concatenated_loader.moving_image_shape == image_shape
-    assert concatenated_loader.fixed_image_shape == image_shape
-    assert concatenated_loader.num_samples == 2 * len(data_loaders)
-
-    concatenated_loader.close()
-
-
 def test_file_loader():
     """
-    Test the functions in ConcatenatedDataLoader
+    Test the functions in FileLoader
     """
-    loader_grouped = FileLoader(dir_path="", name="", grouped=True)
-    loader_ungrouped = FileLoader(dir_path="", name="", grouped=False)
-    group_sample_dict = {"1": ["1", "2"]}
-    group_ids = sorted(list(group_sample_dict.keys()))
+    # init, no error means passed
+    loader_grouped = FileLoader(
+        dir_path=["/path/grouped_loader/"], name="grouped_loader", grouped=True
+    )
+    loader_ungrouped = FileLoader(
+        dir_path="/path/ungrouped_loader/", name="ungrouped_loader", grouped=False
+    )
 
     # not implemented properties / functions
     with pytest.raises(NotImplementedError):
-        loader_grouped.get_data(1)
+        loader_grouped.set_data_structure()
+        loader_grouped.set_group_structure()
+        loader_grouped.get_data()
         loader_grouped.get_data_ids()
         loader_grouped.get_num_images()
-        loader_grouped.set_group_structure()
         loader_grouped.close()
 
-    # test grouped file loader
-    assert loader_grouped.group_sample_dict is None
-    assert loader_grouped.group_ids is None
-    loader_grouped.group_sample_dict = group_sample_dict
-    loader_grouped.group_ids = group_ids
-    assert loader_grouped.get_num_groups() == len(group_ids)
-    assert loader_grouped.get_num_images_per_group() == [
-        len(group_sample_dict[g]) for g in group_ids
-    ]
+    # test grouped file loader functions
+    assert loader_grouped.group_struct is None
+
+    # create mock group structure with nested list
+    loader_grouped.group_struct = [[1, 2], [3, 4], [5, 6]]
+    assert loader_grouped.get_num_groups() == 3
+    assert loader_grouped.get_num_images_per_group() == [2, 2, 2]
 
     # test ungrouped file loader
     with pytest.raises(AttributeError):
-        loader_ungrouped.group_sample_dict
-    with pytest.raises(AttributeError):
-        loader_ungrouped.group_ids
+        loader_ungrouped.group_struct
     with pytest.raises(AssertionError):
         loader_ungrouped.get_num_groups()
     with pytest.raises(AssertionError):
         loader_ungrouped.get_num_images_per_group()
-    with pytest.raises(NotImplementedError):
-        loader_ungrouped.close()
