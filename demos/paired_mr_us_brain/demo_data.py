@@ -131,6 +131,7 @@ for folder in folders:
                 )
                 shutil.move(source, destination)
 
+print('Files moved into correct directories')
 
 ######## REMOVE FILES THAT WILL NOT BE USED ########
 
@@ -140,6 +141,7 @@ for folder in folders:
         if "Case" in sub_folder:
             shutil.rmtree(os.path.join(project_dir, data_folder, folder, sub_folder))
 
+print('Unused files removed')
 
 ######## RENAME FILES TO MATCH NAMES ########
 
@@ -159,6 +161,8 @@ for folder in folders:
             im = nib.load(source)
             nib.save(im, destination)
             os.remove(source)
+            
+print('files renamed to match each other')
             
 
 ######## RESCALE THE IMAGES ########
@@ -206,4 +210,6 @@ for folder in folders:
                 )
                 c = c + 1
                 
-print('removed files:', c)
+print('Images rescaled')
+print('All done!')
+print('Number of files removed due to not loading properly:', c)
