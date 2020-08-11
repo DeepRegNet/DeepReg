@@ -230,7 +230,7 @@ os.rename(source, destination)
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 
-url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_mrus_brain_demo_logs.zip
+url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_mrus_brain_demo_logs.zip"
 
 fname = "paired_mrus_brain_demo_logs.zip"
 
