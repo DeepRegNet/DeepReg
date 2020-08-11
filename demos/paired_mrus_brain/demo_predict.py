@@ -6,10 +6,11 @@ from deepreg.predict import predict
 
 ######## PREDICTION ########
 
+log_dir = "logs/learn2reg_t1_paired_train_logs"
 
-log_dir = "learn2reg_t1_paired_train_logs"
-ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch2.ckpt")
-config_path = "logs/learn2reg_t1_paired_train_logs/config.yaml"
+log_dir_tr = "demos/paired_mrus_brain/learn2reg_t1_paired_train_logs"
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch2.ckpt")
+config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
 gpu_allow_growth = False
