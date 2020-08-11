@@ -55,6 +55,11 @@ def test_dissimilarity_fn():
     )
     assert is_equal_tf(get_zero_similarity_ssd, [0, 0])
 
+    #  testing if we can get [0, 0] (i.e. zero vector) in mutual information
+    t = tf.ones([4, 3, 3, 3])
+    get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
+    assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0])
+
     # testing if we can get the expected ValueError if the third input to the function image.dissimilarity_fn is neither "lncc" nor "ssd"
     with pytest.raises(AssertionError):
         image.dissimilarity_fn(
@@ -84,4 +89,40 @@ def test_ssd():
     tensor_pred[:, :, :, :, :] = 1
     get = image.ssd(tensor_true, tensor_pred)
     expect = [70.165, 557.785]
+    assert is_equal_tf(get, expect)
+
+
+def test_gmi():
+    """
+    Testing computed global mutual information between images using image.global_mutual_information by comparing to precomputed.
+    """
+    # fixed non trival value
+    t1 = np.array(range(108)).reshape((4, 3, 3, 3, 1)) / 108.0
+    t1 = tf.convert_to_tensor(t1, dtype=tf.float32)
+    t2 = t1 + 0.05
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant(
+        [0.84280217, 0.84347117, 0.8441777, 0.8128618], dtype=tf.float32
+    )
+    assert is_equal_tf(get, expect)
+
+    # zero values
+    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
+    assert is_equal_tf(get, expect)
+
+    # zero value and negative value
+    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1 - 1.0  # will be clipped to zero
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
+    assert is_equal_tf(get, expect)
+
+    # one values
+    t1 = tf.ones((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
     assert is_equal_tf(get, expect)
