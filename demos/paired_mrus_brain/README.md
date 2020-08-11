@@ -29,25 +29,18 @@ A short description of the scripts is provided below. The scripts must be run in
 following order:
 
 - Run the demo_data.py script: This script does the following:
-  - Download the data by cloning a github repository. The repository contians only a
-    reduced dataset which has been preprocessed. The script also has code to download
-    and preprocess the full dataset. The code block titled "FULL DATA DOWNLOAD AND
-    PREPROCESS" must be uncommented and the code block titled "PARTIAL PREPROCESSED DATA
-    DOWNLOAD" must be commented out in order to download and use the full data (further
-    instructions provided in the script). To use the full data please edit eh config
-    file to specify the moving_image_shape as [256, 256, 288] as well.
-  - Split the data into train and test sets (change ratio_of_test variable to change the
-    ratio of test samples)
-  - Restructure the files, for each of the train and test sets, into a directory
-    structure that is suitable for use with the paired loader in deepreg
-  - Rescale all images to 0-255 so they are suitable for use with deepreg
+  - Download a reuced copy of the dataset which has already been preprocessed
+  - Dowload a pretrained model for use with the predict function
+  - Note: This script can also be used to work with the full dataset by uncommenting the
+    relevant sections in the script (please read comments in scripts to see what to
+    comment out and what to uncomment to use the full dataset)
 - Run the demo_train.py script: This script does the following:
   - Specify the training options like gpu support
   - Specify the config file paths (the config file to define the network is one which is
     avialable with deepreg and the config file for the data is given in the demo folder)
   - Train a network using deepreg
 - Run the demo_predict.py script: This script does the following:
-  - Use the trained network to make predictions for the test set
+  - Use the pretrained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 - Note: The number of epochs and reduced dataset size for training will result in a loss

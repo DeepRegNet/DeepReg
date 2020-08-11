@@ -1,8 +1,7 @@
 import os
+import zipfile
 
 from tensorflow.keras.utils import get_file
-
-import zipfile
 
 main_path = os.getcwd()
 
@@ -156,9 +155,9 @@ os.chdir(project_dir)
 #             im = nib.load(source)
 #             nib.save(im, destination)
 #             os.remove(source)
-            
+
 # print('files renamed to match each other')
-            
+
 
 # # Rescale images
 
@@ -204,7 +203,7 @@ os.chdir(project_dir)
 #                     )
 #                 )
 #                 c = c + 1
-                
+
 # print('Images rescaled')
 # print('All done!')
 # print('Number of files removed due to not loading properly:', c)
@@ -220,8 +219,8 @@ fname = "master.zip"
 
 get_file(os.path.join(os.getcwd(), fname), url)
 
-with zipfile.ZipFile(fname, 'r') as zip_ref:
-    zip_ref.extractall('.')
+with zipfile.ZipFile(fname, "r") as zip_ref:
+    zip_ref.extractall(".")
 
 source = "dataset_respect-master"
 destination = "dataset_respect"
@@ -236,9 +235,5 @@ fname = "paired_mrus_brain_demo_logs.zip"
 
 get_file(os.path.join(os.getcwd(), fname), url)
 
-with zipfile.ZipFile(fname, 'r') as zip_ref:
-    zip_ref.extractall('.')
-
-
-
-
+with zipfile.ZipFile(fname, "r") as zip_ref:
+    zip_ref.extractall(".")

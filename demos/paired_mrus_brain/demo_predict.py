@@ -63,13 +63,10 @@ for ind in inds_to_plot:
     plt.axis("off")
     if sub_plot_counter == 1:
         plt.title("Warped Moving Image")
-        
-    
+
     plt.subplot(6, 3, sub_plot_counter + 2)
     pred = plt.imread(
-        os.path.join(
-            path_to_fixed_img, "depth" + str(ind) + "_fixed_image.png"
-        )
+        os.path.join(path_to_fixed_img, "depth" + str(ind) + "_fixed_image.png")
     )
     plt.imshow(pred)
     plt.axis("off")
