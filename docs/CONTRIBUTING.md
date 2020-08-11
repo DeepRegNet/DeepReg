@@ -4,7 +4,7 @@ We welcome contributions to DeepReg.
 
 ## Reporting bugs and feature requests
 
-Please create a new issue on: https://github.com/DeepRegNet/DeepReg/issues/new
+Found a bug? Create a [new issue](https://github.com/DeepRegNet/DeepReg/issues/new)!
 
 When reporting a bug, please include:
 
@@ -16,20 +16,20 @@ When reporting a bug, please include:
 
 The easiest way to contribute is to follow these guidelines:
 
-1. Look through the issues on https://github.com/DeepRegNet/DeepReg/issues and assign
+1. Look through the [issues](https://github.com/DeepRegNet/DeepReg/issues) and assign
    the relevant issue to yourself. If there is not an existing issue that covers your
-   work, please create one: https://github.com/DeepRegNet/DeepReg/issues/new
+   work, please create [one](https://github.com/DeepRegNet/DeepReg/issues/new).
 2. Read the design considerations below.
-3. Fork the repository: https://github.com/DeepRegNet/DeepReg/forks/new
+3. [Fork the repository](https://github.com/DeepRegNet/DeepReg/forks/new)
 4. Create a branch for your changes. The branch name should start with the issue number,
-   followed by hyphen separated words describing the issue. For example:
-   1-update-contribution-guidelines
+   followed by hyphen separated words describing the issue.
+   - Example: `1-update-contribution-guidelines`
 5. Make your changes following the coding guidelines below.
 6. Commit and push your changes to your fork. The commit message should start with
    `Issue #<issue number>`, for example: "Issue #1: Fixed typo". Commit in small,
    related chunks. Review each commit and explain its purpose in the commit message.
    Refer to the commit style section below for a more detailed guide.
-7. Submit a merge request: https://github.com/DeepRegNet/DeepReg/merge-requests/new
+7. [Submit a pull request](https://github.com/DeepRegNet/DeepReg/merge-requests/new)
 8. Merge request will be reviewed and, if necessary, changes suggested before merge to
    master.
 
@@ -65,27 +65,152 @@ following commit guidelines.
 
 ## Design considerations
 
-1. As few dependencies as possible. Try to stick to standard scipy packages like numpy
-   and pandas.
+1. As few dependencies as possible. Try to stick to standard `scipy` packages like
+   `numpy` and `pandas`.
 2. Discuss extra dependencies with the team and maybe the outcome will be to create a
    new separate package, where you can be more specific and more modular.
-3. Unit test well, using pytest, with good coverage.
+3. Unit test well, using `pytest`, with good coverage.
 4. All errors as exceptions rather than return codes.
 
 ## Coding guidelines
 
-1. Please follow PEP8 guidelines https://www.python.org/dev/peps/pep-0008/
-2. Create a python virtual environment (virtualenv) for development
+1. Please follow [PEP8 guidelines](https://www.python.org/dev/peps/pep-0008/).
+2. Create a python virtual environment (virtualenv) for development.
 3. Make sure that pylint passes. You may disable specific warnings within the code where
-   it is reasonable to do so
-4. Add unit tests for new and modified code
-5. Make sure all existing and new tests pass
-6. Make sure all docstrings have been added
-7. Make sure all dependencies have been added to requirements
-8. Make sure your code works for all required versions of Python
-9. Make sure your code works for all required operating systems
+   it is reasonable to do so.
+4. Add unit tests for new and modified code.
+5. Make sure all existing and new tests pass.
+6. Make sure all docstrings have been added.
+7. Make sure all dependencies have been added to requirements.
+8. Make sure your code works for all required versions of Python.
+9. Make sure your code works for all required operating systems.
 10. CI is enabled: for documentation changes/linting commits you may include [ci skip]
     in your commit messages. A reminder that CI checks are required before merge!
+
+## Unit Tests
+
+In DeepReg, we use unit tests to ensure a certain code quality and to facilitate the
+code maintenance. Following are several guidelines of test writing to ensure a
+consistency of code style.
+
+### Test style
+
+we use [pytest](https://docs.pytest.org/en/stable/) for unit tests, please do not use
+the package [unittest](https://docs.python.org/3/library/unittest.html).
+
+As we are comparing often the numpy arrays and tensorflow tensors, two functions
+`is_equal_np` and `is_equal_tf` are provided in
+[test/unit/util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/util.py).
+They will first convert inputs to float32 and compare the max of absolute difference
+with a threshold at 1e-6. They can be imported using
+`from test.unit.util import is_equal_np` so that we do not need one copy per test file.
+
+### Coverage requirement
+
+For a non-tensorflow-involved function, we need to test
+
+> Check `test_load_nifti_file()` in
+> [test_nifti_loader.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_nifti_loader.py#L12)
+> as an example.
+
+- the correctness of inputs and the error handling for unexpected inputs.
+- the correctness of outputs given certain inputs.
+- the trigger of all errors (`ValueError`, `AssertionError`, etc.).
+
+For a tensorflow-involved function, we need to test
+
+> Check `test_resample()` in
+> [test_layer_util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_layer_util.py#L107)
+> as an example.
+
+- the correctness of inputs and the error handling for unexpected inputs. The minimum
+  requirement is to check the shape of input tensors.
+- the correctness of outputs given certain inputs if the function involves mathematical
+  operations. Otherwise, at least the output tensor shapes have to be correct.
+- the trigger of all errors (`ValueError`, `AssertionError`, etc.).
+
+For a class, we need to test
+
+- all the functions in the class using the above standards
+
+We are using [Codecov](https://codecov.io/gh/DeepRegNet/DeepReg) to monitor the test
+coverage. While checking the report in file mode, generally a line highlighted by red
+means it is not covered by test. In other words, this line has never been executed
+during tests. Please check the
+[documentation](https://docs.codecov.io/docs/viewing-source-code) for more details about
+their coverage report.
+
+### Test example
+
+In this section, we provide some minimum examples to help the understanding.
+
+Assuming we have the following function to be tested:
+
+```python
+def subtract(x: int) -> int:
+    """
+    A function subtracts one from a non-negative integer.
+    :param x: a non-negative integer
+    :return: x - 1
+    """
+    if not isinstance(x, int):
+        raise ValueError(f"input {x} is not int")
+    assert x >= 0, f"input {x} is negative"
+    return x - 1
+```
+
+The test should be as follows:
+
+- Name should be the tested function/class with prefix `test_`, in this example, it is
+  `test_subtract`.
+- All cases are separated by a comment briefly explaining the test case.
+- Test a working case, e.g. input is 0 and 1.
+- Test a failing case and the `assert`, e.g. input is -1. We need to catch the error and
+  check the error message if existed.
+- Test the `ValueError`, e.g. input is 0.0. We need to catch the error and check the
+  error message if existed.
+
+```python
+import pytest
+
+def test_subtract():
+    """test subtract by verifying its input and outputs"""
+    # x = 0
+    got = subtract(x=0)
+    expected = -1
+    assert got == expected
+
+    # x > 0
+    got = subtract(x=1)
+    expected = 0
+    assert got == expected
+
+    # x < 0
+    with pytest.raises(AssertionError) as err_info:
+        subtract(x=-1)
+    assert "is negative" in str(err_info.value)
+
+    # x is not int
+    with pytest.raises(ValueError) as err_info:
+        subtract(x=0.0)
+    assert "is not int" in str(err_info.value)
+```
+
+Be careful, the `assert` is outside of the `with pytest.raises(ValueError) as err_info:`
+and we should not put multiple tests inside the same `with` as only the first error will
+be captured.
+
+For instance, in the following test example, the second subtract will never be executed
+regardless of whether it is correct or not. If this trigger an error, it will never be
+captured.
+
+```python
+    # incorrect test example
+    with pytest.raises(AssertionError) as err_info:
+        subtract(x=-1)  # this line will trigger the Assertion Error
+        subtract(x=0.0)  # this line will never be executed
+    assert "is negative" in str(err_info.value)
+```
 
 ## Pre-commit setup
 
@@ -140,8 +265,8 @@ the `docs` folder of the repository.
   and follow the install instructions on that page.
 - In a Windows Command Prompt (WCP) started with Ruby, use `gem install github-pages` to
   install the required packages.
-- Next, the same WCP - navigate to the `docs` folder in DeepReg, and use `jekyll serve`
-  to create a directory located at `../docs/_site`.
+- Next, the same WCP - navigate to the `docs` folder in `DeepReg`, and use
+  `jekyll serve` to create a directory located at `../docs/_site`.
   - You should now see a local version of the site at http://127.0.0.1:4000.
   - You will need to work in the newly created `../docs/_site` folder to make your
     changes, and copy them back to `../docs` in order to commit them here.

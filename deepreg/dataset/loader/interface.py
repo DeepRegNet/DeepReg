@@ -7,6 +7,7 @@ from abc import ABC
 import numpy as np
 import tensorflow as tf
 
+from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
 from deepreg.dataset.util import get_label_indices
 
@@ -29,6 +30,23 @@ class DataLoader:
         :param sample_label : (str, None)
         :param seed : (int, None), optional
         """
+        assert labeled in [
+            True,
+            False,
+            None,
+        ], f"labeled must be boolean, True or False or None, got {labeled}"
+        assert sample_label in [
+            "sample",
+            "all",
+            None,
+        ], f"sample_label must be sample or all or None, got {sample_label}"
+        assert (
+            num_indices is None or num_indices >= 1
+        ), f"num_indices must be int >=1 or None, got {num_indices}"
+        assert seed is None or isinstance(
+            seed, int
+        ), f"seed must be None or int, got {seed}"
+
         self.labeled = labeled
         self.num_indices = num_indices  # number of indices to identify a sample
         self.sample_label = sample_label
@@ -136,8 +154,10 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
-                "moving_image_shape and fixed_image_shape have to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"moving_image_shape and fixed_image_shape have to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got moving_image_shape = {moving_image_shape} "
+                f"and fixed_image_shape = {fixed_image_shape}"
             )
         self._moving_image_shape = tuple(moving_image_shape)
         self._fixed_image_shape = tuple(fixed_image_shape)
@@ -182,8 +202,9 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
-                "image_shape has to be length of three,"
-                "corresponding to (width, height, depth)"
+                f"image_shape has to be length of three, "
+                f"corresponding to (width, height, depth), "
+                f"got {image_shape}"
             )
         self.image_shape = tuple(image_shape)
         self._num_samples = None
@@ -250,11 +271,13 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def data_generator(self):
         """
-        yeild samples of data to feed model
+        yield samples of data to feed model
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
-            moving_image = self.loader_moving_image.get_data(index=moving_index) / 255.0
-            fixed_image = self.loader_fixed_image.get_data(index=fixed_index) / 255.0
+            moving_image = self.loader_moving_image.get_data(index=moving_index)
+            moving_image = normalize_array(moving_image)
+            fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+            fixed_image = normalize_array(fixed_image)
             moving_label = (
                 self.loader_moving_label.get_data(index=moving_index)
                 if self.labeled
@@ -316,12 +339,16 @@ class GeneratorDataLoader(DataLoader, ABC):
                 continue
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}'s values have been normalized to [0,1]."
-                    f"Images are assumed to have values between [0, 255] after loading"
-                    f"and labels are assumed to be binary. "
+                    f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
+                    f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
+                    f"The images are automatically normalized on image level: "
+                    f"x = (x - min(x) + EPS) / (max(x) - min(x) + EPS). \n"
+                    f"Labels are assumed to have values between [0,1] and they are not normalised. "
+                    f"This is to prevent accidental use of other encoding methods "
+                    f"other than one-hot to represent multiple class labels.\n"
                     f"If the label values are intended to represent multiple labels, "
-                    f"please convert them to binary masks in multiple channels, "
-                    f"with each channel representing one label only. "
+                    f"please convert them to one hot / binary masks in multiple channels, "
+                    f"with each channel representing one label only.\n"
                     f"Please read the dataset requirements section "
                     f"in docs/doc_data_loader.md for more detailed information."
                 )
@@ -425,67 +452,53 @@ class GeneratorDataLoader(DataLoader, ABC):
                 )
 
 
-class ConcatenatedDataLoader(DataLoader):
-    """
-    Given multiple data_dir_paths, build a data_loader for each path,
-    and concatenate all data loaders
-    """
-
-    def __init__(self, data_loaders):
-        super(ConcatenatedDataLoader, self).__init__(
-            labeled=None, num_indices=None, sample_label=None, seed=None
-        )
-        assert len(data_loaders) > 0
-        self.loaders = data_loaders
-
-    @property
-    def moving_image_shape(self) -> tuple:
-        return self.loaders[0].moving_image_shape
-
-    @property
-    def fixed_image_shape(self) -> tuple:
-        return self.loaders[0].fixed_image_shape
-
-    @property
-    def num_samples(self) -> int:
-        return sum([loader.num_samples for loader in self.loaders])
-
-    def get_dataset(self):
-        for i, loader in enumerate(self.loaders):
-            if i == 0:
-                dataset = loader.get_dataset()
-            else:
-                dataset = dataset.concatenate(loader.get_dataset())
-        return dataset
-
-    def close(self):
-        for loader in self.loaders:
-            loader.close()
-
-
 class FileLoader:
     """
-    contians funcitons which need to be defined for different file formats
+    Interface / abstract class to load data from multiple directories
     """
 
-    def __init__(self, dir_path: str, name: str, grouped: bool):
+    def __init__(self, dir_paths: list, name: str, grouped: bool):
         """
-        :param dir_path: path to the directory of the data set
+        :param dir_paths: path to the directory of the data set
         :param name: name is used to identify the subdirectories or file names
         :param grouped: true if the data is grouped
         """
-        self.dir_path = dir_path
+        assert isinstance(
+            dir_paths, list
+        ), f"dir_paths must be list of strings, got {dir_paths}"
+        if len(set(dir_paths)) != len(dir_paths):
+            raise ValueError(f"dir_paths have repeated elements: {dir_paths}")
+        self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
-        if grouped:
-            self.group_ids = None
-            self.group_sample_dict = None
+        if self.grouped:
+            # group_struct[group_index] = list of data_index
+            self.group_struct = None
+
+    def set_data_structure(self):
+        """
+        store the data structure in the memory so that
+        we can retrieve data using data_index
+        """
+        raise NotImplementedError
+
+    def set_group_structure(self):
+        """
+        in addition to set_data_structure
+        store the group structure in the group_struct so that
+        group_struct[group_index] = list of data_index
+        we can retrieve data using (group_index, in_group_data_index)
+        data_index = group_struct[group_index][in_group_data_index]
+        """
+        raise NotImplementedError
 
     def get_data(self, index: (int, tuple)):
         """
-        return the data corresponding to the given index
-        :param index:
-        :return:
+        Get one data array by specifying an index
+        :param index: the data index which is required
+        for paired or unpaired, the index is one single int, data_index
+        for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+        :returns arr: the data array at the specified index
         """
         raise NotImplementedError
 
@@ -500,22 +513,16 @@ class FileLoader:
 
     def get_num_images(self) -> int:
         """
-        return the number of images in this data set
-        :return:
-        """
-        raise NotImplementedError
-
-    def set_group_structure(self):
-        """
-        save variables to store the structure of the groups
-        set group_ids and group_sample_dict
-        :return:
+        :return: int, number of images in this data set
         """
         raise NotImplementedError
 
     def get_num_groups(self) -> int:
+        """
+        :return: int, number of groups in this data set, if grouped
+        """
         assert self.grouped
-        return len(self.group_ids)
+        return len(self.group_struct)
 
     def get_num_images_per_group(self) -> list:
         """
@@ -523,14 +530,14 @@ class FileLoader:
         each group must have at least one image
         """
         assert self.grouped
-        num_images_per_group = [len(self.group_sample_dict[g]) for g in self.group_ids]
+        num_images_per_group = [len(group) for group in self.group_struct]
         if min(num_images_per_group) == 0:
             group_ids = [
-                g for g in self.group_ids if len(self.group_sample_dict[g]) == 0
+                len(group) for group_index, group in enumerate(self.group_struct)
             ]
             raise ValueError(f"Groups of ID {group_ids} are empty.")
         return num_images_per_group
 
     def close(self):
-        """close opened file handles"""
+        """close opened file handles if exist"""
         raise NotImplementedError

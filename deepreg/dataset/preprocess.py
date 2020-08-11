@@ -38,10 +38,10 @@ class AffineTransformation3D:
         Resamples an input image from the reference grid by the series
         of input transforms.
 
-        :param image: shape = [batch, dim1, dim2, dim3]
+        :param image: shape = (batch, dim1, dim2, dim3)
         :param grid_ref: shape = [dim1, dim2, dim3, 3]
         :param transforms: shape = [batch, 4, 3]
-        :return: shape = [batch, dim1, dim2, dim3]
+        :return: shape = (batch, dim1, dim2, dim3)
         """
         transformed = layer_util.resample(
             vol=image, loc=layer_util.warp_grid(grid_ref, transforms)

@@ -19,8 +19,9 @@ jobs:
       after_success: bash <(curl -s https://codecov.io/bash)
     - name: "Command Tests: Unpaired Unlabeled"
       script:
-        - train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
-        - predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+        - deepreg_train -g "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
+        - deepreg_predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+        - deepreg_warp --image data/test/nifti/unit_test/moving_image.nii.gz --ddf data/test/nifti/unit_test/ddf.nii.gz --out logs/test_warp/out.nii.gz
     - name: "Output Tests: Paired Unlabeled"
       script: travis_wait 30 pytest ./test/output/test_paired_unlabeled.py
     - name: "Output Tests: Paired Labeled"
