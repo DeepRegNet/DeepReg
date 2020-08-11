@@ -132,8 +132,6 @@ def build_ddf_dvf_model(
     if dvf is not None:
         outputs["dvf"] = dvf
     model_name = model_config["method"].upper() + "RegistrationModel"
-
-    outputs["pred_fixed_image"] = pred_fixed_image
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
