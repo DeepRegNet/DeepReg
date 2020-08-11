@@ -227,3 +227,19 @@ for folder in folders:
                             os.path.join(data_dir, folder, subfolder, file),
                         )
                     nib.save(img, os.path.join(data_dir, folder, subfolder, file))
+
+
+######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
+
+url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_demo_logs.zip"
+
+fname = "paired_ct_lung_demo_logs.zip"
+
+os.chdir(os.path.join(main_path, project_dir))
+
+get_file(os.path.join(os.getcwd(), fname), url)
+
+with zipfile.ZipFile(fname, "r") as zip_ref:
+    zip_ref.extractall(".")
+
+print("Pretrained model downloaded")
