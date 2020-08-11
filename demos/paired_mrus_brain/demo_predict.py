@@ -23,6 +23,7 @@ predict(
     batch_size=1,
     log_dir=log_dir,
     sample_label="all",
+    save_png=True,
 )
 
 # the numerical metrics are saved in the logs directory specified
