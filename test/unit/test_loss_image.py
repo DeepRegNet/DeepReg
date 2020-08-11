@@ -56,7 +56,7 @@ def test_dissimilarity_fn():
     assert is_equal_tf(get_zero_similarity_ssd, [0, 0])
 
     #  testing if we can get [0, 0] (i.e. zero vector) in mutual information
-    t = tf.ones([4, 3, 3, 3, 1])
+    t = tf.ones([4, 3, 3, 3])
     get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
     assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0])
 
@@ -97,6 +97,7 @@ def test_gmi():
     Testing computed global mutual information between images using image.global_mutual_information by comparing to precomputed.
     """
     t1 = 0.01 * np.array(range(108)).reshape((4, 3, 3, 3, 1))
+    t1 = tf.convert_to_tensor(t1, dtype=tf.float32)
     t2 = t1 + 0.05
     get = image.global_mutual_information(t1, t2)
     expect = [0.8291366, 0.8283235, 0.8305533, 0.82243645]
