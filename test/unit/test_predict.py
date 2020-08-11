@@ -6,6 +6,7 @@ pytest style
 """
 
 import os
+import shutil
 
 import pytest
 
@@ -21,19 +22,22 @@ def test_build_pair_output_path():
 
     # labeled
     got = build_pair_output_path(indices=[1, 2, 0], save_dir=save_dir)
-    expected = "logs/save_dir_example/pair_1_2_label_0"
+    expected = (
+        "logs/save_dir_example/pair_1_2",
+        "logs/save_dir_example/pair_1_2/label_0",
+    )
     assert got == expected
-    assert os.path.exists(got)
-    os.rmdir(got)
-    assert not os.path.exists(got)
+    assert os.path.exists(got[0])
+    assert os.path.exists(got[1])
+    shutil.rmtree(got[0])
 
     # unlabeled
     got = build_pair_output_path(indices=[1, 2, -1], save_dir=save_dir)
-    expected = "logs/save_dir_example/pair_1_2"
+    expected = ("logs/save_dir_example/pair_1_2", "logs/save_dir_example/pair_1_2")
     assert got == expected
-    assert os.path.exists(got)
-    os.rmdir(got)
-    assert not os.path.exists(got)
+    assert os.path.exists(got[0])
+    assert os.path.exists(got[1])
+    shutil.rmtree(got[0])
 
 
 def test_build_config():
