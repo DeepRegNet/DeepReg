@@ -1,5 +1,5 @@
 """
-Download the demo data
+Download the demo data and sort them into train, val and test in h5 files
 """
 import os
 import shutil
