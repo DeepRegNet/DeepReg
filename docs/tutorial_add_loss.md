@@ -64,10 +64,7 @@ def dissimilarity_fn(
 Add correspoding unit test for the new added functions to `deepreg/test/unit`. It's just
 optional for the users. We welcome everyone who wants to make contribution to deepreg.
 Please follow our
-[contribution guidelines](https://github.com/DeepRegNet/DeepReg/blob/20-mutual-information/docs/CONTRIBUTING.md)
-and
-[unit test guidelines](https://deepregnet.github.io/DeepReg/#/CONTRIBUTING?id=unit-tests)
-here.
+[contribution guidelines](https://deepregnet.github.io/DeepReg/#/CONTRIBUTING) here.
 
 ## Step 3: Set yaml configuration files
 
