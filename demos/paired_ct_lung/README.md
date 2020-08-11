@@ -37,13 +37,14 @@ following order:
   - Restructure the files, for each of the train, valid and test sets, into a directory
     structure that is suitable for use with the paired loader in deepreg
   - Rescale all images to 0-255 so they are suitable for use with deepreg
+  - Download a pretrained model to use with the predict script
 - Run the demo_train.py script: This script does the following:
   - Specify the training options like gpu support
   - Specify the config file paths (the config file to define the network is one which is
     avialable with deepreg and the config file for the data is given in the demo folder)
   - Train a network using deepreg
 - Run the demo_predict.py script: This script does the following:
-  - Use the trained network to make predictions for the test set
+  - Use the pretrained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 

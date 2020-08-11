@@ -1,12 +1,15 @@
 import os
 import re
 import shutil
+from test.unit.util import is_equal_np
 
+import nibabel as nib
 import numpy as np
 import pytest
 import tensorflow as tf
 
 from deepreg.dataset.loader.interface import DataLoader
+from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.train import build_config
 from deepreg.util import (
     build_dataset,
@@ -90,52 +93,105 @@ def test_save_array():
     def get_num_pngs_in_dir(dir_paths):
         return len([x for x in os.listdir(dir_paths) if x.endswith(".png")])
 
-    pair_dir = "logs/test_util_save_array"
+    def get_num_niftis_in_dir(dir_paths):
+        return len([x for x in os.listdir(dir_paths) if x.endswith(".nii.gz")])
+
+    save_dir = "logs/test_util_save_array"
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
 
     # test 3D tf tensor
     name = "3d_tf"
-    out_dir = os.path.join(pair_dir, name)
+    out_dir = os.path.join(save_dir, name)
     arr = tf.random.uniform(shape=(2, 3, 4))
-    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert get_num_pngs_in_dir(out_dir) == 4
+    assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
 
     # test 4D tf tensor
     name = "4d_tf"
-    out_dir = os.path.join(pair_dir, name)
+    out_dir = os.path.join(save_dir, name)
     arr = tf.random.uniform(shape=(2, 3, 4, 3))
-    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert get_num_pngs_in_dir(out_dir) == 4
+    assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
 
     # test 3D np tensor
     name = "3d_np"
-    out_dir = os.path.join(pair_dir, name)
+    out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4)
-    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert get_num_pngs_in_dir(out_dir) == 4
+    assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
 
     # test 4D np tensor
     name = "4d_np"
-    out_dir = os.path.join(pair_dir, name)
+    out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4, 3)
-    save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert get_num_pngs_in_dir(out_dir) == 4
+    assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
+
+    # test 4D np tensor without nifti
+    name = "4d_np"
+    out_dir = os.path.join(save_dir, name)
+    arr = np.random.rand(2, 3, 4, 3)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True, save_nifti=False)
+    assert get_num_pngs_in_dir(out_dir) == 4
+    assert get_num_niftis_in_dir(save_dir) == 0
+    shutil.rmtree(out_dir)
+
+    # test 4D np tensor without png
+    name = "4d_np"
+    out_dir = os.path.join(save_dir, name)
+    arr = np.random.rand(2, 3, 4, 3)
+    assert not os.path.exists(out_dir)
+    save_array(save_dir=save_dir, arr=arr, name=name, gray=True, save_png=False)
+    assert not os.path.exists(out_dir)
+    assert get_num_niftis_in_dir(save_dir) == 1
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
+
+    # test 4D np tensor with overwrite
+    name = "4d_np"
+    out_dir = os.path.join(save_dir, name)
+    arr1 = np.random.rand(2, 3, 4, 3)
+    arr2 = np.random.rand(2, 3, 4, 3)
+    assert not is_equal_np(arr1, arr2)
+    nifti_file_path = os.path.join(save_dir, name + ".nii.gz")
+    # save arr1
+    os.makedirs(save_dir, exist_ok=True)
+    nib.save(img=nib.Nifti2Image(arr1, affine=np.eye(4)), filename=nifti_file_path)
+    # save arr2 without overwrite
+    save_array(save_dir=save_dir, arr=arr1, name=name, gray=True, overwrite=False)
+    arr_read = load_nifti_file(file_path=nifti_file_path)
+    assert is_equal_np(arr1, arr_read)
+    # save arr2 with overwrite
+    save_array(save_dir=save_dir, arr=arr2, name=name, gray=True, overwrite=True)
+    arr_read = load_nifti_file(file_path=nifti_file_path)
+    assert is_equal_np(arr2, arr_read)
+    shutil.rmtree(out_dir)
+    os.remove(os.path.join(save_dir, name + ".nii.gz"))
 
     # test 5D np tensor
     name = "5d_np"
     arr = np.random.rand(2, 3, 4, 1, 3)
     with pytest.raises(ValueError) as err_info:
-        save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+        save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert "arr must be 3d or 4d numpy array or tf tensor" in str(err_info.value)
 
     # test 4D np tensor with wrong shape
     name = "5d_np"
     arr = np.random.rand(2, 3, 4, 1)
     with pytest.raises(ValueError) as err_info:
-        save_array(pair_dir=pair_dir, arr=arr, name=name, gray=True)
+        save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
     assert "4d arr must have 3 channels as last dimension" in str(err_info.value)
 
 

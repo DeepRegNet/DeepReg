@@ -58,6 +58,10 @@ and `predict`.
 - `--gpu_allow_growth` or `-gr`, the same as with `train`.
 - `--log_dir` or `-l`, the same as with `train`.
 - `--batch_size` or `-b`, specifies the batch size for prediction. The default is 1.
+- `--save_nifti`, saves the outputs in nifti form. This is default behavior. Use
+  `--no_nifti` to disable the saving.
+- `--save_png`, saves the outputs in png form. By default pngs are not saved. Use
+  `--save_png` to enable the saving and `--no_png` to disable the saving.
 - `--config_path` or `-c`, specifies the configuration file for prediction. The path
   must end with `.yaml`. The default will be to use the saved config in the directory of
   the given checkpoint.
