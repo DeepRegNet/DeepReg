@@ -30,6 +30,11 @@ different scenarios can be implemented with DeepReg.
 
 This demo registers paired CT lung images.
 
+- [paired_mrus_prostate](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_prostate)
+
+This demo registers paired MR-to-ultrasound prostate images, an example of
+weakly-supervised multimodal image registration.
+
 ## Train with unpaired images
 
 - [unpaired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
@@ -38,7 +43,10 @@ This demo registers unpaired CT lung images.
 
 ## Train with grouped images
 
-(under development)
+- [grouped_mask_prostate_longitudinal](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mask_prostate_longitudinal)
+
+This demo registers grouped masks (as input images) of prostate glands from MR images,
+an example of feature-based registration.
 
 ## Experiment with cross-validation
 
@@ -49,7 +57,7 @@ is applicable for any of the available dataset loaders.
 
 ## Classical image registration
 
-- [classical_ct_headandneck_affine](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headandneck_affine)
+- [classical_ct_headneck_affine](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headneck_affine)
 
 This demo registers head-and-neck CT images using iterative affine registration.
 
