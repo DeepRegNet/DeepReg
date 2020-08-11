@@ -100,6 +100,9 @@ def global_mutual_information(
     :return: shape = (batch,)
     """
 
+    # intensity is split into bins between 0, 1
+    y_true = tf.clip_by_value(y_true, 0, 1)
+    y_pred = tf.clip_by_value(y_pred, 0, 1)
     bin_centers = tf.linspace(0.0, 1.0, num_bins)  # (num_bins,)
     bin_centers = bin_centers[None, None, ...]  # (1, 1, num_bins)
     sigma = (

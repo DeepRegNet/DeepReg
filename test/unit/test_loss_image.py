@@ -106,14 +106,21 @@ def test_gmi():
     )
     assert is_equal_tf(get, expect)
 
-    # zero value
+    # zero values
     t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
     t2 = t1
     get = image.global_mutual_information(t1, t2)
     expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
     assert is_equal_tf(get, expect)
 
-    # one value
+    # zero value and negative value
+    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1 - 1.0  # will be clipped to zero
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
+    assert is_equal_tf(get, expect)
+
+    # one values
     t1 = tf.ones((4, 3, 3, 3, 1), dtype=tf.float32)
     t2 = t1
     get = image.global_mutual_information(t1, t2)
