@@ -79,7 +79,6 @@ def predict_on_dataset(
 
     sample_index_strs = []
     metric_lists = []
-
     for _, inputs_dict in enumerate(dataset):
         outputs_dict = model.predict(x=inputs_dict)
 
@@ -99,9 +98,7 @@ def predict_on_dataset(
         # (batch, f_dim1, f_dim2, f_dim3, 3)
         ddf = outputs_dict.get("ddf", None)
         dvf = outputs_dict.get("dvf", None)
-
         affine = outputs_dict.get("affine", None)  # (batch, 4, 3)
-
 
         # prediction
         # (batch, f_dim1, f_dim2, f_dim3)
@@ -120,7 +117,6 @@ def predict_on_dataset(
 
             # init output path
             indices_i = indices[sample_index, :].numpy().astype(int).tolist()
-
             pair_dir, label_dir = build_pair_output_path(
                 indices=indices_i, save_dir=save_dir
             )
