@@ -37,12 +37,15 @@ predict(
 # change the following line to the path to image0 label0
 
 path_to_test = r"logs/learn2reg_t2_unpaired_train_logs/test"
-path_to_fixed_label = os.path.join(path_to_test, "pair_1", "label_0", "fixed_label")
-path_to_pred_fixed_label = os.path.join(path_to_test, "pair_1", "label_0", "pred_fixed_label")
-path_to_fixed_image = os.path.join(path_to_test, "pair_1", "fixed_image")
-path_to_pred_fixed_image = os.path.join(path_to_test, "pair_1", "pred_fixed_image")
-path_to_moving_image = os.path.join(path_to_test, "pair_1", "moving_image")
-path_to_moving_label = os.path.join(path_to_test, "pair_1", "label_0", "moving_label")
+
+pair_n = [i for i in os.listdir(path_to_test) if i.startswith("pair")][0]
+
+path_to_fixed_label = os.path.join(path_to_test, pair_n, "label_0", "fixed_label")
+path_to_pred_fixed_label = os.path.join(path_to_test, pair_n, "label_0", "pred_fixed_label")
+path_to_fixed_image = os.path.join(path_to_test, pair_n, "fixed_image")
+path_to_pred_fixed_image = os.path.join(path_to_test, pair_n, "pred_fixed_image")
+path_to_moving_image = os.path.join(path_to_test, pair_n, "moving_image")
+path_to_moving_label = os.path.join(path_to_test, pair_n, "label_0", "moving_label")
 
 
 # change inds_to_plot if different images need to be plotted instead
