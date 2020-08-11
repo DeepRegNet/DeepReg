@@ -8,8 +8,10 @@ from deepreg.predict import predict
 
 
 log_dir = "learn2reg_t2_paired_train_logs"
-ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch2.ckpt")
-config_path = "logs/learn2reg_t2_paired_train_logs/config.yaml"
+
+log_dir_tr = r"demos/paired_ct_lung/learn2reg_t2_paired_train_logs"
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch100.ckpt")
+config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
 gpu_allow_growth = False
@@ -22,6 +24,7 @@ predict(
     batch_size=1,
     log_dir=log_dir,
     sample_label="all",
+    save_png=True,
 )
 
 # the numerical metrics are saved in the logs directory specified
@@ -44,28 +47,56 @@ inds_to_plot = [144, 145, 184, 34, 90, 21]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:
-    plt.subplot(6, 2, sub_plot_counter)
-    label = plt.imread(
-        os.path.join(path_to_fixed_label, "depth" + str(ind) + "_fixed_label.png")
-    )
+    plt.subplot(6, 7, sub_plot_counter)
+    label = plt.imread(os.path.join(path_to_fixed_label, 
+                                     "depth" + str(ind) + "_fixed_label.png"))
     plt.imshow(label)
     plt.axis("off")
     if sub_plot_counter == 1:
-        plt.title("Label")
+      plt.title("fixed_label")
 
-    plt.subplot(6, 2, sub_plot_counter + 1)
-    pred = plt.imread(
-        os.path.join(
-            path_to_pred_fixed_label, "depth" + str(ind) + "_pred_fixed_label.png"
-        )
-    )
+    plt.subplot(6, 7, sub_plot_counter + 1)
+    pred = plt.imread(os.path.join(path_to_pred_fixed_label,
+                                      "depth" + str(ind) + "_pred_fixed_label.png"))
     plt.imshow(pred)
     plt.axis("off")
     if sub_plot_counter == 1:
-        plt.title("Prediction")
-
-    sub_plot_counter = sub_plot_counter + 2
-
+      plt.title("pred_fixed_label")
+  
+    plt.subplot(6, 7, sub_plot_counter + 3)
+    fixed_im = plt.imread(os.path.join(path_to_fixed_image,
+                                      "depth" + str(ind) + "_fixed_image.png"))
+    plt.imshow(fixed_im)
+    plt.axis("off")
+    if sub_plot_counter == 1:
+      plt.title("fixed_image")
+  
+    plt.subplot(6, 7, sub_plot_counter + 4)
+    pr_fixed_im = plt.imread(os.path.join(path_to_pred_fixed_image,
+                                      "depth" + str(ind) + "_pred_fixed_image.png"))
+    plt.imshow(pr_fixed_im)
+    plt.axis("off")
+    if sub_plot_counter == 1:
+      plt.title("pred_fixed_image")
+  
+    plt.subplot(6, 7, sub_plot_counter + 5)
+    mov_im = plt.imread(os.path.join(path_to_moving_image,
+                                      "depth" + str(ind) + "_moving_image.png"))
+    plt.imshow(mov_im)
+    plt.axis("off")
+    if sub_plot_counter == 1:
+      plt.title("moving_image")
+  
+    plt.subplot(6, 7, sub_plot_counter + 6)
+    mov_l = plt.imread(os.path.join(path_to_moving_label,
+                                      "depth" + str(ind) + "_moving_label.png"))
+    plt.imshow(mov_l)
+    plt.axis("off")
+    if sub_plot_counter == 1:
+      plt.title("moving_label")
+      
+    sub_plot_counter = sub_plot_counter + 6
+  
 path_to_vis = r"logs/learn2reg_t2_paired_train_logs/visualisation.png"
 plt.savefig(path_to_vis)
 print("Visualisation saved to:", path_to_vis)
