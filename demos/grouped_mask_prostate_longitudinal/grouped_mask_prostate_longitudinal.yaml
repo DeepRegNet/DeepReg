@@ -6,6 +6,9 @@ dataset:
   format: "h5"
   type: "grouped" # paired / unpaired / grouped
   labeled: false
+  intra_group_prob: 1
+  intra_group_option: "unconstrained" # forward / backward / unconstrained
+  sample_image_in_group: true
   image_shape: [128, 128, 32]
 
 train:
