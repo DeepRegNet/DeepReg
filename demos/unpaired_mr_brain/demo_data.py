@@ -9,39 +9,52 @@ import shutil
 import nibabel as nib
 import numpy as np
 
-DATA_DIR = "/home/acasamitjana/Data/Learn2Reg"
-FNAME = 'data_mr_brain.tar'
+
+##############
+# Parameters #
+##############
+
 data_splits = ["train", "test"]
 num_labels = 3
 
-# Folder
+# Main project directory
 main_path = os.getcwd()
 os.chdir(main_path)
 
-project_dir = ''#r"demos/mr-brain-t4"
+# Demo directory
+project_dir = r"demos/unpaired_mr_brain"
 os.chdir(join(main_path,project_dir))
 
+# Data storage directory
 data_folder_name = "data"
 path_to_data_folder = join(main_path, project_dir, data_folder_name)
 
-# # Download data
-# url = '\'https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA\''
-# system('wget ' + ' -O ' + FNAME + ' ' + url )
-# print("The file ", FNAME, " has successfully been downloaded!")
-#
-# # Extract data
-# if exists(path_to_data_folder) is not True:
-#     makedirs(path_to_data_folder)
-#
-# with tarfile.open(join(main_path,project_dir, FNAME), "r") as tar_ref:
-#     tar_ref.extractall(data_folder_name)
-# # with zipfile.ZipFile(join(main_path,project_dir, FNAME), "r") as zip_ref:
-# #     zip_ref.extractall(data_folder_name)
-#
-# remove(FNAME)
-# print("Files unzipped!")
+#################
+# Download data #
+#################
+FNAME = 'data_mr_brain.tar'
+url = '\'https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA\''
+system('wget ' + ' -O ' + FNAME + ' ' + url )
+print("The file ", FNAME, " has successfully been downloaded!")
 
-# Rename directories
+# Extract data
+if exists(path_to_data_folder) is not True:
+    makedirs(path_to_data_folder)
+
+with tarfile.open(join(main_path,project_dir, FNAME), "r") as tar_ref:
+    tar_ref.extractall(data_folder_name)
+# with zipfile.ZipFile(join(main_path,project_dir, FNAME), "r") as zip_ref:
+#     zip_ref.extractall(data_folder_name)
+
+remove(FNAME)
+print("Files unzipped!")
+
+
+
+
+##################
+# Create dataset #
+##################
 path_to_init_img = join(path_to_data_folder, 'Training', 'img')
 path_to_init_label = join(path_to_data_folder, 'Training', 'label')
 
@@ -86,7 +99,12 @@ for f in img_files:
 
 print('Files succesfully copied to ' + path_to_train + ' and ' + path_to_test)
 
-# Mask and normalize images
+
+
+
+#################
+# Preprocessing #
+#################
 for ds in data_splits:
     path = join(path_to_data_folder, ds, "images")
     files = listdir(path)
@@ -135,6 +153,7 @@ for ds in data_splits:
         nib.save(img, join(path, f))
 
 print('Images have been correctly normalized between [0, 255]')
+
 # One hot encoding labels labels
 for ds in data_splits:
     path = join(path_to_data_folder, ds, "labels")

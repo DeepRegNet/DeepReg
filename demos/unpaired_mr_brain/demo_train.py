@@ -9,8 +9,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 gpu = "0"
 gpu_allow_growth = False
 ckpt_path = ""  # To load pre-trained weights
-log_dir = "/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/learn2reg_t4_unpaired_train_logs_CE"
-config_path = ["/home/acasamitjana/Repositories/DeepRegNet/DeepReg/demos/mr-brain-t4/mr_brain_t4.yaml"]
+log_dir = "logs"
+config_path = [r"demos/unpaired_mr_brain/unpaired_mr_brain.yaml"]
 train(
     gpu=gpu,
     config_path=config_path,
