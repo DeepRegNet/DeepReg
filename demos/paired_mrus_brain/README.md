@@ -22,7 +22,7 @@ from imaging such as MR.
   the following command:
 
 ```bash
-python3 demos/paired_mr_us_brain/script_name.py
+python3 demos/paired_mrus_brain/script_name.py
 ```
 
 A short description of the scripts is provided below. The scripts must be run in the

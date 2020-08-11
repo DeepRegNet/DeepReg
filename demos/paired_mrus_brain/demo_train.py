@@ -8,7 +8,7 @@ ckpt_path = ""
 log_dir = "learn2reg_t1_paired_train_logs"
 config_path = [
     r"deepreg/config/test/ddf.yaml",
-    r"demos/paired_mr_us_brain/paired_mr_us_brain.yaml",
+    r"demos/paired_mrus_brain/paired_mrus_brain.yaml",
 ]
 train(
     gpu=gpu,

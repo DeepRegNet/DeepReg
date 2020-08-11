@@ -6,7 +6,7 @@ import numpy as np
 
 main_path = os.getcwd()
 
-project_dir = os.path.join(main_path, r"demos/paired_mr_us_brain")
+project_dir = os.path.join(main_path, r"demos/paired_mrus_brain")
 os.chdir(project_dir)
 
 ######## FULL DATA DOWNLOAD AND PREPROCESS ########
