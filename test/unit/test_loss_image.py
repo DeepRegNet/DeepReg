@@ -96,9 +96,26 @@ def test_gmi():
     """
     Testing computed global mutual information between images using image.global_mutual_information by comparing to precomputed.
     """
-    t1 = 0.01 * np.array(range(108)).reshape((4, 3, 3, 3, 1))
+    # fixed non trival value
+    t1 = np.array(range(108)).reshape((4, 3, 3, 3, 1)) / 108.0
     t1 = tf.convert_to_tensor(t1, dtype=tf.float32)
     t2 = t1 + 0.05
     get = image.global_mutual_information(t1, t2)
-    expect = [0.8291366, 0.8283235, 0.8305533, 0.82243645]
+    expect = tf.constant(
+        [0.84280217, 0.84347117, 0.8441777, 0.8128618], dtype=tf.float32
+    )
+    assert is_equal_tf(get, expect)
+
+    # zero value
+    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
+    assert is_equal_tf(get, expect)
+
+    # one value
+    t1 = tf.ones((4, 3, 3, 3, 1), dtype=tf.float32)
+    t2 = t1
+    get = image.global_mutual_information(t1, t2)
+    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
     assert is_equal_tf(get, expect)
