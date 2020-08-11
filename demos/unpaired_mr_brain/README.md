@@ -8,12 +8,10 @@ a.casamitjana@ucl.ac.uk
 
 ## Application
 
-This is a demo targeting the alignment of hippocampal substructures (head and body) using 
-mono-modal MR images between different patients. The images are cropped around those areas and
-manually annotated. This is a 3D intra-modal registration using a composite loss of image and
-label similarity.
- 
-
+This is a demo targeting the alignment of hippocampal substructures (head and body)
+using mono-modal MR images between different patients. The images are cropped around
+those areas and manually annotated. This is a 3D intra-modal registration using a
+composite loss of image and label similarity.
 
 ## Instructions
 
@@ -28,14 +26,15 @@ python3 demos/unpaired_mr_brain/script_name.py
 
 A short description of the scripts is provided below. The scripts must be run in the
 following order:
-- (Optional) Create a new configuration file following the template in demos/unpaired_mr_brain/unpaired_mr_brain.yaml.
-  It specifies:
+
+- (Optional) Create a new configuration file following the template in
+  demos/unpaired_mr_brain/unpaired_mr_brain.yaml. It specifies:
   - Dataset options: input data directory, loader type, data format
   - Model options: backbone network, field type.
   - Training options: losses, optimizer, number of epochs.
 - Run the demo_data.py script: This script does the following:
-  - Download and extract the dataset. Data is downloaded to the demo directory under data/ 
-    but this can be changed (instructions in the comments in the script).
+  - Download and extract the dataset. Data is downloaded to the demo directory under
+    data/ but this can be changed (instructions in the comments in the script).
   - Split subjects into train/test according to the challenge website.
   - Rescale all images to 0-255 so they are suitable for use with deepreg
   - Create and apply a binary mask to mask-out the padded values in images.
@@ -51,7 +50,8 @@ following order:
 
 ## Data
 
-The dataset for this demo comes from the Learn2Reg MICCAI Challenge (Task 4) [1] and can be downloaded from:
+The dataset for this demo comes from the Learn2Reg MICCAI Challenge (Task 4) [1] and can
+be downloaded from:
 
 https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA
 
@@ -61,5 +61,5 @@ Last commit at which demo was tested: 0d6132fec30f35d7f572b96d65b7d7f366d833b2
 
 ## References
 
-[1] AL Simpson et al., _A large annotated medical image dataset for the development and evaluation 
-of segmentation algorithms_ (2019). https://arxiv.org/abs/1902.09063
+[1] AL Simpson et al., _A large annotated medical image dataset for the development and
+evaluation of segmentation algorithms_ (2019). https://arxiv.org/abs/1902.09063
