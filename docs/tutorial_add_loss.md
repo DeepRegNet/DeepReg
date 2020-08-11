@@ -56,7 +56,7 @@ def dissimilarity_fn(
     elif name == "gmi":
         return -global_mutual_information(y_true, y_pred)
     else:
-raise ValueError("Unknown loss type.")
+        raise ValueError("Unknown loss type.")
 ```
 
 ## Step 2: Add test functions (For developers, optional for users)
