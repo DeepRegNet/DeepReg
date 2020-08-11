@@ -35,11 +35,15 @@ predict(
 # Now lets load in a few samples from the predicitons and plot them
 
 # change the following line to the path to image0 label0
-path_to_image0_label0 = r"logs/learn2reg_t2_unpaired_train_logs/test"
-path_to_pred_fixed_label = os.path.join(
-    path_to_image0_label0, r"pair_1_label_0/pred_fixed_label"
-)
-path_to_fixed_label = os.path.join(path_to_image0_label0, r"pair_1_label_0/fixed_label")
+
+path_to_test = r"logs/learn2reg_t2_unpaired_train_logs"
+path_to_fixed_label = os.path.join(path_to_test, "pair_1", "label_0", "fixed_label")
+path_to_pred_fixed_label = os.path.join(path_to_test, "pair_1", "label_0", "pred_fixed_label")
+path_to_fixed_image = os.path.join(path_to_test, "pair_1", "fixed_image")
+path_to_pred_fixed_image = os.path.join(path_to_test, "pair_1", "pred_fixed_image")
+path_to_moving_image = os.path.join(path_to_test, "pair_1", "moving_image")
+path_to_moving_label = os.path.join(path_to_test, "pair_1", "label_0", "moving_label")
+
 
 # change inds_to_plot if different images need to be plotted instead
 
@@ -47,7 +51,7 @@ inds_to_plot = [144, 145, 184, 34, 90, 21]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:
-    plt.subplot(6, 7, sub_plot_counter)
+    plt.subplot(6, 6, sub_plot_counter)
     label = plt.imread(os.path.join(path_to_fixed_label, 
                                      "depth" + str(ind) + "_fixed_label.png"))
     plt.imshow(label)
@@ -55,7 +59,7 @@ for ind in inds_to_plot:
     if sub_plot_counter == 1:
       plt.title("fixed_label")
 
-    plt.subplot(6, 7, sub_plot_counter + 1)
+    plt.subplot(6, 6, sub_plot_counter + 1)
     pred = plt.imread(os.path.join(path_to_pred_fixed_label,
                                       "depth" + str(ind) + "_pred_fixed_label.png"))
     plt.imshow(pred)
@@ -63,7 +67,7 @@ for ind in inds_to_plot:
     if sub_plot_counter == 1:
       plt.title("pred_fixed_label")
   
-    plt.subplot(6, 7, sub_plot_counter + 3)
+    plt.subplot(6, 6, sub_plot_counter + 3)
     fixed_im = plt.imread(os.path.join(path_to_fixed_image,
                                       "depth" + str(ind) + "_fixed_image.png"))
     plt.imshow(fixed_im)
@@ -71,7 +75,7 @@ for ind in inds_to_plot:
     if sub_plot_counter == 1:
       plt.title("fixed_image")
   
-    plt.subplot(6, 7, sub_plot_counter + 4)
+    plt.subplot(6, 6, sub_plot_counter + 4)
     pr_fixed_im = plt.imread(os.path.join(path_to_pred_fixed_image,
                                       "depth" + str(ind) + "_pred_fixed_image.png"))
     plt.imshow(pr_fixed_im)
@@ -79,7 +83,7 @@ for ind in inds_to_plot:
     if sub_plot_counter == 1:
       plt.title("pred_fixed_image")
   
-    plt.subplot(6, 7, sub_plot_counter + 5)
+    plt.subplot(6, 6, sub_plot_counter + 5)
     mov_im = plt.imread(os.path.join(path_to_moving_image,
                                       "depth" + str(ind) + "_moving_image.png"))
     plt.imshow(mov_im)
@@ -87,7 +91,7 @@ for ind in inds_to_plot:
     if sub_plot_counter == 1:
       plt.title("moving_image")
   
-    plt.subplot(6, 7, sub_plot_counter + 6)
+    plt.subplot(6, 6, sub_plot_counter + 6)
     mov_l = plt.imread(os.path.join(path_to_moving_label,
                                       "depth" + str(ind) + "_moving_label.png"))
     plt.imshow(mov_l)
