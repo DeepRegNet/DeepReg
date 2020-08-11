@@ -46,7 +46,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/g
   the results will be saves at the created timestamp-named directories under /logs.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --mode test
+deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
 ```
 
 ## Pre-trained Model
@@ -64,4 +64,4 @@ ultrasound images used are simulated dummy images.
 
 ## Tested DeepReg Tag
 
-#7ec0f5157a81cd5e60cadd61bd617b433039d0e6
+tbc
