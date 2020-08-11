@@ -2,6 +2,8 @@ import os
 
 from tensorflow.keras.utils import get_file
 
+import zipfile
+
 main_path = os.getcwd()
 
 project_dir = os.path.join(main_path, r"demos/paired_mrus_brain")
@@ -13,7 +15,6 @@ os.chdir(project_dir)
 
 # from tensorflow.keras.utils import get_file
 # from tqdm import tqdm
-# import zipfile
 # import shutil
 # import nibabel as nib
 # import numpy as np
@@ -217,7 +218,10 @@ url = "https://github.com/ucl-candi/dataset_respect/archive/master.zip"
 
 fname = "master.zip"
 
-get_file(os.path.join(os.getcwd(), fname), url, extract=True)
+get_file(os.path.join(os.getcwd(), fname), url)
+
+with zipfile.ZipFile(fname, 'r') as zip_ref:
+    zip_ref.extractall('.')
 
 source = "dataset_respect-master"
 destination = "dataset_respect"
@@ -230,7 +234,10 @@ url = "https://github.com/DeepRegNet/deepreg-model-zoo/blob/master/paired_mrus_b
 
 fname = "paired_mrus_brain_demo_logs.zip"
 
-get_file(os.path.join(os.getcwd(), fname), url, extract=True)
+get_file(os.path.join(os.getcwd(), fname), url)
+
+with zipfile.ZipFile(fname, 'r') as zip_ref:
+    zip_ref.extractall('.')
 
 
 
