@@ -315,7 +315,7 @@ def test_file_loader():
         dir_paths=["/path/ungrouped_loader/"], name="ungrouped_loader", grouped=False
     )
 
-    # init fails
+    # init fails with repeated paths
     with pytest.raises(ValueError) as err_info:
         FileLoader(
             dir_paths=["/path/ungrouped_loader/", "/path/ungrouped_loader/"],
@@ -327,10 +327,15 @@ def test_file_loader():
     # not implemented properties / functions
     with pytest.raises(NotImplementedError):
         loader_grouped.set_data_structure()
+    with pytest.raises(NotImplementedError):
         loader_grouped.set_group_structure()
-        loader_grouped.get_data()
+    with pytest.raises(NotImplementedError):
+        loader_grouped.get_data(1)
+    with pytest.raises(NotImplementedError):
         loader_grouped.get_data_ids()
+    with pytest.raises(NotImplementedError):
         loader_grouped.get_num_images()
+    with pytest.raises(NotImplementedError):
         loader_grouped.close()
 
     # test grouped file loader functions
