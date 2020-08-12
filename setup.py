@@ -17,6 +17,7 @@ setup(
         "argparse",
         "tqdm",
         "tensorflow==2.3",
+        "tensorboard_plugin_profile==2.3",
         "pytest>=4.6",
         "pytest-cov",
         "pytest-dependency",
