@@ -114,7 +114,7 @@ def test_save():
             save(config=dict(x=1), out_dir=tempdir.path, filename="test.txt")
 
 
-def test_config_sanity_check():
+def test_config_sanity_check(caplog):
     """test config_sanity_check by check error messages"""
     # dataset is not in the key
     with pytest.raises(AssertionError):
@@ -133,3 +133,76 @@ def test_config_sanity_check():
     # dir is not in data_config
     with pytest.raises(AssertionError):
         config_sanity_check(config=dict(dataset=dict(type="paired", format="h5")))
+
+    # dir doesn't have train/valid/test
+    with pytest.raises(AssertionError):
+        config_sanity_check(
+            config=dict(dataset=dict(type="paired", format="h5", dir=dict()))
+        )
+    # train/valid/test of dir is None
+    config_sanity_check(
+        config=dict(
+            dataset=dict(
+                type="paired",
+                format="h5",
+                dir=dict(train=None, valid=None, test=None),
+                labeled=True,
+            ),
+            train=dict(model=dict(method="ddf")),
+        )
+    )
+    assert "Data directory for train is not defined." in caplog.text
+
+    # train/valid/test of dir is not string or list of string
+    with pytest.raises(ValueError) as err_info:
+        config_sanity_check(
+            config=dict(
+                dataset=dict(
+                    type="paired",
+                    format="h5",
+                    dir=dict(train=1, valid=None, test=None),
+                    labeled=True,
+                ),
+                train=dict(model=dict(method="ddf")),
+            )
+        )
+    assert "data_dir for mode train must be string or list of strings" in str(
+        err_info.value
+    )
+
+    # use unlabeled data for conditional model
+    with pytest.raises(ValueError) as err_info:
+        config_sanity_check(
+            config=dict(
+                dataset=dict(
+                    type="paired",
+                    format="h5",
+                    dir=dict(train=None, valid=None, test=None),
+                    labeled=False,
+                ),
+                train=dict(model=dict(method="conditional")),
+            )
+        )
+    assert "For conditional model, data have to be labeled, got unlabeled data." in str(
+        err_info.value
+    )
+
+    # train/valid/test of dir is not string or list of string
+    with pytest.raises(ValueError) as err_info:
+        config_sanity_check(
+            config=dict(
+                dataset=dict(
+                    type="paired",
+                    format="h5",
+                    dir=dict(train=None, valid=None, test=None),
+                    labeled=False,
+                ),
+                train=dict(
+                    model=dict(method="ddf"),
+                    loss=dict(dissimilarity=dict(image=dict(weight=0.0))),
+                ),
+            )
+        )
+    assert "For unlabeled data, the image loss must have positive weight" in str(
+        err_info.value
+    )
