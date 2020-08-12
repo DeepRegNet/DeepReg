@@ -54,6 +54,7 @@ def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir, histogram_freq=histogram_freq
     )
+    # period is depreciated but there's no cleaner way to save the model every N epochs
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt",
         save_weights_only=True,
@@ -87,6 +88,12 @@ def train(
         config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
     )
 
+    # prepare multi GPU setting
+    # batch size in config is batch size per GPU
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    num_replicas = mirrored_strategy.num_replicas_in_sync
+    config["train"]["preprocess"]["batch_size"] *= num_replicas
+
     # build dataset
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
@@ -117,7 +124,6 @@ def train(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
     # only model, optimizer and metrics need to be defined inside the strategy
-    mirrored_strategy = tf.distribute.MirroredStrategy()
     with mirrored_strategy.scope():
         model = build_model(
             moving_image_size=data_loader_train.moving_image_shape,
