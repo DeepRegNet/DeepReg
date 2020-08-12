@@ -6,4 +6,4 @@ dataset:
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
   labeled: true
-  image_shape: [192, 160, 256]
+  image_shape: [100, 100, 100]
