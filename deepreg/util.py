@@ -101,8 +101,13 @@ def save_array(
         if overwrite or (not os.path.exists(nifti_file_path)):
             # save only if need to overwrite or doesn't exist
             os.makedirs(save_dir, exist_ok=True)
+            # output with Nifti1Image can be loaded by
+            # - https://www.slicer.org/
+            # - http://www.itksnap.org/
+            # - http://ric.uthscsa.edu/mango/
+            # However, outputs with Nifti2Image couldn't be loaded
             nib.save(
-                img=nib.Nifti2Image(arr, affine=np.eye(4)), filename=nifti_file_path
+                img=nib.Nifti1Image(arr, affine=np.eye(4)), filename=nifti_file_path
             )
 
     # save in png
