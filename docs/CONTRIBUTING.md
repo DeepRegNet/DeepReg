@@ -212,6 +212,18 @@ captured.
     assert "is negative" in str(err_info.value)
 ```
 
+For testing if a warning message has been properly raised, please use the
+[pytest caplog fixture](https://docs.pytest.org/en/stable/logging.html). The log
+messages of type `WARNING` will be automatically captured to assert if the warning
+message has been generated.
+
+```python
+    # warning test example
+    def test_foo(caplog):
+      func_which_raise_warning_message()
+      assert "warning message" in caplog.text
+```
+
 ## Pre-commit setup
 
 [pre-commit](https://pre-commit.com/) is recommended for code style consistency before
