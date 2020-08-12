@@ -13,6 +13,7 @@ from deepreg.dataset.loader.interface import (
     FileLoader,
     GeneratorDataLoader,
 )
+from deepreg.dataset.loader.util import normalize_array
 
 
 def test_data_loader():
@@ -147,7 +148,7 @@ def test_generator_data_loader(caplog):
     generator.data_generator = mock_generator
     dataset = generator.get_dataset()
 
-    # check output for data generator
+    # check dataset output
     expected = dict(
         moving_image=dummy_array,
         fixed_image=dummy_array,
@@ -172,10 +173,41 @@ def test_generator_data_loader(caplog):
     generator_unlabeled.data_generator = mock_generator
     dataset = generator_unlabeled.get_dataset()
 
-    # check output for data generator
+    # check dataset output
     expected = dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
     for got in list(dataset.as_numpy_iterator()):
         assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+
+    # test data_generator
+    # create mock data loader and sample index generator
+    class Mock_data_loader:
+        def __init__(self, **kwargs):
+            super(Mock_data_loader, self).__init__(**kwargs)
+
+        def get_data(index):
+            return dummy_array
+
+    def mock_sample_index_generator():
+        return [[[1], [1], [1]]]
+
+    generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+    generator.sample_index_generator = mock_sample_index_generator
+    generator.loader_moving_image = Mock_data_loader
+    generator.loader_fixed_image = Mock_data_loader
+    generator.loader_moving_label = Mock_data_loader
+    generator.loader_fixed_label = Mock_data_loader
+
+    # check data generator output
+    got = next(generator.data_generator())
+
+    expected = dict(
+        moving_image=normalize_array(dummy_array),
+        fixed_image=normalize_array(dummy_array),
+        moving_label=dummy_array,
+        fixed_label=dummy_array,
+        indices=np.asarray([1] + [0], dtype=np.float32),
+    )
+    assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
 
     # test validate_images_and_labels
     with pytest.raises(ValueError) as err_info:
