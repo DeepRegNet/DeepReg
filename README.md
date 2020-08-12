@@ -13,28 +13,25 @@
 and education in medical image registration using deep learning.**
 
 - TensorFlow2-based for efficient training and rapid deployment;
-- Implementing major unsupervised and weakly-supervised algorithms with their
+- Implementing major unsupervised and weakly-supervised algorithms, with their
   combinations and variants;
 - Focusing on growing and diverse clinical applications, with all DeepReg Demos using
   open-accessible data;
-- Simple built-in command line tools requiring minimal programming and scripiting;
+- Simple built-in command line tools requiring minimal programming and scripting;
 - Open, permissible and research-and-education-driven, under the Apache 2.0 license.
-
-> _Right now, DeepReg is still under-development - however, many tutorials, demos and
-> much of the core funtionality are already accessible._
 
 ---
 
-> _DeepReg^beta will be released in Autumn 2020 - however, many tutorials, demos and
+> _DeepReg^{beta} will be released in Autumn 2020 - however, many tutorials, demos and
 > much of the core functionality are already accessible._
 
 ## Getting Started
 
-- [Documentation and tutorials with a quick start guide](https://deepregnet.github.io/DeepReg/#)
+- [Documentation, tutorials and a quick start guide](https://deepregnet.github.io/DeepReg/#)
 - [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
 - Code: https://github.com/DeepRegNet/DeepReg
 - Issue tracker: https://github.com/DeepRegNet/DeepReg/issues
-- Website: deepreg.net
+- Website: [deepreg.net](www.deepreg.net)
 
 ## Contributing
 
@@ -45,7 +42,7 @@ For guidance on making a contribution to DeepReg, see the
 
 If you identified a registration application with openly accessible data, please
 consider
-[contributing to a DeepReg Demo](https://deepregnet.github.io/DeepReg/#/doc_demo_requirement).
+[contributing a DeepReg Demo](https://deepregnet.github.io/DeepReg/#/doc_demo_requirement).
 
 ## MICCAI 2020 Educational Challenge
 
