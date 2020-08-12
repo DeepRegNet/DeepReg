@@ -139,19 +139,6 @@ def test_config_sanity_check(caplog):
         config_sanity_check(
             config=dict(dataset=dict(type="paired", format="h5", dir=dict()))
         )
-    # train/valid/test of dir is None
-    config_sanity_check(
-        config=dict(
-            dataset=dict(
-                type="paired",
-                format="h5",
-                dir=dict(train=None, valid=None, test=None),
-                labeled=True,
-            ),
-            train=dict(model=dict(method="ddf")),
-        )
-    )
-    assert "Data directory for train is not defined." in caplog.text
 
     # train/valid/test of dir is not string or list of string
     with pytest.raises(ValueError) as err_info:
@@ -187,22 +174,31 @@ def test_config_sanity_check(caplog):
         err_info.value
     )
 
-    # train/valid/test of dir is not string or list of string
-    with pytest.raises(ValueError) as err_info:
-        config_sanity_check(
-            config=dict(
-                dataset=dict(
-                    type="paired",
-                    format="h5",
-                    dir=dict(train=None, valid=None, test=None),
-                    labeled=False,
+    # check warnings
+    # train/valid/test of dir is None
+    # all loss weight <= 0
+    caplog.clear()  # clear previous log
+    config_sanity_check(
+        config=dict(
+            dataset=dict(
+                type="paired",
+                format="h5",
+                dir=dict(train=None, valid=None, test=None),
+                labeled=False,
+            ),
+            train=dict(
+                model=dict(method="ddf"),
+                loss=dict(
+                    dissimilarity=dict(image=dict(weight=0.0), label=dict(weight=0.0)),
+                    regularization=dict(weight=0.0),
                 ),
-                train=dict(
-                    model=dict(method="ddf"),
-                    loss=dict(dissimilarity=dict(image=dict(weight=0.0))),
-                ),
-            )
+            ),
         )
-    assert "For unlabeled data, the image loss must have positive weight" in str(
-        err_info.value
     )
+    # warning messages can be detected together
+    assert "Data directory for train is not defined." in caplog.text
+    assert "Data directory for valid is not defined." in caplog.text
+    assert "Data directory for test is not defined." in caplog.text
+    assert "The image loss 0.0 is not positive." in caplog.text
+    assert "The label loss 0.0 is not positive." in caplog.text
+    assert "The regularization loss 0.0 is not positive." in caplog.text

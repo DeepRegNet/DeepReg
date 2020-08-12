@@ -208,8 +208,8 @@ def test_subtract(caplog):
     assert "input is zero" in caplog.text
 
     # incorrect warning test example
-    # caplog.clear() # uncomment this line will fail the test
-    subtract(x=1) # this line generates no warning
+    # caplog.clear()  # uncomment this line will fail the test
+    subtract(x=1)  # this line generates no warning
     assert "input is zero" in caplog.text
 
     # incorrect error test example
@@ -233,8 +233,8 @@ For instance, with the example above:
 
 ```python
     # incorrect warning test example
-    # caplog.clear() # uncomment this line will fail the test
-    subtract(x=1) # this line generates no warning
+    # caplog.clear()  # uncomment this line will fail the test
+    subtract(x=1)  # this line generates no warning
     assert "input is zero" in caplog.text
 ```
 

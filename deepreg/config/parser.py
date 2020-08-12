@@ -68,11 +68,17 @@ def config_sanity_check(config: dict):
                 "For conditional model, data have to be labeled, got unlabeled data."
             )
 
-    # check loss
-    if data_config["labeled"] is False:  # unlabeled
-        image_loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
-        if image_loss_weight <= 0:
-            raise ValueError(
-                f"For unlabeled data, the image loss must have positive weight, "
-                f"got {image_loss_weight}."
-            )
+    # image loss weights should >= 0
+    loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The image loss {loss_weight} is not positive.")
+
+    # label loss weights should >= 0
+    loss_weight = config["train"]["loss"]["dissimilarity"]["label"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The label loss {loss_weight} is not positive.")
+
+    # regularization loss weights should >= 0
+    loss_weight = config["train"]["loss"]["regularization"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The regularization loss {loss_weight} is not positive.")

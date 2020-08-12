@@ -279,6 +279,7 @@ def test_generator_data_loader(caplog):
     )
 
     # warning
+    caplog.clear()  # clear previous log
     generator.validate_images_and_labels(
         fixed_image=dummy_array,
         moving_image=dummy_array,
@@ -287,6 +288,7 @@ def test_generator_data_loader(caplog):
         image_indices=[1],
     )
     assert "Sample [1]'s moving image and label have different shapes. " in caplog.text
+    caplog.clear()  # clear previous log
     generator.validate_images_and_labels(
         fixed_image=dummy_array,
         moving_image=dummy_array,
