@@ -126,7 +126,7 @@ def test_generator_data_loader(caplog):
     # implemented functions
     # test get_Dataset
     dummy_array = np.random.random(size=(100, 100, 100)).astype(np.float32)
-
+    # for unlabeled data
     # mock generator
     sequence = [
         dict(
@@ -155,6 +155,25 @@ def test_generator_data_loader(caplog):
         fixed_label=dummy_array,
         indices=[1],
     )
+    for got in list(dataset.as_numpy_iterator()):
+        assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+
+    # for unlabeled data
+    generator_unlabeled = GeneratorDataLoader(
+        labeled=False, num_indices=1, sample_label="all"
+    )
+
+    sequence = [
+        dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
+        for i in range(3)
+    ]
+
+    # inputs, no error means passed
+    generator_unlabeled.data_generator = mock_generator
+    dataset = generator_unlabeled.get_dataset()
+
+    # check output for data generator
+    expected = dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
     for got in list(dataset.as_numpy_iterator()):
         assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
 
