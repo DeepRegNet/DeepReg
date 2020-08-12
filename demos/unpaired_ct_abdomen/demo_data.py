@@ -23,19 +23,20 @@ for gz_image_file in os.listdir(img_folder_name):
     
     if np.min(image_data) < 0 or np.max(255.0) > 1:
         image_data = (image_data-np.min(image_data)) * 255/(np.max(image_data)-np.min(image_data))
+        image_data = image_data * 0.9999 # Workaround to avoid error with floats being > 1.0
         nii_image = nib.Nifti1Image(image_data, affine=None)
         nib.save(nii_image, os.path.join(img_folder_name, gz_image_file))
     os.rename(os.path.join(img_folder_name, gz_image_file), os.path.join(img_folder_name, gz_image_file[3:]))
 
 # 3. Normalise and rename all label files, and separate labels in multiple channels and binary
 for gz_label_file in os.listdir(label_folder_name):
-    label_data = np.asarray(nib.load(os.path.join(label_folder_name, gz_label_file)).dataobj, dtype=np.int)
-    #labels = np.delete(np.unique(label_data),0)
-    masks = np.concatenate([np.expand_dims((label_data == label).astype(np.int), axis=3) for label in range(1,13)], axis=3)
+    label_data = np.asarray(nib.load(os.path.join(label_folder_name, gz_label_file)).dataobj, dtype=np.float32)
+    # There are 13 labels in the dataset, and each label has to be in a separate channel. 0 is background.
+    masks = np.concatenate([np.expand_dims((label_data == label).astype(np.float32), axis=3) for label in range(1,13)], axis=3)
+    masks = masks * 0.9999 # Workaround to avoid error with floats being > 1.0
     nii_labels = nib.Nifti1Image(masks, affine=None)
     nib.save(nii_labels, os.path.join(label_folder_name, gz_label_file))
     os.rename(os.path.join(label_folder_name, gz_label_file), os.path.join(label_folder_name, gz_label_file[5:]))
-    print("min = %.7f max = %.7f " % (np.min(masks), np.max(masks)))
 
 # 4.- Divide data in training, validation and testing
 validation_split = 0.15 # 15% of the data for validation
