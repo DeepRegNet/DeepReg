@@ -1,9 +1,9 @@
 # Classical nonrigid registration for prostate MR images
 
-This is a special demo that demonstrates using the DeepReg package for claissical
-nonrigid image registration, which iteratively solves an optimisation problem. Gradient
-descent is used to minimise the image dissimilarity function of a given pair of moving
-anf fixed images, often regularised by a deformation smoothness function.
+This is a special demo that uses the DeepReg package for claissical nonrigid image
+registration, which iteratively solves an optimisation problem. Gradient descent is used
+to minimise the image dissimilarity function of a given pair of moving anf fixed images,
+often regularised by a deformation smoothness function.
 
 ## Author
 
