@@ -24,14 +24,14 @@ DeepReg is primarily supported and regularly tested with Linux distros Ubuntu/De
 With CPU only
 
 ```bash
-conda create --name deepreg python=3.7 tensorflow=2.2
+conda create --name deepreg python=3.7 tensorflow=2.3
 conda activate deepreg # Activate the environment
 ```
 
 With GPU
 
 ```bash
-conda create --name deepreg python=3.7 tensorflow-gpu=2.2 # Use conda for nvidia related packages
+conda create --name deepreg python=3.7 tensorflow-gpu=2.3 # Use conda for nvidia related packages
 conda activate deepreg # Activate the environment
 ```
 
@@ -40,7 +40,7 @@ conda activate deepreg # Activate the environment
 With CPU only
 
 ```bash
-conda create --name deepreg python=3.7 tensorflow=2.2
+conda create --name deepreg python=3.7 tensorflow=2.3
 conda activate deepreg # Activate the environment
 ```
 
