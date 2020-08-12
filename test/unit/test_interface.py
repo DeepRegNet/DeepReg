@@ -3,6 +3,8 @@
 """
 Tests for deepreg/dataset/loader/interface.py
 """
+from test.unit.util import is_equal_np
+
 import numpy as np
 import pytest
 
@@ -157,7 +159,7 @@ def test_generator_data_loader(caplog):
         indices=[1],
     )
     for got in list(dataset.as_numpy_iterator()):
-        assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+        assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
     # for unlabeled data
     generator_unlabeled = GeneratorDataLoader(
@@ -176,7 +178,7 @@ def test_generator_data_loader(caplog):
     # check dataset output
     expected = dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
     for got in list(dataset.as_numpy_iterator()):
-        assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+        assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
     # test data_generator
     # create mock data loader and sample index generator
@@ -207,7 +209,7 @@ def test_generator_data_loader(caplog):
         fixed_label=dummy_array,
         indices=np.asarray([1] + [0], dtype=np.float32),
     )
-    assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
     # test validate_images_and_labels
     with pytest.raises(ValueError) as err_info:
@@ -310,7 +312,7 @@ def test_generator_data_loader(caplog):
         fixed_image=dummy_array,
         indices=np.asarray([1] + [-1], dtype=np.float32),
     )
-    assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
     # for data with one label
     got = next(
@@ -329,7 +331,7 @@ def test_generator_data_loader(caplog):
         fixed_label=dummy_array,
         indices=np.asarray([1] + [0], dtype=np.float32),
     )
-    assert all(np.array_equal(got[key], expected[key]) for key in expected.keys())
+    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
     # for data with multiple labels
     dummy_labels = np.random.random(size=(100, 100, 100, 3))
@@ -349,9 +351,7 @@ def test_generator_data_loader(caplog):
             fixed_label=dummy_labels[..., label_index],
             indices=np.asarray([1] + [label_index], dtype=np.float32),
         )
-        assert all(
-            np.array_equal(got_iter[key], expected[key]) for key in expected.keys()
-        )
+        assert all(is_equal_np(got_iter[key], expected[key]) for key in expected.keys())
 
 
 def test_file_loader():
