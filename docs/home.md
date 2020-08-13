@@ -10,10 +10,10 @@ growing and diverse clinical applications, as seen in the provided examples -
 [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo). Read the
 [documentation and tutorials](https://deepregnet.github.io/DeepReg/) for more details.
 
-> _DeepReg^{beta} will be released in Autumn 2020 - however, many tutorials, demos and
-> much of the core functionality are already accessible._
-
 [Get involved](CONTRIBUTING.md) and help make DeepReg better!
+
+> _DeepReg<sup>beta</sup> will be released in Autumn 2020 - however, many tutorials,
+> demos and much of the core functionality are already accessible._
 
 ## Features
 

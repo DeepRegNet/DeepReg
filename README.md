@@ -20,10 +20,10 @@ and education in medical image registration using deep learning.**
 - Simple built-in command line tools requiring minimal programming and scripting;
 - Open, permissible and research-and-education-driven, under the Apache 2.0 license.
 
----
+> _DeepReg<sup>beta</sup> will be released in Autumn 2020 - however, many tutorials,
+> demos and much of the core functionality are already accessible._
 
-> _DeepReg^{beta} will be released in Autumn 2020 - however, many tutorials, demos and
-> much of the core functionality are already accessible._
+---
 
 ## Getting Started
 
