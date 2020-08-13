@@ -7,8 +7,10 @@ DeepReg includes:
   and prepare data into folders as required;
 - Configure the network training in the configuration yaml file(s), as specified in
   [supported configuration details](doc_configuration.md);
-- Train and tune the registration network with command line tool `train`;
-- Test or use the final registration network with command line tool `predict`.
+- Train and tune the registration network with the [command line tool](doc_command.md)
+  `deepreg_train`;
+- Test or use the final registration network with the
+  [command line tool](doc_command.md) `deepreg_predict`.
 
 DeepReg has been tested with a wide range of applications with real-world clinical image
 and label data. DeepReg Demos all consisted of open-accesible datasets, step-by-step
