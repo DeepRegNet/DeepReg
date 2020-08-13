@@ -1,4 +1,4 @@
-# DeepReg Demos
+# DeepReg Demo
 
 A typical workflow to develop a [registration network](tutorial_registration.md) using
 DeepReg includes:
@@ -13,7 +13,7 @@ DeepReg includes:
   [command line tool](doc_command.md) `deepreg_predict`.
 
 DeepReg has been tested with a wide range of applications with real-world clinical image
-and label data. DeepReg Demos all consisted of open-accesible datasets, step-by-step
+and label data. DeepReg Demos all consisted of open-accesible data sets, step-by-step
 instructions, pre-trained models and numerical-and-graphical inference results for
 demonstration purposes. These applications range from ultrasound, CT and MR images,
 covering many clinical specialities such as neurology, urology, gastroentrology,
@@ -30,18 +30,32 @@ different scenarios can be implemented with DeepReg.
 
 - [paired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
 
-This demo registers paired CT lung images.
+This demo registers paired CT lung images, with optional weak supervision.
 
 - [paired_mrus_prostate](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_prostate)
 
 This demo registers paired MR-to-ultrasound prostate images, an example of
 weakly-supervised multimodal image registration.
 
+- [paired_mrus_brain](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+
+This demo registers paired preoperative MR images and 3D tracked ultrasound images for
+locating brain tumours during neurosurgery, with optional weak supervision.
+
 ## Train with unpaired images
+
+- [unpaired_ct_abdomen](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_abdomen)
+
+(under development)
+
+- [unpaired_mr_brain](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_mr_brain)
+
+This demo aligns hippocampus on MR images between different patients, with optional weak
+supervision.
 
 - [unpaired_ct_lung](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
 
-This demo registers unpaired CT lung images.
+This demo registers unpaired CT lung images, with optional weak supervision.
 
 ## Train with grouped images
 
