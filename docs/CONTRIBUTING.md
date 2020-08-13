@@ -116,6 +116,7 @@ For a non-tensorflow-involved function, we need to test
 - the correctness of inputs and the error handling for unexpected inputs.
 - the correctness of outputs given certain inputs.
 - the trigger of all errors (`ValueError`, `AssertionError`, etc.).
+- the trigger of warnings.
 
 For a tensorflow-involved function, we need to test
 
@@ -128,6 +129,7 @@ For a tensorflow-involved function, we need to test
 - the correctness of outputs given certain inputs if the function involves mathematical
   operations. Otherwise, at least the output tensor shapes have to be correct.
 - the trigger of all errors (`ValueError`, `AssertionError`, etc.).
+- the trigger of warnings.
 
 For a class, we need to test
 
@@ -147,6 +149,8 @@ In this section, we provide some minimum examples to help the understanding.
 Assuming we have the following function to be tested:
 
 ```python
+import logging
+
 def subtract(x: int) -> int:
     """
     A function subtracts one from a non-negative integer.
@@ -156,6 +160,8 @@ def subtract(x: int) -> int:
     if not isinstance(x, int):
         raise ValueError(f"input {x} is not int")
     assert x >= 0, f"input {x} is negative"
+    if x == 0:
+        logging.warning("input is zero")
     return x - 1
 ```
 
@@ -167,13 +173,14 @@ The test should be as follows:
 - Test a working case, e.g. input is 0 and 1.
 - Test a failing case and the `assert`, e.g. input is -1. We need to catch the error and
   check the error message if existed.
-- Test the `ValueError`, e.g. input is 0.0. We need to catch the error and check the
-  error message if existed.
+- Test the `ValueError`, e.g. input is 0.0, a float. We need to catch the error and
+  check the error message if existed.
+- Verify the warning is trigger, e.g. input is 0.
 
 ```python
 import pytest
 
-def test_subtract():
+def test_subtract(caplog):
     """test subtract by verifying its input and outputs"""
     # x = 0
     got = subtract(x=0)
@@ -194,35 +201,67 @@ def test_subtract():
     with pytest.raises(ValueError) as err_info:
         subtract(x=0.0)
     assert "is not int" in str(err_info.value)
+
+    # detect caplog
+    caplog.clear() # clear previous log
+    subtract(x=0)
+    assert "input is zero" in caplog.text
+
+    # incorrect warning test example
+    # caplog.clear()  # uncomment this line will fail the test
+    subtract(x=1)  # this line generates no warning
+    assert "input is zero" in caplog.text
+
+    # incorrect error test example
+    with pytest.raises(AssertionError) as err_info:
+        # this line will trigger the Assertion Error
+        # comment the following line will fail the test
+        subtract(x=-1)
+        # the following line will never be executed
+        subtract(x=0.0)
+    assert "is negative" in str(err_info.value)
+
 ```
 
-Be careful, the `assert` is outside of the `with pytest.raises(ValueError) as err_info:`
-and we should not put multiple tests inside the same `with` as only the first error will
-be captured.
+In the example above, we are testing warning messages with
+[pytest caplog fixture](https://docs.pytest.org/en/stable/logging.html). All the
+messages are captured in `caplog` which is the input argument of the test function. Be
+careful that it is important to clear the caplog using `caplog.clear`. Otherwise, as the
+log is accumulated, we might have unexpected performance.
+
+For instance, with the example above:
+
+```python
+    # incorrect warning test example
+    # caplog.clear()  # uncomment this line will fail the test
+    subtract(x=1)  # this line generates no warning
+    assert "input is zero" in caplog.text
+```
+
+The test will pass but the assertion works only because we have generated. If the
+`caplog.clear()` is uncommented, the test will fail.
+
+Moreover, when testing errors, the `assert` is outside of the
+`with pytest.raises(ValueError) as err_info:` and we should not put multiple tests
+inside the same `with` as only the first error will be captured.
 
 For instance, in the following test example, the second subtract will never be executed
 regardless of whether it is correct or not. If this trigger an error, it will never be
 captured.
 
 ```python
-    # incorrect test example
+    # incorrect error test example
     with pytest.raises(AssertionError) as err_info:
-        subtract(x=-1)  # this line will trigger the Assertion Error
-        subtract(x=0.0)  # this line will never be executed
+        # this line will trigger the Assertion Error
+        # comment the following line will fail the test
+        subtract(x=-1)
+        # the following line will never be executed
+        subtract(x=0.0)
     assert "is negative" in str(err_info.value)
 ```
 
-For testing if a warning message has been properly raised, please use the
-[pytest caplog fixture](https://docs.pytest.org/en/stable/logging.html). The log
-messages of type `WARNING` will be automatically captured to assert if the warning
-message has been generated.
-
-```python
-    # warning test example
-    def test_foo(caplog):
-      func_which_raise_warning_message()
-      assert "warning message" in caplog.text
-```
+The test will pass because the first subtract raises the desired assertion error. The
+test will fail if we comment out the first subtract.
 
 ## Pre-commit setup
 
