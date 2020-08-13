@@ -80,7 +80,7 @@ the repository:
 pip install git+https://github.com/DeepRegNet/DeepReg.git
 ```
 
-## Train
+## Train a registration network
 
 Train a registration network using unpaired and labeled example data with a predefined
 configuration:
@@ -97,7 +97,7 @@ where
   for the training. Read configuration for more details.
 - `--log_dir test` specifies the output folder, the output will be saved in `logs/test`.
 
-## Predict
+## Predict a displacement field for registration
 
 The trained network can be evaluated using unseen example test dataset:
 
@@ -114,10 +114,10 @@ where
 - `--mode test` indicates the inference on the test dataset. Other options include
   `train` or `valid`.
 
-This is a demo using example dataset to train a registration network. Read tutorials and
-documentation for more details.
+This is a simplified demo using example dataset to train a registration network. More
+details and other options can be found in the [configuration](doc_configuration.md).
 
-## Warp
+## Warp an image
 
 DeepReg provides a command line interface (CLI) tool to warp an image / label with a
 dense displacement field (DDF):
@@ -138,3 +138,6 @@ where
   corresponding to x, y, z axises.
 - `--out`, provides the file path for the output. It should end with `.nii` or
   `.nii.gz`.
+
+More details and other options can be found in the
+[configuration](doc_configuration.md).

@@ -330,3 +330,7 @@ you do not have the most recent versions.
 ### MacOS
 
 TBC
+
+## Contributing to a DeepReg Demo
+
+Please see details in the [demo requirement](doc_demo_requirement.md).
