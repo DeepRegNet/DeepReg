@@ -1,6 +1,6 @@
 <!-- docs/_sidebar.md -->
 
-- **Getting started**
+- **Getting Started**
   - [Quick Start](quick_start.md)
 - **Tutorial**
   - [Image Registration](tutorial_registration.md)
@@ -12,6 +12,6 @@
   - [Dataset Loader](doc_data_loader.md)
   - [Contributing to DeepReg](CONTRIBUTING.md)
   - [Contributing to DeepReg Demo](doc_demo_requirement.md)
-- **Advanced and experimental topics**
-  - [Add a new loss function](doc_add_loss.md)
-  - [Inconsistent and partial labels](doc_label_sampling.md)
+- **Advanced and Experimental Topics**
+  - [Add a New Loss Function](doc_add_loss.md)
+  - [Inconsistent and Partial Labels](doc_label_sampling.md)
