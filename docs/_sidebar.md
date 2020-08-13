@@ -11,6 +11,7 @@
   - [Configuration File](doc_configuration.md)
   - [Dataset Loader](doc_data_loader.md)
   - [Contributing to DeepReg](CONTRIBUTING.md)
-  - [Contributing to DeepReg Demo](doc_demo_requirement.md) **Other advanced and
-    experimental topics**
-  -
+  - [Contributing to DeepReg Demo](doc_demo_requirement.md)
+- **Advanced and experimental topics**
+  - [Add a new loss function](doc_add_loss.md)
+  - [Inconsistent and partial labels](doc_label_sampling.md)
