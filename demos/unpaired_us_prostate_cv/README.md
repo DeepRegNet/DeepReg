@@ -37,7 +37,7 @@ python demos/unpaired_us_prostate_cv/demo_data.py
 train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir unpaired_us_prostate_cv
 ```
 
-- Call 'deepreg_predict' from command line to use the saved ckpt file for testing on the
+- Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
   10th fold data. The following example uses a pre-trained model, on CPU. If not
   specified, the results will be saves at the created timestamp-named directories under
   /logs.
