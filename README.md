@@ -31,7 +31,7 @@ and education in medical image registration using deep learning.**
 - [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
 - Code: https://github.com/DeepRegNet/DeepReg
 - Issue tracker: https://github.com/DeepRegNet/DeepReg/issues
-- Website: [deepreg.net](www.deepreg.net)
+- Website: http://deepreg.net/
 
 ## Contributing
 

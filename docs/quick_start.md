@@ -115,7 +115,7 @@ where
   `train` or `valid`.
 
 This is a simplified demo using example dataset to train a registration network. More
-details and other options can be found in the [configuration](doc_configuration.md).
+details and other options can be found in the [command line tools](doc_command.md).
 
 ## Warp an image
 
@@ -139,5 +139,4 @@ where
 - `--out`, provides the file path for the output. It should end with `.nii` or
   `.nii.gz`.
 
-More details and other options can be found in the
-[configuration](doc_configuration.md).
+More details and other options can be found in the [command line tools](doc_command.md).
