@@ -13,7 +13,7 @@ DeepReg includes:
   [command line tool](doc_command.md) `deepreg_predict`.
 
 DeepReg has been tested with a wide range of applications with real-world clinical image
-and label data. DeepReg Demos all consisted of open-accesible data sets, step-by-step
+and label data. DeepReg Demos all consisted of open-accessible data sets, step-by-step
 instructions, pre-trained models and numerical-and-graphical inference results for
 demonstration purposes. These applications range from ultrasound, CT and MR images,
 covering many clinical specialities such as neurology, urology, gastroentrology,
