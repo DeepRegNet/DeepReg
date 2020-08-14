@@ -97,7 +97,7 @@ where
   for the training. Read configuration for more details.
 - `--log_dir test` specifies the output folder, the output will be saved in `logs/test`.
 
-## Predict a displacement field for registration
+## Predict a displacement field
 
 The trained network can be evaluated using unseen example test dataset:
 

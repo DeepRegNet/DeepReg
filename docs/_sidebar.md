@@ -13,5 +13,5 @@
   - [Contributing to DeepReg](CONTRIBUTING.md)
   - [Contributing to DeepReg Demo](doc_demo_requirement.md)
 - **Advanced and Experimental Topics**
-  - [Add a New Loss Function](doc_add_loss.md)
-  - [Inconsistent and Partial Labels](doc_label_sampling.md)
+  - [Add a New Loss Function](tutorial_add_loss.md)
+  - [Inconsistent and Partial Labels](tutorial_label_sampling.md)
