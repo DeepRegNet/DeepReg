@@ -39,9 +39,9 @@ including `deepreg_train`, `deepreg_predict` and `deepreg_warp`.
 
 **Required:**
 
-- `--gpu` or `-g`, the same as with `train`.
+- `--gpu` or `-g`, the same as with `deepreg_train`.
 - `--ckpt_path` or `-k`, specifies the path to save model checkpoint(s) for prediction.
-  The usage is the same as with `train`.
+  The usage is the same as with `deepreg_train`.
 - `--config_path` or `-c`, specifies the configuration file for training. The path must
   end with `.yaml`.<br> Example:
   `--config_path deepreg/config/test/unpaired_labeled_ddf.yaml`<br> Optionally, multiple
@@ -53,8 +53,8 @@ including `deepreg_train`, `deepreg_predict` and `deepreg_warp`.
 
 **Optional:**
 
-- `--gpu_allow_growth` or `-gr`, the same as with `train`.
-- `--log_dir` or `-l`, the same as with `train`.
+- `--gpu_allow_growth` or `-gr`, the same as with `deepreg_train`.
+- `--log_dir` or `-l`, the same as with `deepreg_train`.
 - `--batch_size` or `-b`, specifies the batch size for prediction. The default is 1.
 - `--save_nifti`, saves the outputs in nifti form. This is default behavior. Use
   `--no_nifti` to disable the saving.
@@ -86,8 +86,6 @@ including `deepreg_train`, `deepreg_predict` and `deepreg_warp`.
   is provided, it should end with `.nii` or `.nii.gz`, otherwise the output path will be
   corrected automatically based on the given path.
 
-## Configuration file
-
-In addition to the arguments provided with the command line tools, detailed training and
-prediction configuration is specified in a `yaml` file. Please see
-[configuration file](doc_configuration.md) for further details.
+_In addition to the arguments provided with the command line tools, detailed training
+and prediction configuration is specified in a yaml file. Please see
+[configuration file](doc_configuration.md) for further details._

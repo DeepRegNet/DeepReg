@@ -8,10 +8,11 @@ information leakage), both in code development and subsequent applications.
 
 ## Random-split
 
-Every call of the `train` or `predict` function uses a dataset "physically" seperated by
-folders, including 'train', 'val' and 'test' sets used in a random-split experiment. In
-this case, user needs to randomly assign available experiment image and label files into
-the three folders. Again, for more details see the [Dataset loader](doc_data_loader.md).
+Every call of the `deepreg_train` or 'deepreg_predict' function uses a dataset
+"physically" seperated by folders, including 'train', 'val' and 'test' sets used in a
+random-split experiment. In this case, user needs to randomly assign available
+experiment image and label files into the three folders. Again, for more details see the
+[Dataset loader](doc_data_loader.md).
 
 ## Cross-validation
 
@@ -60,11 +61,11 @@ dataset:
     test: ""
 ```
 
-To further facilitate flexible uses of these dataset loaders, the `train` and `predict`
-functions also accept multiple yaml files - therefore the same `train` section does not
-have to be repeated multiple times for the multiple cross-validation folds or for the
-test. An example `dataset` section for configurating testing when using `predict` is
-given below.
+To further facilitate flexible uses of these dataset loaders, the `deepreg_train` and
+'deepreg_predict' functions also accept multiple yaml files - therefore the same `train`
+section does not have to be repeated multiple times for the multiple cross-validation
+folds or for the test. An example `dataset` section for configurating testing when using
+'deepreg_predict' is given below.
 
 "test.yaml":
 
