@@ -77,7 +77,7 @@ including `deepreg_train`, `deepreg_predict` and `deepreg_warp`.
 - `--ddf` or `-d`, specifies the file path of the ddf. The ddf should be saved in a
   nifti file with suffix `.nii` or `.nii.gz`. The ddf should be a 4D tensor, where the
   first three dimensions correspond to the fixed image shape and the fourth dimension
-  has 3 channels corresponding to x, y, z axises.
+  has 3 channels corresponding to x, y, z axes.
 
 **Optional:**
 
