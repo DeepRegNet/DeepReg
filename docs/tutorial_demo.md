@@ -16,7 +16,7 @@ DeepReg has been tested with a wide range of applications with real-world clinic
 and label data. DeepReg Demos all consisted of open-accessible data sets, step-by-step
 instructions, pre-trained models and numerical-and-graphical inference results for
 demonstration purposes. These applications range from ultrasound, CT and MR images,
-covering many clinical specialities such as neurology, urology, gastroentrology,
+covering many clinical specialities such as neurology, urology, gastroenterology,
 oncology, respirotory and cadiovascular diseases.
 
 In particular, the built-in dataset loaders, supporting nifti and h5 file format,
