@@ -12,17 +12,19 @@
 **DeepReg is a freely available, community-supported open-source toolkit for research in
 medical image registration using deep learning.**
 
-The current version is implemented as a [TensorFlow 2](https://www.tensorflow.org/)-based framework, and contains implementations for unsupervised- and weaky-supervised algorithms 
-with their combinations and variants. DeepReg has a practical focus on growing and diverse 
-clinical applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read the
+The current version is implemented as a
+[TensorFlow 2](https://www.tensorflow.org/)-based framework, and contains
+implementations for unsupervised- and weaky-supervised algorithms with their
+combinations and variants. DeepReg has a practical focus on growing and diverse clinical
+applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read the
 [documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more details.
 
 ---
 
 ## Features
 
-> _Right now, DeepReg is still under-development - however, many tutorials, demos and much
-of the core functionality are already accessible._
+> _Right now, DeepReg is still under-development - however, many tutorials, demos and
+> much of the core functionality are already accessible._
 
 DeepReg **extends and simplifies workflows for medical imaging researchers** working in
 TensorFlow 2, and can be easily installed and used across multiple platforms for **rapid
@@ -38,13 +40,15 @@ under the Apache 2.0 license**.
 
 Tutorials and examples are located in [DeepReg/docs](./docs/tutorial_demo.md).
 
-Feel free to read DeepReg's [documentation](https://deepregnet.github.io/DeepReg/#/) as well.
+Feel free to read DeepReg's [documentation](https://deepregnet.github.io/DeepReg/#/) as
+well.
 
 ## Contributing
 
 Get involved, and help make DeepReg better!
 
-For guidance on making a contribution to DeepReg, see the [contribution guidelines](./docs/CONTRIBUTING.md).
+For guidance on making a contribution to DeepReg, see the
+[contribution guidelines](./docs/CONTRIBUTING.md).
 
 ## Links
 
