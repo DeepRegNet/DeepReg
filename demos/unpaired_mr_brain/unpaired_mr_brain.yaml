@@ -1,0 +1,53 @@
+dataset:
+  dir:
+    train: "demos/unpaired_mr_brain/data/train"
+    valid: "demos/unpaired_mr_brain/data/test"
+    test: "demos/unpaired_mr_brain/data/test"
+  format: "nifti"
+  type: "unpaired" # paired / unpaired / grouped
+  labeled: True
+  image_shape: [64, 64, 64]
+
+train:
+  model:
+    method: "dvf" # ddf / dvf / conditional
+    backbone: "unet"
+    local:
+      num_channel_initial: 2
+      extract_levels: [0, 1, 2, 3, 4]
+    unet:
+      num_channel_initial: 2
+      depth: 3
+      pooling: true
+      concat_skip: true
+  loss:
+    dissimilarity:
+      image:
+        name: "lncc"
+        weight: 0.5
+      label:
+        weight: 1.0
+        name: "single_scale"
+        multi_scale:
+          loss_type: "dice"
+          loss_scales: [0, 1, 2, 4, 8, 16, 32]
+        single_scale:
+          loss_type: "dice"
+    regularization:
+      weight: 0.01
+      energy_type: "gradient-l2" # bending / gradient-l2 / gradient-l1
+  preprocess:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1
+  optimizer:
+    name: "adam"
+    adam:
+      learning_rate: 1.0e-5
+    sgd:
+      learning_rate: 1.0e-4
+      momentum: 0.9
+    rms:
+      learning_rate: 1.0e-4
+      momentum: 0.9
+  epochs: 200
+  save_period: 2

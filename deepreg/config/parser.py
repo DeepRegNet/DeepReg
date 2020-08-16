@@ -42,15 +42,10 @@ def config_sanity_check(config: dict):
     data_config = config["dataset"]
 
     if data_config["type"] not in ["paired", "unpaired", "grouped"]:
-        raise ValueError(
-            "data type must be paired / unpaired / grouped,"
-            "got {}.".format(data_config["type"])
-        )
+        raise ValueError(f"data type must be paired / unpaired / grouped, got {type}.")
 
     if data_config["format"] not in ["nifti", "h5"]:
-        raise ValueError(
-            "data format must be nifti / h5," "got {}.".format(data_config["format"])
-        )
+        raise ValueError(f"data format must be nifti / h5, got {format}.")
 
     assert "dir" in data_config
     for mode in ["train", "valid", "test"]:
@@ -62,8 +57,8 @@ def config_sanity_check(config: dict):
             isinstance(data_dir, str) or isinstance(data_dir, list) or data_dir is None
         ):
             raise ValueError(
-                "data_dir for mode {} must be string or list of strings,"
-                "got {}.".format(mode, data_dir)
+                f"data_dir for mode {mode} must be string or list of strings,"
+                f"got {data_dir}."
             )
 
     # check model
@@ -73,11 +68,17 @@ def config_sanity_check(config: dict):
                 "For conditional model, data have to be labeled, got unlabeled data."
             )
 
-    # check loss
-    if data_config["labeled"] is False:  # unlabeled
-        image_loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
-        if image_loss_weight <= 0:
-            raise ValueError(
-                "For unlabeled data, the image loss must have positive weight, "
-                "got {}.".format(image_loss_weight)
-            )
+    # image loss weights should >= 0
+    loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The image loss {loss_weight} is not positive.")
+
+    # label loss weights should >= 0
+    loss_weight = config["train"]["loss"]["dissimilarity"]["label"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The label loss {loss_weight} is not positive.")
+
+    # regularization loss weights should >= 0
+    loss_weight = config["train"]["loss"]["regularization"]["weight"]
+    if loss_weight <= 0:
+        logging.warning(f"The regularization loss {loss_weight} is not positive.")

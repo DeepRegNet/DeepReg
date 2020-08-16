@@ -24,12 +24,12 @@ def test_sample_index_generator():
 
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
-            data_dir_path = join(DataPaths[key_file_loader], split)
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
             indices_to_compare = []
 
             for seed in [0, 1, 0]:
                 data_loader = UnpairedDataLoader(
-                    data_dir_path=data_dir_path,
+                    data_dir_paths=data_dir_path,
                     image_shape=image_shape,
                     file_loader=file_loader,
                     labeled=True,
@@ -63,7 +63,7 @@ def test_validate_data_files():
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
-            data_dir_path = join(DataPaths[key_file_loader], split)
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
             image_shape = (64, 64, 60)
             common_args = dict(
                 file_loader=file_loader,
@@ -73,7 +73,7 @@ def test_validate_data_files():
             )
 
             data_loader = UnpairedDataLoader(
-                data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                data_dir_paths=data_dir_path, image_shape=image_shape, **common_args
             )
 
             assert data_loader.validate_data_files() is None
@@ -87,7 +87,7 @@ def test_close():
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
 
-            data_dir_path = join(DataPaths[key_file_loader], split)
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
             image_shape = (64, 64, 60)
             common_args = dict(
                 file_loader=file_loader,
@@ -97,10 +97,10 @@ def test_close():
             )
 
             data_loader = UnpairedDataLoader(
-                data_dir_path=data_dir_path, image_shape=image_shape, **common_args
+                data_dir_paths=data_dir_path, image_shape=image_shape, **common_args
             )
 
             if key_file_loader == "h5":
                 data_loader.close()
-                assert data_loader.loader_moving_image.h5_file.__bool__() is False
-                assert data_loader.loader_moving_image.h5_file.__bool__() is False
+                for f in data_loader.loader_moving_image.h5_files.values():
+                    assert not f.__bool__()

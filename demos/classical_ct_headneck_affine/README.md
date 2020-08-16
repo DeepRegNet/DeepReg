@@ -1,9 +1,8 @@
 # Classical affine registration for head-and-neck CT images
 
-This is a special demo that demonstrates using the DeepReg package for claissical affine
-image registration, which iteratively solves an optimisation problem. Gradient descent
-is used to minimise the image dissimilarity function of a given pair of moving anf fixed
-images.
+This is a special demo that uses the DeepReg package for claissical affine image
+registration, which iteratively solves an optimisation problem. Gradient descent is used
+to minimise the image dissimilarity function of a given pair of moving anf fixed images.
 
 ## Author
 
@@ -22,7 +21,7 @@ intra-/post-treatment.
 - Run `demo_data.py` script to download an example CT volumes with two labels;
 
 ```bash
-python demos/classical_ct_headandneck_affine/demo_data.py
+python demos/classical_ct_headneck_affine/demo_data.py
 ```
 
 - Run `demo_register.py` script. This script will register two images. The fixed image
@@ -33,7 +32,7 @@ python demos/classical_ct_headandneck_affine/demo_data.py
   ground-truth image/labels.
 
 ```bash
-python demos/classical_ct_headandneck_affine/demo_register.py
+python demos/classical_ct_headneck_affine/demo_register.py
 ```
 
 ## Data
