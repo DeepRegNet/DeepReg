@@ -2,7 +2,7 @@ from deepreg.train import train
 
 # Training
 
-gpu = ""
+gpu = "0,1,2"
 gpu_allow_growth = False
 ckpt_path = ""
 log_dir = "unpaired_ct_abdomen_log"
