@@ -36,8 +36,10 @@ def local_normalized_cross_correlation(
 ) -> tf.Tensor:
     """
     local squared zero-normalized cross-correlation
-    ref Zero-normalized cross-correlation (ZNCC) in
+    Reference Zero-normalized cross-correlation (ZNCC) in
     https://en.wikipedia.org/wiki/Cross-correlation
+    Code reference
+    https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
 
     moving a kernel/window on the y_true/y_pred
     then calculate the square of zncc in the window of y_true/y_pred
