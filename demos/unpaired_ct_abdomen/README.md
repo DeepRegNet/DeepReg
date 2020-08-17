@@ -4,31 +4,32 @@
 
 Ester Bonmati (e.bonmati@ucl.ac.uk)
 
-## Instructions
+## Application
 
 This demo shows how to register unpaired CT data from the abdomen using DeepReg (unlabeled and labeled).
 The data that this demo uses is from the MICCAI Learn2Reg grand challenge (https://learn2reg.grand-challenge.org/) task 3 [1].
 
-1.- First, download the data (L2R_Task3_AbdominalCT.tar) from Learn2Reg task3 to the following directory: demos/unpaired_ct_abdomen/dataset/. If you check the files in /demos/unpaired_ct_abdomen/dataset you should get the following:
+## Requirements
 
-```
-DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
-L2R_Task3_AbdominalCT.tar
-```
+This demo requires to have installed DeepReg.
 
-2.- Run demo_data.py to extract all files and to split the data in training, validation and testing. 
+## Instructions
+
+1.- Go to the root directory DeepReg.
+
+2.- Run demo_data.py to download and extract all files, and to split the data in training, validation and testing. If the data has already been downloaded, you can skip the download.
 
 ```
 python ./demos/unpaired_ct_abdomen/demo_data.py  
 ```
 
-After running the command you should see this:
+After running the command you will have the following directories in DeepReg/demos/unpaired_ct_abdomen/dataset:
 
 ```
 DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
 L2R_Task3_AbdominalCT.tar  test  train  valid
 ```
-Where L2R_Task3_AbdominalCT.tar is the original dataset file downloaded previously, test is a folder that contains the images and labels for testing, train is a folder that contains the images and labels for training, and valid is a folder that contains the images and labels for validation.
+Where L2R_Task3_AbdominalCT.tar is the dataset that has been downloaded, test is a folder that contains the images and labels for testing, train is a folder that contains the images and labels for training, and valid is a folder that contains the images and labels for validation.
 
 3.- The next step is to train the network using DeepReg. To train the network, run demo_train.py:
 
@@ -47,8 +48,18 @@ python ./demos/unpaired_ct_abdomen/demo_predict.py
 ```
 python ./demos/unpaired_ct_abdomen/demo_plot.py   
 ```
+You will find the following image with the results of the prediction in DeepReg/logs/unpaired_ct_abdomen_log/plot/results_pair_0_1.png:
 
-## Application
+
+<p align="center">
+	<img src="./demo_example" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="200" />
+</p>
+
+## Pre-trained Model
+ 
+A pre-trained model is also available. 
+
+
 
 
 
