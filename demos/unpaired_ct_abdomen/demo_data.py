@@ -1,19 +1,45 @@
 import tarfile
 import os
+import sys
 import shutil
 import nibabel as nib
 import numpy as np
 import wget
 
-# 0.- Download the data
-os.system(wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO")
-
-# 1.- Extract data --> This will create a new folder "Training"
+# 1.- Create directory
 project_dir = r"demos/unpaired_ct_abdomen"
 data_folder = os.path.join(project_dir, "dataset")
 data_file = os.path.join(data_folder, "L2R_Task3_AbdominalCT.tar") #need to be changed to settings or similar
+download = True
 
-# TODO if Training folder exists --> eliminate
+if os.path.exists(data_folder):
+    if os.path.exists(data_file):
+        valid = {"Y": True, "Yes": True, "y": True, "yes": True, "N": False, "No": False, "n": False, "no": False,}
+        response = input("Data already exists, download again? [Y/N]: ")
+        
+        if response in valid.keys():
+            download = valid[response]
+        else:
+            print("Invalid answer. Please try again.")
+            sys.exit(1)
+else:
+    os.mkdir(data_folder)
+
+# 2.- Download the data
+if download == True:
+    if os.path.exists(data_file):
+        os.remove(data_file)
+    res = os.system("wget --load-cookies /tmp/cookies.txt -O demos/unpaired_ct_abdomen/dataset/L2R_Task3_AbdominalCT.tar \"https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate \'https://docs.google.com/uc?export=download&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO\' -O- | sed -rn \'s/.*confirm=([0-9A-Za-z_]+).*/"+chr(92)+"1"+chr(92)+"n/p\')&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO\"")
+    if not res == 0:
+        os.remove(data_file) # download failed, remove partly downloaded file
+
+if not os.path.exists(data_folder):
+    print("There was a problem downloading the data. Please try again.")
+    sys.exit(1)
+
+# 3.- Extract data --> This will create a new temporal folder "Training"
+if os.path.exists(os.path.join(data_folder,"Training")):
+    shutil.rmtree(os.path.join(data_folder,"Training")) # delete temporal folder
 
 tar_file = tarfile.open(data_file)
 tar_file.extractall(data_folder)
@@ -21,7 +47,7 @@ tar_file.close
 img_folder_name = os.path.join(data_folder,"Training/img/")
 label_folder_name = os.path.join(data_folder,"Training/label/")
 
-# 2. Normalise and rename all image files
+# 4. Normalise and rename all image files
 for gz_image_file in os.listdir(img_folder_name):
     image_data = np.asarray(nib.load(os.path.join(img_folder_name, gz_image_file)).dataobj, dtype=np.float32)
     
@@ -32,7 +58,7 @@ for gz_image_file in os.listdir(img_folder_name):
         nib.save(nii_image, os.path.join(img_folder_name, gz_image_file))
     os.rename(os.path.join(img_folder_name, gz_image_file), os.path.join(img_folder_name, gz_image_file[3:]))
 
-# 3. Normalise and rename all label files, and separate labels in multiple channels and binary
+# 5. Normalise and rename all label files, and separate labels in multiple channels and binary
 for gz_label_file in os.listdir(label_folder_name):
     label_data = np.asarray(nib.load(os.path.join(label_folder_name, gz_label_file)).dataobj, dtype=np.float32)
     # There are 13 labels in the dataset, and each label has to be in a separate channel. 0 is background.
@@ -42,14 +68,17 @@ for gz_label_file in os.listdir(label_folder_name):
     nib.save(nii_labels, os.path.join(label_folder_name, gz_label_file))
     os.rename(os.path.join(label_folder_name, gz_label_file), os.path.join(label_folder_name, gz_label_file[5:]))
 
-# 4.- Divide data in training, validation and testing
+# 6.- Divide data in training, validation and testing
 validation_split = 0.15 # 15% of the data for validation
 test_split = 0.07 # 5% of the data for testing
 
 img_files = os.listdir(img_folder_name)
 label_files = os.listdir(label_folder_name)
 
-# TODO error if lenght of img_files != label files
+if len(img_files) != len(label_files):
+    print("Error. The number of images and labels in " + img_folder_name + " and " +
+     label_folder_name + " seem to be different. Plase try again.")
+    sys.exit(1)
 
 num_cases = len(img_files)
 
@@ -71,8 +100,10 @@ print("The following files will be used in training: ")
 print(train_img_files)
 print(train_label_files)
 
-# 5.- Copy data into train folder
+# 7.- Copy data into train folder
 train_folder = os.path.join(data_folder, "train")
+if os.path.exists(train_folder):
+    shutil.rmtree(train_folder) # delete old data
 
 if os.path.exists(train_folder) is not True:
     os.mkdir(train_folder)
@@ -84,8 +115,10 @@ for nii_file in train_img_files:
 for label_file in train_label_files:
     shutil.move(os.path.join(label_folder_name,label_file),os.path.join(train_folder,"labels",label_file))
 
-# 6.- Copy data into validation folder
+# 8.- Copy data into validation folder
 valid_folder = os.path.join(data_folder, "valid")
+if os.path.exists(valid_folder):
+    shutil.rmtree(valid_folder) # delete old data
 
 if os.path.exists(valid_folder) is not True:
     os.mkdir(valid_folder)
@@ -97,8 +130,10 @@ for nii_file in validation_img_files:
 for label_file in validation_label_files:
     shutil.move(os.path.join(label_folder_name,label_file),os.path.join(valid_folder,"labels",label_file))
 
-# 7.- Copy data into test folder
+# 9.- Copy data into test folder
 test_folder = os.path.join(data_folder, "test")
+if os.path.exists(test_folder):
+    shutil.rmtree(test_folder) # delete old data
 
 if os.path.exists(test_folder) is not True:
     os.mkdir(test_folder)
@@ -110,4 +145,4 @@ for nii_file in test_img_files:
 for label_file in test_label_files:
     shutil.move(os.path.join(label_folder_name,label_file),os.path.join(test_folder,"labels",label_file))
 
-shutil.rmtree(os.path.join(data_folder,"Training"))
+shutil.rmtree(os.path.join(data_folder,"Training")) # delete temporal folder
