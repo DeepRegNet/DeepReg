@@ -35,8 +35,12 @@ def local_normalized_cross_correlation(
     y_true: tf.Tensor, y_pred: tf.Tensor, kernel_size: int = 9, **kwargs
 ) -> tf.Tensor:
     """
+    local squared zero-normalized cross-correlation
+    ref Zero-normalized cross-correlation (ZNCC) in
+    https://en.wikipedia.org/wiki/Cross-correlation
+
     moving a kernel/window on the y_true/y_pred
-    then calculate the ncc in the window of y_true/y_pred
+    then calculate the square of zncc in the window of y_true/y_pred
     average over all windows in the end
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
