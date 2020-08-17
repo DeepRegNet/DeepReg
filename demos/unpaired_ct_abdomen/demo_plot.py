@@ -1,5 +1,5 @@
 import os
-
+import shutil
 import matplotlib.pyplot as plt
 
 # Plot results from predictions
@@ -40,8 +40,12 @@ plt.title("Label 1 moving label")
 plt.axis("off")
 
 # Save image
-os.mkdir(os.path.join("logs", log_dir, "plot"))
-plot_dir = os.path.join("logs", log_dir, "plot", "results_label1_label2.png")
+plot_folder = os.path.join("logs", log_dir, "plot")
+if os.path.exists(plot_folder):
+    shutil.rmtree(plot_folder) # delete old data
+
+os.mkdir(plot_folder)
+plot_dir = os.path.join(plot_folder, "results_pair_0_1.png")
 print(plot_dir)
 plt.savefig(plot_dir)
 print("Results saved in:", plot_dir)
