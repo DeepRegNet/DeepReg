@@ -52,7 +52,7 @@ You will find the following image with the results of the prediction in DeepReg/
 
 
 <p align="center">
-	<img src="./demo_example" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="200" />
+	<img src="./demos/unpaired_ct_abdomen/demo_example.png" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="200" />
 </p>
 
 ## Pre-trained Model
