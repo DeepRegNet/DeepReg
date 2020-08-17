@@ -27,6 +27,7 @@ After running the command you will have the following directories in DeepReg/dem
 
 ```
 DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
+
 L2R_Task3_AbdominalCT.tar  test  train  valid
 ```
 Where L2R_Task3_AbdominalCT.tar is the dataset that has been downloaded, test is a folder that contains the images and labels for testing, train is a folder that contains the images and labels for training, and valid is a folder that contains the images and labels for validation.
@@ -34,25 +35,24 @@ Where L2R_Task3_AbdominalCT.tar is the dataset that has been downloaded, test is
 3.- The next step is to train the network using DeepReg. To train the network, run demo_train.py:
 
 ```
-python ./demos/unpaired_ct_abdomen/demo_train.py   
+DeepReg$ python ./demos/unpaired_ct_abdomen/demo_train.py   
 ```
 
 4.- After training the network, run demo_predict:
 
 ```
-python ./demos/unpaired_ct_abdomen/demo_predict.py   
+DeepReg$ python ./demos/unpaired_ct_abdomen/demo_predict.py   
 ```
 
 5.- Finally, if you want to see the result of predict with the images in testing, run demo_plot:
 
 ```
-python ./demos/unpaired_ct_abdomen/demo_plot.py   
+DeepReg$ python ./demos/unpaired_ct_abdomen/demo_plot.py   
 ```
 You will find the following image with the results of the prediction in DeepReg/logs/unpaired_ct_abdomen_log/plot/results_pair_0_1.png:
 
-
 <p align="center">
-	<img src="./demos/unpaired_ct_abdomen/demo_example.png" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="200" />
+	<img src="./demo_example.png" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="200" />
 </p>
 
 ## Pre-trained Model
