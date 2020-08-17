@@ -49,10 +49,14 @@ DeepReg$ python ./demos/unpaired_ct_abdomen/demo_predict.py
 ```
 DeepReg$ python ./demos/unpaired_ct_abdomen/demo_plot.py   
 ```
-You will find the following image with the results of the prediction in DeepReg/logs/unpaired_ct_abdomen_log/plot/results_pair_0_1.png:
+You will find the following images with the results of the prediction in DeepReg/logs/unpaired_ct_abdomen_log/plot:
 
 <p align="center">
-	<img src="./demo_example.png" alt="unpaired_ct_abdomen_example" title="unpaired_ct_abdomen" width="600" />
+	<img src="./demo_example_1.png" alt="unpaired_ct_abdomen_example_1" title="unpaired_ct_abdomen" width="600" />
+</p>
+
+<p align="center">
+	<img src="./demo_example_2.png" alt="unpaired_ct_abdomen_example_2" title="unpaired_ct_abdomen" width="600" />
 </p>
 
 ## Pre-trained Model
