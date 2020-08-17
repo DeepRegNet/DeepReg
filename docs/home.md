@@ -1,30 +1,31 @@
 # DeepReg
 
-**DeepReg is a freely available, community-supported open-source toolkit for research in
-medical image registration using deep learning.**
+**DeepReg is a freely available, community-supported open-source toolkit for research
+and education in medical image registration using deep learning.**
 
-The current version is implemented as a TensorFlow 2-based framework, and contains
-implementations for unsupervised- and weaky-supervised algorithms with their
-combinations and variants. DeepReg has a practical focus on growing and diverse clinical
-applications, as seen in the provided [examples](tutorial_demo.md). Read the
-[documentation and tutorials](https://deepregnet.github.io/DeepReg/#/) for more details.
-
-_Right now, DeepReg is still under-development - however, many tutorials, demos and much
-of the core funtionality are already accessible._
+The current version is implemented as a [TensorFlow2](https://www.tensorflow.org/)-based
+framework, and contains implementations for unsupervised- and weaky-supervised
+algorithms with their combinations and variants. DeepReg has a practical focus on
+growing and diverse clinical applications, as seen in the provided examples -
+[DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo). Read the
+[documentation and tutorials](https://deepregnet.github.io/DeepReg/) for more details.
 
 [Get involved](CONTRIBUTING.md) and help make DeepReg better!
 
+> _DeepReg<sup>beta</sup> will be released in Autumn 2020 - however, many tutorials,
+> demos and much of the core functionality are already accessible._
+
 ## Features
 
-DeepReg **extends and simplifies workflows for medical imaging researchers** working in
-TensorFlow 2, and can be easily installed and used across multiple platforms for **rapid
-deployment of deep-learning algorithms**.
+DeepReg extends and simplifies workflows for medical imaging researchers working in
+TensorFlow 2, and can be easily installed and used for efficient training and rapid
+deployment of deep-learning registration algorithms.
 
-DeepReg is designed to be used with **minimal programming or scripting**, owing to its
+DeepReg is designed to be used with minimal programming or scripting, owing to its
 built-in command line tools.
 
-Our development and all related work involved in the project is public, and **released
-under the Apache 2.0 license**.
+Our development and all related work involved in the project is public, and released
+under the Apache 2.0 license.
 
 ---
 
@@ -47,7 +48,7 @@ signifigant contributions to DeepReg are listed below (in alphabetical order).
 | Yipeng Hu          | University College London                         |
 | Yunguan Fu         | University College London / InstaDeep             |
 | Zachary Baum       | University College London                         |
-| Zhe Min            |                                                   |
+| Zhe Min            | University College London                         |
 
 This open-source initiative started within University College London, with support from
 the Wellcome/EPSRC Centre for Interventional and Surgical Sciences
