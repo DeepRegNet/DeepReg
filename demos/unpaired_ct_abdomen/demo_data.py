@@ -3,6 +3,10 @@ import os
 import shutil
 import nibabel as nib
 import numpy as np
+import wget
+
+# 0.- Download the data
+os.system(wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO")
 
 # 1.- Extract data --> This will create a new folder "Training"
 project_dir = r"demos/unpaired_ct_abdomen"
