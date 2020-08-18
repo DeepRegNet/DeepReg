@@ -71,6 +71,10 @@ deepreg_train --gpu "2" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdo
 DeepReg$ python ./demos/unpaired_ct_abdomen/demo_predict.py
 ```
 
+```
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weights-epoch750.ckpt --save_png --mode test
+```
+
 5.- Finally, if you want to see the result of predict with the images in testing, run
 demo_plot:
 
