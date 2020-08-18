@@ -76,4 +76,6 @@ for filename in filenames_all:
         img1 = nib.Nifti1Image(img1.astype(np.int8), img.affine)
         img1.to_filename(filename_dst)
 
+os.remove(ZIP_PATH)
+
 print("Done. \n")
