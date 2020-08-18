@@ -70,9 +70,7 @@ for filename in filenames_all:
     # re-encode the label files - hard-coded using 13 of them regardless exists or not
     if typename == "labels":
         img = nib.load(filename_dst)
-        img1 = np.stack(
-            [np.asarray(img.dataobj) == label_id for label_id in range(1, 14)], axis=3
-        )
+        img1 = np.stack([np.asarray(img.dataobj) == i for i in range(1, 14)], axis=3)
         img1 = nib.Nifti1Image(img1.astype(np.int8), img.affine)
         img1.to_filename(filename_dst)
 
