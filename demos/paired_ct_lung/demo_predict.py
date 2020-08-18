@@ -10,7 +10,7 @@ from deepreg.predict import predict
 log_dir = "learn2reg_t2_paired_train_logs"
 
 log_dir_tr = r"demos/paired_ct_lung/learn2reg_t2_paired_train_logs"
-ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch100.ckpt")
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch500.ckpt")
 config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
