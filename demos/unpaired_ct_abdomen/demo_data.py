@@ -1,223 +1,79 @@
 import os
 import shutil
-import sys
-import tarfile
+import zipfile
 
 import nibabel as nib
 import numpy as np
+from tensorflow.keras.utils import get_file
 
-# import wget
+PROJECT_DIR = r"demos/unpaired_ct_abdomen"
+os.chdir(PROJECT_DIR)
 
-# 1.- Create directory
-project_dir = r"demos/unpaired_ct_abdomen"
-data_folder = os.path.join(project_dir, "dataset")
-data_file = os.path.join(
-    data_folder, "L2R_Task3_AbdominalCT.tar"
-)  # need to be changed to settings or similar
-download = True
+ORIGIN = "https://github.com/ucl-candi/datasets_deepreg_demo/archive/abdct.zip"
+ZIP_PATH = "abdct.zip"
+DATA_PATH = "dataset"
 
-if os.path.exists(data_folder):
-    if os.path.exists(data_file):
-        valid = {
-            "Y": True,
-            "Yes": True,
-            "y": True,
-            "yes": True,
-            "N": False,
-            "No": False,
-            "n": False,
-            "no": False,
-        }
-        response = input("Data already exists, download again? [Y/N]: ")
+get_file(os.path.abspath(ZIP_PATH), ORIGIN)
 
-        if response in valid.keys():
-            download = valid[response]
-        else:
-            print("Invalid answer. Please try again.")
-            sys.exit(1)
-else:
-    os.mkdir(data_folder)
+zf = zipfile.ZipFile(ZIP_PATH)
+filenames_all = [fn for fn in zf.namelist() if fn.split(".")[-1] == "gz"]
+num_data = int(len(filenames_all) / 2)
+# check indices
+filenames_indices = list(
+    set([int(fn.split("/")[-1].split(".")[0]) for fn in filenames_all])
+)
+if len(filenames_indices) is not num_data:
+    raise ("Images and labels are not in pairs.")
 
-# 2.- Download the data
-if download is True:
-    if os.path.exists(data_file):
-        os.remove(data_file)
-    res = os.system(
-        "wget --load-cookies /tmp/cookies.txt -O demos/unpaired_ct_abdomen/dataset/L2R_Task3_AbdominalCT.tar \"https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/"
-        + chr(92)
-        + "1"
-        + chr(92)
-        + "n/p')&id=1aWyS_mQ5n7X2bTk9etHrn5di2-EZEzyO\""
-    )
-    if not res == 0:
-        os.remove(data_file)  # download failed, remove partly downloaded file
+print("\nAbdominal CT data downloaded with %d image-label pairs.", num_data)
 
-if not os.path.exists(data_folder):
-    print("There was a problem downloading the data. Please try again.")
-    sys.exit(1)
+ratio_val = 0.1
+ratio_test = 0.15
+num_val = int(num_data * ratio_val)
+num_test = int(num_data * ratio_test)
+num_train = num_data - num_val - num_test
 
-# 3.- Extract data --> This will create a new temporal folder "Training"
-if os.path.exists(os.path.join(data_folder, "Training")):
-    shutil.rmtree(os.path.join(data_folder, "Training"))  # delete temporal folder
+print(
+    "Extracting data into %d-%d-%d for train-val-test (%0.2f-%0.2f-%0.2f)..."
+    % (num_train, num_val, num_test, 1 - ratio_val - ratio_test, ratio_val, ratio_test)
+)
 
-tar_file = tarfile.open(data_file)
-tar_file.extractall(data_folder)
-tar_file.close
-img_folder_name = os.path.join(data_folder, "Training/img/")
-label_folder_name = os.path.join(data_folder, "Training/label/")
+# extract to respective folders
+folders = [os.path.join(DATA_PATH, dn) for dn in ["train", "val", "test"]]
+if os.path.exists(DATA_PATH):
+    shutil.rmtree(DATA_PATH)
+os.mkdir(DATA_PATH)
+for fn in folders:
+    os.mkdir(fn)
+    os.mkdir(os.path.join(fn, "images"))
+    os.mkdir(os.path.join(fn, "labels"))
 
-# 4. Normalise and rename all image files
-for gz_image_file in os.listdir(img_folder_name):
-    image_data = np.asarray(
-        nib.load(os.path.join(img_folder_name, gz_image_file)).dataobj, dtype=np.float32
-    )
-
-    if np.min(image_data) < 0 or np.max(255.0) > 1:
-        image_data = (
-            (image_data - np.min(image_data))
-            * 255
-            / (np.max(image_data) - np.min(image_data))
+for filename in filenames_all:
+    # images or labels
+    if filename.startswith("datasets_deepreg_demo-abdct/dataset/images"):
+        typename = "images"
+    elif filename.startswith("datasets_deepreg_demo-abdct/dataset/labels"):
+        typename = "labels"
+    else:
+        continue
+    # train, val or test
+    idx = filenames_indices.index(int(filename.split("/")[-1].split(".")[0]))
+    if idx < num_train:  # train
+        fidx = 0
+    elif idx < (num_train + num_val):  # val
+        fidx = 1
+    else:  # test
+        fidx = 2
+    filename_dst = os.path.join(folders[fidx], typename, filename.split("/")[-1])
+    with zf.open(filename) as sf, open(filename_dst, "wb") as df:
+        shutil.copyfileobj(sf, df)
+    # re-encode the label files - hard-coded using 13 of them regardless exists or not
+    if typename == "labels":
+        img = nib.load(filename_dst)
+        img1 = np.stack(
+            [np.asarray(img.dataobj) == label_id for label_id in range(1, 14)], axis=3
         )
-        image_data = (
-            image_data * 0.9999
-        )  # Workaround to avoid error with floats being > 1.0
-        nii_image = nib.Nifti1Image(image_data, affine=None)
-        nib.save(nii_image, os.path.join(img_folder_name, gz_image_file))
-    os.rename(
-        os.path.join(img_folder_name, gz_image_file),
-        os.path.join(img_folder_name, gz_image_file[3:]),
-    )
+        img1 = nib.Nifti1Image(img1.astype(np.int8), img.affine)
+        img1.to_filename(filename_dst)
 
-# 5. Normalise and rename all label files, and separate labels in multiple channels and binary
-for gz_label_file in os.listdir(label_folder_name):
-    label_data = np.asarray(
-        nib.load(os.path.join(label_folder_name, gz_label_file)).dataobj,
-        dtype=np.float32,
-    )
-    # There are 13 labels in the dataset, and each label has to be in a separate channel. 0 is background.
-    masks = np.concatenate(
-        [
-            np.expand_dims((label_data == label).astype(np.float32), axis=3)
-            for label in range(1, 13)
-        ],
-        axis=3,
-    )
-    masks = masks * 0.9999  # Workaround to avoid error with floats being > 1.0
-    nii_labels = nib.Nifti1Image(masks, affine=None)
-    nib.save(nii_labels, os.path.join(label_folder_name, gz_label_file))
-    os.rename(
-        os.path.join(label_folder_name, gz_label_file),
-        os.path.join(label_folder_name, gz_label_file[5:]),
-    )
-
-# 6.- Divide data in training, validation and testing
-validation_split = 0.15  # 15% of the data for validation
-test_split = 0.07  # 5% of the data for testing
-
-img_files = os.listdir(img_folder_name)
-label_files = os.listdir(label_folder_name)
-
-if len(img_files) != len(label_files):
-    print(
-        "Error. The number of images and labels in "
-        + img_folder_name
-        + " and "
-        + label_folder_name
-        + " seem to be different. Plase try again."
-    )
-    sys.exit(1)
-
-num_cases = len(img_files)
-
-test_img_files = img_files[0 : int(num_cases * test_split)]
-test_label_files = label_files[0 : int(num_cases * test_split)]
-print("The following files will be used in testing: ")
-print(test_img_files)
-print(test_label_files)
-
-validation_img_files = img_files[
-    int(num_cases * test_split) : int(num_cases * test_split)
-    + int(num_cases * validation_split)
-]
-validation_label_files = label_files[
-    int(num_cases * test_split) : int(num_cases * test_split)
-    + int(num_cases * validation_split)
-]
-print("The following files will be used in validation: ")
-print(validation_img_files)
-print(validation_label_files)
-
-train_img_files = img_files[
-    int(num_cases * test_split) + int(num_cases * validation_split) :
-]
-train_label_files = label_files[
-    int(num_cases * test_split) + int(num_cases * validation_split) :
-]
-print("The following files will be used in training: ")
-print(train_img_files)
-print(train_label_files)
-
-# 7.- Copy data into train folder
-train_folder = os.path.join(data_folder, "train")
-if os.path.exists(train_folder):
-    shutil.rmtree(train_folder)  # delete old data
-
-if os.path.exists(train_folder) is not True:
-    os.mkdir(train_folder)
-    os.mkdir(os.path.join(train_folder, "images"))
-    os.mkdir(os.path.join(train_folder, "labels"))
-
-for nii_file in train_img_files:
-    shutil.move(
-        os.path.join(img_folder_name, nii_file),
-        os.path.join(train_folder, "images", nii_file),
-    )
-for label_file in train_label_files:
-    shutil.move(
-        os.path.join(label_folder_name, label_file),
-        os.path.join(train_folder, "labels", label_file),
-    )
-
-# 8.- Copy data into validation folder
-valid_folder = os.path.join(data_folder, "valid")
-if os.path.exists(valid_folder):
-    shutil.rmtree(valid_folder)  # delete old data
-
-if os.path.exists(valid_folder) is not True:
-    os.mkdir(valid_folder)
-    os.mkdir(os.path.join(valid_folder, "images"))
-    os.mkdir(os.path.join(valid_folder, "labels"))
-
-for nii_file in validation_img_files:
-    shutil.move(
-        os.path.join(img_folder_name, nii_file),
-        os.path.join(valid_folder, "images", nii_file),
-    )
-for label_file in validation_label_files:
-    shutil.move(
-        os.path.join(label_folder_name, label_file),
-        os.path.join(valid_folder, "labels", label_file),
-    )
-
-# 9.- Copy data into test folder
-test_folder = os.path.join(data_folder, "test")
-if os.path.exists(test_folder):
-    shutil.rmtree(test_folder)  # delete old data
-
-if os.path.exists(test_folder) is not True:
-    os.mkdir(test_folder)
-    os.mkdir(os.path.join(test_folder, "images"))
-    os.mkdir(os.path.join(test_folder, "labels"))
-
-for nii_file in test_img_files:
-    shutil.move(
-        os.path.join(img_folder_name, nii_file),
-        os.path.join(test_folder, "images", nii_file),
-    )
-for label_file in test_label_files:
-    shutil.move(
-        os.path.join(label_folder_name, label_file),
-        os.path.join(test_folder, "labels", label_file),
-    )
-
-shutil.rmtree(os.path.join(data_folder, "Training"))  # delete temporal folder
+print("Done. \n")

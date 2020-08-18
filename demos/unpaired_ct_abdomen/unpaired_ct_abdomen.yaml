@@ -1,7 +1,7 @@
 dataset:
   dir:
     train: "demos/unpaired_ct_abdomen/dataset/train"
-    valid: "demos/unpaired_ct_abdomen/dataset/valid"
+    valid: "demos/unpaired_ct_abdomen/dataset/val"
     test: "demos/unpaired_ct_abdomen/dataset/test"
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
