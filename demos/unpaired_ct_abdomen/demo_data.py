@@ -79,3 +79,36 @@ os.remove(ZIP_PATH)
 print("Done. \n")
 
 # Download the pre-trained models
+"""
+https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-unsup.zip
+https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-weakly.zip
+https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-comb.zip
+will be downloaded to, respectively,
+dataset/pre-trained/unsup
+dataset/pre-trained/weakly
+dataset/pre-trained/comb
+"""
+MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+if os.path.exists(MODEL_PATH):
+    shutil.rmtree(MODEL_PATH)
+os.mkdir(MODEL_PATH)
+
+model_names = ["unsup", "weakly", "comb"]
+for mname in model_names:
+    model_path_single = os.mkdir(os.path.join(MODEL_PATH, mname))
+    zip_path = "unpaired_ct_abdomen-" + mname
+    origin = (
+        "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/"
+        + zip_path
+        + ".zip"
+    )
+    zip_file = os.path.join(model_path_single, zip_path + ".zip")
+    get_file(os.path.abspath(zip_file), origin)
+    with zipfile.ZipFile(zip_file, "r") as zf:
+        zf.extractall(path=model_path_single)
+    os.remove(zip_file)
+
+print(
+    "Pre-trained modela are downloaded and unzipped in individual folders at %s."
+    % os.path.abspath(MODEL_PATH)
+)
