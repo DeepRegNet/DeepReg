@@ -1,3 +1,13 @@
+"""
+This is a palceholder python file for calling the installed functions
+"""
+
+print(
+    "Please use command line functions for this demo by following the instruction in readme.md"
+)
+
+
+"""
 from deepreg.train import train
 
 # Training
@@ -14,3 +24,4 @@ train(
     ckpt_path=ckpt_path,
     log_dir=log_dir,
 )
+"""

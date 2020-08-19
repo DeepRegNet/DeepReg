@@ -77,3 +77,5 @@ for filename in filenames_all:
 os.remove(ZIP_PATH)
 
 print("Done. \n")
+
+# Download the pre-trained models

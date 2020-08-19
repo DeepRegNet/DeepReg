@@ -6,21 +6,17 @@ Ester Bonmati (e.bonmati@ucl.ac.uk)
 
 ## Application
 
-This demo shows how to register unpaired CT data from the abdomen using DeepReg
-(unlabeled and labeled). The data that this demo uses is from the MICCAI Learn2Reg grand
-challenge (https://learn2reg.grand-challenge.org/) task 3 [1].
-
-## Requirements
-
-This demo requires to have installed DeepReg.
+This demo shows how to register unpaired abdominal CT data from different patients using
+DeepReg. In addition, the demo demonstrates the difference betwwen the unsupervised,
+weakly-supervised and their combination, using a U-Net.
 
 ## Instructions
 
-1.- Go to the root directory DeepReg.
+1.- Change the working directory to the root directory DeepReg.
 
-2.- Run demo_data.py to download and extract all files, and to split the data in
-training, validation and testing. If the data has already been downloaded, you can skip
-the download.
+2.- Run demo_data.py to download and extract all files, and to split the data into
+training, validation and testing. If the data has already been downloaded. This will
+also download the pre-trained models.
 
 ```
 python ./demos/unpaired_ct_abdomen/demo_data.py
@@ -31,21 +27,11 @@ DeepReg/demos/unpaired_ct_abdomen/dataset:
 
 ```
 DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
-
-L2R_Task3_AbdominalCT.tar  test  train  valid
+test  train  val
 ```
 
-Where L2R_Task3_AbdominalCT.tar is the dataset that has been downloaded, test is a
-folder that contains the images and labels for testing, train is a folder that contains
-the images and labels for training, and valid is a folder that contains the images and
-labels for validation.
-
-3.- The next step is to train the network using DeepReg. To train the network, run
-demo_train.py:
-
-```
-DeepReg$ python ./demos/unpaired_ct_abdomen/demo_train.py
-```
+3.- The next step is to train the network using DeepReg. To train the network, run one
+of the following commands in command line:
 
 3.1- Unsupervised learning
 
@@ -68,30 +54,19 @@ deepreg_train --gpu "2" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdo
 4.- After training the network, run demo_predict:
 
 ```
-DeepReg$ python ./demos/unpaired_ct_abdomen/demo_predict.py
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/unsup/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_unsup --save_png --mode test
 ```
 
 ```
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weights-epoch750.ckpt --save_png --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weakly/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_weakly --save_png --mode test
 ```
 
-5.- Finally, if you want to see the result of predict with the images in testing, run
-demo_plot:
-
 ```
-DeepReg$ python ./demos/unpaired_ct_abdomen/demo_plot.py
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_comb.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/comb/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_comb --save_png --mode test
 ```
 
-You will find the following images with the results of the prediction in
-DeepReg/logs/unpaired_ct_abdomen_log/plot:
-
-<p align="center">
-	<img src="./demo_example_1.png" alt="unpaired_ct_abdomen_example_1" title="unpaired_ct_abdomen" width="600" />
-</p>
-
-<p align="center">
-	<img src="./demo_example_2.png" alt="unpaired_ct_abdomen_example_2" title="unpaired_ct_abdomen" width="600" />
-</p>
+5.- Finally, if you want to see the result of predict with the images in the respective
+test folders.
 
 ## Pre-trained Model
 
@@ -99,14 +74,13 @@ A pre-trained model is also available.
 
 ## Data
 
-The dataset for this demo is part of the Learn2Reg challenge (task 3) [1] and can be
-downloaded from:
-
+The data set is from the MICCAI Learn2Reg grand challenge
+(https://learn2reg.grand-challenge.org/) task 3 [1], and can be downloaded directly from
 https://learn2reg.grand-challenge.org/Datasets/
 
 ## Tested DeepReg Version
 
-??
+(tbc)
 
 ## References
 

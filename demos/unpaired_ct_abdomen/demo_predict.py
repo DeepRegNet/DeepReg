@@ -1,3 +1,12 @@
+"""
+This is a palceholder python file for calling the installed functions
+"""
+
+print(
+    "Please use command line functions for this demo by following the instruction in readme.md"
+)
+
+"""
 from deepreg.predict import predict
 
 log_dir = "unpaired_ct_abdomen_log_comb"
@@ -17,3 +26,4 @@ predict(
     sample_label="all",
     config_path=config_path,
 )
+"""
