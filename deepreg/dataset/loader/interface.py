@@ -392,7 +392,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
             if num_labels_moving != num_labels_fixed:
                 raise ValueError(
-                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels."
+                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels. "
                     f"moving: {num_labels_moving}, fixed: {num_labels_fixed}"
                 )
 
