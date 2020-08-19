@@ -95,7 +95,8 @@ os.mkdir(MODEL_PATH)
 
 model_names = ["unsup", "weakly", "comb"]
 for mname in model_names:
-    model_path_single = os.mkdir(os.path.join(MODEL_PATH, mname))
+    model_path_single = os.path.join(MODEL_PATH, mname)
+    os.mkdir(model_path_single)
     zip_path = "unpaired_ct_abdomen-" + mname
     origin = (
         "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/"

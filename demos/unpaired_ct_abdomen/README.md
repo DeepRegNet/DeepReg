@@ -57,15 +57,15 @@ deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abd
 ```
 
 ```
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weakly/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_weakly --save_png --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weakly/weights-epoch2250.ckpt --log_dir unpaired_ct_abdomen_weakly --save_png --mode test
 ```
 
 ```
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_comb.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/comb/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_comb --save_png --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_comb.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/comb/weights-epoch2000.ckpt --log_dir unpaired_ct_abdomen_comb --save_png --mode test
 ```
 
-5.- Finally, if you want to see the result of predict with the images in the respective
-test folders.
+5.- Finally, prediction results can be seen in the respective test folders specified in
+`deepreg_predict`.
 
 ## Pre-trained Model
 
