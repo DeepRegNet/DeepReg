@@ -1,9 +1,11 @@
 # How to add a new network
 
-This tutorial shows how to define a new network and add it to DeepReg. For guidance on
-making a contribution to DeepReg, see the
+This tutorial shows how to define a new network and add it to DeepReg, using a specific
+example for adding a GlobalNet to predict an affine transformation, as opposed to
+nonrigid transformation.
+
+For general guidance on making a contribution to DeepReg, see the
 [contribution guidelines](https://github.com/DeepRegNet/DeepReg/blob/master/docs/CONTRIBUTING.md).
-This tutorial uses the affine method as a practical example.
 
 ## Step 1: Create network backbone
 
