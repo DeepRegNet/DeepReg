@@ -27,7 +27,6 @@ DeepReg/demos/unpaired_ct_abdomen/dataset:
 
 ```
 DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
-test  train  val
 ```
 
 3.- The next step is to train the network using DeepReg. To train the network, run one
@@ -70,7 +69,8 @@ test folders.
 
 ## Pre-trained Model
 
-A pre-trained model is also available.
+Three pre-trained models are available for this demo, for different training strategies
+described above. These will be downloaded using the demo_data.py.
 
 ## Data
 
