@@ -19,7 +19,7 @@ authors:  # not-ordered yet
     affiliation: "1, 2"
   - name: Adrià Casamitjana
     affiliation: 2
-  - name: Zachary Baum
+  - name: Zachary M. C. Baum
     orcid: 0000-0001-6838-335X
   - name: Rémi Delaunay
     affiliation: "1, 4"
@@ -66,19 +66,19 @@ However, popular packages focusing on deep learning methods for medical imaging,
 In this paper, we first summarise several standard pairwise image registration network training strategies, in which the network aims to align a pair of moving- and fixed images such that the moving image can be warped or transformed into the fixed image coordinates. The resulting warped moving image is also denoted as predicted fixed image (or pred_fixed_image) in the DeepReg source code. The methodologies adoptted in these algorithms are building blocks of many other registration tasks, such as group-wise registration.
 
 ## Unsupervised learning
-Unsupervised learning was first developed independently from a number of research groups, among which, [@de2019deep] demonstrated the applicability in real clinical applications while VoxelMorph [@balakrishnan2019voxelmorph] has contributed to a popular open-source repository for several algorithms tested using brain MR images. Image dissimilarity is measured between the fixed and warped moving images, which has been adapted from the classical image registration methods. Fig.\autoref{fig:unsupervised} shows a schematic illustration of the network training. Image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross-correlation (NCC), mutual information (MI) and their variants.
+Unsupervised learning was first developed independently from a number of research groups, among which, [@de2019deep] demonstrated the applicability in real clinical applications while VoxelMorph [@balakrishnan2019voxelmorph] has contributed to a popular open-source repository for several algorithms tested using brain MR images. Image dissimilarity is measured between the fixed and warped moving images, which has been adapted from the classical image registration methods. \autoref{fig:unsupervised} shows a schematic illustration of the unsupervised network training. Image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross-correlation (NCC), mutual information (MI) and their variants.
 
-![Registration network with unsupervised loss.\label{fig:unsupervised}](../asset/deepreg-tutorial-unsupervised.svg)
+![Registration network with unsupervised loss.\label{fig:unsupervised}](../asset/registration-ddf-nn-unsupervised.svg)
 
 ## Weakly-supervised learning
-Weak supervision which utilises segmented corresponding regions in the medical image pairs was first proposed in a multimodal application for registering prostate MR to ultrasound images [@hu2018label]. In addition to the regularisation on the predicted displacement field, the training is driven by minimising the dissimilarity between the fixed labels and the warped moving labels. This formulation is modality-independent and the label dissimilarity measures are adapted from well-studied computer vision and medical imaging tasks, such as image segmentation. When multiple corresponding label pairs are available, a two-stage sampling strategy can be adopted for an unbiased gradient back-propagation during training [@hu2018weakly]. Label dissimilarity measures include Dice, Jaccard, cross-entropy and their variants. DeepReg uses as a default multiscale Dice [@hu2018weakly], whilst other dissimilarity measures are implemented for users to tailor training options for various applications.
+Weak supervision which utilises segmented corresponding regions in the medical image pairs was first proposed in a multimodal application for registering prostate MR to ultrasound images [@hu2018label]. In addition to the regularisation on the predicted displacement field, the training is driven by minimising the dissimilarity between the fixed labels and the warped moving labels. This formulation is modality-independent and the label dissimilarity measures are adapted from well-studied computer vision and medical imaging tasks, such as image segmentation. When multiple corresponding label pairs are available, a two-stage sampling strategy can be adopted for an unbiased gradient back-propagation during training [@hu2018weakly]. \autoref{fig:weakly} shows a schematic illustration of the weakly-supervised network training. Label dissimilarity measures include Dice, Jaccard, cross-entropy and their variants. DeepReg uses as a default multiscale Dice [@hu2018weakly], whilst other dissimilarity measures are implemented for users to tailor training options for various applications.
 
-![Registration network with weak supervision loss.\label{fig:weakly}](../asset/deepreg-tutorial-weakly.svg)
+![Registration network with weak supervision loss.\label{fig:weakly}](../asset/registration-ddf-nn-weakly-supervised.svg)
 
 ## Combining unsupervised loss with weak supervision
-Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone [@balakrishnan2019voxelmorph]. As a result, the overall loss is the weighted sum of the image dissimilarity, the label dissimilarity and the deformation regularisation, which constrains smoothness of the predicted transformation and is described in the next section.
+Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone [@balakrishnan2019voxelmorph]. As a result, the overall loss is the weighted sum of the image dissimilarity, the label dissimilarity and the deformation regularisation, which constrains smoothness of the predicted transformation and is described in the next section. \autoref{fig:combined} shows a schematic illustration of the weakly-supervised network training with unsupervised loss.
 
-![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](../asset/deepreg-tutorial-combined.svg)
+![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](../asset/registration-ddf-nn-combined.svg)
 
 ## Deformation regularisation and conditional segmentation
 The loss functions described in the previous sections are often combined with a deformation regularisation term on the predicted displacement field, in order to ensure the predicted deformation is smooth. The deformation can be regularised by L1-, L2 norms of the displacement gradient and bending energy, based on the first- or second derivatives of DDF.
