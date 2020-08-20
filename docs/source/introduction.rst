@@ -3,7 +3,7 @@ DeepReg
 
 .. note::
 
-    DeepReg beta will be released in Autumn 2020 - however, many
+    DeepReg :superscript:`beta` will be released in Autumn 2020 - however, many
     tutorials, demos and much of the core functionality are already
     accessible.
 
