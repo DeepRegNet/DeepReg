@@ -7,7 +7,7 @@ gpu_allow_growth = False
 ckpt_path = ""
 log_dir = "learn2reg_t2_unpaired_train_logs"
 config_path = [
-    r"deepreg/config/test/unpaired_ct_lung_train.yaml",
+    r"demos/unpaired_ct_lung/unpaired_ct_lung_train.yaml",
     r"demos/unpaired_ct_lung/unpaired_ct_lung.yaml",
 ]
 train(
