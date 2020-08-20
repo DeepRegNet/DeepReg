@@ -9,7 +9,7 @@ from deepreg.predict import predict
 log_dir = "learn2reg_t1_paired_train_logs"
 
 log_dir_tr = "demos/paired_mrus_brain/learn2reg_t1_paired_train_logs"
-ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch2.ckpt")
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch800.ckpt")
 config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
