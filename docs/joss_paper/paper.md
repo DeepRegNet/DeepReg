@@ -85,7 +85,7 @@ The loss functions described in the previous sections are often combined with a 
 
 The latest result from a different registration formulation challenged the use of deformation regularisation and consequently the necessity of predicting dense displacement field [@hu2019conditional], also implemented in DeepReg.
 
-# Implemetation
+# Implementation
 ## Registration network
 The network accepts two images as input: a fixed image, and a moving image. When available and specified, pairs of moving labels and/or fixed labels can also be the input of the network to compute the label dissimilarity loss. A dense displacement field (DDF) can be directly predicted by the network, integrated by a predicted dense static velocity field (SVF or DVF) using the scaling-squaring method [@ashburner2007fast; @vercauteren2009diffeomorphic], or computed from a predicted affine transformation. In the conditional segmentation algorithm, the network directly predicts the warped moving labels [@hu2019conditional].
 
