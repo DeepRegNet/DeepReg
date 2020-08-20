@@ -31,6 +31,7 @@ setup(
         "simple_http_server",
         "sphinx",
         "sphinx_rtd_theme",
+        "sphinx-tabs",
     ],
     entry_points={
         "console_scripts": [

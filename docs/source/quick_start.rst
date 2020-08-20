@@ -24,7 +24,57 @@ enviroment is recommended:
 DeepReg is primarily supported and regularly tested with Linux distros
 Ubuntu/Debian.
 
-TODO
+.. tabs::
+
+    .. tab:: Linux
+
+        With CPU only
+
+        .. code:: bash
+
+            conda create --name deepreg python=3.7 tensorflow=2.2
+            conda activate deepreg
+
+        With GPU
+
+        .. code:: bash
+
+            conda create --name deepreg python=3.7 tensorflow-gpu=2.2
+            conda activate deepreg
+
+
+    .. tab:: Mac OS
+
+        With CPU only
+
+        .. code:: bash
+
+            conda create --name deepreg python=3.7 tensorflow=2.2
+            conda activate deepreg
+
+
+        With GPU
+
+        .. warning::
+
+            Not supported or tested.
+
+    .. tab:: Windows
+
+        With CPU only
+
+        .. warning::
+
+            DeepReg is not fully supported under Windows, however,
+            [Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+            may be recommended for use with CPU only. Then follow the instructions with Linux.
+
+        With GPU
+
+        .. warning::
+
+            Not supported or tested.
+
 
 Install the package
 ~~~~~~~~~~~~~~~~~~~
