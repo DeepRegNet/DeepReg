@@ -25,9 +25,12 @@ setup(
         "isort",
         "black",
         "flake8",
-        "simple_http_server",
         "testfixtures",
         "notebook",
+        # dev
+        "simple_http_server",
+        "sphinx",
+        "sphinx_rtd_theme",
     ],
     entry_points={
         "console_scripts": [
