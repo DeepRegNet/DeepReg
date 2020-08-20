@@ -24,6 +24,7 @@
 .. toctree::
     :hidden:
     :maxdepth: 2
-    :caption: Documentation
+    :caption: API Reference
 
-    documentation
+    api/entry_points
+    api/loader

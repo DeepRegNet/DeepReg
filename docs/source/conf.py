@@ -57,3 +57,6 @@ sphinx_tabs_valid_builders = ["linkcheck"]
 
 # mock imports
 autodoc_mock_imports = ["tensorflow"]
+
+# add docstring of __init__
+autoclass_content = "both"
