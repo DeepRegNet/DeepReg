@@ -12,8 +12,14 @@
     :maxdepth: 2
     :caption: Tutorial
 
-    image_registration
+    tutorial_registration
 
+.. toctree::
+    :hidden:
+    :maxdepth: 2
+    :caption: Demo
+
+    demo
 
 .. toctree::
     :hidden:
