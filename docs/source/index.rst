@@ -10,6 +10,14 @@
 .. toctree::
     :hidden:
     :maxdepth: 2
+    :caption: Tutorial
+
+    image_registration
+
+
+.. toctree::
+    :hidden:
+    :maxdepth: 2
     :caption: Documentation
 
     documentation
