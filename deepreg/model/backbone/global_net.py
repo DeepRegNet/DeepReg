@@ -4,10 +4,10 @@
 Module to build GlobalNet based on:
 
 Y. Hu et al.,
-"Label-driven weakly-supervised learning for multimodal
-deformable image registration,"
+"Label-driven weakly-supervised learning for multimodal deformable image registration,"
 (ISBI 2018), pp. 1070-1074.
-https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+https://arxiv.org/abs/1711.01666
+
 """
 import tensorflow as tf
 

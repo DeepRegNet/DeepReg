@@ -3,11 +3,8 @@
 """
 Module to build LocalNet class based on:
 
-Y. Hu et al.,
-"Label-driven weakly-supervised learning for multimodal
-deformable image registration,"
-(ISBI 2018), pp. 1070-1074.
-https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+Hu, Yipeng, et al. "Weakly-supervised convolutional neural networks for multimodal image registration." Medical image analysis 49 (2018): 1-13.
+https://doi.org/10.1016/j.media.2018.07.002
 """
 
 import tensorflow as tf

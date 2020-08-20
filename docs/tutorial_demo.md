@@ -46,7 +46,8 @@ locating brain tumours during neurosurgery, with optional weak supervision.
 
 - [unpaired_ct_abdomen](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_abdomen)
 
-(under development)
+This demo compares three training strategies, using unsupervised, weakly-supervised and
+combined losses, to register inter-subject abdominal CT images.
 
 - [unpaired_mr_brain](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_mr_brain)
 
