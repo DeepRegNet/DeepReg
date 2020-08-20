@@ -42,6 +42,9 @@ TAR_FILE = FILENAME + ".tar"
 
 get_file(os.path.abspath(TAR_FILE), ORIGIN)
 
+if exists(path_to_data_folder) is not True:
+    makedirs(path_to_data_folder)
+
 with tarfile.open(join(main_path, project_dir, TAR_FILE), "r") as tar_ref:
     tar_ref.extractall(data_folder_name)
 
