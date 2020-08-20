@@ -110,6 +110,6 @@ for mname in model_names:
     os.remove(zip_file)
 
 print(
-    "Pre-trained modela are downloaded and unzipped in individual folders at %s."
+    "Pre-trained models are downloaded and unzipped in individual folders at %s."
     % os.path.abspath(MODEL_PATH)
 )

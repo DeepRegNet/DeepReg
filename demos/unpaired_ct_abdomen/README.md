@@ -26,7 +26,7 @@ After running the command you will have the following directories in
 DeepReg/demos/unpaired_ct_abdomen/dataset:
 
 ```
-DeepReg$ ls demos/unpaired_ct_abdomen/dataset/
+pre-trained  test  train  val
 ```
 
 3.- The next step is to train the network using DeepReg. To train the network, run one
@@ -38,7 +38,7 @@ of the following commands in command line:
 deepreg_train --gpu "0" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --log_dir unpaired_ct_abdomen_unsup
 ```
 
-3.2- weakly-supervised learning
+3.2- Weakly-supervised learning
 
 ```bash
 deepreg_train --gpu "1" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --log_dir unpaired_ct_abdomen_weakly
