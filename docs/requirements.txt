@@ -1,0 +1,4 @@
+# minimum requirements for readthedocs
+sphinx
+sphinx_rtd_theme
+sphinx-tabs
