@@ -54,3 +54,6 @@ html_static_path = ["_static"]
 
 # tabs
 sphinx_tabs_valid_builders = ["linkcheck"]
+
+# mock imports
+autodoc_mock_imports = ["tensorflow"]
