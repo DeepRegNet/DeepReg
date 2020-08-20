@@ -55,7 +55,7 @@ https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested: bee29caf4f63e89cca7f41e8e664454670f2f763
+Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## References
 

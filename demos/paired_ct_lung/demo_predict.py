@@ -49,7 +49,7 @@ path_to_moving_label = os.path.join(path_to_test, "pair_0", "label_0", "moving_l
 
 # change inds_to_plot if different images need to be plotted instead
 
-inds_to_plot = [20, 60, 140, 160, 190, 200]
+inds_to_plot = [20, 80, 110, 170, 190, 200]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:

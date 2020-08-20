@@ -58,7 +58,7 @@ https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested: 1793fab50adc83c8a287093bddb080ce585ce1ae
+Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## References
 
