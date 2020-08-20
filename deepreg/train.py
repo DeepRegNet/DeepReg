@@ -20,13 +20,12 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
     Function to initialise log directories,
     assert that checkpointed model is the right
     type and to parse the configuration for training
+
     :param config_path: list of str, path to config file
-    :param log_dir: str, path to where training logs
-                    to be stored.
+    :param log_dir: str, path to where training logs to be stored.
     :param ckpt_path: str, path where model is stored.
-    :return:
-    - config: a dictionary saving configuration
-    - log_dir: the path of directory to save logs
+    :return: - config: a dictionary saving configuration
+             - log_dir: the path of directory to save logs
     """
 
     # init log directory
@@ -46,6 +45,7 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
 def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list:
     """
     Function to prepare callbacks for training.
+
     :param log_dir: directory of logs
     :param histogram_freq: save the histogram every X epochs
     :param save_period: save the checkpoint every X epochs
@@ -71,10 +71,10 @@ def train(
 ):
     """
     Function to train a model
+
     :param gpu: str, which local gpu to use to train
     :param config_path: str, path to configuration set up
-    :param gpu_allow_growth: bool, whether or not to allocate
-                             whole GPU memory to training
+    :param gpu_allow_growth: bool, whether or not to allocate whole GPU memory to training
     :param ckpt_path: str, where to store training checkpoints
     :param log_dir: str, where to store logs in training
     """
