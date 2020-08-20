@@ -18,6 +18,6 @@ flake8
 testfixtures
 notebook
 simple_http_server
-sphinx
+sphinx==3.2.1
 sphinx_rtd_theme
 sphinx-tabs
