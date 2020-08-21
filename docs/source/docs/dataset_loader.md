@@ -161,7 +161,7 @@ dataset:
 ```
 
 This is particularly useful when performing an
-[experiment such as cross-validation](../../tutorial_experiment.md).
+[experiment such as cross-validation](../tutorial/cross_val.md).
 
 ### File loader
 

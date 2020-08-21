@@ -14,6 +14,7 @@
     :caption: Tutorial
 
     tutorial/registration
+    tutorial/cross_val
     tutorial/custom
 
 .. toctree::
@@ -31,6 +32,7 @@
     docs/cli
     docs/configuration
     docs/dataset_loader
+    docs/experimental
 
 .. toctree::
     :hidden:
