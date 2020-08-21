@@ -5,7 +5,8 @@
     :maxdepth: 2
     :caption: Getting Started
 
-    quick_start
+    getting_started/install
+    getting_started/quick_start
 
 .. toctree::
     :hidden:
