@@ -14,6 +14,7 @@
     :caption: Tutorial
 
     tutorial/registration
+    tutorial/custom
 
 .. toctree::
     :hidden:
