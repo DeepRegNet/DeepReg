@@ -28,3 +28,10 @@
 
     api/entry_points
     api/loader
+
+.. toctree::
+    :hidden:
+    :maxdepth: 2
+    :caption: Contributing to DeepReg
+
+    contributing/test
