@@ -44,6 +44,7 @@
     :maxdepth: 2
     :caption: Contributing to DeepReg
 
+    contributing/issue
     contributing/code
     contributing/test
     contributing/demo
