@@ -3,6 +3,7 @@ Loads paired image data
 supports h5 and nifti formats
 supports labeled and unlabeled data
 """
+import random
 from typing import List
 
 from deepreg.dataset.loader.interface import (
@@ -53,6 +54,12 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         assert isinstance(
             data_dir_paths, list
         ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
+
+        for ddp in data_dir_paths:
+            assert isinstance(
+                ddp, str
+            ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
+
         self.loader_moving_image = file_loader(
             dir_paths=data_dir_paths, name="moving_images", grouped=False
         )
@@ -91,7 +98,9 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         Generate indexes in order to load data using the
         GeneratorDataLoader class
         """
-        for image_index in range(self.num_images):
+        image_indices = [i for i in range(self.num_images)]
+        random.Random(self.seed).shuffle(image_indices)
+        for image_index in image_indices:
             yield image_index, image_index, [image_index]
 
     def close(self):
