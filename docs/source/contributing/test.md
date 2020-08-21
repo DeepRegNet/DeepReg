@@ -19,9 +19,9 @@ Following are several guidelines of test writing to ensure a consistency of code
 
 For a class, we need to test all the functions in the class.
 
-### Non-tensorflow function
+### Non-TensorFlow function
 
-For a non-tensorflow function, we need to test
+For a non-TensorFlow function, we need to test
 
 - the correctness of inputs and the error handling for unexpected inputs.
 - the correctness of outputs given certain inputs.
@@ -32,9 +32,9 @@ Check `test_load_nifti_file()` in
 [test_nifti_loader.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_nifti_loader.py#L12)
 as an example.
 
-### Tensorflow function
+### TensorFlow function
 
-For a tensorflow-involved function, we need to test
+For a TensorFlow-involved function, we need to test
 
 - the correctness of inputs and the error handling for unexpected inputs. The minimum
   requirement is to check the shape of input tensors.
@@ -49,7 +49,7 @@ as an example.
 
 ### Helper functions
 
-As we are comparing often the numpy arrays and tensorflow tensors, two functions
+As we are comparing often the numpy arrays and TensorFlow tensors, two functions
 `is_equal_np` and `is_equal_tf` are provided in
 [test/unit/util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/util.py).
 They will first convert inputs to float32 and compare the max of absolute difference
