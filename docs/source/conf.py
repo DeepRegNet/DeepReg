@@ -29,7 +29,7 @@ author = "DeepReg"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx_tabs.tabs"]
+extensions = ["sphinx.ext.autodoc", "sphinx_tabs.tabs", "recommonmark"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -60,3 +60,5 @@ autodoc_mock_imports = ["tensorflow"]
 
 # add docstring of __init__
 autoclass_content = "both"
+
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}

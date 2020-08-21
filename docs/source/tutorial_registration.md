@@ -105,7 +105,7 @@ When the data label is unavailable, the training can be driven by the unsupervis
 The loss function often consists of the intensity based loss and deformation loss. The
 following is an illustration of an unsupervised DDF-based registration network.
 
-![Unsupervised DDF-based registration network](asset/registration-ddf-nn-unsupervised.svg ":size=600")
+![Unsupervised DDF-based registration network](_images/registration-ddf-nn-unsupervised.svg ":size=600")
 
 ### Weakly-supervised
 
@@ -122,7 +122,7 @@ When multiple labels are available for each image, the labels can be sampled dur
 training iteration, such that only one label per image is used in each iteration of the
 data set (epoch). Read [data sampling API](tutorial_sampling.md) for more details.
 
-![Weakly-supervised DDF-based registration network](asset/registration-ddf-nn-weakly-supervised.svg ":size=600")
+![Weakly-supervised DDF-based registration network](_images/registration-ddf-nn-weakly-supervised.svg ":size=600")
 
 ### Combined
 
@@ -131,4 +131,4 @@ deformation based losses together has shown superior registration accuracy, comp
 unsupervised and weakly supervised methods. Following is an illustration of a combined
 DDF-based registration network.
 
-![Combined DDF-based registration network](asset/registration-ddf-nn-combined.svg ":size=600")
+![Combined DDF-based registration network](_images/registration-ddf-nn-combined.svg ":size=600")
