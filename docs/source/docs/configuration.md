@@ -7,7 +7,7 @@ two sections, `dataset` and `train`.
 ## Dataset section
 
 The `dataset` section defines the dataset and corresponding loader. Read the
-[dataset loader configuration](doc_data_loader.md) for more details.
+[dataset loader configuration](dataset_loader.md) for more details.
 
 ## Train section
 

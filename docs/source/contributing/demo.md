@@ -1,4 +1,4 @@
-# DeepReg Demo Requirement
+# Demo Requirement
 
 v0.7
 
@@ -79,7 +79,7 @@ contain the following sections:
   while give clear instruction how the alternative user-trained model can be used;
 - [Data] Acknowledge data source;
 - [Tested DeepReg Version] Demos do not need to be unit-tested. Record the commit
-  #hashtag on which it is tested.
+  \#hashtag on which it is tested.
 
 ## Code style
 
