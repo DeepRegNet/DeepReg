@@ -13,7 +13,7 @@
     :maxdepth: 2
     :caption: Tutorial
 
-    tutorial_registration
+    tutorial/registration
 
 .. toctree::
     :hidden:
