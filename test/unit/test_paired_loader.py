@@ -48,6 +48,8 @@ def test_init():
         assert isinstance(data_loader.loader_moving_label, type(file_loader_method))
         assert isinstance(data_loader.loader_fixed_label, type(file_loader_method))
 
+        data_loader.close()
+
         # Check the data_dir_path variable assertion error.
         data_dir_path_int = [0, "1", 2, 3]
         with pytest.raises(AssertionError):
@@ -82,6 +84,7 @@ def test_validate_data_files_label():
             )
 
             assert data_loader.validate_data_files() is None
+            data_loader.close()
 
 
 def test_sample_index_generator():
@@ -118,6 +121,7 @@ def test_sample_index_generator():
                     data_indices += indices
 
                 indices_to_compare.append(data_indices)
+                data_loader.close()
 
             if data_loader.num_images > 1:
                 # test different seeds give different indices
