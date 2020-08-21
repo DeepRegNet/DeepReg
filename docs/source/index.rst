@@ -25,6 +25,15 @@
 .. toctree::
     :hidden:
     :maxdepth: 2
+    :caption: Documentation
+
+    docs/cli
+    docs/configuration
+    docs/dataset_loader
+
+.. toctree::
+    :hidden:
+    :maxdepth: 2
     :caption: API Reference
 
     api/entry_points

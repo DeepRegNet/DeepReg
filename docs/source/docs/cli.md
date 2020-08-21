@@ -88,4 +88,4 @@ including `deepreg_train`, `deepreg_predict` and `deepreg_warp`.
 
 _In addition to the arguments provided with the command line tools, detailed training
 and prediction configuration is specified in a yaml file. Please see
-[configuration file](doc_configuration.md) for further details._
+[configuration file](configuration.md) for further details._
