@@ -35,7 +35,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
         :param file_loader:
         :param data_dir_paths: paths of the directories storing data,  the data has to be saved under four different
-                              sub-directories: images, labels
+          sub-directories: images, labels
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
