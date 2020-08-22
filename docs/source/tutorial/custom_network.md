@@ -1,4 +1,4 @@
-# How to add a new network
+# Custom network
 
 This tutorial shows how to define a new network and add it to DeepReg, using a specific
 example for adding a GlobalNet to predict an affine transformation, as opposed to

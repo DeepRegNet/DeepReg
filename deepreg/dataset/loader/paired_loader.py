@@ -32,12 +32,11 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         fixed_image_shape: (list, tuple),
     ):
         """
-        Load data which are paired, labeled or unlabeled.
         :param file_loader:
         :param data_dir_paths: path of the directories storing data,
-        the data has to be saved under four different
-        sub-directories: moving_images, fixed_images, moving_labels,
-        fixed_labels
+          the data has to be saved under four different
+          sub-directories: moving_images, fixed_images, moving_labels,
+          fixed_labels
         :param labeled: true if the data are labeled
         :param sample_label:
         :param seed:

@@ -1,4 +1,4 @@
-# Customize your own loss functions
+# Custom loss function
 
 This tutorial will take an image intensity based loss function (mutual information) as
 an example to show how to add a new loss to DeepReg.
