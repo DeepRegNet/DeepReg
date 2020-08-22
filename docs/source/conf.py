@@ -34,6 +34,7 @@ extensions = [
     "sphinx_tabs.tabs",  # for tabs in rst
     "m2r2",  # for supporting md files
     "sphinx.ext.autosectionlabel",  # for ref other section/pages
+    "notfound.extension",  # for 404 pages
 ]
 
 # Add any paths that contain templates here, relative to this directory.
