@@ -1,6 +1,4 @@
-# Demo Requirement
-
-v0.7
+# DeepReg Demo Requirement
 
 The [demos](https://github.com/DeepRegNet/DeepReg/tree/master/demos) folder directly
 under the DeepReg root directory contains demonstrations using DeepReg for different

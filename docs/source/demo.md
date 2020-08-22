@@ -1,4 +1,4 @@
-# Demo
+# DeepReg Demo
 
 A typical workflow to develop a [registration network](tutorial_registration.md) using
 DeepReg includes:
