@@ -21,4 +21,4 @@ simple_http_server
 sphinx==3.2.1
 sphinx_rtd_theme
 sphinx-tabs
-recommonmark
+m2r2

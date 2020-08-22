@@ -50,9 +50,9 @@ following order:
 
 ## Data
 
-The dataset for this demo comes from [1] and can be downloaded from:
-
-https://zenodo.org/record/3835682#.XsUWXsBpFhE
+The dataset for this demo comes from
+[Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
+[^1].
 
 ## Tested DeepReg Version
 
@@ -60,6 +60,6 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## References
 
-[1] Hering, Alessa, Murphy,Keelin, and van Ginneken, Bram. (2020). Lean2Reg Challenge:
-CT Lung Registration - Training Data [Data set]. Zenodo.
-http://doi.org/10.5281/zenodo.3835682
+[^1]:
+  Hering, Alessa, Murphy,Keelin, and van Ginneken, Bram. (2020). Lean2Reg Challenge: CT
+  Lung Registration : CT Lung Registration - Training Data

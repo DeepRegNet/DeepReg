@@ -1,5 +1,10 @@
-DeepReg Demo
+Introduction
 ============
+
+DeepReg offers multiple built-in dataset loaders, supporting nifti and h5
+file format, and a variety of training strategies often encountered
+in real clinical scenarios, whether images are paired, grouped or
+labelled.
 
 A typical workflow to develop a `registration network`_ using DeepReg
 includes:
@@ -13,21 +18,17 @@ includes:
 - Test or use the final registration network with the `command line tool`_
   ``deepreg_predict``.
 
-DeepReg has been tested with a wide range of applications with
-real-world clinical image and label data. DeepReg Demos all consisted of
-open-accessible data sets, step-by-step instructions, pre-trained models
-and numerical-and-graphical inference results for demonstration
-purposes. These applications range from ultrasound, CT and MR images,
+Besides the detailed tutorials, a series of demos are provided to
+showcase a wide range of applications with real-world clinical image and label data.
+These applications range from ultrasound, CT and MR images,
 covering many clinical specialities such as neurology, urology,
 gastroenterology, oncology, respiratory and cardiovascular diseases.
 
-In particular, the built-in dataset loaders, supporting nifti and h5
-file format, provide a variety of training strategies often encountered
-in real clinical scenarios, whether images are paired, grouped or
-labelled.
-
-This tutorial describe several examples in the DeepReg Demos to explain
-how these different scenarios can be implemented with DeepReg.
+Each DeepReg Demo provides step-by-step instructions
+to explain how different scenarios can be implemented with DeepReg.
+All data sets used are open-accessible.
+Pre-trained models and numerical-and-graphical inference results
+are also available.
 
 .. _registration network: tutorial/registration.html
 .. _unpaired, paired and grouped: docs/dataset_loader.html

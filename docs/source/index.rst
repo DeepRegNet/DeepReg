@@ -22,7 +22,11 @@
     :maxdepth: 2
     :caption: DeepReg Demo
 
-    demo
+    demo/introduction
+    demo/index_paired
+    demo/index_unpaired
+    demo/index_grouped
+    demo/index_classical
 
 .. toctree::
     :hidden:
