@@ -64,7 +64,7 @@ dataset:
 To further facilitate flexible uses of these dataset loaders, the `deepreg_train` and
 `deepreg_predict` functions also accept multiple yaml files - therefore the same `train`
 section does not have to be repeated multiple times for the multiple cross-validation
-folds or for the test. An example `dataset` section for configurating testing when using
+folds or for the test. An example `dataset` section for configuring testing when using
 `deepreg_predict` is given below.
 
 "test.yaml":

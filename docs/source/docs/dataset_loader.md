@@ -48,15 +48,15 @@ follows.
     shape, and it will be resized to the required shape using linear interpolation.
 
   - Currently, DeepReg only supports images stored in Nifti files or H5 files. Check
-    [nifti_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
+    [nifti_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
     and
-    [h5_loader](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
+    [h5_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
     for more details.
 
   - **Images are automatically normalized** at per-image level: the intensity values x
     equals to `(x-min(x)+EPS) / (max(x)-min(x)+EPS)` so that its values are between
     [0,1]. Check `GeneratorDataLoader.data_generator` in
-    [loader interface](https://github.com/ucl-candi/DeepReg/blob/master/deepreg/dataset/loader/interface.py)
+    [loader interface](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/interface.py)
     for more details.
 
 - Label

@@ -12,11 +12,10 @@ for research and education in medical image registration using deep
 learning.
 
 The current version is implemented as a `TensorFlow2`_-based framework,
-and contains implementations for unsupervised- and weaky-supervised
+and contains implementations for unsupervised- and weakly-supervised
 algorithms with their combinations and variants. DeepReg has a practical
 focus on growing and diverse clinical applications, as seen in the
-provided examples - `DeepReg Demos`_. Read the `documentation and
-tutorials`_ for more details.
+provided examples - `DeepReg Demos`_.
 
 `Get involved`_ and help make DeepReg better!
 
@@ -40,7 +39,7 @@ Contributors
 ------------
 
 DeepReg is maintained and led by a team of developers and researchers.
-People with signifigant contributions to DeepReg are listed below (in
+People with significant contributions to DeepReg are listed below (in
 alphabetical order).
 
 ================== =================================================
@@ -67,17 +66,16 @@ Surgical Sciences (`WEISS`_), and partial support from the
 Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
-    :width: 400
+    :width: 300
     :alt: WEISS Logo
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :width: 400
+    :width: 300
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/
 .. _DeepReg Demos: https://deepreg.readthedocs.io/en/latest/demo/introduction.html
-.. _Documentation and tutorials: https://deepreg.readthedocs.io/
 .. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/issue.html
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/

@@ -84,4 +84,4 @@ contain the following sections:
 - Please restrict using external libraries or anything unsupported by
   [Colab](colab.research.google.com) or [Azure](https://notebooks.azure.com/);
 - See general
-  [Contribution Guide](https://github.com/ucl-candi/DeepReg/blob/master/docs/CONTRIBUTING.md).
+  [Contribution Guide](https://github.com/DeepRegNet/DeepReg/tree/master/docs/source/contributing).

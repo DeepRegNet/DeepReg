@@ -12,7 +12,7 @@ DeepReg.
 Image registration is the process of mapping the coordinate system of one image into
 another image. A registration method takes a pair of images as input, denoted as moving
 and fixed images. In this tutorial, we register the moving image into the fixed image,
-i.e. maping the coordinates of the moving image onto the fixed image.
+i.e. mapping the coordinates of the moving image onto the fixed image.
 
 <!---
 @Yunguan
