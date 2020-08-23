@@ -1,4 +1,6 @@
-# Paired MR-to-Ultrasound registration - an example of weakly-supervised label-driven training
+# Paired MR-to-Ultrasound Registration
+
+> An example of weakly-supervised label-driven training
 
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).
@@ -64,6 +66,6 @@ where the ckpt files are save, in this case (specified by `deepreg_train` as abo
 This is a demo without real clinical data due to regulatory restrictions. The MR and
 ultrasound images used are simulated dummy images.
 
-## Tested DeepReg Tag
+## Tested DeepReg Version
 
-#7ec0f5157a81cd5e60cadd61bd617b433039d0e6
+Last commit at which demo was tested: 7ec0f5157a81cd5e60cadd61bd617b433039d0e6

@@ -1,4 +1,4 @@
-# Classical nonrigid registration for prostate MR images
+# Classical Non-rigid Registration for Prostate MR Images
 
 This is a special demo that uses the DeepReg package for claissical nonrigid image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
@@ -45,11 +45,7 @@ v0.1.4
 
 ## References
 
-Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.,
+[1] Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.,
 Vincent, G., Guillard, G., Birbeck, N., Zhang, J. and Strand, R., 2014. Evaluation of
 prostate segmentation algorithms for MRI: the PROMISE12 challenge. Medical image
 analysis, 18(2), pp.359-373.
-
-```
-
-```
