@@ -8,7 +8,9 @@ A standalone demo was hosted at https://github.com/YipengHu/label-reg.
 
 ## Author
 
-Yipeng Hu (yipeng.hu@ucl.ac.uk)
+Yipeng Hu
+
+yipeng.hu@ucl.ac.uk
 
 ## Application
 
