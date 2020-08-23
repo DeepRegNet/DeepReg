@@ -34,3 +34,100 @@ are also available.
 .. _unpaired, paired and grouped: docs/dataset_loader.html
 .. _supported configuration details: docs/configuration.html
 .. _command line tool: docs/cli.html
+
+Paired Images
+=============
+
+The following DeepReg demos provide examples of
+using paired images.
+
+- `Paired CT lung registration <paired_ct_lung.html>`__
+
+  This demo registers paired CT lung images, with optional weak supervision.
+
+- `Paired MR-US brain registration <paired_mrus_brain.html>`__
+
+  This demo registers paired preoperative MR images and 3D tracked ultrasound images for
+  locating brain tumours during neurosurgery, with optional weak supervision.
+
+- `Paired MR-US registration <paired_mrus_prostate.html>`__
+
+  This demo registers paired MR-to-ultrasound prostate images, an example of
+  weakly-supervised multimodal image registration.
+
+.. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 2
+
+    paired_*
+
+Unpaired Images
+===============
+
+The following DeepReg demos provide examples of
+using unpaired images.
+
+- `Unpaired CT abdominal registration <unpaired_ct_abdomen.html>`__
+
+  This demo compares three training strategies, using unsupervised, weakly-supervised and
+  combined losses, to register inter-subject abdominal CT images.
+
+- `Unpaired CT lung registration <unpaired_ct_lung.html>`__
+
+  This demo registers unpaired CT lung images, with optional weak supervision.
+
+- `Unpaired MR hippocampus registration <unpaired_mr_brain.html>`__
+
+  This demo aligns hippocampus on MR images between different patients, with optional weak
+  supervision.
+
+- `Unpaired ultrasound images registration <unpaired_us_prostate_cv.html>`__
+
+  This demo registers 3D ultrasound images with a 9-fold cross-validation. This strategy
+  is applicable for any of the available dataset loaders.
+
+.. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 2
+
+    unpaired_*
+
+Grouped Images
+==============
+
+The following DeepReg demos provide examples of using grouped images.
+
+- `Pairwise registration for grouped prostate images <grouped_mask_prostate_longitudinal.html>`__
+
+  This demo registers grouped masks (as input images) of prostate glands from MR images,
+  an example of feature-based registration.
+
+.. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 2
+
+    grouped_*
+
+Classical Registration
+======================
+
+The following DeepReg demos provide examples of
+using classical registration methods.
+
+- `Classical affine registration for head-and-neck CT images <classical_ct_headneck_affine.html>`__
+
+  This demo registers head-and-neck CT images using iterative affine registration.
+
+- `Classical nonrigid registration for prostate MR images <classical_mr_prostate_nonrigid.html>`__
+
+  This demo registers prostate MR images using iterative nonrigid registration.
+
+.. toctree::
+    :hidden:
+    :glob:
+    :maxdepth: 2
+
+    classical_*

@@ -23,10 +23,6 @@
     :caption: DeepReg Demo
 
     demo/introduction
-    demo/index_paired
-    demo/index_unpaired
-    demo/index_grouped
-    demo/index_classical
 
 .. toctree::
     :hidden:
