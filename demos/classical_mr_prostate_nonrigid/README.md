@@ -28,8 +28,8 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
 
 - Run `demo_register.py` script. This script will register two images. The optimised
   transformation will be applied to the moving images, as well as the moving labels. The
-  results will be plotted to compare the warped image/labels with the ground-truth
-  image/labels.
+  results, saved in a timestamped folder under the project directory, will compare the
+  warped image/labels with the ground-truth image/labels.
 
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_register.py

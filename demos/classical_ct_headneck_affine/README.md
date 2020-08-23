@@ -30,8 +30,8 @@ python demos/classical_ct_headneck_affine/demo_data.py
   will be the downloaded data and the moving image will be simulated by applying a
   random affine transformation, such that the ground-truth is available for. The
   optimised transformation will be applied to the moving images, as well as the moving
-  labels. The results will be plotted to compare the warped image/labels with the
-  ground-truth image/labels.
+  labels. The results, saved in a timestamped folder under the project directory, will
+  compare the warped image/labels with the ground-truth image/labels.
 
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
