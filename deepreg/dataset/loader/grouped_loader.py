@@ -165,9 +165,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
           - image1 of group1 is moving image
           - image2 of group2 is fixed image
 
-        Assuming group i has ni images,
-        then in total the number of samples are
-        sum(ni) * (sum(ni)-1) - sum( ni * (ni-1) )
+        All pairs of images in the dataset are registered. Assuming group i has ni images,
+        and that N=[n1, n2, ..., nI], then in total the number of samples are:
+        sum(N) * (sum(N)-1) - sum( N * (N-1) )
 
         :return: a list of sample indices
         """
