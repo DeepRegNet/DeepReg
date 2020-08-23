@@ -2,11 +2,12 @@ import os
 import shutil
 import tarfile
 import zipfile
-from os import listdir, makedirs, remove, system
+from os import listdir, makedirs, remove
 from os.path import exists, join
 
 import nibabel as nib
 import numpy as np
+from tensorflow.keras.utils import get_file
 
 ##############
 # Parameters #
@@ -35,40 +36,37 @@ path_to_model_folder = join(main_path, model_folder_name)
 # Download data #
 #################
 # Data
-FNAME = "data_mr_brain.tar"
-url = (
-    "'https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA'"
-)
-system("wget " + " -O " + FNAME + " " + url)
-print("The file ", FNAME, " has successfully been downloaded!")
+FILENAME = "data_mr_brain"
+ORIGIN = "https://cmiclab.cs.ucl.ac.uk/acasamitjana/learn2reg_t4/-/raw/master/L2R_Task4_HippocampusMRI.tar"
+TAR_FILE = FILENAME + ".tar"
+
+get_file(os.path.abspath(TAR_FILE), ORIGIN)
 
 if exists(path_to_data_folder) is not True:
     makedirs(path_to_data_folder)
 
-with tarfile.open(join(main_path, project_dir, FNAME), "r") as tar_ref:
+with tarfile.open(join(main_path, project_dir, TAR_FILE), "r") as tar_ref:
     tar_ref.extractall(data_folder_name)
 
-remove(FNAME)
+remove(TAR_FILE)
 print("Files unzipped!")
 
-
 # Model
-pretrained_model = "unpaired_mr_brain.zip"
-url_model = (
-    "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/" + pretrained_model
+PRETRAINED_MODEL = "unpaired_mr_brain.zip"
+URL_MODEL = (
+    "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/" + PRETRAINED_MODEL
 )
 
-system("wget " + " -O " + pretrained_model + " " + url_model)
-print("The file ", pretrained_model, " has successfully been downloaded!")
+get_file(os.path.abspath(PRETRAINED_MODEL), URL_MODEL)
 
 if exists(path_to_model_folder) is not True:
     makedirs(path_to_model_folder)
 
-with zipfile.ZipFile(join(main_path, project_dir, pretrained_model), "r") as zip_ref:
+with zipfile.ZipFile(join(main_path, project_dir, PRETRAINED_MODEL), "r") as zip_ref:
     zip_ref.extractall(path_to_model_folder)
 
-remove(pretrained_model)
-
+remove(PRETRAINED_MODEL)
+print("The file ", PRETRAINED_MODEL, " has successfully been downloaded!")
 
 ##################
 # Create dataset #
