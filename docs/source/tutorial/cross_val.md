@@ -9,7 +9,7 @@ information leakage), both in code development and subsequent applications.
 ## Random-split
 
 Every call of the `deepreg_train` or `deepreg_predict` function uses a dataset
-"physically" seperated by folders, including 'train', 'val' and 'test' sets used in a
+"physically" separated by folders, including 'train', 'val' and 'test' sets used in a
 random-split experiment. In this case, user needs to randomly assign available
 experiment image and label files into the three folders. Again, for more details see the
 [Dataset loader](../docs/dataset_loader.md).
