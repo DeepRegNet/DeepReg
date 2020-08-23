@@ -25,7 +25,7 @@ driven by expert-defined anatomical landmarks, such as the prostate gland segmen
 
 ## Instruction
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
   ultrasound images and the pre-trained model.
@@ -38,7 +38,7 @@ python demos/paired_mrus_prostate/demo_data.py
   launches the first of the ten runs of a 9-fold cross-validation, as specified in the
   [`dataset` section](./paired_mrus_prostate_dataset0.yaml) and the
   [`train` section](./paired_mrus_prostate_train.yaml), which can be specified in
-  [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation);
+  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html);
 
 ```bash
 deepreg_train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --log_dir paired_mrus_prostate
