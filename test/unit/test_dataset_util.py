@@ -122,7 +122,14 @@ def test_check_difference_between_two_lists():
     list1 = list2 = [0, 1, 2]
     util.check_difference_between_two_lists(list1, list2, name="same case")
 
-    # diff lists
+    # diff lists with same unique numbers
+    list_1 = [0, 1, 2]
+    list_2 = [1, 2, 0]
+    with pytest.raises(ValueError) as err_info:
+        util.check_difference_between_two_lists(list_1, list_2, name="diff case")
+    assert "diff case are not identical" in str(err_info.value)
+
+    # totally diff lists
     list_1 = [0, 1, 2]
     list_2 = [3, 4, 5]
     with pytest.raises(ValueError) as err_info:
