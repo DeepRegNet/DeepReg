@@ -1,4 +1,4 @@
-# Pairwise registration for grouped prostate images
+# Pairwise Registration for Grouped Prostate Images
 
 This demo uses DeepReg to demonstrate a number of features:
 
@@ -9,7 +9,9 @@ This demo uses DeepReg to demonstrate a number of features:
 
 ## Author
 
-Yipeng Hu (yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+yipeng.hu@ucl.ac.uk)
 
 ## Application
 
@@ -62,6 +64,6 @@ where the ckpt files are save, in this case (specified by `deepreg_train` as abo
 This is a demo without real clinical data due to regulatory restrictions. The MR and
 ultrasound images used are simulated dummy images.
 
-## Tested DeepReg Tag
+## Tested DeepReg Version
 
-#3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
+Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1

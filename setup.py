@@ -7,7 +7,7 @@ setup(
     name="deepreg",
     version="0.0.1",
     description="Registration with Deep Learning",
-    author="DeepReg",
+    author="DeepReg Development Team and Community",
     packages=find_packages(),
     zip_safe=False,
     install_requires=requirements,
