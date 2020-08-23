@@ -76,8 +76,8 @@ Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/
-.. _DeepReg Demos: https://deepregnet.github.io/DeepReg/#/tutorial_demo
-.. _documentation and tutorials: https://deepregnet.github.io/DeepReg/
+.. _DeepReg Demos: https://deepreg.readthedocs.io/en/latest/demo/introduction.html
+.. _Documentation and tutorials: https://deepreg.readthedocs.io/
 .. _Get involved: CONTRIBUTING.md
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/

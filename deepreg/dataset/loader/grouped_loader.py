@@ -2,7 +2,7 @@
 Loads grouped data
 supports h5 and nifti formats
 supports labeled and unlabeled data
-Read https://ucl-candi.github.io/DeepReg/#/doc_data_loader?id=grouped-images for more details.
+Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
 import random
 from typing import List

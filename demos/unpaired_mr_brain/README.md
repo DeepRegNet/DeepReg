@@ -15,7 +15,7 @@ composite loss of image and label similarity.
 
 ## Instructions
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
   the following command:
