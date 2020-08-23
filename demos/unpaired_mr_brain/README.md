@@ -1,4 +1,4 @@
-# Unpaired MRI Hippocampus registration
+# Unpaired MRI Hippocampus Registration
 
 ## Author
 

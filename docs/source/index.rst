@@ -20,9 +20,9 @@
 .. toctree::
     :hidden:
     :maxdepth: 2
-    :caption: Demo
+    :caption: DeepReg Demo
 
-    demo
+    demo/introduction
 
 .. toctree::
     :hidden:

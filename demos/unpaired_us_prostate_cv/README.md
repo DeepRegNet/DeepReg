@@ -1,4 +1,6 @@
-# Unpaired ultrasound images - an example for cross validation
+# Unpaired Ultrasound Images Registration
+
+> an example for cross validation
 
 ## Author
 
@@ -52,6 +54,6 @@ The 3D ultrasound images used in this demo were derived from the Prostate-MRI-US
 dataset, hosted at the Cancer Imaging Archive (TCIA) at
 https://www.cancerimagingarchive.net/.
 
-## [Tested DeepReg Version]
+## Tested DeepReg Version
 
-0.14
+Last commit at which demo was tested:
