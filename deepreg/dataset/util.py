@@ -52,7 +52,7 @@ def check_difference_between_two_lists(list1: list, list2: list, name: str):
     :param list1: list
     :param list2: list
     :param name: name to be printed in case of difference
-    :return: error message if lists are not equal
+    :raises ValueError: error showing different pairs of items
     """
     diff = [(x, y) for x, y in it.zip_longest(list1, list2) if x != y]
     if len(diff) > 0:
