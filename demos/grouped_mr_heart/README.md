@@ -5,22 +5,25 @@ cardiac magnetic resonance (CMR) images.
 
 ## Author
 
-DeepReg Development Team (correspondence: yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+yipeng.hu@ucl.ac.uk)
 
 ## Application
 
 Computer-assisted management for patients suffering from myocardial infraction (MI)
-often requires quantifying the difference and compariring the multiple sequences, such
-as he late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. The
-collectively provide radiological information otherwise unavailable duing clinical
+often requires quantifying the difference and comprising the multiple sequences, such as
+he late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. The
+collectively provide radiological information otherwise unavailable during clinical
 practice.
 
 ## Instruction
 
 - [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
-  ultrasound images and the pre-trained model.
+- Run [demo_data.py](./demo_data.py) script to download all the CMR dataset in a zip
+  file. The script also splits the data into train, val and test sets re-samples all the
+  images to an isotropic voxel size.
 
 ```bash
 python demos/grouped_mr_heart/demo_data.py

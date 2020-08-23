@@ -101,13 +101,12 @@ os.rmdir(images_path)
 print("Done. \n")
 
 # Download the pre-trained models
-"""
 MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-ZIP_PATH = "grouped_mask_prostate_longitudinal-ckpt"
+ZIP_PATH = "grouped_mr_heart-ckpt"
 ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mr_heart-ckpt.zip"
 
 zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
@@ -119,4 +118,3 @@ os.remove(zip_file)
 print(
     "Pre-trained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
 )
-"""
