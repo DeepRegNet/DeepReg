@@ -114,29 +114,27 @@ def test_get_sorted_file_paths_in_dir_with_suffix():
         assert expected == actual
 
 
-def test_difference_lists_same():
+def test_check_difference_between_two_lists():
     """
-    Check ValueError not raised if lists same
+    Check check_difference_between_two_lists by verifying ValueError
     """
-    list_1 = list_2 = [0, 1, 2]
-    util.check_difference_between_two_lists(list_1, list_2)
+    # same lists, no error
+    list1 = list2 = [0, 1, 2]
+    util.check_difference_between_two_lists(list1, list2, name="same case")
 
-
-def test_difference_lists_different():
-    """
-    Assert ValueError raised if two lists not identical
-    """
+    # diff lists
     list_1 = [0, 1, 2]
     list_2 = [3, 4, 5]
-    with pytest.raises(ValueError):
-        util.check_difference_between_two_lists(list_1, list_2)
+    with pytest.raises(ValueError) as err_info:
+        util.check_difference_between_two_lists(list_1, list_2, name="diff case")
+    assert "diff case are not identical" in str(err_info.value)
 
 
 def test_label_indices_sample():
     """
     Assert random number for passed arg returned
     """
-    expected = set([0, 1, 2, 3])
+    expected = {0, 1, 2, 3}
     actual = util.get_label_indices(4, "sample")
     assert expected.intersection(set(actual))
 
