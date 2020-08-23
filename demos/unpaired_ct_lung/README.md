@@ -1,10 +1,10 @@
-# Unpaired CT Lung Registration
+# Unpaired lung CT image registration
 
 ## Author
 
-Shaheer U. Saeed
-
-zcemsus@ucl.ac.uk
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+zcemsus@ucl.ac.uk)
 
 ## Application
 
@@ -18,7 +18,7 @@ application can be seen in [2].
 
 ## Instructions
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
   the following command:

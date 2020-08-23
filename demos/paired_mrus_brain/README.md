@@ -1,10 +1,10 @@
-# Paired MR US Brain Registration
+# Paired MR and US brain image registration
 
 ## Author
 
-Shaheer U. Saeed
-
-zcemsus@ucl.ac.uk
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+zcemsus@ucl.ac.uk)
 
 ## Application
 
@@ -16,7 +16,7 @@ from imaging such as MR.
 
 ## Instructions
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
   the following command:
@@ -49,7 +49,7 @@ following order:
 
 ## Data
 
-The dataset for this demo comes from [1] and can be downloaded from:
+The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:
 
 https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
 
@@ -59,7 +59,7 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## References
 
-[1] Y. Xiao, M. Fortin, G. Unsgård , H. Rivaz, and I. Reinertsen, “REtroSpective
+[1] Y. Xiao, M. Fortin, G. Unsgård , H. Rivaz, and I. Reinertsen, "REtroSpective
 Evaluation of Cerebral Tumors (RESECT): a clinical database of pre-operative MRI and
-intra-operative ultrasound in low-grade glioma surgeries”. Medical Physics, Vol. 44(7),
+intra-operative ultrasound in low-grade glioma surgeries". Medical Physics, Vol. 44(7),
 pp. 3875-3882, 2017.

@@ -1,135 +1,158 @@
 """
 Tests functionality of the PairedDataLoader
 """
+from os.path import join
+
+import numpy as np
 import pytest
 
 from deepreg.dataset.loader.h5_loader import H5FileLoader
+from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 from deepreg.dataset.loader.paired_loader import PairedDataLoader
 
 # assign values to input vars
-data_dir_path = ["./data/test/h5/paired/test"]
-sample_label = "sample"
-seed = 1
-moving_image_shape_arr = (8, 8, 8)
-fixed_image_shape_arr = (8, 8, 8)
+moving_image_shape = (64, 64, 60)
+fixed_image_shape = (32, 32, 60)
+
+FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
+DataPaths = dict(nifti="data/test/nifti/paired", h5="data/test/h5/paired")
 
 
-# in __init__: seed needs var spec, and sample_label should be optional
-def test_init_sufficient_args():
+def test_init():
     """
-    check if init method of loader returns any errors when all required
-    arguments given
+    Check that data loader __init__() method is correct:
     """
 
-    loader = PairedDataLoader(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
-    loader.__init__(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
-    loader.close()
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        data_dir_path = [
+            join(DataPaths[key_file_loader], "train"),
+            join(DataPaths[key_file_loader], "test"),
+        ]
+        common_args = dict(
+            file_loader=file_loader, labeled=True, sample_label="all", seed=None
+        )
+        data_loader = PairedDataLoader(
+            data_dir_paths=data_dir_path,
+            fixed_image_shape=fixed_image_shape,
+            moving_image_shape=moving_image_shape,
+            **common_args,
+        )
 
+        # Check that file loaders are initialized correclty
+        file_loader_method = file_loader(
+            dir_paths=data_dir_path, name="moving_images", grouped=False
+        )
+        assert isinstance(data_loader.loader_moving_image, type(file_loader_method))
+        assert isinstance(data_loader.loader_fixed_image, type(file_loader_method))
+        assert isinstance(data_loader.loader_moving_label, type(file_loader_method))
+        assert isinstance(data_loader.loader_fixed_label, type(file_loader_method))
 
-def test_init_num_images():
-    """
-    check init reads expected number of image pairs from given data path
-    """
+        data_loader.close()
 
-    loader = PairedDataLoader(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
-    got = loader.num_images
-    expected = 1
-    loader.close()
-    assert got == expected
-
-
-def test_file_loader_init():
-    """
-    check file loader is correctly called in __init__:
-    """
-
-    loader = PairedDataLoader(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
-    file_loader = H5FileLoader(
-        dir_paths=data_dir_path, name="moving_images", grouped=False
-    )
-
-    expected = [("./data/test/h5/paired/test", "case000025.nii.gz")]
-
-    loader_got = loader.loader_moving_image.get_data_ids()
-    file_loader_got = file_loader.get_data_ids()
-    loader.close()
-    file_loader.close()
-    assert loader_got == expected, "paired_loader has loaded incorrect moving image"
-    assert loader_got == file_loader_got, "paired_loader incorrectly calling h5_loader"
+        # Check the data_dir_path variable assertion error.
+        data_dir_path_int = [0, "1", 2, 3]
+        with pytest.raises(AssertionError):
+            PairedDataLoader(
+                data_dir_paths=data_dir_path_int,
+                fixed_image_shape=fixed_image_shape,
+                moving_image_shape=moving_image_shape,
+                **common_args,
+            )
 
 
 def test_validate_data_files_label():
     """
-    check validate_data_files throws exception when moving and fixed label IDs vary
+    Test the validate_data_files functions that looks for inconsistencies in the fixed/moving image and label lists.
+    If there is any issue it will raise an error, otherwise it returns None.
     """
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        for split in ["train", "test"]:
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
+            common_args = dict(
+                file_loader=file_loader,
+                labeled=True,
+                sample_label="all",
+                seed=None if split == "train" else 0,
+            )
 
-    loader = PairedDataLoader(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
+            data_loader = PairedDataLoader(
+                data_dir_paths=data_dir_path,
+                fixed_image_shape=fixed_image_shape,
+                moving_image_shape=moving_image_shape,
+                **common_args,
+            )
 
-    # alter a data ID to cause error
-    loader.loader_moving_label.data_path_splits = ["foo"]
-    with pytest.raises(ValueError) as err_info:
-        PairedDataLoader.validate_data_files(loader)
-    loader.close()
-    assert "two lists are not identical" in str(err_info.value)
+            assert data_loader.validate_data_files() is None
+            data_loader.close()
 
 
 def test_sample_index_generator():
     """
-    check image index is expected value and format
+    Test to check the randomness and deterministic index generator for train/test respectively.
     """
 
-    loader = PairedDataLoader(
-        file_loader=H5FileLoader,
-        data_dir_paths=data_dir_path,
-        labeled=True,
-        sample_label=sample_label,
-        moving_image_shape=moving_image_shape_arr,
-        fixed_image_shape=fixed_image_shape_arr,
-        seed=seed,
-    )
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        for split in ["train", "test"]:
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
+            indices_to_compare = []
 
-    expected = (0, 0, [0])
-    image_index = PairedDataLoader.sample_index_generator(loader)
-    got = next(image_index)
-    loader.close()
-    assert expected == got
+            for seed in [0, 1, 0]:
+                data_loader = PairedDataLoader(
+                    data_dir_paths=data_dir_path,
+                    fixed_image_shape=fixed_image_shape,
+                    moving_image_shape=moving_image_shape,
+                    file_loader=file_loader,
+                    labeled=True,
+                    sample_label="all",
+                    seed=seed,
+                )
+
+                data_indices = []
+                for (
+                    moving_index,
+                    fixed_index,
+                    indices,
+                ) in data_loader.sample_index_generator():
+                    assert isinstance(moving_index, int)
+                    assert isinstance(fixed_index, int)
+                    assert isinstance(indices, list)
+                    assert moving_index == fixed_index
+                    data_indices += indices
+
+                indices_to_compare.append(data_indices)
+                data_loader.close()
+
+            if data_loader.num_images > 1:
+                # test different seeds give different indices
+                assert not (np.allclose(indices_to_compare[0], indices_to_compare[1]))
+                # test same seeds give the same indices
+                assert np.allclose(indices_to_compare[0], indices_to_compare[2])
+
+
+def test_close():
+    """
+    Test the close function. Only needed for H5 data loaders for now. Since fixed/moving loaders are the same for
+    unpaired data loader, only need to test the moving.
+    """
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        for split in ["train", "test"]:
+
+            data_dir_path = [join(DataPaths[key_file_loader], split)]
+            common_args = dict(
+                file_loader=file_loader,
+                labeled=True,
+                sample_label="all",
+                seed=None if split == "train" else 0,
+            )
+
+            data_loader = PairedDataLoader(
+                data_dir_paths=data_dir_path,
+                fixed_image_shape=fixed_image_shape,
+                moving_image_shape=moving_image_shape,
+                **common_args,
+            )
+
+            if key_file_loader == "h5":
+                data_loader.close()
+                for f in data_loader.loader_moving_image.h5_files.values():
+                    assert not f.__bool__()
