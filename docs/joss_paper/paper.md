@@ -64,17 +64,17 @@ Image fusion is a fundamental task in medical image analysis and computer assist
 ## Unsupervised learning
 Unsupervised learning was first developed independently from a number of research groups, among which, [@de2019deep] demonstrated the applicability in real clinical applications while VoxelMorph [@balakrishnan2019voxelmorph] has contributed to a popular open-source repository for several algorithms tested using brain MR images. Image dissimilarity is measured between the fixed and warped moving images, which has been adapted from the classical image registration methods. Fig.\autoref{fig:unsupervised} shows a schematic illustration of the network training. Image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross-correlation (NCC), mutual information (MI) and their variants.
 
-![Registration network with unsupervised loss.\label{fig:unsupervised}](../asset/deepreg-tutorial-unsupervised.svg)
+![Registration network with unsupervised loss.\label{fig:unsupervised}](../source/_images/registration-ddf-nn-unsupervised.svg)
 
 ## Weakly-supervised learning
 Weak supervision utilising segmented corresponding regions in the medical image pairs was first proposed in a multimodal application for registering prostate MR to ultrasound images [@hu2018label]. In addition to the regularisation on the predicted displacement field, the training is driven by minimising the dissimilarity between the fixed labels and the warped moving labels, as illustrated in Fig.X. This formulation is modality-independent and similar to many other well-studied computer vision and medical imaging tasks, such as image segmentation. When multiple corresponding label pairs available, a two-stage sampling strategy can be adopted for an unbiased gradient back-propagation during training. Label dissimilarity measures include Dice, Jaccard, cross-entropy and their variants, such as a multiscale Dice.
 
-![Registration network with weak supervision loss.\label{fig:weakly}](../asset/deepreg-tutorial-weakly.svg)
+![Registration network with weak supervision loss.\label{fig:weakly}](../source/_images/registration-ddf-nn-weakly-supervised.svg)
 
 ## Combining unsupervised loss with weak supervision
 Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone [@balakrishnan2019voxelmorph]. As a result, the overall loss is the weighted sum of the image-, label dissimilarity and deformation regularisation.
 
-![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](../asset/deepreg-tutorial-combined.svg)
+![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](../source/_images/registration-ddf-nn-combined.svg)
 
 ## Deformation regularisation and conditional segmentation
 The loss functions described in the previous sections are often combined with a deformation regularisation term on the predicted displacement field, in order to ensure the predicted deformation is smooth. The deformation can be regularised by L1-, L2 norms of the displacement gradient and bending energy, based on the first- or second dirivatives of DDF.
