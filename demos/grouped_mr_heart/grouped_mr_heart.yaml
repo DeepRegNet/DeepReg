@@ -9,7 +9,7 @@ dataset:
   intra_group_prob: 1
   intra_group_option: "unconstrained" # forward / backward / unconstrained
   sample_image_in_group: true
-  image_shape: [128, 128, 32]
+  image_shape: [128, 128, 28]
 
 train:
   # define neural network structure
@@ -35,7 +35,7 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 1.0 # weight of regularization loss
+      weight: 100 # weight of regularization loss
       energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer

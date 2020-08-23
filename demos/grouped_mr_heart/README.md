@@ -73,7 +73,7 @@ conjunction with MICCAI 2020.
 
 ## Tested DeepReg Tag
 
-tbc
+#74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 
 ## References
 
