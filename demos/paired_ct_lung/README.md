@@ -1,5 +1,14 @@
 # Paired lung CT image registration
 
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
+
 ## Author
 
 DeepReg Development Team (raise an issue:

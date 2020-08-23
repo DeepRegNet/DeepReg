@@ -1,5 +1,14 @@
 # Pairwise registration for grouped multi-sequence cardiac MR images
 
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
+
 This demo uses the grouped dataset loader to register intra-subject multi-sequence
 cardiac magnetic resonance (CMR) images.
 
