@@ -24,7 +24,6 @@ def test_init():
     """
 
     for key_file_loader, file_loader in FileLoaderDict.items():
-
         data_dir_path = [
             join(DataPaths[key_file_loader], "train"),
             join(DataPaths[key_file_loader], "test"),
@@ -125,11 +124,9 @@ def test_sample_index_generator():
 
             if data_loader.num_images > 1:
                 # test different seeds give different indices
-                assert (
-                    np.allclose(indices_to_compare[0], indices_to_compare[1]) is False
-                )
+                assert not (np.allclose(indices_to_compare[0], indices_to_compare[1]))
                 # test same seeds give the same indices
-                assert np.allclose(indices_to_compare[0], indices_to_compare[2]) is True
+                assert np.allclose(indices_to_compare[0], indices_to_compare[2])
 
 
 def test_close():
