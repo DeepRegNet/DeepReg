@@ -2,7 +2,7 @@
 Loads grouped data
 supports h5 and nifti formats
 supports labeled and unlabeled data
-Read https://ucl-candi.github.io/DeepReg/#/doc_data_loader?id=grouped-images for more details.
+Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
 import random
 from typing import List
@@ -169,9 +169,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
           - image1 of group1 is moving image
           - image2 of group2 is fixed image
 
-        Assuming group i has ni images,
-        then in total the number of samples are
-        sum(ni) * (sum(ni)-1) - sum( ni * (ni-1) )
+        All pairs of images in the dataset are registered. Assuming group i has ni images,
+        and that N=[n1, n2, ..., nI], then in total the number of samples are:
+        sum(N) * (sum(N)-1) - sum( N * (N-1) )
 
         :return: a list of sample indices
         """

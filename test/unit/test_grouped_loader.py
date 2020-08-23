@@ -12,9 +12,73 @@ from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 
 FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
-nifti_path = join("data", "test", "nifti", "grouped")
-h5_path = join("data", "test", "h5", "grouped")
-DataPaths = dict(nifti=nifti_path, h5=h5_path)
+DataPaths = dict(nifti="data/test/nifti/grouped", h5="data/test/h5/grouped")
+image_shape = (64, 64, 60)
+
+
+def sample_count(ni, direction):
+    """helper function calculates number of samples"""
+    ni = np.array(ni)
+    if direction == "unconstrained":
+        sample_total = sum(ni * (ni - 1))
+    else:
+        sample_total = sum(ni * (ni - 1) / 2)
+    return int(sample_total)
+
+
+def test_init():
+    """
+    Test __init__ catches exceptions with appropriate messages and counts samples correctly
+    """
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        for train_split in ["test", "train"]:
+            for prob in [0, 0.5, 1]:
+                for sample_in_group in [True, False]:
+                    data_dir_paths = [join(DataPaths[key_file_loader], train_split)]
+                    common_args = dict(
+                        file_loader=file_loader,
+                        labeled=True,
+                        sample_label="all",
+                        intra_group_prob=prob,
+                        intra_group_option="forward",
+                        sample_image_in_group=sample_in_group,
+                        seed=None,
+                    )
+                    if train_split == "test" and prob < 1:
+                        # catch exception when trying to sample between fewer than 2 groups. In "test" we only have one
+                        # group
+                        with pytest.raises(ValueError) as err_info:
+                            data_loader = GroupedDataLoader(
+                                data_dir_paths=data_dir_paths,
+                                image_shape=image_shape,
+                                **common_args,
+                            )
+                            data_loader.close()
+                        assert "we need at least two groups" in str(err_info.value)
+
+                    elif train_split == "train" and sample_in_group is True:
+                        # ensure sample count is accurate (only for train dir, test dir uses same logic)
+                        data_loader = GroupedDataLoader(
+                            data_dir_paths=data_dir_paths,
+                            image_shape=image_shape,
+                            **common_args,
+                        )
+                        assert data_loader.sample_indices is None
+                        assert data_loader._num_samples == 2
+                        data_loader.close()
+
+                    elif sample_in_group is False and 0 < prob < 1:
+                        # catch exception when specifying conflicting intra/inter group parameters
+                        with pytest.raises(ValueError) as err_info:
+                            data_loader = GroupedDataLoader(
+                                data_dir_paths=data_dir_paths,
+                                image_shape=image_shape,
+                                **common_args,
+                            )
+                            data_loader.close()
+                        assert "Mixing intra and inter groups is not supported" in str(
+                            err_info.value
+                        )
 
 
 def test_validate_data_files():
@@ -26,7 +90,6 @@ def test_validate_data_files():
         for train_split in ["train", "test"]:
             for labeled in [True, False]:
                 data_dir_paths = [join(DataPaths[key_file_loader], train_split)]
-                image_shape = (64, 64, 60)
                 common_args = dict(
                     file_loader=file_loader,
                     labeled=labeled,
@@ -46,88 +109,35 @@ def test_validate_data_files():
                 assert data_loader.validate_data_files() is None
 
 
-def test_init():
-    """
-    Test __init__ catches exceptions with appropriate messages and counts samples correctly
-    """
-    for train_split in ["test", "train"]:
-        for prob in [0, 0.5, 1]:
-            for sample_in_group in [True, False]:
-                data_dir_paths = [join(DataPaths["h5"], train_split)]
-                image_shape = (64, 64, 60)
-                common_args = dict(
-                    file_loader=H5FileLoader,
-                    labeled=True,
-                    sample_label="all",
-                    intra_group_prob=prob,
-                    intra_group_option="forward",
-                    sample_image_in_group=sample_in_group,
-                    seed=None,
-                )
-                if train_split == "test" and prob < 1:
-                    # catch exception when trying to sample between fewer than 2 groups
-                    with pytest.raises(ValueError) as err_info:
-                        data_loader = GroupedDataLoader(
-                            data_dir_paths=data_dir_paths,
-                            image_shape=image_shape,
-                            **common_args,
-                        )
-                        data_loader.close()
-                    assert "we need at least two groups" in str(err_info.value)
-
-                elif sample_in_group is True and train_split == "train":
-                    # ensure sample count is accurate (only for train dir, test dir uses same logic)
-                    data_loader = GroupedDataLoader(
-                        data_dir_paths=data_dir_paths,
-                        image_shape=image_shape,
-                        **common_args,
-                    )
-                    assert data_loader.sample_indices is None
-                    assert data_loader._num_samples == 2
-                    data_loader.close()
-                elif sample_in_group is False and 0 < prob < 1:
-                    # catch exception when specifying conflicting intra/inter group parameters
-                    with pytest.raises(ValueError) as err_info:
-                        data_loader = GroupedDataLoader(
-                            data_dir_paths=data_dir_paths,
-                            image_shape=image_shape,
-                            **common_args,
-                        )
-                        data_loader.close()
-                    assert "Mixing intra and inter groups is not supported" in str(
-                        err_info.value
-                    )
-
-
 def test_get_inter_sample_indices():
     """
     Test all possible intergroup sampling indices are correctly calculated
     """
-    data_dir_paths = [join(DataPaths["h5"], "train")]
-    image_shape = (64, 64, 60)
-    common_args = dict(
-        file_loader=FileLoaderDict["h5"],
-        labeled=True,
-        sample_label="all",
-        intra_group_prob=0,
-        intra_group_option="forward",
-        sample_image_in_group=False,
-        seed=None,
-    )
-    data_loader = GroupedDataLoader(
-        data_dir_paths=data_dir_paths, image_shape=image_shape, **common_args
-    )
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        data_dir_paths = [join(DataPaths[key_file_loader], "train")]
+        common_args = dict(
+            file_loader=file_loader,
+            labeled=True,
+            sample_label="all",
+            intra_group_prob=0,
+            intra_group_option="forward",
+            sample_image_in_group=False,
+            seed=None,
+        )
+        data_loader = GroupedDataLoader(
+            data_dir_paths=data_dir_paths, image_shape=image_shape, **common_args
+        )
 
-    ni = np.array(data_loader.num_images_per_group)
-    num_samples = np.sum(ni) * (np.sum(ni) - 1) - sum(ni * (ni - 1))
+        ni = np.array(data_loader.num_images_per_group)
+        num_samples = np.sum(ni) * (np.sum(ni) - 1) - sum(ni * (ni - 1))
 
-    sample_indices = data_loader.sample_indices
-    sample_indices.sort()
-    unique_indices = list(set(sample_indices))
-    unique_indices.sort()
+        sample_indices = data_loader.sample_indices
+        sample_indices.sort()
+        unique_indices = list(set(sample_indices))
+        unique_indices.sort()
 
-    assert data_loader._num_samples == num_samples
-    assert sample_indices == unique_indices
+        assert data_loader._num_samples == num_samples
+        assert sample_indices == unique_indices
 
 
 def test_get_intra_sample_indices():
@@ -135,57 +145,48 @@ def test_get_intra_sample_indices():
     Test all possible intragroup sampling indices are correctly calculated
     Ensure exception is thrown for unsupported group_option
     """
-    data_dir_paths = [join(DataPaths["h5"], "train")]
-    image_shape = (64, 64, 60)
-    common_args = dict(
-        file_loader=FileLoaderDict["h5"],
-        labeled=True,
-        sample_label="all",
-        intra_group_prob=1,
-        sample_image_in_group=False,
-        seed=None,
-    )
-    # test feasible intra_group_option
-    for intra_group_option in ["forward", "backward", "unconstrained"]:
-        data_loader = GroupedDataLoader(
-            data_dir_paths=data_dir_paths,
-            image_shape=image_shape,
-            intra_group_option=intra_group_option,
-            **common_args,
-        )
+    for key_file_loader, file_loader in FileLoaderDict.items():
+        for split in ["train", "test"]:
+            data_dir_paths = [join(DataPaths[key_file_loader], split)]
+            common_args = dict(
+                file_loader=file_loader,
+                labeled=True,
+                sample_label="all",
+                intra_group_prob=1,
+                sample_image_in_group=False,
+                seed=None,
+            )
+            # test feasible intra_group_option
+            for intra_group_option in ["forward", "backward", "unconstrained"]:
+                data_loader = GroupedDataLoader(
+                    data_dir_paths=data_dir_paths,
+                    image_shape=image_shape,
+                    intra_group_option=intra_group_option,
+                    **common_args,
+                )
 
-        ni = data_loader.num_images_per_group
-        num_samples = sample_count(ni, intra_group_option)
+                ni = data_loader.num_images_per_group
+                num_samples = sample_count(ni, intra_group_option)
 
-        sample_indices = data_loader.sample_indices
-        sample_indices.sort()
-        unique_indices = list(set(sample_indices))
-        unique_indices.sort()
+                sample_indices = data_loader.sample_indices
+                sample_indices.sort()
+                unique_indices = list(set(sample_indices))
+                unique_indices.sort()
 
-        # test all possible indices are generated
-        assert data_loader._num_samples == num_samples
-        assert sample_indices == unique_indices
+                # test all possible indices are generated
+                assert data_loader._num_samples == num_samples
+                assert sample_indices == unique_indices
 
-    # test exception thrown for unsupported group option
-    with pytest.raises(ValueError) as err_info:
-        data_loader = GroupedDataLoader(
-            data_dir_paths=data_dir_paths,
-            image_shape=image_shape,
-            intra_group_option="wrong",
-            **common_args,
-        )
-        data_loader.close()
-    assert "Unknown intra_group_option," in str(err_info.value)
-
-
-def sample_count(ni, direction):
-    """helper function calculates number of samples"""
-    ni = np.array(ni)
-    if direction == "unconstrained":
-        sample_total = sum(ni * (ni - 1))
-    else:
-        sample_total = sum(ni * (ni - 1) / 2)
-    return int(sample_total)
+            # test exception thrown for unsupported group option
+            with pytest.raises(ValueError) as err_info:
+                data_loader = GroupedDataLoader(
+                    data_dir_paths=data_dir_paths,
+                    image_shape=image_shape,
+                    intra_group_option="wrong",
+                    **common_args,
+                )
+                data_loader.close()
+            assert "Unknown intra_group_option," in str(err_info.value)
 
 
 def test_sample_index_generator():
@@ -193,7 +194,6 @@ def test_sample_index_generator():
     Test to check the randomness and deterministic index generator for train
     Test dir not checked because it contains only a single group of 2 images
     """
-    image_shape = (64, 64, 60)
 
     for key_file_loader, file_loader in FileLoaderDict.items():
         common_args = dict(
@@ -261,7 +261,7 @@ def test_close():
     for key_file_loader, file_loader in FileLoaderDict.items():
         for split in ["train", "test"]:
             data_dir_paths = [join(DataPaths[key_file_loader], split)]
-            image_shape = (64, 64, 60)
+
             data_loader = GroupedDataLoader(
                 data_dir_paths=data_dir_paths,
                 image_shape=image_shape,
