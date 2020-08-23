@@ -32,11 +32,11 @@ EPS = 1.0e-6
 def build_pair_output_path(indices: list, save_dir: str) -> (str, str):
     """
     Create directory for saving the paired data
+
     :param indices: indices of the pair, the last one is for label
     :param save_dir: directory of output
-    :return:
-    - save_dir, str, directory for saving the moving/fixed image
-    - label_dir, str, directory for saving the rest outputs
+    :return: - save_dir, str, directory for saving the moving/fixed image
+             - label_dir, str, directory for saving the rest outputs
     """
 
     # cast indices to string and init directory name
@@ -65,6 +65,7 @@ def predict_on_dataset(
 ):
     """
     Function to predict results from a dataset from some model
+
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
@@ -212,10 +213,13 @@ def predict_on_dataset(
 
 def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
     """
-    Function to create new directory to log directory
-    to store results.
+    Function to create new directory to log directory to store results.
+
+    :param config_path: string or list of strings, path of configuration files
     :param log_dir: string, path to store logs.
     :param ckpt_path: str, path where model is stored.
+    :return: - config, configuration dictionary
+             - log_dir, path of the directory for saving outputs
     """
     # check ckpt_path
     if not ckpt_path.endswith(".ckpt"):
@@ -256,11 +260,11 @@ def predict(
 ):
     """
     Function to predict some metrics from the saved model and logging results.
+
     :param gpu: str, which env gpu to use.
     :param gpu_allow_growth: bool, whether to allow gpu growth or not
-    :param ckpt_path: str, where model is stored, should be like
-                      log_folder/save/xxx.ckpt
-    :param mode: which mode to load the data ??
+    :param ckpt_path: str, where model is stored, should be like log_folder/save/xxx.ckpt
+    :param mode: train / valid / test, to define which split of dataset to be evaluated
     :param batch_size: int, batch size to perform predictions in
     :param log_dir: str, path to store logs
     :param sample_label: sample/all, not used

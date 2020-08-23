@@ -8,6 +8,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
+[![Documentation Status](https://readthedocs.org/projects/deepreg/badge/?version=latest)](https://deepreg.readthedocs.io/en/latest/?badge=latest)
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
@@ -31,7 +32,7 @@ and education in medical image registration using deep learning.**
 - [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
 - Code: https://github.com/DeepRegNet/DeepReg
 - Issue tracker: https://github.com/DeepRegNet/DeepReg/issues
-- Website: [deepreg.net](www.deepreg.net)
+- Website: http://deepreg.net/
 
 ## Contributing
 
