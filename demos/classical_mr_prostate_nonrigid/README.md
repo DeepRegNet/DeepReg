@@ -7,7 +7,9 @@ often regularised by a deformation smoothness function.
 
 ## Author
 
-Yipeng Hu (yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+yipeng.hu@ucl.ac.uk)
 
 ## Application
 
