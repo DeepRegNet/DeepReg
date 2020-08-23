@@ -2,9 +2,9 @@
 
 ## Author
 
-Adrià Casamitjana
-
-a.casamitjana@ucl.ac.uk
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+a.casamitjana@ucl.ac.uk)
 
 ## Application
 

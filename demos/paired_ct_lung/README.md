@@ -1,10 +1,10 @@
-# Paired CT Lung Registration
+# Paired lung CT image registration
 
 ## Author
 
-Shaheer U. Saeed
-
-zcemsus@ucl.ac.uk
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+zcemsus@ucl.ac.uk)
 
 ## Application
 
