@@ -67,17 +67,17 @@ Surgical Sciences (`WEISS`_), and partial support from the
 Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
-    :height: 80px
+    :width: 400
     :alt: WEISS Logo
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :height: 80px
+    :width: 400
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/
 .. _DeepReg Demos: https://deepreg.readthedocs.io/en/latest/demo/introduction.html
 .. _Documentation and tutorials: https://deepreg.readthedocs.io/
-.. _Get involved: CONTRIBUTING.md
+.. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/issue.html
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/
