@@ -1,4 +1,4 @@
-# DeepReg Demo Requirement
+# Add a DeepReg demo
 
 The [demos](https://github.com/DeepRegNet/DeepReg/tree/master/demos) folder directly
 under the DeepReg root directory contains demonstrations using DeepReg for different
@@ -66,21 +66,7 @@ DeepReg Demo.
 ## README.md
 
 The markdown file _must_ be provided as an entry point for each demo, which should
-contain the following sections:
-
-- [Demo name] - Use the first-level heading with # and all the following are using the
-  second-level subheadings with ##. The link to the DeepReg Demo Disclaimer has to be
-  added directly under the demo name:
-  https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md
-- [Author] Author name and email;
-- [Application] Briefly describe the clinical application and the need for registration;
-- [Instruction] A step-by-step instruction how the demo can be run. Preferably, use the
-  demo folder as working directory;
-- [Pre-trained Model] Clearly indicate that the demo uses pre-trained model by default,
-  while give clear instruction how the alternative user-trained model can be used;
-- [Data] Acknowledge data source;
-- [Tested DeepReg Version] Demos do not need to be unit-tested. Record the commit
-  \#hashtag on which it is tested.
+follow the [template](../demo/readme_template.html).
 
 ## Code style
 

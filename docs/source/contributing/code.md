@@ -1,4 +1,4 @@
-# Coding Requirement
+# Coding
 
 To ensure the code quality and the consistency, we recommend the following guidelines.
 
@@ -18,6 +18,12 @@ To ensure the code quality and the consistency, we recommend the following guide
 
 1. When adding/modifying functions/classes, please make sure the corresponding
    docstrings are added/updated.
+
+1. Please check [Unit Test Requirement](test.html) for detailed requirements on unit
+   testing.
+
+1. Please check [Documentation Requirement](docs.html) for detailed requirements on
+   documentation,
 
 ## Continuous Integration (CI)
 
