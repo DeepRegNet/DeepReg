@@ -7,9 +7,8 @@ an example to show how to add a new loss to DeepReg.
 
 Three main types of the loss functions are supported in DeepReg:
 `intensity (image) based loss`, `label based loss` and `deformation loss`. See
-[Docs here](https://deepreg.readthedocs.io/en/latest/tutorial/registration.html#loss)
-for details. The corresponding source files for the losses is included in
-`deepreg/model/loss`.
+[Docs here](registration.html#loss) for details. The corresponding source files for the
+losses is included in `deepreg/model/loss`.
 
 ## Step 1: Add the new function in loss source code
 
@@ -63,9 +62,7 @@ def dissimilarity_fn(
 
 Add corresponding unit test for the new added functions to `deepreg/test/unit`. It's
 just optional for the users. Everyone is warmly welcome to make contribution to DeepReg.
-Please follow our
-[contribution guidelines](https://deepreg.readthedocs.io/en/latest/contributing/code.html)
-here.
+Please follow our [contribution guidelines](../contributing/code.html) here.
 
 ## Step 3: Set yaml configuration files
 

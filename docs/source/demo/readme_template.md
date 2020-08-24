@@ -5,7 +5,7 @@
 
 ## Author
 
-DeepReg Development Team or Author name in other cases
+DeepReg Development Team or Author name otherwise.
 
 ## Application
 
@@ -32,8 +32,8 @@ Last commit at which demo was tested: commit hash or DeepReg version tag.
 
 ## Contact
 
-[Raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](../contributing/issue.html).
 
 ## References
 

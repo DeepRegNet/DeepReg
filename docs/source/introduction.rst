@@ -69,7 +69,8 @@ Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 Contact
 -------
 
-For development matters, please raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new;
+For development matters, please raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new following the
+[guidelines](contributing/issue.html);
 
 For matters in regarding the `Code of Conduct`_, such as a complaint, please email the DeepReg Development Team: DeepRegNet@gmail.com.
 
