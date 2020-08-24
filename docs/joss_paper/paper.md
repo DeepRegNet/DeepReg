@@ -69,17 +69,17 @@ In this paper, we first summarise several standard pairwise image registration n
 ## Unsupervised learning
 Unsupervised learning was first developed independently from a number of research groups, among which, [@de2019deep] demonstrated the applicability in real clinical applications while VoxelMorph [@balakrishnan2019voxelmorph] has contributed to a popular open-source repository for several algorithms tested using brain MR images. Image dissimilarity is measured between the fixed and warped moving images, which has been adapted from the classical image registration methods. \autoref{fig:unsupervised} shows a schematic illustration of the unsupervised network training. Image dissimilarity measures include sum-of-square difference in intensity (SSD), normalised cross-correlation (NCC), mutual information (MI) and their variants.
 
-![Registration network with unsupervised loss.\label{fig:unsupervised}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-unsupervised.svg)
+![Registration network with unsupervised loss.\label{fig:unsupervised}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-unsupervised.svg?raw=true)
 
 ## Weakly-supervised learning
 Weak supervision which utilises segmented corresponding regions in the medical image pairs was first proposed in a multimodal application for registering prostate MR to ultrasound images [@hu2018label]. In addition to the regularisation on the predicted displacement field, the training is driven by minimising the dissimilarity between the fixed labels and the warped moving labels. This formulation is modality-independent and the label dissimilarity measures are adapted from well-studied computer vision and medical imaging tasks, such as image segmentation. When multiple corresponding label pairs are available, a two-stage sampling strategy can be adopted for an unbiased gradient back-propagation during training [@hu2018weakly]. \autoref{fig:weakly} shows a schematic illustration of the weakly-supervised network training. Label dissimilarity measures include Dice, Jaccard, cross-entropy and their variants. DeepReg uses as a default multiscale Dice [@hu2018weakly], whilst other dissimilarity measures are implemented for users to tailor training options for various applications.
 
-![Registration network with weak supervision loss.\label{fig:weakly}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-weakly-supervised.svg)
+![Registration network with weak supervision loss.\label{fig:weakly}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-weakly-supervised.svg?raw=true)
 
 ## Combining unsupervised loss with weak supervision
 Combining the unsupervised loss and the weak supervision has shown superior registration accuracy, compared with that using unsupervised loss alone [@balakrishnan2019voxelmorph]. As a result, the overall loss is the weighted sum of the image dissimilarity, the label dissimilarity and the deformation regularisation, which constrains smoothness of the predicted transformation and is described in the next section. \autoref{fig:combined} shows a schematic illustration of the weakly-supervised network training with unsupervised loss.
 
-![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-combined.svg)
+![Registration network with combined unsupervised and weakly-supervised losses.\label{fig:combined}](https://github.com/DeepRegNet/DeepReg/blob/master/docs/source/_images/registration-ddf-nn-combined.svg?raw=true)
 
 ## Deformation regularisation and conditional segmentation
 The loss functions described in the previous sections are often combined with a deformation regularisation term on the predicted displacement field, in order to ensure the predicted deformation is smooth. The deformation can be regularised by L1-, L2 norms of the displacement gradient and bending energy, based on the first- or second derivatives of DDF.
