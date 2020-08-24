@@ -1,0 +1,6 @@
+h5py
+numpy
+nibabel
+matplotlib
+pillow
+tqdm
