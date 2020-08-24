@@ -1,5 +1,5 @@
 Introduction to DeepReg Demos
-============
+=============================
 
 DeepReg offers multiple built-in dataset loaders, supporting nifti and h5
 file format, and a variety of training strategies often encountered
@@ -29,6 +29,17 @@ to explain how different scenarios can be implemented with DeepReg.
 All data sets used are open-accessible.
 Pre-trained models and numerical-and-graphical inference results
 are also available.
+
+.. _demo-disclaimer:
+
+.. note::
+
+   DeepReg Demos are provided to demonstrate functionalities in DeepReg.
+   Although effort has been made to ensure these demos are representative
+   of real-world applications, the implementations and the results are not
+   peer-reviewed or tested for clinical efficacy. Substantial further
+   adaptation and development may be required for any potential clinical
+   adoption.
 
 .. _registration network: tutorial/registration.html
 .. _unpaired, paired and grouped: docs/dataset_loader.html

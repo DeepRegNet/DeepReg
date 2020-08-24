@@ -33,7 +33,6 @@ extensions = [
     "sphinx.ext.autodoc",  # autodoc for API
     "sphinx_tabs.tabs",  # for tabs in rst
     "m2r2",  # for supporting md files
-    "sphinx.ext.autosectionlabel",  # for ref other section/pages
     "notfound.extension",  # for 404 pages
 ]
 
