@@ -1,8 +1,19 @@
-# Unpaired CT Abdominal Registration
+# Unpaired abdominal CT image registration
+
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
 
 ## Author
 
-Ester Bonmati (e.bonmati@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+e.bonmati@ucl.ac.uk)
 
 ## Application
 

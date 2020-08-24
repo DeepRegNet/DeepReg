@@ -1,10 +1,19 @@
-# Paired CT Lung Registration
+# Paired lung CT image registration
+
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
 
 ## Author
 
-Shaheer U. Saeed
-
-zcemsus@ucl.ac.uk
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+zcemsus@ucl.ac.uk)
 
 ## Application
 
@@ -16,7 +25,7 @@ tumor location when conducting invasive procedures.
 
 ## Instructions
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
   the following command:
@@ -50,9 +59,9 @@ following order:
 
 ## Data
 
-The dataset for this demo comes from [1] and can be downloaded from:
-
-https://zenodo.org/record/3835682#.XsUWXsBpFhE
+The dataset for this demo comes from
+[Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
+[1].
 
 ## Tested DeepReg Version
 
@@ -61,5 +70,4 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 ## References
 
 [1] Hering, Alessa, Murphy,Keelin, and van Ginneken, Bram. (2020). Lean2Reg Challenge:
-CT Lung Registration - Training Data [Data set]. Zenodo.
-http://doi.org/10.5281/zenodo.3835682
+CT Lung Registration : CT Lung Registration - Training Data

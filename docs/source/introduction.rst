@@ -12,11 +12,10 @@ for research and education in medical image registration using deep
 learning.
 
 The current version is implemented as a `TensorFlow2`_-based framework,
-and contains implementations for unsupervised- and weaky-supervised
+and contains implementations for unsupervised- and weakly-supervised
 algorithms with their combinations and variants. DeepReg has a practical
 focus on growing and diverse clinical applications, as seen in the
-provided examples - `DeepReg Demos`_. Read the `documentation and
-tutorials`_ for more details.
+provided examples - `DeepReg Demos`_.
 
 `Get involved`_ and help make DeepReg better!
 
@@ -40,7 +39,7 @@ Contributors
 ------------
 
 DeepReg is maintained and led by a team of developers and researchers.
-People with signifigant contributions to DeepReg are listed below (in
+People with significant contributions to DeepReg are listed below (in
 alphabetical order).
 
 ================== =================================================
@@ -66,18 +65,33 @@ with support from the Wellcome/EPSRC Centre for Interventional and
 Surgical Sciences (`WEISS`_), and partial support from the
 Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 
+
+Contact
+-------
+
+For development matters, please raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new;
+
+For matters in regarding the `Code of Conduct`_, such as a complaint, please email the DeepReg Development Team: DeepRegNet@gmail.com.
+
+Alternatively, please contact one or more members of the CoC Committee as appropriate:
+
+Nina Montana Brown (nina.brown.15@ucl.ac.uk)
+Ester Bonmati (e.bonmati@ucl.ac.uk)
+Matt Clarkson (m.clarkson@ucl.ac.uk)
+
+
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
-    :height: 80px
+    :width: 300
     :alt: WEISS Logo
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :height: 80px
+    :width: 300
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/
-.. _DeepReg Demos: https://deepregnet.github.io/DeepReg/#/tutorial_demo
-.. _documentation and tutorials: https://deepregnet.github.io/DeepReg/
-.. _Get involved: CONTRIBUTING.md
+.. _DeepReg Demos: https://deepreg.readthedocs.io/en/latest/demo/introduction.html
+.. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/issue.html
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/
+.. _Code of Conduct: https://github.com/DeepRegNet/DeepReg/blob/master/docs/CODE_OF_CONDUCT.md

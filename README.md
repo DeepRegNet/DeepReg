@@ -28,8 +28,8 @@ and education in medical image registration using deep learning.**
 
 ## Getting Started
 
-- [Documentation, tutorials and a quick start guide](https://deepregnet.github.io/DeepReg/#)
-- [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
+- [Documentation, tutorials and a quick start guide](https://deepreg.readthedocs.io/)
+- [DeepReg Demos](https://deepreg.readthedocs.io/en/latest/demo/introduction.html)
 - Code: https://github.com/DeepRegNet/DeepReg
 - Issue tracker: https://github.com/DeepRegNet/DeepReg/issues
 - Website: http://deepreg.net/
@@ -39,11 +39,11 @@ and education in medical image registration using deep learning.**
 Get involved, and help make DeepReg better!
 
 For guidance on making a contribution to DeepReg, see the
-[contribution guidelines](https://deepregnet.github.io/DeepReg/#/CONTRIBUTING).
+[contribution guidelines](https://deepreg.readthedocs.io/en/latest/contributing/code.html).
 
 If you identified a registration application with openly accessible data, please
 consider
-[contributing a DeepReg Demo](https://deepregnet.github.io/DeepReg/#/doc_demo_requirement).
+[contributing a DeepReg Demo](https://deepreg.readthedocs.io/en/latest/contributing/demo.html).
 
 ## MICCAI 2020 Educational Challenge
 

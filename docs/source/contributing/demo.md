@@ -1,6 +1,4 @@
-# Demo Requirement
-
-v0.7
+# DeepReg Demo Requirement
 
 The [demos](https://github.com/DeepRegNet/DeepReg/tree/master/demos) folder directly
 under the DeepReg root directory contains demonstrations using DeepReg for different
@@ -62,15 +60,18 @@ DeepReg Demo.
 - Provide at least one piece of visualisation of the results, such as moving image vs
   fixed image vs warped moving image (pred_fixed_image). This may be simply done by
   selecting the typical results from the predict output. If possible, save the
-  visualisation to (e.g. png/jpg) files, avoiding compatibility issues.
+  visualisation to (e.g. png/jpg) files, avoiding compatibility issues. Pointing to the
+  relevant file paths generated using `deepreg_predict` is recommended.
 
-## A 'readme.md' file
+## README.md
 
 The markdown file _must_ be provided as an entry point for each demo, which should
 contain the following sections:
 
 - [Demo name] - Use the first-level heading with # and all the following are using the
-  second-level subheadings with ##;
+  second-level subheadings with ##. The link to the DeepReg Demo Disclaimer has to be
+  added directly under the demo name:
+  https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md
 - [Author] Author name and email;
 - [Application] Briefly describe the clinical application and the need for registration;
 - [Instruction] A step-by-step instruction how the demo can be run. Preferably, use the
@@ -86,4 +87,4 @@ contain the following sections:
 - Please restrict using external libraries or anything unsupported by
   [Colab](colab.research.google.com) or [Azure](https://notebooks.azure.com/);
 - See general
-  [Contribution Guide](https://github.com/ucl-candi/DeepReg/blob/master/docs/CONTRIBUTING.md).
+  [Contribution Guide](https://github.com/DeepRegNet/DeepReg/tree/master/docs/source/contributing).
