@@ -20,6 +20,7 @@ authors:  # not-ordered yet
   - name: Adrià Casamitjana
     affiliation: 2
   - name: Zachary M. C. Baum
+    affiliation: "1, 2"
     orcid: 0000-0001-6838-335X
   - name: Rémi Delaunay
     affiliation: "1, 4"
