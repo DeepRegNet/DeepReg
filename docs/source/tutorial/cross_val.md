@@ -18,7 +18,7 @@ experiment image and label files into the three folders. Again, for more details
 
 Experiments such as _cross-validation_ can be readily implemented by using the
 "multi-folder support" in the `dataset` section of the yaml configuration files. See
-details in [configuration](doc_configurtion.md).
+details in [configuration](../docs/configuration.md).
 
 For example, in a 3-fold cross-validation, user may randomly partition available
 experiment data files into four folders, 'fold0', 'fold1', 'fold2' and 'test'. The
