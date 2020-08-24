@@ -1,4 +1,4 @@
-Introduction
+Introduction to DeepReg Demos
 ============
 
 DeepReg offers multiple built-in dataset loaders, supporting nifti and h5
@@ -21,7 +21,7 @@ includes:
 Besides the detailed tutorials, a series of demos are provided to
 showcase a wide range of applications with real-world clinical image and label data.
 These applications range from ultrasound, CT and MR images,
-covering many clinical specialities such as neurology, urology,
+covering many clinical specialties such as neurology, urology,
 gastroenterology, oncology, respiratory and cardiovascular diseases.
 
 Each DeepReg Demo provides step-by-step instructions
@@ -50,7 +50,7 @@ using paired images.
   This demo registers paired preoperative MR images and 3D tracked ultrasound images for
   locating brain tumours during neurosurgery, with optional weak supervision.
 
-- `Paired MR-US registration <paired_mrus_prostate.html>`__
+- `Paired MR-US prostate registration <paired_mrus_prostate.html>`__
 
   This demo registers paired MR-to-ultrasound prostate images, an example of
   weakly-supervised multimodal image registration.
@@ -103,6 +103,10 @@ The following DeepReg demos provide examples of using grouped images.
 
   This demo registers grouped masks (as input images) of prostate glands from MR images,
   an example of feature-based registration.
+
+- `Pairwise registration for grouped cardiac MR images <grouped_mr_heart.html>`__
+
+  This demo registers grouped CMR images, where each group has multi-sequence CMR images from a single patient.
 
 .. toctree::
     :glob:

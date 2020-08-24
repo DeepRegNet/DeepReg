@@ -2,6 +2,15 @@
 
 > An example of weakly-supervised label-driven training
 
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
+
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).
 A standalone demo was hosted at https://github.com/YipengHu/label-reg.

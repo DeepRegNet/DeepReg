@@ -25,7 +25,7 @@ filenames_indices = list(
 if len(filenames_indices) is not num_data:
     raise ("Images and labels are not in pairs.")
 
-print("\nAbdominal CT data downloaded with %d image-label pairs.", num_data)
+print("\nAbdominal CT data downloaded with %d image-label pairs." % num_data)
 
 ratio_val = 0.1
 ratio_test = 0.15

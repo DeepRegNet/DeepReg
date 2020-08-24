@@ -1,5 +1,14 @@
 # Pairwise Registration for Grouped Prostate Images
 
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
+
 This demo uses DeepReg to demonstrate a number of features:
 
 - For grouped data in h5 files, e.g. "group-1-2" indicates the 2th visit from Subject 1;
