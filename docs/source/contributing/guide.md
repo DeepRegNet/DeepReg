@@ -1,4 +1,4 @@
-# Guidelines for Contributing
+# Guidelines
 
 We welcome contributions to DeepReg.
 

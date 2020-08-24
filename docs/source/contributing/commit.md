@@ -1,4 +1,4 @@
-# Commit Requirement
+# Commit
 
 To facilitate review of contributions, we encourage contributors to adhere to the
 following commit guidelines.

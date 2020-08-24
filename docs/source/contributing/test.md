@@ -1,4 +1,4 @@
-# Unit Test Requirement
+# Testing
 
 In DeepReg, we use [pytest](https://docs.pytest.org/en/stable/) (not
 [unittest](https://docs.python.org/3/library/unittest.html)) for unit tests to ensure a

@@ -1,4 +1,4 @@
-# Coding Requirement
+# Coding
 
 To ensure the code quality and the consistency, we recommend the following guidelines.
 

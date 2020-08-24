@@ -1,4 +1,4 @@
-# Issue Requirement
+# Raise an issue
 
 Found a bug? Create a [new issue](https://github.com/DeepRegNet/DeepReg/issues/new)!
 

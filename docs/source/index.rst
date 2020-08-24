@@ -50,8 +50,4 @@
     contributing/guide
     contributing/issue
     contributing/pull_request
-    contributing/code
-    contributing/test
-    contributing/docs
-    contributing/commit
     contributing/demo
