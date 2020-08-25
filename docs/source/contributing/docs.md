@@ -1,4 +1,45 @@
-## Documentation
+# Documentation
 
 We use [Sphinx](https://www.sphinx-doc.org/en/master/) to organize the documentation and
-it is hosted in [ReadTheDocs](https://readthedocs.org/).
+it is hosted in [ReadTheDocs](https://readthedocs.org/projects/deepreg/).
+
+## Build
+
+Please run the following command under `docs/` directory for generating the
+documentation pages locally.
+
+```bash
+make clean html SPHINXOPTS="-W"
+```
+
+where
+
+- `clean` removes the possible built files.
+- `SPHINXOPTS="-W"` fails the build on warnings, remove this flag to allow warnings.
+
+## Guides
+
+There are some recommendations regarding the docs.
+
+- **We prefer markdown files** over reStructuredText files as its linting is covered
+  using [Prettier](https://prettier.io/).
+
+  Only use reStructuredText (rst) files for some functionalities not supported by
+  markdown, like
+
+  - `toctree`
+  - warning/notes boxes in [Installation](../getting_started/install.html)
+
+  The conversion between markdown and rst can be done automatically using free online
+  tools like [Pandoc](https://pandoc.org/try/).
+
+- When linking to other pages, **please use relative paths** like
+  `../getting_started/install.html` instead of absolute paths like
+  `https://deepreg.readthedocs.io/en/latest/getting_started/install.html` as relative
+  paths are more robust for different version of documentations.
+
+- To refer a markdown file outside of the source folder, create an rst file and use
+  `.. mdinclude:: <makrdown file path>` to include the markdown source.
+
+  Check the source code of
+  [paired lung CT image registration page](../demo/paired_ct_lung.html) as an example. `

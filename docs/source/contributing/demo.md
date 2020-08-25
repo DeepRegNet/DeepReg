@@ -67,10 +67,3 @@ DeepReg Demo.
 
 The markdown file _must_ be provided as an entry point for each demo, which should
 follow the [template](../demo/readme_template.html).
-
-## Code style
-
-- Please restrict using external libraries or anything unsupported by
-  [Colab](colab.research.google.com) or [Azure](https://notebooks.azure.com/);
-- See general
-  [Contribution Guide](https://github.com/DeepRegNet/DeepReg/tree/master/docs/source/contributing).
