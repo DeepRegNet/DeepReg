@@ -9,9 +9,7 @@ project_dir = os.path.join(main_path, r"demos/paired_mrus_brain")
 os.chdir(project_dir)
 
 ######## FULL DATA DOWNLOAD AND PREPROCESS ########
-
 # # Please uncomment this code block if full data needs to be used
-
 # from tensorflow.keras.utils import get_file
 # from tqdm import tqdm
 # import shutil
@@ -86,19 +84,15 @@ os.chdir(project_dir)
 # shutil.rmtree(r"dataset_respect/paired_mr_us_brain/train/__MACOSX")
 
 # # Preprocess the downloaded data
-
 # if os.path.exists("dataset_respect/README.md"):
 #     os.remove("dataset_respect/README.md")
 
 # data_folder = "dataset_respect/paired_mr_us_brain"
-
 # folders = os.listdir(os.path.join(project_dir, data_folder))
 
 # # Move files into correct directories
-
 # for folder in folders:
 #     sub_folders = os.listdir(os.path.join(project_dir, data_folder, folder))
-
 #     if (
 #         os.path.exists(os.path.join(project_dir, data_folder, folder, "fixed_images"))
 #         is not True
@@ -128,17 +122,14 @@ os.chdir(project_dir)
 # print('Files moved into correct directories')
 
 # # Remove unused files
-
 # for folder in folders:
 #     sub_folders = os.listdir(os.path.join(project_dir, data_folder, folder))
 #     for sub_folder in sub_folders:
 #         if "Case" in sub_folder:
 #             shutil.rmtree(os.path.join(project_dir, data_folder, folder, sub_folder))
-
 # print('Unused files removed')
 
 # # Rename files to match names
-
 # for folder in folders:
 #     sub_folders = os.listdir(os.path.join(project_dir, data_folder, folder))
 #     for sub_folder in sub_folders:
@@ -155,14 +146,10 @@ os.chdir(project_dir)
 #             im = nib.load(source)
 #             nib.save(im, destination)
 #             os.remove(source)
-
 # print('files renamed to match each other')
 
-
 # # Rescale images
-
 # c = 0
-
 # for folder in folders:
 #     sub_folders = os.listdir(os.path.join(project_dir, data_folder, folder))
 #     for sub_folder in sub_folders:
@@ -203,20 +190,14 @@ os.chdir(project_dir)
 #                     )
 #                 )
 #                 c = c + 1
-
 # print('Images rescaled')
 # print('All done!')
 # print('Number of files removed due to not loading properly:', c)
 
-
 ######## PARTIAL PREPROCESSED DATA DOWNLOAD (COMMENT OUT) ########
-
 # Please comment out this code block if full data needs to be used
-
 url = "https://github.com/ucl-candi/dataset_respect/archive/master.zip"
-
 fname = "master.zip"
-
 get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
@@ -224,15 +205,11 @@ with zipfile.ZipFile(fname, "r") as zip_ref:
 
 source = "dataset_respect-master"
 destination = "dataset_respect"
-
 os.rename(source, destination)
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
-
 url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_mrus_brain_demo_logs.zip"
-
 fname = "paired_mrus_brain_demo_logs.zip"
-
 get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
