@@ -118,7 +118,7 @@ registration network is provided below.
 
 When multiple labels are available for each image, the labels can be sampled during the
 training iteration, such that only one label per image is used in each iteration of the
-data set (epoch). Read [data sampling API](tutorial_sampling.md) for more details.
+data set (epoch).
 
 ![Weakly-supervised DDF-based registration network](../_images/registration-ddf-nn-weakly-supervised.svg ":size=600")
 
