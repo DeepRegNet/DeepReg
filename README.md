@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
+	<img src="docs/asset/deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
 </p>
 
 # DeepReg
