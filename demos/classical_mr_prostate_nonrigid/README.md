@@ -1,13 +1,7 @@
 # Classical Non-rigid Registration for Prostate MR Images
 
----
-
-**NOTE**
-
-Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 This is a special demo that uses the DeepReg package for claissical nonrigid image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
