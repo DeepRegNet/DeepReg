@@ -33,7 +33,7 @@ subjects each having multiple available images, please see more sampling options
 ### Predict a dense displacement field
 
 With deep learning, given a pair of moving and fixed images, the registration network
-outputs a dense displacement field (DDF) of the same shape of moving image. Each value
+outputs a dense displacement field (DDF) with the same shape as the moving image. Each value
 can be considered as the placement of the corresponding pixel / voxel of the moving
 image. Therefore, the DDF defines a mapping from the moving image's coordinates to the
 fixed image.
@@ -51,7 +51,7 @@ for more details.
 
 ### Predict an affine transformation
 
-A more constrained option is to predict an affine transformation, parameterised the
+A more constrained option is to predict an affine transformation, parameterised by the
 affine transformation matrix of 12 degrees of freedom. The DDF can then be computed to
 resample the moving images in fixed image space.
 
@@ -59,7 +59,7 @@ resample the moving images in fixed image space.
 
 Instead of outputting the transformation between coordinates, given moving image, fixed
 image, and a region of interest (ROI) in the moving image, the network can predict the
-ROI in fixed image directly. Interested readers are referred to the MICCAI 2019 paper:
+ROI in the fixed image directly. Interested readers are referred to the MICCAI 2019 paper:
 [Conditional segmentation in lieu of image registration](https://arxiv.org/abs/1907.00438)
 
 ## Loss
@@ -116,9 +116,9 @@ Combined with the regularisation on the predicted displacement field, this forms
 weakly-supervised training. An illustration of an weakly-supervised DDF-based
 registration network is provided below.
 
-When multiple labels are available for each image, the labels can be sampled during
+When multiple labels are available for each image, the labels can be sampled during the
 training iteration, such that only one label per image is used in each iteration of the
-data set (epoch). Read [data sampling API](tutorial_sampling.md) for more details.
+data set (epoch).
 
 ![Weakly-supervised DDF-based registration network](../_images/registration-ddf-nn-weakly-supervised.svg ":size=600")
 
