@@ -1,4 +1,4 @@
-# Add a DeepReg demo
+# Add a DeepReg Demo
 
 The [demos](https://github.com/DeepRegNet/DeepReg/tree/master/demos) folder directly
 under the DeepReg root directory contains demonstrations using DeepReg for different
