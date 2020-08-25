@@ -9,11 +9,12 @@ install:
 
 jobs:
   include:
-    - stage: "Python Linting"
+    - stage: "Linting and Docs"
+      name: "Python Linting"
       script:
         - black --check .
         - flake8 .
-    - stage: "Sphinx Build"
+    - name: "Sphinx Build"
       script:
        - cd docs
        - make clean html SPHINXOPTS="-W"
