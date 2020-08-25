@@ -3,6 +3,7 @@ Module for IO of files in relation to
 data loading.
 """
 import glob
+import itertools as it
 import os
 import random
 
@@ -44,22 +45,18 @@ def get_sorted_file_paths_in_dir_with_suffix(dir_path: str, suffix: (str, list))
     return sorted(paths)
 
 
-def check_difference_between_two_lists(list1: list, list2: list):
+def check_difference_between_two_lists(list1: list, list2: list, name: str):
     """
     Raise error if two lists are not identical
+
     :param list1: list
     :param list2: list
-    :return: error message if lists are not equal
+    :param name: name to be printed in case of difference
+    :raises ValueError: error showing different pairs of items
     """
-
-    list1_unique = sorted(set(list1) - set(list2))
-    list2_unique = sorted(set(list2) - set(list1))
-    if len(list2_unique) != 0 or len(list1_unique) != 0:
-        raise ValueError(
-            "two lists are not identical\n"
-            "list1 has unique elements {}\n"
-            "list2 has unique elements {}\n".format(list1_unique, list2_unique)
-        )
+    diff = [(x, y) for x, y in it.zip_longest(list1, list2) if x != y]
+    if len(diff) > 0:
+        raise ValueError(f"{name} are not identical\n" f"difference are {diff}\n")
 
 
 def get_label_indices(num_labels: int, sample_label: str) -> list:
