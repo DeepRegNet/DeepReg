@@ -17,11 +17,118 @@
 # # from deepreg.predict import predict
 # from deepreg.train import train
 
+# #  coding=utf-8
+
+# """
+# Module to build GlobalNet based on:
+
+# Y. Hu et al.,
+# "Label-driven weakly-supervised learning for multimodal
+# deformable image registration,"
+# (ISBI 2018), pp. 1070-1074.
+# https://ieeexplore.ieee.org/abstract/document/8363756?casa_token=FhpScE4qdoAAAAAA:dJqOru2PqjQCYm-n81fg7lVL5fC7bt6zQHiU6j_EdfIj7Ihm5B9nd7w5Eh0RqPFWLxahwQJ2Xw
+# """
+# import tensorflow as tf
+
+# from deepreg.model import layer, layer_util
+# import deepreg.model.backbone.global_net as g
+
+# out = 3
+# im_size = [1, 2, 3]
+# #  Initialising GlobalNet instance
+# global_test = g.GlobalNet(
+#         image_size=im_size,
+#         out_channels=out,
+#         num_channel_initial=3,
+#         extract_levels=[1, 2, 3],
+#         out_kernel_initializer="softmax",
+#         out_activation="softmax",
+#     )
+# # Pass an input of all zeros
+# inputs = tf.constant(
+#         np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+# )
+# #  Get outputs by calling
+# output = global_test.call(inputs)
+
+# class RigidNet(tf.keras.Model):
+#     """
+#     Write the RigidNet for the rigid alignmnet of two images
+#     based on the global_net
+#     """
+
+#     def __init__(
+#         self,
+#         image_size,
+#         out_channels,
+#         num_channel_initial,
+#         extract_levels,
+#         out_kernel_initializer,
+#         out_activation,
+#         **kwargs,
+#     ):
+#         """
+#         Image is encoded gradually, i from level 0 to E.
+#         Then, a densely-connected layer outputs an affine
+#         transformation.
+#         :param out_channels: int, number of channels for the output
+#         :param num_channel_initial: int, number of initial channels
+#         :param extract_levels: list, which levels from net to extract
+#         :param out_activation: str, activation at last layer
+#         :param out_kernel_initializer: str, which kernel to use as initialiser
+#         :param kwargs:
+#         """
+#         super(RigidNet, self).__init__(**kwargs)
+
+#         # save parameters
+#         self._extract_levels = extract_levels
+#         self._extract_max_level = max(self._extract_levels)  # E
+#         self.reference_grid = layer_util.get_reference_grid(image_size)
+#         self.transform_initial = tf.constant_initializer(value=[0,0,0,0,0,0])
+#         # init layer variables
+#         num_channels = [
+#             num_channel_initial * (2 ** level)
+#             for level in range(self._extract_max_level + 1)
+#         ]  # level 0 to E
+#         self._downsample_blocks = [
+#             layer.DownSampleResnetBlock(
+#                 filters=num_channels[i], kernel_size=7 if i == 0 else 3
+#             )
+#             for i in range(self._extract_max_level)
+#         ]  # level 0 to E-1
+#         self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
+#         self._dense_layer = layer.Dense(
+#             units=6, bias_initializer=self.transform_initial
+#         )
+
+#     def call(self, inputs, training=None, mask=None):
+#         """
+#         Build GlobalNet graph based on built layers.
+#         :param inputs: image batch, shape = [batch, f_dim1, f_dim2, f_dim3, ch]
+#         :param training:
+#         :param mask:
+#         :return:
+#         """
+#         # down sample from level 0 to E
+#         h_in = inputs
+#         for level in range(self._extract_max_level):  # level 0 to E - 1
+#             h_in, _ = self._downsample_blocks[level](inputs=h_in, training=training)
+#         h_out = self._conv3d_block(
+#             inputs=h_in, training=training
+#         )  # level E of encoding
+
+#         # predict affine parameters theta of shape = [batch, 4, 3]
+#         self.theta = self._dense_layer(h_out)
+#         self.transformation = rigid2affine( self.theta[0:3], self.theta[3:6] )
+#         self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
+#         # warp the reference grid with affine parameters to output a ddf
+#         grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
+#         output = grid_warped - self.reference_grid
+#         return output
+
 # # from Euler angles to the rotation matrix
 # # here is the function that transform the euler angles
 # # to a rotation matrix
-
-
 # def euler2rot(theta) -> tf.Tensor:
 #     """
 #     convert a euler angles to a rotation matrix
@@ -29,7 +136,8 @@
 #     :return: shape (3,3)
 #     """
 #     theta = tf.ones((3))
-#     theta_array = tf.make_ndarray(tf.make_tensor_proto(theta))
+#     #theta_array = tf.make_ndarray(tf.make_tensor_proto(theta))
+#     theta_array = np.asarray(theta) # use this one to conver the tensor to
 #     rotation_shape = (3, 3)
 #     rotation = np.zeros(rotation_shape)
 #     theta0 = theta_array[0]
@@ -60,28 +168,40 @@
 # # test rigid2affine
 # theta = tf.zeros((3))
 # translation = tf.ones((3))
-# # affine_test = rigid2affine( theta, translation )
+# affine_test = rigid2affine( theta, translation )
 
 
 # # change the rotation and translation into the format of
 # # the original affine transformation matrix
-# # def rigid2affine( theta, translation )-> tf.Tensor:
+# def rigid2affine(theta,translation )-> tf.Tensor:
+#     # change the angle to the rotation
+#     rotation = euler2rot(theta)
+#     # change tensor to numpy array
+#     rotation_array = tf.make_ndarray(tf.make_tensor_proto(rotation))
+#     translation_array = tf.make_ndarray(tf.make_tensor_proto(translation))
+#     # get the affine transformation matrix in numpy
+#     affine = np.zeros((4, 3))
+#     affine[0:3,:] = rotation_array[:,:] # from 0 to 2(be reached)
+#     affine[3,:]   = translation_array
+#     # convert the affine into tensor
+#     affine = tf.convert_to_tensor(affine, dtype=tf.float32)
+#     return affine
 
-# # change the angle to the rotation
-# rotation = euler2rot(theta)
+# def rigid2affinebatch(rigid_batch)->tf.Tensor:
+#     """
+#     the input:  rigid_batch's size is [batch, 6], corresponds to theta in the global_net.py
+#     the output: is the affine in batch [batch, 4, 3]
+#     """
+#     # convert the [batch, 6] to [batch, 4, 3]
 
-# # change tensor to numpy array
-# rotation_array = tf.make_ndarray(tf.make_tensor_proto(rotation))
-# translation_array = tf.make_ndarray(tf.make_tensor_proto(translation))
+#     # First step, access the first three elements in theta
+#     theta = tf.constant(np.zeros((5, 6), dtype=np.float32))
+#     angle = theta[:, 0:3]
+#     # Second step, change the angle into rotation
+#     # for x in fruits:
 
-# # get the affine transformation matrix in numpy
-# affine = np.zeros((4, 3))
-# # affine[0:2,0:2] = rotation_array
-# # affine[3,0:2]   = translation_array
 
-# # convert the affine into tensor
-# affine = tf.convert_to_tensor(affine, dtype=tf.float32)
-# # return affine
+#     # return affine
 
 
 # grid_size = [4, 4, 4]

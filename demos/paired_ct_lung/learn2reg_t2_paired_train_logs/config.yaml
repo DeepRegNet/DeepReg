@@ -1,0 +1,71 @@
+dataset:
+  dir:
+    test: demos/paired_ct_lung/data/test
+    train: demos/paired_ct_lung/data/train
+    valid: demos/paired_ct_lung/data/valid
+  fixed_image_shape:
+    - 192
+    - 192
+    - 208
+  format: nifti
+  labeled: true
+  moving_image_shape:
+    - 192
+    - 192
+    - 208
+  type: paired
+train:
+  epochs: 100
+  loss:
+    dissimilarity:
+      image:
+        name: lncc
+        weight: 0.1
+      label:
+        multi_scale:
+          loss_scales:
+            - 0
+            - 1
+            - 2
+            - 4
+            - 8
+            - 16
+            - 32
+          loss_type: dice
+        name: multi_scale
+        single_scale:
+          loss_type: cross-entropy
+        weight: 1.0
+    regularization:
+      energy_type: bending
+      weight: 0.5
+  model:
+    backbone: local
+    local:
+      extract_levels:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      num_channel_initial: 1
+    method: ddf
+    unet:
+      concat_skip: false
+      depth: 2
+      num_channel_initial: 1
+      pooling: true
+  optimizer:
+    adam:
+      learning_rate: 0.001
+    name: adam
+    rms:
+      learning_rate: 0.01
+      momentum: 0.9
+    sgd:
+      learning_rate: 0.01
+      momentum: 0.9
+  preprocess:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1
+  save_period: 2

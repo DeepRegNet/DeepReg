@@ -1,4 +1,4 @@
-<!-- <p align="center">
+<p align="center">
 	<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
 </p>
 
@@ -74,4 +74,4 @@ consider
 
 The MICCAI Educational Challenge notebook can be accessed
 [here](./docs/Intro_to_Medical_Image_Registration.ipynb) or run it on
-[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb). -->
+[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb).
