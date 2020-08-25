@@ -5,13 +5,13 @@
 **NOTE**
 
 Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+[DeepReg Demo Disclaimer](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/demo/readme_template.html).
 
 ---
 
-This is a special demo that uses the DeepReg package for claissical nonrigid image
+This is a special demo that uses the DeepReg package for classical nonrigid image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
-to minimise the image dissimilarity function of a given pair of moving anf fixed images,
+to minimise the image dissimilarity function of a given pair of moving and fixed images,
 often regularised by a deformation smoothness function.
 
 ## Author
@@ -25,11 +25,15 @@ yipeng.hu@ucl.ac.uk)
 Registering inter-subject prostate MR images may be useful to align different glands in
 a common space for investigating the spatial distribution of cancer.
 
+## Data
+
+https://promise12.grand-challenge.org/
+
 ## Instructions
 
 - Change current directory to the root directory of DeepReg project;
 - Run `demo_data.py` script to download an example MR volumes with the prostate gland
-  segmenation;
+  segmentation;
 
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_data.py
@@ -43,10 +47,6 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
-
-## Data
-
-https://promise12.grand-challenge.org/
 
 ## Tested DeepReg Version
 
