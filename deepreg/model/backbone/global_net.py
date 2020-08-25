@@ -6,6 +6,10 @@ Y. Hu et al.,
 "Label-driven weakly-supervised learning for multimodal deformable image registration,"
 (ISBI 2018), pp. 1070-1074.
 https://arxiv.org/abs/1711.01666
+<<<<<<< HEAD
+=======
+
+>>>>>>> b698811d707bc0d057aae07792041019a75a1a55
 """
 import tensorflow as tf
 

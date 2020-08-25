@@ -1,12 +1,23 @@
-# Classical affine registration for head-and-neck CT images
+# Classical Affine Registration for Head-and-Neck CT Images
 
-This is a special demo that uses the DeepReg package for claissical affine image
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
+
+This is a special demo that uses the DeepReg package for classical affine image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
 to minimise the image dissimilarity function of a given pair of moving anf fixed images.
 
 ## Author
 
-Yipeng Hu (yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+yipeng.hu@ucl.ac.uk)
 
 ## Application
 
@@ -28,8 +39,8 @@ python demos/classical_ct_headneck_affine/demo_data.py
   will be the downloaded data and the moving image will be simulated by applying a
   random affine transformation, such that the ground-truth is available for. The
   optimised transformation will be applied to the moving images, as well as the moving
-  labels. The results will be plotted to compare the warped image/labels with the
-  ground-truth image/labels.
+  labels. The results, saved in a timestamped folder under the project directory, will
+  compare the warped image/labels with the ground-truth image/labels.
 
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
@@ -45,5 +56,5 @@ v0.1.4
 
 ## References
 
-Vallières, M. et al. Radiomics strategies for risk assessment of tumour failure in
+[1] Vallières, M. et al. Radiomics strategies for risk assessment of tumour failure in
 head-and-neck cancer. Sci Rep 7, 10117 (2017). doi: 10.1038/s41598-017-10371-5

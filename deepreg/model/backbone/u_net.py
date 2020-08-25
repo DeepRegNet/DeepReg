@@ -16,7 +16,7 @@ from deepreg.model import layer
 
 class UNet(tf.keras.Model):
     """
-    Class that implements UNet based on:
+    Class that implements an adapted 3D UNet based on:
     O. Ronneberger, P. Fischer, and T. Brox,
     “U-net: Convolutional networks for biomedical image segmentation,”,
     Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.

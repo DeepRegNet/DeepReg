@@ -35,8 +35,14 @@ def local_normalized_cross_correlation(
     y_true: tf.Tensor, y_pred: tf.Tensor, kernel_size: int = 9, **kwargs
 ) -> tf.Tensor:
     """
+    local squared zero-normalized cross-correlation
+    Reference Zero-normalized cross-correlation (ZNCC) in
+    https://en.wikipedia.org/wiki/Cross-correlation
+    Code reference
+    https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
+
     moving a kernel/window on the y_true/y_pred
-    then calculate the ncc in the window of y_true/y_pred
+    then calculate the square of zncc in the window of y_true/y_pred
     average over all windows in the end
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
@@ -47,30 +53,44 @@ def local_normalized_cross_correlation(
     """
 
     kernel_vol = kernel_size ** 3
-    filters = tf.ones(
-        shape=[kernel_size, kernel_size, kernel_size, 1, 1]
-    )  # [dim1, dim2, dim3, d_in, d_out]
+    # [dim1, dim2, dim3, d_in, d_out]
+    # ch must be evenly divisible by d_in
+    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, 1, 1])
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 
     # t = y_true, p = y_pred
+    # (batch, dim1, dim2, dim3, ch)
     t2 = y_true * y_true
     p2 = y_pred * y_pred
     tp = y_true * y_pred
 
+    # sum over kernel
+    # (batch, dim1, dim2, dim3, 1)
     t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
     p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
     t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
     p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
     tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
 
+    # average over kernel
+    # (batch, dim1, dim2, dim3, 1)
     t_avg = t_sum / kernel_vol
     p_avg = p_sum / kernel_vol
 
+    # normalized cross correlation between t and p
+    # sum[(t - mean[t]) * (p - mean[p])] / std[t] / std[p]
+    # denoted by num / denom
+    # assume we sum over N values
+    # num = sum[t * p - mean[t] * p - t * mean[p] + mean[t] * mean[p]]
+    #     = sum[t*p] - sum[t] * sum[p] / N * 2 + sum[t] * sum[p] / N
+    #     = sum[t*p] - sum[t] * sum[p] / N
+    #     = sum[t*p] - sum[t] * mean[p] = cross
+    # the following is actually squared ncc
+    # shape = (batch, dim1, dim2, dim3, 1)
     cross = tp_sum - p_avg * t_sum
-    t_var = t2_sum - t_avg * t_sum
-    p_var = p2_sum - p_avg * p_sum
-
+    t_var = t2_sum - t_avg * t_sum  # std[t] ** 2
+    p_var = p2_sum - p_avg * p_sum  # std[p] ** 2
     ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
     return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 

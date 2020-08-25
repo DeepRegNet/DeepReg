@@ -51,9 +51,9 @@ def test_sample_index_generator():
                 indices_to_compare.append(data_indices)
 
             # test different seeds give different indices
-            assert np.allclose(indices_to_compare[0], indices_to_compare[1]) is False
+            assert not np.allclose(indices_to_compare[0], indices_to_compare[1])
             # test same seeds give the same indices
-            assert np.allclose(indices_to_compare[0], indices_to_compare[2]) is True
+            assert np.allclose(indices_to_compare[0], indices_to_compare[2])
 
 
 def test_validate_data_files():

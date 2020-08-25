@@ -2,13 +2,14 @@
 A DeepReg Demo for classical affine iterative pairwise registration algorithms
 """
 import os
+from datetime import datetime
 
 import h5py
-import matplotlib.pyplot as plt
 import tensorflow as tf
 
-import deepreg.model.layer_util as util
+import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.image as image_loss
+import deepreg.util as util
 
 MAIN_PATH = os.getcwd()
 PROJECT_DIR = r"demos/classical_ct_headneck_affine"
@@ -37,15 +38,15 @@ fixed_image = (fixed_image - tf.reduce_min(fixed_image)) / (
 
 # generate a radomly-affine-transformed moving image
 fixed_image_size = fixed_image.shape
-transform_random = util.random_transform_generator(batch_size=1, scale=0.2)
-grid_ref = util.get_reference_grid(grid_size=fixed_image_size[1:4])
-grid_random = util.warp_grid(grid_ref, transform_random)
-moving_image = util.resample(vol=fixed_image, loc=grid_random)
+transform_random = layer_util.random_transform_generator(batch_size=1, scale=0.2)
+grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size[1:4])
+grid_random = layer_util.warp_grid(grid_ref, transform_random)
+moving_image = layer_util.resample(vol=fixed_image, loc=grid_random)
 # warp the labels to get ground-truth using the same random affine, for validation
 fixed_labels = tf.cast(tf.expand_dims(fid["label"], axis=0), dtype=tf.float32)
 moving_labels = tf.stack(
     [
-        util.resample(vol=fixed_labels[..., idx], loc=grid_random)
+        layer_util.resample(vol=fixed_labels[..., idx], loc=grid_random)
         for idx in range(fixed_labels.shape[4])
     ],
     axis=4,
@@ -58,7 +59,7 @@ def train_step(grid, weights, optimizer, mov, fix):
     """
     Train step function for backprop using gradient tape
 
-    :param grid: reference grid return from util.get_reference_grid
+    :param grid: reference grid return from layer_util.get_reference_grid
     :param weights: trainable affine parameters [1, 4, 3]
     :param optimizer: tf.optimizers
     :param mov: moving image [1, m_dim1, m_dim2, m_dim3]
@@ -66,7 +67,7 @@ def train_step(grid, weights, optimizer, mov, fix):
     :return loss: image dissimilarity to minimise
     """
     with tf.GradientTape() as tape:
-        pred = util.resample(vol=mov, loc=util.warp_grid(grid, weights))
+        pred = layer_util.resample(vol=mov, loc=layer_util.warp_grid(grid, weights))
         loss = image_loss.dissimilarity_fn(
             y_true=fix, y_pred=pred, name=image_loss_name
         )
@@ -90,54 +91,51 @@ for step in range(total_iter):
 
 
 ## warp the moving image using the optimised affine transformation
-grid_opt = util.warp_grid(grid_ref, var_affine)
-warped_moving_image = util.resample(vol=moving_image, loc=grid_opt)
-# display
-idx_slices = [int(5 + x * 5) for x in range(int(fixed_image_size[3] / 5) - 1)]
-nIdx = len(idx_slices)
-plt.figure()
-for idx in range(len(idx_slices)):
-    axs = plt.subplot(nIdx, 3, 3 * idx + 1)
-    axs.imshow(moving_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 2)
-    axs.imshow(fixed_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 3)
-    axs.imshow(warped_moving_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-plt.ion()
-plt.show()
+grid_opt = layer_util.warp_grid(grid_ref, var_affine)
+warped_moving_image = layer_util.resample(vol=moving_image, loc=grid_opt)
 
 
 ## warp the moving labels using the optimised affine transformation
 warped_moving_labels = tf.stack(
     [
-        util.resample(vol=moving_labels[..., idx], loc=grid_opt)
+        layer_util.resample(vol=moving_labels[..., idx], loc=grid_opt)
         for idx in range(fixed_labels.shape[4])
     ],
     axis=4,
 )
 
-# display
-for idx_label in range(fixed_labels.shape[4]):
-    plt.figure()
-    for idx in range(len(idx_slices)):
-        axs = plt.subplot(nIdx, 3, 3 * idx + 1)
-        axs.imshow(moving_labels[0, ..., idx_slices[idx], idx_label], cmap="gray")
-        axs.axis("off")
-        axs = plt.subplot(nIdx, 3, 3 * idx + 2)
-        axs.imshow(fixed_labels[0, ..., idx_slices[idx], idx_label], cmap="gray")
-        axs.axis("off")
-        axs = plt.subplot(nIdx, 3, 3 * idx + 3)
-        axs.imshow(
-            warped_moving_labels[0, ..., idx_slices[idx], idx_label], cmap="gray"
-        )
-        axs.axis("off")
-    plt.ion()
-    plt.show()
 
-plt.pause(0.001)
-input("Press [enter] to continue.")
+## save output to files
+SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+os.mkdir(SAVE_PATH)
+
+arrays = [
+    tf.transpose(a, [1, 2, 3, 0]) if a.ndim == 4 else tf.squeeze(a)
+    for a in [
+        moving_image,
+        fixed_image,
+        warped_moving_image,
+        moving_labels,
+        fixed_labels,
+        warped_moving_labels,
+    ]
+]
+arr_names = [
+    "moving_image",
+    "fixed_image",
+    "warped_moving_image",
+    "moving_label",
+    "fixed_label",
+    "warped_moving_label",
+]
+for arr, arr_name in zip(arrays, arr_names):
+    for n in range(arr.shape[-1]):
+        util.save_array(
+            save_dir=SAVE_PATH,
+            arr=arr[..., n],
+            name=arr_name + (arr.shape[-1] > 1) * "_{}".format(n),
+            gray=True,
+        )
+
 
 os.chdir(MAIN_PATH)

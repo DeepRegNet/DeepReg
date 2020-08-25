@@ -1,4 +1,13 @@
-# Pairwise registration for grouped prostate images
+# Pairwise Registration for Grouped Prostate Images
+
+---
+
+**NOTE**
+
+Please read the
+[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
+
+---
 
 This demo uses DeepReg to demonstrate a number of features:
 
@@ -9,7 +18,9 @@ This demo uses DeepReg to demonstrate a number of features:
 
 ## Author
 
-Yipeng Hu (yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (raise an issue:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+yipeng.hu@ucl.ac.uk)
 
 ## Application
 
@@ -20,7 +31,7 @@ and monitoring potential cancerous regions.
 
 ## Instruction
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
   ultrasound images and the pre-trained model.
@@ -34,7 +45,7 @@ python demos/grouped_mask_prostate_longitudinal/demo_data.py
   [`dataset` section](./grouped_mask_prostate_longitudinal_dataset0.yaml) and the
   [`train` section](./grouped_mask_prostate_longitudinal_train.yaml), which can be
   specified in
-  [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation);
+  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html);
 
 ```bash
 deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --log_dir grouped_mask_prostate_longitudinal
@@ -62,6 +73,6 @@ where the ckpt files are save, in this case (specified by `deepreg_train` as abo
 This is a demo without real clinical data due to regulatory restrictions. The MR and
 ultrasound images used are simulated dummy images.
 
-## Tested DeepReg Tag
+## Tested DeepReg Version
 
-#3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
+Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1

@@ -10,7 +10,7 @@ from deepreg.predict import predict
 log_dir = "learn2reg_t2_paired_train_logs"
 
 log_dir_tr = r"demos/paired_ct_lung/learn2reg_t2_paired_train_logs"
-ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch100.ckpt")
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch500.ckpt")
 config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
@@ -37,19 +37,19 @@ predict(
 # change the following line to the path to image0 label0
 
 path_to_test = r"logs/learn2reg_t2_paired_train_logs/test"
-path_to_fixed_label = os.path.join(path_to_test, "pair_1", "label_0", "fixed_label")
+path_to_fixed_label = os.path.join(path_to_test, "pair_0", "label_0", "fixed_label")
 path_to_pred_fixed_label = os.path.join(
-    path_to_test, "pair_1", "label_0", "pred_fixed_label"
+    path_to_test, "pair_0", "label_0", "pred_fixed_label"
 )
-path_to_fixed_image = os.path.join(path_to_test, "pair_1", "fixed_image")
-path_to_pred_fixed_image = os.path.join(path_to_test, "pair_1", "pred_fixed_image")
-path_to_moving_image = os.path.join(path_to_test, "pair_1", "moving_image")
-path_to_moving_label = os.path.join(path_to_test, "pair_1", "label_0", "moving_label")
+path_to_fixed_image = os.path.join(path_to_test, "pair_0", "fixed_image")
+path_to_pred_fixed_image = os.path.join(path_to_test, "pair_0", "pred_fixed_image")
+path_to_moving_image = os.path.join(path_to_test, "pair_0", "moving_image")
+path_to_moving_label = os.path.join(path_to_test, "pair_0", "label_0", "moving_label")
 
 
 # change inds_to_plot if different images need to be plotted instead
 
-inds_to_plot = [144, 145, 184, 140, 150, 180]
+inds_to_plot = [20, 80, 110, 170, 190, 200]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:

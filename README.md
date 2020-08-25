@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="./deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
+	<img src="docs/asset/deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
 </p>
 
 # DeepReg
@@ -8,6 +8,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
+[![Documentation Status](https://readthedocs.org/projects/deepreg/badge/?version=latest)](https://deepreg.readthedocs.io/en/latest/?badge=latest)
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
@@ -43,14 +44,17 @@ applications, as seen in the provided [examples](./docs/tutorial_demo.md). Read 
 
 ## Getting Started
 
-<<<<<<< HEAD Tutorials and examples are located in
+<<<<<<< HEAD <<<<<<< HEAD Tutorials and examples are located in
 [DeepReg/docs](./docs/tutorial_demo.md).
 
 Feel free to read DeepReg's [documentation](https://deepregnet.github.io/DeepReg/#/) as
 well. =======
 
 - [Documentation, tutorials and a quick start guide](https://deepregnet.github.io/DeepReg/#)
-- [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
+- # [DeepReg Demos](https://deepregnet.github.io/DeepReg/#/tutorial_demo)
+- [Documentation, tutorials and a quick start guide](https://deepreg.readthedocs.io/)
+- [DeepReg Demos](https://deepreg.readthedocs.io/en/latest/demo/introduction.html)
+  > > > > > > > b698811d707bc0d057aae07792041019a75a1a55
 - Code: https://github.com/DeepRegNet/DeepReg
 - Issue tracker: https://github.com/DeepRegNet/DeepReg/issues
 - Website: http://deepreg.net/
@@ -60,15 +64,19 @@ well. =======
 
 Get involved, and help make DeepReg better!
 
-For guidance on making a contribution to DeepReg, see the <<<<<<< HEAD
+<<<<<<< HEAD For guidance on making a contribution to DeepReg, see the <<<<<<< HEAD
 [contribution guidelines](./docs/CONTRIBUTING.md). =======
-[contribution guidelines](https://deepregnet.github.io/DeepReg/#/CONTRIBUTING).
+[contribution guidelines](https://deepregnet.github.io/DeepReg/#/CONTRIBUTING). =======
+For guidance on making a contribution to DeepReg, see the
+[contribution guidelines](https://deepreg.readthedocs.io/en/latest/contributing/code.html).
+
+> > > > > > > b698811d707bc0d057aae07792041019a75a1a55
 
 > > > > > > > 584c72858ae2efad73a7780a7f245f7f8c28d6dc
 
 If you identified a registration application with openly accessible data, please
 consider
-[contributing a DeepReg Demo](https://deepregnet.github.io/DeepReg/#/doc_demo_requirement).
+[contributing a DeepReg Demo](https://deepreg.readthedocs.io/en/latest/contributing/demo.html).
 
 ## MICCAI 2020 Educational Challenge
 
