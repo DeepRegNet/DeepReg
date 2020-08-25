@@ -80,16 +80,22 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         moving_image_ids = self.loader_moving_image.get_data_ids()
         fixed_image_ids = self.loader_fixed_image.get_data_ids()
         check_difference_between_two_lists(
-            list1=moving_image_ids, list2=fixed_image_ids
+            list1=moving_image_ids,
+            list2=fixed_image_ids,
+            name="moving and fixed images in paired loader",
         )
         if self.labeled:
             moving_label_ids = self.loader_moving_label.get_data_ids()
             fixed_label_ids = self.loader_fixed_label.get_data_ids()
             check_difference_between_two_lists(
-                list1=moving_image_ids, list2=moving_label_ids
+                list1=moving_image_ids,
+                list2=moving_label_ids,
+                name="moving images and labels in paired loader",
             )
             check_difference_between_two_lists(
-                list1=moving_image_ids, list2=fixed_label_ids
+                list1=moving_image_ids,
+                list2=fixed_label_ids,
+                name="fixed images and labels in paired loader",
             )
 
     def sample_index_generator(self):

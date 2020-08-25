@@ -73,7 +73,11 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
+            check_difference_between_two_lists(
+                list1=image_ids,
+                list2=label_ids,
+                name="images and labels in unpaired loader",
+            )
 
     def sample_index_generator(self):
         """

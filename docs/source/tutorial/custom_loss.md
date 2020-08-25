@@ -12,9 +12,9 @@ losses is included in `deepreg/model/loss`.
 
 ## Step 1: Add the new function in loss source code
 
-The first step is to add your own loss function, which should takes at least 2
+The first step is to add your own loss function, which should take at least 2
 parameters, `y_true` for the ground truth and `y_pred` for the prediction. e.g. in
-`deepreg/model/loss/image.py`
+`deepreg/model/loss/image.py`. The loss can be defined as:
 
 ```
 def global_mutual_information(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
@@ -29,9 +29,7 @@ def global_mutual_information(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor
     return tf.reduce_sum(pab * tf.math.log(pab / papb + eps), axis=[1, 2])
 ```
 
-In order to be compatible with the pipeline in DeepReg, another modification is needed
-as well in `deeepreg/model/loss/image.py`, which is just adding an `elif` branch. We use
-`"gmi"` here to represent the global mutual information:
+In order to be compatible with the pipeline in DeepReg, another modification is needed in `deeepreg/model/loss/image.py`. The modification is simply adding an `elif` branch to the `dissimilarity_fn` function. The following code block shows the added `elif` branch where we use `"gmi"` to represent the global mutual information:
 
 ```
 def dissimilarity_fn(
@@ -60,16 +58,16 @@ def dissimilarity_fn(
 
 ## Step 2: Add test functions (for contributing developers, optional for users)
 
-Add corresponding unit test for the new added functions to `deepreg/test/unit`. It's
-just optional for the users. Everyone is warmly welcome to make contribution to DeepReg.
+Add corresponding unit test for the new added functions to `deepreg/test/unit`. This is
+optional for the users. Everyone is warmly welcome to make contribution to DeepReg.
 Please follow our [contribution guidelines](../contributing/code.html) here.
 
 ## Step 3: Set yaml configuration files
 
 We take the
-[paired prostate MR and Ultrasound registration demo](https://github.com/DeepRegNet/DeepReg/tree/20-mutual-information/demos/paired_mrus_prostate)
-as an example, in order to use the new added loss, all needed to do is to modify the
-loss configures in the train yaml file `paired_mrus_prostate_train.yaml`, line 10-15:
+[paired prostate MR and Ultrasound registration demo](../../../demos/paired_mrus_prostate)
+as an example. In order to use the newly added loss, all that is needed is to modify the
+loss configuration in the train configuration file `paired_mrus_prostate_train.yaml` (lines 10-15):
 
 ```
 # define the loss function for training
