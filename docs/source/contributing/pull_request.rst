@@ -21,12 +21,12 @@ We recommend using fork to do pull requests:
 5. Pull request will be reviewed and, if necessary, changes will be
    suggested.
 
-.. _Fork the repository: https://github.com/DeepRegNet/DeepReg/forks/new
-.. _Coding Requirement: code.md
+.. _Fork the repository: https://github.com/DeepRegNet/DeepReg
+.. _Coding Requirement: code.html
 .. _Unit Test Requirement: test.html
 .. _Documentation Requirement: docs.html
 .. _Commit Requirement: commit.html
-.. _Submit a pull request: https://github.com/DeepRegNet/DeepReg/merge-requests/new
+.. _Submit a pull request: https://github.com/DeepRegNet/DeepReg/compare
 
 .. toctree::
     :hidden:
