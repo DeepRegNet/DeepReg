@@ -1,41 +1,43 @@
 # Label Sampling
 
-When each image has multiple labels, e.g. segmentations of different organs in a CT
-image. For each sampled image pair, one label pair is randomly sampled. This is default
+Images may have multiple labels, such as with segmentations of different organs in CT scans.
+In this case, one label pair is randomly sampled for each sampled image pair. This is default
 for training.
 
 ## Corresponding label pairs
 
-When using multiple labels, it is the user's responsibility to ensure the labels are
-ordered, such that the same `label_idx` in `[width, height, depth, label_idx]` is the
-same anatomical or pathological structure - a corresponding label pair between the
-moving and fixed labels.
+When using multiple labels, ensure the labels are ordered correctly. `label_idx` in `[width, height, depth, label_idx]` must be the
+same anatomical or pathological structure; a corresponding label pair between the
+moving and fixed labels. <!-- Not sure what the last sentence here means. -->
 
 ## Consistent label pairs
 
-Consistent label pairs between a pair of moving and fixed labels requires: 1) The two
-images have the same number of labels; and 2) They are ordered and corresponding label
-types.
+Consistent label pairs between a pair of moving and fixed labels requires: 
+1. The two images have the same number of labels, and 
+2. They are ordered and corresponding label types.
+
+<!-- I've adjusted the style and grammar below but left the hyphenated loader names as-is -->
 
 When a pair of moving and fixed images have inconsistent label pairs, label
-dissimilarity can not be defined. Therefore, - Using unpaired-labelled-image loader,
-consistent label pairs are required; - Using grouped-labelled-image loader, consistent
-label pairs are required between intra-group image pairs; - When mixing
-intra-inter-group images in grouped-labelled-image loader, consistent label pairs are
-required between all intra-and-inter-group image pairs. However, - Using
-paired-labelled-image loader, consistent label pairs are not required between different
-image pairs; - Using grouped-labelled-image loader without mixing intra-inter-group
+dissimilarity cannot be defined. The following applies:
+- When using the unpaired-labelled-image loader, consistent label pairs are required;
+- When using the grouped-labelled-image loader, consistentlabel pairs are required between intra-group image pairs;
+- When mixing intra-inter-group images in the grouped-labelled-image loader, consistent label pairs are
+required between all intra-group and inter-group image pairs. 
+However, 
+- When using the paired-labelled-image loader, consistent label pairs are not required between different
+image pairs;
+- When using the grouped-labelled-image loader without mixing intra-group and inter-group
 images, consistent label pairs are not required between different image groups.
 
 ## Partially labelled image data
 
-When one of the label dissimilarity measures is specified with a nonzero weight, image
-data without any label will cause an error in DeepReg. This is a check in place for
-avoiding accidentally missing labels. When appropriate, enabling training with missing
-labels with a placeholder all-zero mask for the imaging data.
+When one of the label dissimilarity measures <!-- What measures? --> is specified with a non-zero weight, image
+data with no labels will cause an error in DeepReg. This validation prevents accidentally missing labels. 
+When appropriate, enable training with missing labels with a placeholder all-zero mask for the imaging data.
 
 ## Option for iterating all available label pairs
 
 This option is default for testing. All the label pairs will be sampled once for each
-sampled image pair. This option is not supported when mixing intra-and-inter-group image
+sampled image pair. This option is not supported when mixing intra-group and inter-group image
 pairs.
