@@ -7,7 +7,7 @@ image registration applications.
 Contributions are welcome! Below is a set of requirements for a demo to be included as a
 DeepReg Demo.
 
-- Each demo _must_ have an independent folder directly under the 'Demos';
+- Each demo _must_ have an independent folder directly under `demos/`;
 - Name the folder as
   `[loader-type]_[image-modality]_[organ-disease]_[optional:brief-remark]`, e.g.
   `unpaired_ultrasound_prostate` or `grouped_mr_brain_logitudinal`;
@@ -18,13 +18,14 @@ DeepReg Demo.
 
 ## Open accessible data
 
-- Each demo _must_ have a 'demo_data.py' script to automatically download demo data;
+- Each demo _must_ have a `demo_data.py` script to automatically download and preprocess
+  demo data;
 - Data should be downloaded under the demo folder named `dataset`;
 - Data should be hosted in a reliable and efficient (DeepReg repo will not store demo
   data or model) online storage, Kaggle, GitHub and Zendoo are all options for non-login
   access (avoid google drive for known accessibility issues);
 - Relevant dataset folder structure to utilise the supported loaders can be either
-  pre-arranged in data source or scripted in 'demo_data.py' after downloading;
+  pre-arranged in data source or scripted in `demo_data.py` after downloading;
 - Avoid slow and excessively large data set download. Consider downloading a subset as
   default for demonstration purpose, with options for full data set.
 
@@ -38,7 +39,7 @@ DeepReg Demo.
 
 ## Training
 
-- Each demo _must_ have a 'demo_train.py' script. If using command line interface
+- Each demo _must_ have a `demo_train.py` script. If using command line interface
   `deepreg_train`, this file needs to print a message to direct the user to the
   readme.md file (described below) for instructions;
 - This is accompanied by one or more config yaml files in the same folder. If
@@ -48,12 +49,12 @@ DeepReg Demo.
 
 ## Predicting
 
-- Each demo _must_ have a 'demo_predict.py' script; If using command line interface
+- Each demo _must_ have a `demo_predict.py` script; If using command line interface
   `deepreg_predict`, this file needs print a message to direct the user to the readme.md
   file (described below) for instructions;
-- By default, the pre-trained model should be used in 'demo_predict.py'. However, the
+- By default, the pre-trained model should be used in `demo_predict.py`. However, the
   instruction should be clearly given to use the user-trained model, saved with the
-  'demo_train.py';
+  `demo_train.py`;
 - Report registration results. Provide at least one piece of numerical metric (Dice,
   distance error, etc) to show the efficacy of the registration. Optimum performance is
   not required;
