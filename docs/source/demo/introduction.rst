@@ -41,10 +41,10 @@ are also available.
    adaptation and development may be required for any potential clinical
    adoption.
 
-.. _registration network: tutorial/registration.html
-.. _unpaired, paired and grouped: docs/dataset_loader.html
-.. _supported configuration details: docs/configuration.html
-.. _command line tool: docs/cli.html
+.. _registration network: ../tutorial/registration.html
+.. _unpaired, paired and grouped: ../docs/dataset_loader.html
+.. _supported configuration details: ../docs/configuration.html
+.. _command line tool: ../docs/cli.html
 
 Paired Images
 =============

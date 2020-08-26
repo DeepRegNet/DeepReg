@@ -11,7 +11,7 @@ to give us some feedbacks.
 
 -  `Label Sampling`_
 
-.. _Label Sampling: exp_label_sampling.md
+.. _Label Sampling: exp_label_sampling.html
 
 .. toctree::
     :hidden:
