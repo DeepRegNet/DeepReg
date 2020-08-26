@@ -2,12 +2,12 @@ Experimental Features
 =====================
 
 There are some experimental features provided in DeepReg,
-which are still in developing but ready to use.
+which are still being developed but can already be used.
 
-The following tutorials are provided to explain these features
-and please feel free to
+The following tutorials are provided to explain these features.
+Please feel free to
 create a [new issue](https://github.com/DeepRegNet/DeepReg/issues/new)
-to give us some feedbacks.
+to give us feedback.
 
 -  `Label Sampling`_
 
