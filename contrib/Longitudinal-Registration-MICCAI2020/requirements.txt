@@ -4,3 +4,4 @@ nibabel
 matplotlib
 pillow
 tqdm
+tensorboard
