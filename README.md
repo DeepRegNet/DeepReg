@@ -48,5 +48,6 @@ consider
 ## MICCAI 2020 Educational Challenge
 
 The MICCAI Educational Challenge notebook can be accessed
-[here](https://github.com/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb) or run it on
+[here](https://github.com/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb)
+or run it on
 [Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb).
