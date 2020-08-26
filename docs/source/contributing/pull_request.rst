@@ -14,12 +14,11 @@ We recommend using fork to do pull requests:
    -  `Coding Requirement`_
    -  `Unit Test Requirement`_
    -  `Documentation Requirement`_
+   -  `Commit Requirement`_
 
-4. Commit and push your changes to your fork following `Commit Requirement`_.
+4. `Submit a pull request`_
 
-5. `Submit a pull request`_
-
-6. Pull request will be reviewed and, if necessary, changes will be
+5. Pull request will be reviewed and, if necessary, changes will be
    suggested.
 
 .. _Fork the repository: https://github.com/DeepRegNet/DeepReg/forks/new

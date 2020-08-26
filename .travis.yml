@@ -9,10 +9,15 @@ install:
 
 jobs:
   include:
-    - stage: "lint"
+    - stage: "Linting and Docs"
+      name: "Python Linting"
       script:
         - black --check .
         - flake8 .
+    - name: "Sphinx Build"
+      script:
+       - cd docs
+       - make clean html
     - stage: "Tests"
       name: "Unit Tests"
       script:  pytest --cov-report= --cov=deepreg ./test/unit/

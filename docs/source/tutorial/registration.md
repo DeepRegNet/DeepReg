@@ -33,10 +33,10 @@ subjects each having multiple available images, please see more sampling options
 ### Predict a dense displacement field
 
 With deep learning, given a pair of moving and fixed images, the registration network
-outputs a dense displacement field (DDF) with the same shape as the moving image. Each value
-can be considered as the placement of the corresponding pixel / voxel of the moving
-image. Therefore, the DDF defines a mapping from the moving image's coordinates to the
-fixed image.
+outputs a dense displacement field (DDF) with the same shape as the moving image. Each
+value can be considered as the placement of the corresponding pixel / voxel of the
+moving image. Therefore, the DDF defines a mapping from the moving image's coordinates
+to the fixed image.
 
 In this tutorial, we mainly focus on DDF-based methods.
 
@@ -59,7 +59,8 @@ resample the moving images in fixed image space.
 
 Instead of outputting the transformation between coordinates, given moving image, fixed
 image, and a region of interest (ROI) in the moving image, the network can predict the
-ROI in the fixed image directly. Interested readers are referred to the MICCAI 2019 paper:
+ROI in the fixed image directly. Interested readers are referred to the MICCAI 2019
+paper:
 [Conditional segmentation in lieu of image registration](https://arxiv.org/abs/1907.00438)
 
 ## Loss

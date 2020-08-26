@@ -29,7 +29,10 @@ def global_mutual_information(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor
     return tf.reduce_sum(pab * tf.math.log(pab / papb + eps), axis=[1, 2])
 ```
 
-In order to be compatible with the pipeline in DeepReg, another modification is needed in `deeepreg/model/loss/image.py`. The modification is simply adding an `elif` branch to the `dissimilarity_fn` function. The following code block shows the added `elif` branch where we use `"gmi"` to represent the global mutual information:
+In order to be compatible with the pipeline in DeepReg, another modification is needed
+in `deeepreg/model/loss/image.py`. The modification is simply adding an `elif` branch to
+the `dissimilarity_fn` function. The following code block shows the added `elif` branch
+where we use `"gmi"` to represent the global mutual information:
 
 ```
 def dissimilarity_fn(
@@ -67,7 +70,8 @@ Please follow our [contribution guidelines](../contributing/code.html) here.
 We take the
 [paired prostate MR and Ultrasound registration demo](../../../demos/paired_mrus_prostate)
 as an example. In order to use the newly added loss, all that is needed is to modify the
-loss configuration in the train configuration file `paired_mrus_prostate_train.yaml` (lines 10-15):
+loss configuration in the train configuration file `paired_mrus_prostate_train.yaml`
+(lines 10-15):
 
 ```
 # define the loss function for training
