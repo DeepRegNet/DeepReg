@@ -1,4 +1,4 @@
-# DeepReg Demo Example
+# DeepReg Demo README Example
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
