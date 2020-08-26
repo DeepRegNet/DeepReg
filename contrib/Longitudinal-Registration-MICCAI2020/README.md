@@ -1,4 +1,5 @@
-### Official inplementation for MICCAI 2020 paper: Longitudinal image registration with temporal-order and subject-specificity discrimination
+### Official inplementation for MICCAI 2020 paper: 
+### Longitudinal image registration with temporal-order and subject-specificity discrimination
 
 <img src="https://github.com/DeepRegNet/DeepReg/blob/263-Longitudinal-Registration-MICCAI2020/contrib/Longitudinal-Registration-MICCAI2020/figures/pipline.png" width="800"/>
 
@@ -23,8 +24,8 @@ pip install -r requirements.txt
 ### Data preparing
 - Please store your own data set in `contrib/Longitudinal-Registration-MICCAI2020/data`
 - 2 types of files are required before training:
-  - A h5 format data file, which contains the processed images with corresponding keys (e.g. `PatientX-VisitN`) as index.
-  - A key file, which contains the paired-wise keys of different images, which you're going to register.
+  - A h5 format data file, which contains the processed images with corresponding keys (e.g. `PatientX-VisitN`) as index. For longitudinal MRI data, each patient could have serveral follow-up visits in a period of time.The `X` stands for the patient ID and N stands for the time point of the visits. 
+  - A key file, which contains the paired-wise keys of different images which you are going to register. For example, key pair `(Patient1-Visit1, Patient1-Visit2)` means registering images accquired at different visits from the same patient, a typical sample for intra-patient registration. `(Patient1-Visit1, Patient2-Visit1)` means registering images from different patients -- an sample for inter-patient registration.
   - Fake h5 data files and key files can be generated using `python xxxx.py`, which could be regard as a reference for setting up your own data sets.
 
 ### Training
@@ -39,4 +40,4 @@ bash train_IT+IF+IB.sh
 - To view the loss plot, run `tensorboard --logdir ./logs`
 
 ### Prediction
-
+<img src="https://github.com/DeepRegNet/DeepReg/blob/263-Longitudinal-Registration-MICCAI2020/contrib/Longitudinal-Registration-MICCAI2020/figures/vis.png" width="800"/>
