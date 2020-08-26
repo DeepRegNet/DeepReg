@@ -80,7 +80,7 @@ The recommended method is to use the PyPI release.
 
     pip install deepreg
 
-You can also clone the repository and install it locally. 
+You can also clone the repository and install it locally.
 All necessary dependencies will be installed automatically.
 
 .. code:: bash
