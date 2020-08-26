@@ -7,4 +7,4 @@ We welcome contributions to DeepReg, please follow the insutructions for
 - For fixing bugs, or implementing features, please
   [send a pull request](pull_request.html).
 - For adding DeepReg Demos, please check the additional requirements in
-  [Add a DeepReg Demo](demo.html).	
+  [Add a DeepReg Demo](demo.html).
