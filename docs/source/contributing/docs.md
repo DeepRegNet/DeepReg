@@ -6,7 +6,9 @@ it is hosted in [ReadTheDocs](https://readthedocs.org/projects/deepreg/).
 ## Build
 
 Please run the following command under `docs/` directory for generating the
-documentation pages locally.
+documentation pages locally. This is also included in
+[Travis-CI](https://travis-ci.org/github/DeepRegNet/DeepReg) jobs to ensure the
+documentation quality.
 
 ```bash
 make clean html SPHINXOPTS="-W"
@@ -17,7 +19,7 @@ where
 - `clean` removes the possible built files.
 - `SPHINXOPTS="-W"` fails the build on warnings, remove this flag to allow warnings.
 
-## Guides
+## Recommendations
 
 There are some recommendations regarding the docs.
 
