@@ -12,12 +12,12 @@ Please read the
 ## Author
 
 DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author: Shaheer Saeed:
 zcemsus@ucl.ac.uk)
 
 ## Application
 
-This is a registration between ct images acquired at different time points for a single
+This is a registration between CT images acquired at different time points for a single
 patient. The images being registered are taken at inspiration and expiration for each
 subject. This is an intra subject registration. This type of intra subject registration
 is useful when there is a need to track certain features on a medical image such as
@@ -44,18 +44,18 @@ following order:
     ratio_of_test_and_valid_samples variable to change the ratio of test and valid
     samples)
   - Restructure the files, for each of the train, valid and test sets, into a directory
-    structure that is suitable for use with the paired loader in deepreg
-  - Rescale all images to 0-255 so they are suitable for use with deepreg
+    structure that is suitable for use with the paired loader in DeepReg
+  - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Download a pretrained model to use with the predict script
 - Run the demo_train.py script: This script does the following:
   - Specify the training options like gpu support
   - Specify the config file paths (the config file to define the network is one which is
-    avialable with deepreg and the config file for the data is given in the demo folder)
-  - Train a network using deepreg
+    avialable with DeepReg and the config file for the data is given in the demo folder)
+  - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
-    logs will need to be sepcified, look at comments in the script to chnage this)
+    logs will need to be specified, look at comments in the script to chnage this)
 
 ## Data
 
