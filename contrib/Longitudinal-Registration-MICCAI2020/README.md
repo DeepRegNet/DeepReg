@@ -1,5 +1,4 @@
-### Official inplementation for MICCAI 2020 paper: Longitudinal image registration with
-temporal-order and subject-specificity discrimination
+### Official inplementation for MICCAI 2020 paper: Longitudinal image registration with temporal-order and subject-specificity discrimination
 
 <img src="https://github.com/DeepRegNet/DeepReg/blob/263-Longitudinal-Registration-MICCAI2020/contrib/Longitudinal-Registration-MICCAI2020/figures/pipline.png" width="800"/>
 
