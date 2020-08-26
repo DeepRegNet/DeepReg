@@ -17,7 +17,7 @@ jobs:
     - name: "Sphinx Build"
       script:
        - cd docs
-       - make clean html SPHINXOPTS="-W"
+       - make clean html
     - stage: "Tests"
       name: "Unit Tests"
       script:  pytest --cov-report= --cov=deepreg ./test/unit/

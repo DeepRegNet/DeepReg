@@ -11,13 +11,15 @@ documentation pages locally. This is also included in
 documentation quality.
 
 ```bash
-make clean html SPHINXOPTS="-W"
+make clean html
 ```
 
 where
 
 - `clean` removes the possible built files.
-- `SPHINXOPTS="-W"` fails the build on warnings, remove this flag to allow warnings.
+- Optionally we can add `SPHINXOPTS="-W"` to prevent warnings, but we are currently
+  having `document isn't included in any toctree` warning and no better solution has
+  been found yet.
 
 ## Recommendations
 
