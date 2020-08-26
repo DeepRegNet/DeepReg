@@ -8,7 +8,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="deepreg",
-    packages=find_packages(),
+    packages=find_packages(exclude=["test", "test.unit"]),
     package_data={"deepreg": ["config/*.yaml", "config/test/*.yaml"]},
     include_package_data=True,
     version="0.1.6",
