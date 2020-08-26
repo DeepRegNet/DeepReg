@@ -14,20 +14,6 @@ another image. A registration method takes a pair of images as input, denoted as
 and fixed images. In this tutorial, we register the moving image into the fixed image,
 i.e. mapping the coordinates of the moving image onto the fixed image.
 
-<!---
-@Yunguan
-We could provide some clinical applications of registration.
-
-Personally, this page is for people do not understand the registration,
-or people who do not know our work very well.
-Sampling options are too advanced and maybe not related.
-
-They can be simply a random pair of images from all the training images
-available. They may however require more advanced sampling. For instance, when multiple
-subjects each having multiple available images, please see more sampling options in
-[Training data sampling options](tutorial_sampling.md).
--->
-
 ## Network
 
 ### Predict a dense displacement field
