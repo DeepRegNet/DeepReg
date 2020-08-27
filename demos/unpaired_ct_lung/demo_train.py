@@ -2,7 +2,7 @@ from deepreg.train import train
 
 ######## NOW WE DO THE TRAINING ########
 
-gpu = ""
+gpu = "0"
 gpu_allow_growth = False
 ckpt_path = ""
 log_dir = "learn2reg_t2_unpaired_train_logs"
