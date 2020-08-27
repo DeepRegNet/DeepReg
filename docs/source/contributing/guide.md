@@ -1,9 +1,10 @@
 # Guidelines
 
-We welcome contributions to DeepReg.
+We welcome contributions to DeepReg, please follow the insutructions for
+[setting up your development environment](setup.html) before editing source code.
 
-- For reporting bugs or request features, please check the
-  [Issue Requirement](issue.html).
-- For fixing bugs, implementing features, please follow the
-  [Pull Request Requirement](pull_request.html).
-- For adding DeepReg Demos, please follow the [DeepReg Demo Requirement](demo/html).
+- For reporting bugs, or to request features, please [raise an issue](issue.html).
+- For fixing bugs, or implementing features, please
+  [send a pull request](pull_request.html).
+- For adding DeepReg Demos, please check the additional requirements in
+  [Add a DeepReg Demo](demo.html).

@@ -41,15 +41,15 @@ are also available.
    adaptation and development may be required for any potential clinical
    adoption.
 
-.. _registration network: tutorial/registration.html
-.. _unpaired, paired and grouped: docs/dataset_loader.html
-.. _supported configuration details: docs/configuration.html
-.. _command line tool: docs/cli.html
+.. _registration network: ../tutorial/registration.html
+.. _unpaired, paired and grouped: ../docs/dataset_loader.html
+.. _supported configuration details: ../docs/configuration.html
+.. _command line tool: ../docs/cli.html
 
 Paired Images
 =============
 
-The following DeepReg demos provide examples of
+The following DeepReg Demos provide examples of
 using paired images.
 
 - `Paired CT lung registration <paired_ct_lung.html>`__
@@ -76,7 +76,7 @@ using paired images.
 Unpaired Images
 ===============
 
-The following DeepReg demos provide examples of
+The following DeepReg Demos provide examples of
 using unpaired images.
 
 - `Unpaired CT abdominal registration <unpaired_ct_abdomen.html>`__
@@ -108,7 +108,7 @@ using unpaired images.
 Grouped Images
 ==============
 
-The following DeepReg demos provide examples of using grouped images.
+The following DeepReg Demos provide examples of using grouped images.
 
 - `Pairwise registration for grouped prostate images <grouped_mask_prostate_longitudinal.html>`__
 
@@ -129,7 +129,7 @@ The following DeepReg demos provide examples of using grouped images.
 Classical Registration
 ======================
 
-The following DeepReg demos provide examples of
+The following DeepReg Demos provide examples of
 using classical registration methods.
 
 - `Classical affine registration for head-and-neck CT images <classical_ct_headneck_affine.html>`__
