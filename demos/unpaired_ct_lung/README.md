@@ -1,7 +1,7 @@
 # Unpaired lung CT image registration
 
 > **Note**: Please read the
-> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+> [DeepReg Demo Disclaimer](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/demo/introduction.html#demo-disclaimer).
 
 ## Author
 
@@ -18,6 +18,12 @@ affects multiple patietns. If a drug or invasive procedure is administered to mu
 patients, registering the images from different patients can give medical professsionals
 a sense of how each patient is responding in comparison to others. An example of such an
 application can be seen in [2].
+
+## Data
+
+The dataset for this demo comes from [1] and can be downloaded from:
+
+https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Instructions
 
@@ -52,12 +58,6 @@ following order:
   - Use the pretrained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
-
-## Data
-
-The dataset for this demo comes from [1] and can be downloaded from:
-
-https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
 ## Tested DeepReg Version
 
