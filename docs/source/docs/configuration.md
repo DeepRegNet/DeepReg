@@ -8,7 +8,6 @@ two sections, `dataset` and `train`.
 
 [dataset loader configuration](dataset_loader.html) for more details.
 
-
 ## Train section
 
 The `train` section defines the neural network, training loss and other training
