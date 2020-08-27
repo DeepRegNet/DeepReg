@@ -3,6 +3,8 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+
 ## Author
 
 DeepReg Development Team or Author name otherwise.
@@ -15,7 +17,7 @@ Briefly describe the clinical application and the need for registration.
 
 Describe the source of the used dataset. Dataset should be open-accessible.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](../getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -35,6 +37,6 @@ Last commit at which demo was tested: commit hash or DeepReg version tag.
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](../contributing/issue.html).
 
-## References
+## Reference
 
 Related references in the form of `[1] Reference`.

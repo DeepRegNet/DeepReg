@@ -32,10 +32,10 @@ Optionally, we can use
 `git commit --no-verify -m "This is a commit message placeholder."` to skip pre-commit.
 However, this is not recommended.
 
-### Common errors
+### Linting Conflicts
 
-Sometimes, black might have conflicts with prettier or flake8 and below are some
-possible cases and work around.
+Sometimes, black might have conflicts with flake8 and below are some possible cases and
+work around.
 
 - If a code is followed by a long comment in the same line, Black attempts to break
   lines. So we should put comment in the line above instead.

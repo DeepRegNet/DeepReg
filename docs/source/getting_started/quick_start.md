@@ -1,7 +1,7 @@
 # Quick Start
 
 This is a simple demo using an example dataset to train a registration network. More
-details and other options can be found in [Command line tools](../docs/cli.md).
+details and other options can be found in [Command line tools](../docs/cli.html).
 
 ## Train a registration network
 

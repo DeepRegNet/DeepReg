@@ -12,7 +12,7 @@ executed during tests. Please check the
 [Codecov documentation](https://docs.codecov.io/docs/viewing-source-code) for more
 details about their coverage report.
 
-Following are some guidelines of test writing to ensure a consistency of code style.
+Following are the guidelines of test writing to ensure a consistency of code style.
 
 ## Coverage requirement
 
