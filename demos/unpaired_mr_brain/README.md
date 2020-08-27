@@ -6,8 +6,8 @@
 ## Author
 
 DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-a.casamitjana@ucl.ac.uk)
+https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author Adrià
+Casamitjana: a.casamitjana@ucl.ac.uk)
 
 ## Application
 
