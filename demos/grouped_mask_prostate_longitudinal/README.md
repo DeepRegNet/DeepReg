@@ -1,13 +1,7 @@
 # Pairwise Registration for Grouped Prostate Images
 
----
-
-**NOTE**
-
-Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 This demo uses DeepReg to demonstrate a number of features:
 

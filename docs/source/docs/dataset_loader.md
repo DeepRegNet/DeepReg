@@ -12,8 +12,6 @@ datasets:
   An example case is two-modalities intra-subject registration, such as registering one
   subject's MR image to the corresponding ultrasound image.
 
-  Read [paired images](#paired-images) for more details.
-
 - **Unpaired images**
 
   Images may be considered independent samples.
@@ -21,16 +19,12 @@ datasets:
   An example case is single-modality inter-subject registration, such as registering one
   CT image to another from different subjects.
 
-  Read [unpaired images](#unpaired-images) for more details.
-
 - **Grouped images**
 
   Images are organized into multiple groups.
 
   An example case is single-modality intra-subject registration, such as registering
   time-series images within individual subjects, a group is one subject in this case.
-
-  Read [grouped images](#grouped-images) for more details.
 
 For all three above cases, the images can be either unlabeled or labeled. A label is
 represented by a boolean mask on the image, such as a segmentation of an anatomical
@@ -110,6 +104,8 @@ follows.
   - Currently, if the data are labeled, each data sample must have at least one label.
     For missing labels, consider using all zeros as a work-around.
 
+.. \_paired-images:
+
 ## Paired images
 
 For paired images, each pair contains a moving image and a fixed image. Optionally,
@@ -187,7 +183,7 @@ dataset:
 ```
 
 This is particularly useful when performing an
-[experiment such as cross-validation](../tutorial/cross_val.md).
+[experiment such as cross-validation](../tutorial/cross_val.html).
 
 ### File loader
 
@@ -226,7 +222,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/paired)
+[test paired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/paired)
 as an example.
 
 Optionally, the data may not be all saved directly under the top directory. They can be
@@ -261,7 +257,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test paired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/paired)
+[test paired H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/paired)
 as an example.
 
 ## Unpaired images
@@ -343,7 +339,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/unpaired)
+[test unpaired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/unpaired)
 as an example.
 
 #### H5
@@ -367,7 +363,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/unpaired)
+[test unpaired H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/unpaired)
 as an example.
 
 ## Grouped images
@@ -514,7 +510,7 @@ consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/grouped)
+[test grouped Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/grouped)
 as an example.
 
 #### H5
@@ -547,5 +543,5 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/grouped)
+[test grouped H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/grouped)
 as an example.

@@ -48,6 +48,8 @@
     :caption: Contributing to DeepReg
 
     contributing/guide
+    contributing/setup
     contributing/issue
     contributing/pull_request
     contributing/demo
+    contributing/build
