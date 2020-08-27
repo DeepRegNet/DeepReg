@@ -6,7 +6,7 @@
 This demo uses DeepReg to demonstrate a number of features:
 
 - For grouped data in h5 files, e.g. "group-1-2" indicates the 2th visit from Subject 1;
-- Use masks as the images for feature-based registration - aligning the prostate gland
+- Use masks as the images for feature-based registration - aligning the prostate gland;
   segmentation in this case - with deep learning;
 - Register intra-patient longitudinal data.
 
