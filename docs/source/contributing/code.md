@@ -4,12 +4,11 @@ To ensure the code quality and the consistency, we recommend the following guide
 
 ## Coding design
 
-1. Please restrict using external libraries or anything unsupported by
-   [Colab](colab.research.google.com) or [Azure](https://notebooks.azure.com/). Try to
-   stick to standard `scipy` packages like `numpy` and `pandas`.
+1. Please use packages that already have been included. Additional library will require
+   a longer review for scrutinizing its necessity.
 
    In case of adding new dependency, please make sure all dependencies have been added
-   to requirements.
+   to `requirements.txt`.
 
 1. Please prevent adding redundant code. Try wrapping the code block into a function or
    class instead.

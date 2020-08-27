@@ -10,7 +10,7 @@ With DeepReg installed, multiple command line tools are available, currently inc
 
 `deepreg_train` accepts the following arguments via command line tools. More
 configuration can be specified in the configuration file. Please see
-[configuration file](configuration.md) for further details.
+[configuration file](configuration.html) for further details.
 
 ### Required arguments
 
@@ -80,7 +80,7 @@ configuration can be specified in the configuration file. Please see
 
 `deepreg_predict` accepts the following arguments via command line tools. More
 configuration can be specified in the configuration file. Please see
-[configuration file](configuration.md) for further details.
+[configuration file](configuration.html) for further details.
 
 ### Required arguments
 

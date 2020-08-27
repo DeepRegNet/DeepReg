@@ -29,16 +29,16 @@ There are some recommendations regarding the docs.
   using [Prettier](https://prettier.io/).
 
   Only use reStructuredText (rst) files for some functionalities not supported by
-  markdown, like
+  markdown, such as
 
   - `toctree`
   - warning/notes boxes in [Installation](../getting_started/install.html)
 
   The conversion between markdown and rst can be done automatically using free online
-  tools like [Pandoc](https://pandoc.org/try/).
+  tool [Pandoc](https://pandoc.org/try/).
 
-- When linking to other pages, **please use relative paths** like
-  `../getting_started/install.html` instead of absolute paths like
+- When linking to other pages, **please use relative paths** such as
+  `../getting_started/install.html` instead of absolute paths
   `https://deepreg.readthedocs.io/en/latest/getting_started/install.html` as relative
   paths are more robust for different version of documentations.
 

@@ -5,8 +5,7 @@ DeepReg is written in Python 3.7. Dependent external libraries provide core IO f
 processing tools. The dependencies for DeepReg are managed by
 ``pip``.
 
-DeepReg is primarily distributed via Github. In future support will be implemented via
-PyPI.
+The package is primarily distributed via PyPI.
 
 Create a virtual environment
 ----------------------------
@@ -74,8 +73,14 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 Install the package
 -------------------
 
-The recommended method is to clone the repository and install it
-locally. All necessary dependencies will be installed automatically.
+The recommended method is to use the PyPI release.
+
+.. code:: bash
+
+    pip install deepreg
+
+You can also clone the repository and install it locally.
+All necessary dependencies will be installed automatically.
 
 .. code:: bash
 
