@@ -50,7 +50,7 @@ python demos/classical_mr_prostate_nonrigid/demo_register.py
 
 ## Tested DeepReg Version
 
-v0.1.4
+v0.1.6
 
 ## References
 
