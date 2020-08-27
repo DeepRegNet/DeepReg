@@ -63,6 +63,10 @@ following order:
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
+Note: This demo was tested using one Nvidia Tesla V100 GPU with a memory of 32GB. Please
+ensure that enough memory is available to run the demo otherwise memory allocation
+errors might arise.
+
 ## References
 
 [1] Hering A, Murphy K, and van Ginneken B. (2020). Lean2Reg Challenge: CT Lung
