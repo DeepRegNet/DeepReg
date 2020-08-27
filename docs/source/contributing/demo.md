@@ -66,5 +66,16 @@ DeepReg Demo.
 
 ## README.md
 
-The markdown file _must_ be provided as an entry point for each demo, which should
-follow the [template](../demo/readme_template.html).
+The markdown file _must_ be provided as an entry point for each demo, which should be
+based on the [template](../demo/readme_template.html).
+
+Following is a checklist for modifying the README template:
+
+- Modify the link of source code;
+- Modify the author section;
+- Modify the application section;
+- Modify the data section;
+- Modify the steps in instruction section;
+- Modify the pre-trained model section;
+- Modify the tested version;
+- Modify the reference section.

@@ -7,11 +7,11 @@ The following tutorials provide an overview of these features. To submit feedbac
 
 -  `Label Sampling`_
 
-.. _Label Sampling: exp_label_sampling.md
+.. _raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new
+.. _Label Sampling: exp_label_sampling.html
 
 .. toctree::
     :hidden:
     :maxdepth: 2
-    :caption: Getting Started
 
     exp_label_sampling

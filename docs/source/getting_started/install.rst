@@ -6,8 +6,7 @@ include those provide core IO functionalities and other standard
 processing tools. The dependencies for this package are managed by
 ``pip``.
 
-The package is primarily distributed via Github with future support via
-PyPI.
+The package is primarily distributed via PyPI.
 
 Create a virtual environment
 ----------------------------
@@ -75,8 +74,14 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 Install the package
 -------------------
 
-The recommended method is to clone the repository and install it
-locally. All necessary dependencies will be installed automatically.
+The recommended method is to use the PyPI release.
+
+.. code:: bash
+
+    pip install deepreg
+
+You can also clone the repository and install it locally.
+All necessary dependencies will be installed automatically.
 
 .. code:: bash
 

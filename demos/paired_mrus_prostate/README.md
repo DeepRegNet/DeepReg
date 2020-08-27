@@ -30,8 +30,8 @@ driven by expert-defined anatomical landmarks, such as the prostate gland segmen
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
-  ultrasound images and the pre-trained model.
+- Run `demo_data.py` script to download example 10 folds of unpaired 3D ultrasound
+  images and the pre-trained model.
 
 ```bash
 python demos/paired_mrus_prostate/demo_data.py
