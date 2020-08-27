@@ -15,12 +15,12 @@ os.chdir(project_dir)
 # import shutil
 # import nibabel as nib
 # import numpy as np
-# if os.path.exists("dataset_respect") is not True:
-#     os.mkdir("dataset_respect")
-#     os.mkdir(r"dataset_respect/paired_mr_us_brain")
+# if os.path.exists("dataset_resect") is not True:
+#     os.mkdir("dataset_resect")
+#     os.mkdir(r"dataset_resect/paired_mr_us_brain")
 # url = "https://ns9999k.webs.sigma2.no/10.11582_2020.00025/EASY-RESECT.zip"
 # fname = "EASY-RESECT.zip"
-# path_to_zip_file = r"dataset_respect"
+# path_to_zip_file = r"dataset_resect"
 # get_file(os.path.join(os.getcwd(), path_to_zip_file, fname), url)
 # with zipfile.ZipFile(os.path.join(path_to_zip_file, fname), "r") as zip_ref:
 #     zip_ref.extractall(os.path.join(path_to_zip_file, "paired_mr_us_brain"))
@@ -30,11 +30,11 @@ os.chdir(project_dir)
 # all_folders = os.listdir(path_to_nifti)
 # for folder in all_folders:
 #     source = os.path.join(path_to_nifti, folder)
-#     destination = r"dataset_respect/paired_mr_us_brain"
+#     destination = r"dataset_resect/paired_mr_us_brain"
 #     shutil.move(source, destination)
 # print("Files restructured!")
 # test_ratio = 0.25
-# path_to_data = r"dataset_respect/paired_mr_us_brain"
+# path_to_data = r"dataset_resect/paired_mr_us_brain"
 # cases_list = os.listdir(path_to_data)
 # os.mkdir(os.path.join(path_to_data, "test"))
 # os.mkdir(os.path.join(path_to_data, "train"))
@@ -80,14 +80,14 @@ os.chdir(project_dir)
 #                             file.split(".ni")[0] + ".nii.gz",
 #                         ),
 #                     )
-# shutil.rmtree(r"dataset_respect/paired_mr_us_brain/train/EASY-RESECT")
-# shutil.rmtree(r"dataset_respect/paired_mr_us_brain/train/__MACOSX")
+# shutil.rmtree(r"dataset_resect/paired_mr_us_brain/train/EASY-RESECT")
+# shutil.rmtree(r"dataset_resect/paired_mr_us_brain/train/__MACOSX")
 
 # # Preprocess the downloaded data
-# if os.path.exists("dataset_respect/README.md"):
-#     os.remove("dataset_respect/README.md")
+# if os.path.exists("dataset_resect/README.md"):
+#     os.remove("dataset_resect/README.md")
 
-# data_folder = "dataset_respect/paired_mr_us_brain"
+# data_folder = "dataset_resect/paired_mr_us_brain"
 # folders = os.listdir(os.path.join(project_dir, data_folder))
 
 # # Move files into correct directories
@@ -196,15 +196,15 @@ os.chdir(project_dir)
 
 ######## PARTIAL PREPROCESSED DATA DOWNLOAD (COMMENT OUT) ########
 # Please comment out this code block if full data needs to be used
-url = "https://github.com/ucl-candi/dataset_respect/archive/master.zip"
+url = "https://github.com/ucl-candi/dataset_resect/archive/master.zip"
 fname = "master.zip"
 get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(".")
 
-source = "dataset_respect-master"
-destination = "dataset_respect"
+source = "dataset_resect-master"
+destination = "dataset_resect"
 os.rename(source, destination)
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
