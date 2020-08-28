@@ -48,7 +48,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mr_heart/grouped_mr_heart.ya
   the results will be saves at the created timestamp-named directories under /logs.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch2000.ckpt --save_png --mode test
+deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
 ```
 
 ## Pre-trained Model
