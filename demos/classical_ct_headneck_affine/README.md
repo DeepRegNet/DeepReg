@@ -20,6 +20,10 @@ transformation. The registration technique can be used in radiotherapy to compen
 difference between CT acquired at different time points, such as pre-treatment and
 intra-/post-treatment.
 
+## Data
+
+https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
+
 ## Instructions
 
 - Change current directory to the root directory of DeepReg project;
@@ -39,10 +43,6 @@ python demos/classical_ct_headneck_affine/demo_data.py
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
 ```
-
-## Data
-
-https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
 
 ## Tested DeepReg Version
 
