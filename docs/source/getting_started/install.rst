@@ -1,9 +1,8 @@
 Installation
 ============
 
-DeepReg is written in Python 3.7. Dependent external libraries
-include those provide core IO functionalities and other standard
-processing tools. The dependencies for this package are managed by
+DeepReg is written in Python 3.7. Dependent external libraries provide core IO functionalities and other standard
+processing tools. The dependencies for DeepReg are managed by
 ``pip``.
 
 The package is primarily distributed via PyPI.
@@ -13,7 +12,7 @@ Create a virtual environment
 
 The recommended method is to install DeepReg in a dedicated virtual
 environment to avoid issues with other dependencies. The conda
-enviroment is recommended:
+environment is recommended:
 
 `Anaconda <https://docs.anaconda.com/anaconda/install/>`__ /
 `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
