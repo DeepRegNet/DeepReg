@@ -1,12 +1,7 @@
 # Paired MR and US brain image registration
 
----
-
-**NOTE**
-
-Please read the [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 ## Author
 

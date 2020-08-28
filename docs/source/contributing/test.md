@@ -4,14 +4,15 @@ In DeepReg, we use [pytest](https://docs.pytest.org/en/stable/) (not
 [unittest](https://docs.python.org/3/library/unittest.html)) for unit tests to ensure a
 certain code quality and to facilitate the code maintenance.
 
-[Codecov](https://codecov.io/gh/DeepRegNet/DeepReg) is used to monitor the test
+The testing is checked via [Travis-CI](https://travis-ci.org/github/DeepRegNet/DeepReg)
+and [Codecov](https://codecov.io/gh/DeepRegNet/DeepReg) is used to monitor the test
 coverage. While checking the Codecov report in file mode, generally a line highlighted
 by red means it is not covered by test. In other words, this line has never been
 executed during tests. Please check the
-[documentation](https://docs.codecov.io/docs/viewing-source-code) for more details about
-their coverage report.
+[Codecov documentation](https://docs.codecov.io/docs/viewing-source-code) for more
+details about their coverage report.
 
-Following are several guidelines of test writing to ensure a consistency of code style.
+Following are the guidelines of test writing to ensure a consistency of code style.
 
 ## Coverage requirement
 

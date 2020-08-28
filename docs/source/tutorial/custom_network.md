@@ -5,11 +5,11 @@ example for adding a GlobalNet to predict an affine transformation, as opposed t
 nonrigid transformation.
 
 For general guidance on making a contribution to DeepReg, see the
-[contribution guidelines](https://github.com/DeepRegNet/DeepReg/blob/master/docs/CONTRIBUTING.md).
+[contribution guidelines](../contributing/guide.html).
 
 ## Step 1: Create network backbone
 
-The first step is to create a new backbone class, which consists in the neural network
+The first step is to create a new backbone class, which consists of the neural network
 architecture you want to use, and place it in the backbone directory
 `deepreg/model/backbone/`. The affine method uses the GlobalNet network architecture
 (`deepreg/model/backbone/global_net.py`) from
@@ -102,8 +102,8 @@ network's forward pass in `def call()`. Custom DeepReg layers can be found in
 
 In order to use the backbone network in the DeepReg pipeline, a new option needs to be
 added to `build_backbone()` from `deepreg/model/network/util.py`. We use the keyword
-"global" here to refer to our `GlobalNet` class and "affine" for the method name. This
-will allow one to define the backbone network directly in the configuration file.
+"global" here to refer to our `GlobalNet` class and `"affine"` for the method name. This
+will allow us to define the backbone network directly in the configuration file.
 
     def build_backbone(
         image_size: tuple, out_channels: int, model_config: dict, method_name: str
@@ -178,7 +178,7 @@ will allow one to define the backbone network directly in the configuration file
 
 We can now create a network model for the affine method in
 `deepreg/model/network/affine.py` . We first need to write the model's forward pass,
-which make use of the backbone network class to predict an affine transformation which
+which makes use of the backbone network class to predict an affine transformation which
 will be used to output a dense displacement field (DDF).
 
     def affine_forward(
@@ -237,7 +237,7 @@ will be used to output a dense displacement field (DDF).
         return affine, ddf, pred_fixed_image, pred_fixed_label, grid_fixed
 
 Similar to `build_backbone` we also need to write the `build_affine_model` function,
-which consists in building the model according to the network's inputs, backbone and
+which consists of building the model according to the networks' inputs, backbone and
 loss function.
 
     def build_affine_model(
@@ -325,7 +325,7 @@ loss function.
 
         return model
 
-Finally, the last step consists in adding the `build_affine_model` option in
+Finally, the last step consists of adding the `build_affine_model` option to
 `deepreg/model/network/build.py` to be able to parse it from the configuration file.
 
     def build_model(
@@ -383,11 +383,10 @@ Finally, the last step consists in adding the `build_affine_model` option in
 
 ## Step 3: Testing (for contributing developers, optional for users)
 
-Everyone is warmly welcome to make contribution to DeepReg and add corresponding unit
-test for the new added functions to `test/unit/`. Recommendation on testing style can be
-found in the
-[contribution guidelines](https://github.com/DeepRegNet/DeepReg/blob/master/docs/CONTRIBUTING.md).
-Here is a practical example of unit tests made for our affine model in
+Everyone is warmly welcome to make contributions to DeepReg and add corresponding unit
+test for the newly added functions to `test/unit/`. Recommendations regarding testing
+style can be found in the [contribution guidelines](../contributing/guide.html). Here is
+a practical example of unit tests made for our affine model in
 `test/unit/test_affine.py`:
 
     def test_affine_forward():
@@ -482,9 +481,9 @@ An example of yaml configuration file for the affine method is available in
 `deepreg/config/unpaired_labeled_affine.yaml`. For using both the GlobalNet backbone and
 affine method you will need to add their aforementioned keyword "global" and "affine".
 Optional parameters such as `out_kernel_initializer` or `num_channel_initial` can also
-be specified. Please see the
-[configuration documentation](https://github.com/DeepRegNet/DeepReg/blob/master/docs/doc_configuration.md)
-for more details.
+be specified. A snippet of `deepreg/config/unpaired_labeled_affine.yaml` is shown below.
+Please see the [configuration documentation](../docs/configuration.html) for more
+details.
 
     model:
     method: "affine"

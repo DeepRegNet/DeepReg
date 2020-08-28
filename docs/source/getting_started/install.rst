@@ -1,25 +1,23 @@
 Installation
 ============
 
-DeepReg is written in Python 3.7. Dependent external libraries
-include those provide core IO functionalities and other standard
-processing tools. The dependencies for this package are managed by
+DeepReg is written in Python 3.7. Dependent external libraries provide core IO functionalities and other standard
+processing tools. The dependencies for DeepReg are managed by
 ``pip``.
 
-The package is primarily distributed via Github with future support via
-PyPI.
+The package is primarily distributed via PyPI.
 
 Create a virtual environment
 ----------------------------
 
 The recommended method is to install DeepReg in a dedicated virtual
 environment to avoid issues with other dependencies. The conda
-enviroment is recommended:
-`Anaconda <https://docs.anaconda.com/anaconda/install/>`__ /
-`Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__:
+environment is recommended:
 
-DeepReg is primarily supported and regularly tested with Linux distros
-Ubuntu/Debian.
+`Anaconda <https://docs.anaconda.com/anaconda/install/>`__ /
+`Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
+
+DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux distributions.
 
 .. tabs::
 
@@ -62,9 +60,8 @@ Ubuntu/Debian.
 
         .. warning::
 
-            DeepReg is not fully supported under Windows, however,
-            [Windows Subsystem Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
-            may be recommended for use with CPU only. Then follow the instructions with Linux.
+            Windows does not fully support DeepReg. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
+            with CPU only. Set up WSL and follow the DeepReg setup instructions for Linux.
 
         With GPU
 
@@ -76,8 +73,14 @@ Ubuntu/Debian.
 Install the package
 -------------------
 
-The recommended method is to clone the repository and install it
-locally. All necessary dependencies will be installed automatically.
+The recommended method is to use the PyPI release.
+
+.. code:: bash
+
+    pip install deepreg
+
+You can also clone the repository and install it locally.
+All necessary dependencies will be installed automatically.
 
 .. code:: bash
 
@@ -85,8 +88,7 @@ locally. All necessary dependencies will be installed automatically.
     pip install -e . # install the package
 
 Optionally, you can install the `master
-branch <https://github.com/DeepRegNet/DeepReg.git>`__ of the package
-directly from the repository:
+branch <https://github.com/DeepRegNet/DeepReg.git>`__ directly from the repository:
 
 .. code:: bash
 
