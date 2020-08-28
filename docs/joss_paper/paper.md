@@ -14,26 +14,38 @@ authors:  # not-ordered yet
   - name: Nina Montaña Brown
     orcid: 0000-0001-5685-971X
     affiliation: "1, 2"
-  - name: Shaheer Saeed
+  - name: Shaheer U Saeed
     orcid: 0000-0002-5004-0663
     affiliation: "1, 2"
   - name: Adrià Casamitjana
+    orcid: 0000-0002-0539-3638
     affiliation: 2
   - name: Zachary M. C. Baum
     affiliation: "1, 2"
     orcid: 0000-0001-6838-335X
   - name: Rémi Delaunay
+    orcid: 0000-0002-0398-4995
     affiliation: "1, 4"
   - name: Qianye Yang
     orcid: 0000-0003-4401-5311
     affiliation: "1, 2"
   - name: Alexander Grimwood
+    orcid: 0000-0002-2608-2580
     affiliation: "1, 2"
   - name: Zhe Min
+    orcid: 0000-0002-8903-1561
     affiliation: 1
+  - name: Juan Eugenio Iglesias
+    orcid: 0000-0001-7569-173X
+    affiliation: 2
+  - name: Dean C Barratt
+    orcid: 0000-0003-2916-655X
+    affiliation: "1, 2"
   - name: Ester Bonmati
+    orcid: 0000-0001-9217-5438
     affiliation: "1, 2"
   - name: Matthew J. Clarkson
+    orcid: 0000-0002-5565-1252
     affiliation: "1, 2"
   - name: Tom Vercauteren
     orcid: 0000-0003-1794-0456
