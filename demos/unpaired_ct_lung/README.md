@@ -1,7 +1,7 @@
 # Unpaired lung CT image registration
 
 > **Note**: Please read the
-> [DeepReg Demo Disclaimer](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/demo/introduction.html#demo-disclaimer).
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 ## Author
 
