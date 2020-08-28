@@ -30,17 +30,17 @@ pip install -r requirements.txt
 
 ### Training
 - The command line scripts for reproducing experiments in Table 1 and 2 can be found in `contrib/Longitudinal-Registration-MICCAI2020/scripts`
-- Take the experiment of inter and intra patient registration with mmd loss (i.e. IT+IF+IB) as example:
+- Take the experiment of inter and intra patient registration with mmd loss (i.e. IT+IF+IB_mmd) as example:
 ```
 bash
 cd scripts
-bash train_IT+IF+IB.sh
+bash train_IT+IF+IB_mmd.sh
 ```
 - You can use `python main_h5.py --help` to see the definition of the hyper-parameters in the command line.
 - To view the loss plot, run `tensorboard --logdir ./logs`
 
 ### Prediction
- - The bash script for prediction is `./scripts/test.sh`, the explanation for the parameters for prediction are listed as follows:
+ - The bash script for prediction is `./scripts/test.sh`, the explaination for the parameters for prediction are listed as follows:
    - `exp_name`: The name of the experiment that you want to do prediction. It should be the same as the `exp_name` in its corresponding train bash scripts. If you have run a train scripts multiple times with the same experiment name, the code will add a time stamp to the name in order to discriminate from each other.  In this case, you should add the corresponding time stame to the original experiment name, as listed in the `./logs` folder.
    - `data_file` and `key_file`: The same h5 data and pkl key files you used in training.
    - `test_phase`: `--test_phase test` will make prediction and calculate evaluation metrics on validation set (for tunning hyper-parameters, usually combined with `--test_model_start_end` to predict with multiple checkpoints, see below). `--test_phase holdout` will make prediction on the holdout test set (only used once for report, see below for details).
