@@ -6,6 +6,7 @@ python:
 install:
   - pip install -e . # install deepreg package with corresponding requirements
   - pip install codecov
+  - pre-commit install
 
 jobs:
   include:
@@ -14,6 +15,8 @@ jobs:
       script:
         - black --check .
         - flake8 .
+    - name: "Pre-commit"
+      script: pre-commit run --all-files
     - name: "Sphinx Build"
       script:
        - cd docs

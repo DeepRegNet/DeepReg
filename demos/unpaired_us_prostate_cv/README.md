@@ -1,22 +1,26 @@
-# Unpaired Ultrasound Images Registration
-
-> an example for cross validation
+# Unpaired US Prostate Registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+> This DeepReg Demo is also an example of cross validation.
+
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team (Yipeng Hu)
 
 ## Application
 
 Transrectal ultrasound (TRUS) images are aqcuired from prostate cancer patients.
 Registering
 
-## Instructions
+## Data
+
+The 3D ultrasound images used in this demo were derived from the Prostate-MRI-US-Biopsy
+dataset, hosted at the
+[Cancer Imaging Archive (TCIA)](https://www.cancerimagingarchive.net/).
+
+## Instruction
 
 <!---
 """bash config_generator cross --data_folders dataset/fold0 dataset/fold1 dataset/fold2
@@ -53,12 +57,15 @@ train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_pr
 predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
 ```
 
-## Data
+## Pre-trained Model
 
-The 3D ultrasound images used in this demo were derived from the Prostate-MRI-US-Biopsy
-dataset, hosted at the Cancer Imaging Archive (TCIA) at
-https://www.cancerimagingarchive.net/.
+Pre-trained model is not available.
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested:
+Last commit at which demo was tested: TBD
+
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](../contributing/issue.html).
