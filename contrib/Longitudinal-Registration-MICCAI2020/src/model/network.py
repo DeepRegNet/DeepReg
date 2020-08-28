@@ -1,7 +1,8 @@
 import src.model.layer as layer
 import src.model.layer_util as layer_util
-import src.model.loss as loss
 import tensorflow as tf
+
+import deepreg.model.loss.deform as deform_loss
 
 
 class LocalModel(tf.keras.Model):
@@ -96,23 +97,6 @@ class LocalModel(tf.keras.Model):
             axis=5,
         )
 
-        # for i in self._ddf_levels:
-        #     print(i, hm[4 - i].shape)
-        #
-        # ddf = tf.reduce_sum(tf.stack([self._ddf_summands[i](inputs=hm[4 - i][..., :int(hm[4 - i].shape[-1]/2)]) for i in self._ddf_levels], axis=5),
-        #                     axis=5)
-        # ddf2 = tf.reduce_sum(tf.stack([self._ddf_summands[i](inputs=hm[4 - i][..., int(hm[4 - i].shape[-1]/2):]) for i in self._ddf_levels], axis=5),
-        #                     axis=5)
-
-        # print('images:', images.shape)
-        # print('h0:', h0.shape, hc0.shape)
-        # print('h1:', h1.shape, hc1.shape)
-        # print('h2:', h2.shape, hc2.shape)
-        # print('h3:', h3.shape, hc3.shape)
-        # print('hm:', hm[0].shape)
-        # print('ddf:', ddf.shape)
-        # print('ddf2:', ddf2.shape)
-
         return ddf, hm[0]
 
 
@@ -163,10 +147,7 @@ def build_model(
 
     # add regularization loss
     bending_loss = tf.reduce_mean(
-        loss.local_displacement_energy(ddf, ddf_energy_type, 0.5)
+        deform_loss.local_displacement_energy(ddf, ddf_energy_type)
     )
-    # sigmas = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100, 1e3, 1e4, 1e5, 1e6]
-    # mmd_loss = loss.loss_mmd(hm_0[0, ...], hm_0[1, ...], sigmas)
     registration_model.add_loss(bending_loss)
-    # registration_model.add_loss(mmd_loss)
     return registration_model

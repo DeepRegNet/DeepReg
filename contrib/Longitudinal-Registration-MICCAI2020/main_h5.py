@@ -1,16 +1,16 @@
 import os
 from datetime import datetime
 
-import numpy as np
 import src.data.loader_h5 as loader
 import src.model.layer_util as layer_util
-import src.model.loss as loss
 import src.model.metric as metric
 import src.model.network as network
 import steps as steps
 import tensorflow as tf
 import utils as utils
 from config import args
+
+import deepreg.model.loss as loss
 
 # gpu config
 GPUs = tf.config.experimental.list_physical_devices("GPU")
@@ -76,21 +76,14 @@ metrics_test = metric.Metrics(tb_names=tb_names_test)
 
 
 if args.loss_type == "ncc":
-    local_model.compile(optimizer, loss=loss.loss_ncc)
+    local_model.compile(optimizer, loss=-loss.image.local_normalized_cross_correlation)
 elif args.loss_type == "ssd":
-    local_model.compile(optimizer, loss=loss.loss_ssd)
-elif args.loss_type == "gmi":
-    local_model.compile(optimizer, loss=loss.loss_global_mutual_information)
+    local_model.compile(optimizer, loss=loss.image.ssd)
 else:
     print("loss type wrong")
     raise NotImplementedError
 
-# tf.keras.utils.plot_model(local_model, to_file='model.png', show_shapes=True, show_layer_names=True,
-#                           rankdir='TB',  # tb means vertical, LR means horizontal
-#                           dpi=300)
 
-# steps
-# print(local_model.summary())
 fixed_grid_ref = layer_util.get_reference_grid(
     grid_size=data_loader_train.fixed_image_shape
 )
@@ -101,8 +94,7 @@ for epoch in range(start_epoch, args.epochs):
     # train
     with tb_writer_train.as_default():
         for step, (inputs, fixed_label, indices) in enumerate(dataset_train):
-            # print(inputs[0].shape)
-            # break
+
             metric_value_dict_train = steps.train_step(
                 args_dict=args.__dict__,
                 model=local_model,

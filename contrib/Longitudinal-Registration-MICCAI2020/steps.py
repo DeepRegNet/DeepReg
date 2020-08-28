@@ -1,6 +1,9 @@
 import src.model.loss as loss
 import tensorflow as tf
 
+import deepreg.model.loss.image as image_loss
+import deepreg.model.loss.label as label_loss
+
 
 @tf.function
 def train_step(args_dict, model, optimizer, inputs, labels, fixed_grid_ref):  # modified
@@ -9,16 +12,22 @@ def train_step(args_dict, model, optimizer, inputs, labels, fixed_grid_ref):  # 
         warped_moving_image, warped_moving_label, hm_0 = model(
             inputs=inputs, training=True
         )
-        moving_image, fixed_image, fixed_label = inputs[0], inputs[1], labels
+        moving_image = tf.expand_dims(inputs[0], axis=4)
+        fixed_image = tf.expand_dims(inputs[1], axis=4)
+        fixed_label = labels
+        warped_moving_label = tf.squeeze(warped_moving_label)
+
         # loss
         if args_dict["loss_type"] == "ncc":
             loss_sim_value = (
-                loss.loss_ncc(y_true=fixed_image, y_pred=warped_moving_image)
+                -image_loss.local_normalized_cross_correlation(
+                    y_true=fixed_image, y_pred=warped_moving_image
+                )
                 * args_dict["w_ncc"]
             )
         elif args_dict["loss_type"] == "ssd":
             loss_sim_value = (
-                loss.loss_ssd(y_true=fixed_image, y_pred=warped_moving_image)
+                image_loss.ssd(y_true=fixed_image, y_pred=warped_moving_image)
                 * args_dict["w_ssd"]
             )
         else:
@@ -35,7 +44,7 @@ def train_step(args_dict, model, optimizer, inputs, labels, fixed_grid_ref):  # 
 
         loss_reg_value = sum(model.losses) * args_dict["w_bde"]
         loss_dice_value = (
-            loss.single_scale_loss(fixed_label, warped_moving_label, "dice")
+            label_loss.single_scale_loss(fixed_label, warped_moving_label, "dice")
             * args_dict["w_dce"]
         )
         loss_total_value = (
@@ -43,8 +52,10 @@ def train_step(args_dict, model, optimizer, inputs, labels, fixed_grid_ref):  # 
         )
 
         # metrics
-        metric_dice_value = loss.binary_dice(fixed_label, warped_moving_label)
-        metric_dist_value = loss.compute_centroid_distance(
+        metric_dice_value = label_loss.dice_score(
+            fixed_label, warped_moving_label, binary=True
+        )
+        metric_dist_value = label_loss.compute_centroid_distance(
             fixed_label, warped_moving_label, fixed_grid_ref
         )
 
@@ -72,20 +83,29 @@ def valid_step(args_dict, model, inputs, labels, fixed_grid_ref, return_type="me
     # forward
     moving_image, fixed_image, fixed_label = inputs[0], inputs[1], labels
     if args_dict["test_before_reg"]:
-        warped_moving_image, warped_moving_label = inputs[0], inputs[2]
+        warped_moving_image, warped_moving_label = (
+            tf.expand_dims(inputs[0], axis=4),
+            inputs[2],
+        )
     else:
         warped_moving_image, warped_moving_label, hm_0 = model(
             inputs=inputs, training=False
         )
+    moving_image = tf.expand_dims(inputs[0], axis=4)
+    fixed_image = tf.expand_dims(inputs[1], axis=4)
+    fixed_label = labels
+    warped_moving_label = tf.squeeze(warped_moving_label)
     # loss
     if args_dict["loss_type"] == "ncc":
         loss_sim_value = (
-            loss.loss_ncc(y_true=fixed_image, y_pred=warped_moving_image)
+            -image_loss.local_normalized_cross_correlation(
+                y_true=fixed_image, y_pred=warped_moving_image
+            )
             * args_dict["w_ncc"]
         )
     elif args_dict["loss_type"] == "ssd":
         loss_sim_value = (
-            loss.loss_ssd(y_true=fixed_image, y_pred=warped_moving_image)
+            image_loss.ssd(y_true=fixed_image, y_pred=warped_moving_image)
             * args_dict["w_ssd"]
         )
     else:
@@ -97,7 +117,7 @@ def valid_step(args_dict, model, inputs, labels, fixed_grid_ref, return_type="me
     else:
         loss_reg_value = sum(model.losses) * args_dict["w_bde"]
     loss_dice_value = (
-        loss.single_scale_loss(fixed_label, warped_moving_label, "dice")
+        label_loss.single_scale_loss(fixed_label, warped_moving_label, "dice")
         * args_dict["w_dce"]
     )
     loss_total_value = loss_sim_value + loss_reg_value + loss_dice_value
@@ -115,8 +135,10 @@ def valid_step(args_dict, model, inputs, labels, fixed_grid_ref, return_type="me
         loss_total_value += loss_mmd_value
 
     # metrics
-    metric_dice_value = loss.binary_dice(fixed_label, warped_moving_label)
-    metric_dist_value = loss.compute_centroid_distance(
+    metric_dice_value = label_loss.dice_score(
+        fixed_label, warped_moving_label, binary=True
+    )
+    metric_dist_value = label_loss.compute_centroid_distance(
         fixed_label, warped_moving_label, fixed_grid_ref
     )
 

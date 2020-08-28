@@ -1,4 +1,3 @@
-import os
 import pickle as pkl
 import random
 
