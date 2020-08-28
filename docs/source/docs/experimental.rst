@@ -1,7 +1,8 @@
 Experimental Features
 =====================
 
-DeepReg provides some experimental features. These are still in development but are ready to use. 
+DeepReg provides some experimental features. 
+These are still in development but can be used. 
 
 The following tutorials provide an overview of these features. To submit feedback, open a `new issue <https://github.com/DeepRegNet/DeepReg/issues/new>`__.
 

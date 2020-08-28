@@ -1,8 +1,7 @@
 # Label Sampling
 
 Images may have multiple labels, such as with segmentations of different organs in CT scans.
-In this case, one label pair is randomly sampled for each sampled image pair. This is default
-for training.
+In this case, for each sampled image pair, one label pair is randomly chosen by default.
 
 ## Corresponding label pairs
 
@@ -13,18 +12,23 @@ moving and fixed labels. <!-- Not sure what the last sentence here means. -->
 ## Consistent label pairs
 
 Consistent label pairs between a pair of moving and fixed labels requires: 
+
 1. The two images have the same number of labels, and 
-2. They are ordered and corresponding label types.
+2. The labels have the same order
 
 <!-- I've adjusted the style and grammar below but left the hyphenated loader names as-is -->
 
 When a pair of moving and fixed images have inconsistent label pairs, label
 dissimilarity cannot be defined. The following applies:
+
 - When using the unpaired-labelled-image loader, consistent label pairs are required;
-- When using the grouped-labelled-image loader, consistentlabel pairs are required between intra-group image pairs;
+- When using the grouped-labelled-image loader, consistent label pairs are required between 
+intra-group image pairs;
 - When mixing intra-inter-group images in the grouped-labelled-image loader, consistent label pairs are
-required between all intra-group and inter-group image pairs. 
+required between all intra-group and inter-group image pairs.
+
 However, 
+
 - When using the paired-labelled-image loader, consistent label pairs are not required between different
 image pairs;
 - When using the grouped-labelled-image loader without mixing intra-group and inter-group
