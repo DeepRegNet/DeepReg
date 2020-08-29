@@ -1,4 +1,4 @@
-# Label Sampling
+# Label sampling
 
 Images may have multiple labels, such as with segmentation of different organs in CT
 scans. In this case, for each sampled image pair, one label pair is randomly chosen by
