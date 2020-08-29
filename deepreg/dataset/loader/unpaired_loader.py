@@ -1,6 +1,6 @@
 """
 Loads unpaired data
-supports h5 and nifti formats
+supports h5 and Nifti formats
 supports labeled and unlabeled data
 """
 import random
@@ -81,7 +81,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def sample_index_generator(self):
         """
-        generates sample indexes in order to load data using the
+        Generates sample indexes in order to load data using the
         GeneratorDataLoader class
         """
         image_indices = [i for i in range(self.num_images)]

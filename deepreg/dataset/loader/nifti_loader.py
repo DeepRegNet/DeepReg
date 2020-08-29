@@ -12,7 +12,7 @@ DATA_FILE_SUFFIX = ["nii.gz", "nii"]
 
 def load_nifti_file(file_path: str) -> np.ndarray:
     """
-    :param file_path: path of a nifti file with suffix .nii or .nii.gz
+    :param file_path: path of a Nifti file with suffix .nii or .nii.gz
     :return: return the numpy array
     """
     if not (file_path.endswith(".nii") or file_path.endswith(".nii.gz")):
@@ -37,7 +37,7 @@ class NiftiFileLoader(FileLoader):
 
     def set_data_structure(self):
         """
-        store the data structure in the memory so that
+        Store the data structure in the memory so that
         we can retrieve data using data_index
         this function sets data_path_splits, a list of string tuples to identify path of data
 
@@ -74,7 +74,7 @@ class NiftiFileLoader(FileLoader):
 
     def set_group_structure(self):
         """
-        in addition to set_data_structure
+        In addition to set_data_structure
         store the group structure in the group_struct so that
         group_struct[group_index] = list of data_index
         we can retrieve data using (group_index, in_group_data_index)
@@ -139,7 +139,7 @@ class NiftiFileLoader(FileLoader):
 
     def get_data_ids(self):
         """
-        return the unique IDs of the data in this data set
+        Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
         images and label, moving and fixed
 
@@ -154,5 +154,5 @@ class NiftiFileLoader(FileLoader):
         return len(self.data_path_splits)
 
     def close(self):
-        """close opened files"""
+        """Close opened files"""
         pass
