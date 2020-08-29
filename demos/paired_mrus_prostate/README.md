@@ -2,14 +2,8 @@
 
 > An example of weakly-supervised label-driven training
 
----
-
-**NOTE**
-
-Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).
@@ -36,8 +30,8 @@ driven by expert-defined anatomical landmarks, such as the prostate gland segmen
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
-  ultrasound images and the pre-trained model.
+- Run `demo_data.py` script to download example 10 folds of unpaired 3D ultrasound
+  images and the pre-trained model.
 
 ```bash
 python demos/paired_mrus_prostate/demo_data.py

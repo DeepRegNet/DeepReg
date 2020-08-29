@@ -146,9 +146,9 @@ def test_transform():
 
 def test_resize_inputs():
     """
-   Test resize_inputs by confirming that it generates
-   appropriate output sizes on a simple test case.
-   """
+    Test resize_inputs by confirming that it generates
+    appropriate output sizes on a simple test case.
+    """
     input_size = (2, 2, 2)
     moving_image_size = (1, 3, 5)
     fixed_image_size = (2, 4, 6)

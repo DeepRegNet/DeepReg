@@ -1,4 +1,4 @@
-# Command line tools
+# Command Line Tools
 
 With DeepReg installed, multiple command line tools are available, currently including:
 
@@ -10,7 +10,7 @@ With DeepReg installed, multiple command line tools are available, currently inc
 
 `deepreg_train` accepts the following arguments via command line tools. More
 configuration can be specified in the configuration file. Please see
-[configuration file](configuration.md) for further details.
+[configuration file](configuration.html) for further details.
 
 ### Required arguments
 
@@ -58,7 +58,7 @@ configuration can be specified in the configuration file. Please see
 
   The path must end with `.ckpt`.
 
-  Default is to start training from random initialization.
+  By default it starts training from a random initialization.
 
   Example usage:
 
@@ -70,17 +70,28 @@ configuration can be specified in the configuration file. Please see
 
   The directory will be under `logs/`.
 
-  Default is to create a timestamp-named directory like `logs/20200810-194042/`.
+  By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
 
   Example usage:
 
   - `--log_dir test` for saving under `logs/test/`.
 
+### Output
+
+During the training, multiple output files will be saved in the log directory
+`logs/log_dir`, where `log_dir` is specified in the arguments, otherwise a timestamped
+folder name will be used. The output files are:
+
+- `config.yaml` is a backup of the used configuration. It can be used for prediction. In
+  case of multiple configuration files, a merged configuration file will be saved.
+- `train/` and `validation/` are the directories that save tensorboard logs on metrics.
+- `save/` is the directory containing saved checkpoints of the trained network.
+
 ## Predict
 
 `deepreg_predict` accepts the following arguments via command line tools. More
 configuration can be specified in the configuration file. Please see
-[configuration file](configuration.md) for further details.
+[configuration file](configuration.html) for further details.
 
 ### Required arguments
 
@@ -107,7 +118,7 @@ configuration can be specified in the configuration file. Please see
 
 - **Evaluation data**:
 
-  `--mode` or `-m`, specifies on which data set the prediction is performed.
+  `--mode` or `-m`, specifies in which data set the prediction is performed.
 
   It must be one of `train` / `valid` / `test`.
 
@@ -122,7 +133,7 @@ configuration can be specified in the configuration file. Please see
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
   is needed.
 
-  Default is to allocate all available GPU memory.
+  By default it allocates all availables in the GPU memory.
 
   Example usage:
 
@@ -134,7 +145,7 @@ configuration can be specified in the configuration file. Please see
 
   The directory will be under `logs/`.
 
-  Default is to create a timestamp-named directory like `logs/20200810-194042/`.
+  By default is creates a timestamp-named directory like `logs/20200810-194042/`.
 
   Example usage:
 
@@ -144,7 +155,7 @@ configuration can be specified in the configuration file. Please see
 
   `--batch_size` or `-b`, specifies the mini-batch size for prediction.
 
-  Default value is 1.
+  The default value is 1.
 
   Example usage:
 
@@ -154,23 +165,23 @@ configuration can be specified in the configuration file. Please see
 
   The predicted 3D tensors can be saved in Nifti format for further calculation.
 
-  Default is to save outputs in Nifti1 format.
+  By default it saves outputs in Nifti1 format.
 
   Example usage:
 
-  - `--save_nifti`, for saving the outputs in nifti format.
-  - `--no_nifti`, for not saving the outputs in nifti format.
+  - `--save_nifti`, for saving the outputs in Nifti format.
+  - `--no_nifti`, for not saving the outputs in Nifti format.
 
 - **Save outputs in png format**:
 
   The predicted 3D tensors can be saved as a slice of 2D images for quick visualization.
 
-  Default is to save outputs in png format.
+  By default it saves the outputs in png format.
 
   Example usage:
 
   - `--save_png`, for saving the outputs in png format.
-  - `--save_png`, for not saving the outputs in nifti format.
+  - `--save_png`, for not saving the outputs in Nifti format.
 
 - **Configuration**:
 
@@ -178,12 +189,54 @@ configuration can be specified in the configuration file. Please see
 
   The path must end with `.yaml`.
 
-  Default is to use the configuration file saved in the directory of the given
+  By default it uses the configuration file saved in the directory of the given
   checkpoint.
 
   Example usage:
 
   - `--config_path config1.yaml` for using one single configuration file.
+
+### Output
+
+During the evaluation, multiple output files will be saved in the log directory
+`logs/log_dir/mode` where
+
+- `log_dir` is defined in arguments, or a timestamped folder name will be used;
+- `mode` is `train` or `valid` or `test`, specified by the argument.
+
+The saved files include:
+
+- Metrics to evaluate the registration performance
+  - `metrics.csv` saves the metrics on all samples. Each line corresponds to a data
+    sample.
+  - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all
+    samples with the same label index.
+  - `metrics_stats_overall.csv` saves the a set of commonly used statistics (such as
+    mean and std) on the metrics over all samples.
+- Inputs and predictions for each pair of image.
+
+  Each pair has its own directory and the followings tensors are saved inside if
+  available. Tensors can be saved in Nifti format (one single file) or in png format
+  (one folder contains all image slices, ordered by depth) or both.
+
+  - `ddf`, `dvf`, `affine`
+
+    DDF stands for dense displacement field; DVF stands for dense (static) velocity
+    field.
+
+    The 12 parameters of affine transformation are saved in `affine.txt`.
+
+  - `moving_image`, `fixed_image` and `pred_fixed_image`
+
+    `pred_fixed_image` is the warped moving image if the network predicts a DDF or a DVF
+    or an affine transformation.
+
+  - `moving_label`, `fixed_label` and `pred_fixed_label` under directory `label_i` if
+    the sample is labeled and `i` is the label index.
+
+    `pred_fixed_label` is the predicted label in the fixed image space. In many cases,
+    this is equivalent to the warped moving label, if the network predicts a DDF or a
+    DVF or an affine transformation.
 
 ## Warp
 
@@ -195,7 +248,7 @@ configuration can be specified in the configuration file. Please see
 
   `--image` or `-i`, specifies the file path of the image/label.
 
-  The image/label should be saved in a nifti file with suffix `.nii` or `.nii.gz`. The
+  The image/label should be saved in a Nifti file with suffix `.nii` or `.nii.gz`. The
   image/label should be a 3D / 4D tensor, where the first three dimensions correspond to
   the moving image shape and the fourth can be a channel of features.
 
@@ -207,7 +260,7 @@ configuration can be specified in the configuration file. Please see
 
   `--ddf` or `-d`, specifies the file path of the DDF.
 
-  The DDF should be saved in a nifti file with suffix `.nii` or `.nii.gz`. The DDF
+  The DDF should be saved in a Nifti file with suffix `.nii` or `.nii.gz`. The DDF
   should be a 4D tensor, where the first three dimensions correspond to the fixed image
   shape and the fourth dimension has 3 channels corresponding to x, y, z axes.
 
@@ -224,8 +277,13 @@ configuration can be specified in the configuration file. Please see
   The path should end with `.nii` or `.nii.gz`, otherwise the output path will be
   corrected automatically based on the given path.
 
-  Default is to save the output as `warped.nii.gz` in the current directory.
+  By default it saves the output as `warped.nii.gz` in the current directory.
 
   Example usage:
 
   - `--out output_image.nii.gz`
+
+### Output
+
+The warped image is saved in the given output file path, otherwise the default file path
+`warped.nii.gz` will be used.

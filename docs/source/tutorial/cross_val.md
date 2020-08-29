@@ -1,8 +1,8 @@
-# Cross-validation
+# Design Experiments
 
 DeepReg dataset loaders use a folder/ directory-based file storing approach, with which
 the user will be responsible for
-[organising image and label files in required file formats and folders](../docs/dataset_loader.md).
+[organising image and label files in required file formats and folders](../docs/dataset_loader.html).
 This design was primarily motivated by the need to minimise the risk of data leakage (or
 information leakage), both in code development and subsequent applications.
 
@@ -12,13 +12,13 @@ Every call of the `deepreg_train` or `deepreg_predict` function uses a dataset
 "physically" separated by folders, including 'train', 'val' and 'test' sets used in a
 random-split experiment. In this case, the user needs to randomly assign available
 experiment image and label files into the three folders. Again, for more details see the
-[Dataset loader](../docs/dataset_loader.md).
+[Dataset loader](../docs/dataset_loader.html).
 
 ## Cross-validation
 
 Experiments such as _cross-validation_ can be readily implemented by using the
 "multi-folder support" in the `dataset` section of the yaml configuration files. See
-details in [configuration](../docs/configuration.md).
+details in [configuration](../docs/configuration.html).
 
 For example, in a 3-fold cross-validation, the user may randomly partition available
 experiment data files into four folders, 'fold0', 'fold1', 'fold2' and 'test'. The

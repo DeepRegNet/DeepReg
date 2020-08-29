@@ -14,29 +14,15 @@ another image. A registration method takes a pair of images as input, denoted as
 and fixed images. In this tutorial, we register the moving image into the fixed image,
 i.e. mapping the coordinates of the moving image onto the fixed image.
 
-<!---
-@Yunguan
-We could provide some clinical applications of registration.
-
-Personally, this page is for people do not understand the registration,
-or people who do not know our work very well.
-Sampling options are too advanced and maybe not related.
-
-They can be simply a random pair of images from all the training images
-available. They may however require more advanced sampling. For instance, when multiple
-subjects each having multiple available images, please see more sampling options in
-[Training data sampling options](tutorial_sampling.md).
--->
-
 ## Network
 
 ### Predict a dense displacement field
 
 With deep learning, given a pair of moving and fixed images, the registration network
-outputs a dense displacement field (DDF) with the same shape as the moving image. Each value
-can be considered as the placement of the corresponding pixel / voxel of the moving
-image. Therefore, the DDF defines a mapping from the moving image's coordinates to the
-fixed image.
+outputs a dense displacement field (DDF) with the same shape as the moving image. Each
+value can be considered as the placement of the corresponding pixel / voxel of the
+moving image. Therefore, the DDF defines a mapping from the moving image's coordinates
+to the fixed image.
 
 In this tutorial, we mainly focus on DDF-based methods.
 
@@ -59,7 +45,8 @@ resample the moving images in fixed image space.
 
 Instead of outputting the transformation between coordinates, given moving image, fixed
 image, and a region of interest (ROI) in the moving image, the network can predict the
-ROI in the fixed image directly. Interested readers are referred to the MICCAI 2019 paper:
+ROI in the fixed image directly. Interested readers are referred to the MICCAI 2019
+paper:
 [Conditional segmentation in lieu of image registration](https://arxiv.org/abs/1907.00438)
 
 ## Loss

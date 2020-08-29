@@ -1,11 +1,14 @@
-# DeepReg Demo Example
+# DeepReg Demo README Example
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+
 ## Author
 
-DeepReg Development Team or Author name otherwise.
+DeepReg Development Team (Corresponding Author Name) or Author Name for external
+contributor.
 
 ## Application
 
@@ -13,20 +16,20 @@ Briefly describe the clinical application and the need for registration.
 
 ## Data
 
-Describe the source of the used dataset. Dataset should be open-accessible.
+Describe the source of the dataset. Dataset should be open-accessible.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](../getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
 - Steps for preparing the data, launch the training and perform evaluation.
 
-## Pre-trained Model
+## Pre-trained model
 
 Clearly indicate that the demo uses pre-trained model by default, while give clear
 instruction how the alternative user-trained model can be used.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: commit hash or DeepReg version tag.
 
@@ -35,6 +38,6 @@ Last commit at which demo was tested: commit hash or DeepReg version tag.
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](../contributing/issue.html).
 
-## References
+## Reference
 
 Related references in the form of `[1] Reference`.

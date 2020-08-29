@@ -1,13 +1,7 @@
 # Pairwise Registration for Grouped Prostate Images
 
----
-
-**NOTE**
-
-Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 This demo uses DeepReg to demonstrate a number of features:
 
@@ -28,6 +22,11 @@ Logitudinal registration detects the temporal changes and normalises the spatial
 difference between images aquired at different time-points. For prostate cancer patients
 under active surveillance programmes, quantifying these changes is useful for detecting
 and monitoring potential cancerous regions.
+
+## Data
+
+This is a demo without real clinical data due to regulatory restrictions. The MR and
+ultrasound images used are simulated dummy images.
 
 ## Instruction
 
@@ -52,9 +51,9 @@ deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/g
 ```
 
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
-  data partitions specified in the config file, a copy of which woule be saved in the
+  data partitions specified in the config file, a copy of which would be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saves at the created timestamp-named directories under /logs.
+  the results will be saved at the created timestamp-named directories under /logs.
 
 ```bash
 deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
@@ -65,14 +64,14 @@ deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
 default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+where the ckpt files are saved, in this case (specified by `deepreg_train` as above),
 /logs/grouped_mask_prostate_longitudinal/.
-
-## Data
-
-This is a demo without real clinical data due to regulatory restrictions. The MR and
-ultrasound images used are simulated dummy images.
 
 ## Tested DeepReg Version
 
 Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
+
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)

@@ -69,16 +69,12 @@ Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 Contact
 -------
 
-For development matters, please raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new following the
-[guidelines](contributing/issue.html);
+For development matters, please `raise an issue`_.
 
-For matters in regarding the `Code of Conduct`_, such as a complaint, please email the DeepReg Development Team: DeepRegNet@gmail.com.
+For matters in regarding the `Code of Conduct`_, such as a complaint,
+please email the DeepReg Development Team: DeepRegNet@gmail.com.
 
-Alternatively, please contact one or more members of the CoC Committee as appropriate:
-
-Nina Montana Brown (nina.brown.15@ucl.ac.uk)
-Ester Bonmati (e.bonmati@ucl.ac.uk)
-Matt Clarkson (m.clarkson@ucl.ac.uk)
+Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
@@ -87,7 +83,7 @@ Matt Clarkson (m.clarkson@ucl.ac.uk)
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :width: 300
+    :width: 260
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/
@@ -96,3 +92,4 @@ Matt Clarkson (m.clarkson@ucl.ac.uk)
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/
 .. _Code of Conduct: https://github.com/DeepRegNet/DeepReg/blob/master/docs/CODE_OF_CONDUCT.md
+.. _raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new

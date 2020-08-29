@@ -1,7 +1,7 @@
 # Quick Start
 
-This is a simple demo using an example dataset to train a registration network.
-More details and other options can be found in [Command line tools](../docs/cli.md).
+This is a set of simple tests to use DeepReg command line tools. More details and other
+options can be found in [Command Line Tools](../docs/cli.html).
 
 ## Train a registration network
 
@@ -15,9 +15,9 @@ deepreg_train --gpu "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --
 where:
 
 - `--gpu ""` indicates using CPU. Change to `--gpu "0"` to use the GPU at index 0.
-- `--config_path <filepath>` specifies the configuration
-  file path.
-- `--log_dir test` specifies the output folder. In this case, the output is saved in `logs/test`.
+- `--config_path <filepath>` specifies the configuration file path.
+- `--log_dir test` specifies the output folder. In this case, the output is saved in
+  `logs/test`.
 
 ## Evaluate a trained network
 
@@ -34,8 +34,8 @@ where:
 
 ## Warp an image
 
-DeepReg provides a command line interface (CLI) tool to warp an image/label with a
-dense displacement field (DDF):
+DeepReg provides a command line interface (CLI) tool to warp an image/label with a dense
+displacement field (DDF):
 
 ```bash
 deepreg_warp --image data/test/nifti/unit_test/moving_image.nii.gz --ddf data/test/nifti/unit_test/ddf.nii.gz --out logs/test_warp/out.nii.gz

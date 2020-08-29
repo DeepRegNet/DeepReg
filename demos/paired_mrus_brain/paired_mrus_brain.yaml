@@ -1,8 +1,8 @@
 dataset:
   dir:
-    train: "demos/paired_mrus_brain/dataset_respect/paired_mr_us_brain/train"
-    valid: "demos/paired_mrus_brain/dataset_respect/paired_mr_us_brain/test"
-    test: "demos/paired_mrus_brain/dataset_respect/paired_mr_us_brain/test"
+    train: "demos/paired_mrus_brain/dataset_resect/paired_mr_us_brain/train"
+    valid: "demos/paired_mrus_brain/dataset_resect/paired_mr_us_brain/test"
+    test: "demos/paired_mrus_brain/dataset_resect/paired_mr_us_brain/test"
   format: "nifti"
   type: "paired" # paired / unpaired / grouped
   labeled: false

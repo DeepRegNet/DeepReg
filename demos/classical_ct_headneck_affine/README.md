@@ -1,13 +1,7 @@
 # Classical Affine Registration for Head-and-Neck CT Images
 
----
-
-**NOTE**
-
-Please read the
-[DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
-
----
+> **Note**: Please read the
+> [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
 This is a special demo that uses the DeepReg package for classical affine image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
@@ -25,6 +19,10 @@ Although, in this demo, the moving images are simulated using a randomly generat
 transformation. The registration technique can be used in radiotherapy to compensate the
 difference between CT acquired at different time points, such as pre-treatment and
 intra-/post-treatment.
+
+## Data
+
+https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
 
 ## Instructions
 
@@ -45,10 +43,6 @@ python demos/classical_ct_headneck_affine/demo_data.py
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
 ```
-
-## Data
-
-https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
 
 ## Tested DeepReg Version
 

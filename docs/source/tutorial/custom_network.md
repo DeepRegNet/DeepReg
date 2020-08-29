@@ -5,7 +5,7 @@ example for adding a GlobalNet to predict an affine transformation, as opposed t
 nonrigid transformation.
 
 For general guidance on making a contribution to DeepReg, see the
-[contribution guidelines](../contributing/guide.md).
+[contribution guidelines](../contributing/guide.html).
 
 ## Step 1: Create network backbone
 
@@ -384,10 +384,9 @@ Finally, the last step consists of adding the `build_affine_model` option to
 ## Step 3: Testing (for contributing developers, optional for users)
 
 Everyone is warmly welcome to make contributions to DeepReg and add corresponding unit
-test for the newly added functions to `test/unit/`. Recommendations regarding testing style can be
-found in the
-[contribution guidelines](../contributing/guide.md).
-Here is a practical example of unit tests made for our affine model in
+test for the newly added functions to `test/unit/`. Recommendations regarding testing
+style can be found in the [contribution guidelines](../contributing/guide.html). Here is
+a practical example of unit tests made for our affine model in
 `test/unit/test_affine.py`:
 
     def test_affine_forward():
@@ -482,9 +481,9 @@ An example of yaml configuration file for the affine method is available in
 `deepreg/config/unpaired_labeled_affine.yaml`. For using both the GlobalNet backbone and
 affine method you will need to add their aforementioned keyword "global" and "affine".
 Optional parameters such as `out_kernel_initializer` or `num_channel_initial` can also
-be specified. A snippet of `deepreg/config/unpaired_labeled_affine.yaml` is shown below. Please see the
-[configuration documentation](../docs/configuration.md)
-for more details.
+be specified. A snippet of `deepreg/config/unpaired_labeled_affine.yaml` is shown below.
+Please see the [configuration documentation](../docs/configuration.html) for more
+details.
 
     model:
     method: "affine"
