@@ -23,7 +23,7 @@ a common space for investigating the spatial distribution of cancer.
 
 https://promise12.grand-challenge.org/
 
-## Instructions
+## Instruction
 
 - Change current directory to the root directory of DeepReg project;
 - Run `demo_data.py` script to download an example MR volumes with the prostate gland
@@ -42,7 +42,7 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
 python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 0.1.0
 
@@ -51,7 +51,7 @@ python demos/classical_mr_prostate_nonrigid/demo_register.py
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
 
-## References
+## Reference
 
 [1] Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.,
 Vincent, G., Guillard, G., Birbeck, N., Zhang, J. and Strand, R., 2014. Evaluation of

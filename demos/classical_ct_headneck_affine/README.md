@@ -53,7 +53,7 @@ python demos/classical_ct_headneck_affine/demo_register.py
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](../contributing/issue.html).
 
-## References
+## Reference
 
 [1] Vallières, M. et al. Radiomics strategies for risk assessment of tumour failure in
 head-and-neck cancer. Sci Rep 7, 10117 (2017). doi: 10.1038/s41598-017-10371-5
