@@ -56,7 +56,7 @@ deepreg_train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpair
   /logs.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path demos/unpaired_us_prostate_cv/dataset/pre-trained/weights-epoch5000.ckpt --mode test
 ```
 
 ## Pre-trained Model
