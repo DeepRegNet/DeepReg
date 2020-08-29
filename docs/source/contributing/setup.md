@@ -32,7 +32,7 @@ Optionally, we can use
 `git commit --no-verify -m "This is a commit message placeholder."` to skip pre-commit.
 However, this is not recommended.
 
-### Linting Conflicts
+### Linting conflicts
 
 Sometimes, black might have conflicts with flake8 and below are some possible cases and
 work around.

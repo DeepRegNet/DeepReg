@@ -79,17 +79,11 @@ The recommended method is to use the PyPI release.
 
     pip install deepreg
 
-You can also clone the repository and install it locally.
+The pip install will allow access to the packaged command-line tools. You can also clone the repository and install it locally.
 All necessary dependencies will be installed automatically.
 
 .. code:: bash
 
     git clone https://github.com/DeepRegNet/DeepReg.git # clone the repository
+    cd DeepReg # change working directory to the DeepReg root directory
     pip install -e . # install the package
-
-Optionally, you can install the `master
-branch <https://github.com/DeepRegNet/DeepReg.git>`__ directly from the repository:
-
-.. code:: bash
-
-    pip install git+https://github.com/DeepRegNet/DeepReg.git

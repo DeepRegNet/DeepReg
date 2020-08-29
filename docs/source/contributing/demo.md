@@ -10,7 +10,7 @@ DeepReg Demo.
 - Each demo _must_ have an independent folder directly under `demos/`;
 - Name the folder as
   `[loader-type]_[image-modality]_[organ-disease]_[optional:brief-remark]`, e.g.
-  `unpaired_ultrasound_prostate` or `grouped_mr_brain_logitudinal`;
+  `unpaired_ultrasound_prostate` or `grouped_mr_brain_longitudinal`;
 - For simplicity, avoid sub-folders (other than those specified below) and separate
   files for additional functions/classes;
 - Experiment using cross-validation or advanced data set sampling is NOT encouraged,
@@ -32,8 +32,8 @@ DeepReg Demo.
 ## Pre-trained model
 
 - A pre-trained model _must_ be available for downloading, with
-  github.com/DeepRegNet/deepreg-model-zoo being preferred for the storing the models.
-  Please contact the Dev Team for access;
+  github.com/DeepRegNet/deepreg-model-zoo being preferred for storing the models. Please
+  contact the Development Team for access;
 - The pre-trained model, e.g. ckpt files, should be downloaded and extracted under the
   `dataset` folder. Avoid overwriting with user-trained models;
 
@@ -50,7 +50,7 @@ DeepReg Demo.
 ## Predicting
 
 - Each demo _must_ have a `demo_predict.py` script; If using command line interface
-  `deepreg_predict`, this file needs print a message to direct the user to the readme.md
+  `deepreg_predict`, this file needs to print a message to direct users to the readme.md
   file (described below) for instructions;
 - By default, the pre-trained model should be used in `demo_predict.py`. However, the
   instruction should be clearly given to use the user-trained model, saved with the
@@ -64,14 +64,14 @@ DeepReg Demo.
   visualisation to (e.g. png/jpg) files, avoiding compatibility issues. Pointing to the
   relevant file paths generated using `deepreg_predict` is recommended.
 
-## README.md
+## A README.md file
 
 The markdown file _must_ be provided as an entry point for each demo, which should be
 based on the [template](../demo/readme_template.html).
 
 Following is a checklist for modifying the README template:
 
-- Modify the link of source code;
+- Modify the link to source code;
 - Modify the author section;
 - Modify the application section;
 - Modify the data section;

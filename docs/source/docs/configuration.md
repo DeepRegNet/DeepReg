@@ -1,4 +1,4 @@
-# Configuration file
+# Configuration File
 
 Besides the arguments provided to the command line tools, detailed training and
 prediction configuration is specified in a `yaml` file. The configuration file contains
