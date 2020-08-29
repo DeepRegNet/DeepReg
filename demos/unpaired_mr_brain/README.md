@@ -51,6 +51,14 @@ following order:
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
+## Pre-trained Model
+
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/learn2reg_t4_unpaired_train_logs/.
+
 ## Data
 
 The dataset for this demo comes from the Learn2Reg MICCAI Challenge (Task 4) [1] and can

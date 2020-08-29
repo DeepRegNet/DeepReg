@@ -51,6 +51,14 @@ following order:
   in test accuracy so please train with the full dataset and for a greater number of
   epochs for improved results.
 
+## Pre-trained Model
+
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/learn2reg_t1_paired_train_logs/.
+
 ## Data
 
 The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:

@@ -61,11 +61,15 @@ deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us
 
 ## Pre-trained Model
 
-Pre-trained model is not available.
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/unpaired_us_prostate_cv/.
 
 ## Tested DeepReg version
 
-Last commit at which demo was tested: TBD
+Last commit at which demo was tested: 7bec018b5e910f1589888f3f286e9f6a11060c31
 
 ## Contact
 
