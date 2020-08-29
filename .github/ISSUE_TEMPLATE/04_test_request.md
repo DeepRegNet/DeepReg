@@ -1,5 +1,5 @@
 ---
-name: 📝 Test request
+name: 🧪 Test request
 about: Some code is not covered by test.
 ---
 
