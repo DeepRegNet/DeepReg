@@ -1,4 +1,4 @@
-# Paired MR and US brain image registration
+# Paired brain MR-ultrasound registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

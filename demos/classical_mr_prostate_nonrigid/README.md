@@ -1,4 +1,4 @@
-# Classical Non-rigid Registration for Prostate MR Images
+# Classical nonrigid registration for prostate MR images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

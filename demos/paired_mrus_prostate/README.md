@@ -1,4 +1,4 @@
-# Paired MR-to-Ultrasound Registration
+# Paired brain MR-ultrasound registration
 
 > An example of weakly-supervised label-driven training
 

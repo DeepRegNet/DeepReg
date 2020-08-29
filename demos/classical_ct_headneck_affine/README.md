@@ -1,4 +1,4 @@
-# Classical Affine Registration for Head-and-Neck CT Images
+# Classical affine registration for head-and-neck CT images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
@@ -43,10 +43,6 @@ python demos/classical_ct_headneck_affine/demo_data.py
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
 ```
-
-## Pre-trained model
-
-This is not a learning-based algorithm.
 
 ## Tested DeepReg version
 

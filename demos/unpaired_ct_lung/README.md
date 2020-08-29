@@ -1,4 +1,4 @@
-# Unpaired lung CT image registration
+# Unpaired lung CT registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

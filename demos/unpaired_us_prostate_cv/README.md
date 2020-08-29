@@ -1,4 +1,4 @@
-# Unpaired US Prostate Registration
+# Unpaired prostate ultrasound registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

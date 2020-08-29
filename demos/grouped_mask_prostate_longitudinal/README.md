@@ -1,4 +1,4 @@
-# Pairwise Registration for Grouped Prostate Images
+# Pairwise registration for grouped prostate segmentation masks
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

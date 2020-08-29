@@ -1,4 +1,4 @@
-# Unpaired MRI Hippocampus Registration
+# Unpaired hippocampus MR registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).

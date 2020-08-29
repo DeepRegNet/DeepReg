@@ -1,4 +1,4 @@
-# Pairwise registration for grouped multi-sequence cardiac MR images
+# Pairwise registration for grouped cardiac MR images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
