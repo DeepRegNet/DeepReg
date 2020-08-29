@@ -78,13 +78,14 @@ configuration can be specified in the configuration file. Please see
 
 ### Output
 
-During the training, multiple output files are saved in the log directory `logs/log_dir`
-where `log_dir` is defined in arguments or a timestamp based. The saved files are
+During the training, multiple output files will be saved in the log directory
+`logs/log_dir`, where `log_dir` is specified in the arguments, otherwise a timestamped
+folder name will be used. The output files are:
 
-- `config.yaml`, the backup of the used configuration. It can be used for prediction. In
-  case of multiple configuration files, the merged configuration is saved.
-- `train/` and `validation/`, the directories saving tensorboard logs on metrics.
-- `save/`, the directory containing saved checkpoints of the network.
+- `config.yaml` is a backup of the used configuration. It can be used for prediction. In
+  case of multiple configuration files, a merged configuration file will be saved.
+- `train/` and `validation/` are the directories that save tensorboard logs on metrics.
+- `save/` is the directory containing saved checkpoints of the trained network.
 
 ## Predict
 
@@ -197,34 +198,35 @@ configuration can be specified in the configuration file. Please see
 
 ### Output
 
-During the evaluation, multiple output files are saved in the log directory
+During the evaluation, multiple output files will be saved in the log directory
 `logs/log_dir/mode` where
 
-- `log_dir` is defined in arguments or a timestamp based;
-- `mode` is `train` or `valid` or `test`, given by the argument.
+- `log_dir` is defined in arguments, or a timestamped folder name will be used;
+- `mode` is `train` or `valid` or `test`, specified by the argument.
 
-The saved files contain:
+The saved files include:
 
 - Metrics to evaluate the registration performance
-  - `metrics.csv`, which saves the metrics on all samples. Each line corresponds to a
-    data sample.
-  - `metrics_stats_per_label.csv`, which saves the mean, median and std of each metrics
-    on all samples with the same label index.
-  - `metrics_stats_overall.csv`, which saves the common statistics (such as mean, std,
-    etc.) on the metrics over all samples.
+  - `metrics.csv` saves the metrics on all samples. Each line corresponds to a data
+    sample.
+  - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all
+    samples with the same label index.
+  - `metrics_stats_overall.csv` saves the a set of commonly used statistics (such as
+    mean and std) on the metrics over all samples.
 - Inputs and predictions for each pair of image.
 
   Each pair has its own directory and the followings tensors are saved inside if
-  available. Tensors can be saved in Nifti format (one single file), or in png format
-  (one folder contains multiple files and each file corresponds to one depth).
+  available. Tensors can be saved in Nifti format (one single file) or in png format
+  (one folder contains all image slices, ordered by depth) or both.
 
   - `ddf`, `dvf`, `affine`
 
-    DDF stands for discrete displacement field; DVF stands for discrete velocity field.
+    DDF stands for dense displacement field; DVF stands for dense (static) velocity
+    field.
 
     The 12 parameters of affine transformation are saved in `affine.txt`.
 
-  - `moving_image`, `fixed image` and `pred_fixed_image`
+  - `moving_image`, `fixed_image` and `pred_fixed_image`
 
     `pred_fixed_image` is the warped moving image if the network predicts a DDF or a DVF
     or an affine transformation.
@@ -232,8 +234,9 @@ The saved files contain:
   - `moving_label`, `fixed_label` and `pred_fixed_label` under directory `label_i` if
     the sample is labeled and `i` is the label index.
 
-    `pred_fixed_label` is the warped moving label if the network predicts a DDF or a DVF
-    or an affine transformation.
+    `pred_fixed_label` is the predicted label in the fixed image space. In many cases,
+    this is equivalent to the warped moving label, if the network predicts a DDF or a
+    DVF or an affine transformation.
 
 ## Warp
 
@@ -282,5 +285,5 @@ The saved files contain:
 
 ### Output
 
-The warped image is saved in the given output file path or the default file path
-`warped.nii.gz`.
+The warped image is saved in the given output file path, otherwise the default file path
+`warped.nii.gz` will be used.
