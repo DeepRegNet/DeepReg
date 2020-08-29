@@ -1,7 +1,9 @@
-# Paired brain MR-ultrasound registration
+# Unpaired abdomen CT registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_abdomen)
 
 ## Author
 
@@ -80,12 +82,12 @@ deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abd
 - Finally, prediction results can be seen in the respective test folders specified in
   `deepreg_predict`.
 
-## Pre-trained Model
+## Pre-trained model
 
 Three pre-trained models are available for this demo, for different training strategies
 described above. These will be downloaded using the [demo_data.py].
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 

@@ -1,13 +1,13 @@
-# Paired brain MR-ultrasound registration
-
-> An example of weakly-supervised label-driven training
+# Paired prostate MR-ultrasound registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).
-A standalone demo was hosted at https://github.com/YipengHu/label-reg.
+A standalone demo was hosted at https://github.com/yipenghu/label-reg.
 
 ## Author
 
@@ -67,7 +67,7 @@ where the ckpt files are save, in this case (specified by `deepreg_train` as abo
 This is a demo without real clinical data due to regulatory restrictions. The MR and
 ultrasound images used are simulated dummy images.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: 7ec0f5157a81cd5e60cadd61bd617b433039d0e6
 
