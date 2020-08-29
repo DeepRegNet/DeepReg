@@ -3,11 +3,16 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author Adrià
-Casamitjana: a.casamitjana@ucl.ac.uk)
+DeepReg Development Team (mailto the author Adrià Casamitjana: a.casamitjana@ucl.ac.uk)
+
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](../contributing/issue.html).
 
 ## Application
 
@@ -60,7 +65,7 @@ https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested: 0d6132fec30f35d7f572b96d65b7d7f366d833b2
+Last commit at which demo was tested: v. 0.1.6-alpha
 
 ## References
 
