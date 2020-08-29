@@ -1,4 +1,4 @@
-# Packaging a Release
+# Packaging a release
 
 `DeepReg` is disributed on PyPI. To create new releases, you can follow the below
 instructions and submit new versions to PyPI.

@@ -1,6 +1,6 @@
 # Dataset Loader
 
-## Dataset Type
+## Dataset type
 
 DeepReg provides six dataset loaders to support the following three different types of
 datasets:
@@ -30,7 +30,7 @@ For all three above cases, the images can be either unlabeled or labeled. A labe
 represented by a boolean mask on the image, such as a segmentation of an anatomical
 structure or landmark.
 
-## Dataset Requirements
+## Dataset requirements
 
 To use the provided dataset loaders, other detailed images and labels requirements are
 described in individual dataset loader sections. General requirements are described as
