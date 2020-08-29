@@ -7,7 +7,7 @@
 
 ## Author
 
-DeepReg Development Team (Yipeng Hu)
+DeepReg Development Team
 
 ## Application
 
@@ -61,7 +61,7 @@ predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostat
 
 Pre-trained model is not available.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: TBD
 

@@ -11,9 +11,7 @@ A standalone demo was hosted at https://github.com/YipengHu/label-reg.
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
@@ -72,3 +70,8 @@ ultrasound images used are simulated dummy images.
 ## Tested DeepReg Version
 
 Last commit at which demo was tested: 7ec0f5157a81cd5e60cadd61bd617b433039d0e6
+
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)

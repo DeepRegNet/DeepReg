@@ -16,7 +16,7 @@ of 22 subjects with low-grade brain gliomas who underwent brain tumour resection
 The main application for this type of registration is to better delineate brain tumour
 boundaries during surgery and correct tissue shift induced by the craniotomy.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -64,7 +64,7 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/contributing/issue.html).
 
-## References
+## Reference
 
 [1] Y. Xiao, M. Fortin, G. Unsgård , H. Rivaz, and I. Reinertsen, "REtroSpective
 Evaluation of Cerebral Tumors (RESECT): a clinical database of pre-operative MRI and

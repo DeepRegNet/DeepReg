@@ -3,6 +3,8 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mask_prostate_longitudinal)
+
 This demo uses DeepReg to demonstrate a number of features:
 
 - For grouped data in h5 files, e.g. "group-1-2" indicates the 2th visit from Subject 1;
@@ -12,16 +14,14 @@ This demo uses DeepReg to demonstrate a number of features:
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
-Logitudinal registration detects the temporal changes and normalises the spatial
-difference between images aquired at different time-points. For prostate cancer patients
-under active surveillance programmes, quantifying these changes is useful for detecting
-and monitoring potential cancerous regions.
+Longitudinal registration detects the temporal changes and normalises the spatial
+difference between images acquired at different time-points. For prostate cancer
+patients under active surveillance programmes, quantifying these changes is useful for
+detecting and monitoring potential cancerous regions.
 
 ## Data
 

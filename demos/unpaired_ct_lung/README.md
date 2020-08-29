@@ -5,9 +5,7 @@
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -25,7 +23,7 @@ The dataset for this demo comes from [1] and can be downloaded from:
 
 https://zenodo.org/record/3835682#.XsUWXsBpFhE
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -67,7 +65,12 @@ Note: This demo was tested using one Nvidia Tesla V100 GPU with a memory of 32GB
 ensure that enough memory is available to run the demo otherwise memory allocation
 errors might arise.
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Hering A, Murphy K, and van Ginneken B. (2020). Lean2Reg Challenge: CT Lung
 Registration - Training Data [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3835682

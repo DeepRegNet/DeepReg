@@ -5,9 +5,7 @@
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-e.bonmati@ucl.ac.uk)
+DeepReg Development Team (Ester Bonmati)
 
 ## Application
 
@@ -21,7 +19,7 @@ The data set is from the MICCAI Learn2Reg grand challenge
 (https://learn2reg.grand-challenge.org/) task 3 [1], and can be downloaded directly from
 https://learn2reg.grand-challenge.org/Datasets/.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 
@@ -96,7 +94,7 @@ Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html).
 
-## References
+## Reference
 
 [1] Adrian Dalca, Yipeng Hu, Tom Vercauteren, Mattias Heinrich, Lasse Hansen, Marc
 Modat, Bob de Vos, Yiming Xiao, Hassan Rivaz, Matthieu Chabanas, Ingerid Reinertsen,

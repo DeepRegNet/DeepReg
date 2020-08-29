@@ -3,11 +3,11 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
+
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -17,7 +17,7 @@ subject. This is an intra subject registration. This type of intra subject regis
 is useful when there is a need to track certain features on a medical image such as
 tumor location when conducting invasive procedures.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -57,11 +57,16 @@ The dataset for this demo comes from
 [Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
 [1].
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Hering, Alessa, Murphy,Keelin, and van Ginneken, Bram. (2020). Lean2Reg Challenge:
 CT Lung Registration : CT Lung Registration - Training Data

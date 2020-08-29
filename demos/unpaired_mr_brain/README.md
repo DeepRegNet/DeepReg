@@ -7,12 +7,7 @@
 
 ## Author
 
-DeepReg Development Team (mailto the author Adrià Casamitjana: a.casamitjana@ucl.ac.uk)
-
-## Contact
-
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+DeepReg Development Team (Adrià Casamitjana)
 
 ## Application
 
@@ -21,7 +16,7 @@ using mono-modal MR images between different patients. The images are cropped ar
 those areas and manually annotated. This is a 3D intra-modal registration using a
 composite loss of image and label similarity.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -63,11 +58,16 @@ be downloaded from:
 
 https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: v. 0.1.6-alpha
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] AL Simpson et al., _A large annotated medical image dataset for the development and
 evaluation of segmentation algorithms_ (2019). https://arxiv.org/abs/1902.09063
