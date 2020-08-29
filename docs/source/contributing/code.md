@@ -4,8 +4,8 @@ To ensure the code quality and the consistency, we recommend the following guide
 
 ## Coding design
 
-1. Please use packages that already have been included. Additional libraries will require
-   a longer review for scrutinizing its necessity.
+1. Please use packages that already have been included. Additional libraries will
+   require a longer review for scrutinizing its necessity.
 
    In case of adding a new dependency, please make sure all dependencies have been added
    to `requirements.txt`.

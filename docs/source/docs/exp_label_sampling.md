@@ -30,9 +30,8 @@ However,
 
 - When using the paired-labeled-image loader, consistent label pairs are not required
   between different image pairs;
-- When using the grouped-labeled-image loader without mixing intra-group and
-  inter-group images, consistent label pairs are not required between different image
-  groups.
+- When using the grouped-labeled-image loader without mixing intra-group and inter-group
+  images, consistent label pairs are not required between different image groups.
 
 ## Partially labeled image data
 

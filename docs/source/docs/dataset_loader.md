@@ -64,9 +64,9 @@ follows.
     labels).
 
   - **All labels are assumed to have values between [0, 1].** So DeepReg accepts binary
-    segmentation masks or soft labels with float values between [0,1]. This is to prevent
-    accidental use of non-one-hot encoding to represent multiple class labels. In case
-    of multi labels, please use one-hot encoding to transform them into multiple
+    segmentation masks or soft labels with float values between [0,1]. This is to
+    prevent accidental use of non-one-hot encoding to represent multiple class labels.
+    In case of multi labels, please use one-hot encoding to transform them into multiple
     channels such that each class has its own binary label.
 
   - When the images are paired, the moving and fixed images must have the same number of
@@ -203,6 +203,7 @@ Optionally, the data may not be all saved directly under the top directory. They
 further grouped in subdirectories as long as the data paths are consistent.
 
 #### H5
+
 H5 data are stored in files with suffix `.h5`. Hierarchical multi-level indexing is not
 used. Each file should contain multiple key-value pairs and values are 3D or 4D tensors.
 Each file is equivalent to a top folder in Nifti cases.
