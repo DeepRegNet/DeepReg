@@ -1,7 +1,7 @@
 Introduction to DeepReg Demos
 =============================
 
-DeepReg offers multiple built-in dataset loaders to support real-world clinical scenarios, in which images may be paired, unpaired or grouped. Images may also be labelled with segmented regions of interest to assist registration.
+DeepReg offers multiple built-in dataset loaders to support real-world clinical scenarios, in which images may be paired, unpaired or grouped. Images may also be labeled with segmented regions of interest to assist registration.
 
 A typical workflow to develop a `registration network`_ using DeepReg
 includes:
