@@ -7,7 +7,8 @@
 
 ## Author
 
-DeepReg Development Team (Author Name) or Author Name for external contributor.
+DeepReg Development Team (Corresponding Author Name) or Author Name for external
+contributor.
 
 ## Application
 

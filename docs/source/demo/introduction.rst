@@ -1,7 +1,7 @@
 Introduction to DeepReg Demos
 =============================
 
-DeepReg offers multiple built-in dataset loaders to support real-world clinical scenarios, in which images may be paired, unpaired or grouped. Images may be labelled with segmented regions of interest to assist registration.
+DeepReg offers multiple built-in dataset loaders to support real-world clinical scenarios, in which images may be paired, unpaired or grouped. Images may also be labelled with segmented regions of interest to assist registration.
 
 A typical workflow to develop a `registration network`_ using DeepReg
 includes:
@@ -12,11 +12,11 @@ includes:
   specified in `supported configuration details`_;
 - Train and tune the registration network with the `command line tool`_
   ``deepreg_train``;
-- Test or use the final registration network with the `command line tool`_
+- Test or use the final trained registration network with the `command line tool`_
   ``deepreg_predict``.
 
-Besides the detailed tutorials, a series of demos are provided to
-showcase a wide range of applications with real-world clinical image and label data.
+Besides the tutorials, a series of DeepReg Demos are provided to
+showcase a wide range of applications with real clinical image and label data.
 These applications range from ultrasound, CT and MR images,
 covering many clinical specialties such as neurology, urology,
 gastroenterology, oncology, respiratory and cardiovascular diseases.
