@@ -3,7 +3,9 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-> This DeepReg Demo is also an example of cross validation.
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
+
+This DeepReg Demo is also an example of cross validation.
 
 ## Author
 
@@ -45,7 +47,7 @@ python demos/unpaired_us_prostate_cv/demo_data.py
   The 10th fold is reserved for testing;
 
 ```bash
-train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir unpaired_us_prostate_cv
+deepreg_train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir unpaired_us_prostate_cv
 ```
 
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
@@ -54,7 +56,7 @@ train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_pr
   /logs.
 
 ```bash
-predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
 ```
 
 ## Pre-trained Model

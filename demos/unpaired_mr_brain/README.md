@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_mr_brain)
 
 ## Author
 

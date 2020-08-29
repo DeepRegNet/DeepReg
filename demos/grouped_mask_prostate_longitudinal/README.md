@@ -59,7 +59,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/g
 deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
 ```
 
-## Pre-trained Model
+## Pre-trained model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
@@ -67,7 +67,7 @@ default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_pa
 where the ckpt files are saved, in this case (specified by `deepreg_train` as above),
 /logs/grouped_mask_prostate_longitudinal/.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 

@@ -3,6 +3,8 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+
 ## Author
 
 DeepReg Development Team (raise an issue:
@@ -55,7 +57,7 @@ The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:
 
 https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 

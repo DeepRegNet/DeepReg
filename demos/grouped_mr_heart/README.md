@@ -65,7 +65,7 @@ This demo uses CMR images from 45 patients, acquired from the
 [MyoPS2020](http://www.sdspeople.fudan.edu.cn/zhuangxiahai/0/MyoPS20/) challenge held in
 conjunction with MICCAI 2020.
 
-## Tested DeepReg Tag
+## Tested DeepReg version
 
 Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 

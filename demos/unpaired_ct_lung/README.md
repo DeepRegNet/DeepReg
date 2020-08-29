@@ -3,6 +3,8 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
+
 ## Author
 
 DeepReg Development Team (Shaheer Saeed)
@@ -57,7 +59,7 @@ following order:
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
