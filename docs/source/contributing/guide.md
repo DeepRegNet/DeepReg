@@ -1,6 +1,6 @@
-# Guidelines
+# Guideline
 
-We welcome contributions to DeepReg, please follow the insutructions for
+We welcome contributions to DeepReg, please follow the insutruction for
 [setting up your development environment](setup.html) before editing source code.
 
 - For reporting bugs, or to request features, please [raise an issue](issue.html).

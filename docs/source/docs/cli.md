@@ -1,4 +1,4 @@
-# Command line tools
+# Command Line Tools
 
 With DeepReg installed, multiple command line tools are available, currently including:
 
@@ -70,7 +70,7 @@ configuration can be specified in the configuration file. Please see
 
   The directory will be under `logs/`.
 
-  By default it creates a timestamp-named directory like `logs/20200810-194042/`.
+  By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
 
   Example usage:
 

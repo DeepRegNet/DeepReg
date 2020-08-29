@@ -60,7 +60,7 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
         .. warning::
 
-            Windows does not fully support DeepReg. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
+            DeepReg on Windows is not fully supported. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
             with CPU only. Set up WSL and follow the DeepReg setup instructions for Linux.
 
         With GPU
@@ -79,17 +79,11 @@ The recommended method is to use the PyPI release.
 
     pip install deepreg
 
-You can also clone the repository and install it locally.
+The pip install will allow access to the packaged command-line tools. You can also clone the repository and install it locally.
 All necessary dependencies will be installed automatically.
 
 .. code:: bash
 
     git clone https://github.com/DeepRegNet/DeepReg.git # clone the repository
+    cd DeepReg # change working directory to the DeepReg root directory
     pip install -e . # install the package
-
-Optionally, you can install the `master
-branch <https://github.com/DeepRegNet/DeepReg.git>`__ directly from the repository:
-
-.. code:: bash
-
-    pip install git+https://github.com/DeepRegNet/DeepReg.git
