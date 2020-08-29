@@ -5,7 +5,7 @@ dataset:
     test: "data/test/nifti/unpaired/test" # required
   format: "nifti"
   type: "unpaired" # paired / unpaired / grouped
-  labeled: true
+  labeled: true # whether to use the labels if available, "true" or "false"
   image_shape: [16, 16, 16]
 
 train:
@@ -15,7 +15,7 @@ train:
     backbone: "local" # value should be local / global / unet
     local:
       num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
-      extract_levels: [0, 1, 2, 3, 4]
+      extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
     unet:
       num_channel_initial: 1 # number of initial channel in u-net, controls the size of the network
       depth: 2 # depth of u-net, the input is at depth = 0, and the bottom is at depth = depth
@@ -26,23 +26,23 @@ train:
   loss:
     dissimilarity:
       image:
-        name: "lncc"
+        name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
         weight: 0.1
       label:
         weight: 1.0
-        name: "multi_scale"
+        name: "multi_scale" # "multi_scale" or "single_scale"
         multi_scale:
-          loss_type: "dice"
+          loss_type: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
           loss_scales: [0, 1, 2, 4, 8, 16, 32]
         single_scale:
-          loss_type: "cross-entropy"
+          loss_type: "cross-entropy" # # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
 
   # define the optimizer
   optimizer:
-    name: "adam" # value should be adam / sgd / rms
+    name: "adam" # options include "adam", "sgd" and "rms"
     adam:
       learning_rate: 1.0e-5
     sgd:

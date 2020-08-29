@@ -6,11 +6,15 @@ two sections, `dataset` and `train`.
 
 ## Dataset section
 
-[dataset loader configuration](dataset_loader.html) for more details.
+See the [dataset loader configuration](dataset_loader.html) for more details.
 
 ## Train section
 
-The `train` section defines the neural network, training loss and other training
-hyper-parameters, such as batch size, optimizer, and learning rate. Read the
-[example configuration](https://github.com/DeepRegNet/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml)
-for more details.
+The `train` section defines the neural network training hyper-parameters, by specifying
+subsections, `model`, `loss`, `optimizer`, `preprocess` and other training
+hyper-parameter, including `epochs` and `save_period`. See an
+[example configuration](https://github.com/DeepRegNet/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml),
+with comments on the available options in each subsections.
+
+This section is highly customisable and specific to different applications. More
+examples can be found in [DeepReg Demos](../demo/introduction.html).
