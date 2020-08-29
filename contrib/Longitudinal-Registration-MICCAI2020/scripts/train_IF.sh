@@ -1,6 +1,7 @@
 cd ..
 
 python main_h5.py \
+	--data_file ./data/ImageWithSeg-0.7-0.7-0.7-64-64-51-SimpleNorm-RmOut.h5 \
 	--key_file ./data/exp1-key-ordered.pkl \
         --batch_size 4 \
         --gpu 0 \

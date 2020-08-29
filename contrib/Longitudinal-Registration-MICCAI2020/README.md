@@ -8,21 +8,16 @@
 
 ### Installation
 
-- Clone this repo and change to the corresponding branch:
+- The environment is compatible with DeepReg v0.1.6. Please [install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html) follow the guidance, clone the repo, and change to the corresponding branch as follows:
 
 ```bash
 git clone https://github.com/DeepRegNet/DeepReg.git
 cd DeepReg
+conda create --name deepreg python=3.7 tensorflow-gpu=2.2
+conda activate deepreg
+pip install -e .
 git checkout 263-Longitudinal-Registration-MICCAI2020
 cd ./contrib/Longitudinal-Registration-MICCAI2020
-```
-
-### Setting up virtual environment
-
-```bash
-conda create -n longi-reg python=3.7 tensorflow-gpu=2.0.0
-conda activate longi-reg
-pip install -r requirements.txt
 ```
 
 ### Data preparing
@@ -39,8 +34,8 @@ pip install -r requirements.txt
     sample for intra-patient registration. `(Patient1-Visit1, Patient2-Visit1)` means
     registering images from different patients -- an sample for inter-patient
     registration.
-  - Fake h5 data files and key files can be generated using `python xxxx.py`, which
-    could be regard as a reference for setting up your own data sets.
+  - Fake h5 data files and key files can be generated using `python gen_fake_data.py`, which
+    are not real data, but could be regard as a template for setting up your own data sets.
 
 ### Training
 
