@@ -2,13 +2,13 @@ Custom Functionalities
 ======================
 
 Besides the implemented features provided in DeepReg,
-we provided the following tutorials for implementing custom functionalities.
+we provide the following tutorials for implementing custom functionalities.
 
--  `Custom Loss Function`_
--  `Custom Network`_
+-  `Custom loss function`_
+-  `Custom network`_
 
-.. _Custom Loss Function: custom_loss.html
-.. _Custom Network: custom_network.html
+.. _Custom loss function: custom_loss.html
+.. _Custom network: custom_network.html
 
 .. toctree::
     :hidden:

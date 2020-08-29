@@ -1,6 +1,6 @@
 # Design Experiments
 
-DeepReg dataset loaders use a folder/ directory-based file storing approach, with which
+DeepReg dataset loaders use a folder/directory-based file storing approach, with which
 the user will be responsible for
 [organising image and label files in required file formats and folders](../docs/dataset_loader.html).
 This design was primarily motivated by the need to minimise the risk of data leakage (or
