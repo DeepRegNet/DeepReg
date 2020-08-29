@@ -1,4 +1,4 @@
-# Cross-validation
+# Design Experiments
 
 DeepReg dataset loaders use a folder/ directory-based file storing approach, with which
 the user will be responsible for

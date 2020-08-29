@@ -72,22 +72,18 @@ Contact
 For development matters, please `raise an issue`_;
 
 For matters in regarding the `Code of Conduct`_, such as a complaint,
-please email the DeepReg Development Team: DeepRegNet@gmail.com.
+please email the DeepReg Development Team: DeepRegNet@gmail.com;
 
-Alternatively, please contact one or more members of the CoC Committee as appropriate:
-
-Nina Montana Brown (nina.brown.15@ucl.ac.uk)
-Ester Bonmati (e.bonmati@ucl.ac.uk)
-Matt Clarkson (m.clarkson@ucl.ac.uk)
+Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
-    :width: 300
+    :height: 100
     :alt: WEISS Logo
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :width: 300
+    :height: 100
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/

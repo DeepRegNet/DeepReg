@@ -60,7 +60,7 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
         .. warning::
 
-            Windows does not fully support DeepReg. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
+            DeepReg on Windows is not fully supported. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
             with CPU only. Set up WSL and follow the DeepReg setup instructions for Linux.
 
         With GPU
