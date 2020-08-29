@@ -45,7 +45,7 @@ configuration can be specified in the configuration file. Please see
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
   is needed.
 
-  Default is to allocate all available GPU memory.
+  By default it allocates all available GPU memory.
 
   Example usage:
 
@@ -165,7 +165,7 @@ configuration can be specified in the configuration file. Please see
 
   The predicted 3D tensors can be saved in Nifti format for further calculation.
 
-  By default it saves outputs in Nifti1 format.
+  By default it saves outputs in Nifti format.
 
   Example usage:
 
@@ -181,7 +181,7 @@ configuration can be specified in the configuration file. Please see
   Example usage:
 
   - `--save_png`, for saving the outputs in png format.
-  - `--save_png`, for not saving the outputs in Nifti format.
+  - `--save_png`, for not saving the outputs in png format.
 
 - **Configuration**:
 
@@ -211,7 +211,7 @@ The saved files include:
     sample.
   - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all
     samples with the same label index.
-  - `metrics_stats_overall.csv` saves the a set of commonly used statistics (such as
+  - `metrics_stats_overall.csv` saves a set of commonly used statistics (such as
     mean and std) on the metrics over all samples.
 - Inputs and predictions for each pair of image.
 

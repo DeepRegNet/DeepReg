@@ -63,8 +63,8 @@ follows.
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
 
-  - **All labels are assumed to have values bettwen [0, 1].** So DeepReg accepts binary
-    segmentation mask or soft labels with float values between [0,1]. This is to prevent
+  - **All labels are assumed to have values between [0, 1].** So DeepReg accepts binary
+    segmentation masks or soft labels with float values between [0,1]. This is to prevent
     accidental use of non-one-hot encoding to represent multiple class labels. In case
     of multi labels, please use one-hot encoding to transform them into multiple
     channels such that each class has its own binary label.
