@@ -76,6 +76,16 @@ configuration can be specified in the configuration file. Please see
 
   - `--log_dir test` for saving under `logs/test/`.
 
+### Output
+
+During the training, multiple output files are saved in the log directory `logs/log_dir`
+where `log_dir` is defined in arguments or a timestamp based. The saved files are
+
+- `config.yaml`, the backup of the used configuration. It can be used for prediction. In
+  case of multiple configuration files, the merged configuration is saved.
+- `train/` and `validation/`, the directories saving tensorboard logs on metrics.
+- `save/`, the directory containing saved checkpoints of the network.
+
 ## Predict
 
 `deepreg_predict` accepts the following arguments via command line tools. More
@@ -185,6 +195,46 @@ configuration can be specified in the configuration file. Please see
 
   - `--config_path config1.yaml` for using one single configuration file.
 
+### Output
+
+During the evaluation, multiple output files are saved in the log directory
+`logs/log_dir/mode` where
+
+- `log_dir` is defined in arguments or a timestamp based;
+- `mode` is `train` or `valid` or `test`, given by the argument.
+
+The saved files contain:
+
+- Metrics to evaluate the registration performance
+  - `metrics.csv`, which saves the metrics on all samples. Each line corresponds to a
+    data sample.
+  - `metrics_stats_per_label.csv`, which saves the mean, median and std of each metrics
+    on all samples with the same label index.
+  - `metrics_stats_overall.csv`, which saves the common statistics (such as mean, std,
+    etc.) on the metrics over all samples.
+- Inputs and predictions for each pair of image.
+
+  Each pair has its own directory and the followings tensors are saved inside if
+  available. Tensors can be saved in Nifti format (one single file), or in png format
+  (one folder contains multiple files and each file corresponds to one depth).
+
+  - `ddf`, `dvf`, `affine`
+
+    DDF stands for discrete displacement field; DVF stands for discrete velocity field.
+
+    The 12 parameters of affine transformation are saved in `affine.txt`.
+
+  - `moving_image`, `fixed image` and `pred_fixed_image`
+
+    `pred_fixed_image` is the warped moving image if the network predicts a DDF or a DVF
+    or an affine transformation.
+
+  - `moving_label`, `fixed_label` and `pred_fixed_label` under directory `label_i` if
+    the sample is labeled and `i` is the label index.
+
+    `pred_fixed_label` is the warped moving label if the network predicts a DDF or a DVF
+    or an affine transformation.
+
 ## Warp
 
 `deepreg_warp` accepts the following arguments:
@@ -229,3 +279,8 @@ configuration can be specified in the configuration file. Please see
   Example usage:
 
   - `--out output_image.nii.gz`
+
+### Output
+
+The warped image is saved in the given output file path or the default file path
+`warped.nii.gz`.
