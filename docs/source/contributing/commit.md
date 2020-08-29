@@ -3,7 +3,7 @@
 To facilitate review of contributions, we encourage contributors to adhere to the
 following commit guidelines.
 
-1. The commit message should start with `Issue #<issue number>` so that the commits are
+1. The commit message should start with `Issue #<issue number>:` so that the commits are
    tied to a specific issue.
 
    - **Good**:
