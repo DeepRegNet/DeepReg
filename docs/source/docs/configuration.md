@@ -14,7 +14,7 @@ The `train` section defines the neural network training hyper-parameters, by spe
 subsections, `model`, `loss`, `optimizer`, `preprocess` and other training
 hyper-parameter, including `epochs` and `save_period`. See an
 [example configuration](https://github.com/DeepRegNet/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml),
-with comments on the available options in each subsections.
+with comments on the available options in each subsection.
 
-This section is highly customisable and specific to different applications. More
-examples can be found in [DeepReg Demos](../demo/introduction.html).
+This section is highly application-specific. More examples can be found in
+[DeepReg Demos](../demo/introduction.html).

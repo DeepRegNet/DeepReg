@@ -69,21 +69,21 @@ Wellcome/EPSRC Centre for Medical Engineering (`CME`_).
 Contact
 -------
 
-For development matters, please `raise an issue`_;
+For development matters, please `raise an issue`_.
 
 For matters in regarding the `Code of Conduct`_, such as a complaint,
-please email the DeepReg Development Team: DeepRegNet@gmail.com;
+please email the DeepReg Development Team: DeepRegNet@gmail.com.
 
 Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
-    :height: 100
+    :width: 300
     :alt: WEISS Logo
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :height: 100
+    :width: 270
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/

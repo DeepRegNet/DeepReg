@@ -11,8 +11,8 @@ dataset:
 train:
   # define neural network structure
   model:
-    method: "ddf" # the registration method, value should be ddf / dvf / conditional
-    backbone: "local" # value should be local / global / unet
+    method: "ddf" # options include "ddf", "dvf", "conditional" and "affine"
+    backbone: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
     local:
       num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
       extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
