@@ -1,19 +1,20 @@
 # Paired lung CT image registration
 
----
-
 **NOTE**
 
 Please read the
 [DeepReg Demo Disclaimer](https://github.com/DeepRegNet/DeepReg/blob/master/demos/README.md).
 
----
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author: Shaheer Saeed:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (mailto the author: Shaheer Saeed: zcemsus@ucl.ac.uk)
+
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](../contributing/issue.html).
 
 ## Application
 
@@ -65,7 +66,7 @@ The dataset for this demo comes from
 
 ## Tested DeepReg Version
 
-Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
+Last commit at which demo was tested: v. 0.1.6-alpha
 
 ## References
 
