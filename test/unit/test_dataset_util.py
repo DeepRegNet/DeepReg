@@ -23,7 +23,7 @@ def test_sorted_h5_keys():
         hf = h5py.File(tempdir.path + "data.h5", "w")
         hf.create_dataset("dataset_1", data=d1)
         hf.close()
-        #  Checking func returns the same thing
+        # Checking func returns the same thing
         expected = ["dataset_1"]
         actual = util.get_h5_sorted_keys(tempdir.path + "data.h5")
         assert expected == actual
@@ -37,12 +37,12 @@ def test_sorted_h5_keys_many():
         # Creating some dummy data
         d1 = np.random.random(size=(10, 20))
         hf = h5py.File(tempdir.path + "data.h5", "w")
-        #  Adding entries in different order
+        # Adding entries in different order
         hf.create_dataset("dataset_1", data=d1)
         hf.create_dataset("dataset_3", data=d1)
         hf.create_dataset("dataset_2", data=d1)
         hf.close()
-        #  Checking func returns the same thing
+        # Checking func returns the same thing
         expected = ["dataset_1", "dataset_2", "dataset_3"]
         actual = util.get_h5_sorted_keys(tempdir.path + "data.h5")
         assert expected == actual

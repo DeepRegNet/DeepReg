@@ -85,7 +85,7 @@ def test_foreground_prop_simple():
     """
     array_eye = np.identity(3, dtype=np.float32)
     tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_eye[:, 0, :, :] = 0.4 * array_eye  #  0
+    tensor_eye[:, 0, :, :] = 0.4 * array_eye  # 0
     tensor_eye[:, 1, :, :] = array_eye
     tensor_eye[:, 2, :, :] = array_eye
     tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
