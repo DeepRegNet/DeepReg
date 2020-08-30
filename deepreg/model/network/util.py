@@ -19,11 +19,11 @@ def build_backbone(
 ) -> tf.keras.Model:
     """
     Backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
-    and returns a single output of shape (batch, dim1, dim2, dim3, ch_out)
+    and returns a single output of shape (batch, dim1, dim2, dim3, ch_out).
 
     :param image_size: tuple, dims of image, (dim1, dim2, dim3)
     :param out_channels: int, number of out channels, ch_out
-    :param method_name: str, one of ddf | dvf | conditional
+    :param method_name: str, one of ddf, dvf and conditional
     :param model_config: dict, model configuration, returned from parser.yaml.load
     :return: tf.keras.Model
     """
@@ -40,8 +40,8 @@ def build_backbone(
         )
     if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
-            "method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
-            "got {}".format(method_name)
+            f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
+            f"got {method_name}"
         )
 
     if method_name in ["ddf", "dvf"]:
@@ -95,7 +95,7 @@ def build_inputs(
     """
     Configure a pair of moving and fixed images and a pair of
     moving and fixed labels as model input
-    and returns model input tf.keras.Input
+    and returns model input tf.keras.Input.
 
     :param moving_image_size: tuple, dims of moving images, [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: tuple, dims of fixed images, [f_dim1, f_dim2, f_dim3]
@@ -134,7 +134,8 @@ def add_ddf_loss(
     model: tf.keras.Model, ddf: tf.Tensor, loss_config: dict
 ) -> tf.keras.Model:
     """
-    add regularization loss of ddf into model
+    Add regularization loss of ddf into model.
+
     :param model: tf.keras.Model
     :param ddf: tensor of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     :param loss_config: config for loss
@@ -158,7 +159,8 @@ def add_image_loss(
     loss_config: dict,
 ) -> tf.keras.Model:
     """
-    add image dissimilarity loss of ddf into model
+    Add image dissimilarity loss of ddf into model.
+
     :param model: tf.keras.Model
     :param fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -195,7 +197,8 @@ def add_label_loss(
     loss_config: dict,
 ) -> tf.keras.Model:
     """
-    add label dissimilarity loss of ddf into model
+    Add label dissimilarity loss of ddf into model.
+
     :param model: tf.keras.Model
     :param grid_fixed: tensor of shape (f_dim1, f_dim2, f_dim3, 3)
     :param fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)

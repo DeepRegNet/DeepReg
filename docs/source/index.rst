@@ -42,6 +42,7 @@
     api/entry_points
     api/loader
     api/loss
+    api/network
 
 .. toctree::
     :hidden:
