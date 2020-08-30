@@ -6,13 +6,13 @@ DeepReg offers multiple built-in dataset loaders to support real-world clinical 
 A typical workflow to develop a `registration network`_ using DeepReg
 includes:
 
-- Select a dataset loader, among the `unpaired, paired and grouped`_,
+1. Select a dataset loader, among the `unpaired, paired and grouped`_,
   and prepare data into folders as required;
-- Configure the network training in the configuration yaml file(s), as
+2. Configure the network training in the configuration yaml file(s), as
   specified in `supported configuration details`_;
-- Train and tune the registration network with the `command line tool`_
+3. Train and tune the registration network with the `command line tool`_
   ``deepreg_train``;
-- Test or use the final trained registration network with the `command line tool`_
+4. Test or use the final trained registration network with the `command line tool`_
   ``deepreg_predict``.
 
 Besides the tutorials, a series of DeepReg Demos are provided to
