@@ -11,11 +11,11 @@ DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
-This is a registration between ct images from different patients. The images are all
+This is a registration between CT images from different patients. The images are all
 from acquired at the same timepoint in the breathing cycle. This is an inter subject
 registration. This kind of registration is useful for determining how one stimulus
-affects multiple patietns. If a drug or invasive procedure is administered to multiple
-patients, registering the images from different patients can give medical professsionals
+affects multiple patients. If a drug or invasive procedure is administered to multiple
+patients, registering the images from different patients can give medical professionals
 a sense of how each patient is responding in comparison to others. An example of such an
 application can be seen in [2].
 
@@ -40,8 +40,8 @@ following order:
     ratio_of_test_and_valid_samples variable to change the ratio of test and valid
     samples)
   - Restructure the files, for each of the train, valid and test sets, into a directory
-    structure that is suitable for use with the unpaired loader in deepreg
-  - Rescale all images to 0-255 so they are suitable for use with deepreg
+    structure that is suitable for use with the unpaired loader in DeepReg
+  - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Download a pretrained model for use with the predict script
 - Run the demo_train.py script: This script does the following:
   - Specify the training options like gpu support
@@ -50,8 +50,8 @@ following order:
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
-  - Use the predicitons to plot the results (the path to the images generated in the
-    logs will need to be sepcified, look at comments in the script to change this)
+  - Use the predictions to plot the results (the path to the images generated in the
+    logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model
 

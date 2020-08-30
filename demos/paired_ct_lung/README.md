@@ -48,7 +48,7 @@ following order:
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
-  - Use the predicitons to plot the results (the path to the images generated in the
+  - Use the predictions to plot the results (the path to the images generated in the
     logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model

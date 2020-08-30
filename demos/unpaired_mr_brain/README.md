@@ -39,7 +39,7 @@ following order:
   - Download and extract the dataset. Data is downloaded to the demo directory under
     data/ but this can be changed (instructions in the comments in the script).
   - Split subjects into train/test according to the challenge website.
-  - Rescale all images to 0-255 so they are suitable for use with deepreg
+  - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Create and apply a binary mask to mask-out the padded values in images.
   - Transform label volumes using one-hot encoding (only for foreground classes)
 - Run the demo_train.py script: This script does the following:
@@ -48,8 +48,8 @@ following order:
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the trained network to make predictions for the test set
-  - Use the predicitons to plot the results (the path to the images generated in the
-    logs will need to be sepcified, look at comments in the script to change this)
+  - Use the predictions to plot the results (the path to the images generated in the
+    logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model
 

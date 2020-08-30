@@ -12,7 +12,7 @@ DeepReg Development Team (Ester Bonmati)
 ## Application
 
 This demo shows how to register unpaired abdominal CT data from different patients using
-DeepReg. In addition, the demo demonstrates the difference betwwen the unsupervised,
+DeepReg. In addition, the demo demonstrates the difference between the unsupervised,
 weakly-supervised and their combination, using a U-Net.
 
 ## Data

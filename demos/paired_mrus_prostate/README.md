@@ -17,19 +17,20 @@ DeepReg Development Team
 
 Registering preoperative MR images to intraoperative transrectal ultrasound images has
 been an active research area for more than a decade. The multimodal image registration
-task assist a number of ultrasound-guided intervention and surgical procedures, such as
-targted biopsy and focal therapy for prostate cancer patients. One of the key challenges
-in this registration tasks is the lack of robust and effective similarity measures
-between the two image types. This demo implements a weakly-supervised learning approach
-to learn voxel correspondence between intensity patterns between the multimodal data,
-driven by expert-defined anatomical landmarks, such as the prostate gland segmenation.
+task assist a number of ultrasound-guided interventions and surgical procedures, such as
+targeted biopsy and focal therapy for prostate cancer patients. One of the key
+challenges in this registration task is the lack of robust and effective similarity
+measures between the two image types. This demo implements a weakly-supervised learning
+approach to learn voxel correspondence between intensity patterns between the multimodal
+data, driven by expert-defined anatomical landmarks, such as the prostate gland
+segmenation.
 
 ## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download example 10 folds of unpaired 3D ultrasound
-  images and the pre-trained model.
+- Run `demo_data.py` script to download 10 folds of unpaired 3D ultrasound images and
+  the pre-trained model.
 
 ```bash
 python demos/paired_mrus_prostate/demo_data.py
@@ -46,9 +47,9 @@ deepreg_train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_
 ```
 
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
-  data partitions specified in the config file, a copy of which woule be saved in the
+  data partitions specified in the config file, a copy of which will be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saves at the created timestamp-named directories under /logs.
+  the results will be saved at the created timestamp-named directories under /logs.
 
 ```bash
 deepreg_predict --gpu "" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --ckpt_path demos/paired_mrus_prostate/dataset/pre-trained/weights-epoch500.ckpt --mode test

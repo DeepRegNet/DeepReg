@@ -45,7 +45,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mr_heart/grouped_mr_heart.ya
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
   data partitions specified in the config file, a copy of which will be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saves at the created timestamp-named directories under /logs.
+  the results will be saved at the created timestamp-named directories under /logs.
 
 ```bash
 deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test

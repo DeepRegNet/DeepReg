@@ -32,7 +32,7 @@ ultrasound images used are simulated dummy images.
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
+- Run [demo_data.py](./demo_data.py) script to download 10 folds of unpaired 3D
   ultrasound images and the pre-trained model.
 
 ```bash
