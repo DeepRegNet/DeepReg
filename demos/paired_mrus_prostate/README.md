@@ -57,10 +57,10 @@ deepreg_predict --gpu "" --config_path demos/paired_mrus_prostate/paired_mrus_pr
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/paired_mrus_prostate/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/paired_mrus_prostate/.
 
 ## Data
 

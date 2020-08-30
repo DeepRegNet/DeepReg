@@ -7,9 +7,7 @@
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mail to the author:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -54,10 +52,10 @@ following order:
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/learn2reg_t1_paired_train_logs/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/learn2reg_t1_paired_train_logs/.
 
 ## Data
 

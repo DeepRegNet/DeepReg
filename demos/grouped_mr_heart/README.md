@@ -55,9 +55,9 @@ deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.y
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/grouped_mr_heart/.
+default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/grouped_mr_heart/.
 
 ## Data
 

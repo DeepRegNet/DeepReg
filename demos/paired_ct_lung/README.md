@@ -49,15 +49,15 @@ following order:
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
-    logs will need to be specified, look at comments in the script to chnage this)
+    logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/learn2reg_t2_paired_train_logs/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/learn2reg_t2_paired_train_logs/.
 
 ## Data
 
