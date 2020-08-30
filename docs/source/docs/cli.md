@@ -206,13 +206,13 @@ During the evaluation, multiple output files will be saved in the log directory
 
 The saved files include:
 
-* Metrics to evaluate the registration performance
+- Metrics to evaluate the registration performance
   - `metrics.csv` saves the metrics on all samples. Each line corresponds to a data
     sample.
-  - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all
-    samples with the same label index.
+  - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all samples with the same label index.
   - `metrics_stats_overall.csv` saves a set of commonly used statistics (such as mean
     and std) on the metrics over all samples.
+
 - Inputs and predictions for each pair of image.
 
   Each pair has its own directory and the followings tensors are saved inside if
