@@ -27,7 +27,7 @@ parser.add_argument("--lr", default=1e-5, type=float, help="Learning rate.")
 parser.add_argument("--w_ncc", default=1.0, type=float, help="the weight of ncc loss")
 parser.add_argument("--w_ssd", default=1.0, type=float, help="the weight of ssd loss")
 parser.add_argument(
-    "--w_bde", default=10.0, type=float, help="the weight of bending energy loss"
+    "--w_bde", default=25.0, type=float, help="the weight of bending energy loss"
 )
 parser.add_argument(
     "--w_mmd",

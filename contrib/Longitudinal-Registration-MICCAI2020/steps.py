@@ -116,6 +116,10 @@ def valid_step(args_dict, model, inputs, labels, fixed_grid_ref, return_type="me
         loss_reg_value = 0
     else:
         loss_reg_value = sum(model.losses) * args_dict["w_bde"]
+
+    if len(warped_moving_label.shape) == 3:
+        warped_moving_label = warped_moving_label[None, ...]
+
     loss_dice_value = (
         label_loss.single_scale_loss(fixed_label, warped_moving_label, "dice")
         * args_dict["w_dce"]

@@ -25,7 +25,7 @@ def gen_pred_imgs(ckpt_dir, pair_name, inputs, fixed_label, pred):
         warped_moving_slice = warped_moving_arr[0, :, :, s, 0].T
         moving_slice = moving_arr[0, :, :, s].T
         fixed_slice = fixed_arr[0, :, :, s].T
-        warped_moving_label_slice = warped_label_arr[0, :, :, s, 0].T
+        warped_moving_label_slice = warped_label_arr[0, :, :, s].T
         moving_label_slice = moving_label[0, :, :, s].T
         fixed_label_slice = fixed_label_arr[0, :, :, s].T
 

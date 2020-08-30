@@ -118,12 +118,23 @@ index_dice, index_dist, index_ssd = (
 )
 
 print(
-    checkpoint_paths[index_dice], ckpt_dice_mean[index_dice], ckpt_dice_std[index_dice]
+    "best dsc model:",
+    checkpoint_paths[index_dice],
+    ckpt_dice_mean[index_dice],
+    ckpt_dice_std[index_dice],
 )
 print(
-    checkpoint_paths[index_dist], ckpt_dist_mean[index_dist], ckpt_dist_std[index_dist]
+    "best TRE model:",
+    checkpoint_paths[index_dist],
+    ckpt_dist_mean[index_dist],
+    ckpt_dist_std[index_dist],
 )
-print(checkpoint_paths[index_ssd], ckpt_ssd_mean[index_ssd], ckpt_ssd_std[index_ssd])
+print(
+    "best ssd model:",
+    checkpoint_paths[index_ssd],
+    ckpt_ssd_mean[index_ssd],
+    ckpt_ssd_std[index_ssd],
+)
 
 
 inference_record["dice_model"] = checkpoint_paths[index_dice]

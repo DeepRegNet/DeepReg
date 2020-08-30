@@ -8,7 +8,10 @@
 
 ### Installation
 
-- The environment is compatible with DeepReg v0.1.6. Please [install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html) follow the guidance, clone the repo, and change to the corresponding branch as follows:
+- The environment is compatible with DeepReg v0.1.6. Please
+  [install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html)
+  follow the guidance, clone the repo, and change to the corresponding branch as
+  follows:
 
 ```bash
 git clone https://github.com/DeepRegNet/DeepReg.git
@@ -34,8 +37,9 @@ cd ./contrib/Longitudinal-Registration-MICCAI2020
     sample for intra-patient registration. `(Patient1-Visit1, Patient2-Visit1)` means
     registering images from different patients -- an sample for inter-patient
     registration.
-  - Fake h5 data files and key files can be generated using `python gen_fake_data.py`, which
-    are not real data, but could be regard as a template for setting up your own data sets.
+  - Fake h5 data files and key files can be generated using `python gen_fake_data.py`,
+    which are not real data, but could be used as a template for setting up your own
+    data sets.
 
 ### Training
 
@@ -64,7 +68,18 @@ bash train_IT+IF+IB_mmd.sh
     time stamp to the name in order to discriminate from each other. In this case, you
     should add the corresponding time stame to the original experiment name, as listed
     in the `./logs` folder.
-  - `data_file` and `key_file`: The same h5 data and pkl key files you used in training.
+  - `data_file` and `key_file`: If these two params are the same h5 data and pkl key
+    file which used in training. The code will output evaluation values on ssd, dsc, and
+    distance(centroid). However, if want to get the evaluation results of Target
+    Registration Error (TRE), you need to feed in a new h5 data file and a key file
+    specially for the landmarks. In this case, the `dist` metric in the output of the
+    results stands for the TRE, and the results of dsc and ssd will be generated as
+    well, but meaningless. The landmarks means a set of the anatomical structures that
+    can be found in a sequence of images, like apex, base, tumors, etc. They don't must
+    be points, but could be just small areas. We used the centroid distances of these
+    small areas to calculate the TRE. Example data and key files of the landmarks can
+    also be generated using the `gen_fake_data.py` script, which could be used as a
+    template for setting up your own data sets.
   - `test_phase`: `--test_phase test` will make prediction and calculate evaluation
     metrics on validation set (for tunning hyper-parameters, usually combined with
     `--test_model_start_end` to predict with multiple checkpoints, see below).
@@ -80,7 +95,7 @@ bash train_IT+IF+IB_mmd.sh
     `--test_phase holdout`), this param will specify the only checkpoint that you want
     to use for inference. E.g. `--continue_epoch 299`. This params could also be used in
     the training scripts for restoring any experiments.
-  - `test_gen_pred_imgs`: If set 1, the images and segmentations for before and after
-    registration will be saved in the corresponding experiment folder in the `./logs`.
-    Just for visualization purposes.
+  - `test_gen_pred_imgs`: If set 1, when predicting on the holdout set, the images and
+    segmentations for before and after registration will be saved in the corresponding
+    experiment folder in the `./logs`. Just for visualization purposes.
     <img src="https://github.com/DeepRegNet/DeepReg/blob/263-Longitudinal-Registration-MICCAI2020/contrib/Longitudinal-Registration-MICCAI2020/figures/vis.png" width="800"/>
