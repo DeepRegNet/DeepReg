@@ -206,7 +206,7 @@ During the evaluation, multiple output files will be saved in the log directory
 
 The saved files include:
 
-- Metrics to evaluate the registration performance
+* Metrics to evaluate the registration performance
   - `metrics.csv` saves the metrics on all samples. Each line corresponds to a data
     sample.
   - `metrics_stats_per_label.csv` saves the mean, median and std of each metrics on all
