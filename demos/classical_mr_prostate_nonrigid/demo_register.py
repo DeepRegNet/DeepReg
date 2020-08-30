@@ -67,8 +67,8 @@ def train_step(warper, weights, optimizer, mov, fix):
 
 # ddf as trainable weights
 fixed_image_size = fixed_image.shape
-initialiser = tf.random_normal_initializer(mean=0, stddev=1e-3)
-var_ddf = tf.Variable(initialiser(fixed_image_size + [3]), name="ddf", trainable=True)
+initializer = tf.random_normal_initializer(mean=0, stddev=1e-3)
+var_ddf = tf.Variable(initializer(fixed_image_size + [3]), name="ddf", trainable=True)
 
 warping = layer.Warping(fixed_image_size=fixed_image_size[1:4])
 optimiser = tf.optimizers.Adam(learning_rate)

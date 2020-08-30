@@ -43,6 +43,7 @@
     api/loader
     api/loss
     api/network
+    api/backbone
 
 .. toctree::
     :hidden:
