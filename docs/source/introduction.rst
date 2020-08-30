@@ -71,7 +71,7 @@ Contact
 
 For development matters, please `raise an issue`_.
 
-For matters in regarding the `Code of Conduct`_, such as a complaint,
+For matters regarding the `Code of Conduct`_, such as a complaint,
 please email the DeepReg Development Team: DeepRegNet@gmail.com.
 
 Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).

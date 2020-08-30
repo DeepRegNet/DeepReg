@@ -28,7 +28,7 @@ class H5FileLoader(FileLoader):
 
     def set_data_structure(self):
         """
-        store the data structure in the memory so that
+        Store the data structure in the memory so that
         we can retrieve data using data_index
         this function sets two attributes
 
@@ -66,10 +66,10 @@ class H5FileLoader(FileLoader):
 
     def set_group_structure(self):
         """
-        same code as NiftiLoader,
+        Same code as NiftiLoader,
         as the first two tokens of a split forms a group_id
 
-        in addition to set_data_structure
+        In addition to set_data_structure
         store the group structure in the group_struct so that
         group_struct[group_index] = list of data_index
         we can retrieve data using (group_index, in_group_data_index)
@@ -123,7 +123,7 @@ class H5FileLoader(FileLoader):
 
     def get_data_ids(self):
         """
-        return the unique IDs of the data in this data set
+        Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
         images and label, moving and fixed
 
@@ -138,6 +138,6 @@ class H5FileLoader(FileLoader):
         return len(self.data_path_splits)
 
     def close(self):
-        """close opened h5 file handles"""
+        """Close opened h5 file handles"""
         for f in self.h5_files.values():
             f.close()

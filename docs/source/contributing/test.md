@@ -24,10 +24,10 @@ For a class, we need to test all the functions in the class.
 
 For a non-TensorFlow function, we need to test
 
-- the correctness of inputs and the error handling for unexpected inputs.
-- the correctness of outputs given certain inputs.
-- the trigger of all errors (`ValueError`, `AssertionError`, etc.).
-- the trigger of warnings.
+- The correctness of inputs and the error handling for unexpected inputs.
+- The correctness of outputs given certain inputs.
+- The trigger of all errors (`ValueError`, `AssertionError`, etc.).
+- The trigger of warnings.
 
 Check `test_load_nifti_file()` in
 [test_nifti_loader.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_nifti_loader.py#L12)
@@ -37,12 +37,12 @@ as an example.
 
 For a TensorFlow-involved function, we need to test
 
-- the correctness of inputs and the error handling for unexpected inputs. The minimum
+- The correctness of inputs and the error handling for unexpected inputs. The minimum
   requirement is to check the shape of input tensors.
-- the correctness of outputs given certain inputs if the function involves mathematical
+- The correctness of outputs given certain inputs if the function involves mathematical
   operations. Otherwise, at least the output tensor shapes have to be correct.
-- the trigger of all errors (`ValueError`, `AssertionError`, etc.).
-- the trigger of warnings.
+- The trigger of all errors (`ValueError`, `AssertionError`, etc.).
+- The trigger of warnings.
 
 Check `test_resample()` in
 [test_layer_util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_layer_util.py#L107)

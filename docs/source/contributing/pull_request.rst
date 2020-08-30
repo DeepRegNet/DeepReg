@@ -11,10 +11,10 @@ We recommend using fork to do pull requests:
 
 3. Make your changes following our guidelines:
 
-   -  `Coding Requirement`_
-   -  `Unit Test Requirement`_
-   -  `Documentation Requirement`_
-   -  `Commit Requirement`_
+   -  `Coding requirement`_
+   -  `Unit test requirement`_
+   -  `Documentation requirement`_
+   -  `Commit requirement`_
 
 4. `Submit a pull request`_
 
@@ -22,10 +22,10 @@ We recommend using fork to do pull requests:
    suggested.
 
 .. _Fork the repository: https://github.com/DeepRegNet/DeepReg
-.. _Coding Requirement: code.html
-.. _Unit Test Requirement: test.html
-.. _Documentation Requirement: docs.html
-.. _Commit Requirement: commit.html
+.. _Coding requirement: code.html
+.. _Unit test requirement: test.html
+.. _Documentation requirement: docs.html
+.. _Commit requirement: commit.html
 .. _Submit a pull request: https://github.com/DeepRegNet/DeepReg/compare
 
 .. toctree::

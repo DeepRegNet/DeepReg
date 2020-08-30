@@ -1,4 +1,4 @@
-# Label Sampling
+# Label sampling
 
 Images may have multiple labels, such as with segmentation of different organs in CT
 scans. In this case, for each sampled image pair, one label pair is randomly chosen by
@@ -20,21 +20,20 @@ Consistent label pairs between a pair of moving and fixed labels requires:
 When a pair of moving and fixed images have inconsistent label pairs, label
 dissimilarity cannot be defined. The following applies:
 
-- When using the unpaired-labelled-image loader, consistent label pairs are required;
-- When using the grouped-labelled-image loader, consistent label pairs are required
+- When using the unpaired-labeled-image loader, consistent label pairs are required;
+- When using the grouped-labeled-image loader, consistent label pairs are required
   between intra-group image pairs;
-- When mixing intra-inter-group images in the grouped-labelled-image loader, consistent
+- When mixing intra-inter-group images in the grouped-labeled-image loader, consistent
   label pairs are required between all intra-group and inter-group image pairs.
 
 However,
 
-- When using the paired-labelled-image loader, consistent label pairs are not required
+- When using the paired-labeled-image loader, consistent label pairs are not required
   between different image pairs;
-- When using the grouped-labelled-image loader without mixing intra-group and
-  inter-group images, consistent label pairs are not required between different image
-  groups.
+- When using the grouped-labeled-image loader without mixing intra-group and inter-group
+  images, consistent label pairs are not required between different image groups.
 
-## Partially labelled image data
+## Partially labeled image data
 
 When one of the label dissimilarity measures prevents accidentally missing labels. When
 appropriate, enable training with missing labels with a placeholder all-zero mask for

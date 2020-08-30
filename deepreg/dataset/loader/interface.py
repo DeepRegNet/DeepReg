@@ -526,7 +526,7 @@ class FileLoader:
 
     def get_num_images_per_group(self) -> list:
         """
-        calculate the number of images in each group
+        Calculate the number of images in each group
         each group must have at least one image
         """
         assert self.grouped
@@ -539,5 +539,5 @@ class FileLoader:
         return num_images_per_group
 
     def close(self):
-        """close opened file handles if exist"""
+        """Close opened file handles if exist"""
         raise NotImplementedError
