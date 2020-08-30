@@ -1,16 +1,16 @@
-# Pairwise registration for grouped multi-sequence cardiac MR images
+# Pairwise registration for grouped cardiac MR images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mr_heart)
 
 This demo uses the grouped dataset loader to register intra-subject multi-sequence
 cardiac magnetic resonance (CMR) images.
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
@@ -65,14 +65,21 @@ This demo uses CMR images from 45 patients, acquired from the
 [MyoPS2020](http://www.sdspeople.fudan.edu.cn/zhuangxiahai/0/MyoPS20/) challenge held in
 conjunction with MICCAI 2020.
 
-## Tested DeepReg Tag
+## Tested DeepReg version
 
-#74e7b1f749d0df1c140494eba0204f0edd1d7b1e
+Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Xiahai Zhuang: Multivariate mixture model for myocardial segmentation combining
 multi-source images. IEEE Transactions on Pattern Analysis and Machine Intelligence (T
-PAMI), vol. 41, no. 12, 2933-2946, Dec 2019. link. [2] Xiahai Zhuang: Multivariate
-mixture model for cardiac segmentation from multi-sequence MRI. International Conference
-on Medical Image Computing and Computer-Assisted Intervention, pp.581-588, 2016.
+PAMI), vol. 41, no. 12, 2933-2946, Dec 2019. link.
+
+[2] Xiahai Zhuang: Multivariate mixture model for cardiac segmentation from
+multi-sequence MRI. International Conference on Medical Image Computing and
+Computer-Assisted Intervention, pp.581-588, 2016.

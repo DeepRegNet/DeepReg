@@ -1,13 +1,15 @@
-# Unpaired US Prostate Registration
+# Unpaired prostate ultrasound registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-> This DeepReg Demo is also an example of cross validation.
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
+
+This DeepReg Demo is also an example of cross validation.
 
 ## Author
 
-DeepReg Development Team (Yipeng Hu)
+DeepReg Development Team
 
 ## Application
 
@@ -45,7 +47,7 @@ python demos/unpaired_us_prostate_cv/demo_data.py
   The 10th fold is reserved for testing;
 
 ```bash
-train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir unpaired_us_prostate_cv
+deepreg_train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --log_dir unpaired_us_prostate_cv
 ```
 
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
@@ -54,16 +56,20 @@ train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpaired_us_pr
   /logs.
 
 ```bash
-predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path logs/unpaired_us_prostate_cv/save/weights-epoch200.ckpt --mode test
+deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_run1.yaml demos/unpaired_us_prostate_cv/unpaired_us_prostate_cv_train.yaml --ckpt_path demos/unpaired_us_prostate_cv/dataset/pre-trained/weights-epoch5000.ckpt --mode test
 ```
 
 ## Pre-trained Model
 
-Pre-trained model is not available.
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/unpaired_us_prostate_cv/.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
-Last commit at which demo was tested: TBD
+Last commit at which demo was tested: 7bec018b5e910f1589888f3f286e9f6a11060c31
 
 ## Contact
 

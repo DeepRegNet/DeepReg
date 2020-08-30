@@ -83,7 +83,7 @@ Alternatively, please contact one or more members of the CoC Committee as approp
 
 
 .. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
-    :width: 260
+    :width: 250
     :alt: CME Logo
 
 .. _TensorFlow2: https://www.tensorflow.org/

@@ -26,3 +26,22 @@ shutil.move(DATA_REPO, DATA_PATH)
 os.remove(ZIP_PATH)
 
 print("TRUS 3d data downloaded: %s." % os.path.abspath(DATA_PATH))
+
+# Download the pre-trained models
+MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+if os.path.exists(MODEL_PATH):
+    shutil.rmtree(MODEL_PATH)
+os.mkdir(MODEL_PATH)
+
+ZIP_PATH = "unpaired_us_prostate_cv-ckpt"
+ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_us_prostate_cv-ckpt.zip"
+
+zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
+get_file(os.path.abspath(zip_file), ORIGIN)
+with zipfile.ZipFile(zip_file, "r") as zf:
+    zf.extractall(path=MODEL_PATH)
+os.remove(zip_file)
+
+print(
+    "Pre-trained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
+)

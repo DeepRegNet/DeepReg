@@ -1,17 +1,13 @@
-# Paired lung CT image registration
+# Paired lung CT registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
-> [Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
 
 ## Author
 
-DeepReg Development Team (mailto the author: Shaheer Saeed: zcemsus@ucl.ac.uk)
-
-## Contact
-
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -21,7 +17,7 @@ subject. This is an intra subject registration. This type of intra subject regis
 is useful when there is a need to track certain features on a medical image such as
 tumor location when conducting invasive procedures.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -55,17 +51,30 @@ following order:
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be specified, look at comments in the script to chnage this)
 
+## Pre-trained Model
+
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/learn2reg_t2_paired_train_logs/.
+
 ## Data
 
 The dataset for this demo comes from
 [Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
 [1].
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: v. 0.1.6-alpha
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Hering, Alessa, Murphy,Keelin, and van Ginneken, Bram. (2020). Lean2Reg Challenge:
 CT Lung Registration : CT Lung Registration - Training Data

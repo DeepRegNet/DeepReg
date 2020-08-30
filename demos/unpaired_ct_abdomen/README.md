@@ -1,13 +1,13 @@
-# Unpaired abdominal CT image registration
+# Unpaired abdomen CT registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_abdomen)
+
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-e.bonmati@ucl.ac.uk)
+DeepReg Development Team (Ester Bonmati)
 
 ## Application
 
@@ -21,7 +21,7 @@ The data set is from the MICCAI Learn2Reg grand challenge
 (https://learn2reg.grand-challenge.org/) task 3 [1], and can be downloaded directly from
 https://learn2reg.grand-challenge.org/Datasets/.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 
@@ -82,12 +82,16 @@ deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abd
 - Finally, prediction results can be seen in the respective test folders specified in
   `deepreg_predict`.
 
-## Pre-trained Model
+## Pre-trained model
 
 Three pre-trained models are available for this demo, for different training strategies
-described above. These will be downloaded using the [demo_data.py].
+described above. These will be downloaded in respective sub-folders under the /dataset
+folder using the [demo_data.py](./demo_data.py). Run the user-trained model by specify
+`--ckpt_path` to where the ckpt files are save, in this case (specified by
+`deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
+/logs/unpaired_ct_abdomen_weakly/ or /logs/unpaired_ct_abdomen_comb/.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 
@@ -96,7 +100,7 @@ Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html).
 
-## References
+## Reference
 
 [1] Adrian Dalca, Yipeng Hu, Tom Vercauteren, Mattias Heinrich, Lasse Hansen, Marc
 Modat, Bob de Vos, Yiming Xiao, Hassan Rivaz, Matthieu Chabanas, Ingerid Reinertsen,

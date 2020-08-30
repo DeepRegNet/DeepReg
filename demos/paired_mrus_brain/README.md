@@ -1,7 +1,9 @@
-# Paired MR and US brain image registration
+# Paired brain MR-ultrasound registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
 
 ## Author
 
@@ -16,7 +18,7 @@ of 22 subjects with low-grade brain gliomas who underwent brain tumour resection
 The main application for this type of registration is to better delineate brain tumour
 boundaries during surgery and correct tissue shift induced by the craniotomy.
 
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -49,13 +51,21 @@ following order:
   in test accuracy so please train with the full dataset and for a greater number of
   epochs for improved results.
 
+## Pre-trained Model
+
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/learn2reg_t1_paired_train_logs/.
+
 ## Data
 
 The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:
 
 https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
@@ -64,7 +74,7 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
 [guidelines](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/contributing/issue.html).
 
-## References
+## Reference
 
 [1] Y. Xiao, M. Fortin, G. Unsgård , H. Rivaz, and I. Reinertsen, "REtroSpective
 Evaluation of Cerebral Tumors (RESECT): a clinical database of pre-operative MRI and

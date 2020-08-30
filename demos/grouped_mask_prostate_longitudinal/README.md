@@ -1,7 +1,9 @@
-# Pairwise Registration for Grouped Prostate Images
+# Pairwise registration for grouped prostate segmentation masks
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mask_prostate_longitudinal)
 
 This demo uses DeepReg to demonstrate a number of features:
 
@@ -12,16 +14,14 @@ This demo uses DeepReg to demonstrate a number of features:
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
-Logitudinal registration detects the temporal changes and normalises the spatial
-difference between images aquired at different time-points. For prostate cancer patients
-under active surveillance programmes, quantifying these changes is useful for detecting
-and monitoring potential cancerous regions.
+Longitudinal registration detects the temporal changes and normalises the spatial
+difference between images acquired at different time-points. For prostate cancer
+patients under active surveillance programmes, quantifying these changes is useful for
+detecting and monitoring potential cancerous regions.
 
 ## Data
 
@@ -59,7 +59,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/g
 deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
 ```
 
-## Pre-trained Model
+## Pre-trained model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
@@ -67,7 +67,7 @@ default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_pa
 where the ckpt files are saved, in this case (specified by `deepreg_train` as above),
 /logs/grouped_mask_prostate_longitudinal/.
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
 Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 

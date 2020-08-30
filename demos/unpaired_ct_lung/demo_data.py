@@ -267,4 +267,4 @@ get_file(os.path.join(os.getcwd(), fname), url)
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(".")
 
-print("Pretrained model dwonloaded")
+print("Pretrained model downloaded")

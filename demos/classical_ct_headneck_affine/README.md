@@ -1,7 +1,9 @@
-# Classical Affine Registration for Head-and-Neck CT Images
+# Classical affine registration for head-and-neck CT images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headneck_affine)
 
 This is a special demo that uses the DeepReg package for classical affine image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
@@ -9,9 +11,7 @@ to minimise the image dissimilarity function of a given pair of moving anf fixed
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
@@ -24,7 +24,7 @@ intra-/post-treatment.
 
 https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
 
-## Instructions
+## Instruction
 
 - Change current directory to the root directory of DeepReg project;
 - Run `demo_data.py` script to download an example CT volumes with two labels;
@@ -44,11 +44,16 @@ python demos/classical_ct_headneck_affine/demo_data.py
 python demos/classical_ct_headneck_affine/demo_register.py
 ```
 
-## Tested DeepReg Version
+## Tested DeepReg version
 
-v0.1.4
+0.1.0
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](../contributing/issue.html).
+
+## Reference
 
 [1] Vallières, M. et al. Radiomics strategies for risk assessment of tumour failure in
 head-and-neck cancer. Sci Rep 7, 10117 (2017). doi: 10.1038/s41598-017-10371-5

@@ -1,13 +1,13 @@
-# Unpaired lung CT image registration
+# Unpaired lung CT registration
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_ct_lung)
+
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -19,13 +19,7 @@ patients, registering the images from different patients can give medical profes
 a sense of how each patient is responding in comparison to others. An example of such an
 application can be seen in [2].
 
-## Data
-
-The dataset for this demo comes from [1] and can be downloaded from:
-
-https://zenodo.org/record/3835682#.XsUWXsBpFhE
-
-## Instructions
+## Instruction
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
@@ -59,7 +53,21 @@ following order:
   - Use the predicitons to plot the results (the path to the images generated in the
     logs will need to be sepcified, look at comments in the script to chnage this)
 
-## Tested DeepReg Version
+## Pre-trained Model
+
+A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
+unzipped at dataset folder under the demo folder. This pre-trained model will be used by
+default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
+where the ckpt files are save, in this case (specified by `deepreg_train` as above),
+/logs/learn2reg_t2_unpaired_train_logs/.
+
+## Data
+
+The dataset for this demo comes from [1] and can be downloaded from:
+
+https://zenodo.org/record/3835682#.XsUWXsBpFhE
+
+## Tested DeepReg version
 
 Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
@@ -67,7 +75,12 @@ Note: This demo was tested using one Nvidia Tesla V100 GPU with a memory of 32GB
 ensure that enough memory is available to run the demo otherwise memory allocation
 errors might arise.
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Hering A, Murphy K, and van Ginneken B. (2020). Lean2Reg Challenge: CT Lung
 Registration - Training Data [Data set]. Zenodo. http://doi.org/10.5281/zenodo.3835682
