@@ -45,7 +45,7 @@ following order:
 - Run the demo_train.py script: This script does the following:
   - Specify the training options like gpu support
   - Specify the config file paths
-  - Train a network using deepreg
+  - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the trained network to make predictions for the test set
   - Use the predicitons to plot the results (the path to the images generated in the
