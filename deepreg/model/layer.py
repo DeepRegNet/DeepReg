@@ -4,8 +4,10 @@ import deepreg.model.layer_util as layer_util
 
 
 class Activation(tf.keras.layers.Layer):
-    def __init__(self, identifier="relu", **kwargs):
+    def __init__(self, identifier: str = "relu", **kwargs):
         """
+        Layer wraps tf.keras.activations.get().
+
         :param identifier: e.g. "relu"
         :param kwargs:
         """
@@ -17,7 +19,14 @@ class Activation(tf.keras.layers.Layer):
 
 
 class Norm(tf.keras.layers.Layer):
-    def __init__(self, name="batch_norm", axis=-1, **kwargs):
+    def __init__(self, name: str = "batch_norm", axis: int = -1, **kwargs):
+        """
+        Class merges batch norm and layer norm.
+
+        :param name: str, batch_norm or layer_norm
+        :param axis: int
+        :param kwargs:
+        """
         super(Norm, self).__init__(**kwargs)
         if name == "batch_norm":
             self._norm = tf.keras.layers.BatchNormalization(axis=axis, **kwargs)
@@ -31,7 +40,21 @@ class Norm(tf.keras.layers.Layer):
 
 
 class MaxPool3d(tf.keras.layers.Layer):
-    def __init__(self, pool_size, strides=None, padding="same", **kwargs):
+    def __init__(
+        self,
+        pool_size: (int, tuple),
+        strides=(int, tuple, None),
+        padding: str = "same",
+        **kwargs,
+    ):
+        """
+        Layer wraps tf.keras.layers.MaxPool3D
+
+        :param pool_size: int or tuple of 3 ints
+        :param strides: int or tuple of 3 ints or None, if None default will be pool_size
+        :param padding: str, same or valid
+        :param kwargs:
+        """
         super(MaxPool3d, self).__init__(**kwargs)
         self._max_pool = tf.keras.layers.MaxPool3D(
             pool_size=pool_size, strides=strides, padding=padding
@@ -44,23 +67,25 @@ class MaxPool3d(tf.keras.layers.Layer):
 class Conv3d(tf.keras.layers.Layer):
     def __init__(
         self,
-        filters,
-        kernel_size=3,
-        strides=1,
-        padding="same",
-        activation=None,
-        use_bias=True,
-        kernel_initializer="glorot_uniform",
+        filters: int,
+        kernel_size: int = 3,
+        strides: int = 1,
+        padding: str = "same",
+        activation: (str, None) = None,
+        use_bias: bool = True,
+        kernel_initializer: str = "glorot_uniform",
         **kwargs,
     ):
         """
+        Layer wraps tf.keras.layers.Conv3D.
+
         :param filters: number of channels of the output
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param strides: e.g. (1,1,1) or 1
-        :param padding: "valid" or "same"
-        :param activation:
-        :param use_bias:
-        :param kernel_initializer:
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param padding: str, same or valid
+        :param activation: str, defines the activation function
+        :param use_bias: bool, whether add bias to output
+        :param kernel_initializer: str, defines the initialization method, defines the initialization method
         """
         super(Conv3d, self).__init__(**kwargs)
         self._conv3d = tf.keras.layers.Conv3D(
@@ -80,20 +105,23 @@ class Conv3d(tf.keras.layers.Layer):
 class Deconv3d(tf.keras.layers.Layer):
     def __init__(
         self,
-        filters,
-        output_shape=None,
-        kernel_size=3,
-        strides=1,
-        padding="same",
-        use_bias=True,
+        filters: int,
+        output_shape: (tuple, None) = None,
+        kernel_size: int = 3,
+        strides: int = 1,
+        padding: str = "same",
+        use_bias: bool = True,
         **kwargs,
     ):
         """
+        Layer wraps tf.keras.layers.Conv3DTranspose
+        and does not requires input shape when initializing.
+
         :param filters: number of channels of the output
         :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param strides: e.g. (1,1,1) or 1
-        :param padding:  one of `"valid"` or `"same"` (case-insensitive).
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param padding: str, same or valid
         :param kwargs:
         """
         super(Deconv3d, self).__init__(**kwargs)
@@ -150,12 +178,21 @@ class Deconv3d(tf.keras.layers.Layer):
 
 
 class Conv3dBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, kernel_size=3, strides=1, padding="same", **kwargs):
+    def __init__(
+        self,
+        filters: int,
+        kernel_size: (int, tuple) = 3,
+        strides: (int, tuple) = 1,
+        padding: str = "same",
+        **kwargs,
+    ):
         """
+        A conv3d block having conv3d - norm - activation.
+
         :param filters: number of channels of the output
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param strides: e.g. (1,1,1) or 1
-        :param padding:  one of `"valid"` or `"same"` (case-insensitive).
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param padding: str, same or valid
         """
         super(Conv3dBlock, self).__init__(**kwargs)
         # init layer variables
@@ -172,9 +209,9 @@ class Conv3dBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training (bool): training flag for normalization layers (default: None)
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
-        :return output: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
+        :return: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
         """
         output = self._conv3d(inputs=inputs)
         output = self._norm(inputs=output, training=training)
@@ -185,19 +222,21 @@ class Conv3dBlock(tf.keras.layers.Layer):
 class Deconv3dBlock(tf.keras.layers.Layer):
     def __init__(
         self,
-        filters,
-        output_shape=None,
-        kernel_size=3,
-        strides=1,
-        padding="same",
+        filters: int,
+        output_shape: (tuple, None) = None,
+        kernel_size: (int, tuple) = 3,
+        strides: (int, tuple) = 1,
+        padding: str = "same",
         **kwargs,
     ):
         """
+        A deconv3d block having deconv3d - norm - activation.
+
         :param filters: number of channels of the output
         :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param strides: e.g. (1,1,1) or 1
-        :param padding:  one of `"valid"` or `"same"` (case-insensitive).
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param padding: str, same or valid
         :param kwargs:
         """
         super(Deconv3dBlock, self).__init__(**kwargs)
@@ -216,7 +255,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training (bool): training flag for normalization layers (default: None)
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
         :return output: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
         """
@@ -227,11 +266,22 @@ class Deconv3dBlock(tf.keras.layers.Layer):
 
 
 class Residual3dBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
+    def __init__(
+        self,
+        filters: int,
+        kernel_size: (int, tuple) = 3,
+        strides: (int, tuple) = 1,
+        **kwargs,
+    ):
         """
-        :param filters (int): number of filters in the convolutional layers
-        :param kernel_size (int or 3-tuple): kernel size in the convolutional layers (default: 3)
-        :param strides: e.g. (1,1,1) or 1
+        A resnet conv3d block.
+
+        1. conved = conv3d(conv3d_block(inputs))
+        2. out = act(norm(conved) + inputs)
+
+        :param filters: int, number of filters in the convolutional layers
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param kwargs:
         """
         super(Residual3dBlock, self).__init__(**kwargs)
@@ -248,7 +298,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training (bool): training flag for normalization layers (default: None)
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
         :return output: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
         """
@@ -264,9 +314,15 @@ class Residual3dBlock(tf.keras.layers.Layer):
 class DownSampleResnetBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, pooling=True, **kwargs):
         """
+        A down-sampling resnet conv3d block, with max-pooling or conv3d.
+
+        1. conved = conv3d_block(inputs)  # adjust channel
+        2. skip = residual_block(conved)  # develop feature
+        3. pooled = pool(skip) # down-sample
+
         :param filters: number of channels of the output
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param padding:  one of `"valid"` or `"same"` (case-insensitive).
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param padding: str, same or valid
         """
         super(DownSampleResnetBlock, self).__init__(**kwargs)
         # save parameters
@@ -286,10 +342,12 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training (bool): training flag for normalization layers (default: None)
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
-        :return: list [pooled, skip]: output_shape = [(batch, in_dim1//2, in_dim2//2, in_dim3//2, channels),
-                                                      (batch, in_dim1, in_dim2, in_dim3, channels)]
+        :return: (pooled, skip)
+
+          - downsampled, shape = (batch, in_dim1//2, in_dim2//2, in_dim3//2, channels)
+          - skipped, shape = (batch, in_dim1, in_dim2, in_dim3, channels)
         """
         conved = self._conv3d_block(inputs=inputs, training=training)  # adjust channel
         skip = self._residual_block(inputs=conved, training=training)  # develop feature
@@ -304,9 +362,11 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
 class UpSampleResnetBlock(tf.keras.layers.Layer):
     def __init__(self, filters, kernel_size=3, concat=False, **kwargs):
         """
+        An up-sampling resnet conv3d block, with deconv3d.
+
         :param filters: number of channels of the output
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param concat: (bool): specify how to combine input and skip connection images. If True, use concatenation
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param concat: bool,specify how to combine input and skip connection images. If True, use concatenation
                                if false use sum (default=False).
         :param kwargs:
         """
@@ -321,8 +381,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         """
-        :param input_shape (list): [downsampled_image_shape, skip_connection image_shape]
-        :return:
+        :param input_shape: tuple, (downsampled_image_shape, skip_connection image_shape)
         """
         super(UpSampleResnetBlock, self).build(input_shape)
         skip_shape = input_shape[1][1:4]
@@ -332,10 +391,14 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
     def call(self, inputs, training=None, **kwargs):
         """
-        :param inputs (list): shape = [downsampled_image_shape, skip_connection_image_shape]
-        :param training (bool): training flag for normalization layers (default: None)
+        :param inputs: tuple
+
+          - down-sampled
+          - skipped
+
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
-        :return: output: shape = (batch, *skip_connection_image_shape, filters]
+        :return: shape = (batch, *skip_connection_image_shape, filters]
         """
         up_sampled, skip = inputs[0], inputs[1]
         up_sampled = self._deconv3d_block(
@@ -354,16 +417,19 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 class Conv3dWithResize(tf.keras.layers.Layer):
     def __init__(
         self,
-        output_shape,
-        filters,
-        kernel_initializer="glorot_uniform",
-        activation=None,
+        output_shape: tuple,
+        filters: int,
+        kernel_initializer: str = "glorot_uniform",
+        activation: (str, None) = None,
         **kwargs,
     ):
         """
-        perform a conv and resize
-        :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param filters: number of channels of the output
+        A layer contains conv3d - resize3d.
+
+        :param output_shape: tuple, (out_dim1, out_dim2, out_dim3)
+        :param filters: int, number of channels of the output
+        :param kernel_initializer: str, defines the initialization method
+        :param activation: str, defines the activation function
         :param kwargs:
         """
         super(Conv3dWithResize, self).__init__(**kwargs)
@@ -389,8 +455,17 @@ class Conv3dWithResize(tf.keras.layers.Layer):
 
 
 class Warping(tf.keras.layers.Layer):
-    def __init__(self, fixed_image_size, **kwargs):
+    def __init__(self, fixed_image_size: tuple, **kwargs):
         """
+        A layer warps an image using DDF.
+
+        Reference:
+
+        - transform of neuron
+          https://github.com/adalca/neuron/blob/master/neuron/utils.py
+
+          where vol = image, loc_shift = ddf
+
         :param fixed_image_size: shape = (f_dim1, f_dim2, f_dim3)
                                  or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
         :param kwargs:
@@ -402,16 +477,10 @@ class Warping(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         """
-        wrap an image into a fixed size using ddf
-        same functionality as transform of neuron
-        https://github.com/adalca/neuron/blob/master/neuron/utils.py
-        vol = image
-        loc_shift = ddf
-        :param inputs: [ddf, image]
-                        ddf.shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-                        image.shape = (batch, m_dim1, m_dim2, m_dim3)
-                        ddf.type = float32
-                        image.type = float32
+        :param inputs: (ddf, image)
+
+          - ddf, shape = (batch, f_dim1, f_dim2, f_dim3, 3), dtype = float32
+          - image, shape = (batch, m_dim1, m_dim2, m_dim3), dtype = float32
         :param kwargs:
         :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         """
@@ -421,10 +490,17 @@ class Warping(tf.keras.layers.Layer):
 
 
 class IntDVF(tf.keras.layers.Layer):
-    def __init__(self, fixed_image_size, num_steps=7, **kwargs):
+    def __init__(self, fixed_image_size: tuple, num_steps: int = 7, **kwargs):
         """
-        :param fixed_image_size: shape = (f_dim1, f_dim2, f_dim3)
-        :param num_steps: number of steps for integration
+        Layer calculates DVF from DDF.
+
+        Reference:
+
+        - integrate_vec of neuron
+          https://github.com/adalca/neuron/blob/master/neuron/utils.py
+
+        :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
+        :param num_steps: int, number of steps for integration
         :param kwargs:
         """
         super(IntDVF, self).__init__(**kwargs)
@@ -433,9 +509,6 @@ class IntDVF(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         """
-        given a dvf, calculate ddf
-        same as integrate_vec of neuron
-        https://github.com/adalca/neuron/blob/master/neuron/utils.py
         :param inputs: dvf, shape = (batch, f_dim1, f_dim2, f_dim3, 3), type = float32
         :param kwargs:
         :return: ddf, shape = (batch, f_dim1, f_dim2, f_dim3, 3)
@@ -447,8 +520,10 @@ class IntDVF(tf.keras.layers.Layer):
 
 
 class Dense(tf.keras.layers.Layer):
-    def __init__(self, units, bias_initializer="zeros", **kwargs):
+    def __init__(self, units: int, bias_initializer: str = "zeros", **kwargs):
         """
+        Layer wraps tf.keras.layers.Dense and flattens input if necessary.
+
         :param units: number of hidden units
         :param bias_initializer: str, default "zeros"
         :param kwargs:
@@ -465,23 +540,19 @@ class Dense(tf.keras.layers.Layer):
         """
         :param inputs: shape = (batch, *vol_dim, channels)
         :param kwargs: (not used)
-        :return: output: shape = (batch, units)
+        :return: shape = (batch, units)
         """
         flatten_inputs = self._flatten(inputs)
         return self._dense(flatten_inputs)
 
 
-"""
-local net
-"""
-
-
 class AdditiveUpSampling(tf.keras.layers.Layer):
     def __init__(self, output_shape, stride=2, **kwargs):
         """
+        Layer up-samples 3d tensor and reduce channels using split and sum.
+
         :param output_shape: (out_dim1, out_dim2, out_dim3)
         :param strides: int, 1-D Tensor or list
-
         :param kwargs:
         """
         super(AdditiveUpSampling, self).__init__(**kwargs)
@@ -493,7 +564,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         """
         :param inputs: shape = (batch, dim1, dim2, dim3, channels)
         :param kwargs:
-        :return: output: shape = (batch, out_dim1, out_dim2, out_dim3, channels//stride]
+        :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels//stride]
         """
         if inputs.shape[4] % self._stride != 0:
             raise ValueError("The channel dimension can not be divided by the stride")
@@ -508,11 +579,22 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
 
 
 class LocalNetResidual3dBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, kernel_size=3, strides=1, **kwargs):
+    def __init__(
+        self,
+        filters: int,
+        kernel_size: (int, tuple) = 3,
+        strides: (int, tuple) = 1,
+        **kwargs,
+    ):
         """
+        A resnet conv3d block, simpler than Residual3dBlock.
+
+        1. conved = conv3d(inputs)
+        2. out = act(norm(conved) + inputs)
+
         :param filters: number of channels of the output
-        :param kernel_size: e.g. (3,3,3) or 3
-        :param strides: e.g. (1,1,1) or 1
+        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
+        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param kwargs:
         """
         super(LocalNetResidual3dBlock, self).__init__(**kwargs)
@@ -531,10 +613,12 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
 
 
 class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, use_additive_upsampling=True, **kwargs):
+    def __init__(self, filters: int, use_additive_upsampling: bool = True, **kwargs):
         """
-        :param filters:
-        :param use_additive_upsampling: bool to used additive upsampling (True)
+        Layer up-samples tensor with two inputs (skipped and down-sampled).
+
+        :param filters: int, number of output channels
+        :param use_additive_upsampling: bool to used additive upsampling (default is True)
         :param kwargs:
         """
         super(LocalNetUpSampleResnetBlock, self).__init__(**kwargs)
@@ -549,8 +633,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         """
-        :param input_shape: list [nonskip_tensor_shape, skip_tensor_shape]
-        :return: None
+        :param input_shape: tuple (nonskip_tensor_shape, skip_tensor_shape)
         """
         super(LocalNetUpSampleResnetBlock, self).build(input_shape)
 
@@ -564,7 +647,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
     def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: list = [inputs_nonskip, inputs_skip]
-        :param training (bool): training flag for normalization layers (default: None)
+        :param training: training flag for normalization layers (default: None)
         :param kwargs:
         :return:
         """

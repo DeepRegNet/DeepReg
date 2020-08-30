@@ -44,6 +44,7 @@
     api/loss
     api/network
     api/backbone
+    api/layer
 
 .. toctree::
     :hidden:
