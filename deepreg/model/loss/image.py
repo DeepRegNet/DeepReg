@@ -10,6 +10,7 @@ def dissimilarity_fn(
     y_true: tf.Tensor, y_pred: tf.Tensor, name: str, **kwargs
 ) -> tf.Tensor:
     """
+    Returns the calculated dissimilarity for each batch.
 
     :param y_true: fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
     :param y_pred: warped_moving_image, shape = (batch, f_dim1, f_dim2, f_dim3)
@@ -35,15 +36,15 @@ def local_normalized_cross_correlation(
     y_true: tf.Tensor, y_pred: tf.Tensor, kernel_size: int = 9, **kwargs
 ) -> tf.Tensor:
     """
-    local squared zero-normalized cross-correlation
-    Reference Zero-normalized cross-correlation (ZNCC) in
-    https://en.wikipedia.org/wiki/Cross-correlation
-    Code reference
-    https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
+    Local squared zero-normalized cross-correlation.
+    The loss is based on a moving kernel/window over the y_true/y_pred,
+    within the window the square of zncc is calculated.
+    The final loss is the averaged loss over all windows.
 
-    moving a kernel/window on the y_true/y_pred
-    then calculate the square of zncc in the window of y_true/y_pred
-    average over all windows in the end
+    Reference:
+
+    - Zero-normalized cross-correlation (ZNCC): https://en.wikipedia.org/wiki/Cross-correlation
+    - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
@@ -97,7 +98,7 @@ def local_normalized_cross_correlation(
 
 def ssd(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     """
-    sum of squared distance between y_true and y_pred
+    Sum of squared distance between y_true and y_pred.
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
@@ -110,8 +111,9 @@ def global_mutual_information(
     y_true: tf.Tensor, y_pred: tf.Tensor, num_bins: int = 23, sigma_ratio: float = 0.5
 ) -> tf.Tensor:
     """
-    differentiable global mutual information loss via Parzen windowing method.
-    reference: https://dspace.mit.edu/handle/1721.1/123142, Section 3.1, equation 3.1-3.5, Algorithm 1
+    Differentiable global mutual information loss via Parzen windowing method.
+
+    Reference: https://dspace.mit.edu/handle/1721.1/123142, Section 3.1, equation 3.1-3.5, Algorithm 1
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
