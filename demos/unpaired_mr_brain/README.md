@@ -55,7 +55,7 @@ following order:
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
 `--ckpt_path` the location where the ckpt files will be saved, in this case (specified
 by `deepreg_train` as above), /logs/learn2reg_t4_unpaired_train_logs/.
 
