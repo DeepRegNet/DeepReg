@@ -13,8 +13,9 @@ DeepReg Development Team
 
 ## Application
 
-Transrectal ultrasound (TRUS) images are acquired from prostate cancer patients.
-Registering
+Transrectal ultrasound (TRUS) images are acquired from prostate cancer patients during
+image-guided procedures. Pairwise registration between these 3D images may be useful for
+intraoperative motion modelling and group-wise registration for population studies.
 
 ## Data
 
