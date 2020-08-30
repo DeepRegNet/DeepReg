@@ -43,7 +43,7 @@ following order:
   - Create and apply a binary mask to mask-out the padded values in images.
   - Transform label volumes using one-hot encoding (only for foreground classes)
 - Run the demo_train.py script: This script does the following:
-  - Specify the training options like gpu support
+  - Specify the training options like GPU support
   - Specify the config file paths
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:

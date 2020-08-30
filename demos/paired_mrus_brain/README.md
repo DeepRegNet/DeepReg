@@ -37,7 +37,7 @@ following order:
     relevant sections in the script (please read the scripts' comments to see how to
     download the full dataset)
 - Run the demo_train.py script: This script does the following:
-  - Specify the training options like gpu support
+  - Specify the training options like GPU support
   - Specify the config file paths (to define both the network config available in
     DeepReg and the data config given in the demo folder)
   - Train a network using DeepReg

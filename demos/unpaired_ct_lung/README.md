@@ -44,7 +44,7 @@ following order:
   - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Download a pretrained model for use with the predict script
 - Run the demo_train.py script: This script does the following:
-  - Specify the training options like gpu support
+  - Specify the training options like GPU support
   - Specify the config file paths (the config file to define the network is one which is
     avialable with DeepReg and the config file for the data is given in the demo folder)
   - Train a network using DeepReg

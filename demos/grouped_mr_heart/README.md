@@ -16,7 +16,7 @@ DeepReg Development Team
 
 Computer-assisted management for patients suffering from myocardial infraction (MI)
 often requires quantifying the difference and comprising the multiple sequences, such as
-he late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. The
+the late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. They
 collectively provide radiological information otherwise unavailable during clinical
 practice.
 
