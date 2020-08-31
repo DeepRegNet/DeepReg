@@ -66,17 +66,17 @@ def test_init_GlobalNet():
 
     # Assert downsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.DownSampleResnetBlock(12)))
+        isinstance(item, layer.DownSampleResnetBlock)
         for item in global_test._downsample_blocks
     )
     # Assert number of downsample blocks is correct (== max level), Pass
     assert len(global_test._downsample_blocks) == 3
 
-    # Assert conv3dBlock type is correct, Pass
-    assert isinstance(global_test._conv3d_block, type(layer.Conv3dBlock(12)))
+    #  Assert conv3dBlock type is correct, Pass
+    assert isinstance(global_test._conv3d_block, layer.Conv3dBlock)
 
-    # Asserting type is dense_layer, Pass
-    assert isinstance(global_test._dense_layer, type(layer.Dense(12)))
+    #  Asserting type is dense_layer, Pass
+    assert isinstance(global_test._dense_layer, layer.Dense)
 
 
 def test_call_GlobalNet():
@@ -128,7 +128,7 @@ def test_init_LocalNet():
 
     # Assert downsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.DownSampleResnetBlock(12)))
+        isinstance(item, layer.DownSampleResnetBlock)
         for item in local_test._downsample_blocks
     )
     # Assert number of downsample blocks is correct (== max level), Pass
@@ -136,7 +136,7 @@ def test_init_LocalNet():
 
     # Assert upsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.LocalNetUpSampleResnetBlock(12)))
+        isinstance(item, layer.LocalNetUpSampleResnetBlock)
         for item in local_test._upsample_blocks
     )
     # Assert number of upsample blocks is correct (== max level - min level), Pass
@@ -144,8 +144,7 @@ def test_init_LocalNet():
 
     # Assert upsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.Conv3dWithResize(12, filters=3)))
-        for item in local_test._extract_layers
+        isinstance(item, layer.Conv3dWithResize) for item in local_test._extract_layers
     )
     # Assert number of upsample blocks is correct (== extract_levels), Pass
     assert len(local_test._extract_layers) == 3
@@ -199,29 +198,27 @@ def test_init_UNet():
 
     # Assert downsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.DownSampleResnetBlock(12)))
+        isinstance(item, layer.DownSampleResnetBlock)
         for item in local_test._downsample_blocks
     )
     # Assert number of downsample blocks is correct (== depth), Pass
     assert len(local_test._downsample_blocks) == 5
 
-    # Assert bottom_conv3d type is correct, Pass
-    assert isinstance(local_test._bottom_conv3d, type(layer.Conv3dBlock(5)))
+    #  Assert bottom_conv3d type is correct, Pass
+    assert isinstance(local_test._bottom_conv3d, layer.Conv3dBlock)
 
     # Assert bottom res3d type is correct, Pass
-    assert isinstance(local_test._bottom_res3d, type(layer.Residual3dBlock(5)))
+    assert isinstance(local_test._bottom_res3d, layer.Residual3dBlock)
     # Assert upsample blocks type is correct, Pass
     assert all(
-        isinstance(item, type(layer.UpSampleResnetBlock(12)))
+        isinstance(item, layer.UpSampleResnetBlock)
         for item in local_test._upsample_blocks
     )
     # Assert number of upsample blocks is correct (== depth), Pass
     assert len(local_test._upsample_blocks) == 5
 
     # Assert output_conv3d is correct type, Pass
-    assert isinstance(
-        local_test._output_conv3d, type(layer.Conv3dWithResize([1, 2, 3], 3))
-    )
+    assert isinstance(local_test._output_conv3d, layer.Conv3dWithResize)
 
 
 def test_call_UNet():
