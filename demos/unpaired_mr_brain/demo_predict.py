@@ -27,7 +27,7 @@ predict(
 
 ######## VISUALISATION ########
 
-# Now lets load in a few samples from the predicitons and plot them
+# Now lets load in a few samples from the predictions and plot them
 main_path = os.getcwd()
 os.chdir(main_path)
 

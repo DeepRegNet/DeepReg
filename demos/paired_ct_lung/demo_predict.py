@@ -32,7 +32,7 @@ predict(
 
 ######## VISUALISATION ########
 
-# Now lets load in a few samples from the predicitons and plot them
+# Now lets load in a few samples from the predictions and plot them
 
 # change the following line to the path to image0 label0
 

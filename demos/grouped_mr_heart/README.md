@@ -16,7 +16,7 @@ DeepReg Development Team
 
 Computer-assisted management for patients suffering from myocardial infraction (MI)
 often requires quantifying the difference and comprising the multiple sequences, such as
-he late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. The
+the late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. They
 collectively provide radiological information otherwise unavailable during clinical
 practice.
 
@@ -45,7 +45,7 @@ deepreg_train --gpu "0" --config_path demos/grouped_mr_heart/grouped_mr_heart.ya
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
   data partitions specified in the config file, a copy of which will be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saves at the created timestamp-named directories under /logs.
+  the results will be saved at the created timestamp-named directories under /logs.
 
 ```bash
 deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
@@ -55,9 +55,9 @@ deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.y
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/grouped_mr_heart/.
+default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/grouped_mr_heart/.
 
 ## Data
 
