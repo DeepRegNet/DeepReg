@@ -1,4 +1,4 @@
-# Setting up
+# Set Up
 
 To edit the source code of DeepReg, besides the
 [package installation](../getting_started/install.html), we recommend installing
