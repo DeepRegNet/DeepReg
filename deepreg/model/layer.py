@@ -312,7 +312,13 @@ class Residual3dBlock(tf.keras.layers.Layer):
 
 
 class DownSampleResnetBlock(tf.keras.layers.Layer):
-    def __init__(self, filters, kernel_size=3, pooling=True, **kwargs):
+    def __init__(
+        self,
+        filters: int,
+        kernel_size: (int, tuple) = 3,
+        pooling: bool = True,
+        **kwargs,
+    ):
         """
         A down-sampling resnet conv3d block, with max-pooling or conv3d.
 
