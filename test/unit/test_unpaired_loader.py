@@ -1,7 +1,7 @@
 # coding=utf-8
 
 """
-Tests for deepreg/dataset/test_util.py in
+Tests for deepreg/dataset/util.py in
 pytest style
 """
 from os.path import join

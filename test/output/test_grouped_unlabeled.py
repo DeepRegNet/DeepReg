@@ -2,7 +2,7 @@
 Unit test for grouped unlabeled data
 """
 
-from deepreg.test_util import train_and_predict_with_config
+from test.output.util import train_and_predict_with_config
 
 
 def test_grouped_unlabeled():
