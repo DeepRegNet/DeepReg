@@ -26,7 +26,7 @@ def test_norm():
     """
 
     norm = layer.Norm()
-    assert isinstance(norm._norm, type(tf.keras.layers.BatchNormalization()))
+    assert isinstance(norm._norm, tf.keras.layers.BatchNormalization)
 
     with pytest.raises(ValueError):
         layer.Norm(name="none")
@@ -39,7 +39,7 @@ def test_maxpool3d():
     """
     pooling = layer.MaxPool3d(2)
 
-    assert isinstance(pooling._max_pool, type(tf.keras.layers.MaxPool3D()))
+    assert isinstance(pooling._max_pool, tf.keras.layers.MaxPool3D)
     assert pooling._max_pool.pool_function == tf.nn.max_pool3d
     assert pooling._max_pool.strides == (2, 2, 2)
     assert pooling._max_pool.padding == "same"
@@ -53,7 +53,7 @@ def test_conv3d():
 
     conv3d = layer.Conv3d(8)
 
-    assert isinstance(conv3d._conv3d, type(tf.keras.layers.Conv3D(8, 3)))
+    assert isinstance(conv3d._conv3d, tf.keras.layers.Conv3D)
     assert conv3d._conv3d.kernel_size == (3, 3, 3)
     assert conv3d._conv3d.strides == (1, 1, 1)
     assert conv3d._conv3d.padding == "same"
@@ -78,9 +78,7 @@ def test_deconv3d():
     deconv3d.build(input_tensor_shape)
 
     assert tuple(deconv3d._output_padding) == output_padding
-    assert isinstance(
-        deconv3d._Conv3DTranspose, type(tf.keras.layers.Conv3DTranspose(8, 3))
-    )
+    assert isinstance(deconv3d._Conv3DTranspose, tf.keras.layers.Conv3DTranspose)
     assert tuple(deconv3d._kernel_size) == (3, 3, 3)
     assert tuple(deconv3d._strides) == (2, 2, 2)
     assert deconv3d._padding == "same"
@@ -103,9 +101,7 @@ def test_conv3dBlock():
     assert conv3dBlock._conv3d._conv3d.use_bias is False
 
     assert isinstance(conv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(
-        conv3dBlock._norm._norm, type(tf.keras.layers.BatchNormalization())
-    )
+    assert isinstance(conv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_deconv3dBlock():
@@ -122,8 +118,7 @@ def test_deconv3dBlock():
     deconv3dBlock._deconv3d.build((8, 8))
 
     assert isinstance(
-        deconv3dBlock._deconv3d._Conv3DTranspose,
-        type(tf.keras.layers.Conv3DTranspose(8, 3)),
+        deconv3dBlock._deconv3d._Conv3DTranspose, tf.keras.layers.Conv3DTranspose
     )
     assert tuple(deconv3dBlock._deconv3d._kernel_size) == (3, 3, 3)
     assert tuple(deconv3dBlock._deconv3d._strides) == (1, 1, 1)
@@ -131,9 +126,7 @@ def test_deconv3dBlock():
     assert deconv3dBlock._deconv3d._Conv3DTranspose.use_bias is False
 
     assert isinstance(deconv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(
-        deconv3dBlock._norm._norm, type(tf.keras.layers.BatchNormalization())
-    )
+    assert isinstance(deconv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_residual3dBlock():
@@ -143,19 +136,17 @@ def test_residual3dBlock():
     """
     res3dBlock = layer.Residual3dBlock(8)
 
-    assert isinstance(res3dBlock._conv3d_block, type(layer.Conv3dBlock(8)))
+    assert isinstance(res3dBlock._conv3d_block, layer.Conv3dBlock)
     assert res3dBlock._conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
     assert res3dBlock._conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
 
-    assert isinstance(res3dBlock._conv3d, type(layer.Conv3d(8)))
+    assert isinstance(res3dBlock._conv3d, layer.Conv3d)
     assert res3dBlock._conv3d._conv3d.use_bias is False
     assert res3dBlock._conv3d._conv3d.kernel_size == (3, 3, 3)
     assert res3dBlock._conv3d._conv3d.strides == (1, 1, 1)
 
     assert isinstance(res3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(
-        res3dBlock._norm._norm, type(tf.keras.layers.BatchNormalization())
-    )
+    assert isinstance(res3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_downsampleResnetBlock():
@@ -167,14 +158,14 @@ def test_downsampleResnetBlock():
 
     assert model._pooling is True
 
-    assert isinstance(model._conv3d_block, type(layer.Conv3dBlock(8)))
-    assert isinstance(model._residual_block, type(layer.Residual3dBlock(8)))
-    assert isinstance(model._max_pool3d, type(layer.MaxPool3d(2)))
+    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
+    assert isinstance(model._residual_block, layer.Residual3dBlock)
+    assert isinstance(model._max_pool3d, layer.MaxPool3d)
     assert model._conv3d_block3 is None
 
     model = layer.DownSampleResnetBlock(8, pooling=False)
     assert model._max_pool3d is None
-    assert isinstance(model._conv3d_block3, type(layer.Conv3dBlock(8)))
+    assert isinstance(model._conv3d_block3, layer.Conv3dBlock)
 
 
 def test_upsampleResnetBlock():
@@ -195,9 +186,9 @@ def test_upsampleResnetBlock():
 
     assert model._filters == 8
     assert model._concat is False
-    assert isinstance(model._conv3d_block, type(layer.Conv3dBlock(8)))
-    assert isinstance(model._residual_block, type(layer.Residual3dBlock(8)))
-    assert isinstance(model._deconv3d_block, type(layer.Deconv3dBlock(8)))
+    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
+    assert isinstance(model._residual_block, layer.Residual3dBlock)
+    assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
 
 
 def test_init_conv3dWithResize():
@@ -216,13 +207,13 @@ def test_init_conv3dWithResize():
     model = layer.Conv3dWithResize(output_size, filters)
 
     assert model._output_shape == output_size
-    assert isinstance(model._conv3d, type(layer.Conv3d(filters)))
+    assert isinstance(model._conv3d, layer.Conv3d)
 
     # Pass an input of all zeros
     inputs = np.zeros(input_tensor_size)
-    #  Get outputs by calling
+    # Get outputs by calling
     output = model.call(inputs)
-    #  Expected shape is (5, 1, 2, 3, 3)
+    # Expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip(output_tensor_size, output.shape))
 
 
@@ -245,9 +236,9 @@ def test_warping():
         np.ones((batch_size, *fixed_image_size, ndims), dtype="float32"),
         np.ones((batch_size, *moving_image_size), dtype="float32"),
     ]
-    #  Get outputs by calling
+    # Get outputs by calling
     output = model.call(inputs)
-    #  Expected shape is (5, 1, 2, 3, 3)
+    # Expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip((batch_size,) + fixed_image_size, output.shape))
 
 
@@ -262,7 +253,7 @@ def test_initDVF():
 
     model = layer.IntDVF(fixed_image_size)
 
-    assert isinstance(model._warping, type(layer.Warping(fixed_image_size)))
+    assert isinstance(model._warping, layer.Warping)
     assert model._num_steps == 7
 
     inputs = np.ones((batch_size, *fixed_image_size, ndims))
@@ -280,8 +271,8 @@ def test_dense():
     """
     model = layer.Dense(8)
 
-    assert isinstance(model._flatten, type(tf.keras.layers.Flatten()))
-    assert isinstance(model._dense, type(tf.keras.layers.Dense(8)))
+    assert isinstance(model._flatten, tf.keras.layers.Flatten)
+    assert isinstance(model._dense, tf.keras.layers.Dense)
 
 
 def test_additiveUpSampling():
@@ -323,7 +314,7 @@ def test_localNetResidual3dBlock():
     # Test __init__()
     conv3dBlock = layer.LocalNetResidual3dBlock(8)
 
-    assert isinstance(conv3dBlock._conv3d, type(layer.Conv3d(8)))
+    assert isinstance(conv3dBlock._conv3d, layer.Conv3d)
 
     assert conv3dBlock._conv3d._conv3d.kernel_size == (3, 3, 3)
     assert conv3dBlock._conv3d._conv3d.strides == (1, 1, 1)
@@ -331,9 +322,7 @@ def test_localNetResidual3dBlock():
     assert conv3dBlock._conv3d._conv3d.use_bias is False
 
     assert isinstance(conv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(
-        conv3dBlock._norm._norm, type(tf.keras.layers.BatchNormalization())
-    )
+    assert isinstance(conv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_localNetUpSampleResnetBlock():
@@ -355,9 +344,7 @@ def test_localNetUpSampleResnetBlock():
     assert model._filters == 8
     assert model._use_additive_upsampling is True
 
-    assert isinstance(model._deconv3d_block, type(layer.Deconv3dBlock(8)))
-    assert isinstance(
-        model._additive_upsampling, type(layer.AdditiveUpSampling(output_size))
-    )
-    assert isinstance(model._conv3d_block, type(layer.Conv3dBlock(8)))
-    assert isinstance(model._residual_block, type(layer.LocalNetResidual3dBlock(8)))
+    assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
+    assert isinstance(model._additive_upsampling, layer.AdditiveUpSampling)
+    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
+    assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)

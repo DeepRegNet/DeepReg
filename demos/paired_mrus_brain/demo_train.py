@@ -1,6 +1,6 @@
 from deepreg.train import train
 
-######## NOW WE DO THE TRAINING ########
+######## TRAINING ########
 
 gpu = "0"
 gpu_allow_growth = False

@@ -32,7 +32,7 @@ predict(
 
 ######## VISUALISATION ########
 
-# Now lets load in a few samples from the predicitons and plot them
+# Now lets load in a few samples from the predictions and plot them
 
 # change the following line to the path to image0 label0
 
@@ -119,3 +119,4 @@ for ind in inds_to_plot:
 path_to_vis = r"logs/learn2reg_t2_unpaired_train_logs/visualisation.png"
 plt.savefig(path_to_vis)
 print("Visualisation saved to:", path_to_vis)
+print("All images generated are saved to:", os.path.join("logs", log_dir, "test"))

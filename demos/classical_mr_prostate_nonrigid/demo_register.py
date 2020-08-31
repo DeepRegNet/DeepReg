@@ -19,16 +19,14 @@ os.chdir(PROJECT_DIR)
 DATA_PATH = "dataset"
 FILE_PATH = os.path.join(DATA_PATH, "demo2.h5")
 
-
-## registration parameters
+# registration parameters
 image_loss_name = "lncc"
 deform_loss_name = "bending"
 weight_deform_loss = 1
 learning_rate = 0.1
 total_iter = int(3000)
 
-
-## load images
+# load images
 if not os.path.exists(DATA_PATH):
     raise ("Download the data using demo_data.py script")
 if not os.path.exists(FILE_PATH):
@@ -39,7 +37,7 @@ moving_image = tf.cast(tf.expand_dims(fid["image0"], axis=0), dtype=tf.float32)
 fixed_image = tf.cast(tf.expand_dims(fid["image1"], axis=0), dtype=tf.float32)
 
 
-## optimisation
+# optimisation
 @tf.function
 def train_step(warper, weights, optimizer, mov, fix):
     """
@@ -69,8 +67,8 @@ def train_step(warper, weights, optimizer, mov, fix):
 
 # ddf as trainable weights
 fixed_image_size = fixed_image.shape
-initialiser = tf.random_normal_initializer(mean=0, stddev=1e-3)
-var_ddf = tf.Variable(initialiser(fixed_image_size + [3]), name="ddf", trainable=True)
+initializer = tf.random_normal_initializer(mean=0, stddev=1e-3)
+var_ddf = tf.Variable(initializer(fixed_image_size + [3]), name="ddf", trainable=True)
 
 warping = layer.Warping(fixed_image_size=fixed_image_size[1:4])
 optimiser = tf.optimizers.Adam(learning_rate)
@@ -91,15 +89,13 @@ for step in range(total_iter):
         )
 
 
-## warp the moving image using the optimised ddf
+# warp the moving image using the optimised ddf
 warped_moving_image = warping(inputs=[var_ddf, moving_image])
 
-
-## warp the moving label using the optimised affine transformation
+# warp the moving label using the optimised affine transformation
 moving_label = tf.cast(tf.expand_dims(fid["label0"], axis=0), dtype=tf.float32)
 fixed_label = tf.cast(tf.expand_dims(fid["label1"], axis=0), dtype=tf.float32)
 warped_moving_label = warping(inputs=[var_ddf, moving_label])
-
 
 ## save output to files
 SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")

@@ -46,4 +46,4 @@ There are some recommendations regarding the docs.
   `.. mdinclude:: <makrdown file path>` to include the markdown source.
 
   Check the source code of
-  [paired lung CT image registration page](../demo/paired_ct_lung.html) as an example. `
+  [paired lung CT image registration page](../demo/paired_ct_lung.html) as an example.

@@ -1,6 +1,6 @@
 # Dataset Loader
 
-## Dataset Type
+## Dataset type
 
 DeepReg provides six dataset loaders to support the following three different types of
 datasets:
@@ -30,7 +30,7 @@ For all three above cases, the images can be either unlabeled or labeled. A labe
 represented by a boolean mask on the image, such as a segmentation of an anatomical
 structure or landmark.
 
-## Dataset Requirements
+## Dataset requirements
 
 To use the provided dataset loaders, other detailed images and labels requirements are
 described in individual dataset loader sections. General requirements are described as
@@ -42,7 +42,7 @@ follows.
     shape, and it will be resized to the required shape using linear interpolation.
 
   - Currently, DeepReg only supports images stored in Nifti files or H5 files. Check
-    [nifti_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
+    [Nifti_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
     and
     [h5_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
     for more details.
@@ -63,10 +63,10 @@ follows.
     `(dim1, dim2, dim3)` (single label) or `(dim1, dim2, dim3, num_labels)` (multiple
     labels).
 
-  - **All labels are assumed to have values bettwen [0, 1].** So DeepReg accepts binary
-    segmentation mask or soft labels with float values between [0,1]. This is to prevent
-    accidental use of non-one-hot encoding to represent multiple class labels. In case
-    of multi labels, please use one-hot encoding to transform them into multiple
+  - **All labels are assumed to have values between [0, 1].** So DeepReg accepts binary
+    segmentation masks or soft labels with float values between [0,1]. This is to
+    prevent accidental use of non-one-hot encoding to represent multiple class labels.
+    In case of multi labels, please use one-hot encoding to transform them into multiple
     channels such that each class has its own binary label.
 
   - When the images are paired, the moving and fixed images must have the same number of
@@ -76,7 +76,7 @@ follows.
     the channel of index `label_idx` is the same anatomical or pathological structure.
 
   - Currently, if the data are labeled, each data sample must have at least one label.
-    For missing labels, consider using all zeros as a work-around.
+    For missing labels, consider using all zeros as a workaround.
 
 .. \_paired-images:
 
@@ -135,7 +135,7 @@ dataset types and specific configurations for paired images:
 - Common configurations
   - `dir/train` gives the directory containing training data. Same for `dir/valid` and
     `dir/test`.
-  - `format` can only be nifti or h5 currently.
+  - `format` can only be Nifti or h5 currently.
   - `type` can be paired, unpaired or grouped, corresponding to the dataset type
     described above.
   - `labeled` is a boolean indicating if the data is labeled or not.
@@ -161,7 +161,7 @@ This is particularly useful when performing an
 
 ### File loader
 
-For paired data, the specific requirements for data stored in nifti and h5 files are
+For paired data, the specific requirements for data stored in Nifti and h5 files are
 described as follows.
 
 #### Nifti
@@ -204,7 +204,7 @@ further grouped in subdirectories as long as the data paths are consistent.
 
 #### H5
 
-F5 data are stored in files with suffix `.h5`. Hierarchical multi-level indexing is not
+H5 data are stored in files with suffix `.h5`. Hierarchical multi-level indexing is not
 used. Each file should contain multiple key-value pairs and values are 3D or 4D tensors.
 Each file is equivalent to a top folder in Nifti cases.
 
@@ -405,7 +405,7 @@ where all groups will be first shuffled and iterated.
 #### Mixed
 
 Optionally, it is possible to mix inter-group and intra-group sampling by specifying the
-intra-groupe image sampling probability `intra_group_prob`=[0,1]. The value 0 means
+intra-group image sampling probability `intra_group_prob`=[0,1]. The value 0 means
 entirely inter-group sampling and 1 means entirely intra-group sampling.
 
 Given 0<p<1, when generating intra-group pairs, there is (1-p)\*100% chance to sample
@@ -447,13 +447,13 @@ where
 - Grouped images configurations
   - `intra_group_prob`, a value between 0 and 1, 0 is for inter-group only and 1 is for
     intra-group only.
-  - `intra_group_option`,　 forward or backward or unconstrained, as described above.
+  - `intra_group_option`, forward or backward or unconstrained, as described above.
   - `sample_image_in_group`, true if sampling one image at a time per group, false if
     generating all possible pairs.
 
 ### File loader
 
-For grouped data, the specific requirements for data stored in nifti and h5 files are
+For grouped data, the specific requirements for data stored in Nifti and h5 files are
 described as follows.
 
 #### Nifti
@@ -489,7 +489,7 @@ as an example.
 
 #### H5
 
-F5 data are stored in files with suffix `.h5`. Hierarchical multi-level indexing is not
+H5 data are stored in files with suffix `.h5`. Hierarchical multi-level indexing is not
 used. Each file should contain multiple key-value pairs and values are 3D or 4D tensors.
 Each file is equivalent to a top folder in Nifti cases.
 

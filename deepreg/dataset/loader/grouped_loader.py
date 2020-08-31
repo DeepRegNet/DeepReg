@@ -1,6 +1,6 @@
 """
 Loads grouped data
-supports h5 and nifti formats
+supports h5 and Nifti formats
 supports labeled and unlabeled data
 Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
@@ -42,7 +42,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
           - images
           - labels
         :param labeled: bool, true if the data is labeled, false if unlabeled
-        :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/test_util.py for more details.
+        :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/util.py for more details.
         :param intra_group_prob: float between 0 and 1,
 
           - 0 means generating only inter-group samples,
@@ -263,7 +263,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 yield moving_index, fixed_index, image_indices
 
     def close(self):
-        """close file loaders"""
+        """Close file loaders"""
         self.loader_moving_image.close()
         if self.labeled is True:
             self.loader_moving_label.close()

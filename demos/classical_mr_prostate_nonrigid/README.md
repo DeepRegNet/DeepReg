@@ -1,29 +1,33 @@
-# Classical Non-rigid Registration for Prostate MR Images
+# Classical nonrigid registration for prostate MR images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-This is a special demo that uses the DeepReg package for claissical nonrigid image
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_mr_prostate_nonrigid)
+
+This is a special demo that uses the DeepReg package for classical nonrigid image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
-to minimise the image dissimilarity function of a given pair of moving anf fixed images,
+to minimise the image dissimilarity function of a given pair of moving and fixed images,
 often regularised by a deformation smoothness function.
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
 Registering inter-subject prostate MR images may be useful to align different glands in
 a common space for investigating the spatial distribution of cancer.
 
-## Instructions
+## Data
+
+https://promise12.grand-challenge.org/
+
+## Instruction
 
 - Change current directory to the root directory of DeepReg project;
 - Run `demo_data.py` script to download an example MR volumes with the prostate gland
-  segmenation;
+  segmentation;
 
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_data.py
@@ -38,15 +42,16 @@ python demos/classical_mr_prostate_nonrigid/demo_data.py
 python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
 
-## Data
+## Tested DeepReg version
 
-https://promise12.grand-challenge.org/
+0.1.0
 
-## Tested DeepReg Version
+## Contact
 
-v0.1.4
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
 
-## References
+## Reference
 
 [1] Litjens, G., Toth, R., van de Ven, W., Hoeks, C., Kerkstra, S., van Ginneken, B.,
 Vincent, G., Guillard, G., Birbeck, N., Zhang, J. and Strand, R., 2014. Evaluation of

@@ -22,6 +22,12 @@ Grouped Loader
 File Loader
 ===========
 
+Interface
+---------
+
+.. autoclass:: deepreg.dataset.loader.interface.FileLoader
+    :members:
+
 Nifti Loader
 ------------
 

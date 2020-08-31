@@ -19,20 +19,21 @@ def affine_forward(
     fixed_image_size: tuple,
 ):
     """
-    Perform the network forward pass
+    Perform the network forward pass.
+
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
-    :return: tuple(_affine, _ddf, _pred_fixed_image, _pred_fixed_label)
     :return: tuple(affine, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-    - affine is the affine transformation matrix predicted by the network (batch, 4, 3)
-    - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-    - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-    - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
-    - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
+
+      - affine is the affine transformation matrix predicted by the network (batch, 4, 3)
+      - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
+      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
     # expand dims
@@ -76,6 +77,8 @@ def build_affine_model(
     loss_config: dict,
 ):
     """
+    Build a model which outputs the parameters for affine transformation.
+
     :param moving_image_size: (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
     :param index_size: int, the number of indices for identifying a sample

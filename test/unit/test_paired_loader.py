@@ -38,7 +38,7 @@ def test_init():
             **common_args,
         )
 
-        # Check that file loaders are initialized correclty
+        # Check that file loaders are initialized correctly
         file_loader_method = file_loader(
             dir_paths=data_dir_path, name="moving_images", grouped=False
         )

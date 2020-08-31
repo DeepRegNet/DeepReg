@@ -1,13 +1,5 @@
 # coding=utf-8
 
-"""
-Module to build UNet class based on
-
-O. Ronneberger, P. Fischer, and T. Brox,
-“U-net: Convolutional networks for biomedical image segmentation,”,
-Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.
-https://arxiv.org/pdf/1505.04597.pdf
-"""
 
 import tensorflow as tf
 
@@ -16,33 +8,36 @@ from deepreg.model import layer
 
 class UNet(tf.keras.Model):
     """
-    Class that implements an adapted 3D UNet based on:
-    O. Ronneberger, P. Fischer, and T. Brox,
-    “U-net: Convolutional networks for biomedical image segmentation,”,
-    Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.
-    https://arxiv.org/pdf/1505.04597.pdft
+    Class that implements an adapted 3D UNet.
+
+    Reference:
+
+    - O. Ronneberger, P. Fischer, and T. Brox,
+      “U-net: Convolutional networks for biomedical image segmentation,”,
+      Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.
+      https://arxiv.org/pdf/1505.04597.pdft
     """
 
     def __init__(
         self,
-        image_size,
-        out_channels,
-        num_channel_initial,
-        depth,
-        out_kernel_initializer,
-        out_activation,
-        pooling=True,
-        concat_skip=False,
+        image_size: tuple,
+        out_channels: int,
+        num_channel_initial: int,
+        depth: int,
+        out_kernel_initializer: str,
+        out_activation: str,
+        pooling: bool = True,
+        concat_skip: bool = False,
         **kwargs,
     ):
         """
         Initialise UNet.
 
-        :param image_size: list, [f_dim1, f_dim2, f_dim3], dims of input image.
+        :param image_size: tuple, (dim1, dim2, dim3), dims of input image.
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
         :param depth: int, input is at level 0, bottom is at level depth
-        :param out_kernel_initializer: str, which kernel to use as initialiser
+        :param out_kernel_initializer: str, which kernel to use as initializer
         :param out_activation: str, activation at last layer
         :param pooling: Boolean, for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
@@ -77,6 +72,7 @@ class UNet(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         """
         Builds graph based on built layers.
+
         :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, in_channels]
         :param training:
         :param mask:

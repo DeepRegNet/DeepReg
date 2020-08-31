@@ -1,10 +1,7 @@
 Introduction to DeepReg Demos
 =============================
 
-DeepReg offers multiple built-in dataset loaders, supporting nifti and h5
-file format, and a variety of training strategies often encountered
-in real clinical scenarios, whether images are paired, grouped or
-labelled.
+DeepReg offers multiple built-in dataset loaders to support real-world clinical scenarios, in which images may be paired, unpaired or grouped. Images may also be labeled with segmented regions of interest to assist registration.
 
 A typical workflow to develop a `registration network`_ using DeepReg
 includes:
@@ -15,20 +12,19 @@ includes:
   specified in `supported configuration details`_;
 - Train and tune the registration network with the `command line tool`_
   ``deepreg_train``;
-- Test or use the final registration network with the `command line tool`_
+- Test or use the final trained registration network with the `command line tool`_
   ``deepreg_predict``.
 
-Besides the detailed tutorials, a series of demos are provided to
-showcase a wide range of applications with real-world clinical image and label data.
+Besides the tutorials, a series of DeepReg Demos are provided to
+showcase a wide range of applications with real clinical image and label data.
 These applications range from ultrasound, CT and MR images,
 covering many clinical specialties such as neurology, urology,
 gastroenterology, oncology, respiratory and cardiovascular diseases.
 
-Each DeepReg Demo provides step-by-step instructions
+Each DeepReg Demo provides a step-by-step instruction
 to explain how different scenarios can be implemented with DeepReg.
 All data sets used are open-accessible.
-Pre-trained models and numerical-and-graphical inference results
-are also available.
+Pre-trained models with numerical and graphical inference results are also available.
 
 .. _demo-disclaimer:
 
@@ -46,22 +42,22 @@ are also available.
 .. _supported configuration details: ../docs/configuration.html
 .. _command line tool: ../docs/cli.html
 
-Paired Images
+Paired images
 =============
 
 The following DeepReg Demos provide examples of
 using paired images.
 
-- `Paired CT lung registration <paired_ct_lung.html>`__
+- `Paired lung CT registration <paired_ct_lung.html>`__
 
   This demo registers paired CT lung images, with optional weak supervision.
 
-- `Paired MR-US brain registration <paired_mrus_brain.html>`__
+- `Paired brain MR-ultrasound registration <paired_mrus_brain.html>`__
 
   This demo registers paired preoperative MR images and 3D tracked ultrasound images for
   locating brain tumours during neurosurgery, with optional weak supervision.
 
-- `Paired MR-US prostate registration <paired_mrus_prostate.html>`__
+- `Paired prostate MR-ultrasound registration <paired_mrus_prostate.html>`__
 
   This demo registers paired MR-to-ultrasound prostate images, an example of
   weakly-supervised multimodal image registration.
@@ -73,27 +69,27 @@ using paired images.
 
     paired_*
 
-Unpaired Images
+Unpaired images
 ===============
 
 The following DeepReg Demos provide examples of
 using unpaired images.
 
-- `Unpaired CT abdominal registration <unpaired_ct_abdomen.html>`__
+- `Unpaired abdominal CT registration <unpaired_ct_abdomen.html>`__
 
   This demo compares three training strategies, using unsupervised, weakly-supervised and
   combined losses, to register inter-subject abdominal CT images.
 
-- `Unpaired CT lung registration <unpaired_ct_lung.html>`__
+- `Unpaired lung CT registration <unpaired_ct_lung.html>`__
 
   This demo registers unpaired CT lung images, with optional weak supervision.
 
-- `Unpaired MR hippocampus registration <unpaired_mr_brain.html>`__
+- `Unpaired hippocampus MR registration <unpaired_mr_brain.html>`__
 
   This demo aligns hippocampus on MR images between different patients, with optional weak
   supervision.
 
-- `Unpaired ultrasound images registration <unpaired_us_prostate_cv.html>`__
+- `Unpaired prostate ultrasound registration <unpaired_us_prostate_cv.html>`__
 
   This demo registers 3D ultrasound images with a 9-fold cross-validation. This strategy
   is applicable for any of the available dataset loaders.
@@ -105,12 +101,12 @@ using unpaired images.
 
     unpaired_*
 
-Grouped Images
+Grouped images
 ==============
 
 The following DeepReg Demos provide examples of using grouped images.
 
-- `Pairwise registration for grouped prostate images <grouped_mask_prostate_longitudinal.html>`__
+- `Pairwise registration for grouped prostate segmentation masks <grouped_mask_prostate_longitudinal.html>`__
 
   This demo registers grouped masks (as input images) of prostate glands from MR images,
   an example of feature-based registration.

@@ -32,7 +32,7 @@ predict(
 
 ######## VISUALISATION ########
 
-# Now lets load in a few samples from the predicitons and plot them
+# Now lets load in a few samples from the predictions and plot them
 
 # change the following line to the path to image0 label0
 
@@ -49,8 +49,9 @@ path_to_moving_label = os.path.join(path_to_test, "pair_0", "label_0", "moving_l
 
 # change inds_to_plot if different images need to be plotted instead
 
-inds_to_plot = [20, 80, 110, 170, 190, 200]
+inds_to_plot = [144, 145, 184, 140, 150, 180]
 sub_plot_counter = 1
+plt.rcParams["figure.figsize"] = [20, 20]
 
 for ind in inds_to_plot:
     plt.subplot(6, 6, sub_plot_counter)

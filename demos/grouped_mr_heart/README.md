@@ -1,22 +1,22 @@
-# Pairwise registration for grouped multi-sequence cardiac MR images
+# Pairwise registration for grouped cardiac MR images
 
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
+
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mr_heart)
 
 This demo uses the grouped dataset loader to register intra-subject multi-sequence
 cardiac magnetic resonance (CMR) images.
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mailto the author:
-yipeng.hu@ucl.ac.uk)
+DeepReg Development Team
 
 ## Application
 
 Computer-assisted management for patients suffering from myocardial infraction (MI)
 often requires quantifying the difference and comprising the multiple sequences, such as
-he late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. The
+the late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. They
 collectively provide radiological information otherwise unavailable during clinical
 practice.
 
@@ -45,19 +45,19 @@ deepreg_train --gpu "0" --config_path demos/grouped_mr_heart/grouped_mr_heart.ya
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
   data partitions specified in the config file, a copy of which will be saved in the
   [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saves at the created timestamp-named directories under /logs.
+  the results will be saved at the created timestamp-named directories under /logs.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch2000.ckpt --save_png --mode test
+deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
 ```
 
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
 unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/grouped_mr_heart/.
+default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/grouped_mr_heart/.
 
 ## Data
 
@@ -65,14 +65,21 @@ This demo uses CMR images from 45 patients, acquired from the
 [MyoPS2020](http://www.sdspeople.fudan.edu.cn/zhuangxiahai/0/MyoPS20/) challenge held in
 conjunction with MICCAI 2020.
 
-## Tested DeepReg Tag
+## Tested DeepReg version
 
-#74e7b1f749d0df1c140494eba0204f0edd1d7b1e
+Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 
-## References
+## Contact
+
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
+[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+
+## Reference
 
 [1] Xiahai Zhuang: Multivariate mixture model for myocardial segmentation combining
 multi-source images. IEEE Transactions on Pattern Analysis and Machine Intelligence (T
-PAMI), vol. 41, no. 12, 2933-2946, Dec 2019. link. [2] Xiahai Zhuang: Multivariate
-mixture model for cardiac segmentation from multi-sequence MRI. International Conference
-on Medical Image Computing and Computer-Assisted Intervention, pp.581-588, 2016.
+PAMI), vol. 41, no. 12, 2933-2946, Dec 2019. link.
+
+[2] Xiahai Zhuang: Multivariate mixture model for cardiac segmentation from
+multi-sequence MRI. International Conference on Medical Image Computing and
+Computer-Assisted Intervention, pp.581-588, 2016.

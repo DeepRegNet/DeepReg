@@ -3,6 +3,7 @@ Interface between the data loaders and file loaders
 """
 import logging
 from abc import ABC
+from typing import List
 
 import numpy as np
 import tensorflow as tf
@@ -477,57 +478,65 @@ class FileLoader:
 
     def set_data_structure(self):
         """
-        store the data structure in the memory so that
+        Store the data structure in the memory so that
         we can retrieve data using data_index
         """
         raise NotImplementedError
 
     def set_group_structure(self):
         """
-        in addition to set_data_structure
+        In addition to set_data_structure,
         store the group structure in the group_struct so that
         group_struct[group_index] = list of data_index
-        we can retrieve data using (group_index, in_group_data_index)
+        and data can be retrieved data by
         data_index = group_struct[group_index][in_group_data_index]
         """
         raise NotImplementedError
 
     def get_data(self, index: (int, tuple)):
         """
-        Get one data array by specifying an index
+        Get one data array by specifying an index.
+
         :param index: the data index which is required
-        for paired or unpaired, the index is one single int, data_index
-        for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
-        :returns arr: the data array at the specified index
+
+          - for paired or unpaired, the index is one single int, data_index
+          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+
+        :return: the data array at the specified index
         """
         raise NotImplementedError
 
     def get_data_ids(self):
         """
-        return the unique IDs of the data in this data set
-        this function is used to verify the consistency between
-        images and label, moving and fixed
-        :return:
+        Return the unique IDs of the data in this data set.
+        This function is used to verify the consistency between
+        moving and fixed images and label.
         """
         raise NotImplementedError
 
     def get_num_images(self) -> int:
         """
+        Return the number of image in this data set.
+
         :return: int, number of images in this data set
         """
         raise NotImplementedError
 
     def get_num_groups(self) -> int:
         """
+        Return the number of groups in grouped data set.
+
         :return: int, number of groups in this data set, if grouped
         """
         assert self.grouped
         return len(self.group_struct)
 
-    def get_num_images_per_group(self) -> list:
+    def get_num_images_per_group(self) -> List[int]:
         """
-        calculate the number of images in each group
-        each group must have at least one image
+        Return the number of images in each group.
+        Each group must have at least one image.
+
+        :return: a list of integers, representing the number of images in each group.
         """
         assert self.grouped
         num_images_per_group = [len(group) for group in self.group_struct]
@@ -539,5 +548,5 @@ class FileLoader:
         return num_images_per_group
 
     def close(self):
-        """close opened file handles if exist"""
+        """Close opened file handles if exist."""
         raise NotImplementedError

@@ -1,16 +1,14 @@
 Experimental Features
 =====================
 
-There are some experimental features provided in DeepReg,
-which are still in developing but ready to use.
+DeepReg provides some experimental features.
+These are still in development with variable levels of readiness.
 
-The following tutorials are provided to explain these features
-and please feel free to `raise an issue`_ to give us some feedbacks.
+The following tutorials provide an overview of these features. To submit feedback, open a `new issue <https://github.com/DeepRegNet/DeepReg/issues/new>`__.
 
--  `Label Sampling`_
+-  `Label sampling`_
 
-.. _raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new
-.. _Label Sampling: exp_label_sampling.html
+.. _Label sampling: exp_label_sampling.html
 
 .. toctree::
     :hidden:
