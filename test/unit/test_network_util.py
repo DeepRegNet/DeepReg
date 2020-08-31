@@ -14,25 +14,25 @@ def test_wrong_inputs():
     """
     Function to test wrong input types passed to build backbone func
     """
-    #  Wrong image_size type: int, vs tuple, Fail
+    # Wrong image_size type: int, vs tuple, Fail
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=1, out_channels=1, model_config={}, method_name="ddf"
         )
     assert "image_size must be tuple of length 3" in str(err_info.value)
-    #  Wrong out_channels type: str, vs int, Fail
+    # Wrong out_channels type: str, vs int, Fail
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3), out_channels="", model_config={}, method_name="ddf"
         )
     assert "out_channels must be int >=1" in str(err_info.value)
-    #  Wrong model_config type: list, vs dic, Fail
+    # Wrong model_config type: list, vs dic, Fail
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3), out_channels=1, model_config=[], method_name="ddf"
         )
     assert "model_config must be a dict having key 'backbone'" in str(err_info.value)
-    #  Wrong method_name
+    # Wrong method_name
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3),
@@ -51,7 +51,7 @@ def test_value_raised_if_wrong_method():
     Checking ValueError raised if string not
     in accepted methods name
     """
-    #  expect ddf, dvf or conditional, Fail
+    # expect ddf, dvf or conditional, Fail
     with pytest.raises(ValueError):
         util.build_backbone(
             image_size=(1, 2, 3), out_channels=1, model_config={}, method_name=""
@@ -63,7 +63,7 @@ def test_value_raised_if_unknown_config():
     Checking ValueError raised if string for
     backbone unknown
     """
-    #  expect local, global or unet
+    # expect local, global or unet
     with pytest.raises(ValueError):
         util.build_backbone(
             image_size=(1, 2, 3),
@@ -131,7 +131,7 @@ def test_wrong_inputs_build_inputs():
     """
     Function to test wrong input types passed to build backbone func
     """
-    #  Wrong image_size type: int, vs tuple, Fail
+    # Wrong image_size type: int, vs tuple, Fail
     with pytest.raises(Exception):
         util.build_inputs(
             moving_image_size=1,
@@ -140,7 +140,7 @@ def test_wrong_inputs_build_inputs():
             batch_size=1,
             labeled=True,
         )
-    #  Wrong fixed_images type: int, vs tuple, Fail
+    # Wrong fixed_images type: int, vs tuple, Fail
     with pytest.raises(Exception):
         util.build_inputs(
             moving_image_size=(),
@@ -150,7 +150,7 @@ def test_wrong_inputs_build_inputs():
             labeled=True,
         )
 
-    #  Wrong index_size type: list, vs int, Fail
+    # Wrong index_size type: list, vs int, Fail
     with pytest.raises(Exception):
         util.build_inputs(
             moving_image_size=(),
@@ -159,7 +159,7 @@ def test_wrong_inputs_build_inputs():
             batch_size=1,
             labeled=True,
         )
-    #  Wrong batch_size type: list, vs int, Fail
+    # Wrong batch_size type: list, vs int, Fail
     with pytest.raises(Exception):
         util.build_inputs(
             moving_image_size=(),
@@ -181,7 +181,7 @@ def test_return_types_build_inputs():
         batch_size=1,
         labeled=True,
     )
-    #  Asserting all items tf.keras.inputs - Pass
+    # Asserting all items tf.keras.inputs - Pass
     assert all(isinstance(item, type(tf.keras.Input(1))) for item in out)
 
     mov_im, fixed_im, mov_l, fixed_l, indices = util.build_inputs(
@@ -191,7 +191,7 @@ def test_return_types_build_inputs():
         batch_size=1,
         labeled=False,
     )
-    #  Asserting all items bar mov_l and fixed_l tf.keras.inputs - Pass
+    # Asserting all items bar mov_l and fixed_l tf.keras.inputs - Pass
     assert all(
         isinstance(item, type(tf.keras.Input(1)))
         for item in [mov_im, fixed_im, indices]

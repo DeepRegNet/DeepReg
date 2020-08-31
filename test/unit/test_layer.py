@@ -211,9 +211,9 @@ def test_init_conv3dWithResize():
 
     # Pass an input of all zeros
     inputs = np.zeros(input_tensor_size)
-    #  Get outputs by calling
+    # Get outputs by calling
     output = model.call(inputs)
-    #  Expected shape is (5, 1, 2, 3, 3)
+    # Expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip(output_tensor_size, output.shape))
 
 
@@ -236,9 +236,9 @@ def test_warping():
         np.ones((batch_size, *fixed_image_size, ndims), dtype="float32"),
         np.ones((batch_size, *moving_image_size), dtype="float32"),
     ]
-    #  Get outputs by calling
+    # Get outputs by calling
     output = model.call(inputs)
-    #  Expected shape is (5, 1, 2, 3, 3)
+    # Expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip((batch_size,) + fixed_image_size, output.shape))
 
 

@@ -13,7 +13,7 @@ def build_model(
     loss_config: dict,
 ):
     """
-    Parsing algorithm types to model building functions
+    Parsing algorithm types to model building functions.
 
     :param moving_image_size: [m_dim1, m_dim2, m_dim3]
     :param fixed_image_size: [f_dim1, f_dim2, f_dim3]

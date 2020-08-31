@@ -4,7 +4,7 @@ With DeepReg installed, multiple command line tools are available, currently inc
 
 - `deepreg_train`, for training a registration network.
 - `deepreg_predict`, for evaluating a trained network.
-- `deepreg_warp`, for warping an image with a discrete displacement field.
+- `deepreg_warp`, for warping an image with a dense displacement field.
 
 ## Train
 
