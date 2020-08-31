@@ -43,7 +43,7 @@ class MaxPool3d(tf.keras.layers.Layer):
     def __init__(
         self,
         pool_size: (int, tuple),
-        strides=(int, tuple, None),
+        strides: (int, tuple, None) = None,
         padding: str = "same",
         **kwargs,
     ):
