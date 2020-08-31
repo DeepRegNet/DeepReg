@@ -88,10 +88,7 @@ def test_global_return():
         },
         method_name="ddf",
     )
-    assert isinstance(
-        out,
-        type(global_net.GlobalNet([1, 2, 3], 4, 4, [1, 2, 3], "he_normal", "sigmoid")),
-    )
+    assert isinstance(out, global_net.GlobalNet)
 
 
 def test_local_return():
@@ -109,10 +106,7 @@ def test_local_return():
         },
         method_name="ddf",
     )
-    assert isinstance(
-        out,
-        type(local_net.LocalNet([1, 2, 3], 4, 4, [1, 2, 3], "he_normal", "sigmoid")),
-    )
+    assert isinstance(out, local_net.LocalNet)
 
 
 def test_unet_return():
@@ -130,7 +124,7 @@ def test_unet_return():
         },
         method_name="ddf",
     )
-    assert isinstance(out, type(u_net.UNet([1, 2, 3], 4, 4, 4, "he_normal", "sigmoid")))
+    assert isinstance(out, u_net.UNet)
 
 
 def test_wrong_inputs_build_inputs():
@@ -202,4 +196,4 @@ def test_return_types_build_inputs():
         isinstance(item, type(tf.keras.Input(1)))
         for item in [mov_im, fixed_im, indices]
     )
-    assert all(isinstance(item, type(None)) for item in [mov_l, fixed_l])
+    assert all(item is None for item in [mov_l, fixed_l])
