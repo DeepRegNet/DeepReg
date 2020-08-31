@@ -390,7 +390,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         )
 
     def call(self, inputs, training=None, **kwargs):
-        """
+        r"""
         :param inputs: tuple
 
           - down-sampled
@@ -398,7 +398,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
         :param training: training flag for normalization layers (default: None)
         :param kwargs:
-        :return: shape = (batch, *skip_connection_image_shape, filters]
+        :return: shape = (batch, \*skip_connection_image_shape, filters]
         """
         up_sampled, skip = inputs[0], inputs[1]
         up_sampled = self._deconv3d_block(
@@ -537,8 +537,8 @@ class Dense(tf.keras.layers.Layer):
         )
 
     def call(self, inputs, **kwargs):
-        """
-        :param inputs: shape = (batch, *vol_dim, channels)
+        r"""
+        :param inputs: shape = (batch, \*vol_dim, channels)
         :param kwargs: (not used)
         :return: shape = (batch, units)
         """
