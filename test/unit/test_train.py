@@ -19,7 +19,7 @@ def test_build_config():
     """
     Test build_config and check log_dir setting and checkpoint path verification
     """
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
+    config_path = "config/unpaired_labeled_ddf.yaml"
     log_dir = "test_build_config"
 
     # checkpoint path empty
@@ -71,7 +71,7 @@ def test_train_and_predict_main():
             "--log_dir",
             "test_train",
             "--config_path",
-            "deepreg/config/unpaired_labeled_ddf.yaml",
+            "config/unpaired_labeled_ddf.yaml",
         ]
     )
 

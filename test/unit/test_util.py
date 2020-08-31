@@ -26,7 +26,7 @@ def test_build_dataset():
     """
 
     # init arguments
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
+    config_path = "config/unpaired_labeled_ddf.yaml"
     log_dir = "test_build_dataset"
     ckpt_path = ""
 
