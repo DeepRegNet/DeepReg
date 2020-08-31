@@ -1,5 +1,5 @@
 """
-Tests functions in deepreg/config/parser.py
+Tests functions in config/parser.py
 """
 
 import os
@@ -8,12 +8,7 @@ import pytest
 import yaml
 from testfixtures import TempDirectory
 
-from deepreg.config.parser import (
-    config_sanity_check,
-    load_configs,
-    save,
-    update_nested_dict,
-)
+from deepreg.parser import config_sanity_check, load_configs, save, update_nested_dict
 
 
 def test_update_nested_dict():
@@ -78,19 +73,19 @@ def test_load_configs():
     """
     # single config
     # input is str not list
-    with open("deepreg/config/unpaired_labeled_ddf.yaml") as file:
+    with open("config/unpaired_labeled_ddf.yaml") as file:
         expected = yaml.load(file, Loader=yaml.FullLoader)
-    got = load_configs("deepreg/config/unpaired_labeled_ddf.yaml")
+    got = load_configs("config/unpaired_labeled_ddf.yaml")
     assert got == expected
 
     # multiple configs
-    with open("deepreg/config/unpaired_labeled_ddf.yaml") as file:
+    with open("config/unpaired_labeled_ddf.yaml") as file:
         expected = yaml.load(file, Loader=yaml.FullLoader)
     got = load_configs(
         config_path=[
-            "deepreg/config/test/ddf.yaml",
-            "deepreg/config/test/unpaired_nifti.yaml",
-            "deepreg/config/test/labeled.yaml",
+            "config/test/ddf.yaml",
+            "config/test/unpaired_nifti.yaml",
+            "config/test/labeled.yaml",
         ]
     )
     assert got == expected

@@ -13,9 +13,9 @@ import shutil
 import numpy as np
 import tensorflow as tf
 
-import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
+import deepreg.parser as config_parser
 from deepreg.dataset.loader.util import normalize_array
 from deepreg.model.network.build import build_model
 from deepreg.util import (

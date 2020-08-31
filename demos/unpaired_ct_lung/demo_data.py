@@ -35,9 +35,7 @@ fname = "training.zip"
 
 get_file(os.path.join(os.getcwd(), fname), url)
 
-
 print("The file ", fname, " has successfully been downloaded!")
-
 
 data_folder_name = "data"
 
@@ -88,7 +86,6 @@ def moveFilesIntoCorrectPath(
 
 
 if os.path.exists(path_to_images_and_labels):
-
     moveFilesIntoCorrectPath(
         images_fnames, path_to_images_and_labels, path_to_train, "images", "scans"
     )

@@ -115,7 +115,6 @@ for f in img_files:
 
 print("Files succesfully copied to " + path_to_train + " and " + path_to_test)
 
-
 #################
 # Preprocessing #
 #################

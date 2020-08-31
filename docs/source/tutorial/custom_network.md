@@ -478,12 +478,11 @@ a practical example of unit tests made for our affine model in
 ## Step 4: Set yaml configuration files
 
 An example of yaml configuration file for the affine method is available in
-`deepreg/config/unpaired_labeled_affine.yaml`. For using both the GlobalNet backbone and
-affine method you will need to add their aforementioned keyword "global" and "affine".
-Optional parameters such as `out_kernel_initializer` or `num_channel_initial` can also
-be specified. A snippet of `deepreg/config/unpaired_labeled_affine.yaml` is shown below.
-Please see the [configuration documentation](../docs/configuration.html) for more
-details.
+`config/unpaired_labeled_affine.yaml`. For using both the GlobalNet backbone and affine
+method you will need to add their aforementioned keyword "global" and "affine". Optional
+parameters such as `out_kernel_initializer` or `num_channel_initial` can also be
+specified. A snippet of `config/unpaired_labeled_affine.yaml` is shown below. Please see
+the [configuration documentation](../docs/configuration.html) for more details.
 
     model:
     method: "affine"
