@@ -39,7 +39,7 @@
     :maxdepth: 2
     :caption: API Reference
 
-    api/entry_points
+    api/entry_point
     api/loader
     api/network
     api/backbone

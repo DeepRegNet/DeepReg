@@ -1,5 +1,5 @@
-Entry Points
-============
+Entry Point
+===========
 
 Train
 -----

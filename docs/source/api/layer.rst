@@ -1,8 +1,8 @@
 Layer
 =====
 
-Layer Classes
--------------
+Layer
+-----
 
 Activation
 ^^^^^^^^^^
@@ -106,8 +106,8 @@ Warping
 .. autoclass:: deepreg.model.layer.Warping
     :members:
 
-Utils
------
+Util
+----
 
 .. automodule:: deepreg.model.layer_util
     :members:
