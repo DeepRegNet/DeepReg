@@ -1,4 +1,4 @@
-Send a pull request
+Send a Pull Request
 ===================
 
 We recommend using fork to do pull requests:
