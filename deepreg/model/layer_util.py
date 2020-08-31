@@ -311,7 +311,7 @@ def random_transform_generator(
 
     for 3D coordinates, affine transformation is
 
-    .. code-block::
+    .. code-block:: text
 
         [[x' y' z' 1]] = [[x y z 1]] * [[* * * 0]
                                         [* * * 0]
@@ -332,7 +332,7 @@ def random_transform_generator(
 
     the equation can be simplified to
 
-    .. code-block::
+    .. code-block:: text
 
         [[x' y' z']] = [[x y z 1]] * [[* * *]
                                       [* * *]
@@ -386,7 +386,7 @@ def random_transform_generator(
     - D = (-1, 1, -1)
     - A = (1, -1, -1)
 
-    .. code-block::
+    .. code-block:: text
 
                     G — — — — — — — — H
                   / |               / |
