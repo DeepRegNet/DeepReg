@@ -25,11 +25,11 @@ https://learn2reg.grand-challenge.org/Datasets/.
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 
-- Change the working directory to the root directory DeepReg
+- Change the working directory to the root directory of DeepReg project;
 
 - Run [demo_data.py] to download and extract all files, and to split the data into
   training, validation and testing. If the data has already been downloaded. This will
-  also download the pre-trained models
+  also download the pre-trained models:
 
 ```bash
 python ./demos/unpaired_ct_abdomen/demo_data.py
