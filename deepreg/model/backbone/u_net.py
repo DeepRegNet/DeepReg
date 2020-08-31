@@ -15,7 +15,7 @@ class UNet(tf.keras.Model):
     - O. Ronneberger, P. Fischer, and T. Brox,
       “U-net: Convolutional networks for biomedical image segmentation,”,
       Lecture Notes in Computer Science, 2015, vol. 9351, pp. 234–241.
-      https://arxiv.org/pdf/1505.04597.pdft
+      https://arxiv.org/abs/1505.04597
     """
 
     def __init__(

@@ -30,7 +30,7 @@ For a non-TensorFlow function, we need to test
 - The trigger of warnings.
 
 Check `test_load_nifti_file()` in
-[test_nifti_loader.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_nifti_loader.py#L12)
+[test_nifti_loader.py](https://github.com/DeepRegNet/DeepReg/blob/main/test/unit/test_nifti_loader.py#L12)
 as an example.
 
 ### TensorFlow function
@@ -45,14 +45,14 @@ For a TensorFlow-involved function, we need to test
 - The trigger of warnings.
 
 Check `test_resample()` in
-[test_layer_util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/test_layer_util.py#L107)
+[test_layer_util.py](https://github.com/DeepRegNet/DeepReg/blob/main/test/unit/test_layer_util.py#L107)
 as an example.
 
 ### Helper functions
 
 As we are comparing often the numpy arrays and TensorFlow tensors, two functions
 `is_equal_np` and `is_equal_tf` are provided in
-[test/unit/util.py](https://github.com/DeepRegNet/DeepReg/blob/master/test/unit/util.py).
+[test/unit/util.py](https://github.com/DeepRegNet/DeepReg/blob/main/test/unit/util.py).
 They will first convert inputs to float32 and compare the max of absolute difference
 with a threshold at 1e-6. They can be imported using
 `from test.unit.util import is_equal_np` so that we do not need one copy per test file.

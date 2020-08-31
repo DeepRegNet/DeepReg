@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mask_prostate_longitudinal)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/grouped_mask_prostate_longitudinal)
 
 This demo uses DeepReg to demonstrate a number of features:
 
@@ -32,8 +32,8 @@ ultrasound images used are simulated dummy images.
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download 10 folds of unpaired 3D
-  ultrasound images and the pre-trained model.
+- Run `demo_data.py` script to download 10 folds of unpaired 3D ultrasound images and
+  the pre-trained model.
 
 ```bash
 python demos/grouped_mask_prostate_longitudinal/demo_data.py
@@ -61,11 +61,11 @@ deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/
 
 ## Pre-trained model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/grouped_mask_prostate_longitudinal/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/grouped_mask_prostate_longitudinal/.
 
 ## Tested DeepReg version
 
@@ -73,5 +73,4 @@ Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).

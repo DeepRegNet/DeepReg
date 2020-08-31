@@ -1,8 +1,8 @@
 # Add a DeepReg Demo
 
-The [demos](https://github.com/DeepRegNet/DeepReg/tree/master/demos) folder directly
-under the DeepReg root directory contains demonstrations using DeepReg for different
-image registration applications.
+The [demos](https://github.com/DeepRegNet/DeepReg/tree/main/demos) folder directly under
+the DeepReg root directory contains demonstrations using DeepReg for different image
+registration applications.
 
 Contributions are welcome! Below is a set of requirements for a demo to be included as a
 DeepReg Demo.

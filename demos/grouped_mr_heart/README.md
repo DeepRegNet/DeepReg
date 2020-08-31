@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mr_heart)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/grouped_mr_heart)
 
 This demo uses the grouped dataset loader to register intra-subject multi-sequence
 cardiac magnetic resonance (CMR) images.
@@ -22,11 +22,11 @@ practice.
 
 ## Instruction
 
-- [Install DeepReg](https://deepregnet.github.io/DeepReg/#/quick_start?id=install-the-package);
+- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download all the CMR dataset in a zip
-  file. The script also splits the data into train, val and test sets re-samples all the
-  images to an isotropic voxel size.
+- Run `demo_data.py` script to download all the CMR dataset in a zip file. The script
+  also splits the data into train, val and test sets re-samples all the images to an
+  isotropic voxel size.
 
 ```bash
 python demos/grouped_mr_heart/demo_data.py
@@ -53,11 +53,11 @@ deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.y
 
 ## Pre-trained Model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/grouped_mr_heart/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/grouped_mr_heart/.
 
 ## Data
 
@@ -71,8 +71,7 @@ Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

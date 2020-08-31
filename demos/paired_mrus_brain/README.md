@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/paired_mrus_brain)
 
 ## Author
 
@@ -51,11 +51,11 @@ following order:
 
 ## Pre-trained Model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/learn2reg_t1_paired_train_logs/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/learn2reg_t1_paired_train_logs/.
 
 ## Data
 
@@ -69,8 +69,7 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

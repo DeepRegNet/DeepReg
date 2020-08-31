@@ -468,7 +468,7 @@ class Warping(tf.keras.layers.Layer):
         Reference:
 
         - transform of neuron
-          https://github.com/adalca/neuron/blob/master/neuron/utils.py
+          https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
 
           where vol = image, loc_shift = ddf
 
@@ -503,7 +503,7 @@ class IntDVF(tf.keras.layers.Layer):
         Reference:
 
         - integrate_vec of neuron
-          https://github.com/adalca/neuron/blob/master/neuron/utils.py
+          https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
 
         :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
         :param num_steps: int, number of steps for integration
