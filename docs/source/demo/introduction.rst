@@ -8,10 +8,13 @@ includes:
 
 1. Select a dataset loader, among the `unpaired, paired and grouped`_,
 and prepare data into folders as required;
+
 2. Configure the network training in the configuration yaml file(s), as
 specified in `supported configuration details`_;
+
 3. Train and tune the registration network with the `command line tool`_
 ``deepreg_train``;
+
 4. Test or use the final trained registration network with the `command line tool`_
 ``deepreg_predict``.
 
