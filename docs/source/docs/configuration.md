@@ -13,7 +13,7 @@ See the [dataset loader configuration](dataset_loader.html) for more details.
 The `train` section defines the neural network training hyper-parameters, by specifying
 subsections, `model`, `loss`, `optimizer`, `preprocess` and other training
 hyper-parameter, including `epochs` and `save_period`. See an
-[example configuration](https://github.com/DeepRegNet/DeepReg/blob/master/deepreg/config/unpaired_labeled_ddf.yaml),
+[example configuration](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/config/unpaired_labeled_ddf.yaml),
 with comments on the available options in each subsection.
 
 This section is highly application-specific. More examples can be found in

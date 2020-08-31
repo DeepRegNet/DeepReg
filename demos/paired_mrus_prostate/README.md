@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/paired_mrus_brain)
 
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).

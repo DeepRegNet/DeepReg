@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_ct_headneck_affine)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/classical_ct_headneck_affine)
 
 This is a special demo that uses the DeepReg package for classical affine image
 registration, which iteratively solves an optimisation problem. Gradient descent is used

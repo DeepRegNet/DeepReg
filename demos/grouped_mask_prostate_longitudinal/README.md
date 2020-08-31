@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mask_prostate_longitudinal)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/grouped_mask_prostate_longitudinal)
 
 This demo uses DeepReg to demonstrate a number of features:
 

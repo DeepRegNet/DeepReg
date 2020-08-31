@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_ct_lung)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/paired_ct_lung)
 
 ## Author
 

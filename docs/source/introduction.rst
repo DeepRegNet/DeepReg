@@ -77,12 +77,12 @@ please email the DeepReg Development Team: DeepRegNet@gmail.com.
 Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).
 
 
-.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/weiss.jpg
+.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/weiss.jpg
     :width: 300
     :alt: WEISS Logo
 
 
-.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/medicalengineering.svg
+.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/medicalengineering.svg
     :width: 250
     :alt: CME Logo
 
@@ -91,5 +91,5 @@ Alternatively, please contact one or more members of the CoC Committee as approp
 .. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/issue.html
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/
-.. _Code of Conduct: https://github.com/DeepRegNet/DeepReg/blob/master/docs/CODE_OF_CONDUCT.md
+.. _Code of Conduct: https://github.com/DeepRegNet/DeepReg/blob/main/docs/CODE_OF_CONDUCT.md
 .. _raise an issue: https://github.com/DeepRegNet/DeepReg/issues/new

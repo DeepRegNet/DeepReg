@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/grouped_mr_heart)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/grouped_mr_heart)
 
 This demo uses the grouped dataset loader to register intra-subject multi-sequence
 cardiac magnetic resonance (CMR) images.

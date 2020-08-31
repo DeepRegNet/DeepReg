@@ -1,14 +1,14 @@
 <p align="center">
-	<img src="https://raw.githubusercontent.com/DeepRegNet/DeepReg/master/docs/asset/deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
+	<img src="https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/deepreg_logo_purple_beta.svg" alt="deepreg_logo" title="DeepReg" width="200" />
 </p>
 
 # DeepReg
 
-[![Build Status](https://travis-ci.org/DeepRegNet/DeepReg.svg?branch=master)](https://travis-ci.org/DeepRegNet/DeepReg)
+[![Build Status](https://travis-ci.org/DeepRegNet/DeepReg.svg?branch=main)](https://travis-ci.org/DeepRegNet/DeepReg)
 [![Documentation Status](https://readthedocs.org/projects/deepreg/badge/?version=latest)](https://deepreg.readthedocs.io/en/latest/?badge=latest)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/master/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
+[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
@@ -48,6 +48,6 @@ consider
 ## MICCAI 2020 Educational Challenge
 
 The MICCAI Educational Challenge notebook can be accessed
-[here](https://github.com/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb)
+[here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
 or run it on
-[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/master/docs/Intro_to_Medical_Image_Registration.ipynb).
+[Colab](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb).
