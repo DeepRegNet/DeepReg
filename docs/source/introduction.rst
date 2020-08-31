@@ -77,12 +77,12 @@ please email the DeepReg Development Team: DeepRegNet@gmail.com.
 Alternatively, please contact one or more members of the CoC Committee as appropriate: Nina Montana Brown (nina.brown.15@ucl.ac.uk), Ester Bonmati (e.bonmati@ucl.ac.uk), Matt Clarkson (m.clarkson@ucl.ac.uk).
 
 
-.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/weiss.jpg
+.. image:: ../asset/weiss.jpg
     :width: 300
     :alt: WEISS Logo
 
 
-.. image:: https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/medicalengineering.svg
+.. image:: ../asset/medicalengineering.svg
     :width: 250
     :alt: CME Logo
 
