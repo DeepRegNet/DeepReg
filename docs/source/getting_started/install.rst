@@ -73,14 +73,7 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 Install the package
 -------------------
 
-The recommended method is to use the PyPI release.
-
-.. code:: bash
-
-    pip install deepreg
-
-You can also clone the repository and install it locally.
-All necessary dependencies will be installed automatically.
+**Install from the cloned local project**
 
 .. code:: bash
 
@@ -89,4 +82,18 @@ All necessary dependencies will be installed automatically.
     pip install -e . # install the package
 
 
-The **root directory of DeepReg** may differ due to different installation methods.
+**Install from the PyPI release**
+
+.. code:: bash
+
+    pip install deepreg
+
+
+**Note**
+All necessary dependencies, APIs and command-line tools will be installed automatically via either installation method.
+However, examples used in this documentation may require additional test data downloading and path change to run with the PyPI release.
+These examples include the `Quick Start`_ and `DeepReg Demo`_
+
+
+.. _Quick Start: quick_start.html
+.. _DeepReg Demo: ../demo/introduction.html
