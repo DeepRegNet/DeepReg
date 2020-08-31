@@ -7,9 +7,7 @@
 
 ## Author
 
-DeepReg Development Team (raise an issue:
-https://github.com/DeepRegNet/DeepReg/issues/new, or mail to the author:
-zcemsus@ucl.ac.uk)
+DeepReg Development Team (Shaheer Saeed)
 
 ## Application
 
@@ -39,10 +37,10 @@ following order:
     relevant sections in the script (please read the scripts' comments to see how to
     download the full dataset)
 - Run the demo_train.py script: This script does the following:
-  - Specify the training options like gpu support
+  - Specify the training options like GPU support
   - Specify the config file paths (to define both the network config available in
-    deepreg and the data config given in the demo folder)
-  - Train a network using deepreg
+    DeepReg and the data config given in the demo folder)
+  - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
   - Use the predicitions to plot the results (the images path generated in the logs will
@@ -54,10 +52,10 @@ following order:
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/learn2reg_t1_paired_train_logs/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/learn2reg_t1_paired_train_logs/.
 
 ## Data
 

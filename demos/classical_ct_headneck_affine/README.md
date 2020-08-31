@@ -15,7 +15,7 @@ DeepReg Development Team
 
 ## Application
 
-Although, in this demo, the moving images are simulated using a randomly generated
+Although in this demo the moving images are simulated using a randomly generated
 transformation. The registration technique can be used in radiotherapy to compensate the
 difference between CT acquired at different time points, such as pre-treatment and
 intra-/post-treatment.

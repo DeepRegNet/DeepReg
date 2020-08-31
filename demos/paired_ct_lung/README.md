@@ -42,22 +42,22 @@ following order:
   - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Download a pretrained model to use with the predict script
 - Run the demo_train.py script: This script does the following:
-  - Specify the training options like gpu support
+  - Specify the training options like GPU support
   - Specify the config file paths (the config file to define the network is one which is
     avialable with DeepReg and the config file for the data is given in the demo folder)
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
-  - Use the predicitons to plot the results (the path to the images generated in the
-    logs will need to be specified, look at comments in the script to chnage this)
+  - Use the predictions to plot the results (the path to the images generated in the
+    logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/learn2reg_t2_paired_train_logs/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/learn2reg_t2_paired_train_logs/.
 
 ## Data
 

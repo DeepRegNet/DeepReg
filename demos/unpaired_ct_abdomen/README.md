@@ -12,7 +12,7 @@ DeepReg Development Team (Ester Bonmati)
 ## Application
 
 This demo shows how to register unpaired abdominal CT data from different patients using
-DeepReg. In addition, the demo demonstrates the difference betwwen the unsupervised,
+DeepReg. In addition, the demo demonstrates the difference between the unsupervised,
 weakly-supervised and their combination, using a U-Net.
 
 ## Data
@@ -25,11 +25,11 @@ https://learn2reg.grand-challenge.org/Datasets/.
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 
-- Change the working directory to the root directory DeepReg
+- Change the working directory to the root directory of DeepReg project;
 
 - Run [demo_data.py] to download and extract all files, and to split the data into
   training, validation and testing. If the data has already been downloaded. This will
-  also download the pre-trained models
+  also download the pre-trained models:
 
 ```bash
 python ./demos/unpaired_ct_abdomen/demo_data.py
@@ -86,9 +86,9 @@ deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abd
 
 Three pre-trained models are available for this demo, for different training strategies
 described above. These will be downloaded in respective sub-folders under the /dataset
-folder using the [demo_data.py](./demo_data.py). Run the user-trained model by specify
-`--ckpt_path` to where the ckpt files are save, in this case (specified by
-`deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
+folder using the [demo_data.py](./demo_data.py). Run the user-trained model by
+specifying with `--ckpt_path` the location where the ckpt files will be saved, in this
+case (specified by `deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
 /logs/unpaired_ct_abdomen_weakly/ or /logs/unpaired_ct_abdomen_comb/.
 
 ## Tested DeepReg version

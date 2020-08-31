@@ -32,7 +32,7 @@ ultrasound images used are simulated dummy images.
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run [demo_data.py](./demo_data.py) script to download example 10 folds of unpaired 3D
+- Run [demo_data.py](./demo_data.py) script to download 10 folds of unpaired 3D
   ultrasound images and the pre-trained model.
 
 ```bash
@@ -62,10 +62,10 @@ deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/
 ## Pre-trained model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are saved, in this case (specified by `deepreg_train` as above),
-/logs/grouped_mask_prostate_longitudinal/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/grouped_mask_prostate_longitudinal/.
 
 ## Tested DeepReg version
 

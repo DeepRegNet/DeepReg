@@ -13,8 +13,9 @@ DeepReg Development Team
 
 ## Application
 
-Transrectal ultrasound (TRUS) images are aqcuired from prostate cancer patients.
-Registering
+Transrectal ultrasound (TRUS) images are acquired from prostate cancer patients during
+image-guided procedures. Pairwise registration between these 3D images may be useful for
+intraoperative motion modelling and group-wise registration for population studies.
 
 ## Data
 
@@ -32,8 +33,7 @@ dataset/fold9 --prefix unpaired_us_prostate_cv_run
 
 - [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
 - Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download example 10 folds of unpaired 3D ultrasound
-  images;
+- Run `demo_data.py` script to download 10 folds of unpaired 3D ultrasound images;
 
 ```bash
 python demos/unpaired_us_prostate_cv/demo_data.py
@@ -52,7 +52,7 @@ deepreg_train --gpu "1, 2, 3" --config_path demos/unpaired_us_prostate_cv/unpair
 
 - Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
   10th fold data. The following example uses a pre-trained model, on CPU. If not
-  specified, the results will be saves at the created timestamp-named directories under
+  specified, the results will be saved at the created timestamp-named directories under
   /logs.
 
 ```bash
@@ -62,10 +62,10 @@ deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at dataset folder under the demo folder. This pre-trained model will be used by
-default with `deepreg_predict`. Run the user-trained model by specify `--ckpt_path` to
-where the ckpt files are save, in this case (specified by `deepreg_train` as above),
-/logs/unpaired_us_prostate_cv/.
+unzipped at the dataset folder under the demo folder. This pre-trained model will be
+used by default with `deepreg_predict`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/unpaired_us_prostate_cv/.
 
 ## Tested DeepReg version
 
