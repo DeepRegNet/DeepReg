@@ -42,7 +42,7 @@ Pre-trained models with numerical and graphical inference results are also avail
 .. _supported configuration details: ../docs/configuration.html
 .. _command line tool: ../docs/cli.html
 
-Paired images
+Paired Images
 =============
 
 The following DeepReg Demos provide examples of
@@ -69,7 +69,7 @@ using paired images.
 
     paired_*
 
-Unpaired images
+Unpaired Images
 ===============
 
 The following DeepReg Demos provide examples of
@@ -101,7 +101,7 @@ using unpaired images.
 
     unpaired_*
 
-Grouped images
+Grouped Images
 ==============
 
 The following DeepReg Demos provide examples of using grouped images.
