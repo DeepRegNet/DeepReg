@@ -90,9 +90,11 @@ Install the package
 
 
 **Note**
-All necessary dependencies, APIs and command-line tools will be installed automatically via either installation method.
-However, examples used in this documentation may require additional test data downloading and path change to run with the PyPI release.
-These examples include the `Quick Start`_ and `DeepReg Demo`_
+
+All dependencies, APIs and command-line tools will be installed automatically via either installation method.
+However, the PyPI release currently does not ship with test data and demos.
+Running examples in this documentation may require downloading test data and changing default paths to user-installed packages with the PyPI release.
+These examples include those in the `Quick Start`_ and `DeepReg Demo`_
 
 
 .. _Quick Start: quick_start.html
