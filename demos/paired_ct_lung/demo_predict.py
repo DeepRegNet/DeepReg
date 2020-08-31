@@ -46,7 +46,6 @@ path_to_pred_fixed_image = os.path.join(path_to_test, "pair_0", "pred_fixed_imag
 path_to_moving_image = os.path.join(path_to_test, "pair_0", "moving_image")
 path_to_moving_label = os.path.join(path_to_test, "pair_0", "label_0", "moving_label")
 
-
 # change inds_to_plot if different images need to be plotted instead
 
 inds_to_plot = [144, 145, 184, 140, 150, 180]

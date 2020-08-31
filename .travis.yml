@@ -19,8 +19,8 @@ jobs:
       script: pre-commit run --all-files
     - name: "Sphinx Build"
       script:
-       - cd docs
-       - make clean html
+        - cd docs
+        - make clean html
     - stage: "Tests"
       name: "Unit Tests"
       script:  pytest --cov-report= --cov=deepreg ./test/unit/
