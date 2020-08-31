@@ -71,8 +71,7 @@ Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

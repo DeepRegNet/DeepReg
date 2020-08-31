@@ -35,8 +35,7 @@ Last commit at which demo was tested: commit hash or DeepReg version tag.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

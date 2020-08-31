@@ -69,8 +69,7 @@ Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/325-improve-contributing-pages/contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

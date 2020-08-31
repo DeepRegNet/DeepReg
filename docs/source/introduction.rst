@@ -88,7 +88,7 @@ Alternatively, please contact one or more members of the CoC Committee as approp
 
 .. _TensorFlow2: https://www.tensorflow.org/
 .. _DeepReg Demos: https://deepreg.readthedocs.io/en/latest/demo/introduction.html
-.. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/issue.html
+.. _Get involved: https://deepreg.readthedocs.io/en/latest/contributing/guide.html
 .. _WEISS: https://www.ucl.ac.uk/interventional-surgical-sciences/
 .. _CME: https://medicalengineering.org.uk/
 .. _Code of Conduct: https://github.com/DeepRegNet/DeepReg/blob/main/docs/CODE_OF_CONDUCT.md

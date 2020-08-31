@@ -50,8 +50,7 @@ python demos/classical_ct_headneck_affine/demo_register.py
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 
