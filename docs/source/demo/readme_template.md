@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/)
 
 ## Author
 
@@ -35,8 +35,7 @@ Last commit at which demo was tested: commit hash or DeepReg version tag.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

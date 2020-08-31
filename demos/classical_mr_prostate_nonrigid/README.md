@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/classical_mr_prostate_nonrigid)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/classical_mr_prostate_nonrigid)
 
 This is a special demo that uses the DeepReg package for classical nonrigid image
 registration, which iteratively solves an optimisation problem. Gradient descent is used
@@ -48,8 +48,7 @@ python demos/classical_mr_prostate_nonrigid/demo_register.py
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

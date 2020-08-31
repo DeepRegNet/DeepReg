@@ -14,7 +14,7 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     Reference:
 
     - volshape_to_meshgrid of neuron
-      https://github.com/adalca/neuron/blob/master/neuron/utils.py
+      https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
 
       neuron modifies meshgrid to make it faster, however local
       benchmark suggests tf.meshgrid is better
@@ -206,7 +206,7 @@ def resample(vol, loc, interpolation="linear"):
     Reference:
 
     - neuron's interpn
-      https://github.com/adalca/neuron/blob/master/neuron/utils.py
+      https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
 
       Difference
 
