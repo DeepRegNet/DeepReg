@@ -86,9 +86,9 @@ deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abd
 
 Three pre-trained models are available for this demo, for different training strategies
 described above. These will be downloaded in respective sub-folders under the /dataset
-folder using the [demo_data.py](./demo_data.py). Run the user-trained model by
-specifying with `--ckpt_path` the location where the ckpt files will be saved, in this
-case (specified by `deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
+folder using the `demo_data.py`. Run the user-trained model by specifying with
+`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
+by `deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
 /logs/unpaired_ct_abdomen_weakly/ or /logs/unpaired_ct_abdomen_comb/.
 
 ## Tested DeepReg version
