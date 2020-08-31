@@ -3,7 +3,8 @@
 This is a set of simple tests to use DeepReg command line tools. More details and other
 options can be found in [Command Line Tools](../docs/cli.html).
 
-First, [install DeepReg](../docs/install.html).
+First, [install DeepReg](../docs/install.html) and change current directory to the root
+directory of DeepReg.
 
 ## Train a registration network
 

@@ -89,4 +89,4 @@ All necessary dependencies will be installed automatically.
     pip install -e . # install the package
 
 
-The **root directory of DeepReg project** may differ due to different installation methods.
+The **root directory of DeepReg** may differ due to different installation methods.
