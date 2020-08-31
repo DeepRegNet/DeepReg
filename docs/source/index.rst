@@ -41,10 +41,11 @@
 
     api/entry_points
     api/loader
-    api/loss
     api/network
     api/backbone
     api/layer
+    api/loss
+    api/optimizer
 
 .. toctree::
     :hidden:
