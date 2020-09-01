@@ -7,7 +7,6 @@ print(
     by following the instructions in readme.md"
 )
 
-
 """
 from deepreg.train import train
 

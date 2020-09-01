@@ -10,10 +10,10 @@ def test_dvf_network():
     train_and_predict_with_config(
         test_name="unpaired_labeled_nifti_dvf",
         config_path=[
-            "deepreg/config/test/ddf.yaml",
-            "deepreg/config/test/dvf.yaml",
-            "deepreg/config/test/unpaired_nifti.yaml",
-            "deepreg/config/test/labeled.yaml",
+            "config/test/ddf.yaml",
+            "config/test/dvf.yaml",
+            "config/test/unpaired_nifti.yaml",
+            "config/test/labeled.yaml",
         ],
     )
 
@@ -23,9 +23,9 @@ def test_conditional_network():
     train_and_predict_with_config(
         test_name="unpaired_labeled_nifti_conditional",
         config_path=[
-            "deepreg/config/test/ddf.yaml",
-            "deepreg/config/test/conditional.yaml",
-            "deepreg/config/test/unpaired_nifti.yaml",
-            "deepreg/config/test/labeled.yaml",
+            "config/test/ddf.yaml",
+            "config/test/conditional.yaml",
+            "config/test/unpaired_nifti.yaml",
+            "config/test/labeled.yaml",
         ],
     )

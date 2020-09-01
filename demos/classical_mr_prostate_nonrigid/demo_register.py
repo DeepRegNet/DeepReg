@@ -88,7 +88,6 @@ for step in range(total_iter):
             loss_deform_opt,
         )
 
-
 # warp the moving image using the optimised ddf
 warped_moving_image = warping(inputs=[var_ddf, moving_image])
 
@@ -126,6 +125,5 @@ for arr, arr_name in zip(arrays, arr_names):
     util.save_array(
         save_dir=SAVE_PATH, arr=arr, name=arr_name, gray=True, save_png=False
     )
-
 
 os.chdir(MAIN_PATH)

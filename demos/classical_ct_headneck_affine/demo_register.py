@@ -23,7 +23,6 @@ image_loss_name = "ssd"
 learning_rate = 0.01
 total_iter = int(1000)
 
-
 ## load image
 if not os.path.exists(DATA_PATH):
     raise ("Download the data using demo_data.py script")
@@ -89,11 +88,9 @@ for step in range(total_iter):
     if (step % 50) == 0:  # print info
         tf.print("Step", step, image_loss_name, loss_opt)
 
-
 ## warp the moving image using the optimised affine transformation
 grid_opt = layer_util.warp_grid(grid_ref, var_affine)
 warped_moving_image = layer_util.resample(vol=moving_image, loc=grid_opt)
-
 
 ## warp the moving labels using the optimised affine transformation
 warped_moving_labels = tf.stack(
@@ -103,7 +100,6 @@ warped_moving_labels = tf.stack(
     ],
     axis=4,
 )
-
 
 ## save output to files
 SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -136,6 +132,5 @@ for arr, arr_name in zip(arrays, arr_names):
             name=arr_name + (arr.shape[-1] > 1) * "_{}".format(n),
             gray=True,
         )
-
 
 os.chdir(MAIN_PATH)
