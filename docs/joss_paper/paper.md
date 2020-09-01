@@ -14,7 +14,7 @@ authors:
   - name: Nina Montaña Brown
     orcid: 0000-0001-5685-971X
     affiliation: "1, 2"
-  - name: Shaheer U Saeed
+  - name: Shaheer U. Saeed
     orcid: 0000-0002-5004-0663
     affiliation: "1, 2"
   - name: Adrià Casamitjana
@@ -74,7 +74,7 @@ However, popular packages focusing on deep learning methods for medical imaging,
 *DeepReg* is a Python package that implements a class of image registration algorithms based on deep neural networks. Both unsupervised algorithms [@de2019deep] and weakly-supervised algorithms [@hu2018label] have been re-implemented. At the core of this framework is combining unsupervised losses and weak supervision, such as those derived from image similarity measures and overlap between corresponding anatomical and pathological regions of interest (ROIs), respectively. In addition, DeepReg provides command-line tool options that enable a set of basic and advanced functionalities for model training, prediction and image warping. These implementations, together with their documentation, tutorials and demos, simplify workflows for prototyping and developing novel methodology, rapid utilising latest development in this field and accessing quality research advances. A MICCAI Educational Challenge has utilised the DeepReg code and demos to explore the link between classical algorithms and deep-learning-based methods [@brown2020introduction], while a recently published research paper investigated temporal changes for prostate cancer patients under active surveillance programme, by using longitudinal image registration adapted from the DeepReg code [@yang2020longitudinal].
 
 # Algorithms
-In this section, we first summarise several standard pairwise image registration network training strategies, in which the network aims to align a pair of moving- and fixed images such that the moving image can be warped or transformed into the fixed image coordinates. The methodologies adopted in these algorithms are building blocks of many other registration tasks, such as group-wise registration and morphological template construction [@dalca2019learning; @siebert2020deep; @luo2020mvmm].
+In this section we first summarise several standard pairwise image registration network training strategies that are implemented in the DeepReg package. The networks aim to align a pair of moving- and fixed images such that the moving image can be warped or transformed into the fixed image coordinates. The methodologies adopted in these algorithms are building blocks of many other registration tasks, such as group-wise registration and morphological template construction [@dalca2019learning; @siebert2020deep; @luo2020mvmm].
 
 Unsupervised learning was first developed independently at a number of research groups [@de2019deep; @balakrishnan2019voxelmorph]. Image dissimilarity is measured between the fixed and warped moving images, adapted from the classical registration methods [@hill2001medical]. \autoref{fig:unsupervised} shows a schematic illustration of the unsupervised network training. Image dissimilarity measures include sum-of-squared difference in intensity, normalised cross-correlation, mutual information and their variants.
 
@@ -118,7 +118,7 @@ DeepReg facilitates a collection of dataset loaders and deep learning algorithms
 
 # Acknowledgements
 
-This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (NS/A000049/1) and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34).
+This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (NS/A000049/1) and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34). NMB, ZB, QY RD are also supported by the EPSRC CDT i4health (EP/S021930/1).
 
 # References
 <!-- This will be filled in by references in paper.bib -->
