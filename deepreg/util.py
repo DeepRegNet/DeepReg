@@ -47,13 +47,14 @@ def build_dataset(
     return data_loader, dataset, steps_per_epoch
 
 
-def build_log_dir(log_dir: str) -> str:
+def build_log_dir(log_root: str, log_dir: str) -> str:
     """
+    :param log_root: str, root of logs
     :param log_dir: str, path to where training logs to be stored.
     :return: the path of directory to save logs
     """
     log_dir = os.path.join(
-        "logs", datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
+        log_root, datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
     )
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))
