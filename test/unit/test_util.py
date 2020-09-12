@@ -19,8 +19,6 @@ from deepreg.util import (
     save_metric_dict,
 )
 
-log_root = "logs"
-
 
 def test_build_dataset():
     """
@@ -69,23 +67,22 @@ def test_build_dataset():
     assert steps_per_epoch_valid is None
 
 
-def test_build_log_dir():
+@pytest.mark.parametrize("log_root,log_dir", [("logs", ""), ("logs", "custom")])
+def test_build_log_dir(log_root: str, log_dir: str):
     """
     Test build_log_dir for default directory and custom directory
     """
 
-    # use default timestamp based directory
-    log_dir = build_log_dir(log_root=log_root, log_dir="")
-    head, tail = os.path.split(log_dir)
+    built_log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
+    head, tail = os.path.split(built_log_dir)
     assert head == log_root
-    pattern = re.compile("[0-9]{8}-[0-9]{6}")
-    assert pattern.match(tail)
-
-    # use custom directory
-    log_dir = build_log_dir(log_root=log_root, log_dir="custom")
-    head, tail = os.path.split(log_dir)
-    assert head == log_root
-    assert tail == "custom"
+    if log_dir == "":
+        # use default timestamp based directory
+        pattern = re.compile("[0-9]{8}-[0-9]{6}")
+        assert pattern.match(tail)
+    else:
+        # use custom directory
+        assert tail == log_dir
 
 
 def test_save_array():
