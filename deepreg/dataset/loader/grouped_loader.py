@@ -42,7 +42,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
           - images
           - labels
         :param labeled: bool, true if the data is labeled, false if unlabeled
-        :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/test_util.py for more details.
+        :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/util.py for more details.
         :param intra_group_prob: float between 0 and 1,
 
           - 0 means generating only inter-group samples,

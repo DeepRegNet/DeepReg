@@ -28,7 +28,6 @@ os.remove(zip_file)
 
 print("\nMask data downloaded: %s." % os.path.abspath(DATA_PATH))
 
-
 ## now read the data and convert to train/val/test
 ratio_val = 0.1
 ratio_test = 0.2
@@ -97,7 +96,6 @@ for idf in range(len(folders)):
 os.remove(data_filename)
 
 print("Done. \n")
-
 
 ## now download the pre-trained model
 MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")

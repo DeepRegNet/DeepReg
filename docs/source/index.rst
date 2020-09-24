@@ -39,8 +39,13 @@
     :maxdepth: 2
     :caption: API Reference
 
-    api/entry_points
+    api/entry_point
     api/loader
+    api/network
+    api/backbone
+    api/layer
+    api/loss
+    api/optimizer
 
 .. toctree::
     :hidden:
@@ -49,7 +54,6 @@
 
     contributing/guide
     contributing/setup
-    contributing/issue
     contributing/pull_request
     contributing/demo
     contributing/build

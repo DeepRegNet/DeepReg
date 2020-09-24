@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/paired_mrus_brain)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/paired_mrus_brain)
 
 This demo uses DeepReg to re-implament the algorithms described in
 [Weakly-supervised convolutional neural networks for multimodal image registration](https://doi.org/10.1016/j.media.2018.07.002).
@@ -57,11 +57,11 @@ deepreg_predict --gpu "" --config_path demos/paired_mrus_prostate/paired_mrus_pr
 
 ## Pre-trained Model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/paired_mrus_prostate/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/paired_mrus_prostate/.
 
 ## Data
 
@@ -74,5 +74,4 @@ Last commit at which demo was tested: 7ec0f5157a81cd5e60cadd61bd617b433039d0e6
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).

@@ -12,6 +12,8 @@ import pytest
 
 from deepreg.predict import build_config, build_pair_output_path
 
+log_root = "logs"
+
 
 def test_build_pair_output_path():
     """
@@ -44,21 +46,29 @@ def test_build_config():
     """
     Test build_config and check log_dir setting and checkpoint path verification
     """
-    config_path = "deepreg/config/unpaired_labeled_ddf.yaml"
+    config_path = "config/unpaired_labeled_ddf.yaml"
     log_dir = "test_build_config"
 
     # TODO checkpoint path empty
 
     # checkpoint path ends with ckpt
     got_config, got_log_dir = build_config(
-        config_path=config_path, log_dir=log_dir, ckpt_path="example.ckpt"
+        config_path=config_path,
+        log_root=log_root,
+        log_dir=log_dir,
+        ckpt_path="example.ckpt",
     )
     assert isinstance(got_config, dict)
     assert got_log_dir == os.path.join("logs", log_dir)
 
     # checkpoint path ends with h5
     with pytest.raises(ValueError):
-        build_config(config_path=config_path, log_dir=log_dir, ckpt_path="example.h5")
+        build_config(
+            config_path=config_path,
+            log_root=log_root,
+            log_dir=log_dir,
+            ckpt_path="example.h5",
+        )
 
 
 def test_predict_on_dataset():

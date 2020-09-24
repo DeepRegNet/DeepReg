@@ -26,7 +26,6 @@ os.remove(zip_file)
 
 print("\nMR and ultrasound data downloaded: %s." % os.path.abspath(DATA_PATH))
 
-
 ## now split the data in to num_part partitions
 num_part = 11
 
@@ -61,7 +60,6 @@ for fn in data_types:  # remove the old type folders
     shutil.rmtree(os.path.join(DATA_PATH, fn))
 
 print("All data are partitioned into %d folders." % num_part)
-
 
 ## now download the pre-trained model
 MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")

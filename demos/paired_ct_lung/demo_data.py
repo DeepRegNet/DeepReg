@@ -34,7 +34,6 @@ get_file(os.path.join(os.getcwd(), fname), url)
 
 print("The file ", fname, " has successfully been downloaded!")
 
-
 data_folder_name = "data"
 
 if os.path.exists(os.path.join(main_path, project_dir, data_folder_name)) is not True:
@@ -84,7 +83,6 @@ def moveFilesIntoCorrectPath(
 
 
 if os.path.exists(path_to_images_and_labels):
-
     moveFilesIntoCorrectPath(
         images_fnames, path_to_images_and_labels, path_to_train, "images", "scans"
     )
@@ -227,7 +225,6 @@ for folder in folders:
                             os.path.join(data_dir, folder, subfolder, file),
                         )
                     nib.save(img, os.path.join(data_dir, folder, subfolder, file))
-
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 

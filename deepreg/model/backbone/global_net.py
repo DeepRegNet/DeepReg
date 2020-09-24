@@ -1,14 +1,7 @@
-#  coding=utf-8
+# coding=utf-8
 
-"""
-Module to build GlobalNet based on:
+from typing import List
 
-Y. Hu et al.,
-"Label-driven weakly-supervised learning for multimodal deformable image registration,"
-(ISBI 2018), pp. 1070-1074.
-https://arxiv.org/abs/1711.01666
-
-"""
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
@@ -16,32 +9,36 @@ from deepreg.model import layer, layer_util
 
 class GlobalNet(tf.keras.Model):
     """
-    Builds GlobalNet for image registration based on
-    Y. Hu et al.,
-    "Label-driven weakly-supervised learning for multimodal
-    deformable image registration,"
-    (ISBI 2018), pp. 1070-1074.
+    Builds GlobalNet for image registration.
+
+    Reference:
+
+    - Hu, Yipeng, et al.
+      "Label-driven weakly-supervised learning for multimodal deformable image registration,"
+      https://arxiv.org/abs/1711.01666
     """
 
     def __init__(
         self,
-        image_size,
-        out_channels,
-        num_channel_initial,
-        extract_levels,
-        out_kernel_initializer,
-        out_activation,
+        image_size: tuple,
+        out_channels: int,
+        num_channel_initial: int,
+        extract_levels: List[int],
+        out_kernel_initializer: str,
+        out_activation: str,
         **kwargs,
     ):
         """
         Image is encoded gradually, i from level 0 to E.
         Then, a densely-connected layer outputs an affine
         transformation.
+
+        :param image_size: tuple, such as (dim1, dim2, dim3)
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
         :param extract_levels: list, which levels from net to extract
+        :param out_kernel_initializer: str, which kernel to use as initializer
         :param out_activation: str, activation at last layer
-        :param out_kernel_initializer: str, which kernel to use as initialiser
         :param kwargs:
         """
         super(GlobalNet, self).__init__(**kwargs)
@@ -72,10 +69,11 @@ class GlobalNet(tf.keras.Model):
     def call(self, inputs, training=None, mask=None):
         """
         Build GlobalNet graph based on built layers.
-        :param inputs: image batch, shape = [batch, f_dim1, f_dim2, f_dim3, ch]
-        :param training:
-        :param mask:
-        :return:
+
+        :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
+        :param training: None or bool.
+        :param mask: None or tf.Tensor.
+        :return: tf.Tensor, shape = (batch, dim1, dim2, dim3, 3)
         """
         # down sample from level 0 to E
         h_in = inputs
@@ -88,6 +86,7 @@ class GlobalNet(tf.keras.Model):
         # predict affine parameters theta of shape = [batch, 4, 3]
         self.theta = self._dense_layer(h_out)
         self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
+
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
         output = grid_warped - self.reference_grid

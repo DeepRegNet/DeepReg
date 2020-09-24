@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_mr_brain)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/unpaired_mr_brain)
 
 ## Author
 
@@ -35,29 +35,29 @@ following order:
   - Dataset options: input data directory, loader type, data format
   - Model options: backbone network, field type.
   - Training options: losses, optimizer, number of epochs.
-- Run the demo_data.py script: This script does the following:
+- Run the `demo_data.py` script: This script does the following:
   - Download and extract the dataset. Data is downloaded to the demo directory under
     data/ but this can be changed (instructions in the comments in the script).
   - Split subjects into train/test according to the challenge website.
   - Rescale all images to 0-255 so they are suitable for use with DeepReg
   - Create and apply a binary mask to mask-out the padded values in images.
   - Transform label volumes using one-hot encoding (only for foreground classes)
-- Run the demo_train.py script: This script does the following:
+- Run the `demo_train.py` script: This script does the following:
   - Specify the training options like GPU support
   - Specify the config file paths
   - Train a network using DeepReg
-- Run the demo_predict.py script: This script does the following:
+- Run the `demo_predict.py` script: This script does the following:
   - Use the trained network to make predictions for the test set
   - Use the predictions to plot the results (the path to the images generated in the
     logs will need to be specified, look at comments in the script to change this)
 
 ## Pre-trained Model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/learn2reg_t4_unpaired_train_logs/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/learn2reg_t4_unpaired_train_logs/.
 
 ## Data
 
@@ -72,8 +72,7 @@ Last commit at which demo was tested: v. 0.1.6-alpha
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html)
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
 
 ## Reference
 

@@ -13,16 +13,18 @@ def conditional_forward(
     fixed_image_size: tuple,
 ) -> [tf.Tensor, tf.Tensor]:
     """
-    Perform the network forward pass
+    Perform the network forward pass.
+
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
-    :return: tuple(pred_fixed_label, fixed_grid), where
-    - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
-    - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
+    :return: (pred_fixed_label, fixed_grid), where
+
+      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
     # expand dims
@@ -71,6 +73,8 @@ def build_conditional_model(
     loss_config: dict,
 ) -> tf.keras.Model:
     """
+    Build a model which outputs predicted fixed label.
+
     :param moving_image_size: (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
     :param index_size: int, the number of indices for identifying a sample

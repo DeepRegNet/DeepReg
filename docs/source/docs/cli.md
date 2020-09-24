@@ -4,7 +4,7 @@ With DeepReg installed, multiple command line tools are available, currently inc
 
 - `deepreg_train`, for training a registration network.
 - `deepreg_predict`, for evaluating a trained network.
-- `deepreg_warp`, for warping an image with a discrete displacement field.
+- `deepreg_warp`, for warping an image with a dense displacement field.
 
 ## Train
 
@@ -64,11 +64,21 @@ configuration can be specified in the configuration file. Please see
 
   - `--ckpt_path weights-epoch2.ckpt` for reloading the given checkpoint.
 
+- **Output root**:
+
+  `--log_root`, specifies the directory for saving all logs.
+
+  By default it is `logs` under the root of package.
+
+  Example usage:
+
+  - `--log_root /logs` for saving all logs under `/logs`.
+
 - **Output directory**:
 
   `--log_dir` or `-l`, specifies the directory name to save logs.
 
-  The directory will be under `logs/`.
+  The directory will be under the `log_root` which is `logs` by default.
 
   By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
 
@@ -139,13 +149,23 @@ configuration can be specified in the configuration file. Please see
 
   - `--gpu_allow_growth`, no extra argument is needed.
 
+- **Output root**:
+
+  `--log_root`, specifies the directory for saving all logs.
+
+  By default it is `logs` under the root of package.
+
+  Example usage:
+
+  - `--log_root /logs` for saving all logs under `/logs`.
+
 - **Output directory**:
 
   `--log_dir` or `-l`, specifies the directory name to save logs.
 
-  The directory will be under `logs/`.
+  The directory will be under the `log_root` which is `logs` by default.
 
-  By default is creates a timestamp-named directory like `logs/20200810-194042/`.
+  By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
 
   Example usage:
 

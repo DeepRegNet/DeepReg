@@ -67,8 +67,8 @@ def train_step(warper, weights, optimizer, mov, fix):
 
 # ddf as trainable weights
 fixed_image_size = fixed_image.shape
-initialiser = tf.random_normal_initializer(mean=0, stddev=1e-3)
-var_ddf = tf.Variable(initialiser(fixed_image_size + [3]), name="ddf", trainable=True)
+initializer = tf.random_normal_initializer(mean=0, stddev=1e-3)
+var_ddf = tf.Variable(initializer(fixed_image_size + [3]), name="ddf", trainable=True)
 
 warping = layer.Warping(fixed_image_size=fixed_image_size[1:4])
 optimiser = tf.optimizers.Adam(learning_rate)
@@ -87,7 +87,6 @@ for step in range(total_iter):
             deform_loss_name,
             loss_deform_opt,
         )
-
 
 # warp the moving image using the optimised ddf
 warped_moving_image = warping(inputs=[var_ddf, moving_image])
@@ -126,6 +125,5 @@ for arr, arr_name in zip(arrays, arr_names):
     util.save_array(
         save_dir=SAVE_PATH, arr=arr, name=arr_name, gray=True, save_png=False
     )
-
 
 os.chdir(MAIN_PATH)

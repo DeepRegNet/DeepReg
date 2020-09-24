@@ -3,7 +3,7 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
-[Source Code](https://github.com/DeepRegNet/DeepReg/tree/master/demos/unpaired_us_prostate_cv)
+[Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/unpaired_us_prostate_cv)
 
 This DeepReg Demo is also an example of cross validation.
 
@@ -61,11 +61,11 @@ deepreg_predict --gpu "" --config_path demos/unpaired_us_prostate_cv/unpaired_us
 
 ## Pre-trained Model
 
-A pre-trained model will be downloaded after running [demo_data.py](./demo_data.py) and
-unzipped at the dataset folder under the demo folder. This pre-trained model will be
-used by default with `deepreg_predict`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/unpaired_us_prostate_cv/.
+A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
+dataset folder under the demo folder. This pre-trained model will be used by default
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the ckpt files will be saved, in this case (specified by `deepreg_train`
+as above), /logs/unpaired_us_prostate_cv/.
 
 ## Tested DeepReg version
 
@@ -73,5 +73,4 @@ Last commit at which demo was tested: 7bec018b5e910f1589888f3f286e9f6a11060c31
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new) following the
-[guidelines](../contributing/issue.html).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).

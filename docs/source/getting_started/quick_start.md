@@ -3,7 +3,7 @@
 This is a set of simple tests to use DeepReg command line tools. More details and other
 options can be found in [Command Line Tools](../docs/cli.html).
 
-First, [install DeepReg](../docs/install.html) and change current directory to the root
+First, [install DeepReg](install.html) and change current directory to the root
 directory of DeepReg.
 
 ## Train a registration network
@@ -12,7 +12,7 @@ Train a registration network using unpaired and labeled example data with a pred
 configuration:
 
 ```bash
-deepreg_train --gpu "" --config_path deepreg/config/unpaired_labeled_ddf.yaml --log_dir test
+deepreg_train --gpu "" --config_path config/unpaired_labeled_ddf.yaml --log_dir test
 ```
 
 where:

@@ -20,7 +20,8 @@ def ddf_dvf_forward(
     output_dvf: bool,
 ) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
-    Perform the network forward pass
+    Perform the network forward pass.
+
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -28,12 +29,13 @@ def ddf_dvf_forward(
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
-    :return: tuple(dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-    - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-    - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-    - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-    - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
-    - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
+    :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
+
+      - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
+      - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
+      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
     # expand dims
@@ -84,6 +86,8 @@ def build_ddf_dvf_model(
     loss_config: dict,
 ) -> tf.keras.Model:
     """
+    Build a model which outputs DDF/DVF.
+
     :param moving_image_size: (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
     :param index_size: int, the number of indices for identifying a sample

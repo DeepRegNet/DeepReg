@@ -1,22 +1,19 @@
 """
-Functions parsing the config optimiser options
-:function
+Functions parsing the config optimizer options
 """
 
 import tensorflow as tf
 
 
-def build_optimizer(optimizer_config):
+def build_optimizer(optimizer_config: dict):
     """
     Parsing the optimiser options and parameters
     from config dictionary.
 
     :param optimizer_config: unpacked dictionary for
-    the optimiser returned from yaml.load, optimiser options
-    and parameters
-
+      the optimiser returned from yaml.load, optimiser options
+      and parameters
     :return: tf.keras.optimizers object
-
     """
     assert isinstance(optimizer_config, dict)
 

@@ -42,15 +42,15 @@ follows.
     shape, and it will be resized to the required shape using linear interpolation.
 
   - Currently, DeepReg only supports images stored in Nifti files or H5 files. Check
-    [Nifti_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/nifti_loader.py)
+    [Nifti_loader](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/dataset/loader/nifti_loader.py)
     and
-    [h5_loader](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/h5_loader.py)
+    [h5_loader](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/dataset/loader/h5_loader.py)
     for more details.
 
   - **Images are automatically normalized** at per-image level: the intensity values x
     equals to `(x-min(x)+EPS) / (max(x)-min(x)+EPS)` so that its values are between
     [0,1]. Check `GeneratorDataLoader.data_generator` in
-    [loader interface](https://github.com/deepregnet/DeepReg/blob/master/deepreg/dataset/loader/interface.py)
+    [loader interface](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/dataset/loader/interface.py)
     for more details.
 
 - Label
@@ -196,7 +196,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test paired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/paired)
+[test paired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/nifti/paired)
 as an example.
 
 Optionally, the data may not be all saved directly under the top directory. They can be
@@ -231,7 +231,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test paired H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/paired)
+[test paired H5 data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/h5/paired)
 as an example.
 
 ## Unpaired images
@@ -313,7 +313,7 @@ File names should be consistent between top directories, e.g.:
   - ...
 
 Check
-[test unpaired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/unpaired)
+[test unpaired Nifti data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/nifti/unpaired)
 as an example.
 
 #### H5
@@ -337,7 +337,7 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test unpaired H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/unpaired)
+[test unpaired H5 data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/h5/unpaired)
 as an example.
 
 ## Grouped images
@@ -484,7 +484,7 @@ consistent between top directories, e.g.:
   - ...
 
 Check
-[test grouped Nifti data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/nifti/grouped)
+[test grouped Nifti data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/nifti/grouped)
 as an example.
 
 #### H5
@@ -517,5 +517,5 @@ The keys should be consistent between files, e.g.:
   - ...
 
 Check
-[test grouped H5 data](https://github.com/DeepRegNet/DeepReg/tree/master/data/test/h5/grouped)
+[test grouped H5 data](https://github.com/DeepRegNet/DeepReg/tree/main/data/test/h5/grouped)
 as an example.

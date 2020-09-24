@@ -19,7 +19,6 @@ get_file(os.path.abspath(ZIP_PATH), ORIGIN)
 with zipfile.ZipFile(ZIP_PATH, "r") as zf:
     zf.extractall()
 
-
 if os.path.exists(DATA_PATH):
     shutil.rmtree(DATA_PATH)
 shutil.move(DATA_REPO, DATA_PATH)

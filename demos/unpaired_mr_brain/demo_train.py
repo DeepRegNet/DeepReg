@@ -4,7 +4,6 @@ from deepreg.train import train
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-
 gpu = "0"
 gpu_allow_growth = False
 ckpt_path = ""  # To load pre-trained weights

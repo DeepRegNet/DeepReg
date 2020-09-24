@@ -2,7 +2,7 @@
 Unit test for unpaired labeled data
 """
 
-from deepreg.test_util import train_and_predict_with_config
+from test.output.util import train_and_predict_with_config
 
 
 def test_unpaired_labeled():
@@ -12,8 +12,8 @@ def test_unpaired_labeled():
     train_and_predict_with_config(
         test_name="unpaired_labeled_h5",
         config_path=[
-            "deepreg/config/test/ddf.yaml",
-            "deepreg/config/test/unpaired_h5.yaml",
-            "deepreg/config/test/labeled.yaml",
+            "config/test/ddf.yaml",
+            "config/test/unpaired_h5.yaml",
+            "config/test/labeled.yaml",
         ],
     )
