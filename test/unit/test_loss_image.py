@@ -18,7 +18,7 @@ def test_dissimilarity_fn():
     Testing computed dissimilarity function by comparing to precomputed, the dissimilarity function can be either normalized cross correlation or sum square error function.
     """
 
-    # testing if we can get the expected value using the function image.dissimilarity_fn to compute the normalized cross correlation between beforehand random generated input images
+    # lncc diff images
     tensor_true = np.array(range(12)).reshape((2, 1, 2, 3))
     tensor_pred = 0.6 * np.ones((2, 1, 2, 3))
     tensor_true = tf.convert_to_tensor(tensor_true, dtype=tf.float32)
@@ -30,8 +30,7 @@ def test_dissimilarity_fn():
 
     assert is_equal_tf(get_ncc, expect_ncc)
 
-    # testing if we can get the expected value using the function image.dissimilarity_fn to compute the sum squared error between beforehand random generated input images
-
+    # ssd diff images
     tensor_true1 = np.zeros((2, 1, 2, 3))
     tensor_pred1 = 0.6 * np.ones((2, 1, 2, 3))
     tensor_true1 = tf.convert_to_tensor(tensor_true1, dtype=tf.float32)
@@ -43,24 +42,26 @@ def test_dissimilarity_fn():
 
     assert is_equal_tf(get_ssd, expect_ssd)
 
-    # testing if we can get [-1,-1] if the first two inputs to the function image.dissimilarity_fn are the same, while the normalized cross correlation between images is computed
+    # TODO gmi diff images
+
+    # lncc same image
     get_zero_similarity_ncc = image.dissimilarity_fn(
         tensor_pred1, tensor_pred1, name_ncc
     )
     assert is_equal_tf(get_zero_similarity_ncc, [-1, -1])
 
-    #  testing if we can get [0, 0] (i.e. zero vector) if the first two inputs to the function image.dissimilarity_fn are the same, while the sum squared error between images is computed
+    # ssd same image
     get_zero_similarity_ssd = image.dissimilarity_fn(
         tensor_true1, tensor_true1, name_ssd
     )
     assert is_equal_tf(get_zero_similarity_ssd, [0, 0])
 
-    #  testing if we can get [0, 0] (i.e. zero vector) in mutual information
+    # gmi same image
     t = tf.ones([4, 3, 3, 3])
     get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
     assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0])
 
-    # testing if we can get the expected ValueError if the third input to the function image.dissimilarity_fn is neither "lncc" nor "ssd"
+    # unknown func name
     with pytest.raises(AssertionError):
         image.dissimilarity_fn(
             tensor_true1, tensor_pred1, "some random string that isn't ssd or lncc"

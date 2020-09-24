@@ -12,7 +12,7 @@ DATA_FILE_SUFFIX = ["nii.gz", "nii"]
 
 def load_nifti_file(file_path: str) -> np.ndarray:
     """
-    :param file_path: path of a nifti file with suffix .nii or .nii.gz
+    :param file_path: path of a Nifti file with suffix .nii or .nii.gz
     :return: return the numpy array
     """
     if not (file_path.endswith(".nii") or file_path.endswith(".nii.gz")):
@@ -37,14 +37,16 @@ class NiftiFileLoader(FileLoader):
 
     def set_data_structure(self):
         """
-        store the data structure in the memory so that
+        Store the data structure in the memory so that
         we can retrieve data using data_index
-        this function sets
-        - data_path_splits, a list of string tuples to identify path of data
-          - if grouped, a split is (dir_path, group_path, file_name, suffix)
-            data is stored in dir_path/name/group_path/file_name.suffix
-          - if not grouped, a split is (dir_path, file_name, suffix)
-            data is stored in dir_path/name/file_name.suffix
+        this function sets data_path_splits, a list of string tuples to identify path of data
+
+        - if grouped, a split is (dir_path, group_path, file_name, suffix)
+          data is stored in dir_path/name/group_path/file_name.suffix
+
+        - if not grouped, a split is (dir_path, file_name, suffix)
+          data is stored in dir_path/name/file_name.suffix
+
         """
         data_path_splits = []
         for dir_path in self.dir_paths:
@@ -72,7 +74,7 @@ class NiftiFileLoader(FileLoader):
 
     def set_group_structure(self):
         """
-        in addition to set_data_structure
+        In addition to set_data_structure
         store the group structure in the group_struct so that
         group_struct[group_index] = list of data_index
         we can retrieve data using (group_index, in_group_data_index)
@@ -95,9 +97,11 @@ class NiftiFileLoader(FileLoader):
     def get_data(self, index: (int, tuple)) -> np.ndarray:
         """
         Get one data array by specifying an index
+
         :param index: the data index which is required
-        for paired or unpaired, the index is one single int, data_index
-        for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+
+          - for paired or unpaired, the index is one single int, data_index
+          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -135,9 +139,10 @@ class NiftiFileLoader(FileLoader):
 
     def get_data_ids(self):
         """
-        return the unique IDs of the data in this data set
+        Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
         images and label, moving and fixed
+
         :return: data_path_splits but without suffix
         """
         return [x[:-1] for x in self.data_path_splits]
@@ -149,5 +154,5 @@ class NiftiFileLoader(FileLoader):
         return len(self.data_path_splits)
 
     def close(self):
-        """no opened files"""
+        """Close opened files"""
         pass

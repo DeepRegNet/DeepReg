@@ -1,8 +1,8 @@
 """
 Loads grouped data
-supports h5 and nifti formats
+supports h5 and Nifti formats
 supports labeled and unlabeled data
-Read https://ucl-candi.github.io/DeepReg/#/doc_data_loader?id=grouped-images for more details.
+Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
 import random
 from typing import List
@@ -37,19 +37,21 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         """
         :param file_loader: a subclass of FileLoader
         :param data_dir_paths: paths of the directory storing data,
-                              the data has to be saved under two different sub-directories:
-                              - images
-                              - labels
+          the data has to be saved under two different sub-directories:
+
+          - images
+          - labels
         :param labeled: bool, true if the data is labeled, false if unlabeled
         :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/test_util.py for more details.
         :param intra_group_prob: float between 0 and 1,
-                                 0 means generating only inter-group samples,
-                                 1 means generating only intra-group samples
+
+          - 0 means generating only inter-group samples,
+          - 1 means generating only intra-group samples
         :param intra_group_option: str, "forward", "backward, or "unconstrained"
         :param sample_image_in_group: bool,
-                                      - if true, only one image pair will be yielded for each group,
-                                        so one epoch has num_groups pairs of data,
-                                      - if false, iterate through this loader will generate all possible pairs
+
+          - if true, only one image pair will be yielded for each group, so one epoch has num_groups pairs of data,
+          - if false, iterate through this loader will generate all possible pairs
         :param seed: controls the randomness in sampling, if seed=None, then the randomness is not fixed
         :param image_shape: list or tuple of length 3, corresponding to (dim1, dim2, dim3) of the 3D image
         """
@@ -114,7 +116,11 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled is True:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
+            check_difference_between_two_lists(
+                list1=image_ids,
+                list2=label_ids,
+                name="images and labels in grouped loader",
+            )
 
     def get_intra_sample_indices(self) -> list:
         """
@@ -159,12 +165,13 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         """
         Calculate the sample indices for inter-group sampling
         The index to identify a sample is (group1, image1, group2, image2), means
-        - image1 of group1 is moving image
-        - image2 of group2 is fixed image
 
-        Assuming group i has ni images,
-        then in total the number of samples are
-        sum(ni) * (sum(ni)-1) - sum( ni * (ni-1) )
+          - image1 of group1 is moving image
+          - image2 of group2 is fixed image
+
+        All pairs of images in the dataset are registered. Assuming group i has ni images,
+        and that N=[n1, n2, ..., nI], then in total the number of samples are:
+        sum(N) * (sum(N)-1) - sum( N * (N-1) )
 
         :return: a list of sample indices
         """
@@ -185,9 +192,10 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def sample_index_generator(self):
         """
         Yield (moving_index, fixed_index, image_indices) sequentially, where
-        - moving_index = (group1, image1)
-        - fixed_index = (group2, image2)
-        - image_indices = [group1, image1, group2, image2]
+
+          - moving_index = (group1, image1)
+          - fixed_index = (group2, image2)
+          - image_indices = [group1, image1, group2, image2]
         """
         rnd = random.Random(self.seed)  # set random seed
         if self.sample_image_in_group is True:
@@ -255,7 +263,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                 yield moving_index, fixed_index, image_indices
 
     def close(self):
-        """close file loaders"""
+        """Close file loaders"""
         self.loader_moving_image.close()
         if self.labeled is True:
             self.loader_moving_label.close()

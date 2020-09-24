@@ -358,7 +358,7 @@ class GeneratorDataLoader(DataLoader, ABC):
         ):
             if len(arr.shape) != 3:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}'s shape should have dimension of 3. "
+                    f"Sample {image_indices}'s {name}' shape should have dimension of 3. "
                     f"Got {arr.shape}."
                 )
         # when data are labeled
@@ -369,7 +369,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             ):
                 if len(arr.shape) not in [3, 4]:
                     raise ValueError(
-                        f"Sample {image_indices}'s {name}'s shape should have dimension of 3 or 4. "
+                        f"Sample {image_indices}'s {name}' shape should have dimension of 3 or 4. "
                         f"Got {arr.shape}."
                     )
             # image and label is better to have the same shape
@@ -392,7 +392,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
             if num_labels_moving != num_labels_fixed:
                 raise ValueError(
-                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels."
+                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels. "
                     f"moving: {num_labels_moving}, fixed: {num_labels_fixed}"
                 )
 
@@ -526,7 +526,7 @@ class FileLoader:
 
     def get_num_images_per_group(self) -> list:
         """
-        calculate the number of images in each group
+        Calculate the number of images in each group
         each group must have at least one image
         """
         assert self.grouped
@@ -539,5 +539,5 @@ class FileLoader:
         return num_images_per_group
 
     def close(self):
-        """close opened file handles if exist"""
+        """Close opened file handles if exist"""
         raise NotImplementedError

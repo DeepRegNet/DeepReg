@@ -10,7 +10,7 @@ from deepreg.predict import predict
 log_dir = "learn2reg_t2_unpaired_train_logs"
 
 log_dir_tr = r"demos/unpaired_ct_lung/learn2reg_t2_unpaired_train_logs"
-ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch2.ckpt")
+ckpt_path = os.path.join(log_dir_tr, "save", "weights-epoch1500.ckpt")
 config_path = os.path.join(log_dir_tr, "config.yaml")
 
 gpu = ""
@@ -32,7 +32,7 @@ predict(
 
 ######## VISUALISATION ########
 
-# Now lets load in a few samples from the predicitons and plot them
+# Now lets load in a few samples from the predictions and plot them
 
 # change the following line to the path to image0 label0
 
@@ -52,7 +52,7 @@ path_to_moving_label = os.path.join(path_to_test, pair_n, "label_0", "moving_lab
 
 # change inds_to_plot if different images need to be plotted instead
 
-inds_to_plot = [144, 145, 184, 140, 150, 180]
+inds_to_plot = [20, 60, 100, 140, 160, 200]
 sub_plot_counter = 1
 
 for ind in inds_to_plot:
@@ -119,3 +119,4 @@ for ind in inds_to_plot:
 path_to_vis = r"logs/learn2reg_t2_unpaired_train_logs/visualisation.png"
 plt.savefig(path_to_vis)
 print("Visualisation saved to:", path_to_vis)
+print("All images generated are saved to:", os.path.join("logs", log_dir, "test"))

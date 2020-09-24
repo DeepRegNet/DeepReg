@@ -12,7 +12,7 @@ train:
     method: "affine" # ddf or conditional or seg
     backbone:
       name: "global"
-      out_kernel_initializer: "zeros" # zeros or glorot_uniform
+      out_kernel_initializer: "zeros" # "zeros" or "glorot_uniform"
       out_activation: ""
     local:
       num_channel_initial: 1

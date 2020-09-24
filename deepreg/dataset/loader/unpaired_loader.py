@@ -1,6 +1,6 @@
 """
 Loads unpaired data
-supports h5 and nifti formats
+supports h5 and Nifti formats
 supports labeled and unlabeled data
 """
 import random
@@ -35,7 +35,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
         :param file_loader:
         :param data_dir_paths: paths of the directories storing data,  the data has to be saved under four different
-                              sub-directories: images, labels
+          sub-directories: images, labels
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
@@ -73,11 +73,15 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
-            check_difference_between_two_lists(list1=image_ids, list2=label_ids)
+            check_difference_between_two_lists(
+                list1=image_ids,
+                list2=label_ids,
+                name="images and labels in unpaired loader",
+            )
 
     def sample_index_generator(self):
         """
-        generates sample indexes in order to load data using the
+        Generates sample indexes in order to load data using the
         GeneratorDataLoader class
         """
         image_indices = [i for i in range(self.num_images)]

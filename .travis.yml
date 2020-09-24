@@ -6,13 +6,21 @@ python:
 install:
   - pip install -e . # install deepreg package with corresponding requirements
   - pip install codecov
+  - pre-commit install
 
 jobs:
   include:
-    - stage: "lint"
+    - stage: "Linting and Docs"
+      name: "Python Linting"
       script:
         - black --check .
         - flake8 .
+    - name: "Pre-commit"
+      script: pre-commit run --all-files
+    - name: "Sphinx Build"
+      script:
+       - cd docs
+       - make clean html
     - stage: "Tests"
       name: "Unit Tests"
       script:  pytest --cov-report= --cov=deepreg ./test/unit/

@@ -2,14 +2,15 @@
 A DeepReg Demo for classical nonrigid iterative pairwise registration algorithms
 """
 import os
+from datetime import datetime
 
 import h5py
-import matplotlib.pyplot as plt
 import tensorflow as tf
 
 import deepreg.model.layer as layer
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
+import deepreg.util as util
 
 MAIN_PATH = os.getcwd()
 PROJECT_DIR = r"demos/classical_mr_prostate_nonrigid"
@@ -18,16 +19,14 @@ os.chdir(PROJECT_DIR)
 DATA_PATH = "dataset"
 FILE_PATH = os.path.join(DATA_PATH, "demo2.h5")
 
-
-## registration parameters
+# registration parameters
 image_loss_name = "lncc"
 deform_loss_name = "bending"
-weight_deform_loss = 10
+weight_deform_loss = 1
 learning_rate = 0.1
 total_iter = int(3000)
 
-
-## load images
+# load images
 if not os.path.exists(DATA_PATH):
     raise ("Download the data using demo_data.py script")
 if not os.path.exists(FILE_PATH):
@@ -38,7 +37,7 @@ moving_image = tf.cast(tf.expand_dims(fid["image0"], axis=0), dtype=tf.float32)
 fixed_image = tf.cast(tf.expand_dims(fid["image1"], axis=0), dtype=tf.float32)
 
 
-## optimisation
+# optimisation
 @tf.function
 def train_step(warper, weights, optimizer, mov, fix):
     """
@@ -90,46 +89,43 @@ for step in range(total_iter):
         )
 
 
-## warp the moving image using the optimised ddf
+# warp the moving image using the optimised ddf
 warped_moving_image = warping(inputs=[var_ddf, moving_image])
-# display
-idx_slices = [int(5 + x * 5) for x in range(int(fixed_image_size[3] / 5) - 1)]
-nIdx = len(idx_slices)
-plt.figure()
-for idx in range(len(idx_slices)):
-    axs = plt.subplot(nIdx, 3, 3 * idx + 1)
-    axs.imshow(moving_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 2)
-    axs.imshow(fixed_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 3)
-    axs.imshow(warped_moving_image[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-plt.ion()
-plt.show()
 
-
-## warp the moving label using the optimised affine transformation
+# warp the moving label using the optimised affine transformation
 moving_label = tf.cast(tf.expand_dims(fid["label0"], axis=0), dtype=tf.float32)
 fixed_label = tf.cast(tf.expand_dims(fid["label1"], axis=0), dtype=tf.float32)
 warped_moving_label = warping(inputs=[var_ddf, moving_label])
-# display
-plt.figure()
-for idx in range(len(idx_slices)):
-    axs = plt.subplot(nIdx, 3, 3 * idx + 1)
-    axs.imshow(moving_label[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 2)
-    axs.imshow(fixed_label[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-    axs = plt.subplot(nIdx, 3, 3 * idx + 3)
-    axs.imshow(warped_moving_label[0, ..., idx_slices[idx]], cmap="gray")
-    axs.axis("off")
-plt.ion()
-plt.show()
 
-plt.pause(0.001)
-input("Press [enter] to continue.")
+## save output to files
+SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+os.mkdir(SAVE_PATH)
+
+arrays = [
+    tf.squeeze(a)
+    for a in [
+        moving_image,
+        fixed_image,
+        warped_moving_image,
+        moving_label,
+        fixed_label,
+        warped_moving_label,
+        var_ddf,
+    ]
+]
+arr_names = [
+    "moving_image",
+    "fixed_image",
+    "warped_moving_image",
+    "moving_label",
+    "fixed_label",
+    "warped_moving_label",
+    "ddf",
+]
+for arr, arr_name in zip(arrays, arr_names):
+    util.save_array(
+        save_dir=SAVE_PATH, arr=arr, name=arr_name, gray=True, save_png=False
+    )
+
 
 os.chdir(MAIN_PATH)

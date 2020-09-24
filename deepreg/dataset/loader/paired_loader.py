@@ -1,8 +1,9 @@
 """
 Loads paired image data
-supports h5 and nifti formats
+supports h5 and Nifti formats
 supports labeled and unlabeled data
 """
+import random
 from typing import List
 
 from deepreg.dataset.loader.interface import (
@@ -31,12 +32,11 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         fixed_image_shape: (list, tuple),
     ):
         """
-        Load data which are paired, labeled or unlabeled.
         :param file_loader:
         :param data_dir_paths: path of the directories storing data,
-        the data has to be saved under four different
-        sub-directories: moving_images, fixed_images, moving_labels,
-        fixed_labels
+          the data has to be saved under four different
+          sub-directories: moving_images, fixed_images, moving_labels,
+          fixed_labels
         :param labeled: true if the data are labeled
         :param sample_label:
         :param seed:
@@ -53,6 +53,12 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         assert isinstance(
             data_dir_paths, list
         ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
+
+        for ddp in data_dir_paths:
+            assert isinstance(
+                ddp, str
+            ), f"data_dir_paths must be list of strings, got {data_dir_paths}"
+
         self.loader_moving_image = file_loader(
             dir_paths=data_dir_paths, name="moving_images", grouped=False
         )
@@ -74,16 +80,22 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         moving_image_ids = self.loader_moving_image.get_data_ids()
         fixed_image_ids = self.loader_fixed_image.get_data_ids()
         check_difference_between_two_lists(
-            list1=moving_image_ids, list2=fixed_image_ids
+            list1=moving_image_ids,
+            list2=fixed_image_ids,
+            name="moving and fixed images in paired loader",
         )
         if self.labeled:
             moving_label_ids = self.loader_moving_label.get_data_ids()
             fixed_label_ids = self.loader_fixed_label.get_data_ids()
             check_difference_between_two_lists(
-                list1=moving_image_ids, list2=moving_label_ids
+                list1=moving_image_ids,
+                list2=moving_label_ids,
+                name="moving images and labels in paired loader",
             )
             check_difference_between_two_lists(
-                list1=moving_image_ids, list2=fixed_label_ids
+                list1=moving_image_ids,
+                list2=fixed_label_ids,
+                name="fixed images and labels in paired loader",
             )
 
     def sample_index_generator(self):
@@ -91,7 +103,9 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         Generate indexes in order to load data using the
         GeneratorDataLoader class
         """
-        for image_index in range(self.num_images):
+        image_indices = [i for i in range(self.num_images)]
+        random.Random(self.seed).shuffle(image_indices)
+        for image_index in image_indices:
             yield image_index, image_index, [image_index]
 
     def close(self):

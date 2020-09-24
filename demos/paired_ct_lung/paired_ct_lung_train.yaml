@@ -1,0 +1,30 @@
+train:
+  model:
+    method: "ddf" # ddf / dvf / conditional
+    backbone: "local"
+    local:
+      num_channel_initial: 4
+      extract_levels: [0, 1, 2, 3]
+  loss:
+    dissimilarity:
+      image:
+        name: "ssd"
+        weight: 0.1
+      label:
+        weight: 1.0
+        name: "multi_scale"
+        multi_scale:
+          loss_type: "dice"
+          loss_scales: [0, 1, 2, 4, 8, 16]
+    regularization:
+      weight: 0.5
+      energy_type: "bending"
+  preprocess:
+    batch_size: 4
+    shuffle_buffer_num_batch: 1
+  optimizer:
+    name: "adam"
+    adam:
+      learning_rate: 1.0e-5
+  epochs: 500
+  save_period: 50
