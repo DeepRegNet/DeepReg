@@ -11,7 +11,7 @@ ckpt_path = ""  # To load pre-trained weights
 config_path = [r"demos/unpaired_mr_brain/unpaired_mr_brain.yaml"]
 
 # log_dir: this log dir points to the downloaded log dir. Change it for other experiments.
-log_dir = "learn2reg_t4_unpaired_train_logs_prova"
+log_dir = "learn2reg_t4_unpaired_weakly_subset_train_logs"
 
 train(
     gpu=gpu,
