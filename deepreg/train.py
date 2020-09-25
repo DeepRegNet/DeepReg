@@ -15,13 +15,16 @@ from deepreg.model.network.build import build_model
 from deepreg.util import build_dataset, build_log_dir
 
 
-def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
+def build_config(
+    config_path: (str, list), log_root: str, log_dir: str, ckpt_path: str
+) -> [dict, str]:
     """
     Function to initialise log directories,
     assert that checkpointed model is the right
     type and to parse the configuration for training
 
     :param config_path: list of str, path to config file
+    :param log_root: str, root of logs
     :param log_dir: str, path to where training logs to be stored.
     :param ckpt_path: str, path where model is stored.
     :return: - config: a dictionary saving configuration
@@ -29,7 +32,7 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
     """
 
     # init log directory
-    log_dir = build_log_dir(log_dir)
+    log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
 
     # check checkpoint path
     if ckpt_path != "":
@@ -68,6 +71,7 @@ def train(
     gpu_allow_growth: bool,
     ckpt_path: str,
     log_dir: str,
+    log_root: str = "logs",
 ):
     """
     Function to train a model
@@ -76,6 +80,7 @@ def train(
     :param config_path: str, path to configuration set up
     :param gpu_allow_growth: bool, whether or not to allocate whole GPU memory to training
     :param ckpt_path: str, where to store training checkpoints
+    :param log_root: str, root of logs
     :param log_dir: str, where to store logs in training
     """
     # set env variables
@@ -84,7 +89,7 @@ def train(
 
     # load config
     config, log_dir = build_config(
-        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
+        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
 
     # build dataset
@@ -191,9 +196,13 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--log_root", help="Root of log directory.", default="logs", type=str
+    )
+
+    parser.add_argument(
         "--log_dir",
         "-l",
-        help="Name of log directory. The directory is under logs/."
+        help="Name of log directory. The directory is under log root, e.g. logs/ by default."
         "If not provided, a timestamp based folder will be created.",
         default="",
         type=str,
@@ -210,7 +219,12 @@ def main(args=None):
 
     args = parser.parse_args(args)
     train(
-        args.gpu, args.config_path, args.gpu_allow_growth, args.ckpt_path, args.log_dir
+        gpu=args.gpu,
+        config_path=args.config_path,
+        gpu_allow_growth=args.gpu_allow_growth,
+        ckpt_path=args.ckpt_path,
+        log_root=args.log_root,
+        log_dir=args.log_dir,
     )
 
 
