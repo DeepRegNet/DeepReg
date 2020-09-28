@@ -11,12 +11,11 @@ install:
 jobs:
   include:
     - stage: "Linting and Docs"
-      name: "Python Linting"
+      name: "Pre-commit"
       script:
         - black --check .
         - flake8 .
-    - name: "Pre-commit"
-      script: pre-commit run --all-files
+        - pre-commit run --all-files
     - name: "Sphinx Build"
       script:
         - cd docs
