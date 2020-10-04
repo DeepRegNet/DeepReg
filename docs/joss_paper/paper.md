@@ -37,7 +37,7 @@ authors:
     affiliation: 1
   - name: Juan Eugenio Iglesias
     orcid: 0000-0001-7569-173X
-    affiliation: 2
+    affiliation: "2, 5, 6"
   - name: Dean C. Barratt
     orcid: 0000-0003-2916-655X
     affiliation: "1, 2"
@@ -54,14 +54,18 @@ authors:
     orcid: 0000-0003-4902-0486
     affiliation: "1, 2"
 affiliations:
- - name: Wellcome/EPSRC Centre for Surgical and Interventional Sciences, University College London
+ - name: Wellcome/EPSRC Centre for Surgical and Interventional Sciences, University College London, London, UK
    index: 1
- - name: Centre for Medical Image Computing, University College London
+ - name: Centre for Medical Image Computing, University College London, London, UK
    index: 2
- - name: InstaDeep
+ - name: InstaDeep, London, UK
    index: 3
- - name: Department of Surgical & Interventional Engineering, King’s College London
+ - name: Department of Surgical & Interventional Engineering, King’s College London, London, UK
    index: 4
+ - name: Martinos Center for Biomedical Imaging, Massachusetts General Hospital and Harvard Medical School, Boston, USA
+   index: 5
+ - name: Computer Science and Artificial Intelligence Laboratory, Massachusetts Institute of Technology, Boston, USA
+   index: 6
 date: 1 September 2020
 bibliography: paper.bib
 ---
