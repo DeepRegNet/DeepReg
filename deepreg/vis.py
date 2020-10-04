@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
 import argparse
-import tensorflow as tf
+import numpy.matlib
+
 
 os.chdir(r'/home/s-sd/Desktop/deepreg_project/DeepReg')
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
@@ -130,6 +131,61 @@ def gif_warp(img_paths, ddf_path, slice_inds=None, num_interval=100, interval=50
             print('Animation saved to:', path_to_anim_save)
 
 
+
+def gif_tile_slices(img_paths, save_path=None, size=(2,2), fname=None, interval=50):
+    if type(img_paths) is str:
+        img_paths = string_to_list(img_paths)
+        
+    num_images = np.prod(size)
+    if int(len(img_paths)) != int(num_images):
+        raise Exception('The number of images supplied is ' + str(len(img_paths)) + ' whereas the number required is ' + str(np.prod(size)) + ' as size specified is ' + str(size))
+        
+    img = load_nifti_file(img_paths[0])
+    img_shape = np.shape(img)
+    
+    imgs = []
+    for img_path in img_paths:
+        img = load_nifti_file(img_path)
+        shape = np.shape(img)
+        if shape != img_shape:
+            raise Exception('all images do not have equal shapes')
+        imgs.append(img)
+    
+    frames = []
+    
+    fig = plt.figure()
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    
+    for index in range(img_shape[-1]):
+        
+        temp_tiles = []
+        frame = np.matlib.repmat(np.ones((img_shape[0], img_shape[1])), size[0], size[1])
+        
+        for img in imgs:
+            temp_tile = img[:, :, index]
+            temp_tiles.append(temp_tile)
+        
+        tile_count = 0
+        for i in range(size[0]):
+            for j in range(size[1]):
+                tile = temp_tiles[tile_count]
+                tile_count += 1
+                frame[i*img_shape[0]:(i+1)*img_shape[0], j*img_shape[0]:(j+1)*img_shape[0]] = tile
+        
+        frame = plt.imshow(frame, aspect='auto', animated=True)
+        
+        frames.append([frame])
+        
+    if fname is None:
+        fname = 'visualisation.gif'
+    
+    anim = animation.ArtistAnimation(fig, frames, interval=interval)
+    path_to_anim_save = os.path.join(save_path, fname)
+    
+    anim.save(path_to_anim_save)
+    print('Animation saved to:', path_to_anim_save)
         
 
 def main(args=None):
@@ -150,6 +206,8 @@ def main(args=None):
     parser.add_argument("--slice-inds", help="Comma separated string of indexes of slices to be used for the visualisation \nApplicable only if --mode 1 or --mode 2", type=str, default=None)
     parser.add_argument("--fname", help="File name (with extension like .png, .jpeg, ...) to save visualisation to \nApplicable only if --mode 2", type=str, default=None)
     parser.add_argument("--col-titles", help="Comma separated string of column titles to use (inferred from file names if not provided) \nApplicable only if --mode 2", default=None)
+    parser.add_argument("--size", help="Comma separated string of number of columns and rows (e.g. \'2,2\') \nApplicable only if --mode 3", default='2,2')
+
 
 
     # init arguments
@@ -168,6 +226,9 @@ def main(args=None):
         gif_warp(img_paths=args.image_paths, ddf_path=args.ddf_path, slice_inds=args.slice_inds, num_interval=args.num_interval, interval=args.interval, save_path=args.save_path)
     elif args.mode is int(2):
         tile_slices(img_paths=args.image_paths, save_path=args.save_path, fname=args.fname, slice_inds=args.slice_inds, col_titles=args.col_titles)
+    elif args.mode is int(3):
+        size = tuple([int(elem) for elem in string_to_list(args.size)])
+        gif_tile_slices(img_paths=args.image_paths, save_path=args.save_path, fname=args.fname, interval=args.interval, size=size)
 
 if __name__ == "__main__":
     main()
