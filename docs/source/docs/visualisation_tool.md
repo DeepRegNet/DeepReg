@@ -11,6 +11,12 @@ the root folder which is `DeepReg`, this is to ensure that the test images are
 accessible. The functionalities can also be accessed by importing functions into a
 python script and this method is described in the last section of this document.
 
+The creation of `.gif` files requires a movie writer that is compatible with
+`matplotlib` like `ffmpeg` in order to be able to write `.gif` files. Please refer to
+the [matplotlib documentation](https://matplotlib.org/3.3.1/api/animation_api.html) for
+more details about writers. The `ffmpeg` writer was used to test functionality of this
+visualisation tool, however, other writers can also be installed and used.
+
 ## General arguments for CLI tool
 
 Some general arguments for the `deepreg_vis` CLI tool are as follows:
