@@ -1,6 +1,7 @@
 """
 Module to generate visualisations of data
 command line interfacce
+reuires ffmpeg wirter to write gif files
 """
 
 import numpy as np
@@ -27,7 +28,6 @@ def gif_slices(img_paths, save_path="", interval=50):
     '''
     Generates and saves gif of slices of image
     supports multiple images to generate multiple gif files
-    reuires ffmpeg wirter to write gif files
     
     :param img_paths : list or comma separated string of image paths
     :param save_path : path to directory where visualisation/s is/are to be saved
@@ -168,6 +168,7 @@ def gif_warp(img_paths, ddf_path, slice_inds=None, num_interval=100, interval=50
 
 def gif_tile_slices(img_paths, save_path=None, size=(2,2), fname=None, interval=50):
     '''
+    Creates tiled gif over slices of multiple images
 
     :param img_paths : list or comma separated string of image paths
     :param save_path : path to directory where visualisation/s is/are to be saved
@@ -233,6 +234,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2,2), fname=None, interval=
 def main(args=None):
     '''
     CLI for deepreg_vis tool 
+    reuires ffmpeg wirter to write gif files
     '''
     parser = argparse.ArgumentParser(
     description="deepreg_vis", formatter_class=argparse.RawTextHelpFormatter
