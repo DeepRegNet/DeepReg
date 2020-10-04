@@ -138,9 +138,6 @@ def gif_warp(
     if slice_inds is None:
         slice_inds = [round(np.random.rand() * (img_shape[-1]) - 1)]
 
-    if slice_inds is None:
-        np.random.rand()
-
     for img_path in img_paths:
         for slice_ind in slice_inds:
 
