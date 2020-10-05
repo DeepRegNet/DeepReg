@@ -37,7 +37,7 @@ authors:
     affiliation: 1
   - name: Juan Eugenio Iglesias
     orcid: 0000-0001-7569-173X
-    affiliation: 2
+    affiliation: "2, 5, 6"
   - name: Dean C. Barratt
     orcid: 0000-0003-2916-655X
     affiliation: "1, 2"
@@ -54,14 +54,18 @@ authors:
     orcid: 0000-0003-4902-0486
     affiliation: "1, 2"
 affiliations:
- - name: Wellcome/EPSRC Centre for Surgical and Interventional Sciences, University College London
+ - name: Wellcome/EPSRC Centre for Surgical and Interventional Sciences, University College London, London, UK
    index: 1
- - name: Centre for Medical Image Computing, University College London
+ - name: Centre for Medical Image Computing, University College London, London, UK
    index: 2
- - name: InstaDeep
+ - name: InstaDeep, London, UK
    index: 3
- - name: Department of Surgical & Interventional Engineering, King’s College London
+ - name: Department of Surgical & Interventional Engineering, King’s College London, London, UK
    index: 4
+ - name: Martinos Center for Biomedical Imaging, Massachusetts General Hospital and Harvard Medical School, Boston, USA
+   index: 5
+ - name: Computer Science and Artificial Intelligence Laboratory, Massachusetts Institute of Technology, Boston, USA
+   index: 6
 date: 1 September 2020
 bibliography: paper.bib
 ---
@@ -69,7 +73,7 @@ bibliography: paper.bib
 # Summary
 Image fusion is a fundamental task in medical image analysis and computer-assisted intervention. Medical image registration, computational algorithms that align different images together [@hill2001medical], has in recent years turned the research attention towards deep learning. Indeed, the representation ability to learn from population data with deep neural networks has opened new possibilities for improving registration generalisability by mitigating difficulties in designing hand-engineered image features and similarity measures for many real-world clinical applications [@haskins2020deep; @fu2020deep]. In addition, its fast inference can substantially accelerate registration execution for time-critical tasks.
 
-*DeepReg* is a Python package that implements multiple registration algorithms and a set of predefined _dataset loaders_, supporting both labelled- and unlabelled data. DeepReg also provides command-line tool options that enable basic and advanced functionalities for model training, prediction and image warping. These implementations, together with their documentation, tutorials and demos, aim to simplify workflows for prototyping and developing novel methodology, utilising latest development and accessing quality research advances. DeepReg is unit tested and a set of customised contributor guidelines are provided to facilitate community contributions.
+*DeepReg* is a Python package using TensorFlow [@tensorflow2015-whitepaper] that implements multiple registration algorithms and a set of predefined _dataset loaders_, supporting both labelled- and unlabelled data. DeepReg also provides command-line tool options that enable basic and advanced functionalities for model training, prediction and image warping. These implementations, together with their documentation, tutorials and demos, aim to simplify workflows for prototyping and developing novel methodology, utilising latest development and accessing quality research advances. DeepReg is unit tested and a set of customised contributor guidelines are provided to facilitate community contributions.
 
 A submission to the MICCAI Educational Challenge has utilised the DeepReg code and demos to explore the link between classical algorithms and deep-learning-based methods [@brown2020introduction], while a recently published research work investigated temporal changes in prostate cancer imaging, by using a longitudinal registration adapted from the DeepReg code [@yang2020longitudinal].
 
