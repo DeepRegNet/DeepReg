@@ -155,7 +155,7 @@ def predict_on_dataset(
                         save_dir=arr_save_dir,
                         arr=arr[sample_index, :, :, :],
                         name=name,
-                        gray=True,
+                        normalize="image" in name,  # label's value is already in [0, 1]
                         save_nifti=save_nifti,
                         save_png=save_png,
                         overwrite=arr_save_dir == label_dir,
@@ -170,7 +170,7 @@ def predict_on_dataset(
                         save_dir=label_dir if conditional else pair_dir,
                         arr=arr[sample_index, :, :, :],
                         name=name,
-                        gray=False,
+                        normalize=True,
                         save_nifti=save_nifti,
                         save_png=save_png,
                     )

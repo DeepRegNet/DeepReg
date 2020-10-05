@@ -12,6 +12,7 @@ import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
+from deepreg.dataset.loader.util import normalize_array
 
 
 def build_dataset(
@@ -67,7 +68,7 @@ def save_array(
     save_dir: str,
     arr: (np.ndarray, tf.Tensor),
     name: str,
-    gray: bool,
+    normalize: bool,
     save_nifti: bool = True,
     save_png: bool = True,
     overwrite: bool = True,
@@ -76,7 +77,8 @@ def save_array(
     :param save_dir: path of the directory to save
     :param arr: 3D or 4D array to be saved
     :param name: name of the array, e.g. image, label, etc.
-    :param gray: true if the array is between 0,1
+    :param normalize: true if the array's value has to be normalized when saving pngs,
+        false means the value is between [0, 1].
     :param save_nifti: if true, array will be saved in nifti
     :param save_png: if true, array will be saved in png
     :param overwrite: if false, will not save the file in case the file exists
@@ -115,6 +117,9 @@ def save_array(
     if save_png:
         png_dir = os.path.join(save_dir, name)
         dir_existed = os.path.exists(png_dir)
+        if normalize:
+            # normalize arr such that it has only values between 0, 1
+            arr = normalize_array(arr=arr)
         for depth_index in range(arr.shape[2]):
             png_file_path = os.path.join(png_dir, f"depth{depth_index}_{name}.png")
             if overwrite or (not os.path.exists(png_file_path)):
@@ -123,9 +128,9 @@ def save_array(
                 plt.imsave(
                     fname=png_file_path,
                     arr=arr[:, :, depth_index, :] if is_4d else arr[:, :, depth_index],
-                    vmin=0 if gray else None,
-                    vmax=1 if gray else None,
-                    cmap="gray" if gray else "PiYG",
+                    vmin=0,
+                    vmax=1,
+                    cmap="PiYG" if is_4d else "gray",
                 )
 
 

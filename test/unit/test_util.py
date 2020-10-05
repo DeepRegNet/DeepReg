@@ -104,7 +104,7 @@ def test_save_array():
     name = "3d_tf"
     out_dir = os.path.join(save_dir, name)
     arr = tf.random.uniform(shape=(2, 3, 4))
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert get_num_pngs_in_dir(out_dir) == 4
     assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
@@ -114,7 +114,7 @@ def test_save_array():
     name = "4d_tf"
     out_dir = os.path.join(save_dir, name)
     arr = tf.random.uniform(shape=(2, 3, 4, 3))
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert get_num_pngs_in_dir(out_dir) == 4
     assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
@@ -124,7 +124,7 @@ def test_save_array():
     name = "3d_np"
     out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4)
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert get_num_pngs_in_dir(out_dir) == 4
     assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
@@ -134,7 +134,7 @@ def test_save_array():
     name = "4d_np"
     out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4, 3)
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert get_num_pngs_in_dir(out_dir) == 4
     assert get_num_niftis_in_dir(save_dir) == 1
     shutil.rmtree(out_dir)
@@ -144,7 +144,7 @@ def test_save_array():
     name = "4d_np"
     out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4, 3)
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True, save_nifti=False)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True, save_nifti=False)
     assert get_num_pngs_in_dir(out_dir) == 4
     assert get_num_niftis_in_dir(save_dir) == 0
     shutil.rmtree(out_dir)
@@ -154,7 +154,7 @@ def test_save_array():
     out_dir = os.path.join(save_dir, name)
     arr = np.random.rand(2, 3, 4, 3)
     assert not os.path.exists(out_dir)
-    save_array(save_dir=save_dir, arr=arr, name=name, gray=True, save_png=False)
+    save_array(save_dir=save_dir, arr=arr, name=name, normalize=True, save_png=False)
     assert not os.path.exists(out_dir)
     assert get_num_niftis_in_dir(save_dir) == 1
     os.remove(os.path.join(save_dir, name + ".nii.gz"))
@@ -170,11 +170,11 @@ def test_save_array():
     os.makedirs(save_dir, exist_ok=True)
     nib.save(img=nib.Nifti2Image(arr1, affine=np.eye(4)), filename=nifti_file_path)
     # save arr2 without overwrite
-    save_array(save_dir=save_dir, arr=arr1, name=name, gray=True, overwrite=False)
+    save_array(save_dir=save_dir, arr=arr1, name=name, normalize=True, overwrite=False)
     arr_read = load_nifti_file(file_path=nifti_file_path)
     assert is_equal_np(arr1, arr_read)
     # save arr2 with overwrite
-    save_array(save_dir=save_dir, arr=arr2, name=name, gray=True, overwrite=True)
+    save_array(save_dir=save_dir, arr=arr2, name=name, normalize=True, overwrite=True)
     arr_read = load_nifti_file(file_path=nifti_file_path)
     assert is_equal_np(arr2, arr_read)
     shutil.rmtree(out_dir)
@@ -184,14 +184,14 @@ def test_save_array():
     name = "5d_np"
     arr = np.random.rand(2, 3, 4, 1, 3)
     with pytest.raises(ValueError) as err_info:
-        save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+        save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert "arr must be 3d or 4d numpy array or tf tensor" in str(err_info.value)
 
     # test 4D np tensor with wrong shape
     name = "5d_np"
     arr = np.random.rand(2, 3, 4, 1)
     with pytest.raises(ValueError) as err_info:
-        save_array(save_dir=save_dir, arr=arr, name=name, gray=True)
+        save_array(save_dir=save_dir, arr=arr, name=name, normalize=True)
     assert "4d arr must have 3 channels as last dimension" in str(err_info.value)
 
 
