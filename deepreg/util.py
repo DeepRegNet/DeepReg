@@ -86,9 +86,7 @@ def save_array(
     if isinstance(arr, tf.Tensor):
         arr = arr.numpy()
     if len(arr.shape) not in [3, 4]:
-        raise ValueError(
-            f"arr must be 3d or 4d numpy array or tf tensor, " f"got {arr}"
-        )
+        raise ValueError(f"arr must be 3d or 4d numpy array or tf tensor, got {arr}")
     is_4d = len(arr.shape) == 4
     if is_4d:
         # if 4D array, it must be 3 channels
