@@ -35,6 +35,9 @@ authors:
   - name: Zhe Min
     orcid: 0000-0002-8903-1561
     affiliation: 1
+  - name: Stefano B. Blumberg
+    orcid: 0000-0002-7150-9918
+    affiliation: 2
   - name: Juan Eugenio Iglesias
     orcid: 0000-0001-7569-173X
     affiliation: "2, 5, 6"
@@ -44,6 +47,9 @@ authors:
   - name: Ester Bonmati
     orcid: 0000-0001-9217-5438
     affiliation: "1, 2"
+  - name: Daniel C. Alexander
+    orcid: 0000-0003-2439-350X
+    affiliation: 2
   - name: Matthew J. Clarkson
     orcid: 0000-0002-5565-1252
     affiliation: "1, 2"
