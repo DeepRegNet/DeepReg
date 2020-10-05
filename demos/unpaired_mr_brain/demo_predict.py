@@ -6,8 +6,8 @@ from deepreg.predict import predict
 
 ######## PREDICTION ########
 # saved weights: change it if you retrained the model.
-log_dir = r"learn2reg_t4_unpaired_train_logs"
-ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch20.ckpt")
+log_dir = r"learn2reg_t4_unpaired_weakly_train_logs2"
+ckpt_path = os.path.join("logs", log_dir, "save", "weights-epoch200.ckpt")
 config_path = [os.path.join("logs", log_dir, "config.yaml")]
 gpu = "0"
 gpu_allow_growth = False

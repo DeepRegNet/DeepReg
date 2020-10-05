@@ -209,11 +209,14 @@ def predict_on_dataset(
     save_metric_dict(save_dir=save_dir, metrics=metric_lists)
 
 
-def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dict, str]:
+def build_config(
+    config_path: (str, list), log_root: str, log_dir: str, ckpt_path: str
+) -> [dict, str]:
     """
     Function to create new directory to log directory to store results.
 
     :param config_path: string or list of strings, path of configuration files
+    :param log_root: str, root of logs
     :param log_dir: string, path to store logs.
     :param ckpt_path: str, path where model is stored.
     :return: - config, configuration dictionary
@@ -226,7 +229,7 @@ def build_config(config_path: (str, list), log_dir: str, ckpt_path: str) -> [dic
         )
 
     # init log directory
-    log_dir = build_log_dir(log_dir)
+    log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
 
     # load config
     if config_path == "":
@@ -255,6 +258,7 @@ def predict(
     config_path: (str, list),
     save_nifti: bool = True,
     save_png: bool = True,
+    log_root: str = "logs",
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -281,7 +285,7 @@ def predict(
 
     # load config
     config, log_dir = build_config(
-        config_path=config_path, log_dir=log_dir, ckpt_path=ckpt_path
+        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
     preprocess_config = config["train"]["preprocess"]
     preprocess_config["batch_size"] = batch_size
@@ -384,6 +388,10 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--log_root", help="Root of log directory.", default="logs", type=str
+    )
+
+    parser.add_argument(
         "--log_dir", "-l", help="Path of log directory", default="", type=str
     )
 
@@ -416,16 +424,17 @@ def main(args=None):
     args = parser.parse_args(args)
 
     predict(
-        args.gpu,
-        args.gpu_allow_growth,
-        args.ckpt_path,
-        args.mode,
-        args.batch_size,
-        args.log_dir,
-        args.sample_label,
-        args.config_path,
-        args.nifti,
-        args.png,
+        gpu=args.gpu,
+        gpu_allow_growth=args.gpu_allow_growth,
+        ckpt_path=args.ckpt_path,
+        mode=args.mode,
+        batch_size=args.batch_size,
+        log_root=args.log_root,
+        log_dir=args.log_dir,
+        sample_label=args.sample_label,
+        config_path=args.config_path,
+        save_nifti=args.nifti,
+        save_png=args.png,
     )
 
 
