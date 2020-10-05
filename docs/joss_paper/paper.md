@@ -106,7 +106,7 @@ DeepReg provides a collection of deep learning algorithms and dataset loaders to
 
 # Acknowledgements
 
-This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (NS/A000049/1) and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34). NMB, ZB, RD are also supported by the EPSRC CDT i4health (EP/S021930/1). ZB is supported by the Natural Sciences and Engineering Research Council of Canada Postgraduate Scholarships-Doctoral Program and the University College London Overseas and Graduate Research Scholarships.
+This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (EP/M020533/1, NS/A000049/1), National Institute for Health Research University College London Hospitals Biomedical Research Centre and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34). NMB, ZB, RD are also supported by the EPSRC CDT i4health (EP/S021930/1). ZB is supported by the Natural Sciences and Engineering Research Council of Canada Postgraduate Scholarships-Doctoral Program and the University College London Overseas and Graduate Research Scholarships.
 
 # References
 <!-- This will be filled in by references in paper.bib -->
