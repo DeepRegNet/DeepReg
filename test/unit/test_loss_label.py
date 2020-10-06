@@ -243,19 +243,20 @@ def test_compute_centroid():
     Testing compute centroid function
     and comparing to expected values.
     """
-    array_ones = np.ones((2, 2))
     tensor_mask = np.zeros((3, 2, 2, 2))
-    tensor_mask[0, :, :, :] = array_ones
+    tensor_mask[0, :, :, :] = np.ones((2, 2, 2))
     tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
 
     tensor_grid = np.zeros((2, 2, 2, 3))
-    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid[:, :, :, 0] = np.ones((2, 2, 2))
+    tensor_grid[:, :, :, 1] = np.ones((2, 2, 2)) * 2
+    tensor_grid[:, :, :, 2] = np.ones((2, 2, 2)) * 3
     tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
 
-    expect = np.ones((3, 3))
-    expect[0, 1:3] = 0
-    get = label.compute_centroid(tensor_mask, tensor_grid)
-    assert is_equal_tf(get, expect)
+    expected = np.zeros((3, 3))
+    expected[0, :] = [1, 2, 3]
+    got = label.compute_centroid(tensor_mask, tensor_grid)
+    assert is_equal_tf(got, expected)
 
 
 def test_compute_centroid_d():
