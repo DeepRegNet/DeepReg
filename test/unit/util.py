@@ -1,18 +1,20 @@
+from typing import List
+
 import numpy as np
 import tensorflow as tf
 
-EPS = 1e-6
 
-
-def is_equal_np(x: (np.ndarray, list, tuple), y: (np.ndarray, list, tuple)) -> bool:
+def is_equal_np(x: (np.ndarray, List), y: (np.ndarray, List)) -> bool:
     """return true if two numpy arrays are nearly equal"""
     x = np.asarray(x, dtype=np.float32)
     y = np.asarray(y, dtype=np.float32)
-    return np.max(np.abs(x - y)) < EPS
+    return np.all(np.isclose(x, y))
 
 
-def is_equal_tf(x: tf.Tensor, y: tf.Tensor) -> bool:
+def is_equal_tf(
+    x: (tf.Tensor, np.ndarray, List), y: (tf.Tensor, np.ndarray, List)
+) -> bool:
     """return true if two tf tensors are nearly equal"""
-    x = tf.cast(x, dtype=tf.float32)
-    y = tf.cast(y, dtype=tf.float32)
-    return tf.reduce_max(tf.abs(x - y)).numpy() < EPS
+    x = tf.cast(x, dtype=tf.float32).numpy()
+    y = tf.cast(y, dtype=tf.float32).numpy()
+    return np.all(np.isclose(x, y))
