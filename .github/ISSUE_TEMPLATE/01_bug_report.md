@@ -7,8 +7,8 @@ about: Something isn't working.
 
 Describe your issue here.
 
-If the documentation request is approved, would you be willing to submit a PR? _(Help
-can be provided if you need assistance submitting a PR)_
+If the bug is confirmed, would you be willing to submit a PR? _(Help can be provided if
+you need assistance submitting a PR)_
 
 Yes / No
 
