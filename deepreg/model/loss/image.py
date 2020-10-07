@@ -92,7 +92,7 @@ def local_normalized_cross_correlation(
     cross = tp_sum - p_avg * t_sum
     t_var = t2_sum - t_avg * t_sum  # std[t] ** 2
     p_var = p2_sum - p_avg * p_sum  # std[p] ** 2
-    ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+    ncc = tf.math.divide_no_nan(cross * cross, t_var * p_var)
     return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
 
@@ -128,7 +128,7 @@ def global_mutual_information(
     bin_centers = tf.linspace(0.0, 1.0, num_bins)  # (num_bins,)
     bin_centers = bin_centers[None, None, ...]  # (1, 1, num_bins)
     sigma = (
-        tf.reduce_mean(bin_centers[1:] - bin_centers[:-1]) * sigma_ratio
+        tf.reduce_mean(bin_centers[:, :, 1:] - bin_centers[:, :, :-1]) * sigma_ratio
     )  # scalar, sigma in the Gaussian function (weighting function W)
     preterm = 1 / (2 * tf.math.square(sigma))  # scalar
 
@@ -155,5 +155,7 @@ def global_mutual_information(
     pab = tf.matmul(Ia, Ib)  # (batch, num_bins, num_bins)
     pab /= nb_voxels
 
-    # MI: sum(P_ab * log(P_ab/P_aP_b + eps))
-    return tf.reduce_sum(pab * tf.math.log((pab + EPS) / (papb + EPS)), axis=[1, 2])
+    # MI: sum(P_ab * log(P_ab/P_aP_b))
+    div = tf.math.divide_no_nan(pab, papb)
+    div = tf.math.maximum(div, EPS)
+    return tf.reduce_sum(pab * tf.math.log(div), axis=[1, 2])
