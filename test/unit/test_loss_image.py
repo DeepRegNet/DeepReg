@@ -45,7 +45,7 @@ class TestDissimilarityFn:
         # gmi same image
         t = tf.ones([4, 3, 3, 3])
         get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
-        assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0], atol=1.0e-7)
+        assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0], atol=1.0e-6)
 
     def test_error(self):
         # unknown func name
