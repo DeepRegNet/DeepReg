@@ -46,6 +46,8 @@ def local_normalized_cross_correlation(
     - Zero-normalized cross-correlation (ZNCC): https://en.wikipedia.org/wiki/Cross-correlation
     - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
 
+    TODO: is it possible to not using tf.nn.conv3d?
+
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
     :param kernel_size: int
@@ -56,7 +58,8 @@ def local_normalized_cross_correlation(
     kernel_vol = kernel_size ** 3
     # [dim1, dim2, dim3, d_in, d_out]
     # ch must be evenly divisible by d_in
-    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, 1, 1])
+    ch = y_true.shape[4]
+    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, ch, 1])
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 
