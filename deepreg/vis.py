@@ -31,9 +31,9 @@ def gif_slices(img_paths, save_path="", interval=50):
     Generates and saves gif of slices of image
     supports multiple images to generate multiple gif files
 
-    :param img_paths : list or comma separated string of image paths
-    :param save_path : path to directory where visualisation/s is/are to be saved
-    :param interval : time in miliseconds between frames of gif
+    :param img_paths: list or comma separated string of image paths
+    :param save_path: path to directory where visualisation/s is/are to be saved
+    :param interval: time in miliseconds between frames of gif
     """
     if type(img_paths) is str:
         img_paths = string_to_list(img_paths)
@@ -68,11 +68,11 @@ def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles
     Generates a tiled plot of muliple images for multiple slices in the image
     rows are different slices and columns are different images
 
-    :param img_paths : list or comma separated string of image paths
-    :param save_path : path to directory where visualisation/s is/are to be saved
-    :param fname : file name with extension to save visualisation to
-    :param slice_inds : list of slice indices to plot for each image
-    :param col_titles : titles for each column, if None then inferred from file names
+    :param img_paths: list or comma separated string of image paths
+    :param save_path: path to directory where visualisation/s is/are to be saved
+    :param fname: file name with extension to save visualisation to
+    :param slice_inds: list of slice indices to plot for each image
+    :param col_titles: titles for each column, if None then inferred from file names
     """
     if type(img_paths) is str:
         img_paths = string_to_list(img_paths)
@@ -122,12 +122,12 @@ def gif_warp(
     """
     Apply ddf to image slice/s to generate gif
 
-    :param img_paths : list or comma separated string of image paths
-    :param ddf_path : path to ddf to use for warping
-    :param slice_inds : list of slice indices to use for each image
-    :param num_interval : number of intervals in which to apply ddf
-    :param interval : time in miliseconds between frames of gif
-    :param save_path : path to directory where visualisation/s is/are to be saved
+    :param img_paths: list or comma separated string of image paths
+    :param ddf_path: path to ddf to use for warping
+    :param slice_inds: list of slice indices to use for each image
+    :param num_interval: number of intervals in which to apply ddf
+    :param interval: time in miliseconds between frames of gif
+    :param save_path: path to directory where visualisation/s is/are to be saved
     """
     if type(img_paths) is str:
         img_paths = string_to_list(img_paths)
@@ -181,11 +181,11 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
     """
     Creates tiled gif over slices of multiple images
 
-    :param img_paths : list or comma separated string of image paths
-    :param save_path : path to directory where visualisation/s is/are to be saved
-    :param interval : time in miliseconds between frames of gif
-    :param size : number of columns and rows of images for the tiled gif (tuple e.g. (2,2))
-    :param fname : filename to save visualisation to
+    :param img_paths: list or comma separated string of image paths
+    :param save_path: path to directory where visualisation/s is/are to be saved
+    :param interval: time in miliseconds between frames of gif
+    :param size: number of columns and rows of images for the tiled gif (tuple e.g. (2,2))
+    :param fname: filename to save visualisation to
     """
     if type(img_paths) is str:
         img_paths = string_to_list(img_paths)
