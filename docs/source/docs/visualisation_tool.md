@@ -114,7 +114,7 @@ A simple example, which takes three images and three slice indexes and saves a `
 file, is shown below (this will create a plot with 3 columns and 3 rows):
 
 ```
-deepreg_vis -m 1 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz' --slice-inds '2,3,4' -s logs
+deepreg_vis -m 2 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz' --slice-inds '2,3,4' -s logs
 ```
 
 ## Tiled GIF over image slices
@@ -140,7 +140,7 @@ A simple example, which takes four images and creates an animation over the slic
 the four images in a tiled manner, is shown below:
 
 ```
-deepreg_vis -m 1 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz' --size '2,2' -s logs
+deepreg_vis -m 3 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz' --size '2,2' -s logs
 ```
 
 ## Using the same functionality by importing python functions
