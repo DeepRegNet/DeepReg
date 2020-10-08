@@ -4,12 +4,9 @@ DeepReg provides a visuaisation tool which allows the user to generate various
 visualisations from nifti images. The tool is compatible with outputs from
 deepreg_predict as well as with other nifti images.
 
-The visualisation tool currently offers four unique functionalities which are described
-below. Each of these can be accessed using the `deepreg_vis` CLI tool. Examples are
-provided for each functionality but these can only be run after changing directory to
-the root folder which is `DeepReg`, this is to ensure that the test images are
-accessible. The functionalities can also be accessed by importing functions into a
-python script and this method is described in the last section of this document.
+The visualisation tool currently offers four functionalities using the command
+`deepreg_vis`, with their Python functions explained in the final section this document.
+Runn the below examples after changing directory to the root folder `DeepReg`.
 
 The creation of `.gif` files requires a movie writer that is compatible with
 `matplotlib` like `ffmpeg` in order to be able to write `.gif` files. Please refer to
@@ -17,9 +14,7 @@ the [matplotlib documentation](https://matplotlib.org/3.3.1/api/animation_api.ht
 more details about writers. The `ffmpeg` writer was used to test functionality of this
 visualisation tool, however, other writers can also be installed and used.
 
-## General arguments for CLI tool
-
-Some general arguments for the `deepreg_vis` CLI tool are as follows:
+## General arguments for `deepreg_vis`
 
 - `-m` or `--mode`: This specifies which mode to use to generate the visualisation. See
   below for available modes.
@@ -33,15 +28,14 @@ Some general arguments for the `deepreg_vis` CLI tool are as follows:
 
 ## GIF over image slices
 
-This creates an animation which is an iteration through the image slices of a 3D image.
+This creates an animation which is an iteration through the image slices of a 3D image,
+can be accessed by passing `--mode 0` or `-m 0`.
 
 In addition to the general arguments, the additional arguments applicable to this mode
 are:
 
 - `--interval`: This argument is optional and can be used to specify the time, in
   milliseconds, between successive frames of an animation. (default=50)
-
-It can be accessed by passing `--mode 0` or `-m 0` to the CLI tool.
 
 The output will be a file with the same name as the original with a `.gif` extension. If
 multiple image paths are passed in the `-i` or `--image-paths` argument then multiple
@@ -50,14 +44,14 @@ multiple image paths are passed in the `-i` or `--image-paths` argument then mul
 A simple example, which takes an image path and saves a `.gif` animation, is shown
 below:
 
-```
+```bash
 deepreg_vis -m 0 -i ./data/test/nifti/unit_test/moving_image.nii.gz -s logs
 ```
 
 ## GIF that shows warping
 
 This functionality produces an animation showing warping for a single image slice using
-a ddf.
+a ddf, can be accessed by passing `--mode 1` or `-m 1`.
 
 In addition to the general arguments, the additional arguments applicable to this mode
 are:
@@ -71,8 +65,6 @@ are:
   milliseconds, between successive frames of an animation. (default=50)
 - `--num-interval`: The number of intervals to use for warping. (default=100)
 
-It can be accessed by passing `--mode 1` or `-m 1` to the CLI tool.
-
 The output will be a file with the slice number appended to the original file name, with
 a `.gif` extension. For example if a file is named `moving_image.nii.gz` and slice
 number 2 and 3 three are chosen, the files produced will be `moving_image_slice_2.gif`
@@ -84,14 +76,15 @@ path passed.
 A simple example, which takes an image, slice indexes and a ddf path and saves a `.gif`
 animation for each slice, is shown below:
 
-```
+```bash
 deepreg_vis -m 1 -i ./data/test/nifti/unit_test/moving_image.nii.gz --ddf-path "./data/test/nifti/unit_test/ddf.nii.gz" --slice-inds '2,3' -s logs
 ```
 
 ## Plot of image slices
 
 This functionality produces a plot of image slices from a single or multiple images.
-Each column is a different image and each row is a different slice.
+Each column is a different image and each row is a different slice, can be accessed by
+passing `--mode 2` or `-m 2`.
 
 In addition to the general arguments, the additional arguments applicable to this mode
 are:
@@ -104,8 +97,6 @@ are:
   column name)
 - `--fname`: Optional argument of file name to save visualisation to; should end with an
   appropriate file extension like `.png` or `.jpeg`. (default='visualisation.png')
-
-It can be accessed by passing `--mode 2` or `-m 2` to the CLI tool.
 
 The output is a single file which contains a static visualisation. The visualisation is
 different images in the columns and different slices in the rows.
@@ -120,7 +111,8 @@ deepreg_vis -m 2 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/tes
 ## Tiled GIF over image slices
 
 This functionality produces an animation with multiple animated images that are tiled
-together. The images used as input must all be of the same size.
+together, can be accessed by passing `--mode 3` or `-m 3`. The images used as input must
+all be of the same size.
 
 - `--interval`: This argument is optional and can be used to specify the time, in
   milliseconds, between successive frames of an animation. (default=50)
@@ -130,8 +122,6 @@ together. The images used as input must all be of the same size.
 - `--fname`: Optional argument of file name to save visualisation to; should end with
   `.gif`. (default='visualisation.gif')
 
-It can be accessed by passing `--mode 3` or `-m 3` to the CLI tool.
-
 The output is a single file which contains the tiled animation. The image paths must be
 passed in the order in which they are to be tiled (order is from left to right and then
 next row).
@@ -139,7 +129,7 @@ next row).
 A simple example, which takes four images and creates an animation over the slices of
 the four images in a tiled manner, is shown below:
 
-```
+```bash
 deepreg_vis -m 3 -i './data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz, ./data/test/nifti/unit_test/moving_image.nii.gz' --size '2,2' -s logs
 ```
 

@@ -286,7 +286,7 @@ The saved files include:
 
   Example usage:
 
-  - `--image input_DDF.nii.gz`
+  - `--image input_DDF.nii.gz`##
 
 ### Optional arguments
 
@@ -301,9 +301,15 @@ The saved files include:
 
   Example usage:
 
-  - `--out output_image.nii.gz`
+  - `--out output_image.nii.gz` #'#
 
 ### Output
 
 The warped image is saved in the given output file path, otherwise the default file path
 `warped.nii.gz` will be used.
+
+## Visualise
+
+In addition to the images in the output, DeepReg provides a set of tools with the
+command `deepreg_vis`. See more details in
+[its usage documentation](visualisation_tool.md).
