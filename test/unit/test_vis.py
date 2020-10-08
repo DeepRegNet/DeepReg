@@ -143,6 +143,25 @@ def test_main():
     assert os.path.exists(out_path)
     os.remove(out_path)
 
+    # test mode 2 and check output when col_titles not provided
+    out_path = "logs/visualisation.png"
+    main(
+        args=[
+            "--mode",
+            "2",
+            "--image-paths",
+            img_paths,
+            "--save-path",
+            "logs",
+            "--slice-inds",
+            "1,2,3",
+            "--fname",
+            "visualisation.png",
+        ]
+    )
+    assert os.path.exists(out_path)
+    os.remove(out_path)
+
     # test mode 2 and check output when no slice_inds and no fname
     out_path = "logs/visualisation.png"
     main(
@@ -258,3 +277,25 @@ def test_main():
             ]
         )
     assert "The number of images supplied is " in str(err_info.value)
+
+    # test mode 3 and check if exception is caught
+    new_img_path = "data/test/nifti/paired/test/fixed_images/case000025.nii.gz"
+    img_paths_moded = img_paths + "," + new_img_path
+    with pytest.raises(Exception) as err_info:
+        main(
+            args=[
+                "--mode",
+                "3",
+                "--image-paths",
+                img_paths_moded,
+                "--save-path",
+                "logs",
+                "--interval",
+                "50",
+                "--size",
+                "2,1",
+                "--fname",
+                "visualisation.gif",
+            ]
+        )
+    assert "all images do not have equal shapes" in str(err_info.value)
