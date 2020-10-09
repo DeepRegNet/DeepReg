@@ -22,6 +22,7 @@ from deepreg.util import (
     build_dataset,
     build_log_dir,
     calculate_metrics,
+    get_available_gpus,
     save_array,
     save_metric_dict,
 )
@@ -290,7 +291,8 @@ def predict(
         config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
     preprocess_config = config["train"]["preprocess"]
-    preprocess_config["batch_size"] = batch_size
+    # batch_size corresponds to batch_size per GPU
+    preprocess_config["batch_size"] = batch_size * max(len(get_available_gpus()), 1)
 
     # data
     data_loader, dataset, _ = build_dataset(

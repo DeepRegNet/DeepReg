@@ -12,7 +12,7 @@ import tensorflow as tf
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.model.network.build import build_model
-from deepreg.util import build_dataset, build_log_dir
+from deepreg.util import build_dataset, build_log_dir, get_available_gpus
 
 
 def build_config(
@@ -39,9 +39,14 @@ def build_config(
         if not ckpt_path.endswith(".ckpt"):
             raise ValueError("checkpoint path should end with .ckpt")
 
-    # load and backup config
+    # load config
     config = config_parser.load_configs(config_path)
+    # backup config
     config_parser.save(config=config, out_dir=log_dir)
+
+    # batch_size in original config corresponds to batch_size per GPU
+    config["train"]["preprocess"]["batch_size"] *= max(len(get_available_gpus()), 1)
+
     return config, log_dir
 
 
