@@ -7,7 +7,6 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.python.client import device_lib
 
 import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
@@ -212,9 +211,3 @@ def save_metric_dict(save_dir: str, metrics: list):
     df_all.describe().to_csv(
         os.path.join(save_dir, "metrics_stats_overall.csv"), index=True
     )
-
-
-def get_available_gpus():
-    """https://gist.github.com/jovianlin/b5b2c4be45437992df58a7dd13dbafa7"""
-    local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == "GPU"]
