@@ -12,9 +12,11 @@ def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
     """
     v_min = np.min(arr) if v_min is None else v_min
     v_max = np.max(arr) if v_max is None else v_max
-    assert v_min <= v_max
+    if v_min == v_max:
+        return arr * 0
+    assert v_min < v_max
     arr = np.clip(a=arr, a_min=v_min, a_max=v_max)
-    arr = (arr - v_min + EPS) / (v_max - v_min + EPS)
+    arr = (arr - v_min) / (v_max - v_min)
     return arr
 
 

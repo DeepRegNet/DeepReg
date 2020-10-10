@@ -39,9 +39,15 @@ def build_config(
         if not ckpt_path.endswith(".ckpt"):
             raise ValueError("checkpoint path should end with .ckpt")
 
-    # load and backup config
+    # load config
     config = config_parser.load_configs(config_path)
+    # backup config
     config_parser.save(config=config, out_dir=log_dir)
+
+    # batch_size in original config corresponds to batch_size per GPU
+    gpus = tf.config.experimental.list_physical_devices("GPU")
+    config["train"]["preprocess"]["batch_size"] *= max(len(gpus), 1)
+
     return config, log_dir
 
 
