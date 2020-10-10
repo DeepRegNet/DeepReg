@@ -16,10 +16,10 @@ pytest-dependency
 pyyaml>=5.3.1
 seed-isort-config
 sphinx==3.2.1
+sphinx-notfound-page
 sphinx-rtd-theme
 sphinx-tabs
-sphinx-notfound-page
 tensorboard_plugin_profile
-tensorflow-gpu==2.3.1
+tensorflow==2.3.1
 testfixtures
 tqdm
