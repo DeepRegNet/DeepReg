@@ -173,7 +173,7 @@ configuration can be specified in the configuration file. Please see
 
 - **Batch size**:
 
-  `--batch_size` or `-b`, specifies the mini-batch size for prediction.
+  `--batch_size` or `-b`, specifies the mini-batch size (per GPU) for prediction.
 
   The default value is 1.
 
