@@ -15,24 +15,22 @@ def get_dissimilarity_fn(config: dict) -> Callable:
     multi- or single-scale loss functions.
 
     :param config: dict, containing configuration for training.
-    :return: loss function, to calculate float
+    :return: loss function, which returns a tensor of shape (batch, )
     """
     if config["name"] == "multi_scale":
 
         def loss(y_true, y_pred):
-            return tf.reduce_mean(
-                multi_scale_loss(y_true=y_true, y_pred=y_pred, **config["multi_scale"])
-            )  # (batch,)
+            return multi_scale_loss(
+                y_true=y_true, y_pred=y_pred, **config["multi_scale"]
+            )
 
         return loss
     elif config["name"] == "single_scale":
 
         def loss(y_true, y_pred):
-            return tf.reduce_mean(
-                single_scale_loss(
-                    y_true=y_true, y_pred=y_pred, **config["single_scale"]
-                )
-            )  # (batch,)
+            return single_scale_loss(
+                y_true=y_true, y_pred=y_pred, **config["single_scale"]
+            )
 
         return loss
     else:
