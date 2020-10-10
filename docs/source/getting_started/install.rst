@@ -25,14 +25,14 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
         .. code:: bash
 
-            conda create --name deepreg python=3.7 tensorflow=2.2
+            conda env create -f environment_cpu.yml
             conda activate deepreg
 
         With GPU
 
         .. code:: bash
 
-            conda create --name deepreg python=3.7 tensorflow-gpu=2.2
+            conda env create -f environment.yml
             conda activate deepreg
 
 
@@ -42,7 +42,7 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
         .. code:: bash
 
-            conda create --name deepreg python=3.7 tensorflow=2.2
+            conda env create -f environment_cpu.yml
             conda activate deepreg
 
 
