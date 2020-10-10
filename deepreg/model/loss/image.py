@@ -18,7 +18,7 @@ def dissimilarity_fn(
     :param kwargs: absorb additional parameters
     :return: shape = (batch,)
     """
-    assert name in ["lncc", "ssd", "gmi"]
+
     # shape = (batch, f_dim1, f_dim2, f_dim3, 1)
     y_true = tf.expand_dims(y_true, axis=4)
     y_pred = tf.expand_dims(y_pred, axis=4)
@@ -29,7 +29,9 @@ def dissimilarity_fn(
     elif name == "gmi":
         return -global_mutual_information(y_true, y_pred)
     else:
-        raise ValueError("Unknown loss type.")
+        raise ValueError(
+            f"Unknown loss type {name}, supported losses are lncc, ssd and gmi."
+        )
 
 
 def local_normalized_cross_correlation(

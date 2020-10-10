@@ -49,8 +49,9 @@ class TestDissimilarityFn:
 
     def test_error(self):
         # unknown func name
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError) as err_info:
             image.dissimilarity_fn(self.y_true, self.y_pred, "")
+        assert "Unknown loss type" in str(err_info.value)
 
 
 def test_local_normalized_cross_correlation():
