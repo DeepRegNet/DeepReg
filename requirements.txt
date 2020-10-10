@@ -20,6 +20,6 @@ sphinx-rtd-theme
 sphinx-tabs
 sphinx-notfound-page
 tensorboard_plugin_profile
-tensorflow-gpu==2.3.0
+tensorflow-gpu==2.3.1
 testfixtures
 tqdm
