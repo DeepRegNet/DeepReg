@@ -123,7 +123,7 @@ arr_names = [
 ]
 for arr, arr_name in zip(arrays, arr_names):
     util.save_array(
-        save_dir=SAVE_PATH, arr=arr, name=arr_name, gray=True, save_png=False
+        save_dir=SAVE_PATH, arr=arr, name=arr_name, normalize=True, save_png=False
     )
 
 os.chdir(MAIN_PATH)

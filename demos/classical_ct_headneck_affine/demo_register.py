@@ -130,7 +130,7 @@ for arr, arr_name in zip(arrays, arr_names):
             save_dir=SAVE_PATH,
             arr=arr[..., n],
             name=arr_name + (arr.shape[-1] > 1) * "_{}".format(n),
-            gray=True,
+            normalize="image" in arr_name,  # label's value is already in [0, 1]
         )
 
 os.chdir(MAIN_PATH)
