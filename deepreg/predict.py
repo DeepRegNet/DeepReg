@@ -290,7 +290,9 @@ def predict(
         config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
     preprocess_config = config["train"]["preprocess"]
-    preprocess_config["batch_size"] = batch_size
+    # batch_size corresponds to batch_size per GPU
+    gpus = tf.config.experimental.list_physical_devices("GPU")
+    preprocess_config["batch_size"] = batch_size * max(len(gpus), 1)
 
     # data
     data_loader, dataset, _ = build_dataset(

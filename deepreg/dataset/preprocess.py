@@ -2,7 +2,6 @@
 Module for generating the preprocessing
 3D Affine Transforms for moving and fixed images.
 """
-import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 
@@ -48,7 +47,6 @@ class AffineTransformation3D:
         )
         return transformed
 
-    @tf.function
     def transform(self, inputs: dict):
         """
         Creates random transforms for the input images and their labels,

@@ -4,8 +4,8 @@
 Tests for deepreg/model/loss/label.py in
 pytest style
 """
+
 from test.unit.util import is_equal_tf
-from types import FunctionType
 
 import numpy as np
 import pytest
@@ -243,19 +243,20 @@ def test_compute_centroid():
     Testing compute centroid function
     and comparing to expected values.
     """
-    array_ones = np.ones((2, 2))
     tensor_mask = np.zeros((3, 2, 2, 2))
-    tensor_mask[0, :, :, :] = array_ones
+    tensor_mask[0, :, :, :] = np.ones((2, 2, 2))
     tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
 
     tensor_grid = np.zeros((2, 2, 2, 3))
-    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid[:, :, :, 0] = np.ones((2, 2, 2))
+    tensor_grid[:, :, :, 1] = np.ones((2, 2, 2)) * 2
+    tensor_grid[:, :, :, 2] = np.ones((2, 2, 2)) * 3
     tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
 
-    expect = np.ones((3, 3))
-    expect[0, 1:3] = 0
-    get = label.compute_centroid(tensor_mask, tensor_grid)
-    assert is_equal_tf(get, expect)
+    expected = np.zeros((3, 3))
+    expected[0, :] = [1, 2, 3]
+    got = label.compute_centroid(tensor_mask, tensor_grid)
+    assert is_equal_tf(got, expected)
 
 
 def test_compute_centroid_d():
@@ -459,29 +460,37 @@ def test_multi_scale_loss_kernel():
     assert is_equal_tf(get, expect)
 
 
-def test_similarity_fn_unknown_loss():
-    """
-    Test dissimilarity function raises an error
-    if an unknonw loss type is passed.
-    """
-    config = {"name": "random"}
-    with pytest.raises(ValueError):
-        label.get_dissimilarity_fn(config)
+class TestGetSimilarityFn:
+    batch_size = 2
+    image_size = (3, 4, 5)
+    y_true = tf.zeros((batch_size, *image_size), dtype=tf.float32)
+    y_pred = tf.zeros((batch_size, *image_size), dtype=tf.float32)
 
+    def test_unknown_cases(self):
+        """
+        Test dissimilarity function raises an error
+        if an unknonw loss type is passed.
+        """
+        config = {"name": "random"}
+        with pytest.raises(ValueError) as err_info:
+            label.get_dissimilarity_fn(config)
+        assert "Unknown loss type" in str(err_info.value)
 
-def test_similarity_fn_multi_scale():
-    """
-    Asserting loss function returned by get dissimilarity
-    function when appropriate strings passed.
-    """
-    config = {"name": "multi_scale", "multi_scale": "jaccard"}
-    assert isinstance(label.get_dissimilarity_fn(config), FunctionType)
-
-
-def test_similarity_fn_single_scale():
-    """
-    Asserting loss function returned by get dissimilarity
-    function when appropriate strings passed.
-    """
-    config = {"name": "single_scale", "single_scale": "jaccard"}
-    assert isinstance(label.get_dissimilarity_fn(config), FunctionType)
+    @pytest.mark.parametrize(
+        "config",
+        [
+            {
+                "name": "multi_scale",
+                "multi_scale": {"loss_type": "jaccard", "loss_scales": [0, 1, 2, 4]},
+            },
+            {"name": "single_scale", "single_scale": {"loss_type": "jaccard"}},
+        ],
+    )
+    def test_known_cases(self, config):
+        """
+        Asserting loss function returned by get dissimilarity
+        function when appropriate strings passed.
+        """
+        loss_fn = label.get_dissimilarity_fn(config)
+        loss = loss_fn(y_true=self.y_true, y_pred=self.y_pred)
+        assert loss.shape == (self.batch_size,)

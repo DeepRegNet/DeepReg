@@ -99,7 +99,6 @@ def test_transform():
         "indices": indices,
     }
 
-    tf.config.experimental_run_functions_eagerly(True)
     outputs = affine_transform_3d.transform(inputs)
 
     assert outputs.get("moving_image") is not None
@@ -128,7 +127,6 @@ def test_transform():
         "indices": indices,
     }
 
-    tf.config.experimental_run_functions_eagerly(True)
     outputs = affine_transform_3d.transform(inputs)
 
     assert outputs.get("moving_image") is not None
