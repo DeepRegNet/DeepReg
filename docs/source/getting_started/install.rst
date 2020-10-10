@@ -67,9 +67,55 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
             Not supported or tested.
 
+Use docker
+----------
 
-Install the package
--------------------
+We also provide the docker file for building the docker image.
+
+Install docker
+^^^^^^^^^^^^^^
+
+Docker can be installed following the `official documentation <https://docs.docker.com/get-docker/>`__.
+
+For Linux based OS, there are some `additional setup <https://docs.docker.com/engine/install/linux-postinstall/>`__ after the installation.
+Otherwise you might have permission errors.
+
+Build docker image
+^^^^^^^^^^^^^^^^^^
+
+.. code:: bash
+
+    docker build . -t deepreg -f Dockerfile
+
+where
+
+- :code:`-t` names the built image as :code:`deepreg`.
+- :code:`-f` provides the docker file for configuration.
+
+Create a container
+^^^^^^^^^^^^^^^^^^
+
+.. code:: bash
+
+    docker run --name <container_name> --privileged=true -ti deepreg bash
+
+where
+- :code:`--name` names the created container.
+- :code:`--privileged=true` is required to solve the permission issue linked to TensorFlow profiler.
+- :code:`-it` allows interaction with container and enters the container directly,
+check more info on `stackoverflow <https://stackoverflow.com/questions/48368411/what-is-docker-run-it-flag>`__.
+
+Remove a container
+^^^^^^^^^^^^^^^^^^
+
+.. code:: bash
+
+    docker rm -v <container_name>
+
+which removes a created container and its volumes, check more info on `docker documentation <https://docs.docker.com/engine/reference/commandline/rm/)>`__.
+
+Install the package directly
+----------------------------
 
 **Install from the cloned local project**
 
