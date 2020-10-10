@@ -16,7 +16,6 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
-from deepreg.dataset.loader.util import normalize_array
 from deepreg.model.network.build import build_model
 from deepreg.util import (
     build_dataset,
@@ -156,7 +155,7 @@ def predict_on_dataset(
                         save_dir=arr_save_dir,
                         arr=arr[sample_index, :, :, :],
                         name=name,
-                        gray=True,
+                        normalize="image" in name,  # label's value is already in [0, 1]
                         save_nifti=save_nifti,
                         save_png=save_png,
                         overwrite=arr_save_dir == label_dir,
@@ -167,12 +166,11 @@ def predict_on_dataset(
             names = ["ddf", "dvf"]
             for arr, name in zip(arrs, names):
                 if arr is not None:
-                    arr = normalize_array(arr=arr[sample_index, :, :, :])
                     save_array(
                         save_dir=label_dir if conditional else pair_dir,
-                        arr=arr,
+                        arr=arr[sample_index, :, :, :],
                         name=name,
-                        gray=False,
+                        normalize=True,
                         save_nifti=save_nifti,
                         save_png=save_png,
                     )
