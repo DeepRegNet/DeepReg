@@ -31,6 +31,23 @@ class TestDissimilarityFn:
         expected = [-1, -1]
         assert is_equal_tf(got, expected)
 
+        got = image.dissimilarity_fn(
+            self.y_pred, self.y_pred, "lncc", kernel_type="triangular"
+        )
+        expected = [-1, -1]
+        assert is_equal_tf(got, expected)
+
+        got = image.dissimilarity_fn(
+            self.y_pred, self.y_pred, "lncc", kernel_type="gaussian"
+        )
+        expected = [-1, -1]
+        assert is_equal_tf(got, expected)
+
+        with pytest.raises(ValueError):
+            image.dissimilarity_fn(
+                self.y_true, self.y_pred, name="lncc", kernel_type="constant"
+            )
+
     def test_ssd(self):
         got = image.dissimilarity_fn(self.y_pred * 0, self.y_pred, "ssd")
         expected = [0.36, 0.36]
