@@ -1,7 +1,5 @@
 import numpy as np
 
-EPS = 1.0e-6
-
 
 def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
     """
