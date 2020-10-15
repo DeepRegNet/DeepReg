@@ -4,6 +4,7 @@ Module provides different loss functions for calculating the dissimilarities bet
 import tensorflow as tf
 
 EPS = 1.0e-6  # epsilon to prevent NaN
+PI2_SQRT = 2.506628274631
 
 
 def dissimilarity_fn(
@@ -35,7 +36,11 @@ def dissimilarity_fn(
 
 
 def local_normalized_cross_correlation(
-    y_true: tf.Tensor, y_pred: tf.Tensor, kernel_size: int = 9, **kwargs
+    y_true: tf.Tensor,
+    y_pred: tf.Tensor,
+    kernel_size: int = 9,
+    kernel_type: str = "constant",
+    **kwargs,
 ) -> tf.Tensor:
     """
     Local squared zero-normalized cross-correlation.
@@ -52,16 +57,52 @@ def local_normalized_cross_correlation(
 
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
-    :param kernel_size: int
+    :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
+    :param kernel_type: str ('linear', 'gauss' default: 'constant')
     :param kwargs: absorb additional parameters
     :return: shape = (batch,)
     """
 
-    kernel_vol = kernel_size ** 3
     # [dim1, dim2, dim3, d_in, d_out]
     # ch must be evenly divisible by d_in
     ch = y_true.shape[4]
-    filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, ch, 1])
+
+    if kernel_type == "constant":
+        filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, ch, 1])
+        kernel_vol = kernel_size ** 3
+
+    elif kernel_type == "linear":
+        fsize = int((kernel_size + 1) / 2)
+        f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
+        f2 = tf.ones(shape=(fsize, fsize, fsize, 1, ch)) / fsize
+
+        pad_filter = [
+            [0, 0],
+            [fsize - 1, fsize - 1],
+            [fsize - 1, fsize - 1],
+            [fsize - 1, fsize - 1],
+            [0, 0],
+        ]
+        filters = tf.nn.conv3d(f1, f2, strides=1, padding=pad_filter)
+        kernel_vol = tf.reduce_sum(filters ** 2)
+
+    elif kernel_type == "gauss":
+        mean = (kernel_size - 1) / 2.0
+        sigma = kernel_size / 3
+
+        grid_dim = tf.range(0, kernel_size - 1)
+        grid = tf.cast(tf.stack(tf.meshgrid(grid_dim, grid_dim), 0), dtype="float32")
+        filters = tf.exp(
+            -tf.reduce_sum(tf.square(grid - mean), axis=0) / (2 * sigma ** 2)
+        )
+        kernel_vol = tf.reduce_sum(filters ** 2)
+
+    else:
+        raise ValueError(
+            "[ERROR] Wrong kernel_type for LNCC loss type. "
+            "Please, specify a valid type 'constant' / 'linear' / 'gauss'"
+        )
+
     strides = [1, 1, 1, 1, 1]
     padding = "SAME"
 
