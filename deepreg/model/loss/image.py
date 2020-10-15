@@ -39,13 +39,14 @@ def local_normalized_cross_correlation(
     y_true: tf.Tensor,
     y_pred: tf.Tensor,
     kernel_size: int = 9,
-    kernel_type: str = "constant",
+    kernel_type: str = "rectangular",
     **kwargs,
 ) -> tf.Tensor:
     """
     Local squared zero-normalized cross-correlation.
     The loss is based on a moving kernel/window over the y_true/y_pred,
     within the window the square of zncc is calculated.
+    The kernel can be a rectangular / triangular / gaussian window.
     The final loss is the averaged loss over all windows.
 
     Reference:
@@ -58,7 +59,7 @@ def local_normalized_cross_correlation(
     :param y_true: shape = (batch, dim1, dim2, dim3, ch)
     :param y_pred: shape = (batch, dim1, dim2, dim3, ch)
     :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
-    :param kernel_type: str ('linear', 'gauss' default: 'constant')
+    :param kernel_type: str ('triangular', 'gaussian' default: 'rectangular')
     :param kwargs: absorb additional parameters
     :return: shape = (batch,)
     """
@@ -67,11 +68,11 @@ def local_normalized_cross_correlation(
     # ch must be evenly divisible by d_in
     ch = y_true.shape[4]
 
-    if kernel_type == "constant":
+    if kernel_type == "rectangular":
         filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, ch, 1])
         kernel_vol = kernel_size ** 3
 
-    elif kernel_type == "linear":
+    elif kernel_type == "triangular":
         fsize = int((kernel_size + 1) / 2)
         f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
         f2 = tf.ones(shape=(fsize, fsize, fsize, 1, ch)) / fsize
@@ -86,7 +87,7 @@ def local_normalized_cross_correlation(
         filters = tf.nn.conv3d(f1, f2, strides=1, padding=pad_filter)
         kernel_vol = tf.reduce_sum(filters ** 2)
 
-    elif kernel_type == "gauss":
+    elif kernel_type == "gaussian":
         mean = (kernel_size - 1) / 2.0
         sigma = kernel_size / 3
 
@@ -100,7 +101,7 @@ def local_normalized_cross_correlation(
     else:
         raise ValueError(
             "[ERROR] Wrong kernel_type for LNCC loss type. "
-            "Please, specify a valid type 'constant' / 'linear' / 'gauss'"
+            "Please, specify a valid type 'rectangular' / 'triangular' / 'gaussian'"
         )
 
     strides = [1, 1, 1, 1, 1]
