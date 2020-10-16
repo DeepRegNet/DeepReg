@@ -25,8 +25,6 @@ from deepreg.util import (
     save_metric_dict,
 )
 
-EPS = 1.0e-6
-
 
 def build_pair_output_path(indices: list, save_dir: str) -> (str, str):
     """
