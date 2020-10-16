@@ -97,7 +97,7 @@ def local_normalized_cross_correlation(
     cross = tp_sum - p_avg * t_sum
     t_var = t2_sum - t_avg * t_sum  # std[t] ** 2
     p_var = p2_sum - p_avg * p_sum  # std[p] ** 2
-    ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+    ncc = (cross * cross) / (t_var * p_var + EPS)
     return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
 
@@ -161,5 +161,5 @@ def global_mutual_information(
     pab /= nb_voxels
 
     # MI: sum(P_ab * log(P_ab/P_aP_b))
-    div = (pab + EPS) / (papb + EPS) + EPS
-    return tf.reduce_sum(pab * tf.math.log(div), axis=[1, 2])
+    div = pab / (papb + EPS)
+    return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
