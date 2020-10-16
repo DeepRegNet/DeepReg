@@ -45,6 +45,5 @@ deepreg_train \
 
 ## Contact and Version
 
-Please contact stefano.blumberg.17@ucl.ac.uk, for information about this questions about
-the cluster. The information here is likely to change as UCL updates the software on the
-cluster.
+Please contact stefano.blumberg.17@ucl.ac.uk, for information about the cluster. The
+information here is likely to change as UCL updates the software on the cluster.

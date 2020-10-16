@@ -5,8 +5,8 @@ visualisations from nifti images. The tool is compatible with outputs from
 deepreg_predict as well as with other nifti images.
 
 The visualisation tool currently offers four functionalities using the command
-`deepreg_vis`, with their Python functions explained in the final section this document.
-Runn the below examples after changing directory to the root folder `DeepReg`.
+`deepreg_vis`, with their Python functions explained in the final section of this
+document. Run the examples below after changing directory to the root folder `DeepReg`.
 
 The creation of `.gif` files requires a movie writer that is compatible with
 `matplotlib` like `ffmpeg` in order to be able to write `.gif` files. Please refer to
@@ -59,8 +59,8 @@ are:
 - `--ddf-path`: This argument is required for this mode and specifies the path of the
   ddf to use for warping the image.
 - `--slice-inds`: This argument is optional and can be used to specify the indexes to be
-  used to generate the visualisation. Multiple can be passed by using a comma separated
-  string. (default results in a random slice being used)
+  used to generate the visualisation. Multiple indexes can be passed by using a comma
+  separated string. (default results in a random slice being used)
 - `--interval`: This argument is optional and can be used to specify the time, in
   milliseconds, between successive frames of an animation. (default=50)
 - `--num-interval`: The number of intervals to use for warping. (default=100)

@@ -1,7 +1,7 @@
 """
 Module to generate visualisations of data
-command line interfacce
-reuires ffmpeg wirter to write gif files
+command line interface
+requires ffmpeg writer to write gif files
 """
 
 import argparse
