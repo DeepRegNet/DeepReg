@@ -94,4 +94,4 @@ def test_gmi(y_true, y_pred, expected):
     TODO when y_true == y_pred, the return is not exactly zero
     """
     got = image.global_mutual_information(y_true=y_true, y_pred=y_pred)
-    assert is_equal_tf(got, expected, atol=1.0e-6)
+    assert is_equal_tf(got, expected, atol=1.0e-5)

@@ -252,7 +252,7 @@ def test_compute_centroid():
     tensor_grid[:, :, :, 2] *= 3
     tensor_grid = tf.constant(tensor_grid, dtype=tf.float32)
 
-    expected = np.ones((3, 3))  # use 1 because 0/0 ~= (0+eps)/(0+eps) = 1
+    expected = np.zeros((3, 3))  # use 1 because 0/0 ~= 0/(0+eps) = 0
     expected[0, :] = [1, 2, 3]
     got = label.compute_centroid(tensor_mask, tensor_grid)
     assert is_equal_tf(got, expected)
