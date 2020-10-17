@@ -22,31 +22,16 @@ class TestDissimilarityFn:
     y_true = tf.constant(np.array(range(12)).reshape((2, 1, 2, 3)), dtype=tf.float32)
     y_pred = 0.6 * tf.ones((2, 1, 2, 3), dtype=tf.float32)
 
-    def test_lncc(self):
-        got = image.dissimilarity_fn(self.y_true, self.y_pred, "lncc")
-        expected = [-0.68002254, -0.9608879]
+    @pytest.mark.parametrize(
+        "y_true,y_pred,name,expected",
+        [
+            (y_true, y_pred, "lncc", [-0.68002254, -0.9608879]),
+            (y_pred, y_pred, "lncc", [-1.0, -1.0]),
+        ],
+    )
+    def test_lncc(self, y_true, y_pred, name, expected):
+        got = image.dissimilarity_fn(y_true, y_pred, name)
         assert is_equal_tf(got, expected)
-
-        got = image.dissimilarity_fn(self.y_pred, self.y_pred, "lncc")
-        expected = [-1, -1]
-        assert is_equal_tf(got, expected)
-
-        got = image.dissimilarity_fn(
-            self.y_pred, self.y_pred, "lncc", kernel_type="triangular"
-        )
-        expected = [-1, -1]
-        assert is_equal_tf(got, expected)
-
-        got = image.dissimilarity_fn(
-            self.y_pred, self.y_pred, "lncc", kernel_type="gaussian"
-        )
-        expected = [-1, -1]
-        assert is_equal_tf(got, expected)
-
-        with pytest.raises(ValueError):
-            image.dissimilarity_fn(
-                self.y_true, self.y_pred, name="lncc", kernel_type="constant"
-            )
 
     def test_ssd(self):
         got = image.dissimilarity_fn(self.y_pred * 0, self.y_pred, "ssd")
@@ -71,18 +56,36 @@ class TestDissimilarityFn:
         assert "Unknown loss type" in str(err_info.value)
 
 
-def test_local_normalized_cross_correlation():
-    """
-    Testing computed local normalized cross correlation function between images using image.local_normalized_cross_correlation by comparing to precomputed.
-    """
-    tensor_true = np.ones((2, 1, 2, 3, 2))
-    tensor_pred = 0.5 * np.ones((2, 1, 2, 3, 2))
-    expect = [1, 1]
-    get = image.local_normalized_cross_correlation(
-        tensor_true,
-        tensor_pred,
+class TestLNCC:
+    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
+    y_pred = 0.5 * y_true
+
+    @pytest.mark.parametrize(
+        "y_true,y_pred,kernel_type,expected",
+        [
+            (y_true, y_pred, "rectangular", [1, 1]),
+            (y_true, y_pred, "triangular", [1, 1]),
+            (y_true, y_pred, "gaussian", [1, 1]),
+            (y_pred, y_pred, "rectangular", [1, 1]),
+            (y_pred, y_pred, "triangular", [1, 1]),
+            (y_pred, y_pred, "gaussian", [1, 1]),
+        ],
     )
-    assert is_equal_tf(get, expect)
+    def test_output(self, y_true, y_pred, kernel_type, expected):
+        """
+        Testing computed local normalized cross correlation function by comparing the output to expected.
+        """
+        got = image.local_normalized_cross_correlation(
+            y_true, y_pred, kernel_type=kernel_type
+        )
+        assert is_equal_tf(got, expected)
+
+    def test_error(self):
+        with pytest.raises(ValueError) as err_info:
+            image.local_normalized_cross_correlation(
+                self.y_true, self.y_pred, kernel_type="constant"
+            )
+        assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
 
 
 def test_ssd():

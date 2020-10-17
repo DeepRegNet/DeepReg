@@ -114,8 +114,9 @@ def local_normalized_cross_correlation(
 
     else:
         raise ValueError(
-            "[ERROR] Wrong kernel_type for LNCC loss type. "
-            "Please, specify a valid type 'rectangular' / 'triangular' / 'gaussian'"
+            f"Wrong kernel_type for LNCC loss type. "
+            f"Please, specify a valid type 'rectangular' / 'triangular' / 'gaussian',"
+            f"got {kernel_type}"
         )
 
     strides = [1, 1, 1, 1, 1]
