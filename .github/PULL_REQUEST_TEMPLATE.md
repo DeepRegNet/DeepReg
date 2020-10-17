@@ -26,7 +26,8 @@ simply a reminder of what we are going to look for before merging your code._
 
 - [ ] I have
       [installed pre-commit](https://deepreg.readthedocs.io/en/latest/contributing/setup.html)
-      and formatted all changed files.
+      using `pre-commit install` and formatted all changed files. If you are not
+      certain, run `pre-commit run --all-files`.
 - [ ] My commits' message styles matches
       [our requested structure](https://deepreg.readthedocs.io/en/latest/contributing/commit.html),
       e.g. `Issue #<issue number>: detailed message`.
