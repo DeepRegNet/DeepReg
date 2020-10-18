@@ -18,7 +18,7 @@ WORKDIR /app
 # clone DeepReg
 RUN git clone https://github.com/DeepRegNet/DeepReg.git
 WORKDIR DeepReg
-RUN git pull && git checkout 420-provide-docker-file-for-using-deepreg
+RUN git pull
 
 # install conda env
 RUN conda env create -f environment.yml \
