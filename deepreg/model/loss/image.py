@@ -4,7 +4,6 @@ Module provides different loss functions for calculating the dissimilarities bet
 import tensorflow as tf
 
 EPS = 1.0e-6  # epsilon to prevent NaN
-PI2_SQRT = 2.506628274631
 
 
 def dissimilarity_fn(
