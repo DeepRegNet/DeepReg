@@ -97,13 +97,11 @@ def local_normalized_cross_correlation(
         sigma = kernel_size / 3
 
         grid_dim = tf.range(0, kernel_size)
+        grid_dim_ch = tf.range(0, ch)
         grid = tf.expand_dims(
-            tf.expand_dims(
-                tf.cast(
-                    tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim), 0),
-                    dtype="float32",
-                ),
-                axis=-1,
+            tf.cast(
+                tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim, grid_dim_ch), 0),
+                dtype="float32",
             ),
             axis=-1,
         )
@@ -194,8 +192,8 @@ def global_mutual_information(
     )  # scalar, sigma in the Gaussian function (weighting function W)
     preterm = 1 / (2 * tf.math.square(sigma))  # scalar
     batch, w, h, z, c = y_true.shape
-    y_true = tf.reshape(y_true, [batch, w * h * z, 1])  # (batch, nb_voxels, 1)
-    y_pred = tf.reshape(y_pred, [batch, w * h * z, 1])  # (batch, nb_voxels, 1)
+    y_true = tf.reshape(y_true, [batch, w * h * z * c, 1])  # (batch, nb_voxels, 1)
+    y_pred = tf.reshape(y_pred, [batch, w * h * z * c, 1])  # (batch, nb_voxels, 1)
     nb_voxels = y_true.shape[1] * 1.0  # w * h * z, number of voxels
 
     # each voxel contributes continuously to a range of histogram bin
