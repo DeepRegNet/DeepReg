@@ -27,33 +27,44 @@ class TestDissimilarityFn:
         [
             (y_true, y_pred, "lncc", [-0.68002254, -0.9608879]),
             (y_pred, y_pred, "lncc", [-1.0, -1.0]),
+            (y_pred, 0 * y_pred, "ssd", [0.36, 0.36]),
+            (y_pred, y_pred, "ssd", [0.0, 0.0]),
+            (y_pred, y_pred, "gmi", [0.0, 0.0]),
         ],
     )
-    def test_lncc(self, y_true, y_pred, name, expected):
+    def test_output(self, y_true, y_pred, name, expected):
         got = image.dissimilarity_fn(y_true, y_pred, name)
         assert is_equal_tf(got, expected)
-
-    def test_ssd(self):
-        got = image.dissimilarity_fn(self.y_pred * 0, self.y_pred, "ssd")
-        expected = [0.36, 0.36]
-        assert is_equal_tf(got, expected)
-
-        got = image.dissimilarity_fn(self.y_pred, self.y_pred, "ssd")
-        expected = [0, 0]
-        assert is_equal_tf(got, expected)
-
-    def test_gmi(self):
-        # TODO gmi diff images
-        # gmi same image
-        t = tf.ones([4, 3, 3, 3])
-        get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
-        assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0], atol=1.0e-6)
 
     def test_error(self):
         # unknown func name
         with pytest.raises(ValueError) as err_info:
             image.dissimilarity_fn(self.y_true, self.y_pred, "")
         assert "Unknown loss type" in str(err_info.value)
+
+
+class TestSSD:
+    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
+    y_pred = 0.5 * y_true
+
+    @pytest.mark.parametrize(
+        "y_true,y_pred,expected",
+        [
+            (y_true, y_pred, [0.25, 0.25]),
+            (y_true, -y_pred, [2.25, 2.25]),
+            (y_pred, y_pred, [0, 0]),
+            (y_pred, -y_pred, [1, 1]),
+        ],
+    )
+    def test_output(self, y_true, y_pred, expected):
+        """
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
+        """
+        got = image.ssd(
+            y_true,
+            y_pred,
+        )
+        assert is_equal_tf(got, expected)
 
 
 class TestLNCC:
@@ -88,30 +99,18 @@ class TestLNCC:
         assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
 
 
-def test_ssd():
-    """
-    Testing computed sum squared error function between images using image.ssd by comparing to precomputed.
-    """
-    tensor_true = 0.3 * np.array(range(108)).reshape((2, 3, 3, 3, 2))
-    tensor_pred = 0.1 * np.ones((2, 3, 3, 3, 2))
-    tensor_pred[:, :, :, :, :] = 1
-    get = image.ssd(tensor_true, tensor_pred)
-    expect = [70.165, 557.785]
-    assert is_equal_tf(get, expect)
-
-
-@pytest.mark.parametrize(
-    "y_true,y_pred,expected",
-    [
-        [tf.zeros((4, 3, 3, 3, 1)), tf.zeros((4, 3, 3, 3, 1)), tf.zeros((4,))],
-        [tf.ones((4, 3, 3, 3, 1)), tf.ones((4, 3, 3, 3, 1)), tf.zeros((4,))],
-    ],
-)
-def test_gmi(y_true, y_pred, expected):
-    """
-    Testing computed global mutual information between images
-    using image.global_mutual_information by comparing to precomputed.
-    TODO when y_true == y_pred, the return is not exactly zero
-    """
-    got = image.global_mutual_information(y_true=y_true, y_pred=y_pred)
-    assert is_equal_tf(got, expected, atol=1.0e-6)
+class TestGMI:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,expected",
+        [
+            [tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2,))],
+            [tf.ones((2, 1, 2, 3, 2)), tf.ones((2, 1, 2, 3, 2)), tf.zeros((2,))],
+        ],
+    )
+    def test_output(self, y_true, y_pred, expected):
+        """
+        Testing computed global mutual information between images
+        using image.global_mutual_information by comparing to precomputed.
+        """
+        got = image.global_mutual_information(y_true=y_true, y_pred=y_pred)
+        assert is_equal_tf(got, expected, atol=1.0e-6)
