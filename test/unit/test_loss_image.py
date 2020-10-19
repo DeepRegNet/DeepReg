@@ -23,18 +23,18 @@ class TestDissimilarityFn:
     y_pred = 0.6 * tf.ones((2, 1, 2, 3), dtype=tf.float32)
 
     @pytest.mark.parametrize(
-        "y_true,y_pred,name,expected",
+        "y_true,y_pred,name,expected,tol",
         [
-            (y_true, y_pred, "lncc", [-0.68002254, -0.9608879]),
-            (y_pred, y_pred, "lncc", [-1.0, -1.0]),
-            (y_pred, 0 * y_pred, "ssd", [0.36, 0.36]),
-            (y_pred, y_pred, "ssd", [0.0, 0.0]),
-            (y_pred, y_pred, "gmi", [0.0, 0.0]),
+            (y_true, y_pred, "lncc", [-0.68002254, -0.9608879], 0),
+            (y_pred, y_pred, "lncc", [-1.0, -1.0], 0),
+            (y_pred, 0 * y_pred, "ssd", [0.36, 0.36], 0),
+            (y_pred, y_pred, "ssd", [0.0, 0.0], 0),
+            (y_pred, y_pred, "gmi", [0.0, 0.0], 1e-6),
         ],
     )
-    def test_output(self, y_true, y_pred, name, expected):
+    def test_output(self, y_true, y_pred, name, expected, tol):
         got = image.dissimilarity_fn(y_true, y_pred, name)
-        assert is_equal_tf(got, expected)
+        assert is_equal_tf(got, expected, atol=tol)
 
     def test_error(self):
         # unknown func name
