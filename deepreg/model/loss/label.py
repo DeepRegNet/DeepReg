@@ -168,7 +168,7 @@ def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf
     denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
         y_pred, axis=[1, 2, 3]
     )
-    return numerator / (denominator + EPS)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def dice_score_generalized(
@@ -203,7 +203,7 @@ def dice_score_generalized(
         (pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight
     )
     denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight
-    return numerator / (denominator + EPS)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
@@ -224,7 +224,7 @@ def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         + tf.reduce_sum(y_pred, axis=[1, 2, 3])
         - numerator
     )
-    return numerator / (denominator + EPS)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def gauss_kernel1d(sigma: int) -> tf.Tensor:
@@ -308,7 +308,7 @@ def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     )  # (batch, dim1, dim2, dim3, 3)
     numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # (batch, 3)
     denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3])  # (batch, 1)
-    return numerator / (denominator + EPS)  # (batch, 3)
+    return (numerator + EPS) / (denominator + EPS)  # (batch, 3)
 
 
 def compute_centroid_distance(
