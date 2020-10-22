@@ -31,14 +31,14 @@ def test_gif_tile_slices():
     """Covered by test_main"""
     pass
 
+
 class TestMain:
-    
     def __init__(self):
         self.img_paths = "./data/test/nifti/unit_test/moving_image.nii.gz"
         self.ddf_path = "./data/test/nifti/unit_test/ddf.nii.gz"
-    
+
     def test_case1(self):
-        
+
         # test mode 0 and check output
         out_path = "logs/moving_image.gif"
         main(
@@ -55,7 +55,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case2(self):
         # test mode 1 and check output
         out_path_1 = "logs/moving_image_slice_1.gif"
@@ -85,7 +85,7 @@ class TestMain:
         os.remove(out_path_1)
         os.remove(out_path_2)
         os.remove(out_path_3)
-    
+
     def test_case3(self):
         # test mode 1 and check output when no slice_inds
         out_path_partial = "moving_image_slice"
@@ -106,7 +106,7 @@ class TestMain:
             ]
         )
         assert any([out_path_partial in file for file in os.listdir("logs")])
-    
+
     def test_case4(self):
         # test mode 1 and check if exception is caught
         with pytest.raises(Exception) as err_info:
@@ -127,7 +127,7 @@ class TestMain:
                 ]
             )
         assert "--ddf-path is required when using --mode 1" in str(err_info.value)
-    
+
     def test_case5(self):
         # test mode 2 and check output
         out_path = "logs/visualisation.png"
@@ -149,7 +149,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case6(self):
         # test mode 2 and check output when col_titles not provided
         out_path = "logs/visualisation.png"
@@ -169,7 +169,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case7(self):
         # test mode 2 and check output when no slice_inds and no fname
         out_path = "logs/visualisation.png"
@@ -187,7 +187,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case8(self):
         # test mode 3 and check output
         out_path = "logs/visualisation.gif"
@@ -222,7 +222,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case9(self):
         # test mode 3 and check output when fname not provided
         out_path = "logs/visualisation.gif"
@@ -255,7 +255,7 @@ class TestMain:
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
-    
+
     def test_case10(self):
         # test mode 3 and check if exception is caught
         img_paths_moded = (
@@ -289,7 +289,7 @@ class TestMain:
                 ]
             )
         assert "The number of images supplied is " in str(err_info.value)
-    
+
     def test_case11(self):
         # test mode 3 and check if exception is caught
         new_img_path = "data/test/nifti/paired/test/fixed_images/case000025.nii.gz"
