@@ -286,7 +286,7 @@ The saved files include:
 
   Example usage:
 
-  - `--image input_DDF.nii.gz`##
+  - `--image input_DDF.nii.gz`
 
 ### Optional arguments
 
@@ -301,7 +301,7 @@ The saved files include:
 
   Example usage:
 
-  - `--out output_image.nii.gz` #'#
+  - `--out output_image.nii.gz`
 
 ### Output
 
