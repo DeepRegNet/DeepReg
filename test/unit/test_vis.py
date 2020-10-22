@@ -12,33 +12,11 @@ def test_string_to_list():
     assert got == expected
 
 
-def test_gif_slices():
-    """Covered by test_main"""
-    pass
-
-
-def test_tile_slices():
-    """Covered by test_main"""
-    pass
-
-
-def test_gif_warp():
-    """Covered by test_main"""
-    pass
-
-
-def test_gif_tile_slices():
-    """Covered by test_main"""
-    pass
-
-
 class TestMain:
-    def __init__(self):
-        self.img_paths = "./data/test/nifti/unit_test/moving_image.nii.gz"
-        self.ddf_path = "./data/test/nifti/unit_test/ddf.nii.gz"
+    img_paths = "./data/test/nifti/unit_test/moving_image.nii.gz"
+    ddf_path = "./data/test/nifti/unit_test/ddf.nii.gz"
 
-    def test_case1(self):
-
+    def test_mode0(self):
         # test mode 0 and check output
         out_path = "logs/moving_image.gif"
         main(
@@ -56,7 +34,7 @@ class TestMain:
         assert os.path.exists(out_path)
         os.remove(out_path)
 
-    def test_case2(self):
+    def test_mode1_output(self):
         # test mode 1 and check output
         out_path_1 = "logs/moving_image_slice_1.gif"
         out_path_2 = "logs/moving_image_slice_2.gif"
@@ -86,7 +64,7 @@ class TestMain:
         os.remove(out_path_2)
         os.remove(out_path_3)
 
-    def test_case3(self):
+    def test_mode1_no_slidce_inds(self):
         # test mode 1 and check output when no slice_inds
         out_path_partial = "moving_image_slice"
         main(
@@ -107,7 +85,7 @@ class TestMain:
         )
         assert any([out_path_partial in file for file in os.listdir("logs")])
 
-    def test_case4(self):
+    def test_mode1_err(self):
         # test mode 1 and check if exception is caught
         with pytest.raises(Exception) as err_info:
             main(
@@ -128,156 +106,86 @@ class TestMain:
             )
         assert "--ddf-path is required when using --mode 1" in str(err_info.value)
 
-    def test_case5(self):
+    @pytest.mark.parametrize(
+        "extra_args",
+        [
+            [
+                "--slice-inds",
+                "1,2,3",
+                "--fname",
+                "visualisation.png",
+                "--col-titles",
+                "abc",
+            ],
+            [
+                "--slice-inds",
+                "1,2,3",
+                "--fname",
+                "visualisation.png",
+            ],  # no col_titles
+            [
+                "--col-titles",
+                "abc",
+            ],  # no slice_inds and no fname
+        ],
+    )
+    def test_mode2_output(self, extra_args):
         # test mode 2 and check output
+        common_args = [
+            "--mode",
+            "2",
+            "--image-paths",
+            self.img_paths,
+            "--save-path",
+            "logs",
+        ]
         out_path = "logs/visualisation.png"
-        main(
-            args=[
-                "--mode",
-                "2",
-                "--image-paths",
-                self.img_paths,
-                "--save-path",
-                "logs",
-                "--slice-inds",
-                "1,2,3",
-                "--fname",
-                "visualisation.png",
-                "--col-titles",
-                "abc",
-            ]
-        )
+        main(args=common_args + extra_args)
         assert os.path.exists(out_path)
         os.remove(out_path)
 
-    def test_case6(self):
-        # test mode 2 and check output when col_titles not provided
-        out_path = "logs/visualisation.png"
-        main(
-            args=[
-                "--mode",
-                "2",
-                "--image-paths",
-                self.img_paths,
-                "--save-path",
-                "logs",
-                "--slice-inds",
-                "1,2,3",
-                "--fname",
-                "visualisation.png",
-            ]
-        )
-        assert os.path.exists(out_path)
-        os.remove(out_path)
-
-    def test_case7(self):
-        # test mode 2 and check output when no slice_inds and no fname
-        out_path = "logs/visualisation.png"
-        main(
-            args=[
-                "--mode",
-                "2",
-                "--image-paths",
-                self.img_paths,
-                "--save-path",
-                "logs",
-                "--col-titles",
-                "abc",
-            ]
-        )
-        assert os.path.exists(out_path)
-        os.remove(out_path)
-
-    def test_case8(self):
-        # test mode 3 and check output
-        out_path = "logs/visualisation.gif"
-        img_paths_moded = (
-            self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-        )
-        main(
-            args=[
-                "--mode",
-                "3",
-                "--image-paths",
-                img_paths_moded,
-                "--save-path",
-                "logs",
-                "--interval",
-                "50",
-                "--size",
-                "2,3",
+    @pytest.mark.parametrize(
+        "extra_args",
+        [
+            [
                 "--fname",
                 "visualisation.gif",
-            ]
-        )
-        assert os.path.exists(out_path)
-        os.remove(out_path)
-
-    def test_case9(self):
-        # test mode 3 and check output when fname not provided
+            ],
+            [],  # no fname
+        ],
+    )
+    def test_case3(self, extra_args):
+        # test mode 3 and check output
         out_path = "logs/visualisation.gif"
-        img_paths_moded = (
-            self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-        )
+        img_paths_moded = ",".join([self.img_paths] * 6)
+        common_args = [
+            "--mode",
+            "3",
+            "--image-paths",
+            img_paths_moded,
+            "--save-path",
+            "logs",
+            "--interval",
+            "50",
+            "--size",
+            "2,3",
+        ]
         main(
-            args=[
-                "--mode",
-                "3",
-                "--image-paths",
-                img_paths_moded,
-                "--save-path",
-                "logs",
-                "--interval",
-                "50",
-                "--size",
-                "2,3",
-            ]
+            args=common_args + extra_args,
         )
         assert os.path.exists(out_path)
         os.remove(out_path)
 
-    def test_case10(self):
+    def test_mode3_num_image_err(self):
         # test mode 3 and check if exception is caught
-        img_paths_moded = (
-            self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-            + ","
-            + self.img_paths
-        )
+        img_paths = ",".join([self.img_paths] * 6)
         with pytest.raises(Exception) as err_info:
             main(
                 args=[
                     "--mode",
                     "3",
                     "--image-paths",
-                    img_paths_moded,
+                    img_paths,
                     "--save-path",
                     "logs",
                     "--interval",
@@ -290,7 +198,7 @@ class TestMain:
             )
         assert "The number of images supplied is " in str(err_info.value)
 
-    def test_case11(self):
+    def test_mode3_shape_err(self):
         # test mode 3 and check if exception is caught
         new_img_path = "data/test/nifti/paired/test/fixed_images/case000025.nii.gz"
         img_paths_moded = self.img_paths + "," + new_img_path
