@@ -1,52 +1,72 @@
 Installation
 ============
 
-DeepReg is written in Python 3.7. Dependent external libraries provide core IO functionalities and other standard
-processing tools. The dependencies for DeepReg are managed by
-``pip``.
+DeepReg uses in Python 3.7 and external python dependencies are defined in `requirements <https://github.com/DeepRegNet/DeepReg/blob/main/requirements.txt>`__.
+DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux distributions.
+
+There are multiple different methods to install DeepReg:
+
+1. Clone `DeepReg`_ and create a virtual environment using `Anaconda`_ / `Miniconda`_ (**recommended**).
+2. Clone `DeepReg`_ and build a docker image using the provided docker file.
+3. Install directly from PyPI release without cloning `DeepReg`_.
 
 Create a virtual environment
 ----------------------------
 
 The recommended method is to install DeepReg in a dedicated virtual
-environment to avoid issues with other dependencies. The conda
-environment is recommended:
+environment using `Anaconda`_ / `Miniconda`_ to avoid issues with other dependencies.
 
-`Anaconda <https://docs.anaconda.com/anaconda/install/>`__ /
-`Miniconda <https://docs.conda.io/en/latest/miniconda.html>`__
-
-DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux distributions.
+Please clone `DeepReg`_ first and install DeepReg following the instructions below.
+For more documentation regarding the usage of conda environment,
+please check the `official documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__.
 
 .. tabs::
 
     .. tab:: Linux
 
-        With CPU only
+        Install DeepReg without GPU support.
 
         .. code:: bash
 
             conda env create -f environment_cpu.yml
             conda activate deepreg
 
-        With GPU
+        Install DeepReg with GPU support.
 
         .. code:: bash
 
             conda env create -f environment.yml
             conda activate deepreg
 
+        Update DeepReg without GPU support.
+
+        .. code:: bash
+
+            conda env update -f environment_cpu.yml
+
+
+        Update DeepReg with GPU support.
+
+        .. code:: bash
+
+            conda env update -f environment.yml
 
     .. tab:: Mac OS
 
-        With CPU only
+        Install DeepReg without GPU support.
 
         .. code:: bash
 
             conda env create -f environment_cpu.yml
             conda activate deepreg
 
+        Update DeepReg without GPU support.
 
-        With GPU
+        .. code:: bash
+
+            conda env update -f environment_cpu.yml
+
+        Install/update DeepReg with GPU support.
 
         .. warning::
 
@@ -54,14 +74,15 @@ DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux 
 
     .. tab:: Windows
 
-        With CPU only
+        Install/update DeepReg without GPU support.
 
         .. warning::
 
-            DeepReg on Windows is not fully supported. However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__
-            with CPU only. Set up WSL and follow the DeepReg setup instructions for Linux.
+            DeepReg on Windows is not fully supported.
+            However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__.
+            Set up WSL and follow the DeepReg setup instructions for Linux.
 
-        With GPU
+        Install/update DeepReg with GPU support.
 
         .. warning::
 
@@ -71,6 +92,7 @@ Use docker
 ----------
 
 We also provide the docker file for building the docker image.
+Please clone `DeepReg repository`_ first and install DeepReg following the instructions below.
 
 Install docker
 ^^^^^^^^^^^^^^
@@ -117,16 +139,7 @@ which removes a created container and its volumes, check more info on `docker do
 Install the package directly
 ----------------------------
 
-**Install from the cloned local project**
-
-.. code:: bash
-
-    git clone https://github.com/DeepRegNet/DeepReg.git # clone the repository
-    cd DeepReg # change working directory to the DeepReg root directory
-    pip install -e . # install the package
-
-
-**Install from the PyPI release**
+Please use the following command to install DeepReg directly from the PyPI release.
 
 .. code:: bash
 
@@ -135,11 +148,16 @@ Install the package directly
 
 **Note**
 
-All dependencies, APIs and command-line tools will be installed automatically via either installation method.
-However, the PyPI release currently does not ship with test data and demos.
-Running examples in this documentation may require downloading test data and changing default paths to user-installed packages with the PyPI release.
-These examples include those in the `Quick Start`_ and `DeepReg Demo`_.
-
+1. All dependencies, APIs and command-line tools will be installed automatically via either installation method.
+   However, the PyPI release currently does not ship with test data and demos.
+   Running examples in this documentation may require downloading test data
+   and changing default paths to user-installed packages with the PyPI release.
+   These examples include those in the `Quick Start`_ and `DeepReg Demo`_.
+2. Only released versions of DeepReg are available via PyPI release.
+   Therefore it is different from the `latest (unreleased) version <https://github.com/DeepRegNet/DeepReg>`__ on GitHub.
 
 .. _Quick Start: quick_start.html
 .. _DeepReg Demo: ../demo/introduction.html
+.. _Anaconda: https://docs.anaconda.com/anaconda/install
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _DeepReg: https://github.com/DeepRegNet/DeepReg
