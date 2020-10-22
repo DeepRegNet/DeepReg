@@ -46,6 +46,10 @@ Have a registration application with openly accessible data? Consider
 
 ## MICCAI 2020 Educational Challenge
 
-Our [MICCAI Educational Challenge](https://miccai-sb.github.io/materials.html) submission on DeepReg is an Award Winner!
+Our [MICCAI Educational Challenge](https://miccai-sb.github.io/materials.html)
+submission on DeepReg is an Award Winner!
 
-Check it out [here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb) - you can also [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
+Check it out
+[here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb) -
+you can also
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
