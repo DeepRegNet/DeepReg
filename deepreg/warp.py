@@ -49,12 +49,15 @@ def warp(image_path: str, ddf_path: str, out_path: str):
         raise ValueError(
             f"ddf shape must be (f_dim1, f_dim2, f_dim3, 3), got {ddf.shape}"
         )
+    # add batch dimension manually
     image = tf.expand_dims(image, axis=0)
     ddf = tf.expand_dims(ddf, axis=0)
 
     # warp
     warped_image = warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
     warped_image = warped_image.numpy()
+    warped_image = warped_image[0, ...]  # removed added batch dimension
+
     # save output
     nib.save(img=nib.Nifti2Image(warped_image, affine=np.eye(4)), filename=out_path)
 

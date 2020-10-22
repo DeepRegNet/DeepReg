@@ -7,14 +7,18 @@ about: Something isn't working.
 
 Describe your issue here.
 
-If the documentation request is approved, would you be willing to submit a PR? _(Help
-can be provided if you need assistance submitting a PR)_
+If the bug is confirmed, would you be willing to submit a PR? _(Help can be provided if
+you need assistance submitting a PR)_
 
 Yes / No
 
 ## Your environment
 
-- DeepReg version (commit hash or tag)
+- DeepReg version (commit hash)
+
+  Please use `git rev-parse HEAD` to get the hash of the current commit. Using
+  `pip list` will provide the fixed tag version inside `setup.py`, therefore it is not
+  accurate.
 
   We recommend installing DeepReg using
   [Anaconda](https://docs.anaconda.com/anaconda/install/) /
@@ -35,7 +39,7 @@ Yes / No
   - CUDA Version (10.1, etc.) if available.
   - cuDNN Version
 
-  We support only TensorFlow 2.2 officially.
+  We support only TensorFlow 2.3 officially.
 
   If using GPU, please check https://www.tensorflow.org/install/source#gpu to verify the
   GPU support.

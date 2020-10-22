@@ -35,6 +35,9 @@ authors:
   - name: Zhe Min
     orcid: 0000-0002-8903-1561
     affiliation: 1
+  - name: Stefano B. Blumberg
+    orcid: 0000-0002-7150-9918
+    affiliation: 2
   - name: Juan Eugenio Iglesias
     orcid: 0000-0001-7569-173X
     affiliation: "2, 5, 6"
@@ -44,6 +47,9 @@ authors:
   - name: Ester Bonmati
     orcid: 0000-0001-9217-5438
     affiliation: "1, 2"
+  - name: Daniel C. Alexander
+    orcid: 0000-0003-2439-350X
+    affiliation: 2
   - name: Matthew J. Clarkson
     orcid: 0000-0002-5565-1252
     affiliation: "1, 2"
@@ -78,7 +84,7 @@ Image fusion is a fundamental task in medical image analysis and computer-assist
 A submission to the MICCAI Educational Challenge has utilised the DeepReg code and demos to explore the link between classical algorithms and deep-learning-based methods [@brown2020introduction], while a recently published research work investigated temporal changes in prostate cancer imaging, by using a longitudinal registration adapted from the DeepReg code [@yang2020longitudinal].
 
 # Statement of need
-Currently, popular packages focusing on deep learning methods for medical imaging, such as NiftyNet [@gibson2018niftynet] and MONAI (https://monai.io/), do not support image registration. Other open-source projects implementing specific published algorithms, such as the VoxelMorph [@balakrishnan2019voxelmorph], are seldom tested or designed for general research and education purposes. Therefore an open-sourced project focusing on image registration with deep learning is much needed.
+Currently, popular packages focusing on deep learning methods for medical imaging, such as NiftyNet [@gibson2018niftynet] and MONAI (https://monai.io/), do not support image registration. The existing open-sourced registration projects either implement specific published algorithms, such as the VoxelMorph [@balakrishnan2019voxelmorph], or focus on classical methods, such as NiftiReg [@modat2010fast], SimpleElastix [@marstal2016simpleelastix] and AirLab [@sandkuhler2018airlab]. Therefore an open-sourced project focusing on image registration with deep learning is much needed for general research and education purposes.
 
 # Implementation
 DeepReg implements a framework for unsupervised learning [@de2019deep; @balakrishnan2019voxelmorph], weakly-supervised learning [@hu2018label; @hu2018weakly] and their combinations and variants, e.g. [@hu2019conditional]. Many options are included for major components of these approaches, such as different image- and label dissimilarity functions, transformation models [@ashburner2007fast; @vercauteren2009diffeomorphic; @hill2001medical], deformation regularisation [@rueckert1999nonrigid] and different neural network architectures [@hu2018weakly; @he2016deep; @simonyan2014very]. The provided dataset loaders adopt staged random sampling strategy to ensure unbiased learning from groups, images and labels [@hu2018weakly; @yang2020longitudinal]. These algorithmic components together with the flexible dataset loaders are building blocks of many other registration tasks, such as group-wise registration and morphological template construction [@dalca2019learning; @siebert2020deep; @luo2020mvmm].
@@ -100,7 +106,7 @@ DeepReg provides a collection of deep learning algorithms and dataset loaders to
 
 # Acknowledgements
 
-This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (NS/A000049/1) and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34). NMB, ZB, RD are also supported by the EPSRC CDT i4health (EP/S021930/1). ZB is supported by the Natural Sciences and Engineering Research Council of Canada Postgraduate Scholarships-Doctoral Program and the University College London Overseas and Graduate Research Scholarships.
+This work is supported by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (203145Z/16/Z). Support was also from the Engineering and Physical Sciences Research Council (EPSRC) (EP/M020533/1, NS/A000049/1), National Institute for Health Research University College London Hospitals Biomedical Research Centre and Wellcome Trust (203148/Z/16/Z). TV is supported by a Medtronic / Royal Academy of Engineering Research Chair (RCSRF1819\7\34). NMB, ZB, RD are also supported by the EPSRC CDT i4health (EP/S021930/1). ZB is supported by the Natural Sciences and Engineering Research Council of Canada Postgraduate Scholarships-Doctoral Program and the University College London Overseas and Graduate Research Scholarships.
 
 # References
 <!-- This will be filled in by references in paper.bib -->

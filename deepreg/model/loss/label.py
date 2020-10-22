@@ -15,24 +15,22 @@ def get_dissimilarity_fn(config: dict) -> Callable:
     multi- or single-scale loss functions.
 
     :param config: dict, containing configuration for training.
-    :return: loss function, to calculate float
+    :return: loss function, which returns a tensor of shape (batch, )
     """
     if config["name"] == "multi_scale":
 
         def loss(y_true, y_pred):
-            return tf.reduce_mean(
-                multi_scale_loss(y_true=y_true, y_pred=y_pred, **config["multi_scale"])
-            )  # (batch,)
+            return multi_scale_loss(
+                y_true=y_true, y_pred=y_pred, **config["multi_scale"]
+            )
 
         return loss
     elif config["name"] == "single_scale":
 
         def loss(y_true, y_pred):
-            return tf.reduce_mean(
-                single_scale_loss(
-                    y_true=y_true, y_pred=y_pred, **config["single_scale"]
-                )
-            )  # (batch,)
+            return single_scale_loss(
+                y_true=y_true, y_pred=y_pred, **config["single_scale"]
+            )
 
         return loss
     else:
@@ -164,13 +162,11 @@ def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf
     if binary:
         y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
         y_pred = tf.cast(y_pred >= 0.5, dtype=tf.float32)
-    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) * 2 + EPS
-    denominator = (
-        tf.reduce_sum(y_true, axis=[1, 2, 3])
-        + tf.reduce_sum(y_pred, axis=[1, 2, 3])
-        + EPS
+    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) * 2
+    denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
+        y_pred, axis=[1, 2, 3]
     )
-    return numerator / denominator
+    return tf.math.divide_no_nan(numerator, denominator)
 
 
 def dice_score_generalized(
@@ -201,11 +197,11 @@ def dice_score_generalized(
         y_pred, axis=[1, 2, 3]
     )
 
-    numerator = (
-        2 * ((pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight) + EPS
+    numerator = 2 * (
+        (pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight
     )
-    denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight + EPS
-    return numerator / denominator
+    denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight
+    return tf.math.divide_no_nan(numerator, denominator)
 
 
 def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
@@ -220,14 +216,13 @@ def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     :param y_pred: shape = (batch, dim1, dim2, dim3)
     :return: shape = (batch,)
     """
-    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) + EPS
+    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
     denominator = (
         tf.reduce_sum(y_true, axis=[1, 2, 3])
         + tf.reduce_sum(y_pred, axis=[1, 2, 3])
         - numerator
-        + EPS
     )
-    return numerator / denominator
+    return tf.math.divide_no_nan(numerator, denominator)
 
 
 def gauss_kernel1d(sigma: int) -> tf.Tensor:
@@ -264,6 +259,12 @@ def cauchy_kernel1d(sigma: int) -> tf.Tensor:
 def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
     Creates a 3d separable filter.
+
+    Here `tf.nn.conv3d` accepts the `filters` argument of shape
+    (filter_depth, filter_height, filter_width, in_channels, out_channels),
+    where the first axis of `filters` is the depth not batch,
+    and the input to `tf.nn.conv3d` is of shape
+    (batch, in_depth, in_height, in_width, in_channels).
 
     :param tensor: shape = (batch, dim1, dim2, dim3)
     :param kernel: shape = (dim4,)
@@ -309,9 +310,9 @@ def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     masked_grid = bool_mask * tf.expand_dims(
         grid, axis=0
     )  # (batch, dim1, dim2, dim3, 3)
-    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3]) + EPS  # (batch, 3)
-    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3]) + EPS  # (batch, 1)
-    return numerator / denominator  # (batch, 3)
+    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # (batch, 3)
+    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3])  # (batch, 1)
+    return tf.math.divide_no_nan(numerator, denominator)  # (batch, 3)
 
 
 def compute_centroid_distance(

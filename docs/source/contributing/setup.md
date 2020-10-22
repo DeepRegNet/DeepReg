@@ -46,3 +46,13 @@ To check if Black is causing conflicts, run `black .` in the root of DeepReg you
 see the formatted files by Black, run `pre-commit run --all-files`, you will see the
 final versions. Compare them to understand an issue. If there's a new conflict case,
 please raise an issue.
+
+## Conda Environment
+
+We recommend using `conda env create -f environment.yml` to create the conda environment
+in [installation](../getting_started/install.html). In case that we change the
+dependencies later, please use `conda env update -f environment.yml` to update the
+packages.
+
+Otherwise, we can always remove the environment using `conda env remove -n deepreg` and
+recreate it using `conda env create -f environment.yml`.

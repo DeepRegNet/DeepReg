@@ -13,117 +13,104 @@ import tensorflow as tf
 import deepreg.model.loss.image as image
 
 
-def test_dissimilarity_fn():
+class TestDissimilarityFn:
     """
-    Testing computed dissimilarity function by comparing to precomputed, the dissimilarity function can be either normalized cross correlation or sum square error function.
+    Testing computed dissimilarity function by comparing to precomputed,
+    the dissimilarity function can be either normalized cross correlation or sum square error function.
     """
 
-    # lncc diff images
-    tensor_true = np.array(range(12)).reshape((2, 1, 2, 3))
-    tensor_pred = 0.6 * np.ones((2, 1, 2, 3))
-    tensor_true = tf.convert_to_tensor(tensor_true, dtype=tf.float32)
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
+    y_true = tf.constant(np.array(range(12)).reshape((2, 1, 2, 3)), dtype=tf.float32)
+    y_pred = 0.6 * tf.ones((2, 1, 2, 3), dtype=tf.float32)
 
-    name_ncc = "lncc"
-    get_ncc = image.dissimilarity_fn(tensor_true, tensor_pred, name_ncc)
-    expect_ncc = [-0.68002254, -0.9608879]
-
-    assert is_equal_tf(get_ncc, expect_ncc)
-
-    # ssd diff images
-    tensor_true1 = np.zeros((2, 1, 2, 3))
-    tensor_pred1 = 0.6 * np.ones((2, 1, 2, 3))
-    tensor_true1 = tf.convert_to_tensor(tensor_true1, dtype=tf.float32)
-    tensor_pred1 = tf.convert_to_tensor(tensor_pred1, dtype=tf.float32)
-
-    name_ssd = "ssd"
-    get_ssd = image.dissimilarity_fn(tensor_true1, tensor_pred1, name_ssd)
-    expect_ssd = [0.36, 0.36]
-
-    assert is_equal_tf(get_ssd, expect_ssd)
-
-    # TODO gmi diff images
-
-    # lncc same image
-    get_zero_similarity_ncc = image.dissimilarity_fn(
-        tensor_pred1, tensor_pred1, name_ncc
+    @pytest.mark.parametrize(
+        "y_true,y_pred,name,expected,tol",
+        [
+            (y_true, y_pred, "lncc", [-0.68002254, -0.9608879], 0),
+            (y_pred, y_pred, "lncc", [-1.0, -1.0], 0),
+            (y_pred, 0 * y_pred, "ssd", [0.36, 0.36], 0),
+            (y_pred, y_pred, "ssd", [0.0, 0.0], 0),
+            (y_pred, y_pred, "gmi", [0.0, 0.0], 1e-6),
+        ],
     )
-    assert is_equal_tf(get_zero_similarity_ncc, [-1, -1])
+    def test_output(self, y_true, y_pred, name, expected, tol):
+        got = image.dissimilarity_fn(y_true, y_pred, name)
+        assert is_equal_tf(got, expected, atol=tol)
 
-    # ssd same image
-    get_zero_similarity_ssd = image.dissimilarity_fn(
-        tensor_true1, tensor_true1, name_ssd
+    def test_error(self):
+        # unknown func name
+        with pytest.raises(ValueError) as err_info:
+            image.dissimilarity_fn(self.y_true, self.y_pred, "")
+        assert "Unknown loss type" in str(err_info.value)
+
+
+class TestSSD:
+    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
+    y_pred = 0.5 * y_true
+
+    @pytest.mark.parametrize(
+        "y_true,y_pred,expected",
+        [
+            (y_true, y_pred, [0.25, 0.25]),
+            (y_true, -y_pred, [2.25, 2.25]),
+            (y_pred, y_pred, [0, 0]),
+            (y_pred, -y_pred, [1, 1]),
+        ],
     )
-    assert is_equal_tf(get_zero_similarity_ssd, [0, 0])
-
-    # gmi same image
-    t = tf.ones([4, 3, 3, 3])
-    get_zero_similarity_gmi = image.dissimilarity_fn(t, t, "gmi")
-    assert is_equal_tf(get_zero_similarity_gmi, [0, 0, 0, 0])
-
-    # unknown func name
-    with pytest.raises(AssertionError):
-        image.dissimilarity_fn(
-            tensor_true1, tensor_pred1, "some random string that isn't ssd or lncc"
+    def test_output(self, y_true, y_pred, expected):
+        """
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
+        """
+        got = image.ssd(
+            y_true,
+            y_pred,
         )
+        assert is_equal_tf(got, expected)
 
 
-def test_local_normalized_cross_correlation():
-    """
-    Testing computed local normalized cross correlation function between images using image.local_normalized_cross_correlation by comparing to precomputed.
-    """
-    tensor_true = np.array(range(24)).reshape((2, 1, 2, 3, 2))
-    tensor_pred = 0.6 * np.ones((2, 1, 2, 3, 2))
-    expect = [0.7281439, 0.9847701]
-    get = image.local_normalized_cross_correlation(
-        tensor_true, tensor_pred, kernel_size=9
+class TestLNCC:
+    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
+    y_pred = 0.5 * y_true
+
+    @pytest.mark.parametrize(
+        "y_true,y_pred,kernel_type,expected",
+        [
+            (y_true, y_pred, "rectangular", [1, 1]),
+            (y_true, y_pred, "triangular", [1, 1]),
+            (y_true, y_pred, "gaussian", [1, 1]),
+            (y_pred, y_pred, "rectangular", [1, 1]),
+            (y_pred, y_pred, "triangular", [1, 1]),
+            (y_pred, y_pred, "gaussian", [1, 1]),
+        ],
     )
-    assert is_equal_tf(get, expect)
+    def test_output(self, y_true, y_pred, kernel_type, expected):
+        """
+        Testing computed local normalized cross correlation function by comparing the output to expected.
+        """
+        got = image.local_normalized_cross_correlation(
+            y_true, y_pred, kernel_type=kernel_type
+        )
+        assert is_equal_tf(got, expected)
+
+    def test_error(self):
+        with pytest.raises(ValueError) as err_info:
+            image.local_normalized_cross_correlation(
+                self.y_true, self.y_pred, kernel_type="constant"
+            )
+        assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
 
 
-def test_ssd():
-    """
-    Testing computed sum squared error function between images using image.ssd by comparing to precomputed.
-    """
-    tensor_true = 0.3 * np.array(range(108)).reshape((2, 3, 3, 3, 2))
-    tensor_pred = 0.1 * np.ones((2, 3, 3, 3, 2))
-    tensor_pred[:, :, :, :, :] = 1
-    get = image.ssd(tensor_true, tensor_pred)
-    expect = [70.165, 557.785]
-    assert is_equal_tf(get, expect)
-
-
-def test_gmi():
-    """
-    Testing computed global mutual information between images using image.global_mutual_information by comparing to precomputed.
-    """
-    # fixed non trival value
-    t1 = np.array(range(108)).reshape((4, 3, 3, 3, 1)) / 108.0
-    t1 = tf.convert_to_tensor(t1, dtype=tf.float32)
-    t2 = t1 + 0.05
-    get = image.global_mutual_information(t1, t2)
-    expect = tf.constant(
-        [0.84280217, 0.84347117, 0.8441777, 0.8128618], dtype=tf.float32
+class TestGMI:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,expected",
+        [
+            [tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2,))],
+            [tf.ones((2, 1, 2, 3, 2)), tf.ones((2, 1, 2, 3, 2)), tf.zeros((2,))],
+        ],
     )
-    assert is_equal_tf(get, expect)
-
-    # zero values
-    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
-    t2 = t1
-    get = image.global_mutual_information(t1, t2)
-    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
-    assert is_equal_tf(get, expect)
-
-    # zero value and negative value
-    t1 = tf.zeros((4, 3, 3, 3, 1), dtype=tf.float32)
-    t2 = t1 - 1.0  # will be clipped to zero
-    get = image.global_mutual_information(t1, t2)
-    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
-    assert is_equal_tf(get, expect)
-
-    # one values
-    t1 = tf.ones((4, 3, 3, 3, 1), dtype=tf.float32)
-    t2 = t1
-    get = image.global_mutual_information(t1, t2)
-    expect = tf.constant([0, 0, 0, 0], dtype=tf.float32)
-    assert is_equal_tf(get, expect)
+    def test_output(self, y_true, y_pred, expected):
+        """
+        Testing computed global mutual information between images
+        using image.global_mutual_information by comparing to precomputed.
+        """
+        got = image.global_mutual_information(y_true=y_true, y_pred=y_pred)
+        assert is_equal_tf(got, expected, atol=1.0e-6)

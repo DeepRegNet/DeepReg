@@ -173,7 +173,7 @@ configuration can be specified in the configuration file. Please see
 
 - **Batch size**:
 
-  `--batch_size` or `-b`, specifies the mini-batch size for prediction.
+  `--batch_size` or `-b`, specifies the mini-batch size (per GPU) for prediction.
 
   The default value is 1.
 
@@ -195,6 +195,12 @@ configuration can be specified in the configuration file. Please see
 - **Save outputs in png format**:
 
   The predicted 3D tensors can be saved as a slice of 2D images for quick visualization.
+
+  As values have to be normalized between 0~255 (or 0~1) for png files (Nifti files are
+  not impacted), all images (`moving_image`, `fixed_image` and `pred_fixed_image`) and
+  displacement/velocity fields (`ddf` and `dvf`) will be normalized before being saved.
+  Labels (`moving_label`, `fixed_label` and `pred_fixed_label`) are not affected as they
+  are already within 0~1.
 
   By default it saves the outputs in png format.
 
