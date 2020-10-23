@@ -10,8 +10,8 @@ There are multiple different methods to install DeepReg:
 2. Clone `DeepReg`_ and build a docker image using the provided docker file.
 3. Install directly from PyPI release without cloning `DeepReg`_.
 
-Create a virtual environment
-----------------------------
+Install via Conda
+-----------------
 
 The recommended method is to install DeepReg in a dedicated virtual
 environment using `Anaconda`_ / `Miniconda`_ to avoid issues with other dependencies.
@@ -88,8 +88,8 @@ please check the `official documentation <https://docs.conda.io/projects/conda/e
 
             Not supported or tested.
 
-Use docker
-----------
+Install via docker
+------------------
 
 We also provide the docker file for building the docker image.
 Please clone `DeepReg repository`_ first and install DeepReg following the instructions below.
@@ -136,8 +136,8 @@ Remove a container
 
 which removes a created container and its volumes, check more info on `docker documentation <https://docs.docker.com/engine/reference/commandline/rm/)>`__.
 
-Install the package directly
-----------------------------
+Install via PyPI
+----------------
 
 Please use the following command to install DeepReg directly from the PyPI release.
 
