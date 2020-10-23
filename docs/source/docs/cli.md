@@ -313,3 +313,9 @@ The saved files include:
 
 The warped image is saved in the given output file path, otherwise the default file path
 `warped.nii.gz` will be used.
+
+## Visualise
+
+In addition to the images in the output, DeepReg provides a set of tools with the
+command `deepreg_vis`. See more details in
+[its usage documentation](visualisation_tool.md).
