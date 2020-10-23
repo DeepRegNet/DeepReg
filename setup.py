@@ -32,6 +32,7 @@ setup(
             "deepreg_train=deepreg.train:main",
             "deepreg_predict=deepreg.predict:main",
             "deepreg_warp=deepreg.warp:main",
+            "deepreg_vis=deepreg.vis:main",
         ]
     },
     classifiers=[
