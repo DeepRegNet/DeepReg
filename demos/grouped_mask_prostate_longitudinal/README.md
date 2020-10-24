@@ -39,24 +39,25 @@ ultrasound images used are simulated dummy images.
 python demos/grouped_mask_prostate_longitudinal/demo_data.py
 ```
 
-- Call `deepreg_train` from command line. The following example uses a single GPU and
-  launches the first of the ten runs of a 9-fold cross-validation, as specified in the
-  [`dataset` section](./grouped_mask_prostate_longitudinal_dataset0.yaml) and the
+- Run `demo_train` script to launch a demo training. The following example uses a single
+  GPU and launches the first of the ten runs of a 9-fold cross-validation, as specified
+  in the [`dataset` section](./grouped_mask_prostate_longitudinal_dataset0.yaml) and the
   [`train` section](./grouped_mask_prostate_longitudinal_train.yaml), which can be
   specified in
-  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html);
+  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html).
+  The logs will be saved under `logs_train/` inside the demo folder;
 
 ```bash
-deepreg_train --gpu "0" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --log_dir grouped_mask_prostate_longitudinal
+python demos/grouped_mr_heart/demo_train.py --no-test
 ```
 
-- Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
-  data partitions specified in the config file, a copy of which would be saved in the
-  [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saved at the created timestamp-named directories under /logs.
+- Run `demo_predict` script to use the saved checkpoint file for testing on the data
+  partitions specified in the config file, a copy of which would be saved in the
+  log_dir. The following example uses a pre-trained model, on CPU. The results will be
+  saved at under `logs_predict/` inside the demo folder.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
+python demos/grouped_mr_heart/demo_predict.py
 ```
 
 ## Pre-trained model

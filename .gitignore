@@ -137,3 +137,10 @@ logs/
 
 # data folders
 *.tfrecords
+
+# demo dataset folders
+demos/*/dataset
+
+# demo test folders
+demos/*/logs_train
+demos/*/logs_predict

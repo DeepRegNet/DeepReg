@@ -1,27 +1,36 @@
 from deepreg.predict import predict
 
-print(
-    "The prediction can also be launched using the following command."
-    "deepreg_predict --gpu "
-    " --config_path demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml --ckpt_path demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test"
-)
+name = "grouped_mask_prostate_longitudinal"
 
 
-log_dir = "unpaired_ct_abdomen_log_comb"
-ckpt_path = (
-    "demos/grouped_mask_prostate_longitudinal/dataset/pre-trained/weights-epoch500.ckpt"
-)
-config_path = (
-    "demos/grouped_mask_prostate_longitudinal/grouped_mask_prostate_longitudinal.yaml"
-)
+def main():
+    print(
+        "The prediction can also be launched using the following command."
+        "deepreg_predict --gpu ''"
+        f"--config_path demos/{name}/{name}.yaml "
+        f"--ckpt_path demos/{name}/dataset/pre-trained/weights-epoch500.ckpt "
+        f"--log_root demos/{name}"
+        "--log_dir logs_predict"
+        "--save_png --mode test"
+    )
 
-predict(
-    gpu="0",
-    gpu_allow_growth=False,
-    ckpt_path=ckpt_path,
-    mode="test",
-    batch_size=1,
-    log_dir=log_dir,
-    sample_label="all",
-    config_path=config_path,
-)
+    log_root = f"demos/{name}"
+    log_dir = "logs_predict"
+    ckpt_path = f"{log_root}/dataset/pre-trained/weights-epoch500.ckpt"
+    config_path = f"{log_root}/{name}.yaml"
+
+    predict(
+        gpu="0",
+        gpu_allow_growth=False,
+        ckpt_path=ckpt_path,
+        mode="test",
+        batch_size=1,
+        log_root=log_root,
+        log_dir=log_dir,
+        sample_label="all",
+        config_path=config_path,
+    )
+
+
+if __name__ == "__main__":
+    main()

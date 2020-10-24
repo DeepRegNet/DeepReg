@@ -1,3 +1,4 @@
 # grouped_mask_prostate_longitudinal
 python demos/grouped_mask_prostate_longitudinal/demo_data.py
+python demos/grouped_mask_prostate_longitudinal/demo_train.py
 python demos/grouped_mask_prostate_longitudinal/demo_predict.py
