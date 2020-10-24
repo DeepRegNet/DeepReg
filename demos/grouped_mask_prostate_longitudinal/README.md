@@ -39,7 +39,7 @@ ultrasound images used are simulated dummy images.
 python demos/grouped_mask_prostate_longitudinal/demo_data.py
 ```
 
-- Run `demo_train` script to launch a demo training. The following example uses a single
+- Run `demo_train` script to launch the training. The following example uses a single
   GPU and launches the first of the ten runs of a 9-fold cross-validation, as specified
   in the [`dataset` section](./grouped_mask_prostate_longitudinal_dataset0.yaml) and the
   [`train` section](./grouped_mask_prostate_longitudinal_train.yaml), which can be
@@ -48,7 +48,7 @@ python demos/grouped_mask_prostate_longitudinal/demo_data.py
   The logs will be saved under `logs_train/` inside the demo folder;
 
 ```bash
-python demos/grouped_mr_heart/demo_train.py --no-test
+python demos/grouped_mask_prostate_longitudinal/demo_train.py --no-test
 ```
 
 - Run `demo_predict` script to use the saved checkpoint file for testing on the data
@@ -57,7 +57,7 @@ python demos/grouped_mr_heart/demo_train.py --no-test
   saved at under `logs_predict/` inside the demo folder.
 
 ```bash
-python demos/grouped_mr_heart/demo_predict.py
+python demos/grouped_mask_prostate_longitudinal/demo_predict.py
 ```
 
 ## Pre-trained model
@@ -65,12 +65,7 @@ python demos/grouped_mr_heart/demo_predict.py
 A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
 dataset folder under the demo folder. This pre-trained model will be used by default
 with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the ckpt files will be saved, in this case (specified by `deepreg_train`
-as above), /logs/grouped_mask_prostate_longitudinal/.
-
-## Tested DeepReg version
-
-Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
+location where the checkpoint files are saved.
 
 ## Contact
 
