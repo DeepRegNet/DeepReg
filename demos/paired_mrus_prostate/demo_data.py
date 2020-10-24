@@ -62,7 +62,7 @@ for fn in data_types:  # remove the old type folders
 print("All data are partitioned into %d folders." % num_part)
 
 ## now download the pre-trained model
-MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)

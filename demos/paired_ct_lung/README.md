@@ -25,7 +25,7 @@ tumor location when conducting invasive procedures.
   the following command:
 
 ```bash
-python3 demos/paired_ct_lung/script_name.py
+python demos/paired_ct_lung/script_name.py
 ```
 
 A short description of the scripts is provided below. The scripts must be run in the

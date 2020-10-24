@@ -24,7 +24,7 @@ boundaries during surgery and correct tissue shift induced by the craniotomy.
   the following command:
 
 ```bash
-python3 demos/paired_mrus_brain/script_name.py
+python demos/paired_mrus_brain/script_name.py
 ```
 
 A short description of the scripts is provided below. The scripts must be run in the
@@ -43,7 +43,7 @@ following order:
   - Train a network using DeepReg
 - Run the demo_predict.py script: This script does the following:
   - Use the pretrained network to make predictions for the test set
-  - Use the predicitions to plot the results (the images path generated in the logs will
+  - Use the predictions to plot the results (the images path generated in the logs will
     need to be specified)
 - Note: The number of epochs and reduced dataset size for training will result in a loss
   in test accuracy so please train with the full dataset and for a greater number of
@@ -62,10 +62,6 @@ as above), /logs/learn2reg_t1_paired_train_logs/.
 The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:
 
 https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
-
-## Tested DeepReg version
-
-Last commit at which demo was tested: c709a46c345552ae1396e6d7ba46a44f7950aea0
 
 ## Contact
 

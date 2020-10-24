@@ -36,41 +36,37 @@ segmenation.
 python demos/paired_mrus_prostate/demo_data.py
 ```
 
-- Call `deepreg_train` from command line. The following example uses two GPUs and
-  launches the first of the ten runs of a 9-fold cross-validation, as specified in the
-  [`dataset` section](./paired_mrus_prostate_dataset0.yaml) and the
-  [`train` section](./paired_mrus_prostate_train.yaml), which can be specified in
-  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html);
+- Run `demo_train` script to launch the training. The following example uses a single
+  GPU and launches the first of the ten runs of a 9-fold cross-validation, as specified
+  in the [`dataset` section](./paired_mrus_prostate.yaml) and the
+  [`train` section](./paired_mrus_prostate.yaml), which can be specified in
+  [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation).
+  The logs will be saved under `logs_train/` inside the demo folder;
 
 ```bash
-deepreg_train --gpu "1, 2" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --log_dir paired_mrus_prostate
+python demos/paired_mrus_prostate/demo_train.py --no-test
 ```
 
-- Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
-  data partitions specified in the config file, a copy of which will be saved in the
-  [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saved at the created timestamp-named directories under /logs.
+- Run `demo_predict` script to use the saved checkpoint file for testing on the data
+  partitions specified in the config file, a copy of which will be saved in the log_dir.
+  The following example uses a pre-trained model, on CPU. The results will be saved at
+  under `logs_predict/` inside the demo folder.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/paired_mrus_prostate/paired_mrus_prostate_dataset0.yaml demos/paired_mrus_prostate/paired_mrus_prostate_train.yaml --ckpt_path demos/paired_mrus_prostate/dataset/pre-trained/weights-epoch500.ckpt --mode test
+python demos/paired_mrus_prostate/demo_predict.py
 ```
 
 ## Pre-trained Model
 
 A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
 dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying `--ckpt_path` the
-location where the ckpt files will be saved, in this case (specified by `deepreg_train`
-as above), /logs/paired_mrus_prostate/.
+with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
+location where the checkpoint files are saved.
 
 ## Data
 
 This is a demo without real clinical data due to regulatory restrictions. The MR and
 ultrasound images used are simulated dummy images.
-
-## Tested DeepReg version
-
-Last commit at which demo was tested: 7ec0f5157a81cd5e60cadd61bd617b433039d0e6
 
 ## Contact
 

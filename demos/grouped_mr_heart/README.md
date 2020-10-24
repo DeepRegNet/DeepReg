@@ -34,8 +34,8 @@ python demos/grouped_mr_heart/demo_data.py
 
 - Run `demo_train` script to launch the training. The following example uses a single
   GPU and launches the first of the ten runs of a 9-fold cross-validation, as specified
-  in the [`dataset` section](./grouped_mr_heart_dataset0.yaml) and the
-  [`train` section](./grouped_mr_heart_train.yaml), which can be specified in
+  in the [`dataset` section](./grouped_mr_heart.yaml) and the
+  [`train` section](./grouped_mr_heart.yaml), which can be specified in
   [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation).
   The logs will be saved under `logs_train/` inside the demo folder;
 

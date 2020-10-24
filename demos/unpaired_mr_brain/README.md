@@ -24,7 +24,7 @@ composite loss of image and label similarity.
   the following command:
 
 ```bash
-python3 demos/unpaired_mr_brain/script_name.py
+python demos/unpaired_mr_brain/script_name.py
 ```
 
 A short description of the scripts is provided below. The scripts must be run in the

@@ -12,6 +12,7 @@ import pytest
         "grouped_mr_heart",
         "paired_ct_lung",
         "paired_mrus_brain",
+        "paired_mrus_prostate",
     ],
 )
 def test_demo(name):
