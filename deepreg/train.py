@@ -186,9 +186,7 @@ def train(
 def main(args=None):
     """Entry point for train script"""
 
-    parser = argparse.ArgumentParser(
-        description="train", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--gpu",
