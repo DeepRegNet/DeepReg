@@ -11,6 +11,7 @@ import pytest
         "grouped_mask_prostate_longitudinal",
         "grouped_mr_heart",
         "paired_ct_lung",
+        "paired_mrus_brain",
     ],
 )
 def test_demo(name):
