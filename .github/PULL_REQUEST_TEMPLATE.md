@@ -31,5 +31,8 @@ simply a reminder of what we are going to look for before merging your code._
 - [ ] My commits' message styles matches
       [our requested structure](https://deepreg.readthedocs.io/en/latest/contributing/commit.html),
       e.g. `Issue #<issue number>: detailed message`.
+- [ ] I have updated the
+      [change log file](https://github.com/DeepRegNet/DeepReg/blob/main/CHANGELOG.md)
+      regarding my changes.
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] I have added necessary documentation (if appropriate)
