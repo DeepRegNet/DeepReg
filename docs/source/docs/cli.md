@@ -86,6 +86,18 @@ configuration can be specified in the configuration file. Please see
 
   - `--log_dir test` for saving under `logs/test/`.
 
+- **Maximum number of epochs**:
+
+  `--max_epochs`, specifies the maximum number of epochs for training and overwrites the
+  value defined in the configuration.
+
+  By default, the value is -1, meaning the number of epochs will be defined by
+  configuration.
+
+  Example usage:
+
+  - `--max_epochs 2` for run training only for two epochs.
+
 ### Output
 
 During the training, multiple output files will be saved in the log directory
