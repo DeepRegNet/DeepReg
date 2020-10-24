@@ -56,18 +56,13 @@ following order:
 A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
 dataset folder under the demo folder. This pre-trained model will be used by default
 with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the ckpt files will be saved, in this case (specified by `deepreg_train`
-as above), /logs/learn2reg_t2_paired_train_logs/.
+location where the checkpoint files are saved.
 
 ## Data
 
 The dataset for this demo comes from
 [Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
 [1].
-
-## Tested DeepReg version
-
-Last commit at which demo was tested: v. 0.1.6-alpha
 
 ## Contact
 
