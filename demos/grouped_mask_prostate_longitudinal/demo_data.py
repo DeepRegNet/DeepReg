@@ -106,8 +106,8 @@ def main():
 
     print("Done. \n")
 
-    ## now download the pre-trained model
-    MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+    ## now download the pretrained model
+    MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
     if os.path.exists(MODEL_PATH):
         shutil.rmtree(MODEL_PATH)
     os.mkdir(MODEL_PATH)
@@ -122,7 +122,7 @@ def main():
     os.remove(zip_file)
 
     print(
-        "Pre-trained model is downloaded and unzipped in %s."
+        "pretrained model is downloaded and unzipped in %s."
         % os.path.abspath(MODEL_PATH)
     )
 

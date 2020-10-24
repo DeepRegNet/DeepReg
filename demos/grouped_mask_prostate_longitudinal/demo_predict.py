@@ -8,7 +8,7 @@ def main():
         "The prediction can also be launched using the following command."
         "deepreg_predict --gpu ''"
         f"--config_path demos/{name}/{name}.yaml "
-        f"--ckpt_path demos/{name}/dataset/pre-trained/weights-epoch500.ckpt "
+        f"--ckpt_path demos/{name}/dataset/pretrained/weights-epoch500.ckpt "
         f"--log_root demos/{name}"
         "--log_dir logs_predict"
         "--save_png --mode test"
@@ -16,7 +16,7 @@ def main():
 
     log_root = f"demos/{name}"
     log_dir = "logs_predict"
-    ckpt_path = f"{log_root}/dataset/pre-trained/weights-epoch500.ckpt"
+    ckpt_path = f"{log_root}/dataset/pretrained/weights-epoch500.ckpt"
     config_path = f"{log_root}/{name}.yaml"
 
     predict(

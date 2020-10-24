@@ -138,8 +138,9 @@ logs/
 # data folders
 *.tfrecords
 
-# demo dataset folders
+# demo dataset folders and zip files
 demos/*/dataset
+demos/*/*.zip
 
 # demo test folders
 demos/*/logs_train
