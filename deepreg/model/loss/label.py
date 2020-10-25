@@ -5,7 +5,7 @@ from typing import Callable
 
 import tensorflow as tf
 
-EPS = 1.0e-6  # epsilon to prevent NaN
+EPS = tf.keras.backend.epsilon()
 
 
 def get_dissimilarity_fn(config: dict) -> Callable:
@@ -138,10 +138,12 @@ def weighted_binary_cross_entropy(
     :param pos_weight: weight of positive class, scalar. Default value is 1
     :return: shape = (batch,)
     """
-    y_pred = tf.clip_by_value(y_pred, EPS, 1 - EPS)
-    return -pos_weight * tf.reduce_mean(
-        y_true * tf.math.log(y_pred), axis=[1, 2, 3]
-    ) - tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred), axis=[1, 2, 3])
+    y_pred = tf.clip_by_value(y_pred, 0, 1)
+    loss_pos = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=[1, 2, 3])
+    loss_neg = tf.reduce_mean(
+        (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=[1, 2, 3]
+    )
+    return -pos_weight * loss_pos - loss_neg
 
 
 def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf.Tensor:
@@ -166,7 +168,7 @@ def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf
     denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
         y_pred, axis=[1, 2, 3]
     )
-    return tf.math.divide_no_nan(numerator, denominator)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def dice_score_generalized(
@@ -201,7 +203,7 @@ def dice_score_generalized(
         (pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight
     )
     denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight
-    return tf.math.divide_no_nan(numerator, denominator)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
@@ -222,7 +224,7 @@ def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         + tf.reduce_sum(y_pred, axis=[1, 2, 3])
         - numerator
     )
-    return tf.math.divide_no_nan(numerator, denominator)
+    return (numerator + EPS) / (denominator + EPS)
 
 
 def gauss_kernel1d(sigma: int) -> tf.Tensor:
@@ -312,7 +314,7 @@ def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     )  # (batch, dim1, dim2, dim3, 3)
     numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # (batch, 3)
     denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3])  # (batch, 1)
-    return tf.math.divide_no_nan(numerator, denominator)  # (batch, 3)
+    return (numerator + EPS) / (denominator + EPS)  # (batch, 3)
 
 
 def compute_centroid_distance(
