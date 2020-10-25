@@ -23,75 +23,64 @@ https://learn2reg.grand-challenge.org/Datasets/.
 
 ## Instruction
 
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
+### Installation
 
-- Change the working directory to the root directory of DeepReg project;
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
 
-- Run [demo_data.py] to download and extract all files, and to split the data into
-  training, validation and testing. If the data has already been downloaded. This will
-  also download the pre-trained models:
+### Download data
+
+Please execute the following command to download and pre-process the data and
+pre-trained model.
 
 ```bash
 python demos/unpaired_ct_abdomen/demo_data.py
 ```
 
-After running the command you will have the following directories in
-DeepReg/demos/unpaired_ct_abdomen/dataset:
+### Launch demo training
 
-```bash
-pre-trained  test  train  val
-```
-
-- The next step is to train the network using DeepReg. To train the network, run one of
-  the following commands in command line:
-
-- Unsupervised learning
+In this demo, three different training methods are provided: unsupervised, weakly
+supervised and the combined method. Please execute one of the following commands to
+launch a demo training. The training logs and model checkpoints will be saved under
+`demos/unpaired_ct_abdomen/logs_train/method` with `method` be `unsup`, `weakly` or
+`comb`.
 
 ```bash
 python demos/unpaired_ct_abdomen/demo_train.py --method unsup
-```
-
-- Weakly-supervised learning
-
-```bash
 python demos/unpaired_ct_abdomen/demo_train.py --method weakly
-```
-
-- Combined learning
-
-```bash
 python demos/unpaired_ct_abdomen/demo_train.py --method comb
 ```
 
-- After training the network, run `demo_predict`:
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
 
-The following example uses a pre-trained model, on CPU.
+```bash
+python demos/unpaired_ct_abdomen/demo_train.py --method unsup --no-test
+```
+
+### Launch prediction
+
+Please execute one of the following commands to launch the prediction with pre-trained
+model. The prediction logs and visualization results will be saved under
+`demos/unpaired_ct_abdomen/logs_predict/method` with `method` be `unsup`, `weakly` or
+`comb`. Check the [CLI documentation](../docs/cli.html) for more details about
+prediction output.
 
 ```bash
 python demos/unpaired_ct_abdomen/demo_predict.py --method unsup
-```
-
-```bash
 python demos/unpaired_ct_abdomen/demo_predict.py --method weakly
-```
-
-```bash
 python demos/unpaired_ct_abdomen/demo_predict.py --method comb
 ```
 
-- Finally, prediction results can be seen in the respective test folders in
-  `logs_predict`.
-
-## Pre-trained model
-
-Three pre-trained models are available for this demo, for different training strategies
-described above. These will be downloaded in respective sub-folders under the /dataset
-folder using the `demo_data.py`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the checkpoint files are saved.
+Optionally, the user-trained model can be used by changing the `ckpt_path` variable
+inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
+saved under `logs_train` as mentioned above.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

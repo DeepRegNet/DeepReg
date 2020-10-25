@@ -28,9 +28,9 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download the data and pre-trained model. By
-default, the downloaded data is only a partial of the original one. However the access
-to the original data is temporarily unavailable.
+Please execute the following command to download and pre-process the data and
+pre-trained model. By default, the downloaded data is only a partial of the original
+one. However the access to the original data is temporarily unavailable.
 
 ```bash
 python demos/paired_mrus_brain/demo_data.py
@@ -38,9 +38,8 @@ python demos/paired_mrus_brain/demo_data.py
 
 ### Launch demo training
 
-Please execute the following command to launch a demo training. The training logs will
-be saved under `demos/paired_mrus_brain/logs_train`, where the saved checkpoints can be
-used for prediction later.
+Please execute the following command to launch a demo training. The training logs and
+model checkpoints will be saved under `demos/paired_mrus_brain/logs_train`.
 
 ```bash
 python demos/paired_mrus_brain/demo_train.py
@@ -61,9 +60,9 @@ epochs for improved results.
 ### Launch prediction
 
 Please execute the following command to launch the prediction with pre-trained model.
-The prediction logs will be saved under `demos/paired_mrus_brain/logs_predict`, where
-the visualization of predictions are saved. Check the
-[CLI documentation](../docs/cli.html) for more details about prediction output.
+The prediction logs and visualization results will be saved under
+`demos/paired_mrus_brain/logs_predict`. Check the [CLI documentation](../docs/cli.html)
+for more details about prediction output.
 
 ```bash
 python demos/paired_mrus_brain/demo_predict.py

@@ -35,7 +35,7 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download the data.
+Please execute the following command to download and pre-process the data.
 
 ```bash
 python demos/classical_ct_headneck_affine/demo_data.py

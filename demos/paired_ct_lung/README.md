@@ -32,8 +32,8 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download the data and pre-trained model. Image
-intensities are rescaled during pre-processing.
+Please execute the following command to download and pre-process the data and
+pre-trained model. Image intensities are rescaled during pre-processing.
 
 ```bash
 python demos/paired_ct_lung/demo_data.py
@@ -41,9 +41,8 @@ python demos/paired_ct_lung/demo_data.py
 
 ### Launch demo training
 
-Please execute the following command to launch a demo training. The training logs will
-be saved under `demos/paired_ct_lung/logs_train`, where the saved checkpoints can be
-used for prediction later.
+Please execute the following command to launch a demo training. The training logs and
+model checkpoints will be saved under `demos/paired_ct_lung/logs_train`.
 
 ```bash
 python demos/paired_ct_lung/demo_train.py
@@ -60,9 +59,9 @@ python demos/paired_ct_lung/demo_train.py --no-test
 ### Launch prediction
 
 Please execute the following command to launch the prediction with pre-trained model.
-The prediction logs will be saved under `demos/paired_ct_lung/logs_predict`, where the
-visualization of predictions are saved. Check the [CLI documentation](../docs/cli.html)
-for more details about prediction output.
+The prediction logs and visualization results will be saved under
+`demos/paired_ct_lung/logs_predict`. Check the [CLI documentation](../docs/cli.html) for
+more details about prediction output.
 
 ```bash
 python demos/paired_ct_lung/demo_predict.py

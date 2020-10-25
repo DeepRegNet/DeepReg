@@ -16,58 +16,66 @@ using mono-modal MR images between different patients. The images are cropped ar
 those areas and manually annotated. This is a 3D intra-modal registration using a
 composite loss of image and label similarity.
 
-## Instruction
-
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
-- Change current directory to the root directory of DeepReg project;
-- The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
-  the following command:
-
-```bash
-python demos/unpaired_mr_brain/script_name.py
-```
-
-A short description of the scripts is provided below. The scripts must be run in the
-following order:
-
-- (Optional) Create a new configuration file following the template in
-  demos/unpaired_mr_brain/unpaired_mr_brain.yaml. It specifies:
-  - Dataset options: input data directory, loader type, data format
-  - Model options: backbone network, field type.
-  - Training options: losses, optimizer, number of epochs.
-- Run the `demo_data.py` script: This script does the following:
-  - Download and extract the dataset. Data is downloaded to the demo directory under
-    data/ but this can be changed (instructions in the comments in the script).
-  - Split subjects into train/test according to the challenge website.
-  - Rescale all images to 0-255 so they are suitable for use with DeepReg
-  - Create and apply a binary mask to mask-out the padded values in images.
-  - Transform label volumes using one-hot encoding (only for foreground classes)
-- Run the `demo_train.py` script: This script does the following:
-  - Specify the training options like GPU support
-  - Specify the config file paths
-  - Train a network using DeepReg
-- Run the `demo_predict.py` script: This script does the following:
-  - Use the trained network to make predictions for the test set
-  - Use the predictions to plot the results (the path to the images generated in the
-    logs will need to be specified, look at comments in the script to change this)
-
-## Pre-trained Model
-
-A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
-dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the checkpoint files are saved.
-
 ## Data
 
 The dataset for this demo comes from the Learn2Reg MICCAI Challenge (Task 4) [1] and can
 be downloaded from:
-
 https://drive.google.com/uc?export=download&id=1RvJIjG2loU8uGkWzUuGjqVcGQW2RzNYA
+
+## Instruction
+
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download and pre-process the data and
+pre-trained model.
+
+Pre-processing includes:
+
+- Rescaling all images' intensity to 0-255.
+- Creating and applying a binary mask to mask-out the padded values in images.
+- Transforming label volumes using one-hot encoding (only for foreground classes)
+
+```bash
+python demos/unpaired_mr_brain/demo_data.py
+```
+
+### Launch demo training
+
+Please execute the following command to launch a demo training. The training logs and
+model checkpoints will be saved under `demos/unpaired_mr_brain/logs_train`.
+
+```bash
+python demos/unpaired_mr_brain/demo_train.py
+```
+
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
+
+```bash
+python demos/unpaired_mr_brain/demo_train.py --no-test
+```
+
+### Launch prediction
+
+Please execute the following command to launch the prediction with pre-trained model.
+The prediction logs and visualization results will be saved under
+`demos/unpaired_mr_brain/logs_predict`. Check the [CLI documentation](../docs/cli.html)
+for more details about prediction output.
+
+```bash
+python demos/unpaired_mr_brain/demo_predict.py
+```
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

@@ -35,8 +35,8 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download the data and pre-trained model. Images
-are re-sampled to an isotropic voxel size.
+Please execute the following command to download and pre-process the data and
+pre-trained model. Images are re-sampled to an isotropic voxel size.
 
 ```bash
 python demos/grouped_mr_heart/demo_data.py
@@ -45,9 +45,8 @@ python demos/grouped_mr_heart/demo_data.py
 ### Launch demo training
 
 Please execute the following command to launch a demo training (the first of the ten
-runs of a 9-fold cross-validation). The training logs will be saved under
-`demos/grouped_mr_heart/logs_train`, where the saved checkpoints can be used for
-prediction later.
+runs of a 9-fold cross-validation). The training logs and model checkpoints will be
+saved under `demos/grouped_mr_heart/logs_train`.
 
 ```bash
 python demos/grouped_mr_heart/demo_train.py
@@ -64,8 +63,8 @@ python demos/grouped_mr_heart/demo_train.py --no-test
 ### Launch prediction
 
 Please execute the following command to launch the prediction with pre-trained model.
-The prediction logs will be saved under `demos/grouped_mr_heart/logs_predict`, where the
-visualization of predictions are saved. Check the [CLI documentation](../docs/cli.html)
+The prediction logs and visualization results will be saved under
+`demos/grouped_mr_heart/logs_predict`. Check the [CLI documentation](../docs/cli.html)
 for more details about prediction output.
 
 ```bash
