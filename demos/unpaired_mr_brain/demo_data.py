@@ -21,15 +21,15 @@ main_path = os.getcwd()
 os.chdir(main_path)
 
 # Demo directory
-project_dir = r"demos/unpaired_mr_brain"
+project_dir = "demos/unpaired_mr_brain"
 os.chdir(join(main_path, project_dir))
 
 # Data storage directory
-data_folder_name = "data"
+data_folder_name = "dataset"
 path_to_data_folder = join(main_path, project_dir, data_folder_name)
 
 # Pretrained model storage directory
-model_folder_name = "logs"
+model_folder_name = join(project_dir, data_folder_name, "pretrained")
 path_to_model_folder = join(main_path, model_folder_name)
 
 #################
@@ -113,6 +113,7 @@ for f in img_files:
     else:
         shutil.copy(join(path_to_init_label, f), join(path_to_test, "labels"))
 
+shutil.rmtree(join(path_to_data_folder, "Training"))
 print("Files succesfully copied to " + path_to_train + " and " + path_to_test)
 
 #################

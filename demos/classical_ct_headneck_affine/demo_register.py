@@ -12,7 +12,7 @@ import deepreg.model.loss.image as image_loss
 import deepreg.util as util
 
 MAIN_PATH = os.getcwd()
-PROJECT_DIR = r"demos/classical_ct_headneck_affine"
+PROJECT_DIR = "demos/classical_ct_headneck_affine"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"

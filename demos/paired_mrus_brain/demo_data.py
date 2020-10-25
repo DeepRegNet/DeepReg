@@ -56,7 +56,7 @@ if os.path.exists("dataset_resect") is not True:
     os.mkdir(r"dataset_resect/paired_mr_us_brain")
 url = "https://ns9999k.webs.sigma2.no/10.11582_2020.00025/EASY-RESECT.zip"
 fname = "EASY-RESECT.zip"
-path_to_zip_file = r"dataset_resect"
+path_to_zip_file = "dataset_resect"
 get_file(os.path.join(os.getcwd(), path_to_zip_file, fname), url)
 with zipfile.ZipFile(os.path.join(path_to_zip_file, fname), "r") as zip_ref:
     zip_ref.extractall(os.path.join(path_to_zip_file, "paired_mr_us_brain"))
@@ -66,11 +66,11 @@ path_to_nifti = os.path.join(
 all_folders = os.listdir(path_to_nifti)
 for folder in all_folders:
     source = os.path.join(path_to_nifti, folder)
-    destination = r"dataset_resect/paired_mr_us_brain"
+    destination = "dataset_resect/paired_mr_us_brain"
     shutil.move(source, destination)
 print("Files restructured!")
 test_ratio = 0.25
-path_to_data = r"dataset_resect/paired_mr_us_brain"
+path_to_data = "dataset_resect/paired_mr_us_brain"
 cases_list = os.listdir(path_to_data)
 os.mkdir(os.path.join(path_to_data, "test"))
 os.mkdir(os.path.join(path_to_data, "train"))

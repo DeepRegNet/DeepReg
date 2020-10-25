@@ -6,7 +6,7 @@ import os
 from tensorflow.keras.utils import get_file
 
 MAIN_PATH = os.getcwd()
-PROJECT_DIR = r"demos/classical_mr_prostate_nonrigid"
+PROJECT_DIR = "demos/classical_mr_prostate_nonrigid"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"

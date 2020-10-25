@@ -9,7 +9,7 @@ import h5py
 from scipy import ndimage
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/grouped_mask_prostate_longitudinal"
+PROJECT_DIR = "demos/grouped_mask_prostate_longitudinal"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"

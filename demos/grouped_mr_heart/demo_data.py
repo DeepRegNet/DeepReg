@@ -8,7 +8,7 @@ from tensorflow.keras.utils import get_file
 
 output_pixdim = 1.5
 
-PROJECT_DIR = r"demos/grouped_mr_heart"
+PROJECT_DIR = "demos/grouped_mr_heart"
 os.chdir(PROJECT_DIR)
 
 ORIGIN = "https://github.com/ucl-candi/datasets_deepreg_demo/archive/myops.zip"

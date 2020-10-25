@@ -18,7 +18,7 @@ os.chdir(main_path)
 
 ######## DOWNLOADING AND UNZIPPING ALL FILES INTO CORRECT PATH ########
 
-project_dir = r"demos/paired_ct_lung"
+project_dir = "demos/paired_ct_lung"
 data_folder_name = "dataset"
 os.chdir(project_dir)
 

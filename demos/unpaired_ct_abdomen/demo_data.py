@@ -6,7 +6,7 @@ import nibabel as nib
 import numpy as np
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/unpaired_ct_abdomen"
+PROJECT_DIR = "demos/unpaired_ct_abdomen"
 os.chdir(PROJECT_DIR)
 
 ORIGIN = "https://github.com/ucl-candi/datasets_deepreg_demo/archive/abdct.zip"

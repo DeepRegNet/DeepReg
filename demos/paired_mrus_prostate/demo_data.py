@@ -7,7 +7,7 @@ import zipfile
 
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/paired_mrus_prostate"
+PROJECT_DIR = "demos/paired_mrus_prostate"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"

@@ -18,7 +18,7 @@ os.chdir(main_path)
 
 ######## DOWNLOADING AND UNZIPPING ALL FILES INTO CORRECT PATH ########
 
-project_dir = r"demos/unpaired_ct_lung"
+project_dir = "demos/unpaired_ct_lung"
 os.chdir(project_dir)
 
 url = "https://zenodo.org/record/3835682/files/training.zip"
@@ -230,7 +230,7 @@ os.chdir(main_path)
 
 ######## NOW WE RESACLE THE IMAGES TO 255 ########
 
-data_dir = r"demos/unpaired_ct_lung/dataset"
+data_dir = "demos/unpaired_ct_lung/dataset"
 folders = os.listdir(data_dir)
 
 for folder in folders:
