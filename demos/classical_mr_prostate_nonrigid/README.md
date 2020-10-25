@@ -21,34 +21,39 @@ a common space for investigating the spatial distribution of cancer.
 
 ## Data
 
-https://promise12.grand-challenge.org/
+Data is an example MR volumes with the prostate gland segmentation from
+[MICCAI Grand Challenge: Prostate MR Image Segmentation 2012](https://promise12.grand-challenge.org/).
 
 ## Instruction
 
-- Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download an example MR volumes with the prostate gland
-  segmentation;
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download the data.
 
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_data.py
 ```
 
-- Run `demo_register.py` script. This script will register two images. The optimised
-  transformation will be applied to the moving images, as well as the moving labels. The
-  results, saved in a timestamped folder under the project directory, will compare the
-  warped image/labels with the ground-truth image/labels.
+### Launch registration
+
+Please execute the following command to register two images. The optimised
+transformation will be applied to the moving images, as well as the moving labels. The
+results, saved in a timestamped folder under the project directory, will compare the
+warped image/labels with the ground-truth image/labels.
 
 ```bash
 python demos/classical_mr_prostate_nonrigid/demo_register.py
 ```
 
-## Tested DeepReg version
-
-0.1.0
-
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 
