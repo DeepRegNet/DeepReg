@@ -194,13 +194,13 @@ def test_weighted_bce():
     array_eye = np.identity(3, dtype=np.float32)
     tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
     tensor_eye[:, :, 0:3, 0:3] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
+    tensor_eye = tf.constant(tensor_eye, dtype=tf.float32)
 
     tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
     tensor_pred[:, 0:2, :, :] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
+    tensor_pred = tf.constant(tensor_pred, dtype=tf.float32)
 
-    expect = [1.535057, 1.535057, 1.535057]
+    expect = [1.7908996, 1.7908996, 1.7908996]
     get = label.weighted_binary_cross_entropy(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
@@ -245,15 +245,14 @@ def test_compute_centroid():
     """
     tensor_mask = np.zeros((3, 2, 2, 2))
     tensor_mask[0, :, :, :] = np.ones((2, 2, 2))
-    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
+    tensor_mask = tf.constant(tensor_mask, dtype=tf.float32)
 
-    tensor_grid = np.zeros((2, 2, 2, 3))
-    tensor_grid[:, :, :, 0] = np.ones((2, 2, 2))
-    tensor_grid[:, :, :, 1] = np.ones((2, 2, 2)) * 2
-    tensor_grid[:, :, :, 2] = np.ones((2, 2, 2)) * 3
-    tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
+    tensor_grid = np.ones((2, 2, 2, 3))
+    tensor_grid[:, :, :, 1] *= 2
+    tensor_grid[:, :, :, 2] *= 3
+    tensor_grid = tf.constant(tensor_grid, dtype=tf.float32)
 
-    expected = np.zeros((3, 3))
+    expected = np.ones((3, 3))  # use 1 because 0/0 ~= (0+eps)/(0+eps) = 1
     expected[0, :] = [1, 2, 3]
     got = label.compute_centroid(tensor_mask, tensor_grid)
     assert is_equal_tf(got, expected)
@@ -333,7 +332,7 @@ def test_single_scale_loss_bce():
     tensor_pred[:, 0:2, :, :] = array_eye
     tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
 
-    expect = [1.535057, 1.535057, 1.535057]
+    expect = [1.7908996, 1.7908996, 1.7908996]
     get = label.single_scale_loss(tensor_eye, tensor_pred, "cross-entropy")
 
     assert is_equal_tf(get, expect)

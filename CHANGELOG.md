@@ -32,6 +32,7 @@ straightforward as possible.
 
 ### Fixed
 
+- Fixed division by zero handling in multiple image/label losses.
 - Fixed tensor comparison in unit tests and impacted tests.
 - Removed normalization of DDF/DVF when saving in Nifti formats.
 - Fixed invalid link in the quick start page.

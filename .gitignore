@@ -137,3 +137,5 @@ logs/
 
 # data folders
 *.tfrecords
+demos/*/dataset
+demos/grouped_mr_heart/myops.zip
