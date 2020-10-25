@@ -16,56 +16,67 @@ of 22 subjects with low-grade brain gliomas who underwent brain tumour resection
 The main application for this type of registration is to better delineate brain tumour
 boundaries during surgery and correct tissue shift induced by the craniotomy.
 
-## Instruction
-
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
-- Change current directory to the root directory of DeepReg project;
-- The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
-  the following command:
-
-```bash
-python demos/paired_mrus_brain/script_name.py
-```
-
-A short description of the scripts is provided below. The scripts must be run in the
-following order:
-
-- Run the demo_data.py script: This script does the following:
-  - Download a reduced copy of the dataset which has already been preprocessed
-  - Download a pretrained model for use with the predict function
-  - Note: This script can also be used to work with the full dataset by uncommenting the
-    relevant sections in the script (please read the scripts' comments to see how to
-    download the full dataset)
-- Run the demo_train.py script: This script does the following:
-  - Specify the training options like GPU support
-  - Specify the config file paths (to define both the network config available in
-    DeepReg and the data config given in the demo folder)
-  - Train a network using DeepReg
-- Run the demo_predict.py script: This script does the following:
-  - Use the pretrained network to make predictions for the test set
-  - Use the predictions to plot the results (the images path generated in the logs will
-    need to be specified)
-- Note: The number of epochs and reduced dataset size for training will result in a loss
-  in test accuracy so please train with the full dataset and for a greater number of
-  epochs for improved results.
-
-## Pre-trained Model
-
-A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
-dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the ckpt files will be saved, in this case (specified by `deepreg_train`
-as above), /logs/learn2reg_t1_paired_train_logs/.
-
 ## Data
 
 The dataset for this demo comes from Xiao et al. [1] and can be downloaded from:
+https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025.
 
-https://archive.sigma2.no/pages/public/datasetDetail.jsf?id=10.11582/2020.00025
+## Instruction
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download the data and pre-trained model. By
+default, the downloaded data is only a partial of the original one. However the access
+to the original data is temporarily unavailable.
+
+```bash
+python demos/paired_mrus_brain/demo_data.py
+```
+
+### Launch demo training
+
+Please execute the following command to launch a demo training. The training logs will
+be saved under `demos/paired_mrus_brain/logs_train`, where the saved checkpoints can be
+used for prediction later.
+
+```bash
+python demos/paired_mrus_brain/demo_train.py
+```
+
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
+
+```bash
+python demos/paired_mrus_brain/demo_train.py --no-test
+```
+
+Note: The number of epochs and reduced dataset size for training will result in a loss
+in test accuracy so please train with the full dataset and for a greater number of
+epochs for improved results.
+
+### Launch prediction
+
+Please execute the following command to launch the prediction with pre-trained model.
+The prediction logs will be saved under `demos/paired_mrus_brain/logs_predict`, where
+the visualization of predictions are saved. Check the
+[CLI documentation](../docs/cli.html) for more details about prediction output.
+
+```bash
+python demos/paired_mrus_brain/demo_predict.py
+```
+
+Optionally, the user-trained model can be used by changing the `ckpt_path` variable
+inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
+saved under `logs_train` as mentioned above.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

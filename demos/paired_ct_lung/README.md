@@ -17,56 +17,65 @@ subject. This is an intra subject registration. This type of intra subject regis
 is useful when there is a need to track certain features on a medical image such as
 tumor location when conducting invasive procedures.
 
-## Instruction
-
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
-- Change current directory to the root directory of DeepReg project;
-- The `demo_data.py`, `demo_train.py` and `demo_predict.py` scripts need to be run using
-  the following command:
-
-```bash
-python demos/paired_ct_lung/script_name.py
-```
-
-A short description of the scripts is provided below. The scripts must be run in the
-following order:
-
-- Run the `demo_data.py` script: This script does the following:
-  - Download data using `tf.keras.utils.get_file`. Data is downloaded to the demo
-    directory but this can be changed (instructions in the comments in the script).
-  - Split the data into three sets train, valid and test (change
-    ratio_of_test_and_valid_samples variable to change the ratio of test and valid
-    samples)
-  - Restructure the files, for each of the train, valid and test sets, into a directory
-    structure that is suitable for use with the paired loader in DeepReg
-  - Rescale all images to 0-255 so they are suitable for use with DeepReg
-  - Download a pretrained model to use with the predict script
-- Run the `demo_train.py` script: This script does the following:
-  - Specify the training options like GPU support
-  - Specify the config file paths (the config file to define the network is one which is
-    avialable with DeepReg and the config file for the data is given in the demo folder)
-  - Train a network using DeepReg
-- Run the `demo_predict.py` script: This script does the following:
-  - Use the pretrained network to make predictions for the test set
-  - Use the predictions to plot the results (the path to the images generated in the
-    logs will need to be specified, look at comments in the script to change this)
-
-## Pre-trained Model
-
-A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
-dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the checkpoint files are saved.
-
 ## Data
 
 The dataset for this demo comes from
 [Lean2Reg Challenge: CT Lung Registration - Training Data](https://zenodo.org/record/3835682#.XsUWXsBpFhE)
 [1].
 
+## Instruction
+
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download the data and pre-trained model. Image
+intensities are rescaled during pre-processing.
+
+```bash
+python demos/paired_ct_lung/demo_data.py
+```
+
+### Launch demo training
+
+Please execute the following command to launch a demo training. The training logs will
+be saved under `demos/paired_ct_lung/logs_train`, where the saved checkpoints can be
+used for prediction later.
+
+```bash
+python demos/paired_ct_lung/demo_train.py
+```
+
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
+
+```bash
+python demos/paired_ct_lung/demo_train.py --no-test
+```
+
+### Launch prediction
+
+Please execute the following command to launch the prediction with pre-trained model.
+The prediction logs will be saved under `demos/paired_ct_lung/logs_predict`, where the
+visualization of predictions are saved. Check the [CLI documentation](../docs/cli.html)
+for more details about prediction output.
+
+```bash
+python demos/paired_ct_lung/demo_predict.py
+```
+
+Optionally, the user-trained model can be used by changing the `ckpt_path` variable
+inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
+saved under `logs_train` as mentioned above.
+
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

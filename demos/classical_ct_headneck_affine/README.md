@@ -23,7 +23,7 @@ intra-/post-treatment.
 ## Data
 
 Data is
-[an example CT volumes](https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT)
+[an example CT volume](https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT)
 with two labels.
 
 ## Instruction
