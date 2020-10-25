@@ -16,7 +16,8 @@ def remove_files(name):
 
     # remove output folders
     paths = [
-        os.path.join(dir_name, x) for x in ["dataset", "logs_train", "logs_predict"]
+        os.path.join(dir_name, x)
+        for x in ["dataset", "logs_train", "logs_predict", "logs_reg"]
     ]
     for path in paths:
         if os.path.exists(path):
