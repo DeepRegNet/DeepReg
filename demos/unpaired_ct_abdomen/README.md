@@ -32,7 +32,7 @@ https://learn2reg.grand-challenge.org/Datasets/.
   also download the pre-trained models:
 
 ```bash
-python ./demos/unpaired_ct_abdomen/demo_data.py
+python demos/unpaired_ct_abdomen/demo_data.py
 ```
 
 After running the command you will have the following directories in
@@ -48,19 +48,19 @@ pre-trained  test  train  val
 - Unsupervised learning
 
 ```bash
-deepreg_train --gpu "0" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --log_dir unpaired_ct_abdomen_unsup
+python demos/unpaired_ct_abdomen/demo_train.py --method unsup
 ```
 
 - Weakly-supervised learning
 
 ```bash
-deepreg_train --gpu "1" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --log_dir unpaired_ct_abdomen_weakly
+python demos/unpaired_ct_abdomen/demo_train.py --method weakly
 ```
 
 - Combined learning
 
 ```bash
-deepreg_train --gpu "2" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_comb.yaml --log_dir unpaired_ct_abdomen_comb
+python demos/unpaired_ct_abdomen/demo_train.py --method comb
 ```
 
 - After training the network, run `demo_predict`:
@@ -68,32 +68,26 @@ deepreg_train --gpu "2" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdo
 The following example uses a pre-trained model, on CPU.
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_unsup.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/unsup/weights-epoch5000.ckpt --log_dir unpaired_ct_abdomen_unsup --save_png --mode test
+python demos/unpaired_ct_abdomen/demo_predict.py --method unsup
 ```
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_weakly.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/weakly/weights-epoch2250.ckpt --log_dir unpaired_ct_abdomen_weakly --save_png --mode test
+python demos/unpaired_ct_abdomen/demo_predict.py --method weakly
 ```
 
 ```bash
-deepreg_predict --gpu "" --config_path demos/unpaired_ct_abdomen/unpaired_ct_abdomen_comb.yaml --ckpt_path demos/unpaired_ct_abdomen/dataset/pre-trained/comb/weights-epoch2000.ckpt --log_dir unpaired_ct_abdomen_comb --save_png --mode test
+python demos/unpaired_ct_abdomen/demo_predict.py --method comb
 ```
 
-- Finally, prediction results can be seen in the respective test folders specified in
-  `deepreg_predict`.
+- Finally, prediction results can be seen in the respective test folders in
+  `logs_predict`.
 
 ## Pre-trained model
 
 Three pre-trained models are available for this demo, for different training strategies
 described above. These will be downloaded in respective sub-folders under the /dataset
 folder using the `demo_data.py`. Run the user-trained model by specifying with
-`--ckpt_path` the location where the ckpt files will be saved, in this case (specified
-by `deepreg_train` as above), /logs/unpaired_ct_abdomen_unsup/,
-/logs/unpaired_ct_abdomen_weakly/ or /logs/unpaired_ct_abdomen_comb/.
-
-## Tested DeepReg version
-
-Last commit at which demo was tested: 3157f880eb99ce10fc3a4a8ebcc595bd67be24e1
+`--ckpt_path` the location where the checkpoint files are saved.
 
 ## Contact
 
