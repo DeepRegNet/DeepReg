@@ -9,7 +9,7 @@ def main():
         "deepreg_predict --gpu ''"
         f"--config_path demos/{name}/{name}.yaml "
         f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t1_paired_train_logs/save/weights-epoch800.ckpt "
-        f"--log_root demos/{name}"
+        f"--log_root demos/{name} "
         "--log_dir logs_predict"
         "--save_png --mode test"
     )

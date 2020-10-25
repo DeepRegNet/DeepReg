@@ -13,7 +13,7 @@ def launch_prediction(method: str):
         "deepreg_predict --gpu ''"
         f"--config_path demos/{name}/{name}_{method}.yaml "
         f"--ckpt_path demos/{name}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt "
-        f"--log_root demos/{name}"
+        f"--log_root demos/{name} "
         f"--log_dir logs_predict/{method}"
         "--save_png --mode test"
     )

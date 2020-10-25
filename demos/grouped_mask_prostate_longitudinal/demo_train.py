@@ -8,9 +8,9 @@ name = "grouped_mask_prostate_longitudinal"
 def launch_training(test: bool = True):
     print(
         "The training can also be launched using the following command."
-        "deepreg_train --gpu '0'"
+        "deepreg_train --gpu '0' "
         f"--config_path demos/{name}/{name}.yaml "
-        f"--log_root demos/{name}"
+        f"--log_root demos/{name} "
         "--log_dir logs_train"
     )
 

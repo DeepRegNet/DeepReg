@@ -37,7 +37,7 @@ get_file(os.path.join(os.getcwd(), fname), url)
 
 print("The file ", fname, " has successfully been downloaded!")
 
-data_folder_name = "data"
+data_folder_name = "dataset"
 
 if os.path.exists(os.path.join(main_path, project_dir, data_folder_name)) is not True:
     os.mkdir(os.path.join(main_path, project_dir, data_folder_name))
@@ -163,6 +163,8 @@ for folder in os.listdir(path_to_train):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -177,6 +179,8 @@ for folder in os.listdir(path_to_test):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -191,6 +195,8 @@ for folder in os.listdir(path_to_valid):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -224,7 +230,7 @@ os.chdir(main_path)
 
 ######## NOW WE RESACLE THE IMAGES TO 255 ########
 
-data_dir = r"demos/unpaired_ct_lung/data"
+data_dir = r"demos/unpaired_ct_lung/dataset"
 folders = os.listdir(data_dir)
 
 for folder in folders:
@@ -255,13 +261,13 @@ for folder in folders:
 
 url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_lung_demo_logs.zip"
 
-fname = "unpaired_ct_lung_demo_logs.zip"
+fname = "pretrained.zip"
 
 os.chdir(os.path.join(main_path, project_dir))
 
 get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
-    zip_ref.extractall(".")
+    zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
 
 print("Pretrained model downloaded")

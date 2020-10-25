@@ -35,7 +35,6 @@ get_file(os.path.join(os.getcwd(), fname), url)
 
 print("The file ", fname, " has successfully been downloaded!")
 
-
 if os.path.exists(os.path.join(main_path, project_dir, data_folder_name)) is not True:
     os.mkdir(os.path.join(main_path, project_dir, data_folder_name))
 
@@ -150,22 +149,17 @@ if os.path.exists(path_to_test) is not True:
 
 ######## NAMING FILES SUCH THAT THEIR NAMES MATCH FOR PAIRING ########
 
-
-def uniform_file_name(fname):
-    if "_insp" in fname:
-        fname = fname.replace("_insp", "")
-    if "_exp" in file:
-        fname = fname.replace("_exp", "")
-    return fname
-
-
 # name all files such that names match exactly for training
-
 for folder in os.listdir(path_to_train):
     path_to_folder = os.path.join(path_to_train, folder)
     os.chdir(path_to_folder)
     for file in os.listdir(path_to_folder):
-        new_name = uniform_file_name(file)
+        if "_insp" in file:
+            new_name = file.replace("_insp", "")
+        elif "_exp" in file:
+            new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -176,7 +170,12 @@ for folder in os.listdir(path_to_test):
     path_to_folder = os.path.join(path_to_test, folder)
     os.chdir(path_to_folder)
     for file in os.listdir(path_to_folder):
-        new_name = uniform_file_name(file)
+        if "_insp" in file:
+            new_name = file.replace("_insp", "")
+        elif "_exp" in file:
+            new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -187,7 +186,12 @@ for folder in os.listdir(path_to_valid):
     path_to_folder = os.path.join(path_to_valid, folder)
     os.chdir(path_to_folder)
     for file in os.listdir(path_to_folder):
-        new_name = uniform_file_name(file)
+        if "_insp" in file:
+            new_name = file.replace("_insp", "")
+        elif "_exp" in file:
+            new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -237,6 +241,5 @@ get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
-
 
 print("Pretrained model downloaded")

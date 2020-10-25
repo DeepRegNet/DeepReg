@@ -44,6 +44,7 @@ class TestDemo:
             "paired_ct_lung",
             "paired_mrus_brain",
             "paired_mrus_prostate",
+            "unpaired_ct_lung",
         ],
     )
     def test_simple_demo(self, name):
