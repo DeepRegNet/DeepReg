@@ -63,7 +63,7 @@ Following is a checklist for modifying the README template:
 - [ ] Update the link to source code;
 - [ ] Update the author section;
 - [ ] Update the application section;
-- [ ] Update the data section;
+- [ ] Update the data section, optionally, describe the used pre-processing methods;
 - [ ] Update the `name` in all commands;
-- [ ] Update the instruction section for extra instructions;
 - [ ] Update the reference section.
+- [ ] Optionally, adapt the file to custom needs.

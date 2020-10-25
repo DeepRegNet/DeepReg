@@ -26,47 +26,60 @@ detecting and monitoring potential cancerous regions.
 ## Data
 
 This is a demo without real clinical data due to regulatory restrictions. The MR and
-ultrasound images used are simulated dummy images.
+ultrasound images used are simulated dummy 3D Ultrasound images. Data are organized into
+10 separate folds.
 
 ## Instruction
 
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
-- Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download 10 folds of unpaired 3D ultrasound images and
-  the pre-trained model.
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download the data and pre-trained model.
 
 ```bash
 python demos/grouped_mask_prostate_longitudinal/demo_data.py
 ```
 
-- Run `demo_train` script to launch the training. The following example uses a single
-  GPU and launches the first of the ten runs of a 9-fold cross-validation, as specified
-  in the [`dataset` section](./grouped_mask_prostate_longitudinal_dataset0.yaml) and the
-  [`train` section](./grouped_mask_prostate_longitudinal_train.yaml), which can be
-  specified in
-  [separate yaml files](https://deepreg.readthedocs.io/en/latest/tutorial/cross_val.html).
-  The logs will be saved under `logs_train/` inside the demo folder;
+### Launch demo training
+
+Please execute the following command to launch a demo training (the first of the ten
+runs of a 9-fold cross-validation). The training logs will be saved under
+`demos/grouped_mask_prostate_longitudinal/logs_train`, where the saved checkpoints can
+be used for prediction later.
+
+```bash
+python demos/grouped_mask_prostate_longitudinal/demo_train.py
+```
+
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
 
 ```bash
 python demos/grouped_mask_prostate_longitudinal/demo_train.py --no-test
 ```
 
-- Run `demo_predict` script to use the saved checkpoint file for testing on the data
-  partitions specified in the config file, a copy of which would be saved in the
-  log_dir. The following example uses a pre-trained model, on CPU. The results will be
-  saved at under `logs_predict/` inside the demo folder.
+### Launch prediction
+
+Please execute the following command to launch the prediction with pre-trained model.
+The prediction logs will be saved under
+`demos/grouped_mask_prostate_longitudinal/logs_predict`, where the visualization of
+predictions are saved. Check the [CLI documentation](../docs/cli.html) for more details
+about prediction output.
 
 ```bash
 python demos/grouped_mask_prostate_longitudinal/demo_predict.py
 ```
 
-## Pre-trained model
-
-A pre-trained model will be downloaded after running `demo_data.py` and unzipped at the
-dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the checkpoint files are saved.
+Optionally, the user-trained model can be used by changing the `ckpt_path` variable
+inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
+saved under `logs_train` as mentioned above.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.

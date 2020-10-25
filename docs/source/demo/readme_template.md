@@ -27,7 +27,7 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download the data.
+Please execute the following command to download the data and pre-trained model.
 
 ```bash
 python demos/name/demo_data.py
