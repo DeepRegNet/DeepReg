@@ -49,7 +49,7 @@ class TestDemo:
             "unpaired_us_prostate_cv",
         ],
     )
-    def test_simple_demo(self, name):
+    def test_single_config_demo(self, name):
         """each demo has one single configuration file"""
         remove_files(name)
 
@@ -72,5 +72,20 @@ class TestDemo:
                 f"python demos/{name}/demo_{x}.py --method {method}"
                 for x in ["train", "predict"]
             ]
+
+        execute_commands(cmds)
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "classical_ct_headneck_affine",
+            "classical_mr_prostate_nonrigid",
+        ],
+    )
+    def test_classical_demo(self, name):
+        remove_files(name)
+
+        # execute data, register
+        cmds = [f"python demos/{name}/demo_{x}.py" for x in ["data", "register"]]
 
         execute_commands(cmds)
