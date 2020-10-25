@@ -5,12 +5,12 @@ name = "unpaired_ct_lung"
 
 def main():
     print(
-        "The prediction can also be launched using the following command."
-        "deepreg_predict --gpu ''"
+        "The prediction can also be launched using the following command.\n"
+        "deepreg_predict --gpu '' "
         f"--config_path demos/{name}/{name}.yaml "
         f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t2_unpaired_train_logs/save/weights-epoch1500.ckpt "
         f"--log_root demos/{name} "
-        "--log_dir logs_predict"
+        "--log_dir logs_predict "
         "--save_png --mode test"
     )
 

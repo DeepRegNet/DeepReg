@@ -5,12 +5,12 @@ name = "paired_mrus_brain"
 
 def main():
     print(
-        "The prediction can also be launched using the following command."
-        "deepreg_predict --gpu ''"
+        "The prediction can also be launched using the following command.\n"
+        "deepreg_predict --gpu '' "
         f"--config_path demos/{name}/{name}.yaml "
         f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t1_paired_train_logs/save/weights-epoch800.ckpt "
         f"--log_root demos/{name} "
-        "--log_dir logs_predict"
+        "--log_dir logs_predict "
         "--save_png --mode test"
     )
 

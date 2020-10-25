@@ -9,12 +9,12 @@ ckpt_index_dict = {"comb": 2000, "unsup": 5000, "weakly": 2250}
 def launch_prediction(method: str):
     ckpt_index = ckpt_index_dict[method]
     print(
-        "The prediction can also be launched using the following command."
-        "deepreg_predict --gpu ''"
+        "The prediction can also be launched using the following command.\n"
+        "deepreg_predict --gpu '' "
         f"--config_path demos/{name}/{name}_{method}.yaml "
         f"--ckpt_path demos/{name}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt "
         f"--log_root demos/{name} "
-        f"--log_dir logs_predict/{method}"
+        f"--log_dir logs_predict/{method} "
         "--save_png --mode test"
     )
 

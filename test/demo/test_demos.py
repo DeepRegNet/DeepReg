@@ -46,6 +46,7 @@ class TestDemo:
             "paired_mrus_prostate",
             "unpaired_ct_lung",
             "unpaired_mr_brain",
+            "unpaired_us_prostate_cv",
         ],
     )
     def test_simple_demo(self, name):
