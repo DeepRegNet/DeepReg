@@ -24,6 +24,19 @@ def remove_files(name):
             shutil.rmtree(path)
 
 
+def check_files(name):
+    """make sure dataset folder exist but there is no zip files"""
+    dir_name = os.path.join("demos", name)
+
+    # assert dataset folder exists
+    assert os.path.exists(os.path.join(dir_name, "dataset"))
+
+    # assert no zip files
+    files = os.listdir(dir_name)
+    files = [x for x in files if x.endswith(".zip")]
+    assert len(files) == 0
+
+
 def execute_commands(cmds):
     for cmd in cmds:
         try:
@@ -54,10 +67,15 @@ class TestDemo:
         """each demo has one single configuration file"""
         remove_files(name)
 
-        # execute data, train, predict sequentially
-        cmds = [
-            f"python demos/{name}/demo_{x}.py" for x in ["data", "train", "predict"]
-        ]
+        # execute data
+        cmds = [f"python demos/{name}/demo_data.py"]
+        execute_commands(cmds)
+
+        # check temporary files are removed
+        check_files(name)
+
+        # execute train, predict sequentially
+        cmds = [f"python demos/{name}/demo_{x}.py" for x in ["train", "predict"]]
 
         execute_commands(cmds)
 
@@ -66,8 +84,15 @@ class TestDemo:
         name = "unpaired_ct_abdomen"
         remove_files(name)
 
-        # execute data, train, predict sequentially
+        # execute data
         cmds = [f"python demos/{name}/demo_data.py"]
+        execute_commands(cmds)
+
+        # check temporary files are removed
+        check_files(name)
+
+        # execute train, predict sequentially
+        cmds = []
         for method in ["comb", "unsup", "weakly"]:
             cmds += [
                 f"python demos/{name}/demo_{x}.py --method {method}"
@@ -86,7 +111,14 @@ class TestDemo:
     def test_classical_demo(self, name):
         remove_files(name)
 
+        # execute data
+        cmds = [f"python demos/{name}/demo_data.py"]
+        execute_commands(cmds)
+
+        # check temporary files are removed
+        check_files(name)
+
         # execute data, register
-        cmds = [f"python demos/{name}/demo_{x}.py" for x in ["data", "register"]]
+        cmds = [f"python demos/{name}/demo_register.py"]
 
         execute_commands(cmds)

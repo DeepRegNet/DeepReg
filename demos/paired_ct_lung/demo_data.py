@@ -34,9 +34,10 @@ fname = "training.zip"
 get_file(os.path.join(os.getcwd(), fname), url)
 
 print("The file ", fname, " has successfully been downloaded!")
-
-if os.path.exists(os.path.join(main_path, project_dir, data_folder_name)) is not True:
-    os.mkdir(os.path.join(main_path, project_dir, data_folder_name))
+path_to_data_folder = os.path.join(main_path, project_dir, data_folder_name)
+if os.path.exists(path_to_data_folder):
+    shutil.rmtree(path_to_data_folder)
+os.mkdir(path_to_data_folder)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(data_folder_name)
@@ -48,7 +49,6 @@ os.chdir(main_path)
 
 ######## MOVING FILES INTO TRAIN DIRECTORY ########
 
-path_to_data_folder = os.path.join(main_path, project_dir, data_folder_name)
 path_to_train = os.path.join(main_path, project_dir, data_folder_name, "train")
 path_to_test = os.path.join(main_path, project_dir, data_folder_name, "test")
 path_to_images_and_labels = os.path.join(
@@ -92,7 +92,6 @@ if os.path.exists(path_to_images_and_labels):
 os.chdir(main_path)
 
 ######## MOVING FILES INTO TEST AND VALID DIRECTORY ########
-
 path_to_test = os.path.join(path_to_data_folder, "test")
 path_to_valid = os.path.join(path_to_data_folder, "valid")
 
@@ -242,4 +241,6 @@ get_file(os.path.join(os.getcwd(), fname), url)
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
 
+# remove pretrained.zip
+os.remove(fname)
 print("Pretrained model downloaded")

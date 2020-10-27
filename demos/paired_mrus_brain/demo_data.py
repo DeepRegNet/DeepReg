@@ -9,6 +9,7 @@ from tensorflow.keras.utils import get_file
 from tqdm import tqdm
 
 DOWNLOAD_FULL_DATA = False
+DATA_PATH = "dataset"
 main_path = os.getcwd()
 
 project_dir = os.path.join(main_path, r"demos/paired_mrus_brain")
@@ -25,6 +26,10 @@ tmp_folder = "dataset_tmp"
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(tmp_folder)
 
+if os.path.exists(DATA_PATH):
+    shutil.rmtree(DATA_PATH)
+os.mkdir(DATA_PATH)
+
 # move needed data
 shutil.move(
     os.path.join(tmp_folder, "dataset_resect-master", "paired_mr_us_brain", "test"),
@@ -36,6 +41,7 @@ shutil.move(
 )
 
 # remove temporary folder
+os.remove(fname)
 shutil.rmtree(tmp_folder)
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
@@ -45,6 +51,9 @@ get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(os.path.join("dataset", "pretrained"))
+
+# remove pretrained.zip
+os.remove(fname)
 
 # download full data
 if not DOWNLOAD_FULL_DATA:

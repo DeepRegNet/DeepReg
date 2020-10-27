@@ -27,6 +27,9 @@ os.chdir(join(main_path, project_dir))
 # Data storage directory
 data_folder_name = "dataset"
 path_to_data_folder = join(main_path, project_dir, data_folder_name)
+if os.path.exists(path_to_data_folder):
+    shutil.rmtree(path_to_data_folder)
+os.mkdir(path_to_data_folder)
 
 # Pretrained model storage directory
 model_folder_name = join(project_dir, data_folder_name, "pretrained")
