@@ -24,7 +24,7 @@ assert method in [
 ckpt_index = ckpt_index_dict[method]
 print(
     "\n\n\n\n\n"
-    "========================================================="
+    "=========================================================\n"
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}_{method}.yaml "

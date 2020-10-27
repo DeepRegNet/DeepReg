@@ -30,7 +30,7 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download and pre-process the data and
+Please execute the following command to download/pre-process the data and download the
 pre-trained model.
 
 ```bash
@@ -59,9 +59,9 @@ configuration, such as
 python demos/unpaired_ct_abdomen/demo_train.py --method unsup --no-test
 ```
 
-### Launch prediction
+### Predict
 
-Please execute one of the following commands to launch the prediction with pre-trained
+Please execute one of the following commands to run the prediction with pre-trained
 model. The prediction logs and visualization results will be saved under
 `demos/unpaired_ct_abdomen/logs_predict/method` with `method` be `unsup`, `weakly` or
 `comb`. Check the [CLI documentation](../docs/cli.html) for more details about
