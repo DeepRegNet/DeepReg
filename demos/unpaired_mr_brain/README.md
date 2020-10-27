@@ -34,15 +34,15 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 Please execute the following command to download and pre-process the data and
 pre-trained model.
 
+```bash
+python demos/unpaired_mr_brain/demo_data.py
+```
+
 Pre-processing includes:
 
 - Rescaling all images' intensity to 0-255.
 - Creating and applying a binary mask to mask-out the padded values in images.
 - Transforming label volumes using one-hot encoding (only for foreground classes)
-
-```bash
-python demos/unpaired_mr_brain/demo_data.py
-```
 
 ### Launch demo training
 
