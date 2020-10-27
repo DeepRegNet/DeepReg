@@ -35,7 +35,7 @@ change the current directory to the root directory of DeepReg project, i.e. `Dee
 
 ### Download data
 
-Please execute the following command to download and pre-process the data and
+Please execute the following command to download/pre-process the data and download the
 pre-trained model. Images are re-sampled to an isotropic voxel size.
 
 ```bash
@@ -60,10 +60,10 @@ configuration, such as
 python demos/grouped_mr_heart/demo_train.py --no-test
 ```
 
-### Launch prediction
+### Predict
 
-Please execute the following command to launch the prediction with pre-trained model.
-The prediction logs and visualization results will be saved under
+Please execute the following command to run the prediction with pre-trained model. The
+prediction logs and visualization results will be saved under
 `demos/grouped_mr_heart/logs_predict`. Check the [CLI documentation](../docs/cli.html)
 for more details about prediction output.
 

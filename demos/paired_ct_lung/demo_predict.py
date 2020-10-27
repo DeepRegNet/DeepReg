@@ -7,7 +7,7 @@ name = "paired_ct_lung"
 
 print(
     "\n\n\n\n\n"
-    "========================================================="
+    "=========================================================\n"
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}.yaml "
