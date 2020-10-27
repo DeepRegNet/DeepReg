@@ -12,6 +12,10 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.image as image_loss
 import deepreg.util as util
 
+# parser is used to simplify testing
+# please run the script with --no-test flag to ensure non-testing mode
+# for instance:
+# python script.py --no-test
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--test",
@@ -25,7 +29,7 @@ parser.add_argument(
     dest="test",
     action="store_false",
 )
-parser.set_defaults(test=True)
+parser.set_defaults(test=False)
 args = parser.parse_args()
 
 MAIN_PATH = os.getcwd()

@@ -6,6 +6,10 @@ from deepreg.train import train
 name = "unpaired_mr_brain"
 
 
+# parser is used to simplify testing
+# please run the script with --no-test flag to ensure non-testing mode
+# for instance:
+# python script.py --no-test
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--test",
