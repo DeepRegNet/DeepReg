@@ -14,11 +14,17 @@ Install via Conda
 -----------------
 
 The recommended method is to install DeepReg in a dedicated virtual
-environment using `Anaconda`_ / `Miniconda`_ to avoid issues with other dependencies.
+environment using `Anaconda`_ / `Miniconda`_.
 
-Please clone `DeepReg`_ first and install DeepReg following the instructions below.
-For more documentation regarding the usage of conda environment,
-please check the `official documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__.
+Please clone `DeepReg`_ first
+
+.. code:: bash
+
+    git clone git@github.com:DeepRegNet/DeepReg.git
+
+then install or update the conda environment following the instructions below.
+Please check the `official conda documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__
+for more documentation.
 
 .. tabs::
 
@@ -88,11 +94,24 @@ please check the `official documentation <https://docs.conda.io/projects/conda/e
 
             Not supported or tested.
 
+
+After the installation, please install DeepReg locally,
+
+.. code:: bash
+
+    pip install -e .
+
 Install via docker
 ------------------
 
 We also provide the docker file for building the docker image.
-Please clone `DeepReg repository`_ first and install DeepReg following the instructions below.
+Please clone `DeepReg repository`_ first,
+
+.. code:: bash
+
+    git clone git@github.com:DeepRegNet/DeepReg.git
+
+then install DeepReg following the instructions below.
 
 Install docker
 ^^^^^^^^^^^^^^
@@ -148,13 +167,13 @@ Please use the following command to install DeepReg directly from the PyPI relea
 
 **Note**
 
-1. All dependencies, APIs and command-line tools will be installed automatically via either installation method.
+1. All dependencies, APIs and command-line tools will be installed automatically via each installation method.
    However, the PyPI release currently does not ship with test data and demos.
    Running examples in this documentation may require downloading test data
    and changing default paths to user-installed packages with the PyPI release.
    These examples include those in the `Quick Start`_ and `DeepReg Demo`_.
 2. Only released versions of DeepReg are available via PyPI release.
-   Therefore it is different from the `latest (unreleased) version <https://github.com/DeepRegNet/DeepReg>`__ on GitHub.
+   Therefore it is different from the `latest (unstable) version <https://github.com/DeepRegNet/DeepReg>`__ on GitHub.
 
 .. _Quick Start: quick_start.html
 .. _DeepReg Demo: ../demo/introduction.html
