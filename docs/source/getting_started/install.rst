@@ -16,15 +16,16 @@ Install via Conda
 The recommended method is to install DeepReg in a dedicated virtual
 environment using `Anaconda`_ / `Miniconda`_.
 
-Please clone `DeepReg`_ first
+Please clone `DeepReg`_ first and change current directory to the DeepReg root directory:
 
 .. code:: bash
 
     git clone git@github.com:DeepRegNet/DeepReg.git
+    cd DeepReg
 
-then install or update the conda environment following the instructions below.
-Please check the `official conda documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__
-for more documentation.
+then, install or update the conda environment following the instructions below.
+Please see the `official conda documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__
+for more details.
 
 .. tabs::
 
@@ -95,7 +96,7 @@ for more documentation.
             Not supported or tested.
 
 
-After the installation, please install DeepReg locally,
+After activating the conda environment, please install DeepReg locally:
 
 .. code:: bash
 
@@ -105,7 +106,7 @@ Install via docker
 ------------------
 
 We also provide the docker file for building the docker image.
-Please clone `DeepReg repository`_ first,
+Please clone `DeepReg repository`_ first:
 
 .. code:: bash
 
@@ -158,7 +159,7 @@ which removes a created container and its volumes, check more info on `docker do
 Install via PyPI
 ----------------
 
-Please use the following command to install DeepReg directly from the PyPI release.
+Please use the following command to install DeepReg directly from the PyPI release:
 
 .. code:: bash
 
