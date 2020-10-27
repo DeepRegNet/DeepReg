@@ -23,13 +23,17 @@ assert method in [
 
 ckpt_index = ckpt_index_dict[method]
 print(
+    "\n\n\n\n\n"
+    "========================================================="
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}_{method}.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt "
     f"--log_root demos/{name} "
     f"--log_dir logs_predict/{method} "
-    "--save_png --mode test"
+    "--save_png --mode test\n"
+    "=========================================================\n"
+    "\n\n\n\n\n"
 )
 
 log_root = f"demos/{name}"

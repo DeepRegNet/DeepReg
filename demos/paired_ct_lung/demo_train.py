@@ -26,11 +26,15 @@ parser.set_defaults(test=True)
 args = parser.parse_args()
 
 print(
-    "The training can also be launched using the following command."
+    "\n\n\n\n\n"
+    "=======================================================\n"
+    "The training can also be launched using the following command.\n"
     "deepreg_train --gpu '0' "
     f"--config_path demos/{name}/{name}.yaml "
     f"--log_root demos/{name} "
-    "--log_dir logs_train"
+    "--log_dir logs_train\n"
+    "=======================================================\n"
+    "\n\n\n\n\n"
 )
 
 log_root = f"demos/{name}"

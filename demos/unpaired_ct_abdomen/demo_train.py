@@ -39,11 +39,15 @@ assert method in [
 ], f"method should be comb or unsup or weakly, got {method}"
 
 print(
-    "The training can also be launched using the following command."
+    "\n\n\n\n\n"
+    "=======================================================\n"
+    "The training can also be launched using the following command.\n"
     "deepreg_train --gpu '0' "
     f"--config_path demos/{name}/{name}_{method}.yaml "
     f"--log_root demos/{name} "
-    f"--log_dir logs_train/{method}"
+    f"--log_dir logs_train/{method}\n"
+    "=======================================================\n"
+    "\n\n\n\n\n"
 )
 
 log_root = f"demos/{name}"

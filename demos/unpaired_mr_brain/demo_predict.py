@@ -6,13 +6,17 @@ name = "unpaired_mr_brain"
 
 
 print(
+    "\n\n\n\n\n"
+    "========================================================="
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t4_unpaired_weakly_train_logs2/save/weights-epoch200.ckpt "
     f"--log_root demos/{name} "
     "--log_dir logs_predict "
-    "--save_png --mode test"
+    "--save_png --mode test\n"
+    "=========================================================\n"
+    "\n\n\n\n\n"
 )
 
 log_root = f"demos/{name}"

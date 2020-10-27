@@ -5,13 +5,17 @@ from deepreg.predict import predict
 name = "unpaired_ct_lung"
 
 print(
+    "\n\n\n\n\n"
+    "========================================================="
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t2_unpaired_train_logs/save/weights-epoch1500.ckpt "
     f"--log_root demos/{name} "
     "--log_dir logs_predict "
-    "--save_png --mode test"
+    "--save_png --mode test\n"
+    "=========================================================\n"
+    "\n\n\n\n\n"
 )
 
 log_root = f"demos/{name}"
