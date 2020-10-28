@@ -343,9 +343,7 @@ def main(args=None):
     Function to run in command line with argparse to predict results on data
     for a given model
     """
-    parser = argparse.ArgumentParser(
-        description="predict", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--gpu",

@@ -8,7 +8,7 @@ from tensorflow.keras.utils import get_file
 
 output_pixdim = 1.5
 
-PROJECT_DIR = r"demos/grouped_mr_heart"
+PROJECT_DIR = "demos/grouped_mr_heart"
 os.chdir(PROJECT_DIR)
 
 ORIGIN = "https://github.com/ucl-candi/datasets_deepreg_demo/archive/myops.zip"
@@ -75,7 +75,14 @@ num_train = num_data - num_val - num_test
 
 print(
     "Splitting data into %d-%d-%d for train-val-test (%0.2f-%0.2f-%0.2f)..."
-    % (num_train, num_val, num_test, 1 - ratio_val - ratio_test, ratio_val, ratio_test)
+    % (
+        num_train,
+        num_val,
+        num_test,
+        1 - ratio_val - ratio_test,
+        ratio_val,
+        ratio_test,
+    )
 )
 
 # move images to respective folders
@@ -100,8 +107,8 @@ os.rmdir(images_path)
 
 print("Done. \n")
 
-# Download the pre-trained models
-MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+# Download the pretrained models
+MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
@@ -116,5 +123,5 @@ with zipfile.ZipFile(zip_file, "r") as zf:
 os.remove(zip_file)
 
 print(
-    "Pre-trained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
+    "pretrained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
 )

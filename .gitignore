@@ -137,5 +137,12 @@ logs/
 
 # data folders
 *.tfrecords
+
+# demo dataset folders and zip files
 demos/*/dataset
-demos/grouped_mr_heart/myops.zip
+demos/*/*.zip
+
+# demo test folders
+demos/*/logs_reg
+demos/*/logs_train
+demos/*/logs_predict

@@ -1,8 +1,9 @@
 """
 A DeepReg Demo for classical affine iterative pairwise registration algorithms
 """
+import argparse
 import os
-from datetime import datetime
+import shutil
 
 import h5py
 import tensorflow as tf
@@ -11,8 +12,28 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.loss.image as image_loss
 import deepreg.util as util
 
+# parser is used to simplify testing
+# please run the script with --no-test flag to ensure non-testing mode
+# for instance:
+# python script.py --no-test
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--test",
+    help="Execute the script for test purpose",
+    dest="test",
+    action="store_true",
+)
+parser.add_argument(
+    "--no-test",
+    help="Execute the script for non-test purpose",
+    dest="test",
+    action="store_false",
+)
+parser.set_defaults(test=False)
+args = parser.parse_args()
+
 MAIN_PATH = os.getcwd()
-PROJECT_DIR = r"demos/classical_ct_headneck_affine"
+PROJECT_DIR = "demos/classical_ct_headneck_affine"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"
@@ -21,7 +42,7 @@ FILE_PATH = os.path.join(DATA_PATH, "demo.h5")
 ## registration parameters
 image_loss_name = "ssd"
 learning_rate = 0.01
-total_iter = int(1000)
+total_iter = int(10) if args.test else int(1000)
 
 ## load image
 if not os.path.exists(DATA_PATH):
@@ -102,7 +123,9 @@ warped_moving_labels = tf.stack(
 )
 
 ## save output to files
-SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+SAVE_PATH = "logs_reg"
+if os.path.exists(SAVE_PATH):
+    shutil.rmtree(SAVE_PATH)
 os.mkdir(SAVE_PATH)
 
 arrays = [

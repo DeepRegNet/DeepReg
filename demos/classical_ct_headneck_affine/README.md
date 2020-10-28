@@ -22,35 +22,42 @@ intra-/post-treatment.
 
 ## Data
 
-https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT
+Data is
+[an example CT volume](https://wiki.cancerimagingarchive.net/display/Public/Head-Neck-PET-CT)
+with two labels.
 
 ## Instruction
 
-- Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download an example CT volumes with two labels;
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download and pre-process the data.
 
 ```bash
 python demos/classical_ct_headneck_affine/demo_data.py
 ```
 
-- Run `demo_register.py` script. This script will register two images. The fixed image
-  will be the downloaded data and the moving image will be simulated by applying a
-  random affine transformation, such that the ground-truth is available for. The
-  optimised transformation will be applied to the moving images, as well as the moving
-  labels. The results, saved in a timestamped folder under the project directory, will
-  compare the warped image/labels with the ground-truth image/labels.
+### Launch registration
+
+Please execute the following command to register two images. The fixed image will be the
+downloaded data and the moving image will be simulated by applying a random affine
+transformation, such that the ground-truth is available for. The optimised
+transformation will be applied to the moving images, as well as the moving labels. The
+results, saved in a timestamped folder under the project directory, will compare the
+warped image/labels with the ground-truth image/labels.
 
 ```bash
 python demos/classical_ct_headneck_affine/demo_register.py
 ```
 
-## Tested DeepReg version
-
-0.1.0
-
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

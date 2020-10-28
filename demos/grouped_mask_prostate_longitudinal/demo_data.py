@@ -9,7 +9,7 @@ import h5py
 from scipy import ndimage
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/grouped_mask_prostate_longitudinal"
+PROJECT_DIR = "demos/grouped_mask_prostate_longitudinal"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"
@@ -50,7 +50,14 @@ num_train = num_group - num_val - num_test
 print("Found %d data in %d groups." % (num_data, num_group))
 print(
     "Dividing into %d-%d-%d for train-val-test (%0.2f-%0.2f-%0.2f)..."
-    % (num_train, num_val, num_test, 1 - ratio_val - ratio_test, ratio_val, ratio_test)
+    % (
+        num_train,
+        num_val,
+        num_test,
+        1 - ratio_val - ratio_test,
+        ratio_val,
+        ratio_test,
+    )
 )
 
 # write
@@ -97,8 +104,8 @@ os.remove(data_filename)
 
 print("Done. \n")
 
-## now download the pre-trained model
-MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+## now download the pretrained model
+MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
@@ -113,5 +120,5 @@ with zipfile.ZipFile(zip_file, "r") as zf:
 os.remove(zip_file)
 
 print(
-    "Pre-trained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
+    "pretrained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
 )

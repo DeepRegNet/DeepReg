@@ -14,8 +14,10 @@ straightforward as possible.
 
 - Added option to change kernel size and a kernel type for LNCC image similarity loss.
 - Added visualization tool for generating gifs from model outputs.
+- Added max_epochs argument for training to overwrite configuration.
 - Added log_root argument for training and prediction to customize the log file
   location.
+- Added tests for all demos.
 - Added environment.yml file for Conda environment creation.
 - Added Dockerfile.
 - Added documentation about using UCL cluster with DeepReg.
@@ -27,8 +29,9 @@ straightforward as possible.
 - Updated instruction on Conda environment creation.
 - Updated documentation regarding pre-commit and unit-testing.
 - Updated the issue and pull-request templates.
+- Updated the instructions for all demos.
 - Updated pre-commit hooks version.
-- Updated references in JOSS paper to address reviewers' comments.
+- Updated JOSS paper to address reviewers' comments.
 
 ### Fixed
 

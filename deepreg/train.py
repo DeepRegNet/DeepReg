@@ -16,7 +16,11 @@ from deepreg.util import build_dataset, build_log_dir
 
 
 def build_config(
-    config_path: (str, list), log_root: str, log_dir: str, ckpt_path: str
+    config_path: (str, list),
+    log_root: str,
+    log_dir: str,
+    ckpt_path: str,
+    max_epochs: int = -1,
 ) -> [dict, str]:
     """
     Function to initialise log directories,
@@ -27,6 +31,7 @@ def build_config(
     :param log_root: str, root of logs
     :param log_dir: str, path to where training logs to be stored.
     :param ckpt_path: str, path where model is stored.
+    :param max_epochs: int, if max_epochs > 0, will use it to overwrite the configuration
     :return: - config: a dictionary saving configuration
              - log_dir: the path of directory to save logs
     """
@@ -37,10 +42,16 @@ def build_config(
     # check checkpoint path
     if ckpt_path != "":
         if not ckpt_path.endswith(".ckpt"):
-            raise ValueError("checkpoint path should end with .ckpt")
+            raise ValueError(f"checkpoint path should end with .ckpt, got {ckpt_path}")
 
     # load config
     config = config_parser.load_configs(config_path)
+
+    # overwrite epochs and save_period if necessary
+    if max_epochs > 0:
+        config["train"]["epochs"] = max_epochs
+        config["train"]["save_period"] = min(max_epochs, config["train"]["save_period"])
+
     # backup config
     config_parser.save(config=config, out_dir=log_dir)
 
@@ -78,6 +89,7 @@ def train(
     ckpt_path: str,
     log_dir: str,
     log_root: str = "logs",
+    max_epochs: int = -1,
 ):
     """
     Function to train a model
@@ -88,6 +100,7 @@ def train(
     :param ckpt_path: str, where to store training checkpoints
     :param log_root: str, root of logs
     :param log_dir: str, where to store logs in training
+    :param max_epochs: int, if max_epochs > 0, will use it to overwrite the configuration
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -95,7 +108,11 @@ def train(
 
     # load config
     config, log_dir = build_config(
-        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
+        config_path=config_path,
+        log_root=log_root,
+        log_dir=log_dir,
+        ckpt_path=ckpt_path,
+        max_epochs=max_epochs,
     )
 
     # build dataset
@@ -169,9 +186,7 @@ def train(
 def main(args=None):
     """Entry point for train script"""
 
-    parser = argparse.ArgumentParser(
-        description="train", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--gpu",
@@ -223,6 +238,13 @@ def main(args=None):
         required=True,
     )
 
+    parser.add_argument(
+        "--max_epochs",
+        help="The maximum number of epochs, -1 means following configuration.",
+        type=int,
+        default=-1,
+    )
+
     args = parser.parse_args(args)
     train(
         gpu=args.gpu,
@@ -231,6 +253,7 @@ def main(args=None):
         ckpt_path=args.ckpt_path,
         log_root=args.log_root,
         log_dir=args.log_dir,
+        max_epochs=args.max_epochs,
     )
 
 

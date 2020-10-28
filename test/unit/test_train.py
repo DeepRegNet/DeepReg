@@ -17,38 +17,48 @@ from deepreg.train import main as train_main
 log_root = "logs"
 
 
-def test_build_config():
-    """
-    Test build_config and check log_dir setting and checkpoint path verification
-    """
+class TestBuildConfig:
+    # in the config, epochs = save_period = 2
     config_path = "config/unpaired_labeled_ddf.yaml"
     log_dir = "test_build_config"
 
-    # checkpoint path empty
-    got_config, got_log_dir = build_config(
-        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=""
-    )
-    assert isinstance(got_config, dict)
-    assert got_log_dir == os.path.join(log_root, log_dir)
+    @pytest.mark.parametrize("ckpt_path", ["", "example.ckpt"])
+    def test_ckpt_path(self, ckpt_path):
+        # check the code can pass
 
-    # checkpoint path ends with ckpt
-    got_config, got_log_dir = build_config(
-        config_path=config_path,
-        log_root=log_root,
-        log_dir=log_dir,
-        ckpt_path="example.ckpt",
-    )
-    assert isinstance(got_config, dict)
-    assert got_log_dir == os.path.join(log_root, log_dir)
-
-    # checkpoint path ends with h5
-    with pytest.raises(ValueError):
-        build_config(
-            config_path=config_path,
+        got_config, got_log_dir = build_config(
+            config_path=self.config_path,
             log_root=log_root,
-            log_dir=log_dir,
-            ckpt_path="example.h5",
+            log_dir=self.log_dir,
+            ckpt_path=ckpt_path,
         )
+        assert isinstance(got_config, dict)
+        assert got_log_dir == os.path.join(log_root, self.log_dir)
+
+    def test_ckpt_path_err(self):
+        # checkpoint path ends with h5
+        with pytest.raises(ValueError) as err_info:
+            build_config(
+                config_path=self.config_path,
+                log_root=log_root,
+                log_dir=self.log_dir,
+                ckpt_path="example.h5",
+            )
+        assert "checkpoint path should end with .ckpt" in str(err_info.value)
+
+    @pytest.mark.parametrize(
+        "max_epochs, expected_epochs, expected_save_period", [(-1, 2, 2), (3, 3, 2)]
+    )
+    def test_max_epochs(self, max_epochs, expected_epochs, expected_save_period):
+        got_config, _ = build_config(
+            config_path=self.config_path,
+            log_root=log_root,
+            log_dir=self.log_dir,
+            ckpt_path="",
+            max_epochs=max_epochs,
+        )
+        assert got_config["train"]["epochs"] == expected_epochs
+        assert got_config["train"]["save_period"] == expected_save_period
 
 
 def test_build_callbacks():
