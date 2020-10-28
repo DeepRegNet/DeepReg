@@ -22,10 +22,11 @@ straightforward as possible.
 
 ### Changed
 
-- Updated instruction on Conda environment creation.
 - Updated TensorFlow version to 2.3.1.
-- Updated the issue and pull-request templates to fix some
 - Updated the pre-trained models in MR brain demo.
+- Updated instruction on Conda environment creation.
+- Updated documentation regarding pre-commit and unit-testing.
+- Updated the issue and pull-request templates.
 - Updated pre-commit hooks version.
 - Updated references in JOSS paper to address reviewers' comments.
 

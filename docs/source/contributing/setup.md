@@ -8,29 +8,17 @@ before each commit to prevent unnecessary linting failure in
 
 ## Pre-commit
 
-We are currently using (by order) the following pre-commit hooks:
-
-- [seed-isort-config](https://github.com/asottile/seed-isort-config) and
-  [isort](https://github.com/timothycrosley/isort) to format package imports in python
-  files.
-- [Black](https://github.com/psf/black) to format python files.
-- [Flake8](https://gitlab.com/pycqa/flake8) to perform python linting check,
-- [Prettier](https://prettier.io/) to format markdown files.
-
 ### Installation
 
-Pre-commit is installed during the package installation via `pip install -e .`. To
-activate pre-commit, make sure the git is installed (`sudo apt install git` for linux)
-and run `pre-commit install` under the root of this repository `DeepReg/`.
+Before installing `pre-commit`, please make sure the git is installed
+(`sudo apt install git` for linux). Then please execute `pre-commit install` under the
+root of this repository `DeepReg/` to install `pre-commit`.
 
 ### Usage
 
-We can use `pre-commit run --all-files` to trigger the hooks manually to format all
-files before pull request.
-
-Optionally, we can use
-`git commit --no-verify -m "This is a commit message placeholder."` to skip pre-commit.
-However, this is not recommended.
+The `pre-commit` hooks will be activated automatically. But in case some files are not
+properly formatted, please execute `pre-commit run --all-files` manually to format all
+files.
 
 ### Linting conflicts
 
@@ -45,14 +33,4 @@ work around.
 To check if Black is causing conflicts, run `black .` in the root of DeepReg you will
 see the formatted files by Black, run `pre-commit run --all-files`, you will see the
 final versions. Compare them to understand an issue. If there's a new conflict case,
-please raise an issue.
-
-## Conda Environment
-
-We recommend using `conda env create -f environment.yml` to create the conda environment
-in [installation](../getting_started/install.html). In case that we change the
-dependencies later, please use `conda env update -f environment.yml` to update the
-packages.
-
-Otherwise, we can always remove the environment using `conda env remove -n deepreg` and
-recreate it using `conda env create -f environment.yml`.
+please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
