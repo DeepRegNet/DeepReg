@@ -2,7 +2,7 @@ language: python
 os: linux
 dist: bionic
 python:
-  - "3.7" # current default Python on Travis CI
+  - "3.7" # same as environment.yml
 install:
   - pip install -e . # install deepreg package with corresponding requirements
   - pip install codecov
@@ -29,3 +29,37 @@ jobs:
         - deepreg_train -g "" --config_path config/unpaired_labeled_ddf.yaml --log_dir test
         - deepreg_predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
         - deepreg_warp --image data/test/nifti/unit_test/moving_image.nii.gz --ddf data/test/nifti/unit_test/ddf.nii.gz --out logs/test_warp/out.nii.gz
+    - stage: "Demos"
+      name: "test_single_config_demo[grouped_mask_prostate_longitudinal]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[grouped_mask_prostate_longitudinal]
+    - name: "test_single_config_demo[grouped_mr_heart]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[grouped_mr_heart]
+    - name: "test_single_config_demo[paired_ct_lung]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[paired_ct_lung]
+    - name: "test_single_config_demo[paired_mrus_brain]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[paired_mrus_brain]
+    - name: "test_single_config_demo[paired_mrus_prostate]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[paired_mrus_prostate]
+    - name: "test_single_config_demo[unpaired_ct_lung]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[unpaired_ct_lung]
+    - name: "test_single_config_demo[unpaired_mr_brain]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[unpaired_mr_brain]
+    - name: "test_single_config_demo[unpaired_us_prostate_cv]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_single_config_demo[unpaired_us_prostate_cv]
+    - name: "test_unpaired_ct_abdomen"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_unpaired_ct_abdomen
+    - name: "test_classical_demo[classical_ct_headneck_affine]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_classical_demo[classical_ct_headneck_affine]
+    - name: "test_classical_demo[classical_mr_prostate_nonrigid]"
+      if: type = cron OR commit_message =~ /test-demo/
+      script: pytest test/demo/ -k test_classical_demo[classical_mr_prostate_nonrigid]

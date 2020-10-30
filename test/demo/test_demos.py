@@ -62,6 +62,16 @@ class TestDemo:
             "unpaired_mr_brain",
             "unpaired_us_prostate_cv",
         ],
+        ids=[
+            "grouped_mask_prostate_longitudinal",
+            "grouped_mr_heart",
+            "paired_ct_lung",
+            "paired_mrus_brain",
+            "paired_mrus_prostate",
+            "unpaired_ct_lung",
+            "unpaired_mr_brain",
+            "unpaired_us_prostate_cv",
+        ],
     )
     def test_single_config_demo(self, name):
         """each demo has one single configuration file"""
