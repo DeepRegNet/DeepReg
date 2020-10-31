@@ -61,6 +61,11 @@ class H5FileLoader(FileLoader):
             else:
                 # each element is (dir_path, data_key)
                 data_path_splits += [(dir_path, k) for k in sorted(h5_file.keys())]
+        if len(data_path_splits) == 0:
+            raise ValueError(
+                f"No data collected from {self.dir_paths} in H5FileLoader, "
+                f"please verify the path is correct."
+            )
         self.h5_files = h5_files
         self.data_path_splits = data_path_splits
 
