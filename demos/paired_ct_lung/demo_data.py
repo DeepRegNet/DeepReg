@@ -18,7 +18,8 @@ os.chdir(main_path)
 
 ######## DOWNLOADING AND UNZIPPING ALL FILES INTO CORRECT PATH ########
 
-project_dir = r"demos/paired_ct_lung"
+project_dir = "demos/paired_ct_lung"
+data_folder_name = "dataset"
 os.chdir(project_dir)
 
 url = "https://zenodo.org/record/3835682/files/training.zip"
@@ -33,11 +34,10 @@ fname = "training.zip"
 get_file(os.path.join(os.getcwd(), fname), url)
 
 print("The file ", fname, " has successfully been downloaded!")
-
-data_folder_name = "data"
-
-if os.path.exists(os.path.join(main_path, project_dir, data_folder_name)) is not True:
-    os.mkdir(os.path.join(main_path, project_dir, data_folder_name))
+path_to_data_folder = os.path.join(main_path, project_dir, data_folder_name)
+if os.path.exists(path_to_data_folder):
+    shutil.rmtree(path_to_data_folder)
+os.mkdir(path_to_data_folder)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(data_folder_name)
@@ -49,7 +49,6 @@ os.chdir(main_path)
 
 ######## MOVING FILES INTO TRAIN DIRECTORY ########
 
-path_to_data_folder = os.path.join(main_path, project_dir, data_folder_name)
 path_to_train = os.path.join(main_path, project_dir, data_folder_name, "train")
 path_to_test = os.path.join(main_path, project_dir, data_folder_name, "test")
 path_to_images_and_labels = os.path.join(
@@ -93,7 +92,6 @@ if os.path.exists(path_to_images_and_labels):
 os.chdir(main_path)
 
 ######## MOVING FILES INTO TEST AND VALID DIRECTORY ########
-
 path_to_test = os.path.join(path_to_data_folder, "test")
 path_to_valid = os.path.join(path_to_data_folder, "valid")
 
@@ -151,7 +149,6 @@ if os.path.exists(path_to_test) is not True:
 ######## NAMING FILES SUCH THAT THEIR NAMES MATCH FOR PAIRING ########
 
 # name all files such that names match exactly for training
-
 for folder in os.listdir(path_to_train):
     path_to_folder = os.path.join(path_to_train, folder)
     os.chdir(path_to_folder)
@@ -160,6 +157,8 @@ for folder in os.listdir(path_to_train):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -174,6 +173,8 @@ for folder in os.listdir(path_to_test):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -188,6 +189,8 @@ for folder in os.listdir(path_to_valid):
             new_name = file.replace("_insp", "")
         elif "_exp" in file:
             new_name = file.replace("_exp", "")
+        else:
+            continue
         source = file
         destination = new_name
         os.rename(source, destination)
@@ -199,7 +202,7 @@ os.chdir(main_path)
 
 ######## NOW WE NEED TO RESCALE EACH IMAGE ########
 
-data_dir = r"demos/paired_ct_lung/data"
+data_dir = f"demos/paired_ct_lung/{data_folder_name}"
 folders = os.listdir(data_dir)
 
 for folder in folders:
@@ -230,13 +233,14 @@ for folder in folders:
 
 url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_demo_logs.zip"
 
-fname = "paired_ct_lung_demo_logs.zip"
-
+fname = "pretrained.zip"
 os.chdir(os.path.join(main_path, project_dir))
 
 get_file(os.path.join(os.getcwd(), fname), url)
 
 with zipfile.ZipFile(fname, "r") as zip_ref:
-    zip_ref.extractall(".")
+    zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
 
+# remove pretrained.zip
+os.remove(fname)
 print("Pretrained model downloaded")

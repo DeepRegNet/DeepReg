@@ -20,58 +20,65 @@ the late gadolinium enhancement (LGE) CMR sequence MI, the T2-weighted CMR. They
 collectively provide radiological information otherwise unavailable during clinical
 practice.
 
-## Instruction
-
-- [Install DeepReg](https://deepreg.readthedocs.io/en/latest/getting_started/install.html);
-- Change current directory to the root directory of DeepReg project;
-- Run `demo_data.py` script to download all the CMR dataset in a zip file. The script
-  also splits the data into train, val and test sets re-samples all the images to an
-  isotropic voxel size.
-
-```bash
-python demos/grouped_mr_heart/demo_data.py
-```
-
-- Call `deepreg_train` from command line. The following example uses a single GPU and
-  launches the first of the ten runs of a 9-fold cross-validation, as specified in the
-  [`dataset` section](./grouped_mr_heart_dataset0.yaml) and the
-  [`train` section](./grouped_mr_heart_train.yaml), which can be specified in
-  [seperate yaml files](https://deepregnet.github.io/DeepReg/#/tutorial_experiment?id=cross-validation);
-
-```bash
-deepreg_train --gpu "0" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --log_dir grouped_mr_heart
-```
-
-- Call `deepreg_predict` from command line to use the saved ckpt file for testing on the
-  data partitions specified in the config file, a copy of which will be saved in the
-  [log_dir]. The following example uses a pre-trained model, on CPU. If not specified,
-  the results will be saved at the created timestamp-named directories under /logs.
-
-```bash
-deepreg_predict --gpu "" --config_path demos/grouped_mr_heart/grouped_mr_heart.yaml --ckpt_path demos/grouped_mr_heart/dataset/pre-trained/weights-epoch500.ckpt --save_png --mode test
-```
-
-## Pre-trained Model
-
-A pre-trained model will be downloaded after running `demo_data.py` and unzipped at
-dataset folder under the demo folder. This pre-trained model will be used by default
-with `deepreg_predict`. Run the user-trained model by specifying with `--ckpt_path` the
-location where the ckpt files will be saved, in this case (specified by `deepreg_train`
-as above), /logs/grouped_mr_heart/.
-
 ## Data
 
 This demo uses CMR images from 45 patients, acquired from the
 [MyoPS2020](http://www.sdspeople.fudan.edu.cn/zhuangxiahai/0/MyoPS20/) challenge held in
 conjunction with MICCAI 2020.
 
-## Tested DeepReg version
+## Instruction
 
-Last commit: 74e7b1f749d0df1c140494eba0204f0edd1d7b1e
+### Installation
+
+Please install DeepReg following the [instructions](../getting_started/install.html) and
+change the current directory to the root directory of DeepReg project, i.e. `DeepReg/`.
+
+### Download data
+
+Please execute the following command to download/pre-process the data and download the
+pre-trained model. Images are re-sampled to an isotropic voxel size.
+
+```bash
+python demos/grouped_mr_heart/demo_data.py
+```
+
+### Launch demo training
+
+Please execute the following command to launch a demo training (the first of the ten
+runs of a 9-fold cross-validation). The training logs and model checkpoints will be
+saved under `demos/grouped_mr_heart/logs_train`.
+
+```bash
+python demos/grouped_mr_heart/demo_train.py
+```
+
+Here the training is launched using the GPU of index 0 with a limited number of steps
+and reduced size. Please add flag `--no-test` to use the original training
+configuration, such as
+
+```bash
+python demos/grouped_mr_heart/demo_train.py --no-test
+```
+
+### Predict
+
+Please execute the following command to run the prediction with pre-trained model. The
+prediction logs and visualization results will be saved under
+`demos/grouped_mr_heart/logs_predict`. Check the [CLI documentation](../docs/cli.html)
+for more details about prediction output.
+
+```bash
+python demos/grouped_mr_heart/demo_predict.py
+```
+
+Optionally, the user-trained model can be used by changing the `ckpt_path` variable
+inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
+saved under `logs_train` as mentioned above.
 
 ## Contact
 
-Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose).
+Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
+questions.
 
 ## Reference
 

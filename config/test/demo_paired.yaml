@@ -1,0 +1,6 @@
+dataset:
+  moving_image_shape: [16, 16, 16]
+  fixed_image_shape: [8, 8, 8]
+train:
+  epochs: 1
+  save_period: 1

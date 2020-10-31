@@ -6,7 +6,7 @@ import nibabel as nib
 import numpy as np
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/unpaired_ct_abdomen"
+PROJECT_DIR = "demos/unpaired_ct_abdomen"
 os.chdir(PROJECT_DIR)
 
 ORIGIN = "https://github.com/ucl-candi/datasets_deepreg_demo/archive/abdct.zip"
@@ -78,17 +78,17 @@ os.remove(ZIP_PATH)
 
 print("Done. \n")
 
-# Download the pre-trained models
+# Download the pretrained models
 """
 https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-unsup.zip
 https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-weakly.zip
 https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-comb.zip
 will be downloaded to, respectively,
-dataset/pre-trained/unsup
-dataset/pre-trained/weakly
-dataset/pre-trained/comb
+dataset/pretrained/unsup
+dataset/pretrained/weakly
+dataset/pretrained/comb
 """
-MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
@@ -110,6 +110,6 @@ for mname in model_names:
     os.remove(zip_file)
 
 print(
-    "Pre-trained models are downloaded and unzipped in individual folders at %s."
+    "Pretrained models are downloaded and unzipped in individual folders at %s."
     % os.path.abspath(MODEL_PATH)
 )

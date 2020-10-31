@@ -1,8 +1,9 @@
 """
 A DeepReg Demo for classical nonrigid iterative pairwise registration algorithms
 """
+import argparse
 import os
-from datetime import datetime
+import shutil
 
 import h5py
 import tensorflow as tf
@@ -12,8 +13,28 @@ import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 import deepreg.util as util
 
+# parser is used to simplify testing
+# please run the script with --no-test flag to ensure non-testing mode
+# for instance:
+# python script.py --no-test
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--test",
+    help="Execute the script for test purpose",
+    dest="test",
+    action="store_true",
+)
+parser.add_argument(
+    "--no-test",
+    help="Execute the script for non-test purpose",
+    dest="test",
+    action="store_false",
+)
+parser.set_defaults(test=False)
+args = parser.parse_args()
+
 MAIN_PATH = os.getcwd()
-PROJECT_DIR = r"demos/classical_mr_prostate_nonrigid"
+PROJECT_DIR = "demos/classical_mr_prostate_nonrigid"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"
@@ -24,7 +45,7 @@ image_loss_name = "lncc"
 deform_loss_name = "bending"
 weight_deform_loss = 1
 learning_rate = 0.1
-total_iter = int(3000)
+total_iter = int(10) if args.test else int(3000)
 
 # load images
 if not os.path.exists(DATA_PATH):
@@ -96,8 +117,10 @@ moving_label = tf.cast(tf.expand_dims(fid["label0"], axis=0), dtype=tf.float32)
 fixed_label = tf.cast(tf.expand_dims(fid["label1"], axis=0), dtype=tf.float32)
 warped_moving_label = warping(inputs=[var_ddf, moving_label])
 
-## save output to files
-SAVE_PATH = "output_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+# save output to files
+SAVE_PATH = "logs_reg"
+if os.path.exists(SAVE_PATH):
+    shutil.rmtree(SAVE_PATH)
 os.mkdir(SAVE_PATH)
 
 arrays = [

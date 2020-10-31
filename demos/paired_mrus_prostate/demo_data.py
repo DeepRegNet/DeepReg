@@ -7,7 +7,7 @@ import zipfile
 
 from tensorflow.keras.utils import get_file
 
-PROJECT_DIR = r"demos/paired_mrus_prostate"
+PROJECT_DIR = "demos/paired_mrus_prostate"
 os.chdir(PROJECT_DIR)
 
 DATA_PATH = "dataset"
@@ -62,7 +62,7 @@ for fn in data_types:  # remove the old type folders
 print("All data are partitioned into %d folders." % num_part)
 
 ## now download the pre-trained model
-MODEL_PATH = os.path.join(DATA_PATH, "pre-trained")
+MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)

@@ -65,9 +65,7 @@ def warp(image_path: str, ddf_path: str, out_path: str):
 def main(args=None):
     """Entry point for warp script"""
 
-    parser = argparse.ArgumentParser(
-        description="warp", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--image", "-i", help="File path for image file", type=str, required=True

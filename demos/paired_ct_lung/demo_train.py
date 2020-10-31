@@ -1,19 +1,53 @@
+import argparse
+from datetime import datetime
+
 from deepreg.train import train
 
-######## NOW WE DO THE TRAINING ########
+name = "paired_ct_lung"
 
-gpu = ""
-gpu_allow_growth = False
-ckpt_path = ""
-log_dir = "learn2reg_t2_paired_train_logs"
-config_path = [
-    r"demos/paired_ct_lung/paired_ct_lung_train.yaml",
-    r"demos/paired_ct_lung/paired_ct_lung.yaml",
-]
+# parser is used to simplify testing
+# please run the script with --no-test flag to ensure non-testing mode
+# for instance:
+# python script.py --no-test
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--test",
+    help="Execute the script for test purpose",
+    dest="test",
+    action="store_true",
+)
+parser.add_argument(
+    "--no-test",
+    help="Execute the script for non-test purpose",
+    dest="test",
+    action="store_false",
+)
+parser.set_defaults(test=True)
+args = parser.parse_args()
+
+print(
+    "\n\n\n\n\n"
+    "=======================================================\n"
+    "The training can also be launched using the following command.\n"
+    "deepreg_train --gpu '0' "
+    f"--config_path demos/{name}/{name}.yaml "
+    f"--log_root demos/{name} "
+    "--log_dir logs_train\n"
+    "=======================================================\n"
+    "\n\n\n\n\n"
+)
+
+log_root = f"demos/{name}"
+log_dir = "logs_train/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+config_path = [f"demos/{name}/{name}.yaml"]
+if args.test:
+    config_path.append("config/test/demo_paired.yaml")
+
 train(
-    gpu=gpu,
+    gpu="0",
     config_path=config_path,
-    gpu_allow_growth=gpu_allow_growth,
-    ckpt_path=ckpt_path,
+    gpu_allow_growth=False,
+    ckpt_path="",
+    log_root=log_root,
     log_dir=log_dir,
 )
