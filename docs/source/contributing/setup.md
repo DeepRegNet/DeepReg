@@ -4,7 +4,7 @@ To edit the source code of DeepReg, besides the
 [package installation](../getting_started/install.html), we recommend installing
 [pre-commit](https://pre-commit.com/) for code style consistency and auto formatting
 before each commit to prevent unnecessary linting failure in
-[Travis-CI](https://travis-ci.org/github/DeepRegNet/DeepReg).
+[Travis-CI](https://travis-ci.com/github/DeepRegNet/DeepReg).
 
 ## Pre-commit
 
