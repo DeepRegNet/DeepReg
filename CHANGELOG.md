@@ -32,6 +32,7 @@ straightforward as possible.
 - Updated the instructions for all demos.
 - Updated pre-commit hooks version.
 - Updated JOSS paper to address reviewers' comments.
+- Migrated from travis-ci.org to travis-ci.com.
 
 ### Fixed
 
