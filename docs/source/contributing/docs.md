@@ -7,7 +7,7 @@ it is hosted in [ReadTheDocs](https://readthedocs.org/projects/deepreg/).
 
 Please run the following command under `docs/` directory for generating the
 documentation pages locally. This is also included in
-[Travis-CI](https://travis-ci.org/github/DeepRegNet/DeepReg) jobs to ensure the
+[Travis-CI](https://travis-ci.com/github/DeepRegNet/DeepReg) jobs to ensure the
 documentation quality.
 
 ```bash
