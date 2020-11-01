@@ -13,6 +13,19 @@ parser.add_argument(
     type=str,
     required=True,
 )
+parser.add_argument(
+    "--test",
+    help="Execute the script for test purpose",
+    dest="test",
+    action="store_true",
+)
+parser.add_argument(
+    "--no-test",
+    help="Execute the script for non-test purpose",
+    dest="test",
+    action="store_false",
+)
+parser.set_defaults(test=False)
 args = parser.parse_args()
 method = args.method
 assert method in [
@@ -40,6 +53,8 @@ log_root = f"demos/{name}"
 log_dir = f"logs_predict/{method}/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 ckpt_path = f"{log_root}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt"
 config_path = f"{log_root}/{name}_{method}.yaml"
+if args.test:
+    config_path.append("config/test/demo_unpaired_grouped.yaml")
 
 predict(
     gpu="0",
