@@ -62,16 +62,6 @@ class TestDemo:
             "unpaired_mr_brain",
             "unpaired_us_prostate_cv",
         ],
-        ids=[
-            "grouped_mask_prostate_longitudinal",
-            "grouped_mr_heart",
-            "paired_ct_lung",
-            "paired_mrus_brain",
-            "paired_mrus_prostate",
-            "unpaired_ct_lung",
-            "unpaired_mr_brain",
-            "unpaired_us_prostate_cv",
-        ],
     )
     def test_single_config_demo(self, name):
         """each demo has one single configuration file"""
@@ -89,7 +79,11 @@ class TestDemo:
 
         execute_commands(cmds)
 
-    def test_unpaired_ct_abdomen(self):
+    @pytest.mark.parametrize(
+        "method",
+        ["comb", "unsup", "weakly"],
+    )
+    def test_unpaired_ct_abdomen(self, method):
         """this demo has multiple configuration file"""
         name = "unpaired_ct_abdomen"
         remove_files(name)
@@ -102,12 +96,10 @@ class TestDemo:
         check_files(name)
 
         # execute train, predict sequentially
-        cmds = []
-        for method in ["comb", "unsup", "weakly"]:
-            cmds += [
-                f"python demos/{name}/demo_{x}.py --method {method} --test"
-                for x in ["train", "predict"]
-            ]
+        cmds = [
+            f"python demos/{name}/demo_{x}.py --method {method} --test"
+            for x in ["train", "predict"]
+        ]
 
         execute_commands(cmds)
 
