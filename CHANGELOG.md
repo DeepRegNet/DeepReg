@@ -18,7 +18,7 @@ straightforward as possible.
 - Added log_root argument for training and prediction to customize the log file
   location.
 - Added more meaningful error messages for data loading.
-- Added tests for all demos.
+- Added integration tests for all demos.
 - Added environment.yml file for Conda environment creation.
 - Added Dockerfile.
 - Added documentation about using UCL cluster with DeepReg.
@@ -37,6 +37,7 @@ straightforward as possible.
 
 ### Fixed
 
+- Fixed prediction error when number of samples cannot be divided by batch size exactly.
 - Fixed division by zero handling in multiple image/label losses.
 - Fixed tensor comparison in unit tests and impacted tests.
 - Removed normalization of DDF/DVF when saving in Nifti formats.
