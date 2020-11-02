@@ -75,11 +75,15 @@ class TestDemo:
         check_files(name)
 
         # execute train, predict sequentially
-        cmds = [f"python demos/{name}/demo_{x}.py" for x in ["train", "predict"]]
+        cmds = [f"python demos/{name}/demo_{x}.py --test" for x in ["train", "predict"]]
 
         execute_commands(cmds)
 
-    def test_unpaired_ct_abdomen(self):
+    @pytest.mark.parametrize(
+        "method",
+        ["comb", "unsup", "weakly"],
+    )
+    def test_unpaired_ct_abdomen(self, method):
         """this demo has multiple configuration file"""
         name = "unpaired_ct_abdomen"
         remove_files(name)
@@ -92,12 +96,10 @@ class TestDemo:
         check_files(name)
 
         # execute train, predict sequentially
-        cmds = []
-        for method in ["comb", "unsup", "weakly"]:
-            cmds += [
-                f"python demos/{name}/demo_{x}.py --method {method}"
-                for x in ["train", "predict"]
-            ]
+        cmds = [
+            f"python demos/{name}/demo_{x}.py --method {method} --test"
+            for x in ["train", "predict"]
+        ]
 
         execute_commands(cmds)
 
@@ -119,6 +121,6 @@ class TestDemo:
         check_files(name)
 
         # execute data, register
-        cmds = [f"python demos/{name}/demo_register.py"]
+        cmds = [f"python demos/{name}/demo_register.py --test"]
 
         execute_commands(cmds)
