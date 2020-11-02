@@ -27,5 +27,5 @@ jobs:
     - name: "Command Tests: Unpaired Unlabeled"
       script:
         - deepreg_train -g "" --config_path config/unpaired_labeled_ddf.yaml --log_dir test
-        - deepreg_predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test
+        - deepreg_predict -g "" --ckpt_path logs/test/save/weights-epoch2.ckpt --mode test -b 3
         - deepreg_warp --image data/test/nifti/unit_test/moving_image.nii.gz --ddf data/test/nifti/unit_test/ddf.nii.gz --out logs/test_warp/out.nii.gz
