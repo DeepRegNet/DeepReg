@@ -31,8 +31,8 @@ class NiftiFileLoader(FileLoader):
         )
         self.data_path_splits = None
         self.set_data_structure()
+        self.group_struct = None
         if self.grouped:
-            self.group_struct = None
             self.set_group_structure()
 
     def set_data_structure(self):

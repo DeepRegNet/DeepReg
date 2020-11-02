@@ -37,9 +37,6 @@ def get_loader(loader_name):
 
 
 class TestH5FileLoader:
-    dir_paths = ["./data/test/h5/paired/test"]
-    name = "fixed_images"
-
     @pytest.mark.parametrize(
         "name,expected",
         [
