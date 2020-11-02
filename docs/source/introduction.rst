@@ -1,12 +1,6 @@
 DeepReg
 =======
 
-.. note::
-
-    DeepReg :superscript:`beta` will be released in Autumn 2020 - however, many
-    tutorials, demos and much of the core functionality are already
-    accessible.
-
 DeepReg is a freely available, community-supported open-source toolkit
 for research and education in medical image registration using deep
 learning.
@@ -42,23 +36,27 @@ DeepReg is maintained and led by a team of developers and researchers.
 People with significant contributions to DeepReg are listed below (in
 alphabetical order).
 
-================== =================================================
-Name               Affiliation (at time of contribution)
-================== =================================================
-Adria Casamitjana  University College London
-Alexander Grimwood University College London
-Ester Bonmati      University College London
-Matt Clarkson      University College London
-Nina Montana Brown University College London
-Qianye Yang        University College London
-Remi Delaunay      University College London / King’s College London
-Shaheer Saaed      University College London
-Tom Vercauteren    King’s College London
-Yipeng Hu          University College London
-Yunguan Fu         University College London / InstaDeep
-Zachary Baum       University College London
-Zhe Min            University College London
-================== =================================================
+===================== =================================================================
+Name                  Affiliation (at time of contribution)
+===================== =================================================================
+Adrià Casamitjana     University College London
+Alexander Grimwood    University College London
+Daniel C. Alexander   University College London
+Dean C. Barratt       University College London
+Ester Bonmati         University College London
+Juan Eugenio Iglesias University College London / Massachusetts Institute of Technology
+Matt J. Clarkson      University College London
+Nina Montaña Brown    University College London
+Qianye Yang           University College London
+Rémi Delaunay         University College London / King’s College London
+Shaheer U. Saeed      University College London
+Stefano B. Blumberg   University College London
+Tom Vercauteren       King’s College London
+Yipeng Hu             University College London
+Yunguan Fu            University College London / InstaDeep
+Zachary M. C. Baum    University College London
+Zhe Min               University College London
+===================== =================================================================
 
 This open-source initiative started within University College London,
 with support from the Wellcome/EPSRC Centre for Interventional and
