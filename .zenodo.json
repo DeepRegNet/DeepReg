@@ -1,0 +1,91 @@
+{
+  "description": "Changelog\nAdded\n<ul>\n<li>Added option to change kernel size and a kernel type for LNCC image similarity loss.</li>\n<li>Added visualization tool for generating gifs from model outputs.</li>\n<li>Added max_epochs argument for training to overwrite configuration.</li>\n<li>Added log_root argument for training and prediction to customize the log file\nlocation.</li>\n<li>Added more meaningful error messages for data loading.</li>\n<li>Added integration tests for all demos.</li>\n<li>Added environment.yml file for Conda environment creation.</li>\n<li>Added Dockerfile.</li>\n<li>Added documentation about using UCL cluster with DeepReg.</li>\n</ul>\nChanged\n<ul>\n<li>Updated TensorFlow version to 2.3.1.</li>\n<li>Updated the pre-trained models in MR brain demo.</li>\n<li>Updated instruction on Conda environment creation.</li>\n<li>Updated documentation regarding pre-commit and unit-testing.</li>\n<li>Updated the issue and pull-request templates.</li>\n<li>Updated the instructions for all demos.</li>\n<li>Updated pre-commit hooks version.</li>\n<li>Updated JOSS paper to address reviewers' comments.</li>\n<li>Migrated from travis-ci.org to travis-ci.com.</li>\n</ul>\nFixed\n<ul>\n<li>Fixed prediction error when number of samples cannot be divided by batch size exactly.</li>\n<li>Fixed division by zero handling in multiple image/label losses.</li>\n<li>Fixed tensor comparison in unit tests and impacted tests.</li>\n<li>Removed normalization of DDF/DVF when saving in Nifti formats.</li>\n<li>Fixed invalid link in the quick start page.</li>\n</ul>",
+  "license": "other-open",
+  "title": "DeepReg: a deep learning toolkit for medical image registration",
+  "version": "v0.1.0",
+  "upload_type": "software",
+  "publication_date": "2020-11-02",
+  "creators": [
+    {
+      "name": "Yunguan, Fu",
+      "orcid": "0000-0002-1184-7421"
+    },
+    {
+      "name": "Nina, Montaña Brown",
+      "orcid": "0000-0001-5685-971X"
+    },
+    {
+      "name": "Shaheer U., Saeed",
+      "orcid": "0000-0002-5004-0663"
+    },
+    {
+      "name": "Adrià, Casamitjana",
+      "orcid": "0000-0002-0539-3638"
+    },
+    {
+      "name": "Zachary M. C., Baum",
+      "orcid": "0000-0001-6838-335X"
+    },
+    {
+      "name": "Rémi, Delaunay",
+      "orcid": "0000-0002-0398-4995"
+    },
+    {
+      "name": "Qianye, Yang",
+      "orcid": "0000-0003-4401-5311"
+    },
+    {
+      "name": "Alexander, Grimwood",
+      "orcid": "0000-0002-2608-2580"
+    },
+    {
+      "name": "Zhe, Min",
+      "orcid": "0000-0002-8903-1561"
+    },
+    {
+      "name": "Stefano B., Blumberg",
+      "orcid": "0000-0002-7150-9918"
+    },
+    {
+      "name": "Juan Eugenio, Iglesias",
+      "orcid": "0000-0001-7569-173X"
+    },
+    {
+      "name": "Dean C., Barratt",
+      "orcid": "0000-0003-2916-655X"
+    },
+    {
+      "name": "Ester, Bonmati",
+      "orcid": "0000-0001-9217-5438"
+    },
+    {
+      "name": "Daniel C., Alexander",
+      "orcid": "0000-0003-2439-350X"
+    },
+    {
+      "name": "Matthew J., Clarkson",
+      "orcid": "0000-0002-5565-1252"
+    },
+    {
+      "name": "Tom, Vercauteren",
+      "orcid": "0000-0003-1794-0456"
+    },
+    {
+      "name": "Yipeng, Hu",
+      "orcid": "0000-0003-4902-0486"
+    }
+  ],
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "scheme": "url",
+      "identifier": "https://github.com/DeepRegNet/DeepReg/tree/v0.1.0",
+      "relation": "isSupplementTo"
+    },
+    {
+      "scheme": "doi",
+      "identifier": "10.5281/zenodo.4210214",
+      "relation": "isVersionOf"
+    }
+  ]
+}
