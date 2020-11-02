@@ -10,7 +10,7 @@ setup(
     name="deepreg",
     packages=find_packages(exclude=["test", "test.unit", "test.output"]),
     include_package_data=True,
-    version="0.1.0b1",
+    version="0.1.0",
     license="apache-2.0",
     description="DeepReg is a freely available, community-supported open-source toolkit for research and education in medical image registration using deep learning.",
     long_description=long_description,
@@ -36,7 +36,7 @@ setup(
         ]
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Stable",
         "Environment :: Console",
         "Environment :: GPU",
         "Environment :: MacOS X",
