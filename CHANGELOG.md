@@ -17,6 +17,7 @@ straightforward as possible.
 - Added max_epochs argument for training to overwrite configuration.
 - Added log_root argument for training and prediction to customize the log file
   location.
+- Added more meaningful error messages for data loading.
 - Added tests for all demos.
 - Added environment.yml file for Conda environment creation.
 - Added Dockerfile.
