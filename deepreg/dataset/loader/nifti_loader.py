@@ -31,8 +31,8 @@ class NiftiFileLoader(FileLoader):
         )
         self.data_path_splits = None
         self.set_data_structure()
+        self.group_struct = None
         if self.grouped:
-            self.group_struct = None
             self.set_group_structure()
 
     def set_data_structure(self):
@@ -70,6 +70,11 @@ class NiftiFileLoader(FileLoader):
                 data_path_splits += [
                     (dir_path, file_path, suffix) for file_path, suffix in data_paths
                 ]
+        if len(data_path_splits) == 0:
+            raise ValueError(
+                f"No data collected from {self.dir_paths} in NiftiFileLoader, "
+                f"please verify the path is correct."
+            )
         self.data_path_splits = sorted(data_path_splits)
 
     def set_group_structure(self):
