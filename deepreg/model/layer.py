@@ -679,9 +679,14 @@ class BSplines3DTransform(tf.keras.layers.Layer):
     :param kwargs:
     """
 
-    def __init__(self, cp_spacing, **kwargs):
+    def __init__(self, cp_spacing: (int, tuple), **kwargs):
+
         super().__init__(**kwargs)
-        self.cp_spacing = cp_spacing
+
+        if isinstance(cp_spacing, int):
+            self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
+        else:
+            self.cp_spacing = cp_spacing
         self.filters = []
 
     def build(self, input_shape):
@@ -725,7 +730,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
                                     b[3 - x](u) * b[3 - y](v) * b[3 - z](w)
                                 )
 
-        self.filters = tf.convert_to_tensor(filters)
+        self.filter = tf.convert_to_tensor(filters)
 
     def interpolate(self, field):
         """
@@ -737,7 +742,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         output_shape = (1,) + image_shape + (1,)
         return tf.nn.conv3d_transpose(
             field,
-            self.filters,
+            self.filter,
             output_shape=output_shape,
             strides=self.cp_spacing,
             padding="SAME",

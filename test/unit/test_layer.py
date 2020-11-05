@@ -348,3 +348,34 @@ def test_localNetUpSampleResnetBlock():
     assert isinstance(model._additive_upsampling, layer.AdditiveUpSampling)
     assert isinstance(model._conv3d_block, layer.Conv3dBlock)
     assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
+
+
+def test_BSplines3DTransform():
+    """
+    Test the layer.BSplines3DTransform class, its default attributes and its call() function.
+    """
+    input_size = (1, 68, 68, 68, 1)
+    control_points = (8, 8, 8)
+
+    model = layer.BSplines3DTransform(control_points)
+    assert model.cp_spacing == (8, 8, 8)
+
+    control_points = 8
+    model = layer.BSplines3DTransform(control_points)
+    assert model.cp_spacing == (8, 8, 8)
+
+    model.build(input_size)
+    assert model.filter.shape == (
+        4 * control_points,
+        4 * control_points,
+        4 * control_points,
+        1,
+        1,
+    )
+
+    field = tf.random.normal(shape=input_size)
+    mesh = model.get_control_points(field)
+    assert mesh.shape == (1, 12, 12, 12, 1)
+
+    ddf = model.call(field)
+    assert ddf.shape == input_size
