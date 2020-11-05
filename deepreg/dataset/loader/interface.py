@@ -197,7 +197,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
         - image_shape is the shape of images fed into dataset,
-        it is assumed to be 3d, [dim1, dim2, dim3]. 
+        it is assumed to be 3d, [dim1, dim2, dim3].
           moving_image_shape = fixed_image_shape = image_shape
         """
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)

@@ -1,6 +1,6 @@
 """
-Load paired image data. 
-Supported formats: h5 and Nifti. 
+Load paired image data.
+Supported formats: h5 and Nifti.
 Image data can be labeled or unlabeled.
 """
 import random

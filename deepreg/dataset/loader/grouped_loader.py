@@ -1,6 +1,6 @@
 """
 Load grouped data.
-Supported formats: h5 and Nifti. 
+Supported formats: h5 and Nifti.
 Image data can be labeled or unlabeled.
 Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
