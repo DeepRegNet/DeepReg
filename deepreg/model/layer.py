@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
@@ -665,3 +666,86 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         r2 = self._conv3d_block(inputs=h0, training=training)
         h1 = self._residual_block(inputs=[r2, r1], training=training)
         return h1
+
+
+class BSplines3DTransform(tf.keras.layers.Layer):
+    """
+    Rescales a transform, which involves resizing the vector field *and* rescaling it.
+    """
+
+    def __init__(self, cp_spacing, **kwargs):
+        super().__init__(**kwargs)
+        self.cp_spacing = cp_spacing
+        self.filters = []
+
+    def build(self, input_shape):
+        super().build(input_shape)
+
+        b = {
+            0: lambda u: np.float32((1 - u) ** 3 / 6),
+            1: lambda u: np.float32((3 * (u ** 3) - 6 * (u ** 2) + 4) / 6),
+            2: lambda u: np.float32((-3 * (u ** 3) + 3 * (u ** 2) + 3 * u + 1) / 6),
+            3: lambda u: np.float32(u ** 3 / 6),
+        }
+
+        filters = np.zeros(
+            (
+                4 * self.cp_spacing[0],
+                4 * self.cp_spacing[1],
+                4 * self.cp_spacing[2],
+                1,
+                1,
+            ),
+            dtype=np.float32,
+        )
+
+        for u in range(self.cp_spacing[0]):
+            for v in range(self.cp_spacing[1]):
+                for w in range(self.cp_spacing[2]):
+                    for x in range(4):
+                        for y in range(4):
+                            for z in range(4):
+                                filters[
+                                    x * self.cp_spacing[0] + u,
+                                    y * self.cp_spacing[1] + v,
+                                    z * self.cp_spacing[2] + w,
+                                    0,
+                                ] = (
+                                    b[3 - x](u) * b[3 - y](v) * b[3 - z](w)
+                                )
+
+        self.filters = tf.convert_to_tensor(filters)
+
+    def interpolate(self, field):
+        image_shape = tuple([a * b for a, b in zip(field.shape[1:-1], self.cp_spacing)])
+        output_shape = (1,) + image_shape + (1,)
+        return tf.nn.conv3d_transpose(
+            field,
+            self.filters,
+            output_shape=output_shape,
+            strides=self.cp_spacing,
+            padding="SAME",
+        )
+
+    def get_control_points(self, field):
+        vol_shape = field.shape[1:-1]
+        mesh_shape = [
+            tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
+            for v, c in zip(vol_shape, self.cp_spacing)
+        ]
+        return layer_util.resize3d(image=field, size=mesh_shape)
+
+    def call(self, inputs, **kwargs):
+        vol_shape = inputs.shape[1:-1]
+        low_res_field = self.get_control_points(inputs)
+        high_res_field = self.interpolate(low_res_field)
+
+        index = [int(1.5 * c) for c in self.cp_spacing]
+
+        # return high_res_field
+        return high_res_field[
+            :,
+            index[0] : index[0] + vol_shape[0],
+            index[1] : index[1] + vol_shape[1],
+            index[2] : index[2] + vol_shape[2],
+        ]
