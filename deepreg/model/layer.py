@@ -670,7 +670,13 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
 
 class BSplines3DTransform(tf.keras.layers.Layer):
     """
-    Rescales a transform, which involves resizing the vector field *and* rescaling it.
+     Layer for BSplines interpolation with precomputed cubic spline filters.
+     It assumes a full sized image from which: (1) it compute the contol points values by downsampling the initial
+     image (2) performs the interpolation and (3) crops the image around the valid values.
+
+    :param cp_spacing: _int_ or tuple of three _ints_ specifying the spacing (in pixels) in each dimension.
+                      When a single _int_ is used, the same spacing to all dimensions is used
+    :param kwargs:
     """
 
     def __init__(self, cp_spacing, **kwargs):
@@ -679,6 +685,11 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         self.filters = []
 
     def build(self, input_shape):
+        """
+        :param input_shape: tuple with the input shape
+        :return:
+        """
+
         super().build(input_shape)
 
         b = {
@@ -717,6 +728,11 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         self.filters = tf.convert_to_tensor(filters)
 
     def interpolate(self, field):
+        """
+        :param field: tf.Tensor with shape=number_of_control_points_per_dim
+        :return: interpolated_field: tf.Tensor
+        """
+
         image_shape = tuple([a * b for a, b in zip(field.shape[1:-1], self.cp_spacing)])
         output_shape = (1,) + image_shape + (1,)
         return tf.nn.conv3d_transpose(
@@ -728,6 +744,10 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         )
 
     def get_control_points(self, field):
+        """
+        :param field: tf.Tensor of shape=self.input_shape
+        :return: interpolated_field: tf.Tensor
+        """
         vol_shape = field.shape[1:-1]
         mesh_shape = [
             tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
@@ -736,6 +756,11 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         return layer_util.resize3d(image=field, size=mesh_shape)
 
     def call(self, inputs, **kwargs):
+        """
+        :param inputs: tf.Tensor defining a free-form deformation field
+        :param kwargs:
+        :return: interpolated_field: tf.Tensor of shape=self.input_shape
+        """
         vol_shape = inputs.shape[1:-1]
         low_res_field = self.get_control_points(inputs)
         high_res_field = self.interpolate(low_res_field)
