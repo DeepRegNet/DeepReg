@@ -1,9 +1,9 @@
 """
 Loads paired image data.
-supports h5 and Nifti formats, 
+supports h5 and Nifti formats,
 supports labeled and unlabeled data:
 lorem upsum newline \n
-holding text with trailing white space.  
+holding text with trailing white space.
 | This sentence began with a bar-space-space
 Pre-commit doesn't strip punctuation when run on wsl...
 """
