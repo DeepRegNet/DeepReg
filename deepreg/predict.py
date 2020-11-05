@@ -2,7 +2,7 @@
 
 """
 Module to perform predictions on data using
-command line interface
+command line interface.
 """
 
 import argparse
@@ -342,7 +342,7 @@ def predict(
 def main(args=None):
     """
     Function to run in command line with argparse to predict results on data
-    for a given model
+    for a given model.
     """
     parser = argparse.ArgumentParser()
 

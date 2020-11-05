@@ -4,9 +4,9 @@ import numpy as np
 def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
     """
     Normalize a numpy array such that
-    its values are normalized from [v_min, v_max] to [0, 1]
-    If min/max are not provided, will use the min/max of the array
-    Values outside of [v_min, v_max] will be clipped
+    its values are normalized from [v_min, v_max] to [0, 1].
+    If min/max are not provided, will use the min/max of the array.
+    Values outside of [v_min, v_max] will be clipped.
     """
     v_min = np.min(arr) if v_min is None else v_min
     v_max = np.max(arr) if v_max is None else v_max
@@ -20,8 +20,8 @@ def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
 
 def remove_prefix_suffix(x: str, prefix: (str, list), suffix: (str, list)) -> str:
     """
-    remove the prefix and suffix from a string,
-    prefix and suffix can be a string or a list of strings
+    Remove the prefix and suffix from a string,
+    prefix and suffix can be a string or a list of strings.
     :param x: input string
     :param prefix: a string or a list of strings, will check prefix one by one
     :param suffix: a string or a list of strings, will check suffix one by one

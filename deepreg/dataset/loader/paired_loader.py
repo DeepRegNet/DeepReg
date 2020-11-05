@@ -1,11 +1,7 @@
 """
-Loads paired image data.
-supports h5 and Nifti formats,
-supports labeled and unlabeled data:
-lorem upsum newline \n
-holding text with trailing white space.
-| This sentence began with a bar-space-space
-Pre-commit doesn't strip punctuation when run on wsl...
+Load paired image data. 
+Supported formats: h5 and Nifti. 
+Image data can be labeled or unlabeled.
 """
 import random
 from typing import List
@@ -19,10 +15,9 @@ from deepreg.dataset.util import check_difference_between_two_lists
 
 class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     """
-    Loads paired data using given file loader
-    Handles both labeled and unlabeled cases
+    Load paired data using given file loader.
     The function sample_index_generator needs to be defined for the
-    GeneratorDataLoader class
+    GeneratorDataLoader class.
     """
 
     def __init__(
@@ -80,7 +75,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         self.num_images = self.loader_moving_image.get_num_images()
 
     def validate_data_files(self):
-        """Verify all loaders have the same files"""
+        """Verify all loaders have the same files."""
         moving_image_ids = self.loader_moving_image.get_data_ids()
         fixed_image_ids = self.loader_fixed_image.get_data_ids()
         check_difference_between_two_lists(
@@ -105,7 +100,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     def sample_index_generator(self):
         """
         Generate indexes in order to load data using the
-        GeneratorDataLoader class
+        GeneratorDataLoader class.
         """
         image_indices = [i for i in range(self.num_images)]
         random.Random(self.seed).shuffle(image_indices)

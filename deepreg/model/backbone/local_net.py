@@ -9,7 +9,7 @@ from deepreg.model import layer
 
 class LocalNet(tf.keras.Model):
     """
-    Builds LocalNet for image registration.
+    Build LocalNet for image registration.
 
     Reference:
 
@@ -36,7 +36,7 @@ class LocalNet(tf.keras.Model):
         """
         Image is encoded gradually, i from level 0 to E,
         then it is decoded gradually, j from level E to D.
-        Some of the decoded levels are used for generating extractions
+        Some of the decoded levels are used for generating extractions.
 
         So, extract_levels are between [0, E] with E = max(extract_levels),
         and D = min(extract_levels).

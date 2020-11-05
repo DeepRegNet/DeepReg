@@ -1,7 +1,7 @@
 """
 Module to generate visualisations of data
-command line interface
-requires ffmpeg writer to write gif files
+at command line interface.
+Requires ffmpeg writer to write gif files
 """
 
 import argparse
@@ -18,8 +18,8 @@ from deepreg.model.layer_util import warp_image_ddf
 
 def string_to_list(string):
     """
-    converts a comma separated string to a list of strings
-    also removes leading or trailing spaces from each element in list
+    Converts a comma separated string to a list of strings
+    also removes leading or trailing spaces from each element in list.
 
     :param string: string which is to be converted to list
     """
@@ -29,7 +29,7 @@ def string_to_list(string):
 def gif_slices(img_paths, save_path="", interval=50):
     """
     Generates and saves gif of slices of image
-    supports multiple images to generate multiple gif files
+    supports multiple images to generate multiple gif files.
 
     :param img_paths: list or comma separated string of image paths
     :param save_path: path to directory where visualisation/s is/are to be saved
@@ -65,8 +65,8 @@ def gif_slices(img_paths, save_path="", interval=50):
 
 def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles=None):
     """
-    Generates a tiled plot of muliple images for multiple slices in the image
-    rows are different slices and columns are different images
+    Generate a tiled plot of muliple images for multiple slices in the image.
+    Rows are different slices, columns are different images.
 
     :param img_paths: list or comma separated string of image paths
     :param save_path: path to directory where visualisation/s is/are to be saved
@@ -120,7 +120,7 @@ def gif_warp(
     img_paths, ddf_path, slice_inds=None, num_interval=100, interval=50, save_path=""
 ):
     """
-    Apply ddf to image slice/s to generate gif
+    Apply ddf to image slice/s to generate gif.
 
     :param img_paths: list or comma separated string of image paths
     :param ddf_path: path to ddf to use for warping
@@ -179,7 +179,7 @@ def gif_warp(
 
 def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval=50):
     """
-    Creates tiled gif over slices of multiple images
+    Creates tiled gif over slices of multiple images.
 
     :param img_paths: list or comma separated string of image paths
     :param save_path: path to directory where visualisation/s is/are to be saved
@@ -256,8 +256,8 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
 
 def main(args=None):
     """
-    CLI for deepreg_vis tool
-    reuires ffmpeg wirter to write gif files
+    CLI for deepreg_vis tool.
+    Requires ffmpeg wirter to write gif files.
     """
     parser = argparse.ArgumentParser(
         description="deepreg_vis", formatter_class=argparse.RawTextHelpFormatter

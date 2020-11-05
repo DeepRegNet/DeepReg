@@ -35,7 +35,7 @@ def save(config: dict, out_dir: str, filename: str = "config.yaml"):
 
 
 def config_sanity_check(config: dict):
-    """check if the given config satisfies the requirements"""
+    """check if the given config satisfies the requirements."""
 
     # check data
     assert "dataset" in config.keys()

@@ -1,7 +1,7 @@
 """
-Loads grouped data
-supports h5 and Nifti formats
-supports labeled and unlabeled data
+Load grouped data.
+Supported formats: h5 and Nifti. 
+Image data can be labeled or unlabeled.
 Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dataset.loader.grouped_loader for more details.
 """
 import random
@@ -16,9 +16,8 @@ from deepreg.dataset.util import check_difference_between_two_lists
 
 class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     """
-    Loads grouped data
-    sample_index_generator from GeneratorDataLoader is defined to yield
-    indexes of images to load
+    Load grouped data.
+    Yield indexes of images to load using sample_index_generator from GeneratorDataLoader.
     AbstractUnpairedLoader handles different file formats
     """
 
@@ -112,7 +111,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             self._num_samples = len(self.sample_indices)
 
     def validate_data_files(self):
-        """If the data are labeled, verify image loader and label loader have the same files"""
+        """If the data are labeled, verify image loader and label loader have the same files."""
         if self.labeled is True:
             image_ids = self.loader_moving_image.get_data_ids()
             label_ids = self.loader_moving_label.get_data_ids()
