@@ -17,7 +17,7 @@ def ddf_dvf_forward(
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-    output_dvf: bool,
+    output_model: (str, None),
 ) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass.
@@ -28,9 +28,8 @@ def ddf_dvf_forward(
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
-    :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
+    :param output_model: str or None, selects the deformation field parametrization ['dvf', 'bsplines', None (default)]
     :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-
       - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -57,11 +56,16 @@ def ddf_dvf_forward(
         [moving_image, fixed_image], axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 2)
     backbone_out = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
-    if output_dvf:
+    if output_model["name"] == "dvf":
         dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
         ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(
             dvf
         )  # (batch, f_dim1, f_dim2, f_dim3, 3)
+    elif output_model["name"] == "bsplines":
+        dvf = None
+        ddf = layer.BSplines3DTransform(
+            backbone_out, cp_spacing=output_model["control_points"]
+        )
     else:
         dvf = None
         ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
@@ -112,7 +116,7 @@ def build_ddf_dvf_model(
         image_size=fixed_image_size,
         out_channels=3,
         model_config=model_config,
-        method_name=model_config["method"],
+        method_name=model_config["method"]["name"],
     )
 
     # forward
@@ -123,7 +127,7 @@ def build_ddf_dvf_model(
         moving_label=moving_label,
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
-        output_dvf=model_config["method"] == "dvf",
+        output_model=model_config["method"],
     )
 
     # build model
@@ -135,7 +139,7 @@ def build_ddf_dvf_model(
     outputs = {"ddf": ddf}
     if dvf is not None:
         outputs["dvf"] = dvf
-    model_name = model_config["method"].upper() + "RegistrationModel"
+    model_name = model_config["method"]["name"].upper() + "RegistrationModel"
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
