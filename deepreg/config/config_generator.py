@@ -96,6 +96,31 @@ def gen_dataset_dict(
 #  Functions for loss fields
 
 #  Functions for optimizer fields
+def gen_optimizer_dict(optimizer: str, rate: float, momentum: float):
+    """
+    Function which creates the required dictionary
+    structure from inputs for the .yaml config file
+    :param optimizer: which optimizer to use ("adam"|"sgd"|"rms")
+    :param rate: what learning rate to use for the optimizer
+    :param momentum: what momentum to use for optimizer, only
+                     applicable to sgd, rms
+    """
+    #  Check inputs are correct
+    if optimizer not in ["adam", "sgd", "rms"]:
+        raise ValueError(
+            "Unsupported optimiser: {}, must be one of adam, sgd, rms".format(optimizer)
+        )
+
+    #  Add to dictionary
+    dict_optimizer = dict()
+    dict_optimizer["name"] = optimizer
+    dict_optimizer[optimizer] = dict()
+    dict_optimizer[optimizer]["learning_rate"] = rate
+    if optimizer != "adam":
+        dict_optimizer[optimizer]["momentum"] = momentum
+
+    return dict_optimizer
+
 
 #  FUnctions for preprocessing fields
 
