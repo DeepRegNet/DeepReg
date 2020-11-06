@@ -103,9 +103,8 @@ def test_gen_path_list_one_neg(list_dirs):
     "dirs,format_im,type_loader,if_labeled,image_shape",
     [
         (["train", "valid", "test"], "nifti", "random_loader", True, [1, 1, 1]),
-        (["train", "valid", "test"], "png", "unpaired", True, [1, 1, 1])(
-            ["train", "valid", "test"], "nifti", "unpaired", True, [1, 1]
-        ),
+        (["train", "valid", "test"], "png", "unpaired", True, [1, 1, 1]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1]),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, 1, 1]),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, "1"]),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, "1", 1]),
@@ -136,3 +135,54 @@ def test_gen_dataset_dict_out():
         "image_shape": [1, 1, 1],
     }
     assert dict_out == dict_expect
+
+
+#  Testing the optimizer dictionary generator
+@pytest.mark.parametrize("optimizer,rate,momentum", [("random", 10.0, 0.0)])
+def test_negative_optimizer_dict(optimizer, rate, momentum):
+    """
+    Check value error raised if incorrect optimizer used.
+    """
+    with pytest.raises(ValueError):
+        cg.gen_optimizer_dict(optimizer, rate, momentum)
+
+
+@pytest.mark.parametrize(
+    "optimizer,rate,momentum,output",
+    [
+        (
+            "sgd",
+            10.0,
+            None,
+            {"name": "sgd", "sgd": {"learning_rate": 10.0, "momentum": 0.0}},
+        ),
+        (
+            "sgd",
+            10.0,
+            0.1,
+            {"name": "sgd", "sgd": {"learning_rate": 10.0, "momentum": 0.1}},
+        ),
+        (
+            "adam",
+            10.0,
+            0.1,
+            {"name": "adam", "adam": {"learning_rate": 10.0, "momentum": 0.1}},
+        ),
+        (
+            "rms",
+            10.0,
+            0.1,
+            {"name": "rms", "rms": {"learning_rate": 10.0, "momentum": 0.1}},
+        ),
+    ],
+)
+def test_optimizer_output(optimizer, rate, momentum, output):
+    """
+    Testing whetehr the optimizer dictionary generator returns
+    the expected result.
+    """
+    if momentum:
+        result = cg.gen_optimizer_dict(optimizer, rate, momentum)
+    else:
+        result = cg.gen_optimizer_dict(optimizer, rate)
+    assert result == output
