@@ -98,7 +98,22 @@ def test_gen_path_list_one_neg(list_dirs):
         d.cleanup()
 
 
-# def test_gen_path_list_neg():
-#     """
-#     Check assertion errors raised if the paths don't exist
-#     """
+#  Negative tests for gen_dataset_dict
+@pytest.mark.parametrize(
+    "dirs,format_im,type_loader,if_labeled,image_shape",
+    [
+        (["train", "valid", "test"], "nifti", "random_loader", True, [1, 1, 1]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, 1, 1]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, "1"]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, [1, "1", 1]),
+        (["train", "valid", "test"], "nifti", "unpaired", True, ["1", 1, 1]),
+    ],
+)
+def test_gen_dataset_dict_neg(dirs, format_im, type_loader, if_labeled, image_shape):
+    """
+    Negative test to check value error raised with incorrect loader name
+    or image shape
+    """
+    with pytest.raises(ValueError):
+        cg.gen_dataset_dict(dirs, format_im, type_loader, if_labeled, image_shape)
