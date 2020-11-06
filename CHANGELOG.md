@@ -10,7 +10,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added additional links (CoC, PyPI) and information (contributing, citing) to project README.md
+- Added additional links (CoC, PyPI) and information (contributing, citing) to project
+  README.md
 
 ### Changed
 

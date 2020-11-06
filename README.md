@@ -36,13 +36,13 @@ and education in medical image registration using deep learning.**
 
 Get involved, and help make DeepReg better! We want your help - **Really**.
 
-**Being a contributor doesn't just mean writing code.** Equally important to
-the open-source process is writing or proof-reading documentation, suggesting
-or implementing tests, or giving feedback about the project. You might see
-the errors and assumptions that have been glossed over. If you can write any
-code at all, you can contribute code to open-source. We are constantly trying
-out new skills, making mistakes, and learning from those mistakes.
-That's how we all improve, and we are happy to help others learn with us.
+**Being a contributor doesn't just mean writing code.** Equally important to the
+open-source process is writing or proof-reading documentation, suggesting or
+implementing tests, or giving feedback about the project. You might see the errors and
+assumptions that have been glossed over. If you can write any code at all, you can
+contribute code to open-source. We are constantly trying out new skills, making
+mistakes, and learning from those mistakes. That's how we all improve, and we are happy
+to help others learn with us.
 
 ### Code of Conduct
 
@@ -72,14 +72,14 @@ you can also
 
 DeepReg is research software, made by a
 [team of academic researchers](https://deepreg.readthedocs.io/en/latest/#contributors).
-Citations and use of our software help us justify the effort which has gone
-into, and will keep going into, maintaining and growing this project.
+Citations and use of our software help us justify the effort which has gone into, and
+will keep going into, maintaining and growing this project.
 
 If you have used DeepReg in your research, please consider citing us:
 
-> Fu *et al.*, (2020). DeepReg: a deep learning toolkit for medical image
-registration. *Journal of Open Source Software*, **5**(55), 2705,
- https://doi.org/10.21105/joss.02705
+> Fu _et al._, (2020). DeepReg: a deep learning toolkit for medical image registration.
+> _Journal of Open Source Software_, **5**(55), 2705,
+> https://doi.org/10.21105/joss.02705
 
 Or with BibTex:
 
