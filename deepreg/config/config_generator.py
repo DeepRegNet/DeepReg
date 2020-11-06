@@ -11,11 +11,19 @@ import os
 # Functions for dataset fields
 def gen_path_list(dir_train: str, dir_valid: str, dir_test: str):
     """
-    Make a list out of the input dirs
+    Make a list out of the input dirs and check
+    they are valid directories.
     :param dir_train: dir where training data is stored
     :param dir_valid: dir where validation data is stored
     :param dir_test: dir where test data is stored
     """
+    if not os.path.exists(dir_train):
+        raise ValueError("Train folder path: {} does not exist.".format(dir_train))
+    if not os.path.exists(dir_valid):
+        raise ValueError("Valid folder path: {} does not exist.".format(dir_valid))
+    if not os.path.exists(dir_test):
+        raise ValueError("Test folder path: {} does not exist.".format(dir_test))
+
     return [dir_train, dir_valid, dir_test]
 
 
