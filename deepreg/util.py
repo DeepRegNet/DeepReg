@@ -141,7 +141,7 @@ def calculate_metrics(
     sample_index: int,
 ) -> dict:
     """
-    Calculate image/label based metrics
+    Calculate image/label based metrics.
     :param fixed_image: shape=(batch, f_dim1, f_dim2, f_dim3)
     :param fixed_label: shape=(batch, f_dim1, f_dim2, f_dim3) or None
     :param pred_fixed_image: shape=(batch, f_dim1, f_dim2, f_dim3)

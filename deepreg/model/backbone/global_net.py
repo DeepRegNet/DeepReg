@@ -9,7 +9,7 @@ from deepreg.model import layer, layer_util
 
 class GlobalNet(tf.keras.Model):
     """
-    Builds GlobalNet for image registration.
+    Build GlobalNet for image registration.
 
     Reference:
 
