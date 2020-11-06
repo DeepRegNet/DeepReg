@@ -57,11 +57,9 @@ types of losses:
 ### Intensity based (image based) loss
 
 This type of loss measures the dissimilarity of the fixed image and warped moving image,
-which is an adaptation from classical image registration methods. Generally, intensity based
-losses work best when registrations involve a single imaging modality, because there is an
-inherent consistency in appearance between moving and fixed images. Mutual information is a
-notable exception and is often used in multi-modality registration. Intensity based losses
-can be used with any modality and they complement other well-studied computer vision and medical
+which is an adaptation from classical image registration methods. Intensity based losses can
+perform poorly on multi-modality registrations (for example, SSD loss in CT-MRI registration). Generally, intensity based losses work best when there is an inherent consistency in appearance between moving and fixed images, which is more common in single-modality registration.
+Intensity based losses can be used with any modality and they complement other well-studied computer vision and medical
 imaging tasks, such as image segmentation.
 
 The common loss functions are normalized cross correlation (NCC), sum of squared
