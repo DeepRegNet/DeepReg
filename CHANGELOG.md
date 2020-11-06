@@ -6,6 +6,16 @@ to make them as straightforward as possible.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.1] - In Progress
+
+### Added
+
+- Added additional links (CoC, PyPI) and information (contributing, citing) to project README.md
+
+### Changed
+
+### Fixed
+
 ## [0.1.0] - 2020-11-02
 
 ### Added
