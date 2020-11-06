@@ -103,7 +103,9 @@ def test_gen_path_list_one_neg(list_dirs):
     "dirs,format_im,type_loader,if_labeled,image_shape",
     [
         (["train", "valid", "test"], "nifti", "random_loader", True, [1, 1, 1]),
-        (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1]),
+        (["train", "valid", "test"], "png", "unpaired", True, [1, 1, 1])(
+            ["train", "valid", "test"], "nifti", "unpaired", True, [1, 1]
+        ),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, 1, 1]),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, "1"]),
         (["train", "valid", "test"], "nifti", "unpaired", True, [1, "1", 1]),
@@ -117,3 +119,20 @@ def test_gen_dataset_dict_neg(dirs, format_im, type_loader, if_labeled, image_sh
     """
     with pytest.raises(ValueError):
         cg.gen_dataset_dict(dirs, format_im, type_loader, if_labeled, image_shape)
+
+
+def test_gen_dataset_dict_out():
+    """
+    Test output for gen_dataset_dict as expected.
+    """
+    #  Generate a dict
+    args = [["train", "valid", "test"], "nifti", "unpaired", True, [1, 1, 1]]
+    dict_out = cg.gen_dataset_dict(*args)
+    dict_expect = {
+        "dir": {"train": "train", "valid": "valid", "test": "test"},
+        "format": "nifti",
+        "type": "unpaired",
+        "labeled": True,
+        "image_shape": [1, 1, 1],
+    }
+    assert dict_out == dict_expect

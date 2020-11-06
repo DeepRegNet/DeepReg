@@ -72,7 +72,9 @@ def gen_dataset_dict(
     if type_loader not in ["unpaired", "paired", "grouped"]:
         raise ValueError("Unsupported dataloader: {}".format(type_loader))
 
-    # Checking format ims TODO
+    # Checking format ims
+    if format_im not in ["nifti", "h5"]:
+        raise ValueError("Unsupported datatype: {}".format(format_im))
 
     #  Checking image_format
     if len(image_shape) != 3:
