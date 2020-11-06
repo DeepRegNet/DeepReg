@@ -57,8 +57,11 @@ types of losses:
 ### Intensity based (image based) loss
 
 This type of loss measures the dissimilarity of the fixed image and warped moving image,
-which is adapted from the classical image registration methods. Intensity based loss is
-modality-independent and similar to many other well-studied computer vision and medical
+which is an adaptation from classical image registration methods. Generally, intensity based
+losses work best when registrations involve a single imaging modality, because there is an
+inherent consistency in appearance between moving and fixed images. Mutual information is a
+notable exception and is often used in multi-modality registration. Intensity based losses
+can be used with any modality and they complement other well-studied computer vision and medical
 imaging tasks, such as image segmentation.
 
 The common loss functions are normalized cross correlation (NCC), sum of squared
@@ -74,7 +77,8 @@ The common loss function is Dice loss, Jacard and average cross-entropy over all
 
 ### Deformation loss
 
-This type of loss measures the deformation to regularize the transformation.
+This type of loss measures the amount of deformation and penalises severe deformations.
+Penalising severe deformations helps to regularise the transformation.
 
 For DDF, the common loss functions are bending energy, L1 or L2 norm of the displacement
 gradient.
