@@ -20,10 +20,10 @@ Please clone `DeepReg`_ first and change current directory to the DeepReg root d
 
 .. code:: bash
 
-    git clone git@github.com:DeepRegNet/DeepReg.git
+    git clone https://github.com/DeepRegNet/DeepReg.git
     cd DeepReg
 
-then, install or update the conda environment following the instructions below.
+Then, install or update the conda environment following the instructions below.
 Please see the `official conda documentation <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`__
 for more details.
 
@@ -110,9 +110,9 @@ Please clone `DeepReg repository`_ first:
 
 .. code:: bash
 
-    git clone git@github.com:DeepRegNet/DeepReg.git
+    git clone https://github.com/DeepRegNet/DeepReg.git
 
-then install DeepReg following the instructions below.
+Then, install DeepReg following the instructions below.
 
 Install docker
 ^^^^^^^^^^^^^^
