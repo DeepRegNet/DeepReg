@@ -1,7 +1,7 @@
 argparse
 black>=20.8b1
 flake8
-h5py<2.11.0,>=2.10.0
+h5py>=2.10.0,<3.2.0
 isort
 m2r2
 matplotlib
