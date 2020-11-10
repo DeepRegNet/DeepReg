@@ -102,6 +102,51 @@ def gen_dataset_dict(
 
 
 #  Functions for train fields
+def gen_train_dict(
+    model: str,
+    method: str,
+    num_channels_initial: int,
+    extract_levels: list,
+    depth: int,
+    pooling: bool,
+    concat_skip: bool,
+):
+    """
+    Function which creates the required dictionary
+    structure from inputs for the .yaml config file for
+    the train field.
+    :param model: string, model type,
+                  one of ("unet"|"local"|"global")
+    :param method: string, deformation field,
+                   one of ("ddf"|"dvf"|"conditional"|"affine")
+    :param num_channels_initial: int
+    :param extract_levels: list, defines the resolution of
+                           used to compose the ddf
+    :param depth: int, depth of model
+    :param pooling: Boolean, True=non-parametrised pooling on
+                    downsampling, else use conv-3d
+    :param concat_skip: Boolean, True=concatenate skip tensor
+                        in UNet, False=add tensor.
+    """
+    #  Check inputs
+    if model not in ["local", "unet", "global"]:
+        raise ValueError("Model specified, {}, not supported".format(model))
+
+    if method not in ["ddf", "dvf", "affine", "conditional"]:
+        raise ValueError("Deformation model, {}, not supported".format(method))
+
+    if model == "global" and method != "affine":
+        raise ValueError(
+            "Incorrect deformation field method, {}, specified for GlobalNet model.".format(
+                method
+            )
+        )
+
+    if not all([isinstance(item, int) for item in extract_levels]):
+        raise ValueError(
+            "Not all resolution levels are integers, {}".format(*extract_levels)
+        )
+
 
 #  Functions for loss fields
 
