@@ -27,7 +27,7 @@ def test_data_loader():
     # inputs, no error means passed
     for labeled in [True, False, None]:
         DataLoader(labeled=labeled, num_indices=1, sample_label="all", seed=0)
-    for sample_label in ["sample", "all", None]:
+    for sample_label in ["sample", "all", "first", None]:
         DataLoader(labeled=True, num_indices=1, sample_label=sample_label, seed=0)
     for num_indices in [1]:
         DataLoader(labeled=True, num_indices=num_indices, sample_label="sample", seed=0)
