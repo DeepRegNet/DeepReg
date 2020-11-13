@@ -39,9 +39,8 @@ class DataLoader:
         assert sample_label in [
             "sample",
             "all",
-            "first",
             None,
-        ], f"sample_label must be sample, first, all or None, got {sample_label}"
+        ], f"sample_label must be sample, all or None, got {sample_label}"
         assert (
             num_indices is None or num_indices >= 1
         ), f"num_indices must be int >=1 or None, got {num_indices}"
