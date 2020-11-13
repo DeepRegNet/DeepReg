@@ -97,7 +97,31 @@ different data loader instance with different sampling strategies. These are rev
 depth in the [dataset loader configuration](dataset_loader.html) documentation. Here we
 outline the arguments necessary to configure the different dataloaders.
 
-`sample_label`:method for sampling the labels "sample" "first" "all" `seed`:
+###### Sample_label - Required
+
+In the case that we have more than one label per image, we need to indicate to the
+loader which one to use. We can use the `sample_label` argument to indicate which method
+to use. Pass one of "sample", for random sampling, "first" for the first label, and
+"all" to use all the available labels:
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "first" # one of "first", "sample", "all" or None
+```
+
+In the case the `labeled` argument is false, the sample_label is unused, but still must
+be passed. Additionally, if the tensors in the files only have one label, irregardles of
+the `sample_label` argument, the data loader will only pass the one label to the
+network.
+
+`seed`:
 
 ##### Paired
 
