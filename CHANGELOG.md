@@ -15,6 +15,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Deprecated "first" argument in DataLoader for sample_index generator
+
 ### Fixed
 
 ## [0.1.0] - 2020-11-02
