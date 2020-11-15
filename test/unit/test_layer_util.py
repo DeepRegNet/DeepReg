@@ -217,45 +217,54 @@ def test_random_transform_generator():
     assert is_equal_tf(got, expected)
 
 
-def test_warp_grid():
+class TestWarpGrid:
     """
     Test warp_grid by confirming that it generates
-    appropriate solutions for a simple precomputed case.
+    appropriate solutions for simple precomputed cases.
     """
+
     grid = tf.constant(
         np.array(
             [[[[0, 0, 0], [0, 0, 1], [0, 0, 2]], [[0, 1, 0], [0, 1, 1], [0, 1, 2]]]],
             dtype=np.float32,
         )
     )  # shape = (1, 2, 3, 3)
-    theta = tf.constant(
-        np.array(
-            [
-                [
-                    [0.86, 0.75, 0.48],
-                    [0.07, 0.98, 0.01],
-                    [0.72, 0.52, 0.97],
-                    [0.12, 0.4, 0.04],
-                ]
-            ],
-            dtype=np.float32,
-        )
-    )  # shape = (1, 4, 3)
-    expected = tf.constant(
-        np.array(
-            [
+
+    def test_identical(self):
+        theta = tf.constant(np.eye(4, 3).reshape((1, 4, 3)), dtype=tf.float32)
+        expected = self.grid[None, ...]  # shape = (1, 1, 2, 3, 3)
+        got = layer_util.warp_grid(grid=self.grid, theta=theta)
+        assert is_equal_tf(got, expected)
+
+    def test_non_identical(self):
+        theta = tf.constant(
+            np.array(
                 [
                     [
-                        [[0.12, 0.4, 0.04], [0.84, 0.92, 1.01], [1.56, 1.44, 1.98]],
-                        [[0.19, 1.38, 0.05], [0.91, 1.9, 1.02], [1.63, 2.42, 1.99]],
+                        [0.86, 0.75, 0.48],
+                        [0.07, 0.98, 0.01],
+                        [0.72, 0.52, 0.97],
+                        [0.12, 0.4, 0.04],
                     ]
-                ]
-            ],
-            dtype=np.float32,
-        )
-    )  # shape = (1, 1, 2, 3, 3)
-    got = layer_util.warp_grid(grid=grid, theta=theta)
-    assert is_equal_tf(got, expected)
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 4, 3)
+        expected = tf.constant(
+            np.array(
+                [
+                    [
+                        [
+                            [[0.12, 0.4, 0.04], [0.84, 0.92, 1.01], [1.56, 1.44, 1.98]],
+                            [[0.19, 1.38, 0.05], [0.91, 1.9, 1.02], [1.63, 2.42, 1.99]],
+                        ]
+                    ]
+                ],
+                dtype=np.float32,
+            )
+        )  # shape = (1, 1, 2, 3, 3)
+        got = layer_util.warp_grid(grid=self.grid, theta=theta)
+        assert is_equal_tf(got, expected)
 
 
 def test_warp_image_ddf():
