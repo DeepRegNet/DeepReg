@@ -11,15 +11,14 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
-  README.md
+  README.md.
 
 ### Changed
 
-- Deleted "first" argument in DataLoader for sample_index generator
-
 ### Fixed
 
-- Fixed build error when downloading data from private repo
+- Remove invalid `first` argument in DataLoader for sample_index generator.
+- Fixed build error when downloading data from private repo.
 
 ## [0.1.0] - 2020-11-02
 
