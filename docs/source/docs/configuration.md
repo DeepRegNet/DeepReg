@@ -101,8 +101,8 @@ outline the arguments necessary to configure the different dataloaders.
 
 In the case that we have more than one label per image, we need to indicate to the
 loader which one to use. We can use the `sample_label` argument to indicate which method
-to use. Pass one of "sample", for random sampling, "first" for the first label, and
-"all" to use all the available labels:
+to use. Pass one of "sample", for random sampling, or "all" to use all the available
+labels:
 
 ```yaml
 dataset:
@@ -113,7 +113,7 @@ dataset:
   format: "nifti"
   type: "paired" # one of "paired", "unpaired" or "grouped"
   labeled: true
-  sample_label: "first" # one of "first", "sample", "all" or None
+  sample_label: "sample" # one of "sample", "all" or None
 ```
 
 In the case the `labeled` argument is false, the sample_label is unused, but still must
