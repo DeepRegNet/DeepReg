@@ -19,6 +19,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed build error when downloading data from private repo
+
 ## [0.1.0] - 2020-11-02
 
 ### Added

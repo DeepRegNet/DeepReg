@@ -40,7 +40,7 @@ path_to_model_folder = join(main_path, model_folder_name)
 #################
 # Data
 FILENAME = "data_mr_brain"
-ORIGIN = "https://cmiclab.cs.ucl.ac.uk/acasamitjana/learn2reg_t4/-/raw/master/L2R_Task4_HippocampusMRI.tar"
+ORIGIN = "https://github.com/acasamitjana/Data/raw/master/L2R_Task4_HippocampusMRI.tar"
 TAR_FILE = FILENAME + ".tar"
 
 get_file(os.path.abspath(TAR_FILE), ORIGIN)
@@ -52,7 +52,7 @@ with tarfile.open(join(main_path, project_dir, TAR_FILE), "r") as tar_ref:
     tar_ref.extractall(data_folder_name)
 
 remove(TAR_FILE)
-print("Files unzipped!")
+print("Files unzipped successfully")
 
 # Model
 PRETRAINED_MODEL = "unpaired_mr_brain.zip"
