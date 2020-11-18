@@ -354,7 +354,7 @@ def test_BSplines3DTransform():
     """
     Test the layer.BSplines3DTransform class, its default attributes and its call() function.
     """
-    input_size = (1, 68, 68, 68, 1)
+    input_size = (1, 68, 68, 68, 3)
     control_points = (8, 8, 8)
 
     model = layer.BSplines3DTransform(control_points)
@@ -369,13 +369,13 @@ def test_BSplines3DTransform():
         4 * control_points,
         4 * control_points,
         4 * control_points,
-        1,
-        1,
+        3,
+        3,
     )
 
     field = tf.random.normal(shape=input_size)
     mesh = model.get_control_points(field)
-    assert mesh.shape == (1, 12, 12, 12, 1)
+    assert mesh.shape == (1, 12, 12, 12, 3)
 
     ddf = model.call(field)
     assert ddf.shape == input_size
