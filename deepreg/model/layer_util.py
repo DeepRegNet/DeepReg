@@ -441,8 +441,9 @@ def random_ddf_transform_generator(
     Function that generates a random 3D DDF for a batch of data.
     :param batch_size:
     :param image_size:
-    :param field_strength:
-    :param lowres_size:
+    :param field_strength: maximum field strength, computed as a U[0,field_strength]
+    :param lowres_size: low_resolution deformation field that will be upsampled to the original size in order to
+                        get smooth and more realistic fields.
     :param seed: control the randomness
     :return:
     """

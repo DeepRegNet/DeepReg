@@ -105,8 +105,7 @@ class AffineTransformation3D:
 
 class DDFTransformation3D:
     """
-    AffineTransformation3D class for maintaining and updating
-    the transformed grids for the moving and fixed images.
+    DDFTransformation3D class for using spatial transformation as a data augmentation technique
     """
 
     def __init__(
@@ -152,8 +151,8 @@ class DDFTransformation3D:
         of input transforms.
 
         :param image: shape = (batch, dim1, dim2, dim3)
-        :param grid_ref: shape = [dim1, dim2, dim3, 3]
-        :param transforms: shape = [batch, 4, 3]
+        :param grid_ref: shape = [1, dim1, dim2, dim3, 3]
+        :param transforms: shape = [batch, dim1, dim2, dim3, 3]
         :return: shape = (batch, dim1, dim2, dim3)
         """
         transformed = layer_util.warp_image_ddf(
