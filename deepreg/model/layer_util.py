@@ -430,6 +430,33 @@ def random_transform_generator(
     return tf.cast(theta, dtype=tf.float32)
 
 
+def random_ddf_transform_generator(
+    batch_size: int,
+    image_size: tuple,
+    field_strength: (tuple, list),
+    lowres_size: (tuple, list),
+    seed: (int, None) = None,
+) -> tf.Tensor:
+    """
+    Function that generates a random 3D DDF for a batch of data.
+    :param batch_size:
+    :param image_size:
+    :param field_strength:
+    :param lowres_size:
+    :param seed: control the randomness
+    :return:
+    """
+
+    np.random.seed(seed=seed)
+    lowres_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
+    lowres_field = lowres_strength * np.random.randn(
+        batch_size, lowres_size[0], lowres_size[1], lowres_size[2], 3
+    )
+    highres_field = resize3d(lowres_field, image_size)
+
+    return highres_field
+
+
 def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     """
     Perform transformation on the grid.
