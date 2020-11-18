@@ -9,13 +9,15 @@ import tensorflow as tf
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
-from deepreg.model.backbone.global_net import GlobalNet
-from deepreg.model.backbone.local_net import LocalNet
-from deepreg.model.backbone.u_net import UNet
+from deepreg.registry.registry import Registry
 
 
 def build_backbone(
-    image_size: tuple, out_channels: int, model_config: dict, method_name: str
+    image_size: tuple,
+    out_channels: int,
+    model_config: dict,
+    method_name: str,
+    registry: Registry = Registry(),
 ) -> tf.keras.Model:
     """
     Backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
@@ -25,6 +27,7 @@ def build_backbone(
     :param out_channels: int, number of out channels, ch_out
     :param method_name: str, one of ddf, dvf and conditional
     :param model_config: dict, model configuration, returned from parser.yaml.load
+    :param registry: the registry object having all backbone classes
     :return: tf.keras.Model
     """
     if not (
@@ -57,32 +60,15 @@ def build_backbone(
     else:
         raise ValueError("Unknown method name {}".format(method_name))
 
-    if model_config["backbone"] == "local":
-        return LocalNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["local"],
-        )
-    elif model_config["backbone"] == "global":
-        return GlobalNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["global"],
-        )
-    elif model_config["backbone"] == "unet":
-        return UNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["unet"],
-        )
-    else:
-        raise ValueError("Unknown model name")
+    backbone_name = model_config["backbone"]
+    backbone_cls = registry.get_backbone(key=backbone_name)
+    return backbone_cls(
+        image_size=image_size,
+        out_channels=out_channels,
+        out_kernel_initializer=out_kernel_initializer,
+        out_activation=out_activation,
+        **model_config[backbone_name],
+    )
 
 
 def build_inputs(
