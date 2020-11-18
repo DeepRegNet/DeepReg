@@ -39,6 +39,10 @@ train:
   preprocess:
     batch_size: 4
     shuffle_buffer_num_batch: 1
+    da_method: ["affine_da", "ddf_da"] # affine_da / ddf_da
+    ddf_da:
+      field_strength: 1
+      lowres_size: [9, 9, 9]
   optimizer:
     name: "adam"
     adam:
