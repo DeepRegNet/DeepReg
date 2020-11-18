@@ -9,7 +9,11 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.dataset.loader.util import normalize_array
-from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
+from deepreg.dataset.preprocess import (
+    AffineTransformation3D,
+    DDFTransformation3D,
+    resize_inputs,
+)
 from deepreg.dataset.util import get_label_indices
 
 
@@ -87,6 +91,8 @@ class DataLoader:
         batch_size: int,
         repeat: bool,
         shuffle_buffer_num_batch: int,
+        da_method: list,
+        **kwargs,
     ) -> tf.data.Dataset:
         """
         :param training: bool, indicating if it's training or not
@@ -120,16 +126,35 @@ class DataLoader:
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
         if training:
-            # TODO add cropping, but crop first or rotation first?
-            affine_transform = AffineTransformation3D(
-                moving_image_size=self.moving_image_shape,
-                fixed_image_size=self.fixed_image_shape,
-                batch_size=batch_size,
-            )
-            dataset = dataset.map(
-                affine_transform.transform,
-                num_parallel_calls=tf.data.experimental.AUTOTUNE,
-            )
+            for da in da_method:
+                if da == "affine_da":
+                    # TODO add cropping, but crop first or rotation first?
+                    da_transform = AffineTransformation3D(
+                        moving_image_size=self.moving_image_shape,
+                        fixed_image_size=self.fixed_image_shape,
+                        batch_size=batch_size,
+                    )
+
+                elif da == "ddf_da":
+                    da_transform = DDFTransformation3D(
+                        moving_image_size=self.moving_image_shape,
+                        fixed_image_size=self.fixed_image_shape,
+                        batch_size=batch_size,
+                        **kwargs["ddf_da"],
+                    )
+
+                else:
+                    raise ValueError(
+                        f"Not available data augmentation method: {da} "
+                        f"corresponding to (width, height, depth), "
+                        f"got moving_image_shape = {self.moving_image_shape} "
+                        f"and fixed_image_shape = {self.fixed_image_shape}"
+                    )
+
+                dataset = dataset.map(
+                    da_transform.transform,
+                    num_parallel_calls=tf.data.experimental.AUTOTUNE,
+                )
         return dataset
 
     def close(self):
