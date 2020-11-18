@@ -12,15 +12,10 @@ train:
   # define neural network structure
   model:
     method: "ddf" # options include "ddf", "dvf", "conditional" and "affine"
-    backbone: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
-    local:
+    backbone:
+      name: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
       num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
       extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
-    unet:
-      num_channel_initial: 1 # number of initial channel in u-net, controls the size of the network
-      depth: 2 # depth of u-net, the input is at depth = 0, and the bottom is at depth = depth
-      pooling: true # for downsampling, use non-parameterized pooling if true, otherwise use conv3d
-      concat_skip: false #　when upsampling, concatenate skipped tensor if true, otherwise use addition
 
   # define the loss function for training
   loss:

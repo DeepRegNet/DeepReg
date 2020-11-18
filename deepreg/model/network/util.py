@@ -60,14 +60,13 @@ def build_backbone(
     else:
         raise ValueError("Unknown method name {}".format(method_name))
 
-    backbone_name = model_config["backbone"]
-    backbone_cls = registry.get_backbone(key=backbone_name)
+    backbone_cls = registry.get_backbone(key=model_config["backbone"]["name"])
     return backbone_cls(
         image_size=image_size,
         out_channels=out_channels,
         out_kernel_initializer=out_kernel_initializer,
         out_activation=out_activation,
-        **model_config[backbone_name],
+        **model_config["backbone"],
     )
 
 

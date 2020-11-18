@@ -68,7 +68,7 @@ def test_value_raised_if_unknown_config():
         util.build_backbone(
             image_size=(1, 2, 3),
             out_channels=1,
-            model_config={"backbone": "random"},
+            model_config={"backbone": {"name": "random"}},
             method_name="ddf",
         )
 
@@ -83,8 +83,11 @@ def test_global_return():
         image_size=(1, 2, 3),
         out_channels=1,
         model_config={
-            "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "global",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         method_name="ddf",
     )
@@ -101,8 +104,11 @@ def test_local_return():
         image_size=(1, 2, 3),
         out_channels=1,
         model_config={
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "local",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         method_name="ddf",
     )
@@ -119,8 +125,7 @@ def test_unet_return():
         image_size=(1, 2, 3),
         out_channels=1,
         model_config={
-            "backbone": "unet",
-            "unet": {"num_channel_initial": 4, "depth": 4},
+            "backbone": {"name": "unet", "num_channel_initial": 4, "depth": 4},
         },
         method_name="ddf",
     )

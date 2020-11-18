@@ -22,8 +22,11 @@ def test_affine_forward():
         image_size=fixed_image_size,
         out_channels=3,
         model_config={
-            "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "global",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         method_name="affine",
     )
@@ -60,8 +63,11 @@ def test_build_affine_model():
         batch_size=batch_size,
         model_config={
             "method": "affine",
-            "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "global",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         loss_config={
             "dissimilarity": {

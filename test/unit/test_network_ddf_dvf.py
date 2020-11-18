@@ -23,8 +23,11 @@ def test_ddf_dvf_forward():
         image_size=fixed_image_size,
         out_channels=3,
         model_config={
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "local",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         method_name="ddf",
     )
@@ -71,8 +74,11 @@ def test_build_ddf_dvf_model():
     batch_size = 1
     model_config = {
         "method": "ddf",
-        "backbone": "local",
-        "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+        "backbone": {
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
+        },
     }
     loss_config = {
         "dissimilarity": {

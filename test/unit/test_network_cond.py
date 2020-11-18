@@ -22,8 +22,11 @@ def test_conditional_forward():
         image_size=fixed_image_size,
         out_channels=1,
         model_config={
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "local",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         method_name="conditional",
     )
@@ -57,8 +60,11 @@ def test_build_conditional_model():
         batch_size=batch_size,
         model_config={
             "method": "conditional",
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+            "backbone": {
+                "name": "local",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
         },
         loss_config={
             "dissimilarity": {
