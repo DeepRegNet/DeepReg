@@ -709,8 +709,8 @@ class BSplines3DTransform(tf.keras.layers.Layer):
                 4 * self.cp_spacing[0],
                 4 * self.cp_spacing[1],
                 4 * self.cp_spacing[2],
-                1,
-                1,
+                3,
+                3,
             ),
             dtype=np.float32,
         )
@@ -721,14 +721,21 @@ class BSplines3DTransform(tf.keras.layers.Layer):
                     for x in range(4):
                         for y in range(4):
                             for z in range(4):
-                                filters[
-                                    x * self.cp_spacing[0] + u,
-                                    y * self.cp_spacing[1] + v,
-                                    z * self.cp_spacing[2] + w,
-                                    0,
-                                ] = (
-                                    b[3 - x](u) * b[3 - y](v) * b[3 - z](w)
-                                )
+                                u_norm = u / self.cp_spacing[0]
+                                v_norm = v / self.cp_spacing[1]
+                                w_norm = w / self.cp_spacing[2]
+                                for it_dim in range(3):
+                                    filters[
+                                        x * self.cp_spacing[0] + u,
+                                        y * self.cp_spacing[1] + v,
+                                        z * self.cp_spacing[2] + w,
+                                        it_dim,
+                                        it_dim,
+                                    ] = (
+                                        b[3 - x](u_norm)
+                                        * b[3 - y](v_norm)
+                                        * b[3 - z](w_norm)
+                                    )
 
         self.filter = tf.convert_to_tensor(filters)
 
@@ -739,7 +746,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         """
 
         image_shape = tuple([a * b for a, b in zip(field.shape[1:-1], self.cp_spacing)])
-        output_shape = (1,) + image_shape + (1,)
+        output_shape = (field.shape[0],) + image_shape + (3,)
         return tf.nn.conv3d_transpose(
             field,
             self.filter,
