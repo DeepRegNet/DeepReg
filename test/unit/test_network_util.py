@@ -16,28 +16,21 @@ def test_wrong_inputs():
     """
     # Wrong image_size type: int, vs tuple, Fail
     with pytest.raises(ValueError) as err_info:
-        util.build_backbone(
-            image_size=1, out_channels=1, model_config={}, method_name="ddf"
-        )
+        util.build_backbone(image_size=1, out_channels=1, config={}, method_name="ddf")
     assert "image_size must be tuple of length 3" in str(err_info.value)
     # Wrong out_channels type: str, vs int, Fail
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
-            image_size=(1, 2, 3), out_channels="", model_config={}, method_name="ddf"
+            image_size=(1, 2, 3), out_channels="", config={}, method_name="ddf"
         )
     assert "out_channels must be int >=1" in str(err_info.value)
-    # Wrong model_config type: list, vs dic, Fail
-    with pytest.raises(ValueError) as err_info:
-        util.build_backbone(
-            image_size=(1, 2, 3), out_channels=1, model_config=[], method_name="ddf"
-        )
-    assert "model_config must be a dict having key 'backbone'" in str(err_info.value)
+
     # Wrong method_name
     with pytest.raises(ValueError) as err_info:
         util.build_backbone(
             image_size=(1, 2, 3),
             out_channels=1,
-            model_config={"backbone": "local"},
+            config={"backbone": "local"},
             method_name="wrong",
         )
     assert (
@@ -54,7 +47,7 @@ def test_value_raised_if_wrong_method():
     # expect ddf, dvf or conditional, Fail
     with pytest.raises(ValueError):
         util.build_backbone(
-            image_size=(1, 2, 3), out_channels=1, model_config={}, method_name=""
+            image_size=(1, 2, 3), out_channels=1, config={}, method_name=""
         )
 
 
@@ -68,7 +61,7 @@ def test_value_raised_if_unknown_config():
         util.build_backbone(
             image_size=(1, 2, 3),
             out_channels=1,
-            model_config={"backbone": {"name": "random"}},
+            config={"name": "random"},
             method_name="ddf",
         )
 
@@ -82,12 +75,10 @@ def test_global_return():
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
-        model_config={
-            "backbone": {
-                "name": "global",
-                "num_channel_initial": 4,
-                "extract_levels": [1, 2, 3],
-            },
+        config={
+            "name": "global",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="ddf",
     )
@@ -103,12 +94,10 @@ def test_local_return():
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
-        model_config={
-            "backbone": {
-                "name": "local",
-                "num_channel_initial": 4,
-                "extract_levels": [1, 2, 3],
-            },
+        config={
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="ddf",
     )
@@ -124,9 +113,7 @@ def test_unet_return():
     out = util.build_backbone(
         image_size=(1, 2, 3),
         out_channels=1,
-        model_config={
-            "backbone": {"name": "unet", "num_channel_initial": 4, "depth": 4},
-        },
+        config={"name": "unet", "num_channel_initial": 4, "depth": 4},
         method_name="ddf",
     )
     assert isinstance(out, u_net.UNet)

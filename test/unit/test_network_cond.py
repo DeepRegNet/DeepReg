@@ -21,12 +21,10 @@ def test_conditional_forward():
     local_net = build_backbone(
         image_size=fixed_image_size,
         out_channels=1,
-        model_config={
-            "backbone": {
-                "name": "local",
-                "num_channel_initial": 4,
-                "extract_levels": [1, 2, 3],
-            },
+        config={
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="conditional",
     )

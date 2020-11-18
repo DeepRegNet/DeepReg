@@ -15,7 +15,7 @@ from deepreg.registry.registry import Registry
 def build_backbone(
     image_size: tuple,
     out_channels: int,
-    model_config: dict,
+    config: dict,
     method_name: str,
     registry: Registry = Registry(),
 ) -> tf.keras.Model:
@@ -26,7 +26,7 @@ def build_backbone(
     :param image_size: tuple, dims of image, (dim1, dim2, dim3)
     :param out_channels: int, number of out channels, ch_out
     :param method_name: str, one of ddf, dvf and conditional
-    :param model_config: dict, model configuration, returned from parser.yaml.load
+    :param config: dict, backbone configuration
     :param registry: the registry object having all backbone classes
     :return: tf.keras.Model
     """
@@ -37,10 +37,6 @@ def build_backbone(
         raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
     if not (isinstance(out_channels, int) and out_channels >= 1):
         raise ValueError(f"out_channels must be int >=1, got {out_channels}")
-    if not (isinstance(model_config, dict) and "backbone" in model_config.keys()):
-        raise ValueError(
-            f"model_config must be a dict having key 'backbone', got{model_config}"
-        )
     if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
             f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
@@ -60,13 +56,13 @@ def build_backbone(
     else:
         raise ValueError("Unknown method name {}".format(method_name))
 
-    backbone_cls = registry.get_backbone(key=model_config["backbone"]["name"])
+    backbone_cls = registry.get_backbone(key=config["name"])
     return backbone_cls(
         image_size=image_size,
         out_channels=out_channels,
         out_kernel_initializer=out_kernel_initializer,
         out_activation=out_activation,
-        **model_config["backbone"],
+        **config,
     )
 
 

@@ -97,7 +97,7 @@ def build_conditional_model(
     backbone = build_backbone(
         image_size=fixed_image_size,
         out_channels=1,
-        model_config=model_config,
+        config=model_config["backbone"],
         method_name=model_config["method"],
     )
 

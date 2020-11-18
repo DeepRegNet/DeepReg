@@ -21,12 +21,10 @@ def test_affine_forward():
     global_net = build_backbone(
         image_size=fixed_image_size,
         out_channels=3,
-        model_config={
-            "backbone": {
-                "name": "global",
-                "num_channel_initial": 4,
-                "extract_levels": [1, 2, 3],
-            },
+        config={
+            "name": "global",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="affine",
     )
