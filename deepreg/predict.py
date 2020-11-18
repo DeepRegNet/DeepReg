@@ -2,7 +2,7 @@
 
 """
 Module to perform predictions on data using
-command line interface
+command line interface.
 """
 
 import argparse
@@ -78,7 +78,8 @@ def predict_on_dataset(
     sample_index_strs = []
     metric_lists = []
     for _, inputs_dict in enumerate(dataset):
-        outputs_dict = model.predict(x=inputs_dict)
+        batch_size = inputs_dict[list(inputs_dict.keys())[0]].shape[0]
+        outputs_dict = model.predict(x=inputs_dict, batch_size=batch_size)
 
         # moving image/label
         # (batch, m_dim1, m_dim2, m_dim3)
@@ -341,7 +342,7 @@ def predict(
 def main(args=None):
     """
     Function to run in command line with argparse to predict results on data
-    for a given model
+    for a given model.
     """
     parser = argparse.ArgumentParser()
 

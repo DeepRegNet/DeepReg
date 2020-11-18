@@ -1,6 +1,6 @@
 """
 Module for generating the preprocessing
-3D Affine Transforms for moving and fixed images.
+3D Affine transforms for moving and fixed images.
 """
 
 import deepreg.model.layer_util as layer_util

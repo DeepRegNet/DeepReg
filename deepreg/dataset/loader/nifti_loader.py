@@ -23,7 +23,7 @@ def load_nifti_file(file_path: str) -> np.ndarray:
 
 
 class NiftiFileLoader(FileLoader):
-    """Generalized loader for nifti files"""
+    """Generalized loader for nifti files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
         super(NiftiFileLoader, self).__init__(
@@ -31,8 +31,8 @@ class NiftiFileLoader(FileLoader):
         )
         self.data_path_splits = None
         self.set_data_structure()
+        self.group_struct = None
         if self.grouped:
-            self.group_struct = None
             self.set_group_structure()
 
     def set_data_structure(self):
@@ -70,6 +70,11 @@ class NiftiFileLoader(FileLoader):
                 data_path_splits += [
                     (dir_path, file_path, suffix) for file_path, suffix in data_paths
                 ]
+        if len(data_path_splits) == 0:
+            raise ValueError(
+                f"No data collected from {self.dir_paths} in NiftiFileLoader, "
+                f"please verify the path is correct."
+            )
         self.data_path_splits = sorted(data_path_splits)
 
     def set_group_structure(self):
@@ -141,7 +146,7 @@ class NiftiFileLoader(FileLoader):
         """
         Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
-        images and label, moving and fixed
+        images and label, moving and fixed.
 
         :return: data_path_splits but without suffix
         """
@@ -154,5 +159,5 @@ class NiftiFileLoader(FileLoader):
         return len(self.data_path_splits)
 
     def close(self):
-        """Close opened files"""
+        """Close opened files."""
         pass

@@ -1,5 +1,5 @@
 """
-Loads h5 files and some associated information
+Load h5 files and associated information.
 """
 import os
 from typing import List
@@ -13,7 +13,7 @@ DATA_KEY_FORMAT = "group-{}-{}"
 
 
 class H5FileLoader(FileLoader):
-    """Generalized loader for h5 files"""
+    """Generalized loader for h5 files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
         super(H5FileLoader, self).__init__(
@@ -22,15 +22,15 @@ class H5FileLoader(FileLoader):
         self.h5_files = None
         self.data_path_splits = None
         self.set_data_structure()
+        self.group_struct = None
         if self.grouped:
-            self.group_struct = None
             self.set_group_structure()
 
     def set_data_structure(self):
         """
-        Store the data structure in the memory so that
-        we can retrieve data using data_index
-        this function sets two attributes
+        Store the data structure in  memory so that
+        we can retrieve data using data_index.
+        This function sets two attributes:
 
         - h5_files, a dict such that h5_files[dir_path] = opened h5 file handle
         - data_path_splits, a list of string tuples to identify path of data
@@ -61,19 +61,22 @@ class H5FileLoader(FileLoader):
             else:
                 # each element is (dir_path, data_key)
                 data_path_splits += [(dir_path, k) for k in sorted(h5_file.keys())]
+        if len(data_path_splits) == 0:
+            raise ValueError(
+                f"No data collected from {self.dir_paths} in H5FileLoader, "
+                f"please verify the path is correct."
+            )
         self.h5_files = h5_files
         self.data_path_splits = data_path_splits
 
     def set_group_structure(self):
         """
-        Same code as NiftiLoader,
-        as the first two tokens of a split forms a group_id
-
-        In addition to set_data_structure
-        store the group structure in the group_struct so that
-        group_struct[group_index] = list of data_index
-        we can retrieve data using (group_index, in_group_data_index)
-        data_index = group_struct[group_index][in_group_data_index]
+        Similar to NiftiLoader
+        as the first two tokens of a split forms a group_id.
+        Store the group structure in group_struct so that
+        group_struct[group_index] = list of data_index.
+        Retrieve data using (group_index, in_group_data_index).
+        data_index = group_struct[group_index][in_group_data_index].
         """
         # group_struct_dict[group_id] = list of data_index
         group_struct_dict = dict()
@@ -123,9 +126,9 @@ class H5FileLoader(FileLoader):
 
     def get_data_ids(self):
         """
-        Return the unique IDs of the data in this data set
-        this function is used to verify the consistency between
-        images and label, moving and fixed
+        Get the unique IDs of data in this data set to
+        verify consistency between
+        images and label, moving and fixed.
 
         :return: data_path_splits as the data can be identified using dir_path and data_key
         """
@@ -138,6 +141,6 @@ class H5FileLoader(FileLoader):
         return len(self.data_path_splits)
 
     def close(self):
-        """Close opened h5 file handles"""
+        """Close opened h5 file handles."""
         for f in self.h5_files.values():
             f.close()

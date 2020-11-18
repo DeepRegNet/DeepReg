@@ -1,7 +1,7 @@
 """
-Loads unpaired data
-supports h5 and Nifti formats
-supports labeled and unlabeled data
+Load unpaired data.
+Supported formats: h5 and Nifti.
+Image data can be labeled or unlabeled.
 """
 import random
 from typing import List
@@ -15,10 +15,10 @@ from deepreg.dataset.util import check_difference_between_two_lists
 
 class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     """
-    Loads unpaired data using given file loader, handles both labeled
-    and unlabeled cases
+    Load unpaired data using given file loader. Handles both labeled
+    and unlabeled cases.
     The function sample_index_generator needs to be defined for the
-    GeneratorDataLoader class
+    GeneratorDataLoader class.
     """
 
     def __init__(
@@ -31,7 +31,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         image_shape: (list, tuple),
     ):
         """
-        Load data which are unpaired, labeled or unlabeled
+        Load data which are unpaired, labeled or unlabeled.
 
         :param file_loader:
         :param data_dir_paths: paths of the directories storing data,  the data has to be saved under four different
@@ -68,7 +68,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def validate_data_files(self):
         """
         Verify all loader have the same files.
-        Since fixed and moving loaders come from the same file_loader, there's no need to check both (avoid duplicate)
+        Since fixed and moving loaders come from the same file_loader, there is no need to check both (avoid duplicate).
         """
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
@@ -81,8 +81,8 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def sample_index_generator(self):
         """
-        Generates sample indexes in order to load data using the
-        GeneratorDataLoader class
+        Generates sample indexes to load data using the
+        GeneratorDataLoader class.
         """
         image_indices = [i for i in range(self.num_images)]
         random.Random(self.seed).shuffle(image_indices)
@@ -95,7 +95,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
     def close(self):
         """
-        Close the moving files opened by the file_loaders
+        Close the moving files opened by the file_loaders.
         """
         self.loader_moving_image.close()
         if self.labeled:

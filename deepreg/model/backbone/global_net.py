@@ -2,6 +2,7 @@
 
 from typing import List
 
+import numpy as np
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
@@ -9,7 +10,7 @@ from deepreg.model import layer, layer_util
 
 class GlobalNet(tf.keras.Model):
     """
-    Builds GlobalNet for image registration.
+    Build GlobalNet for image registration.
 
     Reference:
 
@@ -48,7 +49,7 @@ class GlobalNet(tf.keras.Model):
         self._extract_max_level = max(self._extract_levels)  # E
         self.reference_grid = layer_util.get_reference_grid(image_size)
         self.transform_initial = tf.constant_initializer(
-            value=[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+            value=list(np.eye(4, 3).reshape((-1)))
         )
         # init layer variables
         num_channels = [

@@ -1,5 +1,5 @@
 """
-Interface between the data loaders and file loaders
+Interface between the data loaders and file loaders.
 """
 import logging
 from abc import ABC
@@ -15,7 +15,7 @@ from deepreg.dataset.util import get_label_indices
 
 class DataLoader:
     """
-    loads data to feed to model
+    loads data to feed to model.
     """
 
     def __init__(
@@ -40,7 +40,7 @@ class DataLoader:
             "sample",
             "all",
             None,
-        ], f"sample_label must be sample or all or None, got {sample_label}"
+        ], f"sample_label must be sample, all or None, got {sample_label}"
         assert (
             num_indices is None or num_indices >= 1
         ), f"num_indices must be int >=1 or None, got {num_indices}"
@@ -56,14 +56,14 @@ class DataLoader:
     @property
     def moving_image_shape(self) -> tuple:
         """
-        needs to be defined by user
+        needs to be defined by user.
         """
         raise NotImplementedError
 
     @property
     def fixed_image_shape(self) -> tuple:
         """
-        needs to be defined by user
+        needs to be defined by user.
         """
         raise NotImplementedError
 
@@ -77,7 +77,7 @@ class DataLoader:
 
     def get_dataset(self) -> tf.data.Dataset:
         """
-        defined in GeneratorDataLoader
+        defined in GeneratorDataLoader.
         """
         raise NotImplementedError
 
@@ -138,7 +138,7 @@ class DataLoader:
 
 class AbstractPairedDataLoader(DataLoader, ABC):
     """
-    Abstract loader for paried data independent of file format
+    Abstract loader for paired data independent of file format.
     """
 
     def __init__(
@@ -191,13 +191,13 @@ class AbstractPairedDataLoader(DataLoader, ABC):
 
 class AbstractUnpairedDataLoader(DataLoader, ABC):
     """
-    Abstract loader for unparied data independent of file format
+    Abstract loader for unparied data independent of file format.
     """
 
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
         - image_shape is the shape of images fed into dataset,
-        it is assumed to be 3d, [dim1, dim2, dim3]
+        it is assumed to be 3d, [dim1, dim2, dim3].
           moving_image_shape = fixed_image_shape = image_shape
         """
         super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
@@ -225,7 +225,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
 
 class GeneratorDataLoader(DataLoader, ABC):
     """
-    handles loading of samples by implementing get_dataset from DataLoader
+    Load samples by implementing get_dataset from DataLoader.
     """
 
     def __init__(self, **kwargs):
@@ -237,7 +237,7 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def get_dataset(self):
         """
-        returns a dataset from the generator
+        Return a dataset from the generator.
         """
         if self.labeled:
             return tf.data.Dataset.from_generator(
@@ -272,7 +272,7 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def data_generator(self):
         """
-        yield samples of data to feed model
+        Yield samples of data to feed model.
         """
         for (moving_index, fixed_index, image_indices) in self.sample_index_generator():
             moving_image = self.loader_moving_image.get_data(index=moving_index)
@@ -301,9 +301,8 @@ class GeneratorDataLoader(DataLoader, ABC):
 
     def sample_index_generator(self):
         """
-        this method needs to be defined by the data loaders that are implemented
-        it needs to yield the sample indexes
-        only used in data_generator
+        Method is defined by the implemented data loaders to yield the sample indexes.
+        Only used in data_generator.
         """
         raise NotImplementedError
 
@@ -316,8 +315,8 @@ class GeneratorDataLoader(DataLoader, ABC):
         image_indices: list,
     ):
         """
-        check that all file names match according to naming convention
-        only used in sample_image_label
+        Check file names match according to naming convention.
+        Only used in sample_image_label.
         :param moving_image: np.ndarray of shape (m_dim1, m_dim2, m_dim3)
         :param fixed_image: np.ndarray of shape (f_dim1, f_dim2, f_dim3)
         :param moving_label: np.ndarray of shape (m_dim1, m_dim2, m_dim3) or (m_dim1, m_dim2, m_dim3, num_labels) or None
@@ -406,8 +405,8 @@ class GeneratorDataLoader(DataLoader, ABC):
         image_indices: list,
     ):
         """
-        sample the image labels
-        only used in data_generator
+        Sample the image labels.
+        Only used in data_generator
         :param moving_image : np.ndarray
         :param fixed_image : np.ndarray
         :param moving_label : (np.ndarray, None)
@@ -455,7 +454,7 @@ class GeneratorDataLoader(DataLoader, ABC):
 
 class FileLoader:
     """
-    Interface / abstract class to load data from multiple directories
+    Interface / abstract class to load data from multiple directories.
     """
 
     def __init__(self, dir_paths: list, name: str, grouped: bool):
@@ -478,8 +477,7 @@ class FileLoader:
 
     def set_data_structure(self):
         """
-        Store the data structure in the memory so that
-        we can retrieve data using data_index
+        Store the data structure in memory to retrieve data using data_index.
         """
         raise NotImplementedError
 

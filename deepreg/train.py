@@ -1,7 +1,7 @@
 # coding=utf-8
 
 """
-Module to train a network using init files and a CLI
+Module to train a network using init files and a CLI.
 """
 
 import argparse
@@ -25,7 +25,7 @@ def build_config(
     """
     Function to initialise log directories,
     assert that checkpointed model is the right
-    type and to parse the configuration for training
+    type and to parse the configuration for training.
 
     :param config_path: list of str, path to config file
     :param log_root: str, root of logs
@@ -92,7 +92,7 @@ def train(
     max_epochs: int = -1,
 ):
     """
-    Function to train a model
+    Function to train a model.
 
     :param gpu: str, which local gpu to use to train
     :param config_path: str, path to configuration set up
@@ -184,7 +184,7 @@ def train(
 
 
 def main(args=None):
-    """Entry point for train script"""
+    """Entry point for train script."""
 
     parser = argparse.ArgumentParser()
 

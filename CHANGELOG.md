@@ -1,14 +1,27 @@
 # Change Log
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. It's a team effort
+to make them as straightforward as possible.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.1.1] - In Progress
 
-Here we write upgrading notes for brands. It's a team effort to make them as
-straightforward as possible.
+### Added
+
+- Added additional links (CoC, PyPI) and information (contributing, citing) to project
+  README.md.
+
+### Changed
+
+### Fixed
+
+- Fixed bias initialization for theta in GlobalNet.
+- Remove invalid `first` argument in DataLoader for sample_index generator.
+- Fixed build error when downloading data from private repo.
+
+## [0.1.0] - 2020-11-02
 
 ### Added
 
@@ -17,7 +30,8 @@ straightforward as possible.
 - Added max_epochs argument for training to overwrite configuration.
 - Added log_root argument for training and prediction to customize the log file
   location.
-- Added tests for all demos.
+- Added more meaningful error messages for data loading.
+- Added integration tests for all demos.
 - Added environment.yml file for Conda environment creation.
 - Added Dockerfile.
 - Added documentation about using UCL cluster with DeepReg.
@@ -32,9 +46,11 @@ straightforward as possible.
 - Updated the instructions for all demos.
 - Updated pre-commit hooks version.
 - Updated JOSS paper to address reviewers' comments.
+- Migrated from travis-ci.org to travis-ci.com.
 
 ### Fixed
 
+- Fixed prediction error when number of samples cannot be divided by batch size exactly.
 - Fixed division by zero handling in multiple image/label losses.
 - Fixed tensor comparison in unit tests and impacted tests.
 - Removed normalization of DDF/DVF when saving in Nifti formats.
