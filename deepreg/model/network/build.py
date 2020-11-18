@@ -9,8 +9,7 @@ def build_model(
     index_size: int,
     labeled: bool,
     batch_size: int,
-    model_config: dict,
-    loss_config: dict,
+    train_config: dict,
 ):
     """
     Parsing algorithm types to model building functions.
@@ -20,39 +19,35 @@ def build_model(
     :param index_size: dataset size
     :param labeled: true if the label of moving/fixed images are provided
     :param batch_size: mini-batch size
-    :param model_config: model configuration, e.g. dictionary return from parser.yaml.load
-    :param loss_config: loss configuration, e.g. dictionary return from parser.yaml.load
+    :param train_config: train configuration
     :return: the built tf.keras.Model
     """
-    if model_config["method"] in ["ddf", "dvf"]:
+    if train_config["method"] in ["ddf", "dvf"]:
         return build_ddf_dvf_model(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             index_size=index_size,
             labeled=labeled,
             batch_size=batch_size,
-            model_config=model_config,
-            loss_config=loss_config,
+            train_config=train_config,
         )
-    elif model_config["method"] == "conditional":
+    elif train_config["method"] == "conditional":
         return build_conditional_model(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             index_size=index_size,
             labeled=labeled,
             batch_size=batch_size,
-            model_config=model_config,
-            loss_config=loss_config,
+            train_config=train_config,
         )
-    elif model_config["method"] == "affine":
+    elif train_config["method"] == "affine":
         return build_affine_model(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             index_size=index_size,
             labeled=labeled,
             batch_size=batch_size,
-            model_config=model_config,
-            loss_config=loss_config,
+            train_config=train_config,
         )
     else:
         raise ValueError("Unknown model method")

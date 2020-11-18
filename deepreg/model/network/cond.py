@@ -69,8 +69,7 @@ def build_conditional_model(
     index_size: int,
     labeled: bool,
     batch_size: int,
-    model_config: dict,
-    loss_config: dict,
+    train_config: dict,
 ) -> tf.keras.Model:
     """
     Build a model which outputs predicted fixed label.
@@ -80,8 +79,7 @@ def build_conditional_model(
     :param index_size: int, the number of indices for identifying a sample
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
-    :param model_config: config for the model
-    :param loss_config: config for the loss
+    :param train_config: config for the model and loss
     :return: the built tf.keras.Model
     """
     # inputs
@@ -97,8 +95,8 @@ def build_conditional_model(
     backbone = build_backbone(
         image_size=fixed_image_size,
         out_channels=1,
-        config=model_config["backbone"],
-        method_name=model_config["method"],
+        config=train_config["backbone"],
+        method_name=train_config["method"],
     )
 
     # prediction
@@ -130,7 +128,7 @@ def build_conditional_model(
         grid_fixed=grid_fixed,
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
-        loss_config=loss_config,
+        loss_config=train_config["loss"],
     )
 
     return model

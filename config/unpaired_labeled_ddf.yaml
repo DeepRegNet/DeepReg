@@ -10,12 +10,11 @@ dataset:
 
 train:
   # define neural network structure
-  model:
-    method: "ddf" # options include "ddf", "dvf", "conditional" and "affine"
-    backbone:
-      name: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
-      num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
-      extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
+  method: "ddf" # options include "ddf", "dvf", "conditional" and "affine"
+  backbone:
+    name: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
+    num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
 
   # define the loss function for training
   loss:

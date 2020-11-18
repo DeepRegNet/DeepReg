@@ -1,10 +1,9 @@
 train:
-  model:
-    method: "ddf" # ddf / dvf / conditional
-    backbone:
-      name: "local"
-      num_channel_initial: 1
-      extract_levels: [0, 1, 2, 3, 4]
+  method: "ddf" # ddf / dvf / conditional
+  backbone:
+    name: "local"
+    num_channel_initial: 1
+    extract_levels: [0, 1, 2, 3, 4]
   loss:
     dissimilarity:
       image:
