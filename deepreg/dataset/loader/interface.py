@@ -138,13 +138,12 @@ class DataLoader:
 
             if "data_augmentation" in kwargs:
                 da_dict = kwargs["data_augmentation"]
-
                 if "ddf" in da_dict.keys():
                     da_transform = DDFTransformation3D(
                         moving_image_size=self.moving_image_shape,
                         fixed_image_size=self.fixed_image_shape,
                         batch_size=batch_size,
-                        **kwargs["ddf_da"],
+                        **da_dict["ddf"],
                     )
 
                     dataset = dataset.map(
