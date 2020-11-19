@@ -4,18 +4,72 @@
 
 # DeepReg
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Build Status](https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main)](https://travis-ci.com/DeepRegNet/DeepReg)
-[![Documentation Status](https://readthedocs.org/projects/deepreg/badge/?version=latest)](https://deepreg.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
-[![PyPI](https://img.shields.io/pypi/v/deepreg.svg)](https://pypi.python.org/pypi/DeepReg/)
-[![status](https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3/status.svg)](https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3)
+<table align="center">
+  <tr>
+    <td align="left">
+      <b>Package</b>
+    </td>
+    <td align="center">
+      <a href="https://pypi.python.org/pypi/DeepReg/">
+        <img src="https://img.shields.io/pypi/v/deepreg.svg" alt="PyPI Version">
+      </a>
+      <a href="https://pepy.tech/project/deepreg">
+        <img src="https://static.pepy.tech/personalized-badge/deepreg?period=total&units=none&left_color=grey&right_color=orange&left_text=Downloads" alt="PyPI downloads">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+      <b>Docs</b>
+    </td>
+    <td align="center">
+      <a href="https://deepreg.readthedocs.io/en/latest/?badge=latest">
+        <img src="https://readthedocs.org/projects/deepreg/badge/?version=latest" alt="Documentation Status">
+      </a>
+      <a href="https://opensource.org/licenses/Apache-2.0">
+        <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+      <b>Build</b>
+    </td>
+    <td align="center">
+      <a href="https://travis-ci.com/DeepRegNet/DeepReg">
+        <img src="https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main" alt="Build Status">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+      <b>Code</b>
+    </td>
+    <td align="center">
+      <a href="https://github.com/psf/black">
+        <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
+      </a>
+      <a href="https://codecov.io/github/DeepRegNet/DeepReg">
+        <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+      <b>Papers</b>
+    </td>
+    <td align="center">
+      <a href="https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3">
+        <img src="https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3/status.svg" alt="JOSS Paper">
+      </a>
+    </td>
+  </tr>
+</table>
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
 
-- TensorFlow-2-based for efficient training and rapid deployment;
+- TensorFlow 2-based for efficient training and rapid deployment;
 - Implementing major unsupervised and weakly-supervised algorithms, with their
   combinations and variants;
 - Focusing on growing and diverse clinical applications, with all DeepReg Demos using
