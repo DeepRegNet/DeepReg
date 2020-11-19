@@ -9,7 +9,7 @@ import tensorflow as tf
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
-from deepreg.registry.registry import Registry
+from deepreg.registry import Registry
 
 
 def build_backbone(
