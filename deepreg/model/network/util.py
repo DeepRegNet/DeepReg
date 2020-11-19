@@ -38,13 +38,13 @@ def build_backbone(
         raise ValueError(
             f"model_config must be a dict having key 'backbone', got{model_config}"
         )
-    if method_name not in ["ddf", "dvf", "conditional", "affine", "bsplines"]:
+    if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
             f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
             f"got {method_name}"
         )
 
-    if method_name in ["ddf", "dvf", "bsplines"]:
+    if method_name in ["ddf", "dvf"]:
         out_activation = None
         # TODO try random init with smaller number
         out_kernel_initializer = "zeros"  # to ensure small ddf and dvf

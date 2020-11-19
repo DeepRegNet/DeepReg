@@ -57,18 +57,29 @@ def ddf_dvf_forward(
     )  # (batch, f_dim1, f_dim2, f_dim3, 2)
     backbone_out = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
     if output_model["name"] == "dvf":
-        dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        if output_model["control_points"] is None:
+            dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        else:
+            dvf = layer.BSplines3DTransform(
+                backbone_out, cp_spacing=output_model["control_points"]
+            )
+
         ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(
             dvf
         )  # (batch, f_dim1, f_dim2, f_dim3, 3)
+
     elif output_model["name"] == "bsplines":
         dvf = None
-        ddf = layer.BSplines3DTransform(
-            backbone_out, cp_spacing=output_model["control_points"]
-        )
+
     else:
         dvf = None
-        ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
+        if output_model["control_points"] is None:
+            ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
+
+        else:
+            ddf = layer.BSplines3DTransform(
+                backbone_out, cp_spacing=output_model["control_points"]
+            )
 
     # prediction, (batch, f_dim1, f_dim2, f_dim3)
     warping = layer.Warping(fixed_image_size=fixed_image_size)
