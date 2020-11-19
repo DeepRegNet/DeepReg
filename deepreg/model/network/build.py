@@ -50,4 +50,4 @@ def build_model(
             train_config=train_config,
         )
     else:
-        raise ValueError("Unknown model method")
+        raise ValueError(f"Unknown method {train_config['method']}")
