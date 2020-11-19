@@ -10,7 +10,9 @@ dataset:
 
 train:
   model:
-    method: "dvf" # ddf / dvf / conditional
+    method:
+      name: "dvf" # ddf / dvf / conditional
+      control_points: [8, 8, 8] # list or None
     backbone: "unet"
     local:
       num_channel_initial: 2
