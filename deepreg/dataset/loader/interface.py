@@ -91,7 +91,6 @@ class DataLoader:
         batch_size: int,
         repeat: bool,
         shuffle_buffer_num_batch: int,
-        da_method: list,
         **kwargs,
     ) -> tf.data.Dataset:
         """
@@ -126,16 +125,21 @@ class DataLoader:
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
         if training:
-            for da in da_method:
-                if da == "affine_da":
-                    # TODO add cropping, but crop first or rotation first?
-                    da_transform = AffineTransformation3D(
-                        moving_image_size=self.moving_image_shape,
-                        fixed_image_size=self.fixed_image_shape,
-                        batch_size=batch_size,
-                    )
+            da_transform = AffineTransformation3D(
+                moving_image_size=self.moving_image_shape,
+                fixed_image_size=self.fixed_image_shape,
+                batch_size=batch_size,
+            )
 
-                elif da == "ddf_da":
+            dataset = dataset.map(
+                da_transform.transform,
+                num_parallel_calls=tf.data.experimental.AUTOTUNE,
+            )
+
+            if "data_augmentation" in kwargs:
+                da_dict = kwargs["data_augmentation"]
+
+                if "ddf" in da_dict.keys():
                     da_transform = DDFTransformation3D(
                         moving_image_size=self.moving_image_shape,
                         fixed_image_size=self.fixed_image_shape,
@@ -143,18 +147,11 @@ class DataLoader:
                         **kwargs["ddf_da"],
                     )
 
-                else:
-                    raise ValueError(
-                        f"Not available data augmentation method: {da} "
-                        f"corresponding to (width, height, depth), "
-                        f"got moving_image_shape = {self.moving_image_shape} "
-                        f"and fixed_image_shape = {self.fixed_image_shape}"
+                    dataset = dataset.map(
+                        da_transform.transform,
+                        num_parallel_calls=tf.data.experimental.AUTOTUNE,
                     )
 
-                dataset = dataset.map(
-                    da_transform.transform,
-                    num_parallel_calls=tf.data.experimental.AUTOTUNE,
-                )
         return dataset
 
     def close(self):
