@@ -10,10 +10,13 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added registry for backbone models.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 
 ### Changed
+
+- Simplified configuration for backbone models.
 
 ### Fixed
 
