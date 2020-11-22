@@ -1,0 +1,83 @@
+{
+  "description": "DeepReg is a freely available, community-supported open-source toolkit for research and education in medical image registration using deep learning.",
+  "license": "Apache-2.0",
+  "title": "DeepReg: a deep learning toolkit for medical image registration",
+  "upload_type": "software",
+  "keywords": [
+    "Deep Learning",
+    "Image Fusion",
+    "Medical Image Registration",
+    "Neural Networks"
+  ],
+  "creators": [
+    {
+      "orcid": "0000-0002-1184-7421",
+      "name": "Yunguan, Fu"
+    },
+    {
+      "orcid": "0000-0001-5685-971X",
+      "name": "Nina, Monta\u00f1a Brown"
+    },
+    {
+      "orcid": "0000-0002-5004-0663",
+      "name": "Shaheer U., Saeed"
+    },
+    {
+      "orcid": "0000-0002-0539-3638",
+      "name": "Adri\u00e0, Casamitjana"
+    },
+    {
+      "orcid": "0000-0001-6838-335X",
+      "name": "Zachary M. C., Baum"
+    },
+    {
+      "orcid": "0000-0002-0398-4995",
+      "name": "R\u00e9mi, Delaunay"
+    },
+    {
+      "orcid": "0000-0003-4401-5311",
+      "name": "Qianye, Yang"
+    },
+    {
+      "orcid": "0000-0002-2608-2580",
+      "name": "Alexander, Grimwood"
+    },
+    {
+      "orcid": "0000-0002-8903-1561",
+      "name": "Zhe, Min"
+    },
+    {
+      "orcid": "0000-0002-7150-9918",
+      "name": "Stefano B., Blumberg"
+    },
+    {
+      "orcid": "0000-0001-7569-173X",
+      "name": "Juan Eugenio, Iglesias"
+    },
+    {
+      "orcid": "0000-0003-2916-655X",
+      "name": "Dean C., Barratt"
+    },
+    {
+      "orcid": "0000-0001-9217-5438",
+      "name": "Ester, Bonmati"
+    },
+    {
+      "orcid": "0000-0003-2439-350X",
+      "name": "Daniel C., Alexander"
+    },
+    {
+      "orcid": "0000-0002-5565-1252",
+      "name": "Matthew J., Clarkson"
+    },
+    {
+      "orcid": "0000-0003-1794-0456",
+      "name": "Tom, Vercauteren"
+    },
+    {
+      "orcid": "0000-0003-4902-0486",
+      "name": "Yipeng, Hu"
+    }
+  ],
+  "access_right": "open"
+}
