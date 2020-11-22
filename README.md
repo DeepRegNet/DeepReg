@@ -9,9 +9,6 @@
       <b>Package</b>
     </td>
     <td>
-      <a href="https://github.com/psf/black">
-      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
-      </a>
       <a href="https://opensource.org/licenses/Apache-2.0">
       <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
       </a>
@@ -39,6 +36,9 @@
       <b>Code Test</b>
     </td>
     <td>
+      <a href="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
+      </a>
       <a href="https://travis-ci.com/DeepRegNet/DeepReg">
       <img src="https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main" alt="Build Status">
       </a>
