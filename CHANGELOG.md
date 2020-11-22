@@ -15,10 +15,12 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Changed distribute strategy to default for <= 1 GPU.
+
 ### Fixed
 
 - Fixed bias initialization for theta in GlobalNet.
-- Remove invalid `first` argument in DataLoader for sample_index generator.
+- Removed invalid `first` argument in DataLoader for sample_index generator.
 - Fixed build error when downloading data from private repo.
 
 ## [0.1.0] - 2020-11-02
