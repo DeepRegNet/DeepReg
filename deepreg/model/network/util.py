@@ -35,8 +35,7 @@ def build_backbone(
         and len(image_size) == 3
     ):
         raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
-    if not (isinstance(out_channels, int) and out_channels >= 1):
-        raise ValueError(f"out_channels must be int >=1, got {out_channels}")
+
     if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
             f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
@@ -53,8 +52,6 @@ def build_backbone(
     elif method_name in ["affine"]:
         out_activation = None
         out_kernel_initializer = "zeros"
-    else:
-        raise ValueError("Unknown method name {}".format(method_name))
 
     backbone_cls = registry.get_backbone(key=config["name"])
     return backbone_cls(
@@ -76,31 +73,33 @@ def build_inputs(
     """
     Configure a pair of moving and fixed images and a pair of
     moving and fixed labels as model input
-    and returns model input tf.keras.Input.
+    and returns model input tf.keras.Input
 
-    :param moving_image_size: tuple, dims of moving images, [m_dim1, m_dim2, m_dim3]
-    :param fixed_image_size: tuple, dims of fixed images, [f_dim1, f_dim2, f_dim3]
+    TODO do we absolutely need the batch_size in Input?
+
+    :param moving_image_size: tuple, dims of moving images, (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: tuple, dims of fixed images, (f_dim1, f_dim2, f_dim3)
     :param index_size: int, dataset size (number of images)
     :param batch_size: int, mini-batch size
     :param labeled: Boolean, true if we have label data
     :return: 5 (if labeled=True) or 3 (if labeled=False) tf.keras.Input objects
     """
     moving_image = tf.keras.Input(
-        shape=(*moving_image_size,), batch_size=batch_size, name="moving_image"
+        shape=moving_image_size, batch_size=batch_size, name="moving_image"
     )  # (batch, m_dim1, m_dim2, m_dim3)
     fixed_image = tf.keras.Input(
-        shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_image"
+        shape=fixed_image_size, batch_size=batch_size, name="fixed_image"
     )  # (batch, f_dim1, f_dim2, f_dim3)
     moving_label = (
         tf.keras.Input(
-            shape=(*moving_image_size,), batch_size=batch_size, name="moving_label"
+            shape=moving_image_size, batch_size=batch_size, name="moving_label"
         )
         if labeled
         else None
     )  # (batch, m_dim1, m_dim2, m_dim3)
     fixed_label = (
         tf.keras.Input(
-            shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_label"
+            shape=fixed_image_size, batch_size=batch_size, name="fixed_label"
         )
         if labeled
         else None
