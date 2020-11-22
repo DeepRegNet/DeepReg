@@ -3,23 +3,24 @@
     alt="deepreg_logo" title="DeepReg" width="200"/>
 </p>
 
-# DeepReg
-
-<table>
+<table align="center">
   <tr>
     <td>
       <b>Package</b>
     </td>
     <td>
+      <a href="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
+      </a>
+      <a href="https://opensource.org/licenses/Apache-2.0">
+      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+      </a>
       <a href="https://pypi.python.org/pypi/DeepReg/">
       <img src="https://img.shields.io/pypi/v/deepreg.svg" alt="PyPI Version">
       </a>
       <a href="https://pepy.tech/project/deepreg">
       <img src="https://static.pepy.tech/personalized-badge/deepreg?period=total&units=none&left_color=grey&right_color=orange&left_text=Downloads"
         alt="PyPI downloads">
-      </a>
-      <a href="https://opensource.org/licenses/Apache-2.0">
-      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
       </a>
     </td>
   </tr>
@@ -59,6 +60,8 @@
     </td>
   </tr>
 </table>
+
+# DeepReg
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
