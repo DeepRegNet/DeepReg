@@ -145,8 +145,7 @@ def train(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
     # only model, optimizer and metrics need to be defined inside the strategy
-    gpu_list = tf.config.list_physical_devices('GPU')
-    if len(gpu_list) > 1:
+    if len(tf.config.list_physical_devices("GPU")) > 1:
         strategy = tf.distribute.MirroredStrategy()
     else:
         strategy = tf.distribute.get_strategy()
