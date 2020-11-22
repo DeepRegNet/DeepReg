@@ -34,3 +34,11 @@ class TestRegistry:
         with pytest.raises(ValueError) as err_info:
             registry.get("backbone_class", "wrong_key")
         assert "has not been registered" in str(err_info.value)
+
+    def test_backbone(self):
+        registry = Registry()
+        key = "new_backbone"
+        value = 0
+        registry.register_backbone(key, value)
+        got = registry.get_backbone(key)
+        assert got == value
