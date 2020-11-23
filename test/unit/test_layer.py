@@ -350,32 +350,49 @@ def test_localNetUpSampleResnetBlock():
     assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
 
 
-def test_BSplines3DTransform():
+class TestBSplines3DTransform:
     """
     Test the layer.BSplines3DTransform class, its default attributes and its call() function.
     """
-    input_size = (1, 68, 68, 68, 3)
-    control_points = (8, 8, 8)
 
-    model = layer.BSplines3DTransform(control_points)
-    assert model.cp_spacing == (8, 8, 8)
-
-    control_points = 8
-    model = layer.BSplines3DTransform(control_points)
-    assert model.cp_spacing == (8, 8, 8)
-
-    model.build(input_size)
-    assert model.filter.shape == (
-        4 * control_points,
-        4 * control_points,
-        4 * control_points,
-        3,
-        3,
+    @pytest.mark.parametrize(
+        "parameter,cp_spacing", [((8, 8, 8), (8, 8, 8)), (8, (8, 8, 8))]
     )
+    def check_control_points(self, parameter, cp_spacing):
 
-    field = tf.random.normal(shape=input_size)
-    mesh = model.get_control_points(field)
-    assert mesh.shape == (1, 12, 12, 12, 3)
+        model = layer.BSplines3DTransform(parameter)
+        assert model.cp_spacing == cp_spacing
 
-    ddf = model.call(field)
-    assert ddf.shape == input_size
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+    )
+    def check_build(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp)
+
+        model.build(input_size)
+        assert model.filter.shape == (
+            4 * cp[0],
+            4 * cp[1],
+            4 * cp[2],
+            3,
+            3,
+        )
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+    )
+    def check_interpolation(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp)
+
+        vol_shape = input_size[1:-1]
+        num_cp = [np.ceil(isize / cp) + 3 for isize, cpsize in zip(vol_shape, cp)]
+
+        field = tf.random.normal(shape=input_size)
+
+        mesh = model.get_control_points(field)
+        assert mesh.shape == (1,) + tuple(num_cp) + (3,)
+
+        ddf = model.call(field)
+        assert ddf.shape == input_size
