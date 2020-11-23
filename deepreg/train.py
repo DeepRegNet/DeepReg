@@ -146,7 +146,7 @@ def train(
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
     # only model, optimizer and metrics need to be defined inside the strategy
     if len(tf.config.list_physical_devices("GPU")) > 1:
-        strategy = tf.distribute.MirroredStrategy()
+        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
