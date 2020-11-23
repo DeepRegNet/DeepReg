@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import tensorflow as tf
 
@@ -674,28 +676,29 @@ class BSplines3DTransform(tf.keras.layers.Layer):
      It assumes a full sized image from which: (1) it compute the contol points values by downsampling the initial
      image (2) performs the interpolation and (3) crops the image around the valid values.
 
-    :param cp_spacing: _int_ or tuple of three _ints_ specifying the spacing (in pixels) in each dimension.
-                      When a single _int_ is used, the same spacing to all dimensions is used
+    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels) in each dimension.
+                      When a single int is used, the same spacing to all dimensions is used
     :param kwargs:
     """
 
     def __init__(self, cp_spacing: (int, tuple), **kwargs):
 
-        super().__init__(**kwargs)
+        super(BSplines3DTransform, self).__init__(**kwargs)
+
+        self.filters = []
 
         if isinstance(cp_spacing, int):
             self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
         else:
             self.cp_spacing = cp_spacing
-        self.filters = []
 
-    def build(self, input_shape):
+    def build(self, input_shape: tuple):
         """
         :param input_shape: tuple with the input shape
         :return:
         """
 
-        super().build(input_shape)
+        super(BSplines3DTransform, self).build(input_shape=input_shape)
 
         b = {
             0: lambda u: np.float32((1 - u) ** 3 / 6),
@@ -715,27 +718,26 @@ class BSplines3DTransform(tf.keras.layers.Layer):
             dtype=np.float32,
         )
 
-        for u in range(self.cp_spacing[0]):
-            for v in range(self.cp_spacing[1]):
-                for w in range(self.cp_spacing[2]):
-                    for x in range(4):
-                        for y in range(4):
-                            for z in range(4):
-                                u_norm = u / self.cp_spacing[0]
-                                v_norm = v / self.cp_spacing[1]
-                                w_norm = w / self.cp_spacing[2]
-                                for it_dim in range(3):
-                                    filters[
-                                        x * self.cp_spacing[0] + u,
-                                        y * self.cp_spacing[1] + v,
-                                        z * self.cp_spacing[2] + w,
-                                        it_dim,
-                                        it_dim,
-                                    ] = (
-                                        b[3 - x](u_norm)
-                                        * b[3 - y](v_norm)
-                                        * b[3 - z](w_norm)
-                                    )
+        u_arange = np.arange(0, 1, 1 / self.cp_spacing[0])
+        v_arange = np.arange(0, 1, 1 / self.cp_spacing[1])
+        w_arange = np.arange(0, 1, 1 / self.cp_spacing[2])
+
+        filter_idx = [[0, 1, 2, 3] for _ in range(3)]
+        filter_coord = list(itertools.product(*filter_idx))
+
+        for f_idx in filter_coord:
+            for it_dim in range(3):
+                filters[
+                    f_idx[0] * self.cp_spacing[0] : (f_idx[0] + 1) * self.cp_spacing[0],
+                    f_idx[1] * self.cp_spacing[1] : (f_idx[1] + 1) * self.cp_spacing[1],
+                    f_idx[2] * self.cp_spacing[2] : (f_idx[2] + 1) * self.cp_spacing[2],
+                    it_dim,
+                    it_dim,
+                ] = (
+                    b[3 - f_idx[0]](u_arange)[:, None, None]
+                    * b[3 - f_idx[1]](v_arange)[None, :, None]
+                    * b[3 - f_idx[2]](w_arange)[None, None, :]
+                )
 
         self.filter = tf.convert_to_tensor(filters)
 
