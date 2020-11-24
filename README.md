@@ -119,7 +119,7 @@ Check it out
 you can also
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
 
-## Introductory Talk
+## Introductory Talk
 
 We presented (the road to) DeepReg at the Center for Medical Imaging Computing (CMIC)
 (University College London) seminar series on the 4th of November 2020, access the talk
