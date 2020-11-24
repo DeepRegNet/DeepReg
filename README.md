@@ -119,6 +119,13 @@ Check it out
 you can also
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
 
+## Overview Video
+
+Members of the DeepReg dev team presented "The Road to DeepReg" at the Centre for
+Medical Imaging Computing (CMIC) seminar series at University College London on the 4th
+of November 2020. You can access the talk
+[here](https://eu.bbcollab.com/collab/ui/session/playback/load/941325351b64410eb886bbaf9aa64fb9?authToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYkNvbGxhYkFwaSIsInJlY29yZGluZ1VpZCI6Ijk0MTMyNTM1MWI2NDQxMGViODg2YmJhZjlhYTY0ZmI5IiwiaXNzIjoiYmJDb2xsYWJBcGkiLCJ0eXBlIjoxLCJleHAiOjE2MDYyMjc4NTIsImlhdCI6MTYwNjIyNDI1MiwiY29uc3VtZXIiOiI4NmU2YWQ3YzVlZDU0NzhlOGViMTQyODUyYWNiYzA5ZiJ9.VZIJqu3q4dVSkEy7X6sysvxWK5d_Xj9cvOSmG9sdZ_U&name=CMIC%252FWEISS%20joint%20seminar%20series%20-%20Wedn.%204th%20November%20-%20recording_1).
+
 ## Citing DeepReg
 
 DeepReg is research software, made by a

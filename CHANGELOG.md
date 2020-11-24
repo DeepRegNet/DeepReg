@@ -12,6 +12,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
+- Added CMIC seminar where DeepReg was introduced to the project README.md.
 
 ### Changed
 
