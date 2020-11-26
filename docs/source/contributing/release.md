@@ -1,47 +1,37 @@
 # Release
 
-`DeepReg` is distributed on PyPI. To create new releases, you can follow the below
-instructions and submit new versions to PyPI.
+DeepReg is distributed on PyPI. To create new releases, you can follow the below
+instructions to automatically submit new versions to PyPI via our GitHub Actions
+workflow.
 
-## Prerequisites
+## Creating a new Release
 
-Make sure you have `setuptools`, `wheel`, and `twine` installed in your environment:
+From the main DeepReg repository page, head to
+[releases](https://github.com/DeepRegNet/DeepReg/releases). From here, you can
+[draft a new release](https://github.com/DeepRegNet/DeepReg/releases/new).
 
-```bash
-pip install setuptools wheel twine
-```
+## Tagging & Titling
 
-Update your `setup.py` file with the appropriate version number. Then, from within the
-`DeepReg` folder where you want the version to be built from:
+We follow [semver](https://semver.org/) naming conventions for tags, with `vX.Y.Z` where
+each represents major, minor, and patch release versions.
 
-```bash
-python setup.py sdist bdist_wheel
-```
+From semver.org:
 
-## Upload to TestPyPI
+> Major version: when you make incompatible API changes,
+>
+> Minor version: when you add functionality in a backwards compatible manner, and
+>
+> Patch version: when you make backwards compatible bug fixes.
 
-Once built, upload to `testpypi` to ensure that the package runs as expected prior to
-adding the new release to `pypi`. This will require an account on `testpypi`.
+Typically, most releases will be an increment of the minor or patch versions.
 
-```bash
-twine upload --repository testpypi dist/*
-```
+Enter the new version in the format `vX.Y.Z` into the "Tag version" and "Release title"
+fields of the draft a release page.
 
-You'll be prompted to enter your username and password.
+## Publish!
 
-## Upload to PyPI
+Click the "Publish release" button, and our GitHub Action workflow will handle the rest.
 
-If all works well, upload to `pypi`:
-
-```bash
-twine upload dist/*
-```
-
-You'll, once again, be prompted to enter your username and password.
-
-## Tag & upload the release to GitHub
-
-Make sure to
-[add the release to the DeepReg repository on GitHub](https://github.com/DeepRegNet/DeepReg/releases)
-as well. Make sure to follow the given naming conventions for tags with `vX.Y.Z` with
-major, minor, and batch releases.
+It's recommended that you check the
+[output log](https://github.com/DeepRegNet/DeepReg/actions) from the GitHub Actions page
+to make sure everything went as planned for the release.
