@@ -22,9 +22,10 @@ def test_ddf_dvf_forward():
     local_net = build_backbone(
         image_size=fixed_image_size,
         out_channels=3,
-        model_config={
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+        config={
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="ddf",
     )
@@ -69,24 +70,27 @@ def test_build_ddf_dvf_model():
     moving_image_size = (1, 3, 5)
     fixed_image_size = (2, 4, 6)
     batch_size = 1
-    model_config = {
+    train_config = {
         "method": "ddf",
-        "backbone": "local",
-        "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
-    }
-    loss_config = {
-        "dissimilarity": {
-            "image": {"name": "lncc", "weight": 0.1},
-            "label": {
-                "name": "multi_scale",
-                "weight": 1,
-                "multi_scale": {
-                    "loss_type": "dice",
-                    "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+        "backbone": {
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
+        },
+        "loss": {
+            "dissimilarity": {
+                "image": {"name": "lncc", "weight": 0.1},
+                "label": {
+                    "name": "multi_scale",
+                    "weight": 1,
+                    "multi_scale": {
+                        "loss_type": "dice",
+                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                    },
                 },
             },
+            "regularization": {"weight": 0.0, "energy_type": "bending"},
         },
-        "regularization": {"weight": 0.0, "energy_type": "bending"},
     }
 
     # Create DDF model
@@ -96,20 +100,18 @@ def test_build_ddf_dvf_model():
         index_size=1,
         labeled=True,
         batch_size=batch_size,
-        model_config=model_config,
-        loss_config=loss_config,
+        train_config=train_config,
     )
 
     # Create DVF model
-    model_config["method"] = "dvf"
+    train_config["method"] = "dvf"
     model_dvf = build_ddf_dvf_model(
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         index_size=1,
         labeled=True,
         batch_size=batch_size,
-        model_config=model_config,
-        loss_config=loss_config,
+        train_config=train_config,
     )
     inputs = {
         "moving_image": tf.ones((batch_size,) + moving_image_size),
