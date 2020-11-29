@@ -1,8 +1,8 @@
-# Guideline
+# Guidelines
 
 We welcome contributions to DeepReg. Please
 [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) to report
-bugs, request features, or asking questions. For code contribution, please follow the
+bugs, request features, or ask questions. For code contribution, please follow the
 guidelines below.
 
 ## Setup
