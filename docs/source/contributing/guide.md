@@ -29,24 +29,24 @@ For resolving an issue, please
 
    There are several guidelines for commit, coding, testing, and documentation.
 
-   a. Please create commits with meaningful commit messages.
+   1. Please create commits with meaningful commit messages.
 
-   The commit message should start with `Issue #<issue number>:`, for instance
-   `Issue #1: add commit requirements.`
+      The commit message should start with `Issue #<issue number>:`, for instance
+      `Issue #1: add commit requirements.`
 
-   b. Please write or update unit-tests for the added or changed functionalities.
+   2. Please write or update unit-tests for the added or changed functionalities.
 
-   Pull request will not be approved if test coverage is decreased. Check
-   [testing guidelines](test.html) for further details.
+      Pull request will not be approved if test coverage is decreased. Check
+      [testing guidelines](test.html) for further details.
 
-   c. Please write meaningful docstring and documentations for added or changed code.
+   3. Please write meaningful docstring and documentations for added or changed code.
 
-   We use
-   [Sphinx docstring format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
+      We use
+      [Sphinx docstring format](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
 
-   d. Please update the
-   [CHANGELOG](https://github.com/DeepRegNet/DeepReg/blob/main/CHANGELOG.md) regarding
-   the changes.
+   4. Please update the
+      [CHANGELOG](https://github.com/DeepRegNet/DeepReg/blob/main/CHANGELOG.md)
+      regarding the changes.
 
 3. [Create a pull request](https://github.com/DeepRegNet/DeepReg/pulls) when the branch
    is ready.

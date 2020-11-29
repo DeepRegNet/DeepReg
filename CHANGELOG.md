@@ -15,6 +15,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Simplified contributing documentation.
+
 ### Fixed
 
 - Fixed bias initialization for theta in GlobalNet.
