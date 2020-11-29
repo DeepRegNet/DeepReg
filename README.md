@@ -104,7 +104,7 @@ By participating in this project, you agree to abide by its terms.
 ### Where Should I Start?
 
 For guidance on making a contribution to DeepReg, see our
-[Contribution Guidelines](https://deepreg.readthedocs.io/en/latest/contributing/code.html).
+[Contribution Guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html).
 
 Have a registration application with openly accessible data? Consider
 [contributing a DeepReg Demo](https://deepreg.readthedocs.io/en/latest/contributing/demo.html).
