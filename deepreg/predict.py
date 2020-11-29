@@ -310,8 +310,7 @@ def predict(
         index_size=data_loader.num_indices,
         labeled=config["dataset"]["labeled"],
         batch_size=preprocess_config["batch_size"],
-        model_config=config["train"]["model"],
-        loss_config=config["train"]["loss"],
+        train_config=config["train"],
     )
 
     # metrics
@@ -329,7 +328,7 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
-        model_method=config["train"]["model"]["method"],
+        model_method=config["train"]["method"],
         save_dir=log_dir + "/test",
         save_nifti=save_nifti,
         save_png=save_png,

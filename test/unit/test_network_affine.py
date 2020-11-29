@@ -21,9 +21,10 @@ def test_affine_forward():
     global_net = build_backbone(
         image_size=fixed_image_size,
         out_channels=3,
-        model_config={
-            "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+        config={
+            "name": "global",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="affine",
     )
@@ -58,24 +59,27 @@ def test_build_affine_model():
         index_size=1,
         labeled=True,
         batch_size=batch_size,
-        model_config={
+        train_config={
             "method": "affine",
-            "backbone": "global",
-            "global": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
-        },
-        loss_config={
-            "dissimilarity": {
-                "image": {"name": "lncc", "weight": 0.1},
-                "label": {
-                    "name": "multi_scale",
-                    "weight": 1,
-                    "multi_scale": {
-                        "loss_type": "dice",
-                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+            "backbone": {
+                "name": "global",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
+            "loss": {
+                "dissimilarity": {
+                    "image": {"name": "lncc", "weight": 0.1},
+                    "label": {
+                        "name": "multi_scale",
+                        "weight": 1,
+                        "multi_scale": {
+                            "loss_type": "dice",
+                            "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                        },
                     },
                 },
+                "regularization": {"weight": 0.0, "energy_type": "bending"},
             },
-            "regularization": {"weight": 0.0, "energy_type": "bending"},
         },
     )
 
