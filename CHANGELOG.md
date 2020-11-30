@@ -18,6 +18,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Simplified configuration for backbone models.
+- Simplified contributing documentation.
 
 ### Fixed
 
