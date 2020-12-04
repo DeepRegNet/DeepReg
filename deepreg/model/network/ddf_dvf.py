@@ -17,18 +17,17 @@ def ddf_dvf_forward(
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-    output_model: (str, None),
+    output_dvf: bool,
 ) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass.
-
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param moving_label: tensor of shape (batch, m_dim1, m_dim2, m_dim3) or None
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
-    :param output_model: str or None, selects the deformation field parametrization ['dvf', 'bsplines', None (default)]
+    :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
     :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
       - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
@@ -56,30 +55,14 @@ def ddf_dvf_forward(
         [moving_image, fixed_image], axis=4
     )  # (batch, f_dim1, f_dim2, f_dim3, 2)
     backbone_out = backbone(inputs=inputs)  # (batch, f_dim1, f_dim2, f_dim3, 3)
-    if output_model["name"] == "dvf":
-        if output_model["control_points"] is None:
-            dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
-        else:
-            dvf = layer.BSplines3DTransform(
-                backbone_out, cp_spacing=output_model["control_points"]
-            )
-
+    if output_dvf:
+        dvf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
         ddf = layer.IntDVF(fixed_image_size=fixed_image_size)(
             dvf
         )  # (batch, f_dim1, f_dim2, f_dim3, 3)
-
-    elif output_model["name"] == "bsplines":
-        dvf = None
-
     else:
         dvf = None
-        if output_model["control_points"] is None:
-            ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
-
-        else:
-            ddf = layer.BSplines3DTransform(
-                backbone_out, cp_spacing=output_model["control_points"]
-            )
+        ddf = backbone_out  # (batch, f_dim1, f_dim2, f_dim3, 3)
 
     # prediction, (batch, f_dim1, f_dim2, f_dim3)
     warping = layer.Warping(fixed_image_size=fixed_image_size)
@@ -124,8 +107,8 @@ def build_ddf_dvf_model(
     backbone = build_backbone(
         image_size=fixed_image_size,
         out_channels=3,
-        model_config=train_config,
-        method_name=train_config["method"]["name"],
+        config=train_config["backbone"],
+        method_name=train_config["method"],
     )
 
     # forward
@@ -136,7 +119,7 @@ def build_ddf_dvf_model(
         moving_label=moving_label,
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
-        output_model=train_config["method"],
+        output_dvf=train_config["method"] == "dvf",
     )
 
     # build model
@@ -149,7 +132,7 @@ def build_ddf_dvf_model(
     if dvf is not None:
         outputs["dvf"] = dvf
 
-    model_name = train_config["method"]["name"].upper() + "RegistrationModel"
+    model_name = train_config["method"].upper() + "RegistrationModel"
 
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(

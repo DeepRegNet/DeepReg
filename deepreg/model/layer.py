@@ -670,6 +670,50 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         return h1
 
 
+class ResizeCPTransform(tf.keras.layers.Layer):
+    """
+    Layer for getting the control points from the output of a image-to-image network.
+    It uses an anti-aliasing Gaussian filter before downsampling.
+    """
+
+    def __init__(self, control_point_spacing: (list, int), **kwargs):
+        """
+        :param control_point_spacing: list or int
+        :param kwargs:
+        """
+        super(ResizeCPTransform, self).__init__(**kwargs)
+
+        if isinstance(control_point_spacing, int):
+            control_point_spacing = tuple([control_point_spacing] * 3)
+
+        self.kernel_sigma = [
+            0.44 * cp for cp in control_point_spacing
+        ]  # 0.44 = ln(4)/pi
+        self.cp_spacing = control_point_spacing
+
+    def build(self, input_shape):
+        super(ResizeCPTransform, self).build(input_shape=input_shape)
+
+        self.kernel = layer_util.gaussian_filter_3d(self.kernel_sigma)
+
+        output_shape = [
+            tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
+            for v, c in zip(input_shape[1:-1], self.cp_spacing)
+        ]
+
+        self._output_shape = output_shape
+
+    def call(self, inputs, **kwargs):
+
+        output = tf.nn.conv3d(
+            inputs, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
+        )
+
+        print(output.shape)
+
+        return layer_util.resize3d(image=output, size=self._output_shape)
+
+
 class BSplines3DTransform(tf.keras.layers.Layer):
     """
      Layer for BSplines interpolation with precomputed cubic spline filters.
@@ -681,11 +725,12 @@ class BSplines3DTransform(tf.keras.layers.Layer):
     :param kwargs:
     """
 
-    def __init__(self, cp_spacing: (int, tuple), **kwargs):
+    def __init__(self, cp_spacing: (int, tuple), output_shape: tuple, **kwargs):
 
         super(BSplines3DTransform, self).__init__(**kwargs)
 
         self.filters = []
+        self._output_shape = output_shape
 
         if isinstance(cp_spacing, int):
             self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
@@ -729,7 +774,6 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         )
 
         filter_idx = [[0, 1, 2, 3] for _ in range(3)]
-        print(filter_idx)
         filter_coord = list(itertools.product(*filter_idx))
 
         for f_idx in filter_coord:
@@ -748,10 +792,6 @@ class BSplines3DTransform(tf.keras.layers.Layer):
 
         self.filter = tf.convert_to_tensor(filters)
 
-        # sigma is computed to attenuate the signal power /4 (amplitude /2) at the cut frequency 1/cp_spacing.
-        kernel_sigma = [0.44 * cp for cp in self.cp_spacing]  # 0.44 = ln(4)/pi
-        self.kernel = self.gaussian_filter_3d(kernel_sigma)
-
     def interpolate(self, field):
         """
         :param field: tf.Tensor with shape=number_of_control_points_per_dim
@@ -761,6 +801,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         image_shape = tuple(
             [(a - 1) * b + 4 * b for a, b in zip(field.shape[1:-1], self.cp_spacing)]
         )
+
         output_shape = (field.shape[0],) + image_shape + (3,)
         return tf.nn.conv3d_transpose(
             field,
@@ -770,122 +811,85 @@ class BSplines3DTransform(tf.keras.layers.Layer):
             padding="VALID",
         )
 
-    def gaussian_filter_3d(self, kernel_sigma):
-
-        if isinstance(kernel_sigma, list):
-            kernel_size = [
-                int(np.ceil(ks * 3) + np.mod(np.ceil(ks * 3) + 1, 2))
-                for ks in kernel_sigma
-            ]
-
-        else:
-            kernel_size = int(
-                np.ceil(kernel_sigma * 3) + np.mod(np.ceil(kernel_sigma * 3) + 1, 2)
-            )
-
-        # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
-        coord = [np.arange(ks) for ks in kernel_size]
-
-        YY, XX, ZZ = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
-        xyz_grid = np.concatenate(
-            (YY[np.newaxis], XX[np.newaxis], ZZ[np.newaxis]), axis=0
-        )  # 2, y, x
-
-        mean = np.asarray([(ks - 1) / 2.0 for ks in kernel_size])
-        mean = mean.reshape(-1, 1, 1, 1)
-        variance = np.asarray([ks ** 2.0 for ks in kernel_sigma])
-        variance = variance.reshape(-1, 1, 1, 1)
-
-        # Calculate the 2-dimensional gaussian kernel which is
-        # the product of two gaussian distributions for two different
-        # variables (in this case called x and y)
-        # 2.506628274631 = sqrt(2 * pi)
-
-        norm_kernel = 1.0 / (np.sqrt(2 * np.pi) ** 3 + np.prod(kernel_sigma))
-        kernel = norm_kernel * np.exp(
-            -np.sum((xyz_grid - mean) ** 2.0 / (2 * variance), axis=0)
-        )
-
-        # Make sure sum of values in gaussian kernel equals 1.
-        kernel = kernel / np.sum(kernel)
-
-        # Reshape
-        kernel = kernel.reshape(kernel_size[0], kernel_size[1], kernel_size[2])
-
-        # Total kernel
-        total_kernel = np.zeros(tuple(kernel_size) + (3, 3))
-        total_kernel[..., 0, 0] = kernel
-        total_kernel[..., 1, 1] = kernel
-        total_kernel[..., 2, 2] = kernel
-
-        return tf.convert_to_tensor(total_kernel, dtype=tf.float32)
-
-    def get_control_points(self, field):
-        """
-        :param field: tf.Tensor of shape=self.input_shape
-        :return: interpolated_field: tf.Tensor
-        """
-        vol_shape = field.shape[1:-1]
-        mesh_shape = [
-            tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
-            for v, c in zip(vol_shape, self.cp_spacing)
-        ]
-
-        field = tf.nn.conv3d(
-            field, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
-        )
-
-        return layer_util.resize3d(image=field, size=mesh_shape)
+    # def gaussian_filter_3d(self, kernel_sigma):
+    #
+    #     if isinstance(kernel_sigma, list):
+    #         kernel_size = [
+    #             int(np.ceil(ks * 3) + np.mod(np.ceil(ks * 3) + 1, 2))
+    #             for ks in kernel_sigma
+    #         ]
+    #
+    #     else:
+    #         kernel_size = int(
+    #             np.ceil(kernel_sigma * 3) + np.mod(np.ceil(kernel_sigma * 3) + 1, 2)
+    #         )
+    #
+    #     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
+    #     coord = [np.arange(ks) for ks in kernel_size]
+    #
+    #     YY, XX, ZZ = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
+    #     xyz_grid = np.concatenate(
+    #         (YY[np.newaxis], XX[np.newaxis], ZZ[np.newaxis]), axis=0
+    #     )  # 2, y, x
+    #
+    #     mean = np.asarray([(ks - 1) / 2.0 for ks in kernel_size])
+    #     mean = mean.reshape(-1, 1, 1, 1)
+    #     variance = np.asarray([ks ** 2.0 for ks in kernel_sigma])
+    #     variance = variance.reshape(-1, 1, 1, 1)
+    #
+    #     # Calculate the 2-dimensional gaussian kernel which is
+    #     # the product of two gaussian distributions for two different
+    #     # variables (in this case called x and y)
+    #     # 2.506628274631 = sqrt(2 * pi)
+    #
+    #     norm_kernel = 1.0 / (np.sqrt(2 * np.pi) ** 3 + np.prod(kernel_sigma))
+    #     kernel = norm_kernel * np.exp(
+    #         -np.sum((xyz_grid - mean) ** 2.0 / (2 * variance), axis=0)
+    #     )
+    #
+    #     # Make sure sum of values in gaussian kernel equals 1.
+    #     kernel = kernel / np.sum(kernel)
+    #
+    #     # Reshape
+    #     kernel = kernel.reshape(kernel_size[0], kernel_size[1], kernel_size[2])
+    #
+    #     # Total kernel
+    #     total_kernel = np.zeros(tuple(kernel_size) + (3, 3))
+    #     total_kernel[..., 0, 0] = kernel
+    #     total_kernel[..., 1, 1] = kernel
+    #     total_kernel[..., 2, 2] = kernel
+    #
+    #     return tf.convert_to_tensor(total_kernel, dtype=tf.float32)
+    #
+    # def get_control_points(self, field):
+    #     """
+    #     :param field: tf.Tensor of shape=self.input_shape
+    #     :return: interpolated_field: tf.Tensor
+    #     """
+    #     vol_shape = field.shape[1:-1]
+    #     mesh_shape = [
+    #         tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
+    #         for v, c in zip(vol_shape, self.cp_spacing)
+    #     ]
+    #
+    #     field = tf.nn.conv3d(
+    #         field, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
+    #     )
+    #
+    #     return layer_util.resize3d(image=field, size=mesh_shape)
 
     def call(self, inputs, **kwargs):
         """
-        :param inputs: tf.Tensor defining a free-form deformation field
+        :param inputs: tf.Tensor defining a low resolution free-form deformation field
         :param kwargs:
         :return: interpolated_field: tf.Tensor of shape=self.input_shape
         """
-        vol_shape = inputs.shape[1:-1]
-        low_res_field = self.get_control_points(inputs)
-        high_res_field = self.interpolate(low_res_field)
+        high_res_field = self.interpolate(inputs)
 
         index = [int(3 * c) for c in self.cp_spacing]
         return high_res_field[
             :,
-            index[0] : index[0] + vol_shape[0],
-            index[1] : index[1] + vol_shape[1],
-            index[2] : index[2] + vol_shape[2],
+            index[0] : index[0] + self._output_shape[0],
+            index[1] : index[1] + self._output_shape[1],
+            index[2] : index[2] + self._output_shape[2],
         ]
-
-
-class BSplines3DTransform2(tf.keras.layers.Layer):
-    """
-     Layer for BSplines interpolation with precomputed cubic spline filters.
-     It assumes a full sized image from which: (1) it compute the contol points values by downsampling the initial
-     image (2) performs the interpolation and (3) crops the image around the valid values.
-
-    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels) in each dimension.
-                      When a single int is used, the same spacing to all dimensions is used
-    :param kwargs:
-    """
-
-    def __init__(self, cp_spacing: (int, tuple), **kwargs):
-
-        super(BSplines3DTransform2, self).__init__(**kwargs)
-
-        self.filters = []
-
-        if isinstance(cp_spacing, int):
-            self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
-        else:
-            self.cp_spacing = cp_spacing
-
-    def build(self, input_shape: tuple):
-        """
-        :param input_shape: tuple with the input shape
-        :return:
-        """
-
-        pass
-
-    def call(self, inputs, **kwargs):
-
-        pass
