@@ -68,6 +68,15 @@ class UNet(tf.keras.Model):
             kernel_initializer=out_kernel_initializer,
             activation=out_activation,
         )
+        resize = True if "control_points" in kwargs else False
+        self.resize = (
+            layer.ResizeCPTransform(kwargs["control_points"]) if resize else False
+        )
+        self.interpolate = (
+            layer.BSplines3DTransform(kwargs["control_points"], image_size)
+            if resize
+            else False
+        )
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -103,4 +112,9 @@ class UNet(tf.keras.Model):
 
         # output
         output = self._output_conv3d(inputs=up_sampled)
+
+        if self.resize:
+            output = self.resize(output)
+            output = self.interpolate(output)
+
         return output

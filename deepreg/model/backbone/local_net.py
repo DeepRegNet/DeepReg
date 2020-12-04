@@ -88,6 +88,16 @@ class LocalNet(tf.keras.Model):
             for _ in self._extract_levels
         ]
 
+        resize = True if "control_points" in kwargs else False
+        self.resize = (
+            layer.ResizeCPTransform(kwargs["control_points"]) if resize else False
+        )
+        self.interpolate = (
+            layer.BSplines3DTransform(kwargs["control_points"], image_size)
+            if resize
+            else False
+        )
+
     def call(self, inputs, training=None, mask=None):
         """
         Build LocalNet graph based on built layers.
@@ -136,4 +146,9 @@ class LocalNet(tf.keras.Model):
             ),
             axis=5,
         )
+
+        if self.resize:
+            output = self.resize(output)
+            output = self.interpolate(output)
+
         return output
