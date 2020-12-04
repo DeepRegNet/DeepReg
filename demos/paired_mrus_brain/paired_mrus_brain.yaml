@@ -9,12 +9,11 @@ dataset:
   moving_image_shape: [256, 256, 288]
   fixed_image_shape: [256, 256, 288]
 train:
-  model:
-    method: "ddf" # ddf / dvf / conditional
-    backbone: "local"
-    local:
-      num_channel_initial: 4
-      extract_levels: [0, 1, 2, 3]
+  method: "ddf" # the registration method, value should be ddf / dvf / conditional
+  backbone:
+    name: "local" # value should be local / global / unet
+    num_channel_initial: 4 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2, 3]
   loss:
     dissimilarity:
       image:

@@ -1,21 +1,72 @@
 <p align="center">
-	<img src="https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/deepreg_logo_purple.svg" alt="deepreg_logo" title="DeepReg" width="200" />
+  <img src="https://raw.githubusercontent.com/DeepRegNet/DeepReg/main/docs/asset/deepreg_logo_purple.svg"
+    alt="deepreg_logo" title="DeepReg" width="200"/>
 </p>
 
-# DeepReg
+<table align="center">
+  <tr>
+    <td>
+      <b>Package</b>
+    </td>
+    <td>
+      <a href="https://opensource.org/licenses/Apache-2.0">
+      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+      </a>
+      <a href="https://pypi.python.org/pypi/DeepReg/">
+      <img src="https://img.shields.io/pypi/v/deepreg.svg" alt="PyPI Version">
+      </a>
+      <a href="https://pepy.tech/project/deepreg">
+      <img src="https://static.pepy.tech/personalized-badge/deepreg?period=total&units=none&left_color=grey&right_color=orange&left_text=Downloads"
+        alt="PyPI downloads">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>Documentation</b>
+    </td>
+    <td>
+      <a href="https://deepreg.readthedocs.io/en/latest/?badge=latest">
+      <img src="https://readthedocs.org/projects/deepreg/badge/?version=latest" alt="Documentation Status">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>Code Test</b>
+    </td>
+    <td>
+      <a href="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
+      </a>
+      <a href="https://travis-ci.com/DeepRegNet/DeepReg">
+      <img src="https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main" alt="Build Status">
+      </a>
+      <a href="https://codecov.io/github/DeepRegNet/DeepReg">
+      <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <b>Papers</b>
+    </td>
+    <td>
+      <a href="https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3"><img
+        src="https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3/status.svg"
+        alt="JOSS Paper"></a>
+      <a href="https://zenodo.org/badge/latestdoi/269365590"><img src="https://zenodo.org/badge/269365590.svg"
+        alt="DOI"></a>
+    </td>
+  </tr>
+</table>
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Build Status](https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main)](https://travis-ci.com/DeepRegNet/DeepReg)
-[![Documentation Status](https://readthedocs.org/projects/deepreg/badge/?version=latest)](https://deepreg.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg)](https://codecov.io/gh/DeepRegNet/DeepReg)
-[![PyPI](https://img.shields.io/pypi/v/deepreg.svg)](https://pypi.python.org/pypi/DeepReg/)
-[![status](https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3/status.svg)](https://joss.theoj.org/papers/7e6de472bc82a70d7618e23f618960b3)
+# DeepReg
 
 **DeepReg is a freely available, community-supported open-source toolkit for research
 and education in medical image registration using deep learning.**
 
-- TensorFlow-2-based for efficient training and rapid deployment;
+- TensorFlow 2-based for efficient training and rapid deployment;
 - Implementing major unsupervised and weakly-supervised algorithms, with their
   combinations and variants;
 - Focusing on growing and diverse clinical applications, with all DeepReg Demos using
@@ -53,7 +104,7 @@ By participating in this project, you agree to abide by its terms.
 ### Where Should I Start?
 
 For guidance on making a contribution to DeepReg, see our
-[Contribution Guidelines](https://deepreg.readthedocs.io/en/latest/contributing/code.html).
+[Contribution Guidelines](https://deepreg.readthedocs.io/en/latest/contributing/guide.html).
 
 Have a registration application with openly accessible data? Consider
 [contributing a DeepReg Demo](https://deepreg.readthedocs.io/en/latest/contributing/demo.html).
@@ -67,6 +118,13 @@ Check it out
 [here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb) -
 you can also
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/DeepRegNet/DeepReg/blob/main/docs/Intro_to_Medical_Image_Registration.ipynb)
+
+## Overview Video
+
+Members of the DeepReg dev team presented "The Road to DeepReg" at the Centre for
+Medical Imaging Computing (CMIC) seminar series at University College London on the 4th
+of November 2020. You can access the talk
+[here](https://eu.bbcollab.com/collab/ui/session/playback/load/941325351b64410eb886bbaf9aa64fb9?authToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYkNvbGxhYkFwaSIsInJlY29yZGluZ1VpZCI6Ijk0MTMyNTM1MWI2NDQxMGViODg2YmJhZjlhYTY0ZmI5IiwiaXNzIjoiYmJDb2xsYWJBcGkiLCJ0eXBlIjoxLCJleHAiOjE2MDYyMjc4NTIsImlhdCI6MTYwNjIyNDI1MiwiY29uc3VtZXIiOiI4NmU2YWQ3YzVlZDU0NzhlOGViMTQyODUyYWNiYzA5ZiJ9.VZIJqu3q4dVSkEy7X6sysvxWK5d_Xj9cvOSmG9sdZ_U&name=CMIC%252FWEISS%20joint%20seminar%20series%20-%20Wedn.%204th%20November%20-%20recording_1).
 
 ## Citing DeepReg
 

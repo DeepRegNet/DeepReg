@@ -106,7 +106,7 @@ Install via docker
 ------------------
 
 We also provide the docker file for building the docker image.
-Please clone `DeepReg repository`_ first:
+Please clone `DeepReg`_ repository first:
 
 .. code:: bash
 

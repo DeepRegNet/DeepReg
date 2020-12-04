@@ -1,4 +1,4 @@
-# Add a DeepReg Demo
+# DeepReg demo
 
 The [demos](https://github.com/DeepRegNet/DeepReg/tree/main/demos) folder directly under
 the DeepReg root directory contains demonstrations using DeepReg for different image
@@ -55,15 +55,19 @@ DeepReg Demo.
 
 ## A README.md file
 
-The markdown file _must_ be provided as an entry point for each demo, which should be
-based on the [template](../demo/readme_template.html).
+A markdown file _must_ be provided under `demos/<demo_name>` as an entry point for each
+demo, which should be based on the [template](../demo/readme_template.html). Moreover, a
+`.rst` file _must_ be provided under `docs/source/demo` to link the markdown file to the
+documentation page. The
+[introduction.rst](https://github.com/DeepRegNet/DeepReg/blob/main/docs/source/demo/introduction.rst)
+file should be updated properly as well.
 
 Following is a checklist for modifying the README template:
 
-- [ ] Update the link to source code;
-- [ ] Update the author section;
-- [ ] Update the application section;
-- [ ] Update the data section, optionally, describe the used pre-processing methods;
-- [ ] Update the `name` in all commands;
-- [ ] Update the reference section.
-- [ ] Optionally, adapt the file to custom needs.
+- Update the link to source code;
+- Update the author section;
+- Update the application section;
+- Update the data section, optionally, describe the used pre-processing methods;
+- Update the `name` in all commands;
+- Update the reference section.
+- Optionally, adapt the file to custom needs.
