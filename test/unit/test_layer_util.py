@@ -393,3 +393,26 @@ def test_resize3d():
     assert "resize3d takes size of type tuple/list and of length 3" in str(
         err_info.value
     )
+
+
+class TestGaussianFilter3D:
+    @pytest.mark.parametrize(
+        "kernel_sigma, kernel_size",
+        [
+            ((1, 1, 1), (3, 3, 3, 3, 3)),
+            ((2, 2, 2), (7, 7, 7, 3, 3)),
+            ((5, 5, 5), (15, 15, 15, 3, 3)),
+        ],
+    )
+    def test_kernel_size(self, kernel_sigma, kernel_size):
+        filter = layer_util.gaussian_filter_3d(kernel_sigma)
+        assert filter.shape == kernel_size
+
+    @pytest.mark.parametrize(
+        "kernel_sigma",
+        [(1, 1, 1), (2, 2, 2), (5, 5, 5)],
+    )
+    def test_sum(self, kernel_sigma):
+
+        filter = layer_util.gaussian_filter_3d(kernel_sigma)
+        assert np.allclose(np.sum(filter), 3, atol=1e-3)

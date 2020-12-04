@@ -350,6 +350,50 @@ def test_localNetUpSampleResnetBlock():
     assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
 
 
+class TestResizeCPTransform:
+    @pytest.mark.parametrize(
+        "parameter,cp_spacing", [((8, 8, 8), 8), ((8, 24, 16), (8, 24, 16))]
+    )
+    def test_attributes(self, parameter, cp_spacing):
+        model = layer.ResizeCPTransform(cp_spacing)
+
+        if isinstance(cp_spacing, int):
+            cp_spacing = [cp_spacing] * 3
+        assert model.cp_spacing == parameter
+        assert model.kernel_sigma == [0.44 * cp for cp in cp_spacing]
+
+    @pytest.mark.parametrize(
+        "input_size,output_size,cp_spacing",
+        [
+            ((1, 68, 68, 68, 3), (12, 8, 12), (8, 16, 8)),
+            ((1, 68, 68, 68, 3), (12, 12, 12), 8),
+        ],
+    )
+    def test_build(self, input_size, output_size, cp_spacing):
+
+        model = layer.ResizeCPTransform(cp_spacing)
+        model.build(input_size)
+
+        assert [a == b for a, b, in zip(model._output_shape, output_size)]
+
+    @pytest.mark.parametrize(
+        "input_size,output_size,cp_spacing",
+        [
+            ((1, 68, 68, 68, 3), (1, 12, 8, 12, 3), (8, 16, 8)),
+            ((1, 68, 68, 68, 3), (1, 12, 12, 12, 3), 8),
+        ],
+    )
+    def test_call(self, input_size, output_size, cp_spacing):
+
+        model = layer.ResizeCPTransform(cp_spacing)
+        model.build(input_size)
+
+        input = tf.random.normal(shape=input_size, dtype=tf.float32)
+        output = model(input)
+
+        assert output.shape == output_size
+
+
 class TestBSplines3DTransform:
     """
     Test the layer.BSplines3DTransform class, its default attributes and its call() function.
@@ -397,19 +441,11 @@ class TestBSplines3DTransform:
         return filters
 
     @pytest.mark.parametrize(
-        "parameter,cp_spacing", [((8, 8, 8), (8, 8, 8)), (8, (8, 8, 8))]
-    )
-    def test_control_points(self, parameter, cp_spacing):
-
-        model = layer.BSplines3DTransform(parameter)
-        assert model.cp_spacing == cp_spacing
-
-    @pytest.mark.parametrize(
         "input_size,cp",
         [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
     )
     def test_build(self, input_size, cp):
-        model = layer.BSplines3DTransform(cp)
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
 
         model.build(input_size)
         assert model.filter.shape == (
@@ -428,7 +464,7 @@ class TestBSplines3DTransform:
 
         filters = self.generate_filter_coefficients(cp_spacing=cp)
 
-        model = layer.BSplines3DTransform(cp)
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
         model.build(input_size)
 
         assert np.allclose(filters, model.filter.numpy(), atol=1e-8)
@@ -438,18 +474,18 @@ class TestBSplines3DTransform:
         [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
     )
     def test_interpolation(self, input_size, cp):
-        model = layer.BSplines3DTransform(cp)
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
         model.build(input_size)
 
         vol_shape = input_size[1:-1]
-        num_cp = [
-            int(np.ceil(isize / cpsize) + 3) for isize, cpsize in zip(vol_shape, cp)
-        ]
+        num_cp = (
+            [input_size[0]]
+            + [int(np.ceil(isize / cpsize) + 3) for isize, cpsize in zip(vol_shape, cp)]
+            + [input_size[-1]]
+        )
 
-        field = tf.random.normal(shape=input_size, dtype=tf.float32)
-
-        mesh = model.get_control_points(field)
-        assert mesh.shape == (1,) + tuple(num_cp) + (3,)
+        field = tf.random.normal(shape=num_cp, dtype=tf.float32)
+        print(field.shape)
 
         ddf = model.call(field)
         assert ddf.shape == input_size
