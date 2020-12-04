@@ -701,10 +701,10 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         super(BSplines3DTransform, self).build(input_shape=input_shape)
 
         b = {
-            0: lambda u: np.float32((1 - u) ** 3 / 6),
-            1: lambda u: np.float32((3 * (u ** 3) - 6 * (u ** 2) + 4) / 6),
-            2: lambda u: np.float32((-3 * (u ** 3) + 3 * (u ** 2) + 3 * u + 1) / 6),
-            3: lambda u: np.float32(u ** 3 / 6),
+            0: lambda u: np.float64((1 - u) ** 3 / 6),
+            1: lambda u: np.float64((3 * (u ** 3) - 6 * (u ** 2) + 4) / 6),
+            2: lambda u: np.float64((-3 * (u ** 3) + 3 * (u ** 2) + 3 * u + 1) / 6),
+            3: lambda u: np.float64(u ** 3 / 6),
         }
 
         filters = np.zeros(
@@ -718,31 +718,18 @@ class BSplines3DTransform(tf.keras.layers.Layer):
             dtype=np.float32,
         )
 
-        # for u in range(self.cp_spacing[0]):
-        #     for v in range(self.cp_spacing[1]):
-        #         for w in range(self.cp_spacing[2]):
-        #             for x in range(4):
-        #                 for y in range(4):
-        #                     for z in range(4):
-        #                         for it_dim in range(3):
-        #                             u_norm = 1 - (u + 1)/ self.cp_spacing[0]
-        #                             v_norm = 1 - (v + 1)/ self.cp_spacing[1]
-        #                             w_norm = 1 - (w + 1)/ self.cp_spacing[2]
-        #                             filters[
-        #                                 x * self.cp_spacing[0] + u,
-        #                                 y * self.cp_spacing[1] + v,
-        #                                 z * self.cp_spacing[2] + w,
-        #                                 it_dim,
-        #                                 it_dim,
-        #                             ] = (
-        #                                     b[x](u_norm) * b[y](v_norm) * b[z](w_norm)
-        #                             )
-
-        u_arange = np.arange(0, 1, 1 / self.cp_spacing[0])
-        v_arange = np.arange(0, 1, 1 / self.cp_spacing[1])
-        w_arange = np.arange(0, 1, 1 / self.cp_spacing[2])
+        u_arange = 1 - np.arange(
+            1 / (2 * self.cp_spacing[0]), 1, 1 / self.cp_spacing[0]
+        )
+        v_arange = 1 - np.arange(
+            1 / (2 * self.cp_spacing[1]), 1, 1 / self.cp_spacing[1]
+        )
+        w_arange = 1 - np.arange(
+            1 / (2 * self.cp_spacing[2]), 1, 1 / self.cp_spacing[2]
+        )
 
         filter_idx = [[0, 1, 2, 3] for _ in range(3)]
+        print(filter_idx)
         filter_coord = list(itertools.product(*filter_idx))
 
         for f_idx in filter_coord:
@@ -754,9 +741,9 @@ class BSplines3DTransform(tf.keras.layers.Layer):
                     it_dim,
                     it_dim,
                 ] = (
-                    b[3 - f_idx[0]](u_arange)[:, None, None]
-                    * b[3 - f_idx[1]](v_arange)[None, :, None]
-                    * b[3 - f_idx[2]](w_arange)[None, None, :]
+                    b[f_idx[0]](u_arange)[:, None, None]
+                    * b[f_idx[1]](v_arange)[None, :, None]
+                    * b[f_idx[2]](w_arange)[None, None, :]
                 )
 
         self.filter = tf.convert_to_tensor(filters)
@@ -831,7 +818,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         total_kernel[..., 1, 1] = kernel
         total_kernel[..., 2, 2] = kernel
 
-        return tf.convert_to_tensor(total_kernel)
+        return tf.convert_to_tensor(total_kernel, dtype=tf.float32)
 
     def get_control_points(self, field):
         """
@@ -861,11 +848,44 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         high_res_field = self.interpolate(low_res_field)
 
         index = [int(3 * c) for c in self.cp_spacing]
-
-        # return high_res_field
         return high_res_field[
             :,
-            index[0] - 1 : index[0] - 1 + vol_shape[0],
-            index[1] - 1 : index[1] - 1 + vol_shape[1],
-            index[2] - 1 : index[2] - 1 + vol_shape[2],
+            index[0] : index[0] + vol_shape[0],
+            index[1] : index[1] + vol_shape[1],
+            index[2] : index[2] + vol_shape[2],
         ]
+
+
+class BSplines3DTransform2(tf.keras.layers.Layer):
+    """
+     Layer for BSplines interpolation with precomputed cubic spline filters.
+     It assumes a full sized image from which: (1) it compute the contol points values by downsampling the initial
+     image (2) performs the interpolation and (3) crops the image around the valid values.
+
+    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels) in each dimension.
+                      When a single int is used, the same spacing to all dimensions is used
+    :param kwargs:
+    """
+
+    def __init__(self, cp_spacing: (int, tuple), **kwargs):
+
+        super(BSplines3DTransform2, self).__init__(**kwargs)
+
+        self.filters = []
+
+        if isinstance(cp_spacing, int):
+            self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
+        else:
+            self.cp_spacing = cp_spacing
+
+    def build(self, input_shape: tuple):
+        """
+        :param input_shape: tuple with the input shape
+        :return:
+        """
+
+        pass
+
+    def call(self, inputs, **kwargs):
+
+        pass
