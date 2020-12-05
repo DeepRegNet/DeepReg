@@ -1,6 +1,9 @@
-name: Python Test
+name: Python Demo Test
 
-on: [push]
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,15 +21,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install codecov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Test with pytest
+      - name: Test demos with pytest
         run: |
           pip install pytest
-          pip install pytest-cov
-          pytest --cov-report=xml --cov=deepreg ./test/unit/
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
+          pytest ./test/demo/
