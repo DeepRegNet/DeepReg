@@ -1,4 +1,4 @@
-name: Python Unit Test
+name: Python-Unit-Test
 
 on: [push, pull_request]
 

@@ -39,9 +39,6 @@
       <a href="https://github.com/psf/black">
       <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
       </a>
-      <a href="https://travis-ci.com/DeepRegNet/DeepReg">
-      <img src="https://travis-ci.com/DeepRegNet/DeepReg.svg?branch=main" alt="Build Status">
-      </a>
       <a href="https://codecov.io/github/DeepRegNet/DeepReg">
       <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">
       </a>
