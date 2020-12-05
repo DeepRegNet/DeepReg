@@ -3,7 +3,7 @@ name: Python Unit Test
 on: [push, pull_request]
 
 jobs:
-  build:
+  unit-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
