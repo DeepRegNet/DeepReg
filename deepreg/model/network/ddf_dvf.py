@@ -8,6 +8,7 @@ from deepreg.model.network.util import (
     build_backbone,
     build_inputs,
 )
+from deepreg.registry import Registry
 
 
 def ddf_dvf_forward(
@@ -83,6 +84,7 @@ def build_ddf_dvf_model(
     labeled: bool,
     batch_size: int,
     train_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Build a model which outputs DDF/DVF.
@@ -111,6 +113,7 @@ def build_ddf_dvf_model(
         out_channels=3,
         config=train_config["backbone"],
         method_name=train_config["method"],
+        registry=registry,
     )
 
     # forward

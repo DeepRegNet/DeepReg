@@ -1,6 +1,7 @@
 from deepreg.model.network.affine import build_affine_model
 from deepreg.model.network.cond import build_conditional_model
 from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
+from deepreg.registry import Registry
 
 
 def build_model(
@@ -10,6 +11,7 @@ def build_model(
     labeled: bool,
     batch_size: int,
     train_config: dict,
+    registry: Registry,
 ):
     """
     Parsing algorithm types to model building functions.
@@ -30,6 +32,7 @@ def build_model(
             labeled=labeled,
             batch_size=batch_size,
             train_config=train_config,
+            registry=registry,
         )
     elif train_config["method"] == "conditional":
         return build_conditional_model(
@@ -39,6 +42,7 @@ def build_model(
             labeled=labeled,
             batch_size=batch_size,
             train_config=train_config,
+            registry=registry,
         )
     elif train_config["method"] == "affine":
         return build_affine_model(
@@ -48,6 +52,7 @@ def build_model(
             labeled=labeled,
             batch_size=batch_size,
             train_config=train_config,
+            registry=registry,
         )
     else:
         raise ValueError(f"Unknown method {train_config['method']}")
