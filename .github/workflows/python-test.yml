@@ -22,4 +22,11 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
         run: |
-          pytest --cov-report= --cov=deepreg ./test/unit/ && bash <(curl -s https://codecov.io/bash)
+          pip install pytest
+          pip install pytest-cov
+          pytest --cov-report=xml --cov=deepreg ./test/unit/
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
