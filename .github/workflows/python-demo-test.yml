@@ -26,4 +26,5 @@ jobs:
       - name: Test demos with pytest
         run: |
           pip install pytest
+          pip install -e .
           pytest ./test/demo/
