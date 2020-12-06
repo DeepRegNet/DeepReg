@@ -11,6 +11,7 @@ import tensorflow as tf
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
+from deepreg.callback import build_callbacks
 from deepreg.model.network.build import build_model
 from deepreg.util import build_dataset, build_log_dir
 
@@ -60,26 +61,6 @@ def build_config(
     config["train"]["preprocess"]["batch_size"] *= max(len(gpus), 1)
 
     return config, log_dir
-
-
-def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list:
-    """
-    Function to prepare callbacks for training.
-
-    :param log_dir: directory of logs
-    :param histogram_freq: save the histogram every X epochs
-    :param save_period: save the checkpoint every X epochs
-    :return: a list of callbacks
-    """
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=histogram_freq
-    )
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt",
-        save_weights_only=True,
-        period=save_period,
-    )
-    return [tensorboard_callback, checkpoint_callback]
 
 
 def train(
@@ -132,15 +113,6 @@ def train(
         repeat=True,
     )
 
-    # build callbacks
-    callbacks = build_callbacks(
-        log_dir=log_dir,
-        histogram_freq=config["train"][
-            "save_period"
-        ],  # use save_period for histogram_freq
-        save_period=config["train"]["save_period"],
-    )
-
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
@@ -159,6 +131,16 @@ def train(
 
     # compile
     model.compile(optimizer=optimizer)
+
+    # build callbacks
+    callbacks = build_callbacks(
+        model=model,
+        log_dir=log_dir,
+        histogram_freq=config["train"][
+            "save_period"
+        ],  # use save_period for histogram_freq
+        save_period=config["train"]["save_period"],
+    )
 
     # load weights
     if ckpt_path != "":

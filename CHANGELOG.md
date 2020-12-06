@@ -22,6 +22,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Remove invalid `first` argument in DataLoader for sample_index generator.
 - Fixed build error when downloading data from private repo.
