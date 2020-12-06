@@ -31,6 +31,7 @@ class LocalNet(tf.keras.Model):
         extract_levels: List[int],
         out_kernel_initializer: str,
         out_activation: str,
+        control_points: (tuple, None) = None,
         **kwargs,
     ):
         """
@@ -47,6 +48,7 @@ class LocalNet(tf.keras.Model):
         :param extract_levels: list of int, number of extraction levels.
         :param out_kernel_initializer: str, initializer to use for kernels.
         :param out_activation: str, activation to use at end layer.
+        :param control_points: (tuple, None), specify the distance between control points (in voxels).
         :param kwargs:
         """
         super(LocalNet, self).__init__(**kwargs)
@@ -88,13 +90,14 @@ class LocalNet(tf.keras.Model):
             for _ in self._extract_levels
         ]
 
-        resize = True if "control_points" in kwargs else False
         self.resize = (
-            layer.ResizeCPTransform(kwargs["control_points"]) if resize else False
+            layer.ResizeCPTransform(control_points)
+            if control_points is not None
+            else False
         )
         self.interpolate = (
-            layer.BSplines3DTransform(kwargs["control_points"], image_size)
-            if resize
+            layer.BSplines3DTransform(control_points, image_size)
+            if control_points is not None
             else False
         )
 
