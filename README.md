@@ -37,7 +37,13 @@
     </td>
     <td>
       <a href="https://github.com/psf/black">
-      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Cod Style">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
+      </a>
+      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%20Unit%20Test">
+      <img src="https://github.com/deepregnet/deepreg/workflows/Unit%20Test/badge.svg?branch=main" alt="Unit Test">
+      </a>
+      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%20Demo%20Test">
+      <img src="https://github.com/deepregnet/deepreg/workflows/Demo%20Test/badge.svg?branch=main" alt="Demo Test">
       </a>
       <a href="https://codecov.io/github/DeepRegNet/DeepReg">
       <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">
