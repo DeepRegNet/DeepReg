@@ -8,8 +8,9 @@ Fixes #<issue_number>
 
 ## Type of change
 
-What types of changes does your code introduce to DeepReg? _Put an `x` in the boxes that
-apply_
+What types of changes does your code introduce to DeepReg?
+
+_Please check the boxes that apply after submitting the pull request._
 
 - [ ] Bugfix (non-breaking change which fixes an issue)
 - [ ] Code style update (formatting, renaming)
@@ -20,8 +21,9 @@ apply_
 
 ## Checklist
 
-_Put an `x` in the boxes that apply. You can also fill these out after creating the PR.
-If you're unsure about any of them, don't hesitate to ask. We're here to help! This is
+_Please check the boxes that apply after submitting the pull request._
+
+_If you're unsure about any of them, don't hesitate to ask. We're here to help! This is
 simply a reminder of what we are going to look for before merging your code._
 
 - [ ] I have

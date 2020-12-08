@@ -156,8 +156,7 @@ def train(
             index_size=data_loader_train.num_indices,
             labeled=config["dataset"]["labeled"],
             batch_size=config["train"]["preprocess"]["batch_size"],
-            model_config=config["train"]["model"],
-            loss_config=config["train"]["loss"],
+            train_config=config["train"],
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 

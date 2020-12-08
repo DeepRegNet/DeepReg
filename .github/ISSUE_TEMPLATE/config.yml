@@ -3,3 +3,6 @@ contact_links:
   - name: Documentation
     url: https://deepreg.readthedocs.io/en/latest/
     about: Please check the documentation here.
+  - name: Contribution Guidelines
+    url: https://deepreg.readthedocs.io/en/latest/contributing/guide.html
+    about: Please check the guidelines for contributing here.

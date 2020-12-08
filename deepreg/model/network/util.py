@@ -9,13 +9,15 @@ import tensorflow as tf
 import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
-from deepreg.model.backbone.global_net import GlobalNet
-from deepreg.model.backbone.local_net import LocalNet
-from deepreg.model.backbone.u_net import UNet
+from deepreg.registry import Registry
 
 
 def build_backbone(
-    image_size: tuple, out_channels: int, model_config: dict, method_name: str
+    image_size: tuple,
+    out_channels: int,
+    config: dict,
+    method_name: str,
+    registry: Registry = Registry(),
 ) -> tf.keras.Model:
     """
     Backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)
@@ -24,7 +26,8 @@ def build_backbone(
     :param image_size: tuple, dims of image, (dim1, dim2, dim3)
     :param out_channels: int, number of out channels, ch_out
     :param method_name: str, one of ddf, dvf and conditional
-    :param model_config: dict, model configuration, returned from parser.yaml.load
+    :param config: dict, backbone configuration
+    :param registry: the registry object having all backbone classes
     :return: tf.keras.Model
     """
     if not (
@@ -32,12 +35,7 @@ def build_backbone(
         and len(image_size) == 3
     ):
         raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
-    if not (isinstance(out_channels, int) and out_channels >= 1):
-        raise ValueError(f"out_channels must be int >=1, got {out_channels}")
-    if not (isinstance(model_config, dict) and "backbone" in model_config.keys()):
-        raise ValueError(
-            f"model_config must be a dict having key 'backbone', got{model_config}"
-        )
+
     if method_name not in ["ddf", "dvf", "conditional", "affine"]:
         raise ValueError(
             f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
@@ -54,35 +52,15 @@ def build_backbone(
     elif method_name in ["affine"]:
         out_activation = None
         out_kernel_initializer = "zeros"
-    else:
-        raise ValueError("Unknown method name {}".format(method_name))
 
-    if model_config["backbone"] == "local":
-        return LocalNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["local"],
-        )
-    elif model_config["backbone"] == "global":
-        return GlobalNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["global"],
-        )
-    elif model_config["backbone"] == "unet":
-        return UNet(
-            image_size=image_size,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            **model_config["unet"],
-        )
-    else:
-        raise ValueError("Unknown model name")
+    backbone_cls = registry.get_backbone(key=config["name"])
+    return backbone_cls(
+        image_size=image_size,
+        out_channels=out_channels,
+        out_kernel_initializer=out_kernel_initializer,
+        out_activation=out_activation,
+        **config,
+    )
 
 
 def build_inputs(
@@ -95,31 +73,33 @@ def build_inputs(
     """
     Configure a pair of moving and fixed images and a pair of
     moving and fixed labels as model input
-    and returns model input tf.keras.Input.
+    and returns model input tf.keras.Input
 
-    :param moving_image_size: tuple, dims of moving images, [m_dim1, m_dim2, m_dim3]
-    :param fixed_image_size: tuple, dims of fixed images, [f_dim1, f_dim2, f_dim3]
+    TODO do we absolutely need the batch_size in Input?
+
+    :param moving_image_size: tuple, dims of moving images, (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: tuple, dims of fixed images, (f_dim1, f_dim2, f_dim3)
     :param index_size: int, dataset size (number of images)
     :param batch_size: int, mini-batch size
     :param labeled: Boolean, true if we have label data
     :return: 5 (if labeled=True) or 3 (if labeled=False) tf.keras.Input objects
     """
     moving_image = tf.keras.Input(
-        shape=(*moving_image_size,), batch_size=batch_size, name="moving_image"
+        shape=moving_image_size, batch_size=batch_size, name="moving_image"
     )  # (batch, m_dim1, m_dim2, m_dim3)
     fixed_image = tf.keras.Input(
-        shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_image"
+        shape=fixed_image_size, batch_size=batch_size, name="fixed_image"
     )  # (batch, f_dim1, f_dim2, f_dim3)
     moving_label = (
         tf.keras.Input(
-            shape=(*moving_image_size,), batch_size=batch_size, name="moving_label"
+            shape=moving_image_size, batch_size=batch_size, name="moving_label"
         )
         if labeled
         else None
     )  # (batch, m_dim1, m_dim2, m_dim3)
     fixed_label = (
         tf.keras.Input(
-            shape=(*fixed_image_size,), batch_size=batch_size, name="fixed_label"
+            shape=fixed_image_size, batch_size=batch_size, name="fixed_label"
         )
         if labeled
         else None

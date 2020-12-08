@@ -9,17 +9,13 @@ dataset:
   image_shape: [64, 64, 64]
 
 train:
-  model:
-    method: "dvf" # ddf / dvf / conditional
-    backbone: "unet"
-    local:
-      num_channel_initial: 2
-      extract_levels: [0, 1, 2, 3, 4]
-    unet:
-      num_channel_initial: 16
-      depth: 3
-      pooling: false
-      concat_skip: true
+  method: "dvf" # the registration method, value should be ddf / dvf / conditional
+  backbone:
+    name: "unet" # value should be local / global / unet
+    num_channel_initial: 16
+    depth: 3
+    pooling: false
+    concat_skip: true
   loss:
     dissimilarity:
       image:

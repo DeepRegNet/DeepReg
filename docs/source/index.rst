@@ -53,7 +53,7 @@
     :caption: Contributing to DeepReg
 
     contributing/guide
-    contributing/setup
-    contributing/pull_request
+    contributing/test
     contributing/demo
-    contributing/build
+    contributing/docs
+    contributing/release
