@@ -16,6 +16,9 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Changed distribute strategy to default for <= 1 GPU.
+- Migrated from Travis-CI to GitHub Actions.
+- Simplified configuration for backbone models.
+- Simplified contributing documentation.
 
 ### Fixed
 
