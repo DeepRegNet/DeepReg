@@ -1,113 +1,47 @@
 #!/usr/bin/python3
-import re
 import os
-import urllib.request
 import argparse
-import json
-import base64
+from io import BytesIO
+from zipfile import ZipFile
+from urllib.request import urlopen
 
 
-def create_url(url):
+def download(dirs, output_dir="./"):
     """
-    From the given url, produce a URL that is compatible with Github's REST API. Can handle blob or tree paths.
-    """
-    repo_only_url = re.compile(
-        r"https:\/\/github\.com\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}\/[a-zA-Z0-9]+"
-    )
-    re_branch = re.compile("/(tree|blob)/(.+?)/")
-
-    # extract the branch name from the given url (e.g master)
-    branch = re_branch.search(url)
-    download_dirs = url[branch.end() :]
-    api_url = (
-        url[: branch.start()].replace("github.com", "api.github.com/repos", 1)
-        + "/contents/"
-        + download_dirs
-        + "?ref="
-        + branch.group(2)
-    )
-    return api_url, download_dirs
-
-
-def download(repo_url, output_dir="./", username="", password=""):
-    """
-    Downloads the files and directories in repo_url.
+    Downloads the files and directories from DeepReg into `output_dir`, keeping only `dirs`.
     """
 
-    # generate the url which returns the JSON data
-    api_url, download_dirs = create_url(repo_url)
+    output_dir = os.path.abspath(output_dir)  # Get the output directory.
 
-    # To handle file names.
-    if len(download_dirs.split(".")) == 0:
-        dir_out = os.path.join(output_dir, download_dirs)
-    else:
-        dir_out = os.path.join(output_dir, "/".join(download_dirs.split("/")[:-1]))
+    print("\nWill download folders: [", *dirs, sep=" ", end=" ")
+    print("] into {}.\n".format(output_dir))
 
-    headers = [("User-agent", "DeepReg")]
-    if username and password:
-        headers.append(
-            (
-                "Authorization",
-                "Basic %s"
-                % base64.urlsafe_b64encode(
-                    bytes("%s:%s" % (username, password), "ascii")
-                ),
-            )
-        )
+    print("Downloading archive from DeepReg repository...\n")
 
-    opener = urllib.request.build_opener()
-    opener.addheaders = headers
-    urllib.request.install_opener(opener)
-    response = urllib.request.urlretrieve(api_url)
+    response = urlopen(
+        "https://github.com/DeepRegNet/DeepReg/archive/main.zip"
+    )  # Download the zip.
 
-    # make a directory with the name which is taken from
-    # the actual repo
-    os.makedirs(dir_out, exist_ok=True)
+    print("Downloaded archive. Extracting files...\n")
 
-    # total files count
-    total_files = 0
+    with ZipFile(BytesIO(response.read())) as zf:
 
-    with open(response[0], "r") as f:
-        data = json.load(f)
-        # getting the total number of files so that we
-        # can use it for the output information later
-        total_files += len(data)
+        pathnames = zf.namelist()
+        head = pathnames[0]
+        keepdirs = [
+            os.path.join(head, d) for d in dirs
+        ]  # Find our folders to keep, based on what user specifies.
 
-        # If the data is a file, download it as one.
-        if isinstance(data, dict) and data["type"] == "file":
-            opener = urllib.request.build_opener()
-            opener.addheaders = headers
-            urllib.request.install_opener(opener)
-            urllib.request.urlretrieve(
-                data["download_url"], os.path.join(dir_out, data["name"])
-            )
-            print("Downloaded: {}".format(os.path.join(dir_out, data["name"])))
+        for pathname in pathnames:
+            if any(d in pathname for d in keepdirs):
 
-            return total_files
+                info = zf.getinfo(pathname)
+                info.filename = info.filename.replace(
+                    head, ""
+                )  # Remove head directory from filepath
+                zf.extract(info, output_dir)
 
-        for file in data:
-            file_url = file["download_url"]
-            file_name = file["name"]
-
-            path = file["path"]
-
-            dirname = os.path.dirname(path)
-
-            if dirname != "":
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-            else:
-                pass
-
-            if file_url is not None:
-                opener = urllib.request.build_opener()
-                opener.addheaders = headers
-                urllib.request.install_opener(opener)
-                urllib.request.urlretrieve(file_url, path)
-                print("Downloaded: {}".format(path))
-            else:
-                download(file["html_url"], dir_out, username, password)
-
-    return total_files
+                print("Downloaded {}".format(info.filename))
 
 
 def main():
@@ -120,22 +54,15 @@ def main():
         default="./",
         help="All directories will be downloaded to the specified directory.",
     )
-    parser.add_argument(
-        "--username", "-u", dest="username", default="", help="Your GitHub username."
-    )
-    parser.add_argument(
-        "--password", "-p", dest="password", default="", help="Your GitHub password."
-    )
     args = parser.parse_args()
 
-    urls = [
-        "https://github.com/DeepRegNet/DeepReg/tree/main/config",
-        "https://github.com/DeepRegNet/DeepReg/tree/main/data",
-        "https://github.com/DeepRegNet/DeepReg/tree/main/demos",
+    dirs = [
+        "config",
+        "data",
+        "demos",
     ]
 
-    for url in urls:
-        total_files = download(url, args.output_dir, args.username, args.password)
+    download(dirs, args.output_dir)
 
     print(
         "\nDownload complete. Please refer to the DeepReg Quick Start guide for next steps."
