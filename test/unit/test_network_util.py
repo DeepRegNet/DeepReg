@@ -6,13 +6,18 @@ Tests for deepreg/model/network/util
 import pytest
 
 import deepreg.model.network.util as util
+from deepreg.registry import Registry
 
 
 class TestBuildBackbone:
     def test_wrong_image_size(self):
         with pytest.raises(ValueError) as err_info:
             util.build_backbone(
-                image_size=(1, 1, 1, 1), out_channels=1, config={}, method_name="ddf"
+                image_size=(1, 1, 1, 1),
+                out_channels=1,
+                config={},
+                method_name="ddf",
+                registry=Registry(),
             )
         assert "image_size must be tuple of length 3" in str(err_info.value)
 
@@ -23,6 +28,7 @@ class TestBuildBackbone:
                 out_channels=1,
                 config={"backbone": "local"},
                 method_name="wrong",
+                registry=Registry(),
             )
         assert (
             "method name has to be one of ddf/dvf/conditional/affine in build_backbone"
@@ -43,6 +49,7 @@ class TestBuildBackbone:
                 "extract_levels": [1, 2, 3],
             },
             method_name=method_name,
+            registry=Registry(),
         )
 
     @pytest.mark.parametrize("method_name", ["ddf", "dvf", "conditional", "affine"])
@@ -58,6 +65,7 @@ class TestBuildBackbone:
                 "depth": 4,
             },
             method_name=method_name,
+            registry=Registry(),
         )
 
 
