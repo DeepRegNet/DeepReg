@@ -33,7 +33,7 @@ setup(
             "deepreg_predict=deepreg.predict:main",
             "deepreg_warp=deepreg.warp:main",
             "deepreg_vis=deepreg.vis:main",
-            "deepreg_download=deepreg.download:main"
+            "deepreg_download=deepreg.download:main",
         ]
     },
     classifiers=[

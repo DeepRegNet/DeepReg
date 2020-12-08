@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-import os
 import argparse
+import os
 from io import BytesIO
-from zipfile import ZipFile
 from urllib.request import urlopen
+from zipfile import ZipFile
 
 
 def download(dirs, output_dir="./"):
