@@ -17,6 +17,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Migrated from Travis-CI to GitHub Actions.
 - Simplified configuration for backbone models.
 - Simplified contributing documentation.
 
