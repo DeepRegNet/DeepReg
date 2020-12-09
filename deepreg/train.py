@@ -12,6 +12,7 @@ import tensorflow as tf
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 from deepreg.util import build_dataset, build_log_dir
 
 
@@ -90,6 +91,7 @@ def train(
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
+    registry: Registry = Registry(),
 ):
     """
     Function to train a model.
@@ -157,6 +159,7 @@ def train(
             labeled=config["dataset"]["labeled"],
             batch_size=config["train"]["preprocess"]["batch_size"],
             train_config=config["train"],
+            registry=registry,
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 

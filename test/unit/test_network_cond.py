@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from deepreg.model.network.cond import build_conditional_model, conditional_forward
 from deepreg.model.network.util import build_backbone
+from deepreg.registry import Registry
 
 
 def test_conditional_forward():
@@ -27,6 +28,7 @@ def test_conditional_forward():
             "extract_levels": [1, 2, 3],
         },
         method_name="conditional",
+        registry=Registry(),
     )
 
     # Check conditional mode network output shapes - Pass
@@ -78,6 +80,7 @@ def test_build_conditional_model():
                 "regularization": {"weight": 0.5, "energy_type": "bending"},
             },
         },
+        registry=Registry(),
     )
 
     inputs = {

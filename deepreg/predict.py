@@ -17,6 +17,7 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 from deepreg.util import (
     build_dataset,
     build_log_dir,
@@ -258,6 +259,7 @@ def predict(
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
+    registry: Registry = Registry(),
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -311,6 +313,7 @@ def predict(
         labeled=config["dataset"]["labeled"],
         batch_size=preprocess_config["batch_size"],
         train_config=config["train"],
+        registry=registry,
     )
 
     # metrics
