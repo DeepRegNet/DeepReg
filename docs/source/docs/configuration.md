@@ -121,11 +121,10 @@ be passed. Additionally, if the tensors in the files only have one label, irrega
 the `sample_label` argument, the data loader will only pass the one label to the
 network.
 
-`seed`:
-
 ##### Paired
 
-`moving_image_shape`: (list, tuple) `fixed_image_shape`: (list, tuple)
+- `moving_image_shape`: (list, tuple)
+- `fixed_image_shape`: (list, tuple)
 
 ##### Unpaired
 
@@ -133,19 +132,155 @@ network.
 
 ##### Grouped
 
-`intra_group_prob`: float, between 0 and 1. `sample_label`:method for sampling the
-labels "sample" "first" "all" `intra_group_option`: str, "forward", "backward, or
-"unconstrained" `sample_image_in_group`: bool, `image_shape`
+- `intra_group_prob`: float, between 0 and 1.
+- `sample_label`: method for sampling the labels "sample" "first" "all"
+  `intra_group_option`: str, "forward", "backward, or "unconstrained"
+- `sample_image_in_group`: bool,
+- `image_shape`
 
 See the [dataset loader configuration](dataset_loader.html) for more details.
 
 ## Train section
 
 The `train` section defines the neural network training hyper-parameters, by specifying
-subsections, `model`, `loss`, `optimizer`, `preprocess` and other training
-hyper-parameter, including `epochs` and `save_period`. See an
-[example configuration](https://github.com/DeepRegNet/DeepReg/blob/main/config/unpaired_labeled_ddf.yaml),
-with comments on the available options in each subsection.
+subsections, `method`, `backbone`, `loss`, `optimizer`, `preprocess` and other training
+hyper-parameters, including `epochs` and `save_period`.
 
-This section is highly application-specific. More examples can be found in
-[DeepReg Demos](../demo/introduction.html).
+### Method - required
+
+The `method` argument defines the registration type. It must be a string type, one of
+"ddf", "dvf", "conditional", which are the currently supported registration methods.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+```
+
+### Backbone - required
+
+The `backbone` section defines the backbone network for the registration. This section
+has several subsections. The `name` and `num_channel_initial` are global to all backbone
+methods, and there are specific arguments for some of the backbones to define their
+implementation.
+
+#### Global parameters for train The `name` is used to define the network. It should be
+string type, one of "unet", "local" or "global", to define a UNet, LocalNet or GlobalNet
+backbone, respectively.
+
+The `num_channel_initial` is used to define the number of initial channels for the
+network, and should be int type.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "unet" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+```
+
+#### UNet
+
+The UNet model requires several additional arguments to define it's structure:
+
+- `depth`: int, defines the depth of the UNet from first to bottom, bottleneck layer.
+- `pooling`: Boolean, pooling method used for downsampling. True: non-parametrized
+  pooling will be used, False: conv3d will be used.
+- `concat_skip`: Boolean, concatenation method for skip layers in UNet. True:
+  concatenation of layers, False: addition is used instead.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "unet" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 3
+    pooling: False
+    concat_skip: True
+```
+
+#### Local and GlobalNet The LocalNet has an encoder-decoder structure, and extracts
+information from tensors at certain levels. We can define which levels to extract info
+from with the `extract_levels` argument.
+
+The GlobalNet encodes the image and uses the bottleneck layer to output an affine
+transformation using a FCN.
+
+- `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
+  be >=0). Eg. [1, 2, 3, 5] will extract information at those levels (but not 4).
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+```
+
+### Loss - required
+
+This section defines the loss in training.
+
+### Optimizer - required The optimizer can be defined by using a `name` and then passing
+optimizer specific arguments with the same name. All optimizers can use the
+`learning_rate` argument.
+
+- `name`: string type, is used to define the optimizer during training. One of "adam",
+  "sgd", "rms". There must be another additional field with the same name.
+
+- `adam`: If adam is passed into `name`, the `adam` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used.
+- `sgd`: If sgd is passed into `name`, the `sgd` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras SGD optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/SGD).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used instead.
+- `rms`: If rms is passed into `name`, the `rms` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras RMSprop optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/RMSprop).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used instead.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+  optimizer:
+    name: "adam"
+    adam:
+```
+
+or
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: False
+```
+
+### Preprocess - required
+
+- batch_size
+- shuffle_buffer_num_batch
+
+### Epochs - required
+
+### save_period
