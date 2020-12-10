@@ -12,6 +12,7 @@ import tensorflow as tf
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 from deepreg.util import build_dataset, build_log_dir
 
 
@@ -90,6 +91,7 @@ def train(
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
+    registry: Registry = Registry(),
 ):
     """
     Function to train a model.
@@ -145,16 +147,19 @@ def train(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
     # only model, optimizer and metrics need to be defined inside the strategy
-    mirrored_strategy = tf.distribute.MirroredStrategy()
-    with mirrored_strategy.scope():
+    if len(tf.config.list_physical_devices("GPU")) > 1:
+        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
+    else:
+        strategy = tf.distribute.get_strategy()
+    with strategy.scope():
         model = build_model(
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
             index_size=data_loader_train.num_indices,
             labeled=config["dataset"]["labeled"],
             batch_size=config["train"]["preprocess"]["batch_size"],
-            model_config=config["train"]["model"],
-            loss_config=config["train"]["loss"],
+            train_config=config["train"],
+            registry=registry,
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 

@@ -146,15 +146,6 @@ def test_label_indices_sample():
     assert expected.intersection(set(actual))
 
 
-def test_label_indices_first():
-    """
-    Assert list with 0 raised if first sample label
-    """
-    expected = [0]
-    actual = util.get_label_indices(5, "first")
-    assert expected == actual
-
-
 def test_label_indices_all():
     """
     Assert list with all labels returned if all passed

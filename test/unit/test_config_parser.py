@@ -162,7 +162,7 @@ def test_config_sanity_check(caplog):
                     dir=dict(train=None, valid=None, test=None),
                     labeled=False,
                 ),
-                train=dict(model=dict(method="conditional")),
+                train=dict(method="conditional"),
             )
         )
     assert "For conditional model, data have to be labeled, got unlabeled data." in str(
@@ -182,7 +182,7 @@ def test_config_sanity_check(caplog):
                 labeled=False,
             ),
             train=dict(
-                model=dict(method="ddf"),
+                method="ddf",
                 loss=dict(
                     dissimilarity=dict(image=dict(weight=0.0), label=dict(weight=0.0)),
                     regularization=dict(weight=0.0),
