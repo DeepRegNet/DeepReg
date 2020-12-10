@@ -276,11 +276,77 @@ train:
       nesterov: False
 ```
 
-### Preprocess - required
+### Preprocess - required The `preprocess` field defines how the dataloader feeds data
+into the model.
 
-- batch_size
-- shuffle_buffer_num_batch
+- `batch_size`: int, the batch size to pass to the network on each training step.
+- `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
+  memory to buffer training, such that shuffle_buffer_size = batch_size \*
+  shuffle_buffer_num_batch.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: False
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+```
 
 ### Epochs - required
 
-### save_period
+The `epochs` field defines number of epochs to train the network for.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: False
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+  epochs: 1000
+```
+
+### Saving frequency - required The `save_period` field defines the save frequency - the
+model will be saved every `save_period` epochs.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: False
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+  epochs: 1000
+  save_period: 5
+```
