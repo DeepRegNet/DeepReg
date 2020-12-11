@@ -123,20 +123,27 @@ network.
 
 ##### Paired
 
-- `moving_image_shape`: (list, tuple)
-- `fixed_image_shape`: (list, tuple)
+- `moving_image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the
+  3D moving image.
+- `fixed_image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the
+  3D fixed image.
 
 ##### Unpaired
 
-`image_shape`:
+- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
+  image.
 
 ##### Grouped
 
-- `intra_group_prob`: float, between 0 and 1.
-- `sample_label`: method for sampling the labels "sample" "first" "all"
-  `intra_group_option`: str, "forward", "backward, or "unconstrained"
-- `sample_image_in_group`: bool,
-- `image_shape`
+- `intra_group_prob`: float, between 0 and 1. Passing 0 would only generate inter-group
+  samples, and passing 1 would only generate intra-group samples.
+- `sample_label`: method for sampling the labels "sample", "all" `intra_group_option`:
+  str, "forward", "backward, or "unconstrained"
+- `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
+  group, so one epoch has num_groups pairs of data, if false, iterate through this
+  loader will generate all possible pairs.
+- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
+  image.
 
 See the [dataset loader configuration](dataset_loader.html) for more details.
 
