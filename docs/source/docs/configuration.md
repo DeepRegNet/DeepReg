@@ -163,9 +163,10 @@ has several subsections. The `name` and `num_channel_initial` are global to all 
 methods, and there are specific arguments for some of the backbones to define their
 implementation.
 
-#### Global parameters for train The `name` is used to define the network. It should be
-string type, one of "unet", "local" or "global", to define a UNet, LocalNet or GlobalNet
-backbone, respectively.
+#### Global parameters for train
+
+The `name` is used to define the network. It should be string type, one of "unet",
+"local" or "global", to define a UNet, LocalNet or GlobalNet backbone, respectively.
 
 The `num_channel_initial` is used to define the number of initial channels for the
 network, and should be int type.
@@ -199,9 +200,11 @@ train:
     concat_skip: True
 ```
 
-#### Local and GlobalNet The LocalNet has an encoder-decoder structure, and extracts
-information from tensors at certain levels. We can define which levels to extract info
-from with the `extract_levels` argument.
+#### Local and GlobalNet
+
+The LocalNet has an encoder-decoder structure, and extracts information from tensors at
+certain levels. We can define which levels to extract info from with the
+`extract_levels` argument.
 
 The GlobalNet encodes the image and uses the bottleneck layer to output an affine
 transformation using a FCN.
@@ -222,9 +225,94 @@ train:
 
 This section defines the loss in training.
 
-### Optimizer - required The optimizer can be defined by using a `name` and then passing
-optimizer specific arguments with the same name. All optimizers can use the
-`learning_rate` argument.
+The losses in DeepReg are defined depending on the type of network to be built, and can
+be split into two sections: dissimilarity loss (between moving and fixed tensors), and
+regularization losses (on the DDFs predicted).
+
+DeepReg uses `tf.keras.Model` `add_loss()` method to add losses to the model, which
+provides some flexibility in configuration.
+
+#### Image
+
+- `weight`: float type, weight of individual loss element in total loss function.
+- `name`: string type, one of "lncc", "ssd" or "gmi". EG.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    dissimilarity:
+      image:
+        name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+        weight: 0.1
+```
+
+#### Label
+
+- `weight`: float type, weight of individual loss element in total loss function.
+- `name`: string type, "multi_scale" or "single_scale", defines the resolution of
+  kernels to use with the loss.
+  - The same string should be passed as a field to the dictionary, with the following
+    additional arguments under each field:
+  - `multi_scale`:
+    - `loss_type`: string type, name of loss to use. Options currently include "dice",
+      "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
+    - `loss_scales`: list of ints, what
+  - `single_scale`:
+    - `loss_type`: name of loss to use. Options currently include "dice",
+      "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
+
+EG.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    dissimilarity:
+      label:
+        weight: 1.0
+        name: "multi_scale" # "multi_scale" or "single_scale"
+        multi_scale:
+          loss_type: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+          loss_scales: [0, 1, 2, 4, 8, 16, 32]
+```
+
+#### Regularization
+
+The regularization section configures the losses for the DDF. To instantiate this part
+of the loss, pass "regularization" into the config file as a field.
+
+- `weight`: float type, weight of the regularization loss.
+- `energy_type`: string type, the type of deformation energy to compute. Options include
+  "bending", "gradient-l1", and "gradient-l2"
+
+EG.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+```
+
+### Optimizer - required
+
+The optimizer can be defined by using a `name` and then passing optimizer specific
+arguments with the same name. All optimizers can use the `learning_rate` argument.
 
 - `name`: string type, is used to define the optimizer during training. One of "adam",
   "sgd", "rms". There must be another additional field with the same name.
@@ -276,8 +364,9 @@ train:
       nesterov: False
 ```
 
-### Preprocess - required The `preprocess` field defines how the dataloader feeds data
-into the model.
+### Preprocess - required
+
+The `preprocess` field defines how the dataloader feeds data into the model.
 
 - `batch_size`: int, the batch size to pass to the network on each training step.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
@@ -327,8 +416,10 @@ train:
   epochs: 1000
 ```
 
-### Saving frequency - required The `save_period` field defines the save frequency - the
-model will be saved every `save_period` epochs.
+### Saving frequency - required
+
+The `save_period` field defines the save frequency - the model will be saved every
+`save_period` epochs.
 
 ```yaml
 train:
