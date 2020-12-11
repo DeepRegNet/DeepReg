@@ -232,6 +232,16 @@ regularization losses (on the DDFs predicted).
 DeepReg uses `tf.keras.Model` `add_loss()` method to add losses to the model, which
 provides some flexibility in configuration.
 
+Currently, DeepReg offers conditional, ddf/dvf and affine registration pre-built models.
+The models are configured to add the losses as follows:
+
+- Conditional: label loss.
+- DDF/DVF: ddf loss, image loss, label loss.
+- Affine: ddf loss, image loss, label loss.
+
+Therefore, currently, the config file requires all the appropriate fields to be passed
+such that the model can be built accordingly.
+
 #### Image
 
 - `weight`: float type, weight of individual loss element in total loss function.
