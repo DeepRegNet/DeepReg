@@ -74,7 +74,7 @@ def test_restore_CheckpointManagerCallback():
             equal = np.array(old_reader.get_tensor(k)) == np.array(
                 new_reader.get_tensor(k)
             )
-            assert equal, "{} fail to restore !".format(k)
+            assert np.all(equal), "{} fail to restore !".format(k)
 
     new_model.fit(
         x=toy_dataset(),
