@@ -75,9 +75,6 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
     def on_train_begin(self, logs=None):
         self._on_begin()
 
-    def on_test_begin(self, logs=None):
-        self._on_begin()
-
     def on_epoch_end(self, epoch, logs=None):
         epochs_finished = epoch + 1
         self._epoch_count = epochs_finished
