@@ -17,7 +17,7 @@ def build_backbone(
     out_channels: int,
     config: dict,
     method_name: str,
-    registry: Registry = Registry(),
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Backbone model accepts a single input of shape (batch, dim1, dim2, dim3, ch_in)

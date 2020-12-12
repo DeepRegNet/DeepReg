@@ -2,6 +2,7 @@ import tensorflow as tf
 
 from deepreg.model import layer, layer_util
 from deepreg.model.network.util import add_label_loss, build_backbone, build_inputs
+from deepreg.registry import Registry
 
 
 def conditional_forward(
@@ -70,6 +71,7 @@ def build_conditional_model(
     labeled: bool,
     batch_size: int,
     train_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Build a model which outputs predicted fixed label.
@@ -97,6 +99,7 @@ def build_conditional_model(
         out_channels=1,
         config=train_config["backbone"],
         method_name=train_config["method"],
+        registry=registry,
     )
 
     # prediction

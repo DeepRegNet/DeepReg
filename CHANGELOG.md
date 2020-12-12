@@ -17,6 +17,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Changed distribute strategy to default for <= 1 GPU.
+- Migrated from Travis-CI to GitHub Actions.
 - Simplified configuration for backbone models.
 - Simplified contributing documentation.
 
@@ -24,7 +26,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
-- Remove invalid `first` argument in DataLoader for sample_index generator.
+- Removed invalid `first` argument in DataLoader for sample_index generator.
 - Fixed build error when downloading data from private repo.
 
 ## [0.1.0] - 2020-11-02

@@ -8,6 +8,7 @@ import tensorflow as tf
 
 from deepreg.model.network.ddf_dvf import build_ddf_dvf_model, ddf_dvf_forward
 from deepreg.model.network.util import build_backbone
+from deepreg.registry import Registry
 
 
 def test_ddf_dvf_forward():
@@ -28,6 +29,7 @@ def test_ddf_dvf_forward():
             "extract_levels": [1, 2, 3],
         },
         method_name="ddf",
+        registry=Registry(),
     )
 
     # Check DDF mode network output shapes - Pass
@@ -101,6 +103,7 @@ def test_build_ddf_dvf_model():
         labeled=True,
         batch_size=batch_size,
         train_config=train_config,
+        registry=Registry(),
     )
 
     # Create DVF model
@@ -112,6 +115,7 @@ def test_build_ddf_dvf_model():
         labeled=True,
         batch_size=batch_size,
         train_config=train_config,
+        registry=Registry(),
     )
     inputs = {
         "moving_image": tf.ones((batch_size,) + moving_image_size),

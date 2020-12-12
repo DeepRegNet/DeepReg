@@ -8,6 +8,7 @@ from deepreg.model.network.util import (
     build_backbone,
     build_inputs,
 )
+from deepreg.registry import Registry
 
 
 def affine_forward(
@@ -74,6 +75,7 @@ def build_affine_model(
     labeled: bool,
     batch_size: int,
     train_config: dict,
+    registry: Registry,
 ):
     """
     Build a model which outputs the parameters for affine transformation.
@@ -102,6 +104,7 @@ def build_affine_model(
         out_channels=3,
         config=train_config["backbone"],
         method_name=train_config["method"],
+        registry=registry,
     )
 
     # forward
