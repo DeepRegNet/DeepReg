@@ -106,7 +106,7 @@ def test_train_and_predict_main():
             "--gpu",
             "",
             "--ckpt_path",
-            "logs/test_train/save/weights-epoch2.ckpt",
+            "logs/test_train/save/ckpt-2",
             "--mode",
             "test",
             "--log_dir",
