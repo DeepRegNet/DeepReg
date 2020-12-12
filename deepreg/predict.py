@@ -222,11 +222,6 @@ def build_config(
     :return: - config, configuration dictionary
              - log_dir, path of the directory for saving outputs
     """
-    # check ckpt_path
-    if not ckpt_path.endswith(".ckpt"):
-        raise ValueError(
-            "checkpoint path should end with .ckpt, got {}".format(ckpt_path)
-        )
 
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)

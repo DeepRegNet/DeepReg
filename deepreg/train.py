@@ -11,7 +11,7 @@ import tensorflow as tf
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
-from deepreg.callback import build_callbacks
+from deepreg.callback import build_callbacks, restore_model
 from deepreg.model.network.build import build_model
 from deepreg.registry import Registry
 from deepreg.util import build_dataset, build_log_dir
@@ -40,11 +40,6 @@ def build_config(
 
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
-
-    # check checkpoint path
-    if ckpt_path != "":
-        if not ckpt_path.endswith(".ckpt"):
-            raise ValueError(f"checkpoint path should end with .ckpt, got {ckpt_path}")
 
     # load config
     config = config_parser.load_configs(config_path)
@@ -141,6 +136,7 @@ def train(
     # build callbacks
     callbacks = build_callbacks(
         model=model,
+        dataset=dataset_train,
         log_dir=log_dir,
         histogram_freq=config["train"][
             "save_period"
@@ -149,8 +145,7 @@ def train(
     )
 
     # load weights
-    if ckpt_path != "":
-        model.load_weights(ckpt_path)
+    initial_epoch = restore_model(callbacks, ckpt_path)
 
     # train
     # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
@@ -158,6 +153,7 @@ def train(
     model.fit(
         x=dataset_train,
         steps_per_epoch=steps_per_epoch_train,
+        initial_epoch=initial_epoch,
         epochs=config["train"]["epochs"],
         validation_data=dataset_val,
         validation_steps=steps_per_epoch_val,

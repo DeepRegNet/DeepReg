@@ -1,7 +1,9 @@
 import tensorflow as tf
 
 
-def build_callbacks(model, log_dir: str, histogram_freq: int, save_period: int) -> list:
+def build_callbacks(
+    model, dataset, log_dir: str, histogram_freq: int, save_period: int
+) -> list:
     """
     Function to prepare callbacks for training.
 
@@ -13,10 +15,27 @@ def build_callbacks(model, log_dir: str, histogram_freq: int, save_period: int) 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir, histogram_freq=histogram_freq
     )
+
+    # fit the model for 1 step to initialise optimiser arguments as trackable Variables
+    model.fit(
+        x=dataset,
+        steps_per_epoch=1,
+        epochs=1,
+    )
+
     checkpoint_manager_callback = CheckpointManagerCallback(
         model, log_dir + "/save", period=save_period
     )
     return [tensorboard_callback, checkpoint_manager_callback]
+
+
+def restore_model(callbacks, ckpt_path):
+    if ckpt_path:
+        initial_epoch = int(ckpt_path.split("-")[-1])
+        callbacks[1].restore(ckpt_path)
+    else:
+        initial_epoch = 0
+    return initial_epoch
 
 
 class CheckpointManagerCallback(tf.keras.callbacks.Callback):
