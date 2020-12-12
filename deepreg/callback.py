@@ -78,9 +78,6 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
     def on_test_begin(self, logs=None):
         self._on_begin()
 
-    def on_predict_begin(self, logs=None):
-        self._on_begin()
-
     def on_epoch_end(self, epoch, logs=None):
         epochs_finished = epoch + 1
         self._epoch_count = epochs_finished
@@ -95,8 +92,6 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
         """
         checkpoint saved as './{}/ckpt-{}'.format(self._directory, self._epoch_count)
         """
-        if self._epoch_count is None:
-            return
         if self._last_save != self._epoch_count:
             self._manager.save(checkpoint_number=self._epoch_count)
             self._last_save = self._epoch_count
