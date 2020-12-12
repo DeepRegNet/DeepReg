@@ -8,10 +8,9 @@ pytest style
 import os
 
 import pytest
-import tensorflow as tf
 
 from deepreg.predict import main as predict_main
-from deepreg.train import build_callbacks, build_config
+from deepreg.train import build_config
 from deepreg.train import main as train_main
 
 log_root = "logs"
@@ -35,17 +34,6 @@ class TestBuildConfig:
         assert isinstance(got_config, dict)
         assert got_log_dir == os.path.join(log_root, self.log_dir)
 
-    def test_ckpt_path_err(self):
-        # checkpoint path ends with h5
-        with pytest.raises(ValueError) as err_info:
-            build_config(
-                config_path=self.config_path,
-                log_root=log_root,
-                log_dir=self.log_dir,
-                ckpt_path="example.h5",
-            )
-        assert "checkpoint path should end with .ckpt" in str(err_info.value)
-
     @pytest.mark.parametrize(
         "max_epochs, expected_epochs, expected_save_period", [(-1, 2, 2), (3, 3, 2)]
     )
@@ -59,20 +47,6 @@ class TestBuildConfig:
         )
         assert got_config["train"]["epochs"] == expected_epochs
         assert got_config["train"]["save_period"] == expected_save_period
-
-
-def test_build_callbacks():
-    """
-    Test build_callbacks by checking the output types
-    """
-    log_dir = "test_build_callbacks"
-    histogram_freq = save_preiod = 1
-    callbacks = build_callbacks(
-        log_dir=log_dir, histogram_freq=histogram_freq, save_period=save_preiod
-    )
-
-    for callback in callbacks:
-        assert isinstance(callback, tf.keras.callbacks.Callback)
 
 
 def test_train_and_predict():
