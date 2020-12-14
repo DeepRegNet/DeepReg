@@ -6,7 +6,7 @@ import tensorflow as tf
 from deepreg.callback import build_callbacks, restore_model
 
 
-def test_restore_CheckpointManagerCallback():
+def test_restore_checkpoint_manager_callback():
     """
     testing restore CheckpointManagerCallback
     """

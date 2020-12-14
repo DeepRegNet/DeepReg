@@ -39,16 +39,17 @@ def restore_model(callbacks, ckpt_path):
 
 
 class CheckpointManagerCallback(tf.keras.callbacks.Callback):
-    """
-    Callback wrapping `tf.train.CheckpointManager`.
+    def __init__(
+        self, model, directory, period: int = 1, save_on_train_end: bool = True
+    ):
+        """
+        Callback wrapping `tf.train.CheckpointManager`.
 
-    :param model: model
-    :param directory: directory to store the checkpoints
-    :param period: save the checkpoint every X epochs
-    :param save_on_train_end: save the checkpoint as the training ends
-    """
-
-    def __init__(self, model, directory, period=1, save_on_train_end=True):
+        :param model: model
+        :param directory: directory to store the checkpoints
+        :param period: save the checkpoint every X epochs
+        :param save_on_train_end: save the checkpoint as the training ends
+        """
         super(CheckpointManagerCallback, self).__init__()
         self._directory = directory
 
