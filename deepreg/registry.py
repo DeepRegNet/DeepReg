@@ -1,5 +1,6 @@
 from typing import Any
 
+from deepreg.dataset.preprocess import DDFTransformation3D
 from deepreg.model.backbone.global_net import GlobalNet
 from deepreg.model.backbone.local_net import LocalNet
 from deepreg.model.backbone.u_net import UNet
@@ -7,7 +8,8 @@ from deepreg.model.backbone.u_net import UNet
 BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
 MODEL_CLASS = "model_class"
-KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS]
+DATA_AUGMENTATION_CLASS = "da_class"
+KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS, DATA_AUGMENTATION_CLASS]
 
 
 class Registry:
@@ -26,6 +28,7 @@ class Registry:
         self.register(BACKBONE_CLASS, "local", LocalNet)
         self.register(BACKBONE_CLASS, "global", GlobalNet)
         self.register(BACKBONE_CLASS, "unet", UNet)
+        self.register(DATA_AUGMENTATION_CLASS, "ddf", DDFTransformation3D)
 
     def register(self, category: str, key: str, value: Any):
         """
@@ -56,3 +59,9 @@ class Registry:
 
     def get_backbone(self, key):
         return self.get(category=BACKBONE_CLASS, key=key)
+
+    def register_da(self, key, value):
+        self.register(category=DATA_AUGMENTATION_CLASS, key=key, value=value)
+
+    def get_da(self, key):
+        return self.get(category=DATA_AUGMENTATION_CLASS, key=key)
