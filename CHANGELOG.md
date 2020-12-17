@@ -10,12 +10,25 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added registry for backbone models.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
-  README.md
+  README.md.
+- Added CMIC seminar where DeepReg was introduced to the project README.md.
 
 ### Changed
 
+- Use CheckpointManager callback for saving and support training restore.
+- Changed distribute strategy to default for <= 1 GPU.
+- Migrated from Travis-CI to GitHub Actions.
+- Simplified configuration for backbone models.
+- Simplified contributing documentation.
+
 ### Fixed
+
+- Fixed optimiser storage and loading from checkpoints.
+- Fixed bias initialization for theta in GlobalNet.
+- Removed invalid `first` argument in DataLoader for sample_index generator.
+- Fixed build error when downloading data from private repo.
 
 ## [0.1.0] - 2020-11-02
 

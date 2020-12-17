@@ -18,7 +18,7 @@ def test_init_GlobalNet():
     """
     Testing init of GlobalNet is built as expected.
     """
-    # Initialising GlobalNet instance
+    # initialising GlobalNet instance
     global_test = g.GlobalNet(
         image_size=[1, 2, 3],
         out_channels=3,
@@ -28,9 +28,9 @@ def test_init_GlobalNet():
         out_activation="softmax",
     )
 
-    # Asserting initialised var for extract_levels is the same - Pass
+    # asserting initialised var for extract_levels is the same - Pass
     assert global_test._extract_levels == [1, 2, 3]
-    # Asserting initialised var for extract_max_level is the same - Pass
+    # asserting initialised var for extract_max_level is the same - Pass
     assert global_test._extract_max_level == 3
 
     # self reference grid
@@ -48,34 +48,26 @@ def test_init_GlobalNet():
     )
     assert is_equal_tf(global_test.reference_grid, expected_ref_grid)
 
-    # Testing constant initializer
-    # We initialize the expected tensor and initialise another from the
-    # class variable using tf.Variable
-    test_tensor_return = tf.convert_to_tensor(
-        [[1.0, 0.0], [0.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.0, 0.0], [1.0, 0.0]],
+    # assert correct initial transform is returned
+    expected_transform_initial = tf.convert_to_tensor(
+        [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
         dtype=tf.float32,
     )
-    global_return = tf.Variable(
-        global_test.transform_initial(shape=[6, 2], dtype=tf.float32)
-    )
+    global_transform_initial = tf.Variable(global_test.transform_initial(shape=[12]))
+    assert is_equal_tf(global_transform_initial, expected_transform_initial)
 
-    # Asserting they are equal - Pass
-    assert is_equal_tf(
-        test_tensor_return, tf.convert_to_tensor(global_return, dtype=tf.float32)
-    )
-
-    # Assert downsample blocks type is correct, Pass
+    # assert downsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.DownSampleResnetBlock)
         for item in global_test._downsample_blocks
     )
-    # Assert number of downsample blocks is correct (== max level), Pass
+    # assert number of downsample blocks is correct (== max level), Pass
     assert len(global_test._downsample_blocks) == 3
 
-    #  Assert conv3dBlock type is correct, Pass
+    # assert conv3dBlock type is correct, Pass
     assert isinstance(global_test._conv3d_block, layer.Conv3dBlock)
 
-    #  Asserting type is dense_layer, Pass
+    # asserting type is dense_layer, Pass
     assert isinstance(global_test._dense_layer, layer.Dense)
 
 
@@ -86,7 +78,7 @@ def test_call_GlobalNet():
     """
     out = 3
     im_size = [1, 2, 3]
-    # Initialising GlobalNet instance
+    # initialising GlobalNet instance
     global_test = g.GlobalNet(
         image_size=im_size,
         out_channels=out,
@@ -95,17 +87,17 @@ def test_call_GlobalNet():
         out_kernel_initializer="softmax",
         out_activation="softmax",
     )
-    # Pass an input of all zeros
+    # pass an input of all zeros
     inputs = tf.constant(
         np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
     )
-    # Get outputs by calling
+    # get outputs by calling
     output = global_test.call(inputs)
-    # Expected shape is (5, 1, 2, 3, 3)
+    # expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
-# Testing LocalNet
+# testing LocalNet
 def test_init_LocalNet():
     """
     Testing init of LocalNet as expected
@@ -119,34 +111,34 @@ def test_init_LocalNet():
         out_activation="softmax",
     )
 
-    # Asserting initialised var for extract_levels is the same - Pass
+    # asserting initialised var for extract_levels is the same - Pass
     assert local_test._extract_levels == [1, 2, 3]
-    # Asserting initialised var for extract_max_level is the same - Pass
+    # asserting initialised var for extract_max_level is the same - Pass
     assert local_test._extract_max_level == 3
-    # Asserting initialised var for extract_min_level is the same - Pass
+    # asserting initialised var for extract_min_level is the same - Pass
     assert local_test._extract_min_level == 1
 
-    # Assert downsample blocks type is correct, Pass
+    # assert downsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.DownSampleResnetBlock)
         for item in local_test._downsample_blocks
     )
-    # Assert number of downsample blocks is correct (== max level), Pass
+    # assert number of downsample blocks is correct (== max level), Pass
     assert len(local_test._downsample_blocks) == 3
 
-    # Assert upsample blocks type is correct, Pass
+    # assert upsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.LocalNetUpSampleResnetBlock)
         for item in local_test._upsample_blocks
     )
-    # Assert number of upsample blocks is correct (== max level - min level), Pass
+    # assert number of upsample blocks is correct (== max level - min level), Pass
     assert len(local_test._upsample_blocks) == 3 - 1
 
-    # Assert upsample blocks type is correct, Pass
+    # assert upsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.Conv3dWithResize) for item in local_test._extract_layers
     )
-    # Assert number of upsample blocks is correct (== extract_levels), Pass
+    # assert number of upsample blocks is correct (== extract_levels), Pass
     assert len(local_test._extract_layers) == 3
 
 
@@ -157,7 +149,7 @@ def test_call_LocalNet():
     """
     out = 3
     im_size = [1, 2, 3]
-    # Initialising LocalNet instance
+    # initialising LocalNet instance
     global_test = loc.LocalNet(
         image_size=im_size,
         out_channels=out,
@@ -166,17 +158,17 @@ def test_call_LocalNet():
         out_kernel_initializer="glorot_uniform",
         out_activation="sigmoid",
     )
-    # Pass an input of all zeros
+    # pass an input of all zeros
     inputs = tf.constant(
         np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
     )
-    # Get outputs by calling
+    # get outputs by calling
     output = global_test.call(inputs)
-    # Expected shape is (5, 1, 2, 3, 3)
+    # expected shape is (5, 1, 2, 3, 3)
     assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
-# Testing UNet
+# testing UNet
 def test_init_UNet():
     """
     Testing init of UNet as expected
@@ -190,34 +182,34 @@ def test_init_UNet():
         out_activation="softmax",
     )
 
-    # Asserting num channels initial is the same, Pass
+    # asserting num channels initial is the same, Pass
     assert local_test._num_channel_initial == 3
 
-    # Asserting depth is the same, Pass
+    # asserting depth is the same, Pass
     assert local_test._depth == 5
 
-    # Assert downsample blocks type is correct, Pass
+    # assert downsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.DownSampleResnetBlock)
         for item in local_test._downsample_blocks
     )
-    # Assert number of downsample blocks is correct (== depth), Pass
+    # assert number of downsample blocks is correct (== depth), Pass
     assert len(local_test._downsample_blocks) == 5
 
-    #  Assert bottom_conv3d type is correct, Pass
+    # assert bottom_conv3d type is correct, Pass
     assert isinstance(local_test._bottom_conv3d, layer.Conv3dBlock)
 
-    # Assert bottom res3d type is correct, Pass
+    # assert bottom res3d type is correct, Pass
     assert isinstance(local_test._bottom_res3d, layer.Residual3dBlock)
-    # Assert upsample blocks type is correct, Pass
+    # assert upsample blocks type is correct, Pass
     assert all(
         isinstance(item, layer.UpSampleResnetBlock)
         for item in local_test._upsample_blocks
     )
-    # Assert number of upsample blocks is correct (== depth), Pass
+    # assert number of upsample blocks is correct (== depth), Pass
     assert len(local_test._upsample_blocks) == 5
 
-    # Assert output_conv3d is correct type, Pass
+    # assert output_conv3d is correct type, Pass
     assert isinstance(local_test._output_conv3d, layer.Conv3dWithResize)
 
 
@@ -228,7 +220,7 @@ def test_call_UNet():
     """
     out = 3
     im_size = [1, 2, 3]
-    # Initialising LocalNet instance
+    # initialising LocalNet instance
     global_test = u.UNet(
         image_size=im_size,
         out_channels=out,
@@ -237,11 +229,11 @@ def test_call_UNet():
         out_kernel_initializer="glorot_uniform",
         out_activation="sigmoid",
     )
-    # Pass an input of all zeros
+    # pass an input of all zeros
     inputs = tf.constant(
         np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
     )
-    # Get outputs by calling
+    # get outputs by calling
     output = global_test.call(inputs)
-    # Expected shape is (5, 1, 2, 3)
+    # expected shape is (5, 1, 2, 3)
     assert all(x == y for x, y in zip(inputs.shape, output.shape))

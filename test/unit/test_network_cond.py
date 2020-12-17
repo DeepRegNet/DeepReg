@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from deepreg.model.network.cond import build_conditional_model, conditional_forward
 from deepreg.model.network.util import build_backbone
+from deepreg.registry import Registry
 
 
 def test_conditional_forward():
@@ -21,11 +22,13 @@ def test_conditional_forward():
     local_net = build_backbone(
         image_size=fixed_image_size,
         out_channels=1,
-        model_config={
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
+        config={
+            "name": "local",
+            "num_channel_initial": 4,
+            "extract_levels": [1, 2, 3],
         },
         method_name="conditional",
+        registry=Registry(),
     )
 
     # Check conditional mode network output shapes - Pass
@@ -55,25 +58,29 @@ def test_build_conditional_model():
         index_size=1,
         labeled=True,
         batch_size=batch_size,
-        model_config={
+        train_config={
             "method": "conditional",
-            "backbone": "local",
-            "local": {"num_channel_initial": 4, "extract_levels": [1, 2, 3]},
-        },
-        loss_config={
-            "dissimilarity": {
-                "image": {"name": "lncc", "weight": 0.0},
-                "label": {
-                    "name": "multi_scale",
-                    "weight": 1,
-                    "multi_scale": {
-                        "loss_type": "dice",
-                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+            "backbone": {
+                "name": "local",
+                "num_channel_initial": 4,
+                "extract_levels": [1, 2, 3],
+            },
+            "loss": {
+                "dissimilarity": {
+                    "image": {"name": "lncc", "weight": 0.0},
+                    "label": {
+                        "name": "multi_scale",
+                        "weight": 1,
+                        "multi_scale": {
+                            "loss_type": "dice",
+                            "loss_scales": [0, 1, 2, 4, 8, 16, 32],
+                        },
                     },
                 },
+                "regularization": {"weight": 0.5, "energy_type": "bending"},
             },
-            "regularization": {"weight": 0.5, "energy_type": "bending"},
         },
+        registry=Registry(),
     )
 
     inputs = {

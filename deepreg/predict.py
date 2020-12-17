@@ -17,6 +17,7 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 from deepreg.util import (
     build_dataset,
     build_log_dir,
@@ -221,11 +222,6 @@ def build_config(
     :return: - config, configuration dictionary
              - log_dir, path of the directory for saving outputs
     """
-    # check ckpt_path
-    if not ckpt_path.endswith(".ckpt"):
-        raise ValueError(
-            "checkpoint path should end with .ckpt, got {}".format(ckpt_path)
-        )
 
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
@@ -258,6 +254,7 @@ def predict(
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
+    registry: Registry = Registry(),
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -310,8 +307,8 @@ def predict(
         index_size=data_loader.num_indices,
         labeled=config["dataset"]["labeled"],
         batch_size=preprocess_config["batch_size"],
-        model_config=config["train"]["model"],
-        loss_config=config["train"]["loss"],
+        train_config=config["train"],
+        registry=registry,
     )
 
     # metrics
@@ -329,7 +326,7 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
-        model_method=config["train"]["model"]["method"],
+        model_method=config["train"]["method"],
         save_dir=log_dir + "/test",
         save_nifti=save_nifti,
         save_png=save_png,

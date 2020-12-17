@@ -8,6 +8,7 @@ from deepreg.model.network.util import (
     build_backbone,
     build_inputs,
 )
+from deepreg.registry import Registry
 
 
 def ddf_dvf_forward(
@@ -82,8 +83,8 @@ def build_ddf_dvf_model(
     index_size: int,
     labeled: bool,
     batch_size: int,
-    model_config: dict,
-    loss_config: dict,
+    train_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Build a model which outputs DDF/DVF.
@@ -93,8 +94,7 @@ def build_ddf_dvf_model(
     :param index_size: int, the number of indices for identifying a sample
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
-    :param model_config: config for the model
-    :param loss_config: config for the loss
+    :param train_config: config for the model and loss
     :return: the built tf.keras.Model
     """
 
@@ -111,8 +111,9 @@ def build_ddf_dvf_model(
     backbone = build_backbone(
         image_size=fixed_image_size,
         out_channels=3,
-        model_config=model_config,
-        method_name=model_config["method"],
+        config=train_config["backbone"],
+        method_name=train_config["method"],
+        registry=registry,
     )
 
     # forward
@@ -123,7 +124,7 @@ def build_ddf_dvf_model(
         moving_label=moving_label,
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
-        output_dvf=model_config["method"] == "dvf",
+        output_dvf=train_config["method"] == "dvf",
     )
 
     # build model
@@ -135,7 +136,7 @@ def build_ddf_dvf_model(
     outputs = {"ddf": ddf}
     if dvf is not None:
         outputs["dvf"] = dvf
-    model_name = model_config["method"].upper() + "RegistrationModel"
+    model_name = train_config["method"].upper() + "RegistrationModel"
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
@@ -149,6 +150,7 @@ def build_ddf_dvf_model(
         )
 
     # add loss and metric
+    loss_config = train_config["loss"]
     model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
     model = add_image_loss(
         model=model,
