@@ -9,9 +9,7 @@ dataset:
   image_shape: [64, 64, 64]
 
 train:
-  method:
-    name: "dvf" # the registration method, value should be ddf / dvf / conditional
-    control_points: [8, 8, 8] # list or None
+  method: "dvf" # the registration method, value should be ddf / dvf / conditional
   backbone:
     name: "unet" # value should be local / global / unet
     num_channel_initial: 16

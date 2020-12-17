@@ -742,7 +742,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
     def build(self, input_shape: tuple):
         """
         :param input_shape: tuple with the input shape
-        :return:
+        :return: None
         """
 
         super(BSplines3DTransform, self).build(input_shape=input_shape)
@@ -816,7 +816,6 @@ class BSplines3DTransform(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         """
         :param inputs: tf.Tensor defining a low resolution free-form deformation field
-        :param kwargs:
         :return: interpolated_field: tf.Tensor of shape=self.input_shape
         """
         high_res_field = self.interpolate(inputs)

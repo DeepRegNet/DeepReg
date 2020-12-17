@@ -582,7 +582,7 @@ def resize3d(
     return output
 
 
-def gaussian_filter_3d(kernel_sigma: (list, int)) -> tf.Tensor:
+def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
     """
     Define a gaussian filter in 3d for smoothing e.g., feature maps before being downsampled using a convolution
     operations. The filter size is defined 3*kernel_sigma
@@ -591,15 +591,12 @@ def gaussian_filter_3d(kernel_sigma: (list, int)) -> tf.Tensor:
     :param kernel_sigma: the deviation at each direction (list) or use an isotropic deviation (int)
     :return: kernel: tf.Tensor specify a gaussian kernel of shape: [3*k for k in kernel_sigma]
     """
-    if isinstance(kernel_sigma, list) or isinstance(kernel_sigma, tuple):
-        kernel_size = [
-            int(np.ceil(ks * 3) + np.mod(np.ceil(ks * 3) + 1, 2)) for ks in kernel_sigma
-        ]
+    if isinstance(kernel_sigma, int):
+        kernel_sigma = (kernel_sigma, kernel_sigma, kernel_sigma)
 
-    else:
-        kernel_size = int(
-            np.ceil(kernel_sigma * 3) + np.mod(np.ceil(kernel_sigma * 3) + 1, 2)
-        )
+    kernel_size = [
+        int(np.ceil(ks * 3) + np.mod(np.ceil(ks * 3) + 1, 2)) for ks in kernel_sigma
+    ]
 
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     coord = [np.arange(ks) for ks in kernel_size]

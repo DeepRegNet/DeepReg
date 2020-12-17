@@ -399,6 +399,22 @@ class TestBSplines3DTransform:
     Test the layer.BSplines3DTransform class, its default attributes and its call() function.
     """
 
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 68, 68, 68, 3), 8), ((1, 68, 68, 68, 3), (8, 16, 12))],
+    )
+    def test_init(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
+
+        if isinstance(cp, int):
+            cp = (cp, cp, cp)
+
+        assert model.cp_spacing == cp
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+    )
     def generate_filter_coefficients(self, cp_spacing):
 
         b = {
