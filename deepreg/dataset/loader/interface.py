@@ -165,7 +165,7 @@ class DataLoader:
                 )
 
         def transform(inputs: dict):
-            return reduce(lambda out, f: f(out), transform_list, inputs)
+            return reduce(lambda out, f: f.transform(out), transform_list, inputs)
 
         return transform
 
