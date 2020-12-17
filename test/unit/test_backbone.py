@@ -153,6 +153,12 @@ class TestLocalNet:
         # assert number of upsample blocks is correct (== extract_levels), Pass
         assert len(network._extract_layers) == len(extract_levels)
 
+        if control_points is None:
+            assert network.resize is False
+        else:
+            assert isinstance(network.resize, layer.ResizeCPTransform)
+            assert isinstance(network.interpolate, layer.BSplines3DTransform)
+
     @pytest.mark.parametrize(
         "image_size,extract_levels,control_points",
         [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
@@ -239,6 +245,12 @@ class TestUNet:
 
         # assert output_conv3d is correct type, Pass
         assert isinstance(network._output_conv3d, layer.Conv3dWithResize)
+
+        if control_points is None:
+            assert network.resize is False
+        else:
+            assert isinstance(network.resize, layer.ResizeCPTransform)
+            assert isinstance(network.interpolate, layer.BSplines3DTransform)
 
     @pytest.mark.parametrize(
         "image_size,depth,control_points",
