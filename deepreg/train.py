@@ -100,6 +100,7 @@ def train(
         mode="train",
         training=True,
         repeat=True,
+        registry=registry,
     )
     assert data_loader_train is not None  # train data should not be None
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
@@ -108,6 +109,7 @@ def train(
         mode="valid",
         training=False,
         repeat=True,
+        registry=registry,
     )
 
     # use strategy to support multiple GPUs

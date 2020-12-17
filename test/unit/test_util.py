@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
+from deepreg.registry import Registry
 from deepreg.train import build_config
 from deepreg.util import (
     build_dataset,
@@ -43,6 +44,7 @@ def test_build_dataset():
         mode="train",
         training=False,
         repeat=False,
+        registry=Registry(),
     )
 
     # check output types
@@ -60,6 +62,7 @@ def test_build_dataset():
         mode="valid",
         training=False,
         repeat=False,
+        registry=Registry(),
     )
 
     assert data_loader_valid is None
