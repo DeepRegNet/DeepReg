@@ -13,6 +13,7 @@ import deepreg.model.loss.label as label_loss
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.util import normalize_array
+from deepreg.registry import Registry
 
 
 def build_dataset(
@@ -21,6 +22,7 @@ def build_dataset(
     mode: str,
     training: bool,
     repeat: bool,
+    registry: Registry,
 ) -> [(DataLoader, None), (tf.data.Dataset, None), (int, None)]:
     """
     Function to prepare dataset for training and validation.
