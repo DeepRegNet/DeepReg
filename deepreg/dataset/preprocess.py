@@ -2,6 +2,7 @@
 Module for generating the preprocessing
 3D Affine/DDF Transforms for moving and fixed images.
 """
+
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
@@ -113,9 +114,12 @@ class DDFTransformation3D:
         moving_image_size,
         fixed_image_size,
         batch_size,
-        field_strength,
-        lowres_size,
+        field_strength: int = 1,
+        lowres_size: tuple = (1, 1, 1),
     ):
+
+        assert lowres_size <= moving_image_size
+        assert lowres_size <= fixed_image_size
 
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
