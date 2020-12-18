@@ -111,15 +111,28 @@ class DDFTransformation3D:
 
     def __init__(
         self,
-        moving_image_size,
-        fixed_image_size,
-        batch_size,
+        moving_image_size: tuple,
+        fixed_image_size: tuple,
+        batch_size: int,
         field_strength: int = 1,
         lowres_size: tuple = (1, 1, 1),
     ):
+        """
+        Creates a DDF transformation for data augmentation.
 
-        assert lowres_size <= moving_image_size
-        assert lowres_size <= fixed_image_size
+        To simulate smooth deformation fields, we interpolate from a low resolution field of size lowres_size
+        using linear interpolation. The variance of the deformation field is drawn from a uniform variable
+        between [0, field_strength].
+
+        :param moving_image_size: tuple
+        :param fixed_image_size: tuple
+        :param batch_size: int
+        :param field_strength: int = 1. It is used as the upper bound for the deformation field variance
+        :param lowres_size: tuple = (1, 1, 1).
+        """
+
+        assert tuple(lowres_size) <= tuple(moving_image_size)
+        assert tuple(lowres_size) <= tuple(fixed_image_size)
 
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size

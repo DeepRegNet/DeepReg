@@ -103,6 +103,12 @@ class Test_DataLoader:
     def test_get_transforms(
         self, labeled, moving_shape, fixed_shape, batch_size, data_augmentation
     ):
+        """
+        Test get_transforms() function. For that, an Abstract Data Loader is created only to set the moving
+        and fixed shapes that are used in get_transforms(). Here we test that the get_transform() returns a function
+        and the shape of the output of this function. See test_preprocess.py for more testing regarding the concrete
+        transforms.
+        """
         data_loader = AbstractDataLoaderWithShapes(
             moving_image_shape=moving_shape,
             fixed_image_shape=fixed_shape,

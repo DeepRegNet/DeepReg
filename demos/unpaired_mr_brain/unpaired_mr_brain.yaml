@@ -35,10 +35,6 @@ train:
   preprocess:
     batch_size: 4
     shuffle_buffer_num_batch: 1
-    data_augmentation:
-      ddf:
-        field_strength: 3
-        lowres_size: [9, 9, 9]
   optimizer:
     name: "adam"
     adam:

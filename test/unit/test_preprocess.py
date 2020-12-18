@@ -235,8 +235,7 @@ class Test_DDFTransformation3D:
         self, fix_dims, mov_dims, batch_size, field_strength, lowres_size, raise_error
     ):
         """
-        Test _gen_transforms() by confirming that it generates
-        appropriate transform output sizes.
+        Test initialization of DDFTransformation3D class
         """
         moving_image = np.random.uniform(size=mov_dims)
         fixed_image = np.random.uniform(size=fix_dims)
