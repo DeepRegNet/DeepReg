@@ -42,3 +42,11 @@ class TestRegistry:
         registry.register_backbone(key, value)
         got = registry.get_backbone(key)
         assert got == value
+
+    def test_data_augmentation(self):
+        registry = Registry()
+        key = "new_data_augmentation"
+        value = 0
+        registry.register_da(key, value)
+        got = registry.get_da(key)
+        assert got == value

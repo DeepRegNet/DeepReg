@@ -7,6 +7,7 @@ from test.unit.util import is_equal_np
 
 import numpy as np
 import pytest
+import tensorflow as tf
 
 from deepreg.dataset.loader.interface import (
     AbstractPairedDataLoader,
@@ -16,39 +17,130 @@ from deepreg.dataset.loader.interface import (
     GeneratorDataLoader,
 )
 from deepreg.dataset.loader.util import normalize_array
+from deepreg.registry import Registry
 
 
-def test_data_loader():
-    """
-    Test the functions in DataLoader
-    """
+class AbstractDataLoaderWithShapes(DataLoader):
+    def __init__(
+        self,
+        moving_image_shape: (list, tuple),
+        fixed_image_shape: (list, tuple),
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self._moving_image_shape = moving_image_shape
+        self._fixed_image_shape = fixed_image_shape
 
-    # init
-    # inputs, no error means passed
-    for labeled in [True, False, None]:
-        DataLoader(labeled=labeled, num_indices=1, sample_label="all", seed=0)
-    for sample_label in ["sample", "all", None]:
-        DataLoader(labeled=True, num_indices=1, sample_label=sample_label, seed=0)
-    for num_indices in [1]:
-        DataLoader(labeled=True, num_indices=num_indices, sample_label="sample", seed=0)
-    for seed in [0, None]:
-        DataLoader(labeled=True, num_indices=1, sample_label="sample", seed=seed)
+    @property
+    def moving_image_shape(self) -> tuple:
+        """
+        Return the moving image shape.
+        :return: shape of moving image
+        """
+        return self._moving_image_shape
 
-    # not implemented properties / functions
-    data_loader = DataLoader(labeled=True, num_indices=1, sample_label="sample", seed=0)
-    with pytest.raises(NotImplementedError):
-        data_loader.moving_image_shape
-    with pytest.raises(NotImplementedError):
-        data_loader.fixed_image_shape
-    with pytest.raises(NotImplementedError):
-        data_loader.num_samples
-    with pytest.raises(NotImplementedError):
-        data_loader.get_dataset()
+    @property
+    def fixed_image_shape(self) -> tuple:
+        """
+        Return the fixed image shape.
+        :return: shape of fixed image
+        """
+        return self._fixed_image_shape
 
-    # implemented functions
-    # TODO test get_dataset_and_preprocess
 
-    data_loader.close()
+class Test_DataLoader:
+    @pytest.mark.parametrize(
+        "labeled,num_indices,sample_label,seed",
+        [
+            (True, 1, "all", 0),
+            (False, 1, "all", 0),
+            (None, 1, "all", 0),
+            (True, 1, "sample", 0),
+            (True, 1, "all", 0),
+            (True, 1, None, 0),
+            (True, 1, "sample", None),
+        ],
+    )
+    def test_init(self, labeled, num_indices, sample_label, seed):
+        DataLoader(
+            labeled=labeled,
+            num_indices=num_indices,
+            sample_label=sample_label,
+            seed=seed,
+        )
+
+        data_loader = DataLoader(
+            labeled=labeled,
+            num_indices=num_indices,
+            sample_label=sample_label,
+            seed=seed,
+        )
+
+        with pytest.raises(NotImplementedError):
+            data_loader.moving_image_shape
+        with pytest.raises(NotImplementedError):
+            data_loader.fixed_image_shape
+        with pytest.raises(NotImplementedError):
+            data_loader.num_samples
+        with pytest.raises(NotImplementedError):
+            data_loader.get_dataset()
+
+        data_loader.close()
+
+    @pytest.mark.parametrize(
+        "labeled,moving_shape,fixed_shape,batch_size,data_augmentation",
+        [
+            (True, (9, 9, 9), (9, 9, 9), 1, None),
+            (
+                True,
+                (9, 9, 9),
+                (15, 15, 15),
+                1,
+                {"ddf": {"field_strength": 1, "lowres_size": (3, 3, 3)}},
+            ),
+        ],
+    )
+    def test_get_transforms(
+        self, labeled, moving_shape, fixed_shape, batch_size, data_augmentation
+    ):
+        data_loader = AbstractDataLoaderWithShapes(
+            moving_image_shape=moving_shape,
+            fixed_image_shape=fixed_shape,
+            labeled=labeled,
+            num_indices=1,
+            sample_label="all",
+        )
+
+        T = data_loader.get_transform(
+            batch_size=batch_size,
+            registry=Registry(),
+            data_augmentation=data_augmentation,
+        )
+
+        assert hasattr(T, "__call__")
+
+        inputs = dict(
+            moving_image=tf.constant(
+                np.zeros((batch_size,) + moving_shape + (1,)), dtype=np.float32
+            ),
+            fixed_image=tf.constant(
+                np.zeros((batch_size,) + fixed_shape + (1,)), dtype=np.float32
+            ),
+            moving_label=tf.constant(
+                np.zeros((batch_size,) + moving_shape + (1,)), dtype=np.float32
+            ),
+            fixed_label=tf.constant(
+                np.zeros((batch_size,) + fixed_shape + (1,)), dtype=np.float32
+            ),
+            indices=[1],
+        )
+
+        outputs = T(inputs)
+
+        assert outputs["moving_image"].shape == inputs["moving_image"].shape
+        assert outputs["fixed_image"].shape == inputs["fixed_image"].shape
+        assert outputs["moving_label"].shape == inputs["moving_label"].shape
+        assert outputs["fixed_label"].shape == inputs["fixed_label"].shape
 
 
 def test_abstract_paired_data_loader():
