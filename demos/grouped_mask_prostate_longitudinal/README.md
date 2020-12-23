@@ -78,6 +78,18 @@ Optionally, the user-trained model can be used by changing the `ckpt_path` varia
 inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
 saved under `logs_train` as mentioned above.
 
+## Visualise
+
+The following command can be executed to generate a plot of three image slices from the the fixed image, moving image and warped image (left to right) to visualise the registration. Please see the visualisation tool docs [here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/source/docs/visualisation_tool.md) for more visualisation options such as animated gifs. 
+
+```bash
+deepreg_vis -m 2 -i 'demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz' --slice-inds '12, 18, 26' -s demos/grouped_mask_prostate_longitudinal/logs_predict
+```
+
+Note: The prediction must be run before running the command to generate the visualisation. The `<time-stamp>` and `<pair-number>` must be entered by the user.
+
+![plot](../assets/grouped_mask_prostate_longitudinal.png)
+
 ## Contact
 
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any
