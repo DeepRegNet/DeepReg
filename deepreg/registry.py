@@ -76,4 +76,7 @@ class Registry:
         return self.get(category=BACKBONE_CLASS, key=key)
 
 
+# multiple __init__.py files have been modified so that
+# when executing `from deepreg.registry import REGISTRY`
+# all classes have been registered
 REGISTRY = Registry()

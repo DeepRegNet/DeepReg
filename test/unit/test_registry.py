@@ -27,7 +27,11 @@ class TestRegistry:
             REGISTRY.get("backbone_class", "wrong_key")
         assert "has not been registered" in str(err_info.value)
 
-    def test_backbone(self):
+    def test_get_backbone(self):
+        # no error means the unet has been registered
+        _ = REGISTRY.get("backbone_class", "unet")
+
+    def test_register_backbone(self):
         key = "new_backbone"
         value = 0
         REGISTRY.register_backbone(name=key, cls=value)
