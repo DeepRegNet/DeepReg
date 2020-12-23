@@ -5,8 +5,10 @@ from typing import List
 import tensorflow as tf
 
 from deepreg.model import layer
+from deepreg.registry import REGISTRY
 
 
+@REGISTRY.register_backbone(name="local")
 class LocalNet(tf.keras.Model):
     """
     Build LocalNet for image registration.

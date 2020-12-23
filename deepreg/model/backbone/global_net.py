@@ -6,8 +6,10 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
+from deepreg.registry import REGISTRY
 
 
+@REGISTRY.register_backbone(name="global")
 class GlobalNet(tf.keras.Model):
     """
     Build GlobalNet for image registration.
