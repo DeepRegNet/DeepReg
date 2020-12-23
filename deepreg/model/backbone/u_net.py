@@ -4,8 +4,10 @@
 import tensorflow as tf
 
 from deepreg.model import layer
+from deepreg.registry import REGISTRY
 
 
+@REGISTRY.register_backbone(name="unet")
 class UNet(tf.keras.Model):
     """
     Class that implements an adapted 3D UNet.

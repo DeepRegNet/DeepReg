@@ -13,7 +13,7 @@ import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.callback import build_callbacks, restore_model
 from deepreg.model.network.build import build_model
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY, Registry
 from deepreg.util import build_dataset, build_log_dir
 
 
@@ -67,7 +67,7 @@ def train(
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
-    registry: Registry = Registry(),
+    registry: Registry = REGISTRY,
 ):
     """
     Function to train a model.
