@@ -10,8 +10,10 @@ class Registry:
     """
     Registry maintains a dictionary which maps (category, key) to value.
 
-    The design used the registry in ray as reference.
-    https://github.com/ray-project/ray/blob/00ef1179c012719a17c147a5c3b36d6bdbe97195/python/ray/tune/registry.py#L108
+    References:
+    - https://github.com/ray-project/ray/blob/00ef1179c012719a17c147a5c3b36d6bdbe97195/python/ray/tune/registry.py#L108
+    - https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/builder.py
+    - https://github.com/open-mmlab/mmcv/blob/master/mmcv/utils/registry.py
     """
 
     def __init__(self):
@@ -55,11 +57,6 @@ class Registry:
         :param force: Whether to override an existing class with the same name. Default: False.
         :param cls: Class to be registered.
         """
-        if category not in KNOWN_CATEGORIES:
-            raise ValueError(
-                f"Unknown category {category}. Supported values are {KNOWN_CATEGORIES}."
-            )
-
         # use it as a normal method: x.register_module(module=SomeClass)
         if cls is not None:
             self._register(category=category, key=name, value=cls, force=force)
