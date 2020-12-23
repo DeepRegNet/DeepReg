@@ -10,10 +10,15 @@ class Registry:
     """
     Registry maintains a dictionary which maps (category, key) to value.
 
+    Multiple __init__.py files have been modified so that
+    when executing `from deepreg.registry import REGISTRY`
+    all classes have been registered.
+
     References:
     - https://github.com/ray-project/ray/blob/00ef1179c012719a17c147a5c3b36d6bdbe97195/python/ray/tune/registry.py#L108
     - https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/builder.py
     - https://github.com/open-mmlab/mmcv/blob/master/mmcv/utils/registry.py
+    - https://towardsdatascience.com/whats-init-for-me-d70a312da583
     """
 
     def __init__(self):
@@ -76,7 +81,4 @@ class Registry:
         return self.get(category=BACKBONE_CLASS, key=key)
 
 
-# multiple __init__.py files have been modified so that
-# when executing `from deepreg.registry import REGISTRY`
-# all classes have been registered
 REGISTRY = Registry()
