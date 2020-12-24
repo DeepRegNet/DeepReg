@@ -23,7 +23,7 @@ class SumSquaredDistance(tf.keras.losses.Loss):
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
         """
-        loss = tf.square(y_true - y_pred)
+        loss = tf.math.squared_difference(y_true, y_pred)
         loss = tf.keras.layers.Flatten()(loss)
         return tf.reduce_mean(loss, axis=1)
 

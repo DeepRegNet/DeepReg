@@ -277,24 +277,6 @@ def test_compute_centroid_d():
     assert is_equal_tf(get, expect)
 
 
-def test_squared_error():
-    """
-    Testing squared error function by comparing
-    to precomputed tensor.
-    """
-    tensor_mask = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_mask[0, 0, 0, 0] = 1
-    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
-
-    tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_pred[:, :, :, :] = 1
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-
-    expect = np.array([26 / 27, 1.0, 1.0])
-    get = label.squared_error(tensor_mask, tensor_pred)
-    assert is_equal_tf(get, expect)
-
-
 def test_single_scale_loss_dice():
     """
     Testing single sclare loss returns
@@ -393,10 +375,10 @@ def test_single_scale_loss_mean_sq():
     """
     tensor_mask = np.zeros((3, 3, 3, 3))
     tensor_mask[0, 0, 0, 0] = 1
-    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
+    tensor_mask = tf.constant(tensor_mask, dtype=tf.float32)
 
-    tensor_pred = tf.convert_to_tensor(np.ones((3, 3, 3, 3)), dtype=tf.float32)
-    expect = tf.convert_to_tensor(np.array([26 / 27, 1.0, 1.0]), dtype=tf.float32)
+    tensor_pred = tf.constant(np.ones((3, 3, 3, 3)), dtype=tf.float32)
+    expect = tf.constant(np.mean([26 / 27, 1.0, 1.0]), dtype=tf.float32)
 
     get = label.single_scale_loss(tensor_mask, tensor_pred, "mean-squared")
     assert is_equal_tf(get, expect)

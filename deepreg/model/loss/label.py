@@ -5,6 +5,8 @@ from typing import Callable
 
 import tensorflow as tf
 
+from deepreg.model.loss.image import SumSquaredDistance
+
 EPS = tf.keras.backend.epsilon()
 
 
@@ -101,7 +103,7 @@ def single_scale_loss(
     if loss_type == "cross-entropy":
         return weighted_binary_cross_entropy(y_true, y_pred)
     elif loss_type == "mean-squared":
-        return squared_error(y_true, y_pred)
+        return SumSquaredDistance()(y_true, y_pred)
     elif loss_type == "dice":
         return 1 - dice_score(y_true, y_pred)
     elif loss_type == "dice_generalized":
@@ -110,19 +112,6 @@ def single_scale_loss(
         return 1 - jaccard_index(y_true, y_pred)
     else:
         raise ValueError("Unknown loss type.")
-
-
-def squared_error(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    """
-    Calculates the mean squared difference between y_true, y_pred.
-
-    mean((y_true - y_pred)(y_true - y_pred))
-
-    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
-    :param y_pred: shape = (batch, dim1, dim2, dim3)
-    :return: shape = (batch,)
-    """
-    return tf.reduce_mean(tf.math.squared_difference(y_true, y_pred), axis=[1, 2, 3])
 
 
 def weighted_binary_cross_entropy(
