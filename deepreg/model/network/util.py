@@ -153,9 +153,9 @@ def add_image_loss(
     :param loss_config: config for loss
     :param registry: the registry object having all registered classes
     """
-    if loss_config["dissimilarity"]["image"]["weight"] <= 0:
+    if loss_config["image"]["weight"] <= 0:
         return model
-    config = loss_config["dissimilarity"]["image"].copy()
+    config = loss_config["image"].copy()
     weight = config.pop("weight", 1)
 
     loss_image = registry.build_loss(config=config)(
@@ -193,9 +193,9 @@ def add_label_loss(
     """
     if fixed_label is None:
         return model
-    if loss_config["dissimilarity"]["image"]["weight"] <= 0:
+    if loss_config["image"]["weight"] <= 0:
         return model
-    config = loss_config["dissimilarity"]["label"].copy()
+    config = loss_config["label"].copy()
     weight = config.pop("weight", 1)
     loss_label = registry.build_loss(config=config)(
         y_true=fixed_label,
@@ -203,10 +203,10 @@ def add_label_loss(
     )
     weighted_loss_label = loss_label * weight
     model.add_loss(weighted_loss_label)
-    model.add_metric(loss_label, name="loss/label_dissimilarity", aggregation="mean")
+    model.add_metric(loss_label, name="loss/label", aggregation="mean")
     model.add_metric(
         weighted_loss_label,
-        name="loss/weighted_label_dissimilarity",
+        name="loss/weighted_label",
         aggregation="mean",
     )
 

@@ -15,7 +15,7 @@
 
     tutorial/registration
     tutorial/cross_val
-    tutorial/custom
+    tutorial/run_cluster
 
 .. toctree::
     :hidden:

@@ -21,14 +21,13 @@ train:
 
   # define the loss function for training
   loss:
-    dissimilarity:
-      image:
-        name: "lncc"
-        weight: 1.0
-      label:
-        weight: 0.0
-        name: "dice"
-        scales: [0, 1, 2, 4, 8, 16]
+    image:
+      name: "lncc"
+      weight: 1.0
+    label:
+      weight: 0.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 100 # weight of regularization loss
       name: "bending" # options include "bending", "gradient"

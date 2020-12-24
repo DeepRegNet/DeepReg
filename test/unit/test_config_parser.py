@@ -184,7 +184,8 @@ def test_config_sanity_check(caplog):
             train=dict(
                 method="ddf",
                 loss=dict(
-                    dissimilarity=dict(image=dict(weight=0.0), label=dict(weight=0.0)),
+                    image=dict(weight=0.0),
+                    label=dict(weight=0.0),
                     regularization=dict(weight=0.0),
                 ),
             ),

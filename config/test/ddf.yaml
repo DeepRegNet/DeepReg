@@ -5,14 +5,13 @@ train:
     num_channel_initial: 1
     extract_levels: [0, 1, 2, 3, 4]
   loss:
-    dissimilarity:
-      image:
-        name: "lncc"
-        weight: 0.1
-      label:
-        weight: 1.0
-        name: "dice"
-        scales: [0, 1, 2, 4, 8, 16, 32]
+    image:
+      name: "lncc"
+      weight: 0.1
+    label:
+      weight: 1.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16, 32]
     regularization:
       weight: 0.5
       name: "bending"

@@ -18,14 +18,13 @@ train:
 
   # define the loss function for training
   loss:
-    dissimilarity:
-      image:
-        name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
-        weight: 0.1
-      label:
-        weight: 1.0
-        name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
-        scales: [0, 1, 2, 4, 8, 16, 32]
+    image:
+      name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      weight: 0.1
+    label:
+      weight: 1.0
+      name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+      scales: [0, 1, 2, 4, 8, 16, 32]
     regularization:
       weight: 0.5 # weight of regularization loss
       name: "bending" # options include "bending", "gradient"

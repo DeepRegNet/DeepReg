@@ -10,17 +10,18 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added registry for backbone models.
+- Added registry for backbone models and losses.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
 
 ### Changed
 
+- Refactored loss functions into classes.
 - Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
 - Migrated from Travis-CI to GitHub Actions.
-- Simplified configuration for backbone models.
+- Simplified configuration for backbone models and losses.
 - Simplified contributing documentation.
 
 ### Fixed

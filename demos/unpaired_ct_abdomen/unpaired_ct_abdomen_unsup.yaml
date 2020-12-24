@@ -17,14 +17,13 @@ train:
     pooling: true
     concat_skip: true
   loss:
-    dissimilarity:
-      image:
-        name: "ssd"
-        weight: 1
-      label:
-        weight: 0
-        name: "dice"
-        scales: [0, 1, 2, 4, 8, 16]
+    image:
+      name: "ssd"
+      weight: 1
+    label:
+      weight: 0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 0.1
       name: "gradient"

@@ -14,14 +14,13 @@ train:
     num_channel_initial: 4 # number of initial channel in local net, controls the size of the network
     extract_levels: [0, 1, 2, 3]
   loss:
-    dissimilarity:
-      image:
-        name: "ssd"
-        weight: 0.1
-      label:
-        weight: 1.0
-        name: "dice"
-        scales: [0, 1, 2, 4, 8, 16]
+    image:
+      name: "ssd"
+      weight: 0.1
+    label:
+      weight: 1.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 0.5
       name: "bending"
