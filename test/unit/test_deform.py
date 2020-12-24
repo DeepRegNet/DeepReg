@@ -5,7 +5,6 @@ Tests for deepreg/model/loss/deform.py in pytest style
 """
 from test.unit.util import is_equal_tf
 
-import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.deform as deform
@@ -60,13 +59,13 @@ def test_compute_gradient_norm():
     """test the calculation of l1/l2 norm for image gradients"""
     # l1 norm
     tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_gradient_norm(tensor, l1=True)
+    get = deform.GradientNorm(l1=True)(tensor)
     expect = tf.zeros([4])
     assert is_equal_tf(get, expect)
 
     # l2 norm
     tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_gradient_norm(tensor)
+    get = deform.GradientNorm(l1=False)(tensor)
     expect = tf.zeros([4])
     assert is_equal_tf(get, expect)
 
@@ -74,32 +73,6 @@ def test_compute_gradient_norm():
 def test_compute_bending_energy():
     """test the calculation of bending energy"""
     tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_bending_energy(tensor)
+    get = deform.BendingEnergy()(tensor)
     expect = tf.zeros([4])
     assert is_equal_tf(get, expect)
-
-
-def test_local_displacement_energy():
-    """test the computation of local displacement energy for ddf"""
-    # bending energy
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "bending")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # l1 norm on gradient
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "gradient-l1")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # l2 norm on gradient
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "gradient-l2")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # not supported energy type
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    with pytest.raises(ValueError):
-        deform.local_displacement_energy(tensor, "a wrong string")

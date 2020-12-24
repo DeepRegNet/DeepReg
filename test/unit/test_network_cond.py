@@ -74,7 +74,7 @@ def test_build_conditional_model():
                         "scales": [0, 1, 2, 4, 8, 16, 32],
                     },
                 },
-                "regularization": {"weight": 0.5, "energy_type": "bending"},
+                "regularization": {"weight": 0.5, "name": "bending"},
             },
         },
         registry=REGISTRY,

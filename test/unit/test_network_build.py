@@ -24,7 +24,7 @@ class TestBuildModel:
                     "scales": [0, 1, 2, 4, 8, 16, 32],
                 },
             },
-            "regularization": {"weight": 0.0, "energy_type": "bending"},
+            "regularization": {"weight": 0.0, "name": "bending"},
         },
     }
 

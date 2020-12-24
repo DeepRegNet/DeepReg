@@ -455,7 +455,7 @@ a practical example of unit tests made for our affine model in
                         },
                     },
                 },
-                "regularization": {"weight": 0.0, "energy_type": "bending"},
+                "regularization": {"weight": 0.0, "name": "bending"},
             },
         )
 

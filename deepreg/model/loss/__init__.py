@@ -1,4 +1,5 @@
 # flake8: noqa
+from deepreg.model.loss.deform import BendingEnergy, GradientNorm
 from deepreg.model.loss.image import (
     GlobalMutualInformation3D,
     GlobalMutualInformation3DLoss,

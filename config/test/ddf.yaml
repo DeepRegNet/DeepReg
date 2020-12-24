@@ -15,7 +15,7 @@ train:
         scales: [0, 1, 2, 4, 8, 16, 32]
     regularization:
       weight: 0.5
-      energy_type: "bending"
+      name: "bending"
   preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1

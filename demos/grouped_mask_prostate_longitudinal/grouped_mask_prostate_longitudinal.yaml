@@ -31,7 +31,7 @@ train:
         scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 1.0 # weight of regularization loss
-      energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
+      name: "gradient" # options include "bending", "gradient"
 
   # define the optimizer
   optimizer:

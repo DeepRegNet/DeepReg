@@ -139,7 +139,9 @@ def build_affine_model(
 
     # add loss and metric
     loss_config = train_config["loss"]
-    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_ddf_loss(
+        model=model, ddf=ddf, loss_config=loss_config, registry=registry
+    )
     model = add_image_loss(
         model=model,
         fixed_image=fixed_image,

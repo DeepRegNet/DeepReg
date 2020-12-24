@@ -27,7 +27,7 @@ train:
         scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 0.4
-      energy_type: "gradient-l2" # bending / gradient-l2 / gradient-l1
+      name: "gradient" # bending / gradient
   preprocess:
     batch_size: 4
     shuffle_buffer_num_batch: 1

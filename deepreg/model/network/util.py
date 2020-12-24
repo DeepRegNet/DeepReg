@@ -6,7 +6,6 @@ Module to build backbone modules based on passed inputs.
 
 import tensorflow as tf
 
-import deepreg.model.loss.deform as deform_loss
 import deepreg.model.loss.label as label_loss
 from deepreg.registry import Registry
 
@@ -26,7 +25,7 @@ def build_backbone(
     :param out_channels: int, number of out channels, ch_out
     :param method_name: str, one of ddf, dvf and conditional
     :param config: dict, backbone configuration
-    :param registry: the registry object having all backbone classes
+    :param registry: the registry object having all registered classes
     :return: tf.keras.Model
     """
     if not (
@@ -111,7 +110,10 @@ def build_inputs(
 
 
 def add_ddf_loss(
-    model: tf.keras.Model, ddf: tf.Tensor, loss_config: dict
+    model: tf.keras.Model,
+    ddf: tf.Tensor,
+    loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add regularization loss of ddf into model.
@@ -119,11 +121,14 @@ def add_ddf_loss(
     :param model: tf.keras.Model
     :param ddf: tensor of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
-    loss_reg = tf.reduce_mean(
-        deform_loss.local_displacement_energy(ddf, **loss_config["regularization"])
-    )
-    weighted_loss_reg = loss_reg * loss_config["regularization"]["weight"]
+    if loss_config["regularization"]["weight"] <= 0:
+        return model
+    config = loss_config["regularization"].copy()
+    weight = config.pop("weight", 1)
+    loss_reg = registry.build_loss(config=config)(inputs=ddf)
+    weighted_loss_reg = loss_reg * weight
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
     model.add_metric(
@@ -146,6 +151,7 @@ def add_image_loss(
     :param fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
     if loss_config["dissimilarity"]["image"]["weight"] <= 0:
         return model
@@ -183,6 +189,7 @@ def add_label_loss(
     :param fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
     if fixed_label is None:
         return model
