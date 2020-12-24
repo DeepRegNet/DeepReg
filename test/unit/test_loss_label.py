@@ -112,7 +112,7 @@ def test_jaccard_index():
     denom = np.array([9, 9, 9]) + np.array([6, 6, 6]) - num
 
     get = num / denom
-    expect = label.jaccard_index(tensor_eye, tensor_pred)
+    expect = label.JaccardIndex().call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
 
@@ -201,7 +201,7 @@ def test_weighted_bce():
     tensor_pred = tf.constant(tensor_pred, dtype=tf.float32)
 
     expect = [1.7908996, 1.7908996, 1.7908996]
-    get = label.weighted_binary_cross_entropy(tensor_eye, tensor_pred)
+    get = label.CrossEntropy().call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
 
@@ -409,9 +409,9 @@ def test_multi_scale_loss_kernel():
 
     tensor_eye[:, :, 0:3, 0:3] = array_eye
     tensor_pred[:, :, 0, 0] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-    expect = tf.constant([0.9938445, 0.9924956, 0.9938445], dtype=tf.float32)
+    tensor_eye = tf.constant(tensor_eye, dtype=tf.float32)
+    tensor_pred = tf.constant(tensor_pred, dtype=tf.float32)
+    expect = tf.constant(0.99339575, dtype=tf.float32)
     get = label.multi_scale_loss(tensor_eye, tensor_pred, "jaccard", loss_values)
     assert is_equal_tf(get, expect)
 
@@ -449,4 +449,4 @@ class TestGetSimilarityFn:
         """
         loss_fn = label.get_dissimilarity_fn(config)
         loss = loss_fn(y_true=self.y_true, y_pred=self.y_pred)
-        assert loss.shape == (self.batch_size,)
+        assert loss.shape == ()

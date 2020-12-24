@@ -65,7 +65,7 @@ class DiceScore(tf.keras.losses.Loss):
     ):
         """
 
-        :param binary:
+        :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
         :param reduction:
         :param name:
@@ -84,6 +84,7 @@ class DiceScore(tf.keras.losses.Loss):
         if self.binary:
             y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
             y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
         # (batch, ...) -> (batch, d)
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
@@ -118,6 +119,121 @@ class DiceLoss(DiceScore):
 
     def call(self, y_true, y_pred):
         return 1 - super(DiceLoss, self).call(y_true=y_true, y_pred=y_pred)
+
+
+@REGISTRY.register_loss(name="cross-entropy")
+class CrossEntropy(tf.keras.losses.Loss):
+    """
+    Calculates weighted binary cross- entropy:
+
+        -loss = − pos_w * y_true log(y_pred) - (1−y_true) log(1−y_pred)
+    """
+
+    def __init__(
+        self,
+        binary: bool = False,
+        neg_weight: float = 0.0,
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="CrossEntropy",
+    ):
+        """
+
+        :param binary: if True, project y_true, y_pred to 0 or 1
+        :param neg_weight: weight for negative class
+        :param reduction:
+        :param name:
+        """
+        super(CrossEntropy, self).__init__(reduction=reduction, name=name)
+        assert 0 <= neg_weight <= 1
+        self.binary = binary
+        self.neg_weight = neg_weight
+
+    def call(self, y_true, y_pred):
+        """
+        :param y_true: shape = (batch, ...)
+        :param y_pred: shape = (batch, ...)
+        :return: shape = (batch,)
+        """
+        if self.binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
+        # (batch, ...) -> (batch, d)
+        y_true = tf.keras.layers.Flatten()(y_true)
+        y_pred = tf.keras.layers.Flatten()(y_pred)
+
+        loss_pos = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
+        loss_neg = tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1)
+        return -(1 - self.neg_weight) * loss_pos - self.neg_weight * loss_neg
+
+    def get_config(self):
+        config = super(CrossEntropy, self).get_config()
+        config["binary"] = self.binary
+        config["neg_weight"] = self.neg_weight
+        return config
+
+
+class JaccardIndex(tf.keras.losses.Loss):
+    """
+    Calculates Jaccard index:
+
+    1. num = y_true * y_pred
+    2. denom = y_true + y_pred - y_true * y_pred
+    3. Jaccard index = num / denom
+    """
+
+    def __init__(
+        self,
+        binary: bool = False,
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="JaccardIndex",
+    ):
+        """
+
+        :param binary: if True, project y_true, y_pred to 0 or 1
+        :param reduction:
+        :param name:
+        """
+        super(JaccardIndex, self).__init__(reduction=reduction, name=name)
+        self.binary = binary
+
+    def call(self, y_true, y_pred):
+        """
+        :param y_true: shape = (batch, ...)
+        :param y_pred: shape = (batch, ...)
+        :return: shape = (batch,)
+        """
+        if self.binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
+        # (batch, ...) -> (batch, d)
+        y_true = tf.keras.layers.Flatten()(y_true)
+        y_pred = tf.keras.layers.Flatten()(y_pred)
+
+        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+
+        return (y_prod + EPS) / (y_sum - y_prod + EPS)
+
+    def get_config(self):
+        config = super(JaccardIndex, self).get_config()
+        config["binary"] = self.binary
+        return config
+
+
+@REGISTRY.register_loss(name="jaccard")
+class JaccardLoss(JaccardIndex):
+    def __init__(
+        self,
+        binary: bool = False,
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="JaccardLoss",
+    ):
+        super(JaccardLoss, self).__init__(binary=binary, reduction=reduction, name=name)
+
+    def call(self, y_true, y_pred):
+        return 1 - super(JaccardLoss, self).call(y_true=y_true, y_pred=y_pred)
 
 
 def multi_scale_loss(
@@ -182,57 +298,15 @@ def single_scale_loss(
     :return: shape = (batch,)
     """
     if loss_type == "cross-entropy":
-        return weighted_binary_cross_entropy(y_true, y_pred)
+        return CrossEntropy()(y_true, y_pred)
     elif loss_type == "mean-squared":
         return SumSquaredDistance()(y_true, y_pred)
     elif loss_type == "dice":
         return DiceLoss()(y_true, y_pred)
     elif loss_type == "jaccard":
-        return 1 - jaccard_index(y_true, y_pred)
+        return JaccardLoss()(y_true, y_pred)
     else:
         raise ValueError("Unknown loss type.")
-
-
-def weighted_binary_cross_entropy(
-    y_true: tf.Tensor, y_pred: tf.Tensor, pos_weight: float = 1
-) -> tf.Tensor:
-    """
-    Calculates weighted binary cross- entropy:
-
-        -loss = − pos_w * y_true log(y_pred) - (1−y_true) log(1−y_pred)
-
-    :param y_true: shape = (batch, dim1, dim2, dim3)
-    :param y_pred: shape = (batch, dim1, dim2, dim3)
-    :param pos_weight: weight of positive class, scalar. Default value is 1
-    :return: shape = (batch,)
-    """
-    y_pred = tf.clip_by_value(y_pred, 0, 1)
-    loss_pos = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=[1, 2, 3])
-    loss_neg = tf.reduce_mean(
-        (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=[1, 2, 3]
-    )
-    return -pos_weight * loss_pos - loss_neg
-
-
-def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-    """
-    Calculates jaccard index:
-
-    1. num = y_true * y_pred
-    2. denom = y_true + y_pred - y_true * y_pred
-    3. jaccard index = num / denom
-
-    :param y_true: shape = (batch, dim1, dim2, dim3)
-    :param y_pred: shape = (batch, dim1, dim2, dim3)
-    :return: shape = (batch,)
-    """
-    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
-    denominator = (
-        tf.reduce_sum(y_true, axis=[1, 2, 3])
-        + tf.reduce_sum(y_pred, axis=[1, 2, 3])
-        - numerator
-    )
-    return (numerator + EPS) / (denominator + EPS)
 
 
 def gauss_kernel1d(sigma: int) -> tf.Tensor:
