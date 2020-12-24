@@ -44,7 +44,7 @@ def check_vis_single_config_demo(name):
         f"deepreg_vis -m 2 -i 'demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/fixed_image.nii.gz, demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/moving_image.nii.gz, demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/pred_fixed_image.nii.gz' --slice-inds '0,1,2' -s demos/{name}/logs_predict"
     ]
     execute_commands([cmd])
-    assert os.path.exists(r"demos/{name}/logs_predict/visualisation.png")
+    assert os.path.exists(f"demos/{name}/logs_predict/visualisation.png")
 
 
 def check_vis_unpaired_ct_abdomen(name, method):
@@ -56,7 +56,7 @@ def check_vis_unpaired_ct_abdomen(name, method):
         f"deepreg_vis -m 2 -i 'demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/fixed_image.nii.gz, demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/moving_image.nii.gz, demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/pred_fixed_image.nii.gz' --slice-inds '0,1,2' -s demos/{name}/logs_predict"
     ]
     execute_commands([cmd])
-    assert os.path.exists(r"demos/{name}/logs_predict/visualisation.png")
+    assert os.path.exists(f"demos/{name}/logs_predict/visualisation.png")
 
 
 def check_vis_classical_demo(name):
@@ -64,7 +64,7 @@ def check_vis_classical_demo(name):
         f"deepreg_vis -m 2 -i 'demos/{name}/logs_reg/fixed_image.nii.gz, demos/{name}/logs_reg/moving_image.nii.gz, demos/{name}/logs_reg/warped_moving_image.nii.gz' --slice-inds '0,1,2' -s demos/{name}/logs_reg"
     ]
     execute_commands([cmd])
-    assert os.path.exists(r"demos/{name}/logs_reg/visualisation.png")
+    assert os.path.exists(f"demos/{name}/logs_reg/visualisation.png")
 
 
 def execute_commands(cmds):
