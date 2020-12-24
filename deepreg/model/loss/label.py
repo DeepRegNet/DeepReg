@@ -42,22 +42,37 @@ def get_dissimilarity_fn(config: dict) -> Callable:
 class DiceScore(tf.keras.losses.Loss):
     """
     Calculates dice score:
+    0. pos_w + neg_w = 1
+    1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
+    2. num = 2 *  (pos_w * y_true * y_pred + neg_w * (1−y_true) * (1−y_pred))
+           = 2 *  ((pos_w+neg_w) * y_prod - neg_w * y_sum + neg_w)
+           = 2 *  (y_prod - neg_w * y_sum + neg_w)
+    3. denom = (pos_w * (y_true + y_pred) + neg_w * (1−y_true + 1−y_pred))
+             = (pos_w-neg_w) * y_sum + 2 * neg_w
+             = (1-2*neg_w) * y_sum + 2 * neg_w
+    4. dice score = num / denom
 
-    1. num = 2 * y_true * y_pred
-    2. denom = y_true + y_pred
-    3. dice score = num / denom
-
-    where num and denom are summed over the entire image first.
+    where num and denom are summed over all axes except the batch axis.
     """
 
     def __init__(
         self,
         binary: bool = False,
+        neg_weight: float = 0.0,
         reduction=tf.keras.losses.Reduction.AUTO,
         name="DiceScore",
     ):
+        """
+
+        :param binary:
+        :param neg_weight: weight for negative class
+        :param reduction:
+        :param name:
+        """
         super(DiceScore, self).__init__(reduction=reduction, name=name)
+        assert 0 <= neg_weight <= 1
         self.binary = binary
+        self.neg_weight = neg_weight
 
     def call(self, y_true, y_pred):
         """
@@ -68,15 +83,22 @@ class DiceScore(tf.keras.losses.Loss):
         if self.binary:
             y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
             y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+        # (batch, ...) -> (batch, d)
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
-        numerator = tf.reduce_sum(y_true * y_pred, axis=1) * 2
-        denominator = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+
+        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+
+        numerator = 2 * (y_prod - self.neg_weight * y_sum + self.neg_weight)
+        denominator = (1 - 2 * self.neg_weight) * y_sum + 2 * self.neg_weight
+
         return (numerator + EPS) / (denominator + EPS)
 
     def get_config(self):
         config = super(DiceScore, self).get_config()
         config["binary"] = self.binary
+        config["neg_weight"] = self.neg_weight
         return config
 
 
@@ -147,8 +169,6 @@ def single_scale_loss(
         return SumSquaredDistance()(y_true, y_pred)
     elif loss_type == "dice":
         return 1 - DiceScore()(y_true, y_pred)
-    elif loss_type == "dice_generalized":
-        return 1 - dice_score_generalized(y_true, y_pred)
     elif loss_type == "jaccard":
         return 1 - jaccard_index(y_true, y_pred)
     else:
@@ -174,41 +194,6 @@ def weighted_binary_cross_entropy(
         (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=[1, 2, 3]
     )
     return -pos_weight * loss_pos - loss_neg
-
-
-def dice_score_generalized(
-    y_true: tf.Tensor, y_pred: tf.Tensor, pos_weight: float = 1, neg_weight: float = 0
-) -> tf.Tensor:
-    """
-    Calculates weighted dice score:
-
-    1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
-    2. num = 2 *  (pos_w * y_true * y_pred + neg_w * (1−y_true) * (1−y_pred))
-
-       = 2 *  ((pos_w+neg_w) * y_prod - neg_w * y_sum + neg_w)
-    3. denom = (pos_w * (y_true + y_pred) + neg_w * (1−y_true + 1−y_pred))
-
-       = (pos_w-neg_w) * y_sum + 2 * neg_w
-    4. dice score = num / denom
-
-    where num and denom are summed over the entire image first.
-
-    :param y_true: shape = (batch, dim1, dim2, dim3)
-    :param y_pred: shape = (batch, dim1, dim2, dim3)
-    :param pos_weight: weight of positive class, default = 1
-    :param neg_weight: weight of negative class, default = 0
-    :return: shape = (batch,)
-    """
-    y_prod = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3])
-    y_sum = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
-        y_pred, axis=[1, 2, 3]
-    )
-
-    numerator = 2 * (
-        (pos_weight + neg_weight) * y_prod - neg_weight * y_sum + neg_weight
-    )
-    denominator = (pos_weight - neg_weight) * y_sum + 2 * neg_weight
-    return (numerator + EPS) / (denominator + EPS)
 
 
 def jaccard_index(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:

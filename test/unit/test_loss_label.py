@@ -181,7 +181,7 @@ def test_dice_general():
     num = 2 * y_prod
     den = y_sum
     expect = num / den
-    get = label.dice_score_generalized(tensor_eye, tensor_pred)
+    get = label.DiceScore()(tensor_eye, tensor_pred)
 
     assert is_equal_tf(get, expect)
 
@@ -317,31 +317,6 @@ def test_single_scale_loss_bce():
     expect = [1.7908996, 1.7908996, 1.7908996]
     get = label.single_scale_loss(tensor_eye, tensor_pred, "cross-entropy")
 
-    assert is_equal_tf(get, expect)
-
-
-def test_single_scale_loss_dg():
-    """
-    Testing generalised dice loss single
-    scale loss function returns known loss
-    tensor for given inputs.
-    """
-    array_eye = 0.6 * np.identity(3, dtype=np.float32)
-    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_eye[:, :, 0:3, 0:3] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
-
-    tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_pred[:, 0:2, :, :] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-
-    y_prod = np.sum(tensor_eye * tensor_pred, axis=(1, 2, 3))
-    y_sum = np.sum(tensor_eye, axis=(1, 2, 3)) + np.sum(tensor_pred, axis=(1, 2, 3))
-
-    num = 2 * y_prod
-    den = y_sum
-    expect = 1 - num / den
-    get = label.single_scale_loss(tensor_eye, tensor_pred, "dice_generalized")
     assert is_equal_tf(get, expect)
 
 
