@@ -23,10 +23,8 @@ train:
         weight: 1.0
       label:
         weight: 0.2
-        name: "multi_scale"
-        multi_scale:
-          loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16]
+        name: "dice"
+        scales: [0, 1, 2, 4, 8, 16]
         single_scale:
           loss_type: "dice"
     regularization:

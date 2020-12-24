@@ -1,44 +1,13 @@
 """
 Module provides different loss functions for calculating the dissimilarities between labels.
 """
-from typing import Callable
 
 import tensorflow as tf
 
-from deepreg.model.loss.image import SumSquaredDistance
 from deepreg.model.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
-
-
-def get_dissimilarity_fn(config: dict) -> Callable:
-    """
-    Parse arguments from a configuration dictionary
-    and return the loss by averaging batch loss returned by
-    multi- or single-scale loss functions.
-
-    :param config: dict, containing configuration for training.
-    :return: loss function, which returns a tensor of shape (batch, )
-    """
-    if config["name"] == "multi_scale":
-
-        def loss(y_true, y_pred):
-            return multi_scale_loss(
-                y_true=y_true, y_pred=y_pred, **config["multi_scale"]
-            )
-
-        return loss
-    elif config["name"] == "single_scale":
-
-        def loss(y_true, y_pred):
-            return single_scale_loss(
-                y_true=y_true, y_pred=y_pred, **config["single_scale"]
-            )
-
-        return loss
-    else:
-        raise ValueError(f"Unknown loss type {config['name']}.")
 
 
 def gauss_kernel1d(sigma: int) -> tf.Tensor:
@@ -311,79 +280,6 @@ class JaccardIndex(MultiScaleLoss):
 @REGISTRY.register_loss(name="jaccard")
 class JaccardLoss(NegativeLossMixin, JaccardIndex):
     pass
-
-
-def multi_scale_loss(
-    y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str, loss_scales: list
-) -> tf.Tensor:
-    """
-    Apply the loss at different scales (gaussian smoothing).
-    It is assumed that loss values are between 0 and 1.
-
-    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
-    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
-    :param loss_type: string, indicating which loss to pass to function single_scale_loss.
-
-      Supported:
-
-      - cross-entropy
-      - mean-squared
-      - dice
-      - dice_generalized
-      - jaccard
-
-    :param loss_scales: list, values of sigma to pass to func
-                        gauss_kernel_1d.
-    :return: (batch,)
-    """
-    assert len(y_true.shape) == 4
-    assert len(y_pred.shape) == 4
-    label_loss_all = tf.stack(
-        [
-            single_scale_loss(
-                y_true=separable_filter3d(y_true, gauss_kernel1d(s)),
-                y_pred=separable_filter3d(y_pred, gauss_kernel1d(s)),
-                loss_type=loss_type,
-            )
-            for s in loss_scales
-        ],
-        axis=-1,
-    )
-    return tf.reduce_mean(label_loss_all, axis=-1)
-
-
-def single_scale_loss(
-    y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str
-) -> tf.Tensor:
-    """
-    Calculate the loss on two tensors based on defined
-    loss.
-
-    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
-    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
-    :param loss_type: string, indicating which loss to pass to
-      function single_scale_loss.
-
-      Supported:
-
-      - cross-entropy
-      - mean-squared
-      - dice
-      - dice_generalized
-      - jaccard
-
-    :return: shape = (batch,)
-    """
-    if loss_type == "cross-entropy":
-        return CrossEntropy()(y_true, y_pred)
-    elif loss_type == "mean-squared":
-        return SumSquaredDistance()(y_true, y_pred)
-    elif loss_type == "dice":
-        return DiceLoss()(y_true, y_pred)
-    elif loss_type == "jaccard":
-        return JaccardLoss()(y_true, y_pred)
-    else:
-        raise ValueError("Unknown loss type.")
 
 
 def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:

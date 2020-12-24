@@ -147,29 +147,23 @@ def add_image_loss(
     :param pred_fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
     """
-    if loss_config["dissimilarity"]["image"]["weight"] > 0:
-        config = {
-            k: v
-            for k, v in loss_config["dissimilarity"]["image"].items()
-            if k != "weight"
-        }
+    if loss_config["dissimilarity"]["image"]["weight"] <= 0:
+        return model
+    config = loss_config["dissimilarity"]["image"].copy()
+    weight = config.pop("weight", 1)
 
-        loss_image = registry.build_loss(config=config)(
-            y_true=fixed_image,
-            y_pred=pred_fixed_image,
-        )
-        weighted_loss_image = (
-            loss_image * loss_config["dissimilarity"]["image"]["weight"]
-        )
-        model.add_loss(weighted_loss_image)
-        model.add_metric(
-            loss_image, name="loss/image_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_image,
-            name="loss/weighted_image_dissimilarity",
-            aggregation="mean",
-        )
+    loss_image = registry.build_loss(config=config)(
+        y_true=fixed_image,
+        y_pred=pred_fixed_image,
+    )
+    weighted_loss_image = loss_image * weight
+    model.add_loss(weighted_loss_image)
+    model.add_metric(loss_image, name="loss/image_dissimilarity", aggregation="mean")
+    model.add_metric(
+        weighted_loss_image,
+        name="loss/weighted_image_dissimilarity",
+        aggregation="mean",
+    )
     return model
 
 
@@ -179,6 +173,7 @@ def add_label_loss(
     fixed_label: (tf.Tensor, None),
     pred_fixed_label: (tf.Tensor, None),
     loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add label dissimilarity loss of ddf into model.
@@ -189,44 +184,42 @@ def add_label_loss(
     :param pred_fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
     """
-    if fixed_label is not None:
-        loss_label = tf.reduce_mean(
-            label_loss.get_dissimilarity_fn(
-                config=loss_config["dissimilarity"]["label"]
-            )(y_true=fixed_label, y_pred=pred_fixed_label)
-        )
-        weighted_loss_label = (
-            loss_label * loss_config["dissimilarity"]["label"]["weight"]
-        )
-        model.add_loss(weighted_loss_label)
-        model.add_metric(
-            loss_label, name="loss/label_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_label,
-            name="loss/weighted_label_dissimilarity",
-            aggregation="mean",
-        )
+    if fixed_label is None:
+        return model
+    if loss_config["dissimilarity"]["image"]["weight"] <= 0:
+        return model
+    config = loss_config["dissimilarity"]["label"].copy()
+    weight = config.pop("weight", 1)
+    loss_label = registry.build_loss(config=config)(
+        y_true=fixed_label,
+        y_pred=pred_fixed_label,
+    )
+    weighted_loss_label = loss_label * weight
+    model.add_loss(weighted_loss_label)
+    model.add_metric(loss_label, name="loss/label_dissimilarity", aggregation="mean")
+    model.add_metric(
+        weighted_loss_label,
+        name="loss/weighted_label_dissimilarity",
+        aggregation="mean",
+    )
 
-        # metrics
-        dice_binary = label_loss.DiceScore(binary=True)(
-            y_true=fixed_label, y_pred=pred_fixed_label
-        )
-        dice_float = label_loss.DiceScore(binary=False)(
-            y_true=fixed_label, y_pred=pred_fixed_label
-        )
-        tre = label_loss.compute_centroid_distance(
-            y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
-        )
-        foreground_label = label_loss.foreground_proportion(y=fixed_label)
-        foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
-        model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
-        model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
-        model.add_metric(tre, name="metric/tre", aggregation="mean")
-        model.add_metric(
-            foreground_label, name="metric/foreground_label", aggregation="mean"
-        )
-        model.add_metric(
-            foreground_pred, name="metric/foreground_pred", aggregation="mean"
-        )
+    # metrics
+    dice_binary = label_loss.DiceScore(binary=True)(
+        y_true=fixed_label, y_pred=pred_fixed_label
+    )
+    dice_float = label_loss.DiceScore(binary=False)(
+        y_true=fixed_label, y_pred=pred_fixed_label
+    )
+    tre = label_loss.compute_centroid_distance(
+        y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
+    )
+    foreground_label = label_loss.foreground_proportion(y=fixed_label)
+    foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
+    model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
+    model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
+    model.add_metric(tre, name="metric/tre", aggregation="mean")
+    model.add_metric(
+        foreground_label, name="metric/foreground_label", aggregation="mean"
+    )
+    model.add_metric(foreground_pred, name="metric/foreground_pred", aggregation="mean")
     return model

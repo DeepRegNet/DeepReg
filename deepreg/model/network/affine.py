@@ -153,6 +153,7 @@ def build_affine_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
+        registry=registry,
     )
 
     return model

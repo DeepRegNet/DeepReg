@@ -11,12 +11,8 @@ train:
         weight: 0.1
       label:
         weight: 1.0
-        name: "multi_scale"
-        multi_scale:
-          loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16, 32]
-        single_scale:
-          loss_type: "cross-entropy"
+        name: "dice"
+        scales: [0, 1, 2, 4, 8, 16, 32]
     regularization:
       weight: 0.5
       energy_type: "bending"

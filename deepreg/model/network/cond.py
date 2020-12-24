@@ -132,6 +132,7 @@ def build_conditional_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=train_config["loss"],
+        registry=registry,
     )
 
     return model

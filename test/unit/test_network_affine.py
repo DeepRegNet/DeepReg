@@ -72,12 +72,9 @@ def test_build_affine_model():
                 "dissimilarity": {
                     "image": {"name": "lncc", "weight": 0.1},
                     "label": {
-                        "name": "multi_scale",
+                        "name": "dice",
                         "weight": 1,
-                        "multi_scale": {
-                            "loss_type": "dice",
-                            "loss_scales": [0, 1, 2, 4, 8, 16, 32],
-                        },
+                        "scales": [0, 1, 2, 4, 8, 16, 32],
                     },
                 },
                 "regularization": {"weight": 0.0, "energy_type": "bending"},

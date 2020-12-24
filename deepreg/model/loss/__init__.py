@@ -6,3 +6,10 @@ from deepreg.model.loss.image import (
     LocalNormalizedCrossCorrelation3DLoss,
     SumSquaredDistance,
 )
+from deepreg.model.loss.label import (
+    CrossEntropy,
+    DiceLoss,
+    DiceScore,
+    JaccardIndex,
+    JaccardLoss,
+)

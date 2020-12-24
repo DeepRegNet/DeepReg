@@ -8,7 +8,6 @@ pytest style
 from test.unit.util import is_equal_tf
 
 import numpy as np
-import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.label as label
@@ -277,100 +276,6 @@ def test_compute_centroid_d():
     assert is_equal_tf(get, expect)
 
 
-def test_single_scale_loss_dice():
-    """
-    Testing single sclare loss returns
-    precomputed, known dice loss for given
-    inputs.
-    """
-    array_eye = np.identity(3, dtype=np.float32)
-    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_eye[:, :, 0:3, 0:3] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
-
-    tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_pred[:, 0:2, :, :] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-
-    num = 2 * np.array([6, 6, 6])
-    denom = np.array([9, 9, 9]) + np.array([6, 6, 6])
-
-    expect = -(num / denom)
-    get = label.single_scale_loss(tensor_eye, tensor_pred, "dice")
-    assert is_equal_tf(get, expect)
-
-
-def test_single_scale_loss_bce():
-    """
-    Testing bce single scale loss entry
-    returns known loss tensor for given inputs.
-    """
-    array_eye = np.identity(3, dtype=np.float32)
-    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_eye[:, :, 0:3, 0:3] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
-
-    tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_pred[:, 0:2, :, :] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-
-    expect = [1.7908996, 1.7908996, 1.7908996]
-    get = label.single_scale_loss(tensor_eye, tensor_pred, "cross-entropy")
-
-    assert is_equal_tf(get, expect)
-
-
-def test_single_scale_loss_jacc():
-    """
-    Testing single scale loss returns known loss
-    tensor when called with jaccard argment.
-    """
-    array_eye = np.identity(3, dtype=np.float32)
-    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_eye[:, :, 0:3, 0:3] = array_eye
-    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
-
-    tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
-    tensor_pred[:, 0:2, :, :] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-
-    num = np.array([6, 6, 6])
-    denom = np.array([9, 9, 9]) + np.array([6, 6, 6]) - num
-
-    expect = -(num / denom)
-    get = label.single_scale_loss(tensor_eye, tensor_pred, "jaccard")
-    assert is_equal_tf(get, expect)
-
-
-def test_single_scale_loss_mean_sq():
-    """
-    Test single scale loss function returns
-    known mean sq value tensor when passed with
-    mean squared arg,
-    """
-    tensor_mask = np.zeros((3, 3, 3, 3))
-    tensor_mask[0, 0, 0, 0] = 1
-    tensor_mask = tf.constant(tensor_mask, dtype=tf.float32)
-
-    tensor_pred = tf.constant(np.ones((3, 3, 3, 3)), dtype=tf.float32)
-    expect = tf.constant(np.mean([26 / 27, 1.0, 1.0]), dtype=tf.float32)
-
-    get = label.single_scale_loss(tensor_mask, tensor_pred, "mean-squared")
-    assert is_equal_tf(get, expect)
-
-
-def test_single_scale_loss_other():
-    """
-    Test value error raised if non supported
-    string passed to the single scale loss function.
-    """
-    tensor_eye = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
-    tensor_pred = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
-
-    with pytest.raises(ValueError):
-        label.single_scale_loss(tensor_eye, tensor_pred, "random")
-
-
 def test_multi_scale_loss_kernel():
     """
     Test multi-scale loss kernel returns the appropriate
@@ -389,39 +294,3 @@ def test_multi_scale_loss_kernel():
     )
     get = label.JaccardLoss(scales=[1, 2, 3]).call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
-
-
-class TestGetSimilarityFn:
-    batch_size = 2
-    image_size = (3, 4, 5)
-    y_true = tf.zeros((batch_size, *image_size), dtype=tf.float32)
-    y_pred = tf.zeros((batch_size, *image_size), dtype=tf.float32)
-
-    def test_unknown_cases(self):
-        """
-        Test dissimilarity function raises an error
-        if an unknonw loss type is passed.
-        """
-        config = {"name": "random"}
-        with pytest.raises(ValueError) as err_info:
-            label.get_dissimilarity_fn(config)
-        assert "Unknown loss type" in str(err_info.value)
-
-    @pytest.mark.parametrize(
-        "config",
-        [
-            {
-                "name": "multi_scale",
-                "multi_scale": {"loss_type": "jaccard", "loss_scales": [0, 1, 2, 4]},
-            },
-            {"name": "single_scale", "single_scale": {"loss_type": "jaccard"}},
-        ],
-    )
-    def test_known_cases(self, config):
-        """
-        Asserting loss function returned by get dissimilarity
-        function when appropriate strings passed.
-        """
-        loss_fn = label.get_dissimilarity_fn(config)
-        loss = loss_fn(y_true=self.y_true, y_pred=self.y_pred)
-        assert loss.shape == ()
