@@ -36,7 +36,7 @@ class TestSSD:
         Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
         loss = image.SumSquaredDistance()
-        got = loss(
+        got = loss.call(
             y_true,
             y_pred,
         )
@@ -63,7 +63,7 @@ class TestLNCC:
         Testing computed local normalized cross correlation function by comparing the output to expected.
         """
         loss = image.LocalNormalizedCrossCorrelation3D(kernel_type=kernel_type)
-        got = loss(
+        got = loss.call(
             y_true,
             y_pred,
         )
@@ -93,5 +93,5 @@ class TestGMI:
         using image.global_mutual_information by comparing to precomputed.
         """
         loss = image.GlobalMutualInformation3D()
-        got = loss(y_true=y_true, y_pred=y_pred)
+        got = loss.call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected, atol=1.0e-6)
