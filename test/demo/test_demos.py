@@ -37,6 +37,36 @@ def check_files(name):
     assert len(files) == 0
 
 
+def test_vis_single_config_demo(name):
+    time_stamp = sorted(os.listdir(f"demos/{name}/logs_predict"))[0]
+    pair_number = sorted(os.listdir(f"demos/{name}/logs_predict/{time_stamp}/test"))[-1]
+    cmd = [
+        f"deepreg_vis -m 2 -i 'demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/fixed_image.nii.gz, demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/moving_image.nii.gz, demos/{name}/logs_predict/{time_stamp}/test/{pair_number}/pred_fixed_image.nii.gz' --slice-inds '0,1,2' -s /demos/{name}/logs_predict"
+    ]
+    execute_commands([cmd])
+    assert os.path.exists(r"logs_predict/visualisation.png")
+
+
+def test_vis_unpaired_ct_abdomen(name, method):
+    time_stamp = sorted(os.listdir(f"demos/{name}/logs_predict/{method}"))[0]
+    pair_number = sorted(
+        os.listdir(f"demos/{name}/logs_predict/{method}/{time_stamp}/test")
+    )[-1]
+    cmd = [
+        f"deepreg_vis -m 2 -i 'demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/fixed_image.nii.gz, demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/moving_image.nii.gz, demos/{name}/logs_predict/{method}/{time_stamp}/test/{pair_number}/pred_fixed_image.nii.gz' --slice-inds '0,1,2' -s /demos/{name}/logs_predict"
+    ]
+    execute_commands([cmd])
+    assert os.path.exists(r"logs_predict/visualisation.png")
+
+
+def test_vis_classical_demo(name):
+    cmd = [
+        f"deepreg_vis -m 2 -i 'demos/{name}/logs_reg/fixed_image.nii.gz, demos/{name}/logs_reg/moving_image.nii.gz, demos/{name}/logs_reg/warped_moving_image.nii.gz' --slice-inds '0,1,2' -s /demos/{name}/logs_predict"
+    ]
+    execute_commands([cmd])
+    assert os.path.exists(r"logs_predict/visualisation.png")
+
+
 def execute_commands(cmds):
     for cmd in cmds:
         try:
@@ -78,6 +108,7 @@ class TestDemo:
         cmds = [f"python demos/{name}/demo_{x}.py --test" for x in ["train", "predict"]]
 
         execute_commands(cmds)
+        test_vis_single_config_demo(name)
 
     @pytest.mark.parametrize(
         "method",
@@ -102,6 +133,7 @@ class TestDemo:
         ]
 
         execute_commands(cmds)
+        test_vis_unpaired_ct_abdomen(name, method)
 
     @pytest.mark.parametrize(
         "name",
@@ -124,3 +156,4 @@ class TestDemo:
         cmds = [f"python demos/{name}/demo_register.py --test"]
 
         execute_commands(cmds)
+        test_vis_classical_demo(name)
