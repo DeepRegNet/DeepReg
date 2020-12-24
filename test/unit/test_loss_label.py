@@ -295,7 +295,7 @@ def test_single_scale_loss_dice():
     num = 2 * np.array([6, 6, 6])
     denom = np.array([9, 9, 9]) + np.array([6, 6, 6])
 
-    expect = 1 - (num / denom)
+    expect = -(num / denom)
     get = label.single_scale_loss(tensor_eye, tensor_pred, "dice")
     assert is_equal_tf(get, expect)
 
@@ -337,7 +337,7 @@ def test_single_scale_loss_jacc():
     num = np.array([6, 6, 6])
     denom = np.array([9, 9, 9]) + np.array([6, 6, 6]) - num
 
-    expect = 1 - (num / denom)
+    expect = -(num / denom)
     get = label.single_scale_loss(tensor_eye, tensor_pred, "jaccard")
     assert is_equal_tf(get, expect)
 
@@ -384,7 +384,9 @@ def test_multi_scale_loss_kernel():
     tensor_pred[:, :, 0, 0] = array_eye
     tensor_eye = tf.constant(tensor_eye, dtype=tf.float32)
     tensor_pred = tf.constant(tensor_pred, dtype=tf.float32)
-    expect = tf.constant(np.array([0.9938454, 0.9924965, 0.9938454]), dtype=tf.float32)
+    expect = tf.constant(
+        np.array([-0.0061546, -0.00750354, -0.0061546]), dtype=tf.float32
+    )
     get = label.JaccardLoss(scales=[1, 2, 3]).call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 

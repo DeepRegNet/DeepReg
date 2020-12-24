@@ -3,6 +3,7 @@ Module provides different loss functions for calculating the dissimilarities bet
 """
 import tensorflow as tf
 
+from deepreg.model.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -108,22 +109,8 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
 
 
 @REGISTRY.register_loss(name="gmi")
-class GlobalMutualInformation3DLoss(GlobalMutualInformation3D):
-    def __init__(
-        self,
-        num_bins: int = 23,
-        sigma_ratio: float = 0.5,
-        reduction=tf.keras.losses.Reduction.AUTO,
-        name="GlobalMutualInformation3DLoss",
-    ):
-        super(GlobalMutualInformation3DLoss, self).__init__(
-            num_bins=num_bins, sigma_ratio=sigma_ratio, reduction=reduction, name=name
-        )
-
-    def call(self, y_true, y_pred):
-        return -super(GlobalMutualInformation3DLoss, self).call(
-            y_true=y_true, y_pred=y_pred
-        )
+class GlobalMutualInformation3DLoss(NegativeLossMixin, GlobalMutualInformation3D):
+    pass
 
 
 class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
@@ -283,22 +270,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
 
 
 @REGISTRY.register_loss(name="lncc")
-class LocalNormalizedCrossCorrelation3DLoss(LocalNormalizedCrossCorrelation3D):
-    def __init__(
-        self,
-        kernel_size: int = 9,
-        kernel_type: str = "rectangular",
-        reduction=tf.keras.losses.Reduction.AUTO,
-        name="LocalNormalizedCrossCorrelation3DLoss",
-    ):
-        super(LocalNormalizedCrossCorrelation3DLoss, self).__init__(
-            kernel_size=kernel_size,
-            kernel_type=kernel_type,
-            reduction=reduction,
-            name=name,
-        )
-
-    def call(self, y_true, y_pred):
-        return -super(LocalNormalizedCrossCorrelation3DLoss, self).call(
-            y_true=y_true, y_pred=y_pred
-        )
+class LocalNormalizedCrossCorrelation3DLoss(
+    NegativeLossMixin, LocalNormalizedCrossCorrelation3D
+):
+    pass

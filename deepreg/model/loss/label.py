@@ -6,6 +6,7 @@ from typing import Callable
 import tensorflow as tf
 
 from deepreg.model.loss.image import SumSquaredDistance
+from deepreg.model.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -194,27 +195,8 @@ class DiceScore(MultiScaleLoss):
 
 
 @REGISTRY.register_loss(name="dice")
-class DiceLoss(DiceScore):
-    def __init__(
-        self,
-        binary: bool = False,
-        neg_weight: float = 0.0,
-        scales=None,
-        kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
-        name="DiceLoss",
-    ):
-        super(DiceLoss, self).__init__(
-            binary=binary,
-            neg_weight=neg_weight,
-            scales=scales,
-            kernel=kernel,
-            reduction=reduction,
-            name=name,
-        )
-
-    def call(self, y_true, y_pred):
-        return 1 - super(DiceLoss, self).call(y_true=y_true, y_pred=y_pred)
+class DiceLoss(NegativeLossMixin, DiceScore):
+    pass
 
 
 @REGISTRY.register_loss(name="cross-entropy")
@@ -327,21 +309,8 @@ class JaccardIndex(MultiScaleLoss):
 
 
 @REGISTRY.register_loss(name="jaccard")
-class JaccardLoss(JaccardIndex):
-    def __init__(
-        self,
-        binary: bool = False,
-        scales=None,
-        kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
-        name="JaccardLoss",
-    ):
-        super(JaccardLoss, self).__init__(
-            binary=binary, scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
-
-    def call(self, y_true, y_pred):
-        return 1 - super(JaccardLoss, self).call(y_true=y_true, y_pred=y_pred)
+class JaccardLoss(NegativeLossMixin, JaccardIndex):
+    pass
 
 
 def multi_scale_loss(
