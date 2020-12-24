@@ -145,6 +145,7 @@ def build_affine_model(
         fixed_image=fixed_image,
         pred_fixed_image=pred_fixed_image,
         loss_config=loss_config,
+        registry=registry,
     )
     model = add_label_loss(
         model=model,

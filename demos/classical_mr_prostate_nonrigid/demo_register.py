@@ -10,8 +10,8 @@ import tensorflow as tf
 
 import deepreg.model.layer as layer
 import deepreg.model.loss.deform as deform_loss
-import deepreg.model.loss.image as image_loss
 import deepreg.util as util
+from deepreg.registry import REGISTRY
 
 # parser is used to simplify testing
 # please run the script with --no-test flag to ensure non-testing mode
@@ -41,7 +41,7 @@ DATA_PATH = "dataset"
 FILE_PATH = os.path.join(DATA_PATH, "demo2.h5")
 
 # registration parameters
-image_loss_name = "lncc"
+image_loss_config = {"name": "lncc"}
 deform_loss_name = "bending"
 weight_deform_loss = 1
 learning_rate = 0.1
@@ -76,8 +76,9 @@ def train_step(warper, weights, optimizer, mov, fix):
     """
     with tf.GradientTape() as tape:
         pred = warper(inputs=[weights, mov])
-        loss_image = image_loss.dissimilarity_fn(
-            y_true=fix, y_pred=pred, name=image_loss_name
+        loss_image = REGISTRY.build_loss(config=image_loss_config)(
+            y_true=fix,
+            y_pred=pred,
         )
         loss_deform = deform_loss.local_displacement_energy(weights, deform_loss_name)
         loss = loss_image + weight_deform_loss * loss_deform
@@ -103,7 +104,7 @@ for step in range(total_iter):
             step,
             "loss",
             loss_opt,
-            image_loss_name,
+            image_loss_config["name"],
             loss_image_opt,
             deform_loss_name,
             loss_deform_opt,

@@ -7,7 +7,6 @@ Module to build backbone modules based on passed inputs.
 import tensorflow as tf
 
 import deepreg.model.loss.deform as deform_loss
-import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
 from deepreg.registry import Registry
 
@@ -36,12 +35,6 @@ def build_backbone(
     ):
         raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
 
-    if method_name not in ["ddf", "dvf", "conditional", "affine"]:
-        raise ValueError(
-            f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
-            f"got {method_name}"
-        )
-
     if method_name in ["ddf", "dvf"]:
         out_activation = None
         # TODO try random init with smaller number
@@ -52,15 +45,22 @@ def build_backbone(
     elif method_name in ["affine"]:
         out_activation = None
         out_kernel_initializer = "zeros"
+    else:
+        raise ValueError(
+            f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
+            f"got {method_name}"
+        )
 
-    backbone_cls = registry.get_backbone(key=config["name"])
-    return backbone_cls(
-        image_size=image_size,
-        out_channels=out_channels,
-        out_kernel_initializer=out_kernel_initializer,
-        out_activation=out_activation,
-        **config,
+    backbone = registry.build_backbone(
+        config=config,
+        default_args=dict(
+            image_size=image_size,
+            out_channels=out_channels,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+        ),
     )
+    return backbone
 
 
 def build_inputs(
@@ -137,6 +137,7 @@ def add_image_loss(
     fixed_image: tf.Tensor,
     pred_fixed_image: tf.Tensor,
     loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add image dissimilarity loss of ddf into model.
@@ -147,12 +148,15 @@ def add_image_loss(
     :param loss_config: config for loss
     """
     if loss_config["dissimilarity"]["image"]["weight"] > 0:
-        loss_image = tf.reduce_mean(
-            image_loss.dissimilarity_fn(
-                y_true=fixed_image,
-                y_pred=pred_fixed_image,
-                **loss_config["dissimilarity"]["image"],
-            )
+        config = {
+            k: v
+            for k, v in loss_config["dissimilarity"]["image"].items()
+            if k != "weight"
+        }
+
+        loss_image = registry.build_loss(config=config)(
+            y_true=fixed_image,
+            y_pred=pred_fixed_image,
         )
         weighted_loss_image = (
             loss_image * loss_config["dissimilarity"]["image"]["weight"]
