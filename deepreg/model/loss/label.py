@@ -6,6 +6,7 @@ from typing import Callable
 import tensorflow as tf
 
 from deepreg.model.loss.image import SumSquaredDistance
+from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
 
@@ -102,6 +103,23 @@ class DiceScore(tf.keras.losses.Loss):
         return config
 
 
+@REGISTRY.register_loss(name="dice")
+class DiceLoss(DiceScore):
+    def __init__(
+        self,
+        binary: bool = False,
+        neg_weight: float = 0.0,
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="DiceLoss",
+    ):
+        super(DiceLoss, self).__init__(
+            binary=binary, neg_weight=neg_weight, reduction=reduction, name=name
+        )
+
+    def call(self, y_true, y_pred):
+        return 1 - super(DiceLoss, self).call(y_true=y_true, y_pred=y_pred)
+
+
 def multi_scale_loss(
     y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str, loss_scales: list
 ) -> tf.Tensor:
@@ -168,7 +186,7 @@ def single_scale_loss(
     elif loss_type == "mean-squared":
         return SumSquaredDistance()(y_true, y_pred)
     elif loss_type == "dice":
-        return 1 - DiceScore()(y_true, y_pred)
+        return DiceLoss()(y_true, y_pred)
     elif loss_type == "jaccard":
         return 1 - jaccard_index(y_true, y_pred)
     else:
