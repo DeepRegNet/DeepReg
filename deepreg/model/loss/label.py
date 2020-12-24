@@ -39,6 +39,47 @@ def get_dissimilarity_fn(config: dict) -> Callable:
         raise ValueError(f"Unknown loss type {config['name']}.")
 
 
+class DiceScore(tf.keras.losses.Loss):
+    """
+    Calculates dice score:
+
+    1. num = 2 * y_true * y_pred
+    2. denom = y_true + y_pred
+    3. dice score = num / denom
+
+    where num and denom are summed over the entire image first.
+    """
+
+    def __init__(
+        self,
+        binary: bool = False,
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="DiceScore",
+    ):
+        super(DiceScore, self).__init__(reduction=reduction, name=name)
+        self.binary = binary
+
+    def call(self, y_true, y_pred):
+        """
+        :param y_true: shape = (batch, ...)
+        :param y_pred: shape = (batch, ...)
+        :return: shape = (batch,)
+        """
+        if self.binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+        y_true = tf.keras.layers.Flatten()(y_true)
+        y_pred = tf.keras.layers.Flatten()(y_pred)
+        numerator = tf.reduce_sum(y_true * y_pred, axis=1) * 2
+        denominator = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+        return (numerator + EPS) / (denominator + EPS)
+
+    def get_config(self):
+        config = super(DiceScore, self).get_config()
+        config["binary"] = self.binary
+        return config
+
+
 def multi_scale_loss(
     y_true: tf.Tensor, y_pred: tf.Tensor, loss_type: str, loss_scales: list
 ) -> tf.Tensor:
@@ -73,9 +114,9 @@ def multi_scale_loss(
             )
             for s in loss_scales
         ],
-        axis=1,
+        axis=-1,
     )
-    return tf.reduce_mean(label_loss_all, axis=1)
+    return tf.reduce_mean(label_loss_all, axis=-1)
 
 
 def single_scale_loss(
@@ -105,7 +146,7 @@ def single_scale_loss(
     elif loss_type == "mean-squared":
         return SumSquaredDistance()(y_true, y_pred)
     elif loss_type == "dice":
-        return 1 - dice_score(y_true, y_pred)
+        return 1 - DiceScore()(y_true, y_pred)
     elif loss_type == "dice_generalized":
         return 1 - dice_score_generalized(y_true, y_pred)
     elif loss_type == "jaccard":
@@ -133,31 +174,6 @@ def weighted_binary_cross_entropy(
         (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=[1, 2, 3]
     )
     return -pos_weight * loss_pos - loss_neg
-
-
-def dice_score(y_true: tf.Tensor, y_pred: tf.Tensor, binary: bool = False) -> tf.Tensor:
-    """
-    Calculates dice score:
-
-    1. num = 2 * y_true * y_pred
-    2. denom = y_true + y_pred
-    3. dice score = num / denom
-
-    where num and denom are summed over the entire image first.
-
-    :param y_true: shape = (batch, dim1, dim2, dim3)
-    :param y_pred: shape = (batch, dim1, dim2, dim3)
-    :param binary: True if the y should be projected to 0 or 1
-    :return: shape = (batch,)
-    """
-    if binary:
-        y_true = tf.cast(y_true >= 0.5, dtype=tf.float32)
-        y_pred = tf.cast(y_pred >= 0.5, dtype=tf.float32)
-    numerator = tf.reduce_sum(y_true * y_pred, axis=[1, 2, 3]) * 2
-    denominator = tf.reduce_sum(y_true, axis=[1, 2, 3]) + tf.reduce_sum(
-        y_pred, axis=[1, 2, 3]
-    )
-    return (numerator + EPS) / (denominator + EPS)
 
 
 def dice_score_generalized(

@@ -163,9 +163,7 @@ def calculate_metrics(
     if fixed_label is not None and pred_fixed_label is not None:
         y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
         y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-        dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True).numpy()[
-            0
-        ]
+        dice = label_loss.DiceScore(binary=True)(y_true=y_true, y_pred=y_pred).numpy()
         tre = label_loss.compute_centroid_distance(
             y_true=y_true, y_pred=y_pred, grid=fixed_grid_ref[0, :, :, :, :]
         ).numpy()[0]

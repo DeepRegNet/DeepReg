@@ -35,9 +35,8 @@ class TestSSD:
         """
         Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
-        loss = image.SumSquaredDistance()
         # have to use call explicitly for test coverage
-        got = loss.call(
+        got = image.SumSquaredDistance().call(
             y_true,
             y_pred,
         )
@@ -63,9 +62,8 @@ class TestLNCC:
         """
         Testing computed local normalized cross correlation function by comparing the output to expected.
         """
-        loss = image.LocalNormalizedCrossCorrelation3D(kernel_type=kernel_type)
         # have to use call explicitly for test coverage
-        got = loss.call(
+        got = image.LocalNormalizedCrossCorrelation3D(kernel_type=kernel_type).call(
             y_true,
             y_pred,
         )
@@ -73,8 +71,7 @@ class TestLNCC:
 
     def test_error(self):
         with pytest.raises(ValueError) as err_info:
-            loss = image.LocalNormalizedCrossCorrelation3D(kernel_type="constant")
-            loss(
+            image.LocalNormalizedCrossCorrelation3D(kernel_type="constant").call(
                 self.y_true,
                 self.y_pred,
             )
@@ -94,7 +91,6 @@ class TestGMI:
         Testing computed global mutual information between images
         using image.global_mutual_information by comparing to precomputed.
         """
-        loss = image.GlobalMutualInformation3D()
         # have to use call explicitly for test coverage
-        got = loss.call(y_true=y_true, y_pred=y_pred)
+        got = image.GlobalMutualInformation3D().call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected, atol=1.0e-6)

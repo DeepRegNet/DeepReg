@@ -134,7 +134,7 @@ def test_dice_not_binary():
     denom = np.array([9, 9, 9]) + np.array([6, 6, 6])
 
     get = num / denom
-    expect = label.dice_score(tensor_eye, tensor_pred)
+    expect = label.DiceScore().call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
 
@@ -156,7 +156,7 @@ def test_dice_binary():
     denom = np.array([9, 9, 9]) + np.array([6, 6, 6])
 
     get = num / denom
-    expect = label.dice_score(tensor_eye, tensor_pred, binary=True)
+    expect = label.DiceScore(binary=True).call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
 

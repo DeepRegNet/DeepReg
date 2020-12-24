@@ -209,11 +209,11 @@ def add_label_loss(
         )
 
         # metrics
-        dice_binary = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=True
+        dice_binary = label_loss.DiceScore(binary=True)(
+            y_true=fixed_label, y_pred=pred_fixed_label
         )
-        dice_float = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=False
+        dice_float = label_loss.DiceScore(binary=False)(
+            y_true=fixed_label, y_pred=pred_fixed_label
         )
         tre = label_loss.compute_centroid_distance(
             y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
