@@ -37,7 +37,7 @@ def check_files(name):
     assert len(files) == 0
 
 
-def test_vis_single_config_demo(name):
+def check_vis_single_config_demo(name):
     time_stamp = sorted(os.listdir(f"demos/{name}/logs_predict"))[0]
     pair_number = sorted(os.listdir(f"demos/{name}/logs_predict/{time_stamp}/test"))[-1]
     cmd = [
@@ -47,7 +47,7 @@ def test_vis_single_config_demo(name):
     assert os.path.exists(r"demos/{name}/logs_predict/visualisation.png")
 
 
-def test_vis_unpaired_ct_abdomen(name, method):
+def check_vis_unpaired_ct_abdomen(name, method):
     time_stamp = sorted(os.listdir(f"demos/{name}/logs_predict/{method}"))[0]
     pair_number = sorted(
         os.listdir(f"demos/{name}/logs_predict/{method}/{time_stamp}/test")
@@ -59,7 +59,7 @@ def test_vis_unpaired_ct_abdomen(name, method):
     assert os.path.exists(r"demos/{name}/logs_predict/visualisation.png")
 
 
-def test_vis_classical_demo(name):
+def check_vis_classical_demo(name):
     cmd = [
         f"deepreg_vis -m 2 -i 'demos/{name}/logs_reg/fixed_image.nii.gz, demos/{name}/logs_reg/moving_image.nii.gz, demos/{name}/logs_reg/warped_moving_image.nii.gz' --slice-inds '0,1,2' -s demos/{name}/logs_reg"
     ]
@@ -108,7 +108,7 @@ class TestDemo:
         cmds = [f"python demos/{name}/demo_{x}.py --test" for x in ["train", "predict"]]
 
         execute_commands(cmds)
-        test_vis_single_config_demo(name)
+        check_vis_single_config_demo(name)
 
     @pytest.mark.parametrize(
         "method",
@@ -133,7 +133,7 @@ class TestDemo:
         ]
 
         execute_commands(cmds)
-        test_vis_unpaired_ct_abdomen(name, method)
+        check_vis_unpaired_ct_abdomen(name, method)
 
     @pytest.mark.parametrize(
         "name",
@@ -156,4 +156,4 @@ class TestDemo:
         cmds = [f"python demos/{name}/demo_register.py --test"]
 
         execute_commands(cmds)
-        test_vis_classical_demo(name)
+        check_vis_classical_demo(name)
