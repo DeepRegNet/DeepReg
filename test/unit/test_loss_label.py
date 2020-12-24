@@ -371,38 +371,11 @@ def test_single_scale_loss_other():
         label.single_scale_loss(tensor_eye, tensor_pred, "random")
 
 
-def test_multi_scale_loss_pred_len():
-    """
-    Test assertion error raised if a wrongly sized tensor
-    is passed to the multi-scale loss function.
-    """
-    tensor_true = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
-    tensor_pred = tf.convert_to_tensor(np.zeros((3, 3, 3)), dtype=tf.float32)
-    with pytest.raises(AssertionError):
-        label.multi_scale_loss(
-            tensor_true, tensor_pred, loss_type="jaccard", loss_scales=[0, 1, 2]
-        )
-
-
-def test_multi_scale_loss_true_len():
-    """
-    Test assertion error raised if a wrongly sized tensor
-    is passed to the multi-scale loss function.
-    """
-    tensor_true = tf.convert_to_tensor(np.zeros((3, 3, 3)), dtype=tf.float32)
-    tensor_pred = tf.convert_to_tensor(np.zeros((3, 3, 3, 3)), dtype=tf.float32)
-    with pytest.raises(AssertionError):
-        label.multi_scale_loss(
-            tensor_true, tensor_pred, loss_type="jaccard", loss_scales=[0, 1, 2]
-        )
-
-
 def test_multi_scale_loss_kernel():
     """
     Test multi-scale loss kernel returns the appropriate
     loss tensor for same inputs and jaccard cal.
     """
-    loss_values = [1, 2, 3]
     array_eye = np.identity(3, dtype=np.float32)
     tensor_pred = np.zeros((3, 3, 3, 3), dtype=np.float32)
     tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
@@ -411,8 +384,8 @@ def test_multi_scale_loss_kernel():
     tensor_pred[:, :, 0, 0] = array_eye
     tensor_eye = tf.constant(tensor_eye, dtype=tf.float32)
     tensor_pred = tf.constant(tensor_pred, dtype=tf.float32)
-    expect = tf.constant(0.99339575, dtype=tf.float32)
-    get = label.multi_scale_loss(tensor_eye, tensor_pred, "jaccard", loss_values)
+    expect = tf.constant(np.array([0.9938454, 0.9924965, 0.9938454]), dtype=tf.float32)
+    get = label.JaccardLoss(scales=[1, 2, 3]).call(tensor_eye, tensor_pred)
     assert is_equal_tf(get, expect)
 
 

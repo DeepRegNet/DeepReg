@@ -40,7 +40,92 @@ def get_dissimilarity_fn(config: dict) -> Callable:
         raise ValueError(f"Unknown loss type {config['name']}.")
 
 
-class DiceScore(tf.keras.losses.Loss):
+def gauss_kernel1d(sigma: int) -> tf.Tensor:
+    """
+    Calculates a gaussian kernel.
+
+    :param sigma: number defining standard deviation for
+                  gaussian kernel.
+    :return: shape = (dim, ) or ()
+    """
+    if sigma == 0:
+        return tf.constant(0, tf.float32)
+    else:
+        tail = int(sigma * 3)
+        k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
+        return k / tf.reduce_sum(k)
+
+
+def cauchy_kernel1d(sigma: int) -> tf.Tensor:
+    """
+    Approximating cauchy kernel in 1d.
+
+    :param sigma: int, defining standard deviation of kernel.
+    :return: shape = (dim, ) or ()
+    """
+    if sigma == 0:
+        return tf.constant(0, tf.float32)
+    else:
+        tail = int(sigma * 5)
+        k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
+        return k / tf.reduce_sum(k)
+
+
+class MultiScaleLoss(tf.keras.losses.Loss):
+    """
+    Apply the loss at different scales (gaussian or cauchy smoothing).
+    It is assumed that loss values are between 0 and 1.
+    """
+
+    kernel_fn_dict = dict(gaussian=gauss_kernel1d, cauchy=cauchy_kernel1d)
+
+    def __init__(
+        self,
+        scales=None,
+        kernel: str = "gaussian",
+        reduction=tf.keras.losses.Reduction.AUTO,
+        name="MultiScaleLoss",
+    ):
+        """
+
+        :param scales: if None, do not apply any
+        :param kernel: gaussian or cauchy
+        :param reduction:
+        :param name:
+        """
+        super(MultiScaleLoss, self).__init__(reduction=reduction, name=name)
+        assert kernel in ["gaussian", "cauchy"]
+        self.scales = scales
+        self.kernel = kernel
+
+    def call(self, y_true, y_pred):
+        if self.scales is None:
+            return self._call(y_true=y_true, y_pred=y_pred)
+        kernel_fn = self.kernel_fn_dict[self.kernel]
+        loss = tf.stack(
+            [
+                self._call(
+                    y_true=separable_filter3d(y_true, kernel_fn(s)),
+                    y_pred=separable_filter3d(y_pred, kernel_fn(s)),
+                )
+                for s in self.scales
+            ],
+            axis=-1,
+        )
+        return tf.reduce_mean(loss, axis=-1)
+
+    def _call(self, y_true, y_pred):
+        """correspond to the loss without scaling"""
+        raise NotImplementedError
+
+    def get_config(self):
+        config = super(MultiScaleLoss, self).get_config()
+        config["scales"] = self.scales
+        config["kernel"] = self.kernel
+        return config
+
+
+class DiceScore(MultiScaleLoss):
     """
     Calculates dice score:
     0. pos_w + neg_w = 1
@@ -60,6 +145,8 @@ class DiceScore(tf.keras.losses.Loss):
         self,
         binary: bool = False,
         neg_weight: float = 0.0,
+        scales=None,
+        kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
         name="DiceScore",
     ):
@@ -70,12 +157,14 @@ class DiceScore(tf.keras.losses.Loss):
         :param reduction:
         :param name:
         """
-        super(DiceScore, self).__init__(reduction=reduction, name=name)
+        super(DiceScore, self).__init__(
+            scales=scales, kernel=kernel, reduction=reduction, name=name
+        )
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def call(self, y_true, y_pred):
+    def _call(self, y_true, y_pred):
         """
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
@@ -110,11 +199,18 @@ class DiceLoss(DiceScore):
         self,
         binary: bool = False,
         neg_weight: float = 0.0,
+        scales=None,
+        kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
         name="DiceLoss",
     ):
         super(DiceLoss, self).__init__(
-            binary=binary, neg_weight=neg_weight, reduction=reduction, name=name
+            binary=binary,
+            neg_weight=neg_weight,
+            scales=scales,
+            kernel=kernel,
+            reduction=reduction,
+            name=name,
         )
 
     def call(self, y_true, y_pred):
@@ -122,7 +218,7 @@ class DiceLoss(DiceScore):
 
 
 @REGISTRY.register_loss(name="cross-entropy")
-class CrossEntropy(tf.keras.losses.Loss):
+class CrossEntropy(MultiScaleLoss):
     """
     Calculates weighted binary cross- entropy:
 
@@ -133,6 +229,8 @@ class CrossEntropy(tf.keras.losses.Loss):
         self,
         binary: bool = False,
         neg_weight: float = 0.0,
+        scales=None,
+        kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
         name="CrossEntropy",
     ):
@@ -143,12 +241,14 @@ class CrossEntropy(tf.keras.losses.Loss):
         :param reduction:
         :param name:
         """
-        super(CrossEntropy, self).__init__(reduction=reduction, name=name)
+        super(CrossEntropy, self).__init__(
+            scales=scales, kernel=kernel, reduction=reduction, name=name
+        )
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def call(self, y_true, y_pred):
+    def _call(self, y_true, y_pred):
         """
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
@@ -173,7 +273,7 @@ class CrossEntropy(tf.keras.losses.Loss):
         return config
 
 
-class JaccardIndex(tf.keras.losses.Loss):
+class JaccardIndex(MultiScaleLoss):
     """
     Calculates Jaccard index:
 
@@ -185,6 +285,8 @@ class JaccardIndex(tf.keras.losses.Loss):
     def __init__(
         self,
         binary: bool = False,
+        scales=None,
+        kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
         name="JaccardIndex",
     ):
@@ -194,10 +296,12 @@ class JaccardIndex(tf.keras.losses.Loss):
         :param reduction:
         :param name:
         """
-        super(JaccardIndex, self).__init__(reduction=reduction, name=name)
+        super(JaccardIndex, self).__init__(
+            scales=scales, kernel=kernel, reduction=reduction, name=name
+        )
         self.binary = binary
 
-    def call(self, y_true, y_pred):
+    def _call(self, y_true, y_pred):
         """
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
@@ -227,10 +331,14 @@ class JaccardLoss(JaccardIndex):
     def __init__(
         self,
         binary: bool = False,
+        scales=None,
+        kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
         name="JaccardLoss",
     ):
-        super(JaccardLoss, self).__init__(binary=binary, reduction=reduction, name=name)
+        super(JaccardLoss, self).__init__(
+            binary=binary, scales=scales, kernel=kernel, reduction=reduction, name=name
+        )
 
     def call(self, y_true, y_pred):
         return 1 - super(JaccardLoss, self).call(y_true=y_true, y_pred=y_pred)
@@ -307,37 +415,6 @@ def single_scale_loss(
         return JaccardLoss()(y_true, y_pred)
     else:
         raise ValueError("Unknown loss type.")
-
-
-def gauss_kernel1d(sigma: int) -> tf.Tensor:
-    """
-    Calculates a gaussian kernel.
-
-    :param sigma: number defining standard deviation for
-                  gaussian kernel.
-    :return: shape = (dim, ) or ()
-    """
-    if sigma == 0:
-        return tf.constant(0, tf.float32)
-    else:
-        tail = int(sigma * 3)
-        k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
-        return k / tf.reduce_sum(k)
-
-
-def cauchy_kernel1d(sigma: int) -> tf.Tensor:
-    """
-    Approximating cauchy kernel in 1d.
-
-    :param sigma: int, defining standard deviation of kernel.
-    :return: shape = (dim, ) or ()
-    """
-    if sigma == 0:
-        return tf.constant(0, tf.float32)
-    else:
-        tail = int(sigma * 5)
-        k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
-        return k / tf.reduce_sum(k)
 
 
 def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
