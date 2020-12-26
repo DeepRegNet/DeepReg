@@ -25,13 +25,26 @@ class TestRegistry:
         [
             (BACKBONE_CLASS, "unet", True),
             (BACKBONE_CLASS, "vnet", False),
+            (LOSS_CLASS, "dice", True),
+            (LOSS_CLASS, "Dice", False),
         ],
     )
-    def test_register_method(self, category, key, force, reg):
+    def test_register(self, category, key, force, reg):
         value = 0
         reg.register(category=category, name=key, cls=value, force=force)
         assert reg._dict[(category, key)] == value
         assert reg.get(category, key) == value
+
+    @pytest.mark.parametrize(
+        "category,key",
+        [
+            (BACKBONE_CLASS, "unet"),
+            (LOSS_CLASS, "dice"),
+        ],
+    )
+    def test_get_backbone(self, category, key, reg):
+        # no error means the unet has been registered
+        _ = reg.get(category, key)
 
     def test_get_err(self, reg):
         with pytest.raises(ValueError) as err_info:
@@ -70,14 +83,3 @@ class TestRegistry:
     )
     def test_build_from_config(self, category, config, reg):
         _ = reg.build_from_config(category=category, config=config)
-
-    def test_get_backbone(self, reg):
-        # no error means the unet has been registered
-        _ = reg.get(BACKBONE_CLASS, "unet")
-
-    def test_register_backbone(self, reg):
-        key = "new_backbone"
-        value = 0
-        reg.register_backbone(name=key, cls=value)
-        got = reg.get_backbone(key)
-        assert got == value

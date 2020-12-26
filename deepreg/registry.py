@@ -106,9 +106,6 @@ class Registry:
     def register_backbone(self, name: str, cls: Callable = None, force: bool = False):
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
 
-    def get_backbone(self, key):
-        return self.get(category=BACKBONE_CLASS, key=key)
-
     def build_backbone(self, config: dict, default_args=None):
         return self.build_from_config(
             category=BACKBONE_CLASS, config=config, default_args=default_args
