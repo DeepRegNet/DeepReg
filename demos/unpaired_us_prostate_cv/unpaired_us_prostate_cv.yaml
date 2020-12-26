@@ -59,5 +59,5 @@ train:
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
   # other training hyper-parameters
-  epochs: 5000 # number of training epochs
-  save_period: 100 # the model will be saved every `save_period` epochs.
+  epochs: 20000 # number of training epochs
+  save_period: 2000 # the model will be saved every `save_period` epochs.
