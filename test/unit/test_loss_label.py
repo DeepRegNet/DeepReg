@@ -72,11 +72,15 @@ class TestDiceScore:
         ],
     )
     def test_call(self, y_true, y_pred, binary, neg_weight, scales, expected):
-        expected = [expected] * self.shape[0]  # call returns (batch, )
+        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
         got = label.DiceScore(binary=binary, neg_weight=neg_weight, scales=scales).call(
             y_true=y_true, y_pred=y_pred
         )
         assert is_equal_tf(got, expected)
+        got = label.DiceLoss(binary=binary, neg_weight=neg_weight, scales=scales).call(
+            y_true=y_true, y_pred=y_pred
+        )
+        assert is_equal_tf(got, -expected)
 
     def test_get_config(self):
         got = label.DiceScore().get_config()
@@ -113,7 +117,7 @@ class TestCrossEntropy:
         ],
     )
     def test_call(self, y_true, y_pred, binary, neg_weight, scales, expected):
-        expected = [expected] * self.shape[0]  # call returns (batch, )
+        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
         got = label.CrossEntropy(
             binary=binary, neg_weight=neg_weight, scales=scales
         ).call(y_true=y_true, y_pred=y_pred)
@@ -153,11 +157,15 @@ class TestJaccardIndex:
         ],
     )
     def test_call(self, y_true, y_pred, binary, scales, expected):
-        expected = [expected] * self.shape[0]  # call returns (batch, )
+        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
         got = label.JaccardIndex(binary=binary, scales=scales).call(
             y_true=y_true, y_pred=y_pred
         )
         assert is_equal_tf(got, expected)
+        got = label.JaccardLoss(binary=binary, scales=scales).call(
+            y_true=y_true, y_pred=y_pred
+        )
+        assert is_equal_tf(got, -expected)
 
     def test_get_config(self):
         got = label.JaccardIndex().get_config()
