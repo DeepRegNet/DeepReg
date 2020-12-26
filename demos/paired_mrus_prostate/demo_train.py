@@ -46,7 +46,7 @@ if args.test:
     config_path.append("config/test/demo_paired.yaml")
 
 train(
-    gpu="0",
+    gpu="2",
     config_path=config_path,
     gpu_allow_growth=False,
     ckpt_path="",
