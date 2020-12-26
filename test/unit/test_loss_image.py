@@ -6,36 +6,32 @@ in image.py should be better converted into tf tensor type beforehand.
 """
 from test.unit.util import is_equal_tf
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
 import deepreg.model.loss.image as image
 
 
-class TestSSD:
-    y_true1 = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
-    y_pred1 = 0.5 * y_true1
-    y_true2 = tf.ones((2, 1, 2, 3), dtype=tf.float32)
-    y_pred2 = 0.5 * y_true2
-
+class TestSumSquaredDistance:
     @pytest.mark.parametrize(
-        "y_true,y_pred,expected",
+        "y_true,y_pred,shape,expected",
         [
-            (y_true1, y_pred1, [0.25, 0.25]),
-            (y_true1, -y_pred1, [2.25, 2.25]),
-            (y_pred1, y_pred1, [0, 0]),
-            (y_pred1, -y_pred1, [1, 1]),
-            (y_true2, y_pred2, [0.25, 0.25]),
-            (y_true2, -y_pred2, [2.25, 2.25]),
-            (y_pred2, y_pred2, [0, 0]),
-            (y_pred2, -y_pred2, [1, 1]),
+            (0.6, 0.3, (3,), 0.09),
+            (0.6, 0.3, (3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.5, 0.5, (3, 3), 0.0),
+            (0.3, 0.6, (3, 3), 0.09),
         ],
     )
-    def test_output(self, y_true, y_pred, expected):
+    def test_output(self, y_true, y_pred, shape, expected):
         """
         Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
-        # have to use call explicitly for test coverage
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
         got = image.SumSquaredDistance().call(
             y_true,
             y_pred,
@@ -43,26 +39,57 @@ class TestSSD:
         assert is_equal_tf(got, expected)
 
 
-class TestLNCC:
-    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
-    y_pred = 0.5 * y_true
-
+class TestGlobalMutualInformation3D:
     @pytest.mark.parametrize(
-        "y_true,y_pred,kernel_type,expected",
+        "y_true,y_pred,shape,expected",
         [
-            (y_true, y_pred, "rectangular", [1, 1]),
-            (y_true, y_pred, "triangular", [1, 1]),
-            (y_true, y_pred, "gaussian", [1, 1]),
-            (y_pred, y_pred, "rectangular", [1, 1]),
-            (y_pred, y_pred, "triangular", [1, 1]),
-            (y_pred, y_pred, "gaussian", [1, 1]),
+            (0.6, 0.3, (3, 3, 3, 3), 0.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), 0.0),
+            (0.0, 1.0, (3, 3, 3, 3, 3), 0.0),
         ],
     )
-    def test_output(self, y_true, y_pred, kernel_type, expected):
+    def test_zero_info(self, y_true, y_pred, shape, expected):
         """
-        Testing computed local normalized cross correlation function by comparing the output to expected.
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
-        # have to use call explicitly for test coverage
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = image.GlobalMutualInformation3D().call(
+            y_true,
+            y_pred,
+        )
+        assert is_equal_tf(got, expected)
+
+    def test_get_config(self):
+        got = image.GlobalMutualInformation3D().get_config()
+        expected = dict(
+            num_bins=23,
+            sigma_ratio=0.5,
+            reduction=tf.keras.losses.Reduction.AUTO,
+            name="GlobalMutualInformation3D",
+        )
+        assert got == expected
+
+
+class TestLocalNormalizedCrossCorrelation3D:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,shape,kernel_type,expected",
+        [
+            (0.6, 0.3, (3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.0, 1.0, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "gaussian", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "triangular", 1.0),
+        ],
+    )
+    def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
+        """
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
+        """
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
         got = image.LocalNormalizedCrossCorrelation3D(kernel_type=kernel_type).call(
             y_true,
             y_pred,
@@ -70,27 +97,17 @@ class TestLNCC:
         assert is_equal_tf(got, expected)
 
     def test_error(self):
+        y = np.ones(shape=(3, 3, 3, 3))
         with pytest.raises(ValueError) as err_info:
-            image.LocalNormalizedCrossCorrelation3D(kernel_type="constant").call(
-                self.y_true,
-                self.y_pred,
-            )
+            image.LocalNormalizedCrossCorrelation3D(kernel_type="constant").call(y, y)
         assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
 
-
-class TestGMI:
-    @pytest.mark.parametrize(
-        "y_true,y_pred,expected",
-        [
-            [tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2,))],
-            [tf.ones((2, 1, 2, 3, 2)), tf.ones((2, 1, 2, 3, 2)), tf.zeros((2,))],
-        ],
-    )
-    def test_output(self, y_true, y_pred, expected):
-        """
-        Testing computed global mutual information between images
-        using image.global_mutual_information by comparing to precomputed.
-        """
-        # have to use call explicitly for test coverage
-        got = image.GlobalMutualInformation3D().call(y_true=y_true, y_pred=y_pred)
-        assert is_equal_tf(got, expected, atol=1.0e-6)
+    def test_get_config(self):
+        got = image.LocalNormalizedCrossCorrelation3D().get_config()
+        expected = dict(
+            kernel_size=9,
+            kernel_type="rectangular",
+            reduction=tf.keras.losses.Reduction.AUTO,
+            name="LocalNormalizedCrossCorrelation3D",
+        )
+        assert got == expected

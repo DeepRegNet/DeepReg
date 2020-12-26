@@ -10,7 +10,7 @@ from deepreg.registry import REGISTRY
 EPS = tf.keras.backend.epsilon()
 
 
-def gauss_kernel1d(sigma: int) -> tf.Tensor:
+def gaussian_kernel1d(sigma: int) -> tf.Tensor:
     """
     Calculates a gaussian kernel.
 
@@ -18,12 +18,11 @@ def gauss_kernel1d(sigma: int) -> tf.Tensor:
                   gaussian kernel.
     :return: shape = (dim, ) or ()
     """
-    if sigma == 0:
-        return tf.constant(0, tf.float32)
-    else:
-        tail = int(sigma * 3)
-        k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
-        return k / tf.reduce_sum(k)
+    assert sigma > 0
+    tail = int(sigma * 3)
+    k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
+    k = k / tf.reduce_sum(k)
+    return k
 
 
 def cauchy_kernel1d(sigma: int) -> tf.Tensor:
@@ -33,12 +32,11 @@ def cauchy_kernel1d(sigma: int) -> tf.Tensor:
     :param sigma: int, defining standard deviation of kernel.
     :return: shape = (dim, ) or ()
     """
-    if sigma == 0:
-        return tf.constant(0, tf.float32)
-    else:
-        tail = int(sigma * 5)
-        k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
-        return k / tf.reduce_sum(k)
+    assert sigma > 0
+    tail = int(sigma * 5)
+    k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
+    k = k / tf.reduce_sum(k)
+    return k
 
 
 class MultiScaleLoss(tf.keras.losses.Loss):
@@ -47,7 +45,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
     It is assumed that loss values are between 0 and 1.
     """
 
-    kernel_fn_dict = dict(gaussian=gauss_kernel1d, cauchy=cauchy_kernel1d)
+    kernel_fn_dict = dict(gaussian=gaussian_kernel1d, cauchy=cauchy_kernel1d)
 
     def __init__(
         self,
@@ -72,17 +70,26 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
         kernel_fn = self.kernel_fn_dict[self.kernel]
-        loss = tf.stack(
-            [
-                self._call(
-                    y_true=separable_filter3d(y_true, kernel_fn(s)),
-                    y_pred=separable_filter3d(y_pred, kernel_fn(s)),
+        losses = []
+        for s in self.scales:
+            if s == 0:
+                # no smoothing
+                losses.append(
+                    self._call(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                    )
                 )
-                for s in self.scales
-            ],
-            axis=-1,
-        )
-        return tf.reduce_mean(loss, axis=-1)
+            else:
+                losses.append(
+                    self._call(
+                        y_true=separable_filter3d(y_true, kernel_fn(s)),
+                        y_pred=separable_filter3d(y_pred, kernel_fn(s)),
+                    )
+                )
+        loss = tf.add_n(losses)
+        loss = loss / len(self.scales)
+        return loss
 
     def _call(self, y_true, y_pred):
         """correspond to the loss without scaling"""
@@ -148,12 +155,11 @@ class DiceScore(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+        y_prod = tf.reduce_mean(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_mean(y_true, axis=1) + tf.reduce_mean(y_pred, axis=1)
 
         numerator = 2 * (y_prod - self.neg_weight * y_sum + self.neg_weight)
         denominator = (1 - 2 * self.neg_weight) * y_sum + 2 * self.neg_weight
-
         return (numerator + EPS) / (denominator + EPS)
 
     def get_config(self):
@@ -171,9 +177,9 @@ class DiceLoss(NegativeLossMixin, DiceScore):
 @REGISTRY.register_loss(name="cross-entropy")
 class CrossEntropy(MultiScaleLoss):
     """
-    Calculates weighted binary cross- entropy:
+    Calculates weighted cross-entropy:
 
-        -loss = − pos_w * y_true log(y_pred) - (1−y_true) log(1−y_pred)
+        loss = − pos_w * y_true log(y_pred) - neg_w * (1−y_true) log(1−y_pred)
     """
 
     def __init__(
@@ -266,8 +272,8 @@ class JaccardIndex(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+        y_prod = tf.reduce_mean(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_mean(y_true, axis=1) + tf.reduce_mean(y_pred, axis=1)
 
         return (y_prod + EPS) / (y_sum - y_prod + EPS)
 
@@ -296,27 +302,25 @@ def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     :param kernel: shape = (dim4,)
     :return: shape = (batch, dim1, dim2, dim3)
     """
-    if len(kernel.shape) == 0:
-        return tensor
-    else:
-        strides = [1, 1, 1, 1, 1]
-        tensor = tf.nn.conv3d(
+    strides = [1, 1, 1, 1, 1]
+    kernel = tf.cast(kernel, dtype=tensor.dtype)
+    tensor = tf.nn.conv3d(
+        tf.nn.conv3d(
             tf.nn.conv3d(
-                tf.nn.conv3d(
-                    tf.expand_dims(tensor, axis=4),
-                    filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]),
-                    strides=strides,
-                    padding="SAME",
-                ),
-                filters=tf.reshape(kernel, [1, -1, 1, 1, 1]),
+                tf.expand_dims(tensor, axis=4),
+                filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]),
                 strides=strides,
                 padding="SAME",
             ),
-            filters=tf.reshape(kernel, [1, 1, -1, 1, 1]),
+            filters=tf.reshape(kernel, [1, -1, 1, 1, 1]),
             strides=strides,
             padding="SAME",
-        )
-        return tensor[:, :, :, :, 0]
+        ),
+        filters=tf.reshape(kernel, [1, 1, -1, 1, 1]),
+        strides=strides,
+        padding="SAME",
+    )
+    return tensor[:, :, :, :, 0]
 
 
 def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:

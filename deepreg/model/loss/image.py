@@ -63,11 +63,13 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
+        assert len(y_true.shape) == len(y_pred.shape) == 5
 
         # intensity is split into bins between 0, 1
         y_true = tf.clip_by_value(y_true, 0, 1)
         y_pred = tf.clip_by_value(y_pred, 0, 1)
         bin_centers = tf.linspace(0.0, 1.0, self.num_bins)  # (num_bins,)
+        bin_centers = tf.cast(bin_centers, dtype=y_true.dtype)
         bin_centers = bin_centers[None, None, ...]  # (1, 1, num_bins)
         sigma = (
             tf.reduce_mean(bin_centers[:, :, 1:] - bin_centers[:, :, :-1])
@@ -156,12 +158,15 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
+        assert len(y_true.shape) == len(y_pred.shape) == 5
 
         filters, kernel_vol = self.build_kernel(
             kernel_size=self.kernel_size,
             kernel_type=self.kernel_type,
             ch=y_true.shape[4],
         )
+        filters = tf.cast(filters, dtype=y_true.dtype)
+        kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
         strides = [1, 1, 1, 1, 1]
         padding = "SAME"
 

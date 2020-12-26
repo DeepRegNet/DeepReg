@@ -124,7 +124,8 @@ def add_ddf_loss(
     :param registry: the registry object having all registered classes
     """
     if loss_config["regularization"]["weight"] <= 0:
-        return model
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
     config = loss_config["regularization"].copy()
     weight = config.pop("weight", 1)
     loss_reg = registry.build_loss(config=config)(inputs=ddf)
@@ -154,7 +155,8 @@ def add_image_loss(
     :param registry: the registry object having all registered classes
     """
     if loss_config["image"]["weight"] <= 0:
-        return model
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
     config = loss_config["image"].copy()
     weight = config.pop("weight", 1)
 
@@ -192,9 +194,11 @@ def add_label_loss(
     :param registry: the registry object having all registered classes
     """
     if fixed_label is None:
-        return model
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
     if loss_config["image"]["weight"] <= 0:
-        return model
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
     config = loss_config["label"].copy()
     weight = config.pop("weight", 1)
     loss_label = registry.build_loss(config=config)(

@@ -84,9 +84,9 @@ class Registry:
         :return: The constructed object/instance.
         """
         if not isinstance(config, dict):
-            raise TypeError(f"config must be a dict, but got {type(config)}")
+            raise ValueError(f"config must be a dict, but got {type(config)}")
         if "name" not in config:
-            raise KeyError('`config` must contain the key "type", ' f"but got {config}")
+            raise ValueError(f"`config` must contain the key `name`, but got {config}")
         args = config.copy()
 
         # insert key, value pairs if key is not in args
@@ -97,6 +97,11 @@ class Registry:
         name = args.pop("name")
         cls = self.get(category=category, key=name)
         return cls(**args)
+
+    def copy(self):
+        copied = Registry()
+        copied._dict = self._dict.copy()
+        return copied
 
     def register_backbone(self, name: str, cls: Callable = None, force: bool = False):
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
