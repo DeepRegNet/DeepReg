@@ -695,22 +695,16 @@ class ResizeCPTransform(tf.keras.layers.Layer):
         super(ResizeCPTransform, self).build(input_shape=input_shape)
 
         self.kernel = layer_util.gaussian_filter_3d(self.kernel_sigma)
-
         output_shape = [
             tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
             for v, c in zip(input_shape[1:-1], self.cp_spacing)
         ]
-
         self._output_shape = output_shape
 
     def call(self, inputs, **kwargs):
-
         output = tf.nn.conv3d(
             inputs, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
         )
-
-        print(output.shape)
-
         return layer_util.resize3d(image=output, size=self._output_shape)
 
 
