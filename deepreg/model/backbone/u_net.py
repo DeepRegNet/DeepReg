@@ -30,6 +30,7 @@ class UNet(tf.keras.Model):
         out_activation: str,
         pooling: bool = True,
         concat_skip: bool = False,
+        control_points: (tuple, None) = None,
         **kwargs,
     ):
         """
@@ -45,6 +46,7 @@ class UNet(tf.keras.Model):
                         pooling if true, otherwise use conv3d
         :param concat_skip: Boolean, when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
+        :param control_points: (tuple, None), specify the distance between control points (in voxels).
         :param kwargs:
         """
         super(UNet, self).__init__(**kwargs)
@@ -69,6 +71,17 @@ class UNet(tf.keras.Model):
             filters=out_channels,
             kernel_initializer=out_kernel_initializer,
             activation=out_activation,
+        )
+
+        self.resize = (
+            layer.ResizeCPTransform(control_points)
+            if control_points is not None
+            else False
+        )
+        self.interpolate = (
+            layer.BSplines3DTransform(control_points, image_size)
+            if control_points is not None
+            else False
         )
 
     def call(self, inputs, training=None, mask=None):
@@ -105,4 +118,9 @@ class UNet(tf.keras.Model):
 
         # output
         output = self._output_conv3d(inputs=up_sampled)
+
+        if self.resize:
+            output = self.resize(output)
+            output = self.interpolate(output)
+
         return output
