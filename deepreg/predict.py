@@ -16,7 +16,7 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
-from deepreg.callback import build_checkpoint_manager_callback
+from deepreg.callback import build_checkpoint_callback
 from deepreg.model.network.build import build_model
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import (
@@ -316,11 +316,14 @@ def predict(
     model.compile(optimizer=optimizer)
 
     # load weights
-    # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-object
-    if ".ckpt" in ckpt_path:
+    if ckpt_path.endswith(".ckpt"):
+        # for ckpt from tf.keras.callbacks.ModelCheckpoint
+        # skip warnings because of optimizers
+        # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-object
         model.load_weights(ckpt_path).expect_partial()  # pragma: no cover
     else:
-        _, _ = build_checkpoint_manager_callback(
+        # for ckpts from ckpt manager callback
+        _, _ = build_checkpoint_callback(
             model=model,
             dataset=dataset,
             log_dir=log_dir,

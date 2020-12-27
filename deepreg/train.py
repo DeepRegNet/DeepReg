@@ -11,7 +11,7 @@ import tensorflow as tf
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
-from deepreg.callback import build_checkpoint_manager_callback
+from deepreg.callback import build_checkpoint_callback
 from deepreg.model.network.build import build_model
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import build_dataset, build_log_dir
@@ -137,14 +137,14 @@ def train(
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir, histogram_freq=config["train"]["save_period"]
     )
-    checkpoint_manager_callback, initial_epoch = build_checkpoint_manager_callback(
+    ckpt_callback, initial_epoch = build_checkpoint_callback(
         model=model,
         dataset=dataset_train,
         log_dir=log_dir,
         save_period=config["train"]["save_period"],
         ckpt_path=ckpt_path,
     )
-    callbacks = [tensorboard_callback, checkpoint_manager_callback]
+    callbacks = [tensorboard_callback, ckpt_callback]
 
     # train
     # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like

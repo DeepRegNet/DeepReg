@@ -3,7 +3,7 @@ import shutil
 import numpy as np
 import tensorflow as tf
 
-from deepreg.callback import build_checkpoint_manager_callback
+from deepreg.callback import build_checkpoint_callback
 
 
 def test_restore_checkpoint_manager_callback():
@@ -38,7 +38,7 @@ def test_restore_checkpoint_manager_callback():
         old_model = Net()
         old_optimizer = tf.keras.optimizers.Adam(0.1)
     old_model.compile(optimizer=old_optimizer, loss=tf.keras.losses.MSE)
-    old_callback, _ = build_checkpoint_manager_callback(
+    old_callback, _ = build_checkpoint_callback(
         model=old_model,
         dataset=toy_dataset(),
         log_dir="./test/unit/old",
@@ -54,7 +54,7 @@ def test_restore_checkpoint_manager_callback():
         new_model = Net()
         new_optimizer = tf.keras.optimizers.Adam(0.1)
     new_model.compile(optimizer=new_optimizer, loss=tf.keras.losses.MSE)
-    new_callback, initial_epoch = build_checkpoint_manager_callback(
+    new_callback, initial_epoch = build_checkpoint_callback(
         model=new_model,
         dataset=toy_dataset(),
         log_dir="./test/unit/new",
