@@ -24,7 +24,7 @@ jobs:
         run: |
           pip install pytest
           pip install pytest-cov
-          pytest --cov-report=xml --cov=deepreg ./test/unit/
+          pytest --cov-report=xml --cov=deepreg --durations=10 --durations-min=1.0 ./test/unit/
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
