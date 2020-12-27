@@ -11,6 +11,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added registry for backbone models.
+- Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
