@@ -316,10 +316,9 @@ def predict(
     model.compile(optimizer=optimizer)
 
     # load weights
-    # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-objec
-    # model.load_weights(ckpt_path).expect_partial()
+    # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-object
     if ".ckpt" in ckpt_path:
-        model.load_weights(ckpt_path).expect_partial()
+        model.load_weights(ckpt_path).expect_partial()  # pragma: no cover
     else:
         _, _ = build_checkpoint_manager_callback(
             model=model,

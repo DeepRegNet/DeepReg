@@ -30,15 +30,6 @@ def build_checkpoint_manager_callback(
     return checkpoint_manager_callback, initial_epoch
 
 
-def restore_model(callbacks, ckpt_path):
-    if ckpt_path:
-        initial_epoch = int(ckpt_path.split("-")[-1])
-        callbacks[-1].restore(ckpt_path)
-    else:
-        initial_epoch = 0
-    return initial_epoch
-
-
 class CheckpointManagerCallback(tf.keras.callbacks.Callback):
     def __init__(
         self, model, directory, period: int = 1, save_on_train_end: bool = True
