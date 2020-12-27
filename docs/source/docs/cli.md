@@ -219,7 +219,7 @@ configuration can be specified in the configuration file. Please see
   Example usage:
 
   - `--save_png`, for saving the outputs in png format.
-  - `--save_png`, for not saving the outputs in png format.
+  - `--no_png`, for not saving the outputs in png format.
 
 - **Configuration**:
 
