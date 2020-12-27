@@ -3,7 +3,7 @@ import shutil
 import numpy as np
 import tensorflow as tf
 
-from deepreg.callback import build_callbacks, restore_model
+from deepreg.callback import build_checkpoint_manager_callback
 
 
 def test_restore_checkpoint_manager_callback():
@@ -38,15 +38,15 @@ def test_restore_checkpoint_manager_callback():
         old_model = Net()
         old_optimizer = tf.keras.optimizers.Adam(0.1)
     old_model.compile(optimizer=old_optimizer, loss=tf.keras.losses.MSE)
-    old_callbacks = build_callbacks(
+    old_callback, _ = build_checkpoint_manager_callback(
         model=old_model,
         dataset=toy_dataset(),
         log_dir="./test/unit/old",
-        histogram_freq=1,
         save_period=5,
+        ckpt_path="",
     )
     old_model.fit(
-        x=toy_dataset(), epochs=10, steps_per_epoch=10, callbacks=old_callbacks
+        x=toy_dataset(), epochs=10, steps_per_epoch=10, callbacks=[old_callback]
     )
 
     # create new model and restore old_model checkpoint
@@ -54,19 +54,16 @@ def test_restore_checkpoint_manager_callback():
         new_model = Net()
         new_optimizer = tf.keras.optimizers.Adam(0.1)
     new_model.compile(optimizer=new_optimizer, loss=tf.keras.losses.MSE)
-    new_callbacks = build_callbacks(
+    new_callback, initial_epoch = build_checkpoint_manager_callback(
         model=new_model,
         dataset=toy_dataset(),
         log_dir="./test/unit/new",
-        histogram_freq=1,
         save_period=5,
-    )
-    initial_epoch = restore_model(
-        new_callbacks, ckpt_path="./test/unit/old/save/ckpt-10"
+        ckpt_path="./test/unit/old/save/ckpt-10",
     )
 
     # check equal
-    new_callbacks[1]._manager.save(0)
+    new_callback._manager.save(0)
     old_reader = tf.train.load_checkpoint("./test/unit/old/save/ckpt-10")
     new_reader = tf.train.load_checkpoint("./test/unit/new/save")
     for k in old_reader.get_variable_to_shape_map().keys():
@@ -81,7 +78,7 @@ def test_restore_checkpoint_manager_callback():
         initial_epoch=initial_epoch,
         epochs=20,
         steps_per_epoch=10,
-        callbacks=new_callbacks,
+        callbacks=[new_callback],
     )
 
     # remove temporary ckpt directories
