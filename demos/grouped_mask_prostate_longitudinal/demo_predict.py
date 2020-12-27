@@ -42,7 +42,7 @@ print(
 
 log_root = f"demos/{name}"
 log_dir = "logs_predict/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-ckpt_path = f"{log_root}/dataset/pretrained/weights-epoch500.ckpt"
+ckpt_path = f"{log_root}/dataset/pretrained/ckpt-2000.ckpt"
 config_path = [f"{log_root}/{name}.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
