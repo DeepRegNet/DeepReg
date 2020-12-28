@@ -1,9 +1,8 @@
 # coding=utf-8
 
 """
-Module to download additional data/resources that
-are not included in the releases via command line
-interface.
+Module to download additional data and resources that
+are not included in releases via command line interface.
 """
 
 import argparse
@@ -24,6 +23,9 @@ def download(dirs, output_dir="./"):
     """
 
     output_dir = os.path.abspath(output_dir)  # Get the output directory.
+
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     print("\nWill download folders: [", *dirs, sep=" ", end=" ")
     print("] into {}.\n".format(output_dir))
@@ -56,7 +58,7 @@ def download(dirs, output_dir="./"):
                 print("Downloaded {}".format(info.filename))
 
 
-def main():
+def main(args=None):
     """
     Function to run in command line with argparse to download data.
     """
@@ -69,7 +71,7 @@ def main():
         default="./",
         help="All directories will be downloaded to the specified directory.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     dirs = [
         "config",
