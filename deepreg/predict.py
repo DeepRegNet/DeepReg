@@ -16,8 +16,9 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
+from deepreg.callback import build_checkpoint_callback
 from deepreg.model.network.build import build_model
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY, Registry
 from deepreg.util import (
     build_dataset,
     build_log_dir,
@@ -254,7 +255,7 @@ def predict(
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
-    registry: Registry = Registry(),
+    registry: Registry = REGISTRY,
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -315,8 +316,20 @@ def predict(
     model.compile(optimizer=optimizer)
 
     # load weights
-    # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-objec
-    model.load_weights(ckpt_path).expect_partial()
+    if ckpt_path.endswith(".ckpt"):
+        # for ckpt from tf.keras.callbacks.ModelCheckpoint
+        # skip warnings because of optimizers
+        # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-object
+        model.load_weights(ckpt_path).expect_partial()  # pragma: no cover
+    else:
+        # for ckpts from ckpt manager callback
+        _, _ = build_checkpoint_callback(
+            model=model,
+            dataset=dataset,
+            log_dir=log_dir,
+            save_period=config["train"]["save_period"],
+            ckpt_path=ckpt_path,
+        )
 
     # predict
     fixed_grid_ref = tf.expand_dims(

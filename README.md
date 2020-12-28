@@ -33,12 +33,9 @@
   </tr>
   <tr>
     <td>
-      <b>Code Test</b>
+      <b>Code</b>
     </td>
     <td>
-      <a href="https://github.com/psf/black">
-      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
-      </a>
       <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%20Unit%20Test">
       <img src="https://github.com/deepregnet/deepreg/workflows/Unit%20Test/badge.svg?branch=main" alt="Unit Test">
       </a>
@@ -47,6 +44,15 @@
       </a>
       <a href="https://codecov.io/github/DeepRegNet/DeepReg">
       <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">
+      </a>
+      <a href="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
+      </a>
+      <a href="scrutinizer-ci.com/g/DeepRegNet/DeepReg">
+      <img src="https://scrutinizer-ci.com/g/DeepRegNet/DeepReg/badges/quality-score.png" alt="Code Quality">
+      </a>
+      <a href="https://codeclimate.com/github/DeepRegNet/DeepReg/maintainability">
+      <img src="https://api.codeclimate.com/v1/badges/65245e28aa8f2cd7c6b6/maintainability" alt="Code Maintainability">
       </a>
     </td>
   </tr>
