@@ -8,8 +8,6 @@ pytest style
 import os
 import shutil
 
-import pytest
-
 from deepreg.predict import build_config, build_pair_output_path
 
 log_root = "logs"
@@ -60,15 +58,6 @@ def test_build_config():
     )
     assert isinstance(got_config, dict)
     assert got_log_dir == os.path.join("logs", log_dir)
-
-    # checkpoint path ends with h5
-    with pytest.raises(ValueError):
-        build_config(
-            config_path=config_path,
-            log_root=log_root,
-            log_dir=log_dir,
-            ckpt_path="example.h5",
-        )
 
 
 def test_predict_on_dataset():

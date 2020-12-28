@@ -11,7 +11,9 @@ import tensorflow as tf
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
+from deepreg.callback import build_callbacks, restore_model
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 from deepreg.util import build_dataset, build_log_dir
 
 
@@ -39,11 +41,6 @@ def build_config(
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
 
-    # check checkpoint path
-    if ckpt_path != "":
-        if not ckpt_path.endswith(".ckpt"):
-            raise ValueError(f"checkpoint path should end with .ckpt, got {ckpt_path}")
-
     # load config
     config = config_parser.load_configs(config_path)
 
@@ -62,26 +59,6 @@ def build_config(
     return config, log_dir
 
 
-def build_callbacks(log_dir: str, histogram_freq: int, save_period: int) -> list:
-    """
-    Function to prepare callbacks for training.
-
-    :param log_dir: directory of logs
-    :param histogram_freq: save the histogram every X epochs
-    :param save_period: save the checkpoint every X epochs
-    :return: a list of callbacks
-    """
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=histogram_freq
-    )
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=log_dir + "/save/weights-epoch{epoch:d}.ckpt",
-        save_weights_only=True,
-        period=save_period,
-    )
-    return [tensorboard_callback, checkpoint_callback]
-
-
 def train(
     gpu: str,
     config_path: (str, list),
@@ -90,6 +67,7 @@ def train(
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
+    registry: Registry = Registry(),
 ):
     """
     Function to train a model.
@@ -132,21 +110,15 @@ def train(
         repeat=True,
     )
 
-    # build callbacks
-    callbacks = build_callbacks(
-        log_dir=log_dir,
-        histogram_freq=config["train"][
-            "save_period"
-        ],  # use save_period for histogram_freq
-        save_period=config["train"]["save_period"],
-    )
-
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
     # only model, optimizer and metrics need to be defined inside the strategy
-    mirrored_strategy = tf.distribute.MirroredStrategy()
-    with mirrored_strategy.scope():
+    if len(tf.config.list_physical_devices("GPU")) > 1:
+        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
+    else:
+        strategy = tf.distribute.get_strategy()
+    with strategy.scope():
         model = build_model(
             moving_image_size=data_loader_train.moving_image_shape,
             fixed_image_size=data_loader_train.fixed_image_shape,
@@ -154,15 +126,26 @@ def train(
             labeled=config["dataset"]["labeled"],
             batch_size=config["train"]["preprocess"]["batch_size"],
             train_config=config["train"],
+            registry=registry,
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # compile
     model.compile(optimizer=optimizer)
 
+    # build callbacks
+    callbacks = build_callbacks(
+        model=model,
+        dataset=dataset_train,
+        log_dir=log_dir,
+        histogram_freq=config["train"][
+            "save_period"
+        ],  # use save_period for histogram_freq
+        save_period=config["train"]["save_period"],
+    )
+
     # load weights
-    if ckpt_path != "":
-        model.load_weights(ckpt_path)
+    initial_epoch = restore_model(callbacks, ckpt_path)
 
     # train
     # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
@@ -170,6 +153,7 @@ def train(
     model.fit(
         x=dataset_train,
         steps_per_epoch=steps_per_epoch_train,
+        initial_epoch=initial_epoch,
         epochs=config["train"]["epochs"],
         validation_data=dataset_val,
         validation_steps=steps_per_epoch_val,

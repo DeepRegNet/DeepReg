@@ -1,6 +1,7 @@
 import pytest
 
 from deepreg.model.network.build import build_model
+from deepreg.registry import Registry
 
 
 class TestBuildModel:
@@ -50,6 +51,7 @@ class TestBuildModel:
             labeled=True,
             batch_size=self.batch_size,
             train_config=train_config,
+            registry=Registry(),
         )
 
     def test_build_err(self):
@@ -63,5 +65,6 @@ class TestBuildModel:
                 labeled=True,
                 batch_size=self.batch_size,
                 train_config=train_config,
+                registry=Registry(),
             )
         assert "Unknown method" in str(err_info.value)
