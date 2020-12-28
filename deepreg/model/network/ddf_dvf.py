@@ -22,7 +22,6 @@ def ddf_dvf_forward(
 ) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass.
-
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -31,7 +30,6 @@ def ddf_dvf_forward(
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
     :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-
       - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -136,7 +134,9 @@ def build_ddf_dvf_model(
     outputs = {"ddf": ddf}
     if dvf is not None:
         outputs["dvf"] = dvf
+
     model_name = train_config["method"].upper() + "RegistrationModel"
+
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
