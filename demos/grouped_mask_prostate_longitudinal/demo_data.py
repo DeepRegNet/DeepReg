@@ -110,8 +110,8 @@ if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-ZIP_PATH = "grouped_mask_prostate_longitudinal-ckpt"
-ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mask_prostate_longitudinal-ckpt.zip"
+ZIP_PATH = "grouped_mask_prostate_longitudinal_1"
+ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mask_prostate_longitudinal_1.zip"
 
 zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
 get_file(os.path.abspath(zip_file), ORIGIN)
