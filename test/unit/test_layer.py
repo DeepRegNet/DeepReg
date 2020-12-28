@@ -365,8 +365,8 @@ class TestResizeCPTransform:
     @pytest.mark.parametrize(
         "input_size,output_size,cp_spacing",
         [
-            ((1, 68, 68, 68, 3), (12, 8, 12), (8, 16, 8)),
-            ((1, 68, 68, 68, 3), (12, 12, 12), 8),
+            ((1, 8, 8, 8, 3), (12, 8, 12), (8, 16, 8)),
+            ((1, 8, 8, 8, 3), (12, 12, 12), 8),
         ],
     )
     def test_build(self, input_size, output_size, cp_spacing):
@@ -401,7 +401,7 @@ class TestBSplines3DTransform:
 
     @pytest.mark.parametrize(
         "input_size,cp",
-        [((1, 68, 68, 68, 3), 8), ((1, 68, 68, 68, 3), (8, 16, 12))],
+        [((1, 8, 8, 8, 3), 8), ((1, 8, 8, 8, 3), (8, 16, 12))],
     )
     def test_init(self, input_size, cp):
         model = layer.BSplines3DTransform(cp, input_size[1:-1])
@@ -413,7 +413,7 @@ class TestBSplines3DTransform:
 
     @pytest.mark.parametrize(
         "input_size,cp",
-        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
     )
     def generate_filter_coefficients(self, cp_spacing):
 
@@ -458,7 +458,7 @@ class TestBSplines3DTransform:
 
     @pytest.mark.parametrize(
         "input_size,cp",
-        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
     )
     def test_build(self, input_size, cp):
         model = layer.BSplines3DTransform(cp, input_size[1:-1])
@@ -474,7 +474,7 @@ class TestBSplines3DTransform:
 
     @pytest.mark.parametrize(
         "input_size,cp",
-        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
     )
     def test_coefficients(self, input_size, cp):
 
@@ -487,7 +487,7 @@ class TestBSplines3DTransform:
 
     @pytest.mark.parametrize(
         "input_size,cp",
-        [((1, 68, 68, 68, 3), (8, 8, 8)), ((1, 68, 68, 68, 3), (8, 16, 12))],
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
     )
     def test_interpolation(self, input_size, cp):
         model = layer.BSplines3DTransform(cp, input_size[1:-1])
