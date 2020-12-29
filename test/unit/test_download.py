@@ -32,7 +32,7 @@ def test_main():
     """
 
     temp_dir = "./deepreg_download_temp_dir"
-    branch = Repo(".").active_branch.name
+    branch = Repo(".").head.object.hexsha
 
     main(args=["--output_dir", temp_dir, "--branch", branch])
 
