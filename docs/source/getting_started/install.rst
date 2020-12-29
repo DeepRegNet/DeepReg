@@ -165,14 +165,24 @@ Please use the following command to install DeepReg directly from the PyPI relea
 
     pip install deepreg
 
+The PyPI release currently does not ship with test data and demos.
+Running examples, such as those in `Quick Start`_ and `DeepReg Demo`_,
+in this documentation may require downloading additional test data.
+
+Once you have installed DeepReg via :code:`pip`, you can run the following
+command to download the necessary files to run all examples by:
+
+.. code:: bash
+
+    deepreg_download
+
+The above will download the files to the current working directory.
+If you need to download to a specific directory, use the
+:code:`--output_dir` or :code:`-d` flag to specify this.
 
 **Note**
 
 1. All dependencies, APIs and command-line tools will be installed automatically via each installation method.
-   However, the PyPI release currently does not ship with test data and demos.
-   Running examples in this documentation may require downloading test data
-   and changing default paths to user-installed packages with the PyPI release.
-   These examples include those in the `Quick Start`_ and `DeepReg Demo`_.
 2. Only released versions of DeepReg are available via PyPI release.
    Therefore it is different from the `latest (unstable) version <https://github.com/DeepRegNet/DeepReg>`__ on GitHub.
 

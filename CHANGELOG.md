@@ -15,6 +15,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
+- Added deepreg_download entry point to access non-release folders required for Quick
+  Start.
 
 ### Changed
 
