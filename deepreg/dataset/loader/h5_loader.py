@@ -145,4 +145,8 @@ class H5FileLoader(FileLoader):
         for f in self.h5_files.values():
             if f.__bool__():
                 # close file if it is open
-                f.close()
+                try:
+                    f.close()
+                except RuntimeError:
+                    # to ignore RuntimeError: Can't increment id ref count
+                    pass
