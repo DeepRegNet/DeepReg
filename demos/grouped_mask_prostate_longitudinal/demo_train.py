@@ -44,7 +44,7 @@ if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 
 train(
-    gpu="1",
+    gpu="0",
     config_path=config_path,
     gpu_allow_growth=False,
     ckpt_path="",
