@@ -8,11 +8,13 @@ import os
 import shutil
 from filecmp import dircmp
 
+from git import Repo
+
 from deepreg.download import main
 
 
 def has_diff_files(dcmp):
-    for name in dcmp.diff_files:
+    if len(dcmp.diff_files) > 0:
         return True
     for sub_dcmp in dcmp.subdirs.values():
         has_diff_files(sub_dcmp)
@@ -30,8 +32,9 @@ def test_main():
     """
 
     temp_dir = "./deepreg_download_temp_dir"
+    branch = Repo(".").active_branch.name
 
-    main(args=["--output_dir", temp_dir])
+    main(args=["--output_dir", temp_dir, "--branch", branch])
 
     # Check downloading all req'd folders into temp, verify that they are the same as in main branch.
     config_dcmp = dircmp("./config", os.path.join(temp_dir, "config"))
