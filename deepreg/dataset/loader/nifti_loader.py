@@ -158,4 +158,4 @@ class NiftiFileLoader(FileLoader):
 
     def close(self):
         """Close opened files."""
-        pass
+        return

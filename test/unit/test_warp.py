@@ -5,11 +5,6 @@ import pytest
 from deepreg.warp import main
 
 
-def test_warp():
-    """Covered by test_main"""
-    pass
-
-
 class TestMain:
     image_path = "./data/test/nifti/unit_test/moving_image.nii.gz"
     ddf_path = "./data/test/nifti/unit_test/ddf.nii.gz"

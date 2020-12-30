@@ -184,8 +184,6 @@ class DiceScore(MultiScaleLoss):
 class DiceLoss(NegativeLossMixin, DiceScore):
     """Revert the sign of DiceScore."""
 
-    pass
-
 
 @REGISTRY.register_loss(name="cross-entropy")
 class CrossEntropy(MultiScaleLoss):
@@ -309,8 +307,6 @@ class JaccardIndex(MultiScaleLoss):
 @REGISTRY.register_loss(name="jaccard")
 class JaccardLoss(NegativeLossMixin, JaccardIndex):
     """Revert the sign of JaccardIndex."""
-
-    pass
 
 
 def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:

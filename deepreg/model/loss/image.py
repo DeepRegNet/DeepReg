@@ -132,8 +132,6 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """Revert the sign of GlobalMutualInformation."""
 
-    pass
-
 
 def build_rectangular_kernel(kernel_size: int, input_channel: int):
     """
@@ -328,5 +326,3 @@ class LocalNormalizedCrossCorrelationLoss(
     NegativeLossMixin, LocalNormalizedCrossCorrelation
 ):
     """Revert the sign of LocalNormalizedCrossCorrelation."""
-
-    pass
