@@ -27,7 +27,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         """
         super().__init__(reduction=reduction, name=name)
 
-    def call(self, y_true, y_pred):
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -68,7 +68,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self.num_bins = num_bins
         self.sigma_ratio = sigma_ratio
 
-    def call(self, y_true, y_pred):
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -133,7 +133,9 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """Revert the sign of GlobalMutualInformation."""
 
 
-def build_rectangular_kernel(kernel_size: int, input_channel: int):
+def build_rectangular_kernel(
+    kernel_size: int, input_channel: int
+) -> (tf.Tensor, tf.Tensor):
     """
     Return a rectangular kernel for LocalNormalizedCrossCorrelation.
 
@@ -145,10 +147,12 @@ def build_rectangular_kernel(kernel_size: int, input_channel: int):
     """
     filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
     kernel_vol = kernel_size ** 3
-    return filters, kernel_vol
+    return filters, tf.constant(kernel_vol)
 
 
-def build_triangular_kernel(kernel_size: int, input_channel: int):
+def build_triangular_kernel(
+    kernel_size: int, input_channel: int
+) -> (tf.Tensor, tf.Tensor):
     """
     Return a triangular kernel for LocalNormalizedCrossCorrelation.
 
@@ -180,7 +184,9 @@ def build_triangular_kernel(kernel_size: int, input_channel: int):
     return filters, kernel_vol
 
 
-def build_gaussian_kernel(kernel_size: int, input_channel: int):
+def build_gaussian_kernel(
+    kernel_size: int, input_channel: int
+) -> (tf.Tensor, tf.Tensor):
     """
     Return a Gaussian kernel for LocalNormalizedCrossCorrelation.
 
@@ -255,7 +261,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
 
-    def call(self, y_true, y_pred):
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 

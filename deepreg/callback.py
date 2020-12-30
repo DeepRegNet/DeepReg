@@ -1,38 +1,6 @@
 import tensorflow as tf
 
 
-def build_checkpoint_callback(
-    model, dataset, log_dir: str, save_period: int, ckpt_path: str
-):
-    """
-    Function to prepare callbacks for training.
-
-    :param log_dir: directory of logs
-    :param save_period: save the checkpoint every X epochs
-    :param ckpt_path: path to restore ckpt
-    :return: a list of callbacks
-    """
-    # fit the model for 1 step to initialise optimiser arguments as trackable Variables
-    model.fit(
-        x=dataset,
-        steps_per_epoch=1,
-        epochs=1,
-    )
-    checkpoint_manager_callback = CheckpointManagerCallback(
-        model, log_dir + "/save", period=save_period
-    )
-    if ckpt_path:
-        initial_epoch = ckpt_path.split("-")[-1]
-        assert (
-            initial_epoch.isdigit()
-        ), f"Checkpoint path for checkpoint manager must be of form ckpt-epoch_count, got {ckpt_path}"
-        initial_epoch = int(initial_epoch)
-        checkpoint_manager_callback.restore(ckpt_path)
-    else:
-        initial_epoch = 0
-    return checkpoint_manager_callback, initial_epoch
-
-
 class CheckpointManagerCallback(tf.keras.callbacks.Callback):
     def __init__(
         self, model, directory, period: int = 1, save_on_train_end: bool = True
@@ -88,3 +56,35 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
         if self._last_save != self._epoch_count:
             self._manager.save(checkpoint_number=self._epoch_count)
             self._last_save = self._epoch_count
+
+
+def build_checkpoint_callback(
+    model, dataset, log_dir: str, save_period: int, ckpt_path: str
+) -> (CheckpointManagerCallback, int):
+    """
+    Function to prepare callbacks for training.
+
+    :param log_dir: directory of logs
+    :param save_period: save the checkpoint every X epochs
+    :param ckpt_path: path to restore ckpt
+    :return: a list of callbacks
+    """
+    # fit the model for 1 step to initialise optimiser arguments as trackable Variables
+    model.fit(
+        x=dataset,
+        steps_per_epoch=1,
+        epochs=1,
+    )
+    checkpoint_manager_callback = CheckpointManagerCallback(
+        model, log_dir + "/save", period=save_period
+    )
+    if ckpt_path:
+        initial_epoch = ckpt_path.split("-")[-1]
+        assert (
+            initial_epoch.isdigit()
+        ), f"Checkpoint path for checkpoint manager must be of form ckpt-epoch_count, got {ckpt_path}"
+        initial_epoch = int(initial_epoch)
+        checkpoint_manager_callback.restore(ckpt_path)
+    else:
+        initial_epoch = 0
+    return checkpoint_manager_callback, initial_epoch

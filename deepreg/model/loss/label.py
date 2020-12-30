@@ -69,7 +69,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self.scales = scales
         self.kernel = kernel
 
-    def call(self, y_true, y_pred):
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """Use _call to calculate loss at different scales."""
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
@@ -95,7 +95,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         loss = loss / len(self.scales)
         return loss
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """Return loss for a batch."""
         raise NotImplementedError
 
@@ -149,7 +149,7 @@ class DiceScore(MultiScaleLoss):
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -218,7 +218,7 @@ class CrossEntropy(MultiScaleLoss):
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -276,7 +276,7 @@ class JaccardIndex(MultiScaleLoss):
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         self.binary = binary
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 

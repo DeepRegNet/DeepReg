@@ -84,7 +84,7 @@ class UNet(tf.keras.Model):
             else False
         )
 
-    def call(self, inputs, training=None, mask=None):
+    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Builds graph based on built layers.
 

@@ -122,7 +122,7 @@ class H5FileLoader(FileLoader):
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_data_ids(self):
+    def get_data_ids(self) -> List[str]:
         """
         Get the unique IDs of data in this data set to
         verify consistency between

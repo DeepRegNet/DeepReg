@@ -87,7 +87,7 @@ class TestKernelFuncs:
             self.input_channel,
             1,
         )
-        assert isinstance(kernel_vol, int) or isinstance(kernel_vol, float)
+        assert kernel_vol.shape == ()
 
     def test_triangular(self):
         filters, kernel_vol = image.build_triangular_kernel(

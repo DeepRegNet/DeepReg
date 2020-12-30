@@ -140,7 +140,7 @@ class NiftiFileLoader(FileLoader):
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_data_ids(self):
+    def get_data_ids(self) -> List[str]:
         """
         Return the unique IDs of the data in this data set
         this function is used to verify the consistency between

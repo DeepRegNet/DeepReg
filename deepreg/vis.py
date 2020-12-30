@@ -6,6 +6,7 @@ Requires ffmpeg writer to write gif files
 
 import argparse
 import os
+from typing import List
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -16,12 +17,13 @@ from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer_util import warp_image_ddf
 
 
-def string_to_list(string):
+def string_to_list(string: str) -> List[str]:
     """
     Converts a comma separated string to a list of strings
     also removes leading or trailing spaces from each element in list.
 
     :param string: string which is to be converted to list
+    :return: list of strings
     """
     return [elem.strip() for elem in string.split(",")]
 

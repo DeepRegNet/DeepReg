@@ -50,7 +50,7 @@ class Registry:
 
     def register(
         self, category: str, name: str, cls: Callable = None, force: bool = False
-    ):
+    ) -> Callable:
         """
         Register a py class.
         A record will be added to `self._dict`, whose key is the class
@@ -61,6 +61,7 @@ class Registry:
         :param name: The class name to be registered. If not specified, the class name will be used.
         :param force: Whether to override an existing class with the same name. Default: False.
         :param cls: Class to be registered.
+        :return: The given class or a decorator.
         """
         # use it as a normal method: x.register_module(module=SomeClass)
         if cls is not None:
@@ -68,13 +69,15 @@ class Registry:
             return cls
 
         # use it as a decorator: @x.register(name, category)
-        def decorator(_cls):
+        def decorator(_cls: Callable) -> Callable:
             self._register(category=category, key=name, value=_cls, force=force)
             return _cls
 
         return decorator
 
-    def build_from_config(self, category: str, config: dict, default_args=None):
+    def build_from_config(
+        self, category: str, config: dict, default_args=None
+    ) -> object:
         """
         Build a class instance from config dict.
 

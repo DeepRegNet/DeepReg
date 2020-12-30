@@ -103,14 +103,14 @@ class LocalNet(tf.keras.Model):
             else False
         )
 
-    def call(self, inputs, training=None, mask=None):
+    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build LocalNet graph based on built layers.
 
         :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
         :param training: None or bool.
         :param mask: None or tf.Tensor.
-        :return: tf.Tensor, shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
+        :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
         """
 
         # down sample from level 0 to E

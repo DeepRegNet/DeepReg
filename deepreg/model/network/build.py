@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 from deepreg.model.network.affine import build_affine_model
 from deepreg.model.network.cond import build_conditional_model
 from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
@@ -12,7 +14,7 @@ def build_model(
     batch_size: int,
     train_config: dict,
     registry: Registry,
-):
+) -> tf.keras.Model:
     """
     Parsing algorithm types to model building functions.
 

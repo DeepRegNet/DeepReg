@@ -185,7 +185,9 @@ def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     return values_floor + values_ceil
 
 
-def resample(vol, loc, interpolation="linear"):
+def resample(
+    vol: tf.Tensor, loc: tf.Tensor, interpolation: str = "linear"
+) -> tf.Tensor:
     r"""
     Sample the volume at given locations.
 

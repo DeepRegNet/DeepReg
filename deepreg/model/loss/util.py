@@ -10,6 +10,6 @@ class NegativeLossMixin(tf.keras.losses.Loss):
         super().__init__(**kwargs)
         self.name = self.name + "Loss"
 
-    def call(self, y_true, y_pred):
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """Revert the sign of loss."""
         return -super().call(y_true=y_true, y_pred=y_pred)

@@ -69,14 +69,14 @@ class GlobalNet(tf.keras.Model):
             units=12, bias_initializer=self.transform_initial
         )
 
-    def call(self, inputs, training=None, mask=None):
+    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build GlobalNet graph based on built layers.
 
         :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
         :param training: None or bool.
         :param mask: None or tf.Tensor.
-        :return: tf.Tensor, shape = (batch, dim1, dim2, dim3, 3)
+        :return: shape = (batch, dim1, dim2, dim3, 3)
         """
         # down sample from level 0 to E
         h_in = inputs

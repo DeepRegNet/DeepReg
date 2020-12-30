@@ -76,7 +76,7 @@ class GradientNorm(tf.keras.layers.Layer):
         super().__init__(name=name)
         self.l1 = l1
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
         Return a scalar loss.
 
@@ -119,7 +119,7 @@ class BendingEnergy(tf.keras.layers.Layer):
         """
         super().__init__(name=name)
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
         Return a scalar loss.
 

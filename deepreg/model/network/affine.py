@@ -18,7 +18,7 @@ def affine_forward(
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-):
+) -> (tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor):
     """
     Perform the network forward pass.
 
@@ -76,7 +76,7 @@ def build_affine_model(
     batch_size: int,
     train_config: dict,
     registry: Registry,
-):
+) -> tf.keras.Model:
     """
     Build a model which outputs the parameters for affine transformation.
 
