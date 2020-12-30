@@ -100,8 +100,9 @@ class Registry:
             return cls(**args)
         except TypeError as err:
             raise ValueError(
-                f"Configuration  is not compatible for Class {cls} of category {category}.\n"
-                f"Please check the class documentation "
+                f"Configuration is not compatible for Class {cls} of category {category}.\n"
+                f"Potentially an outdated configuration has been used.\n"
+                f"Please check the latest documentation of the class."
                 f"and arrange the required keys at the same level as `name` in configuration file.\n"
                 f"{err}"
             )
