@@ -58,7 +58,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
         :param scales: if None, do not apply any
         :param kernel: gaussian or cauchy
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(MultiScaleLoss, self).__init__(reduction=reduction, name=name)
@@ -131,7 +131,7 @@ class DiceScore(MultiScaleLoss):
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(DiceScore, self).__init__(
@@ -195,7 +195,7 @@ class CrossEntropy(MultiScaleLoss):
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(CrossEntropy, self).__init__(
@@ -250,7 +250,7 @@ class JaccardIndex(MultiScaleLoss):
         """
 
         :param binary: if True, project y_true, y_pred to 0 or 1
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(JaccardIndex, self).__init__(

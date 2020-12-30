@@ -57,18 +57,19 @@ def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
 
 
 @REGISTRY.register_loss(name="gradient")
-class GradientNorm(tf.keras.layers.Layer):
+class GradientNorm3D(tf.keras.layers.Layer):
     """
     Calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference.
+    y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, l1: bool = False, name="BendingEnergy"):
+    def __init__(self, l1: bool = False, name="GradientNorm3D"):
         """
 
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
         :param name:
         """
-        super(GradientNorm, self).__init__(name=name)
+        super(GradientNorm3D, self).__init__(name=name)
         self.l1 = l1
 
     def call(self, inputs, **kwargs):
@@ -76,6 +77,7 @@ class GradientNorm(tf.keras.layers.Layer):
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
         :return: shape = (batch, )
         """
+        assert len(inputs.shape) == 5
         ddf = inputs
         # first order gradient
         # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
@@ -88,21 +90,28 @@ class GradientNorm(tf.keras.layers.Layer):
             norms = dfdx ** 2 + dfdy ** 2 + dfdz ** 2
         return tf.reduce_mean(norms)
 
+    def get_config(self):
+        config = super(GradientNorm3D, self).get_config()
+        config["l1"] = self.l1
+        return config
+
 
 @REGISTRY.register_loss(name="bending")
-class BendingEnergy(tf.keras.layers.Layer):
+class BendingEnergy3D(tf.keras.layers.Layer):
     """
     Calculate the bending energy based on second-order differentiation of ddf using central finite difference.
+    y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, name="BendingEnergy"):
-        super(BendingEnergy, self).__init__(name=name)
+    def __init__(self, name="BendingEnergy3D"):
+        super(BendingEnergy3D, self).__init__(name=name)
 
     def call(self, inputs, **kwargs):
         """
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
         :return: shape = (batch, )
         """
+        assert len(inputs.shape) == 5
         ddf = inputs
         # first order gradient
         # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)

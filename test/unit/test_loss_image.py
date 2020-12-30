@@ -32,7 +32,7 @@ class TestSumSquaredDistance:
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))
-        got = image.SumSquaredDistance().call(
+        got = image.SumSquaredDifference().call(
             y_true,
             y_pred,
         )

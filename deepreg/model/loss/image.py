@@ -10,13 +10,20 @@ EPS = tf.keras.backend.epsilon()
 
 
 @REGISTRY.register_loss(name="ssd")
-class SumSquaredDistance(tf.keras.losses.Loss):
-    """Sum of squared distance between y_true and y_pred."""
+class SumSquaredDifference(tf.keras.losses.Loss):
+    """
+    Sum of squared distance between y_true and y_pred.
+    y_true and y_pred have to be at least 1d tensor, including batch axis.
+    """
 
     def __init__(
-        self, reduction=tf.keras.losses.Reduction.AUTO, name="SumSquaredDistance"
+        self, reduction=tf.keras.losses.Reduction.AUTO, name="SumSquaredDifference"
     ):
-        super(SumSquaredDistance, self).__init__(reduction=reduction, name=name)
+        """
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name:
+        """
+        super(SumSquaredDifference, self).__init__(reduction=reduction, name=name)
 
     def call(self, y_true, y_pred):
         """
@@ -32,6 +39,7 @@ class SumSquaredDistance(tf.keras.losses.Loss):
 class GlobalMutualInformation3D(tf.keras.losses.Loss):
     """
     Differentiable global mutual information via Parzen windowing method.
+    y_true and y_pred have to be at least 4d tensor, including batch axis.
 
     Reference: https://dspace.mit.edu/handle/1721.1/123142, Section 3.1, equation 3.1-3.5, Algorithm 1
     """
@@ -46,7 +54,7 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
         """
         :param num_bins: number of bins for intensity
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(GlobalMutualInformation3D, self).__init__(reduction=reduction, name=name)
@@ -122,6 +130,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
     within the window the square of zncc is calculated.
     The kernel can be a rectangular / triangular / gaussian window.
     The final loss is the averaged loss over all windows.
+    y_true and y_pred have to be at least 4d tensor, including batch axis.
 
     Reference:
 
@@ -139,7 +148,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
         """
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str ('triangular', 'gaussian' default: 'rectangular')
-        :param reduction:
+         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
         super(LocalNormalizedCrossCorrelation3D, self).__init__(

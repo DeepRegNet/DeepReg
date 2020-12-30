@@ -1,11 +1,11 @@
 # flake8: noqa
-from deepreg.model.loss.deform import BendingEnergy, GradientNorm
+from deepreg.model.loss.deform import BendingEnergy3D, GradientNorm3D
 from deepreg.model.loss.image import (
     GlobalMutualInformation3D,
     GlobalMutualInformation3DLoss,
     LocalNormalizedCrossCorrelation3D,
     LocalNormalizedCrossCorrelation3DLoss,
-    SumSquaredDistance,
+    SumSquaredDifference,
 )
 from deepreg.model.loss.label import (
     CrossEntropy,

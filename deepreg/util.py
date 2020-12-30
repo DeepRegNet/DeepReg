@@ -156,7 +156,7 @@ def calculate_metrics(
         y_pred = pred_fixed_image[sample_index : (sample_index + 1), :, :, :]
         y_true = tf.expand_dims(y_true, axis=4)
         y_pred = tf.expand_dims(y_pred, axis=4)
-        ssd = image_loss.SumSquaredDistance()(y_true=y_true, y_pred=y_pred).numpy()
+        ssd = image_loss.SumSquaredDifference()(y_true=y_true, y_pred=y_pred).numpy()
     else:
         ssd = None
 

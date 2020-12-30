@@ -31,6 +31,7 @@ train:
     regularization:
       weight: 0.01 # weight of regularization loss
       name: "gradient" # options include "bending", "gradient"
+      l1: false # false for l2, true for l1
 
   # define the optimizer
   optimizer:

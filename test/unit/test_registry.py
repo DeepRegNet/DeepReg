@@ -56,6 +56,11 @@ class TestRegistry:
         [
             (BACKBONE_CLASS, [], "config must be a dict"),
             (BACKBONE_CLASS, {}, "`config` must contain the key `name`"),
+            (
+                BACKBONE_CLASS,
+                {"name": "unet"},
+                "Configuration  is not compatible for Class",
+            ),
         ],
     )
     def test_build_from_config_err(self, category, config, err_msg, reg):
