@@ -104,21 +104,21 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         nb_voxels = y_true.shape[1] * 1.0  # w * h * z, number of voxels
 
         # each voxel contributes continuously to a range of histogram bin
-        Ia = tf.math.exp(
+        ia = tf.math.exp(
             -preterm * tf.math.square(y_true - bin_centers)
         )  # (batch, nb_voxels, num_bins)
-        Ia /= tf.reduce_sum(Ia, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
-        Ia = tf.transpose(Ia, (0, 2, 1))  # (batch, num_bins, nb_voxels)
-        pa = tf.reduce_mean(Ia, axis=-1, keepdims=True)  # (batch, num_bins, 1)
+        ia /= tf.reduce_sum(ia, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
+        ia = tf.transpose(ia, (0, 2, 1))  # (batch, num_bins, nb_voxels)
+        pa = tf.reduce_mean(ia, axis=-1, keepdims=True)  # (batch, num_bins, 1)
 
-        Ib = tf.math.exp(
+        ib = tf.math.exp(
             -preterm * tf.math.square(y_pred - bin_centers)
         )  # (batch, nb_voxels, num_bins)
-        Ib /= tf.reduce_sum(Ib, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
-        pb = tf.reduce_mean(Ib, axis=1, keepdims=True)  # (batch, 1, num_bins)
+        ib /= tf.reduce_sum(ib, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
+        pb = tf.reduce_mean(ib, axis=1, keepdims=True)  # (batch, 1, num_bins)
 
         papb = tf.matmul(pa, pb)  # (batch, num_bins, num_bins)
-        pab = tf.matmul(Ia, Ib)  # (batch, num_bins, num_bins)
+        pab = tf.matmul(ia, ib)  # (batch, num_bins, num_bins)
         pab /= nb_voxels
 
         # MI: sum(P_ab * log(P_ab/P_ap_b))

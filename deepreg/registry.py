@@ -71,9 +71,9 @@ class Registry:
             return cls
 
         # use it as a decorator: @x.register(name, category)
-        def decorator(_cls: Callable) -> Callable:
-            self._register(category=category, key=name, value=_cls, force=force)
-            return _cls
+        def decorator(c: Callable) -> Callable:
+            self._register(category=category, key=name, value=c, force=force)
+            return c
 
         return decorator
 

@@ -609,9 +609,9 @@ def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     coord = [np.arange(ks) for ks in kernel_size]
 
-    YY, XX, ZZ = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
+    xx, yy, zz = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
     xyz_grid = np.concatenate(
-        (YY[np.newaxis], XX[np.newaxis], ZZ[np.newaxis]), axis=0
+        (xx[np.newaxis], yy[np.newaxis], zz[np.newaxis]), axis=0
     )  # 2, y, x
 
     mean = np.asarray([(ks - 1) / 2.0 for ks in kernel_size])

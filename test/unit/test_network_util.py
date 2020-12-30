@@ -30,9 +30,8 @@ class TestBuildBackbone:
                 method_name="wrong",
                 registry=REGISTRY,
             )
-        assert (
-            "method name has to be one of ddf/dvf/conditional/affine in build_backbone"
-            in str(err_info.value)
+        assert "method name has to be one of ddf/dvf/conditional/affine" in str(
+            err_info.value
         )
 
     @pytest.mark.parametrize("method_name", ["ddf", "dvf", "conditional", "affine"])

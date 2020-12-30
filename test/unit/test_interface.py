@@ -66,7 +66,7 @@ def test_abstract_paired_data_loader():
             labeled=True,
             sample_label="sample",
         )
-    assert "moving_image_shape and fixed_image_shape have to be length of three" in str(
+    assert "moving_image_shape and fixed_image_shape have length of three" in str(
         err_info.value
     )
 
@@ -182,7 +182,7 @@ def test_generator_data_loader(caplog):
 
     # test data_generator
     # create mock data loader and sample index generator
-    class Mock_data_loader:
+    class MockDataLoader:
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
 
@@ -194,10 +194,10 @@ def test_generator_data_loader(caplog):
 
     generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
     generator.sample_index_generator = mock_sample_index_generator
-    generator.loader_moving_image = Mock_data_loader
-    generator.loader_fixed_image = Mock_data_loader
-    generator.loader_moving_label = Mock_data_loader
-    generator.loader_fixed_label = Mock_data_loader
+    generator.loader_moving_image = MockDataLoader
+    generator.loader_fixed_image = MockDataLoader
+    generator.loader_moving_label = MockDataLoader
+    generator.loader_fixed_label = MockDataLoader
 
     # check data generator output
     got = next(generator.data_generator())
@@ -251,9 +251,7 @@ def test_generator_data_loader(caplog):
             fixed_label=None,
             image_indices=[1],
         )
-    assert "Sample [1]'s moving_image' shape should have dimension of 3. " in str(
-        err_info.value
-    )
+    assert "Sample [1]'s moving_image' shape should be 3D. " in str(err_info.value)
     with pytest.raises(ValueError) as err_info:
         generator.validate_images_and_labels(
             fixed_image=dummy_array,
@@ -262,7 +260,7 @@ def test_generator_data_loader(caplog):
             fixed_label=dummy_array,
             image_indices=[1],
         )
-    assert "Sample [1]'s moving_label' shape should have dimension of 3 or 4. " in str(
+    assert "Sample [1]'s moving_label' shape should be 3D or 4D. " in str(
         err_info.value
     )
     with pytest.raises(ValueError) as err_info:

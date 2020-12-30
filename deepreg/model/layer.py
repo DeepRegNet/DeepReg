@@ -139,7 +139,7 @@ class Deconv3d(tf.keras.layers.Layer):
         self._kwargs = kwargs
         # init layer variables
         self._output_padding = None
-        self._Conv3DTranspose = None
+        self._deconv3d = None
 
     def build(self, input_shape):
         super().build(input_shape)
@@ -169,7 +169,7 @@ class Deconv3d(tf.keras.layers.Layer):
                 )
                 for i in range(3)
             ]
-        self._Conv3DTranspose = tf.keras.layers.Conv3DTranspose(
+        self._deconv3d = tf.keras.layers.Conv3DTranspose(
             filters=self._filters,
             kernel_size=self._kernel_size,
             strides=self._strides,
@@ -180,7 +180,7 @@ class Deconv3d(tf.keras.layers.Layer):
         )
 
     def call(self, inputs, **kwargs):
-        return self._Conv3DTranspose(inputs=inputs)
+        return self._deconv3d(inputs=inputs)
 
 
 class Conv3dBlock(tf.keras.layers.Layer):
