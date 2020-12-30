@@ -1,6 +1,5 @@
-"""
-Module provides different loss functions for calculating the dissimilarities between images.
-"""
+"""Provide different loss or metrics classes for images."""
+
 import tensorflow as tf
 
 from deepreg.model.loss.util import NegativeLossMixin
@@ -13,6 +12,7 @@ EPS = tf.keras.backend.epsilon()
 class SumSquaredDifference(tf.keras.losses.Loss):
     """
     Sum of squared distance between y_true and y_pred.
+
     y_true and y_pred have to be at least 1d tensor, including batch axis.
     """
 
@@ -20,6 +20,8 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         self, reduction=tf.keras.losses.Reduction.AUTO, name="SumSquaredDifference"
     ):
         """
+        Init.
+
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
@@ -27,6 +29,8 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 
     def call(self, y_true, y_pred):
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
@@ -39,6 +43,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 class GlobalMutualInformation(tf.keras.losses.Loss):
     """
     Differentiable global mutual information via Parzen windowing method.
+
     y_true and y_pred have to be at least 4d tensor, including batch axis.
 
     Reference: https://dspace.mit.edu/handle/1721.1/123142, Section 3.1, equation 3.1-3.5, Algorithm 1
@@ -52,6 +57,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         name="GlobalMutualInformation",
     ):
         """
+        Init.
+
         :param num_bins: number of bins for intensity
         :param sigma_ratio: a hyper param for gaussian function
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
@@ -63,6 +70,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
     def call(self, y_true, y_pred):
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
         :param y_pred: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
@@ -112,6 +121,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(GlobalMutualInformation, self).get_config()
         config["num_bins"] = self.num_bins
         config["sigma_ratio"] = self.sigma_ratio
@@ -120,16 +130,15 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
 @REGISTRY.register_loss(name="gmi")
 class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
-    """
-    Revert the sign of GlobalMutualInformation
-    so that minimizing the loss is to maximize the information.
-    """
+    """Revert the sign of GlobalMutualInformation."""
 
     pass
 
 
 def build_rectangular_kernel(kernel_size: int, input_channel: int):
     """
+    Return a rectangular kernel for LocalNormalizedCrossCorrelation.
+
     :param kernel_size: size of the kernel
     :param input_channel: number of channels for input
     :return:
@@ -143,13 +152,14 @@ def build_rectangular_kernel(kernel_size: int, input_channel: int):
 
 def build_triangular_kernel(kernel_size: int, input_channel: int):
     """
+    Return a triangular kernel for LocalNormalizedCrossCorrelation.
+
     :param kernel_size: size of the kernel
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
         - kernel_vol, scalar
     """
-
     fsize = int((kernel_size + 1) / 2)
     pad_filter = tf.constant(
         [
@@ -174,6 +184,8 @@ def build_triangular_kernel(kernel_size: int, input_channel: int):
 
 def build_gaussian_kernel(kernel_size: int, input_channel: int):
     """
+    Return a Gaussian kernel for LocalNormalizedCrossCorrelation.
+
     :param kernel_size: size of the kernel
     :param input_channel: number of channels for input
     :return:
@@ -201,6 +213,7 @@ def build_gaussian_kernel(kernel_size: int, input_channel: int):
 class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
+
     The loss is based on a moving kernel/window over the y_true/y_pred,
     within the window the square of zncc is calculated.
     The kernel can be a rectangular / triangular / gaussian window.
@@ -227,6 +240,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         name="LocalNormalizedCrossCorrelation",
     ):
         """
+        Init.
+
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
@@ -246,6 +261,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def call(self, y_true, y_pred):
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
         :param y_pred: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
@@ -301,6 +318,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(LocalNormalizedCrossCorrelation, self).get_config()
         config["kernel_size"] = self.kernel_size
         config["kernel_type"] = self.kernel_type
@@ -311,9 +329,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 class LocalNormalizedCrossCorrelationLoss(
     NegativeLossMixin, LocalNormalizedCrossCorrelation
 ):
-    """
-    Revert the sign of LocalNormalizedCrossCorrelation
-    so that minimizing the loss is to maximize the correlation.
-    """
+    """Revert the sign of LocalNormalizedCrossCorrelation."""
 
     pass
