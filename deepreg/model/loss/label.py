@@ -83,8 +83,8 @@ class MultiScaleLoss(tf.keras.losses.Loss):
             else:
                 losses.append(
                     self._call(
-                        y_true=separable_filter3d(y_true, kernel_fn(s)),
-                        y_pred=separable_filter3d(y_pred, kernel_fn(s)),
+                        y_true=separable_filter(y_true, kernel_fn(s)),
+                        y_pred=separable_filter(y_pred, kernel_fn(s)),
                     )
                 )
         loss = tf.add_n(losses)
@@ -298,7 +298,7 @@ class JaccardLoss(NegativeLossMixin, JaccardIndex):
     pass
 
 
-def separable_filter3d(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
+def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
     Creates a 3d separable filter.
 

@@ -36,7 +36,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         return tf.reduce_mean(loss, axis=1)
 
 
-class GlobalMutualInformation3D(tf.keras.losses.Loss):
+class GlobalMutualInformation(tf.keras.losses.Loss):
     """
     Differentiable global mutual information via Parzen windowing method.
     y_true and y_pred have to be at least 4d tensor, including batch axis.
@@ -49,7 +49,7 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="GlobalMutualInformation3D",
+        name="GlobalMutualInformation",
     ):
         """
         :param num_bins: number of bins for intensity
@@ -57,7 +57,7 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
          :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
-        super(GlobalMutualInformation3D, self).__init__(reduction=reduction, name=name)
+        super(GlobalMutualInformation, self).__init__(reduction=reduction, name=name)
         self.num_bins = num_bins
         self.sigma_ratio = sigma_ratio
 
@@ -112,23 +112,23 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
         return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
 
     def get_config(self):
-        config = super(GlobalMutualInformation3D, self).get_config()
+        config = super(GlobalMutualInformation, self).get_config()
         config["num_bins"] = self.num_bins
         config["sigma_ratio"] = self.sigma_ratio
         return config
 
 
 @REGISTRY.register_loss(name="gmi")
-class GlobalMutualInformation3DLoss(NegativeLossMixin, GlobalMutualInformation3D):
+class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """
-    Revert the sign of GlobalMutualInformation3D
+    Revert the sign of GlobalMutualInformation
     so that minimizing the loss is to maximize the information.
     """
 
     pass
 
 
-class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
+class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
     The loss is based on a moving kernel/window over the y_true/y_pred,
@@ -148,7 +148,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="LocalNormalizedCrossCorrelation3D",
+        name="LocalNormalizedCrossCorrelation",
     ):
         """
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
@@ -156,7 +156,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
          :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name:
         """
-        super(LocalNormalizedCrossCorrelation3D, self).__init__(
+        super(LocalNormalizedCrossCorrelation, self).__init__(
             reduction=reduction, name=name
         )
         self.kernel_size = kernel_size
@@ -220,7 +220,7 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self):
-        config = super(LocalNormalizedCrossCorrelation3D, self).get_config()
+        config = super(LocalNormalizedCrossCorrelation, self).get_config()
         config["kernel_size"] = self.kernel_size
         config["kernel_type"] = self.kernel_type
         return config
@@ -289,11 +289,11 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
 
 
 @REGISTRY.register_loss(name="lncc")
-class LocalNormalizedCrossCorrelation3DLoss(
-    NegativeLossMixin, LocalNormalizedCrossCorrelation3D
+class LocalNormalizedCrossCorrelationLoss(
+    NegativeLossMixin, LocalNormalizedCrossCorrelation
 ):
     """
-    Revert the sign of LocalNormalizedCrossCorrelation3D
+    Revert the sign of LocalNormalizedCrossCorrelation
     so that minimizing the loss is to maximize the correlation.
     """
 

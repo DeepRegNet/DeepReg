@@ -227,7 +227,7 @@ def test_separable_filter():
     expect = np.ones((3, 3, 3, 3), dtype=np.float32)
     expect = tf.convert_to_tensor(expect, dtype=tf.float32)
 
-    get = label.separable_filter3d(tensor_pred, k)
+    get = label.separable_filter(tensor_pred, k)
     assert is_equal_tf(get, expect)
 
 

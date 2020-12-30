@@ -56,19 +56,19 @@ def test_gradient_dxyz():
     assert is_equal_tf(get, expect)
 
 
-class TestGradientNorm3D:
+class TestGradientNorm:
     @pytest.mark.parametrize("l1", [True, False])
     def test_call(self, l1):
         """test the calculation of l1/l2 norm for image gradients"""
         tensor = tf.ones([4, 50, 50, 50, 3])
-        got = deform.GradientNorm3D(l1=l1)(tensor)
+        got = deform.GradientNorm(l1=l1)(tensor)
         expected = 0
         assert is_equal_tf(got, expected)
 
     def test_get_config(self):
-        got = deform.GradientNorm3D().get_config()
+        got = deform.GradientNorm().get_config()
         expected = {
-            "name": "GradientNorm3D",
+            "name": "GradientNorm",
             "l1": False,
             "dtype": "float32",
             "trainable": True,
@@ -79,6 +79,6 @@ class TestGradientNorm3D:
 def test_bending_energy():
     """test the calculation of bending energy"""
     tensor = tf.ones([4, 50, 50, 50, 3])
-    got = deform.BendingEnergy3D()(tensor)
+    got = deform.BendingEnergy()(tensor)
     expected = 0
     assert is_equal_tf(got, expected)

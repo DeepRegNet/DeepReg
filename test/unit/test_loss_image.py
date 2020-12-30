@@ -39,7 +39,7 @@ class TestSumSquaredDistance:
         assert is_equal_tf(got, expected)
 
 
-class TestGlobalMutualInformation3D:
+class TestGlobalMutualInformation:
     @pytest.mark.parametrize(
         "y_true,y_pred,shape,expected",
         [
@@ -55,24 +55,24 @@ class TestGlobalMutualInformation3D:
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))
-        got = image.GlobalMutualInformation3D().call(
+        got = image.GlobalMutualInformation().call(
             y_true,
             y_pred,
         )
         assert is_equal_tf(got, expected)
 
     def test_get_config(self):
-        got = image.GlobalMutualInformation3D().get_config()
+        got = image.GlobalMutualInformation().get_config()
         expected = dict(
             num_bins=23,
             sigma_ratio=0.5,
             reduction=tf.keras.losses.Reduction.AUTO,
-            name="GlobalMutualInformation3D",
+            name="GlobalMutualInformation",
         )
         assert got == expected
 
 
-class TestLocalNormalizedCrossCorrelation3D:
+class TestLocalNormalizedCrossCorrelation:
     @pytest.mark.parametrize(
         "y_true,y_pred,shape,kernel_type,expected",
         [
@@ -90,7 +90,7 @@ class TestLocalNormalizedCrossCorrelation3D:
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))
-        got = image.LocalNormalizedCrossCorrelation3D(kernel_type=kernel_type).call(
+        got = image.LocalNormalizedCrossCorrelation(kernel_type=kernel_type).call(
             y_true,
             y_pred,
         )
@@ -99,15 +99,15 @@ class TestLocalNormalizedCrossCorrelation3D:
     def test_error(self):
         y = np.ones(shape=(3, 3, 3, 3))
         with pytest.raises(ValueError) as err_info:
-            image.LocalNormalizedCrossCorrelation3D(kernel_type="constant").call(y, y)
+            image.LocalNormalizedCrossCorrelation(kernel_type="constant").call(y, y)
         assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
 
     def test_get_config(self):
-        got = image.LocalNormalizedCrossCorrelation3D().get_config()
+        got = image.LocalNormalizedCrossCorrelation().get_config()
         expected = dict(
             kernel_size=9,
             kernel_type="rectangular",
             reduction=tf.keras.losses.Reduction.AUTO,
-            name="LocalNormalizedCrossCorrelation3D",
+            name="LocalNormalizedCrossCorrelation",
         )
         assert got == expected

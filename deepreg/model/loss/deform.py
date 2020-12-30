@@ -57,19 +57,19 @@ def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
 
 
 @REGISTRY.register_loss(name="gradient")
-class GradientNorm3D(tf.keras.layers.Layer):
+class GradientNorm(tf.keras.layers.Layer):
     """
     Calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference.
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, l1: bool = False, name="GradientNorm3D"):
+    def __init__(self, l1: bool = False, name="GradientNorm"):
         """
 
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
         :param name:
         """
-        super(GradientNorm3D, self).__init__(name=name)
+        super(GradientNorm, self).__init__(name=name)
         self.l1 = l1
 
     def call(self, inputs, **kwargs):
@@ -91,20 +91,20 @@ class GradientNorm3D(tf.keras.layers.Layer):
         return tf.reduce_mean(norms)
 
     def get_config(self):
-        config = super(GradientNorm3D, self).get_config()
+        config = super(GradientNorm, self).get_config()
         config["l1"] = self.l1
         return config
 
 
 @REGISTRY.register_loss(name="bending")
-class BendingEnergy3D(tf.keras.layers.Layer):
+class BendingEnergy(tf.keras.layers.Layer):
     """
     Calculate the bending energy based on second-order differentiation of ddf using central finite difference.
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, name="BendingEnergy3D"):
-        super(BendingEnergy3D, self).__init__(name=name)
+    def __init__(self, name="BendingEnergy"):
+        super(BendingEnergy, self).__init__(name=name)
 
     def call(self, inputs, **kwargs):
         """
