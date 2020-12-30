@@ -67,7 +67,7 @@ class GradientNorm(tf.keras.layers.Layer):
         """
 
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
-        :param name:
+        :param name: name of the loss
         """
         super(GradientNorm, self).__init__(name=name)
         self.l1 = l1
@@ -104,6 +104,9 @@ class BendingEnergy(tf.keras.layers.Layer):
     """
 
     def __init__(self, name="BendingEnergy"):
+        """
+        :param name: name of the loss
+        """
         super(BendingEnergy, self).__init__(name=name)
 
     def call(self, inputs, **kwargs):

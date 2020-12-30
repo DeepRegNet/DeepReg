@@ -72,6 +72,50 @@ class TestGlobalMutualInformation:
         assert got == expected
 
 
+class TestKernelFuncs:
+    kernel_size = 3
+    input_channel = 5
+
+    def test_rectangular(self):
+        filters, kernel_vol = image.build_rectangular_kernel(
+            self.kernel_size, self.input_channel
+        )
+        assert filters.shape == (
+            self.kernel_size,
+            self.kernel_size,
+            self.kernel_size,
+            self.input_channel,
+            1,
+        )
+        assert isinstance(kernel_vol, int) or isinstance(kernel_vol, float)
+
+    def test_triangular(self):
+        filters, kernel_vol = image.build_triangular_kernel(
+            self.kernel_size, self.input_channel
+        )
+        assert filters.shape == (
+            self.kernel_size - 1,
+            self.kernel_size - 1,
+            self.kernel_size - 1,
+            self.input_channel,
+            1,
+        )
+        assert kernel_vol.shape == ()
+
+    def test_gaussian(self):
+        filters, kernel_vol = image.build_gaussian_kernel(
+            self.kernel_size, self.input_channel
+        )
+        assert filters.shape == (
+            self.kernel_size,
+            self.kernel_size,
+            self.kernel_size,
+            self.input_channel,
+            1,
+        )
+        assert kernel_vol.shape == ()
+
+
 class TestLocalNormalizedCrossCorrelation:
     @pytest.mark.parametrize(
         "y_true,y_pred,shape,kernel_type,expected",
@@ -100,7 +144,7 @@ class TestLocalNormalizedCrossCorrelation:
         y = np.ones(shape=(3, 3, 3, 3))
         with pytest.raises(ValueError) as err_info:
             image.LocalNormalizedCrossCorrelation(kernel_type="constant").call(y, y)
-        assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
+        assert "Wrong kernel_type constant for LNCC loss type." in str(err_info.value)
 
     def test_get_config(self):
         got = image.LocalNormalizedCrossCorrelation().get_config()

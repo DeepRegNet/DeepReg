@@ -2,6 +2,8 @@
 Module provides different loss functions for calculating the dissimilarities between labels.
 """
 
+from typing import List, Optional
+
 import tensorflow as tf
 
 from deepreg.model.loss.util import NegativeLossMixin
@@ -49,17 +51,17 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        scales=None,
+        scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="MultiScaleLoss",
+        name: str = "MultiScaleLoss",
     ):
         """
 
-        :param scales: if None, do not apply any
+        :param scales: list of scalars or None, if None, do not apply any scaling
         :param kernel: gaussian or cauchy
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss
         """
         super(MultiScaleLoss, self).__init__(reduction=reduction, name=name)
         assert kernel in ["gaussian", "cauchy"]
@@ -67,6 +69,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self.kernel = kernel
 
     def call(self, y_true, y_pred):
+        """Use _call to calculate loss at different scales."""
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
         kernel_fn = self.kernel_fn_dict[self.kernel]
@@ -122,17 +125,19 @@ class DiceScore(MultiScaleLoss):
         self,
         binary: bool = False,
         neg_weight: float = 0.0,
-        scales=None,
+        scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="DiceScore",
+        name: str = "DiceScore",
     ):
         """
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param scales: list of scalars or None, if None, do not apply any scaling
+        :param kernel: gaussian or cauchy
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss
         """
         super(DiceScore, self).__init__(
             scales=scales, kernel=kernel, reduction=reduction, name=name
@@ -191,17 +196,19 @@ class CrossEntropy(MultiScaleLoss):
         self,
         binary: bool = False,
         neg_weight: float = 0.0,
-        scales=None,
+        scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="CrossEntropy",
+        name: str = "CrossEntropy",
     ):
         """
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param scales: list of scalars or None, if None, do not apply any scaling
+        :param kernel: gaussian or cauchy
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss
         """
         super(CrossEntropy, self).__init__(
             scales=scales, kernel=kernel, reduction=reduction, name=name
@@ -247,16 +254,18 @@ class JaccardIndex(MultiScaleLoss):
     def __init__(
         self,
         binary: bool = False,
-        scales=None,
+        scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction=tf.keras.losses.Reduction.AUTO,
-        name="JaccardIndex",
+        name: str = "JaccardIndex",
     ):
         """
 
         :param binary: if True, project y_true, y_pred to 0 or 1
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param scales: list of scalars or None, if None, do not apply any scaling
+        :param kernel: gaussian or cauchy
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss
         """
         super(JaccardIndex, self).__init__(
             scales=scales, kernel=kernel, reduction=reduction, name=name

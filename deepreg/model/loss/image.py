@@ -21,7 +21,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
     ):
         """
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param name: name of the loss
         """
         super(SumSquaredDifference, self).__init__(reduction=reduction, name=name)
 
@@ -54,8 +54,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         """
         :param num_bins: number of bins for intensity
         :param sigma_ratio: a hyper param for gaussian function
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: name of the loss
         """
         super(GlobalMutualInformation, self).__init__(reduction=reduction, name=name)
         self.num_bins = num_bins
@@ -128,6 +128,76 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     pass
 
 
+def build_rectangular_kernel(kernel_size: int, input_channel: int):
+    """
+    :param kernel_size: size of the kernel
+    :param input_channel: number of channels for input
+    :return:
+        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
+        - kernel_vol, scalar
+    """
+    filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
+    kernel_vol = kernel_size ** 3
+    return filters, kernel_vol
+
+
+def build_triangular_kernel(kernel_size: int, input_channel: int):
+    """
+    :param kernel_size: size of the kernel
+    :param input_channel: number of channels for input
+    :return:
+        - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
+        - kernel_vol, scalar
+    """
+
+    fsize = int((kernel_size + 1) / 2)
+    pad_filter = tf.constant(
+        [
+            [0, 0],
+            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+            [0, 0],
+        ]
+    )
+
+    f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
+    f1 = tf.pad(f1, pad_filter, "CONSTANT")
+    f2 = tf.ones(shape=(fsize, fsize, fsize, 1, input_channel)) / fsize
+
+    filters = tf.nn.conv3d(f1, f2, strides=[1, 1, 1, 1, 1], padding="SAME")
+    filters = tf.transpose(filters, perm=[1, 2, 3, 4, 0])
+    kernel_vol = tf.reduce_sum(filters ** 2)
+
+    return filters, kernel_vol
+
+
+def build_gaussian_kernel(kernel_size: int, input_channel: int):
+    """
+    :param kernel_size: size of the kernel
+    :param input_channel: number of channels for input
+    :return:
+        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
+        - kernel_vol, scalar
+    """
+    mean = (kernel_size - 1) / 2.0
+    sigma = kernel_size / 3
+
+    grid_dim = tf.range(0, kernel_size)
+    grid_dim_ch = tf.range(0, input_channel)
+    grid = tf.expand_dims(
+        tf.cast(
+            tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim, grid_dim_ch), 0),
+            dtype="float32",
+        ),
+        axis=-1,
+    )
+    filters = tf.exp(-tf.reduce_sum(tf.square(grid - mean), axis=0) / (2 * sigma ** 2))
+    kernel_vol = tf.reduce_sum(filters ** 2)
+
+    return filters, kernel_vol
+
+
 class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
@@ -143,6 +213,12 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
     """
 
+    kernel_fn_dict = dict(
+        gaussian=build_gaussian_kernel,
+        rectangular=build_rectangular_kernel,
+        triangular=build_rectangular_kernel,
+    )
+
     def __init__(
         self,
         kernel_size: int = 9,
@@ -152,15 +228,21 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     ):
         """
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
-        :param kernel_type: str ('triangular', 'gaussian' default: 'rectangular')
-         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name:
+        :param kernel_type: str, rectangular, triangular or gaussian
+        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: name of the loss
         """
         super(LocalNormalizedCrossCorrelation, self).__init__(
             reduction=reduction, name=name
         )
-        self.kernel_size = kernel_size
+        if kernel_type not in self.kernel_fn_dict.keys():
+            raise ValueError(
+                f"Wrong kernel_type {kernel_type} for LNCC loss type. "
+                f"Feasible values are {self.kernel_fn_dict.keys()}"
+            )
+        self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
+        self.kernel_size = kernel_size
 
     def call(self, y_true, y_pred):
         """
@@ -174,10 +256,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
-        filters, kernel_vol = self.build_kernel(
+        filters, kernel_vol = self.kernel_fn(
             kernel_size=self.kernel_size,
-            kernel_type=self.kernel_type,
-            ch=y_true.shape[4],
+            input_channel=y_true.shape[4],
         )
         filters = tf.cast(filters, dtype=y_true.dtype)
         kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
@@ -224,68 +305,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         config["kernel_size"] = self.kernel_size
         config["kernel_type"] = self.kernel_type
         return config
-
-    @staticmethod
-    def build_kernel(kernel_size: int, kernel_type: str, ch: int):
-        """
-        :param kernel_size:
-        :param kernel_type:
-        :param ch:
-        :return: filters, kernel_vol
-        """
-        if kernel_type == "rectangular":
-            filters = tf.ones(shape=[kernel_size, kernel_size, kernel_size, ch, 1])
-            kernel_vol = kernel_size ** 3
-            return filters, kernel_vol
-
-        elif kernel_type == "triangular":
-            fsize = int((kernel_size + 1) / 2)
-            pad_filter = tf.constant(
-                [
-                    [0, 0],
-                    [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-                    [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-                    [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-                    [0, 0],
-                ]
-            )
-
-            f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
-            f1 = tf.pad(f1, pad_filter, "CONSTANT")
-            f2 = tf.ones(shape=(fsize, fsize, fsize, 1, ch)) / fsize
-
-            filters = tf.nn.conv3d(f1, f2, strides=[1, 1, 1, 1, 1], padding="SAME")
-            filters = tf.transpose(filters, perm=[1, 2, 3, 4, 0])
-            kernel_vol = tf.reduce_sum(filters ** 2)
-
-            return filters, kernel_vol
-
-        elif kernel_type == "gaussian":
-            mean = (kernel_size - 1) / 2.0
-            sigma = kernel_size / 3
-
-            grid_dim = tf.range(0, kernel_size)
-            grid_dim_ch = tf.range(0, ch)
-            grid = tf.expand_dims(
-                tf.cast(
-                    tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim, grid_dim_ch), 0),
-                    dtype="float32",
-                ),
-                axis=-1,
-            )
-            filters = tf.exp(
-                -tf.reduce_sum(tf.square(grid - mean), axis=0) / (2 * sigma ** 2)
-            )
-            kernel_vol = tf.reduce_sum(filters ** 2)
-
-            return filters, kernel_vol
-
-        else:
-            raise ValueError(
-                f"Wrong kernel_type for LNCC loss type. "
-                f"Please, specify a valid type 'rectangular' / 'triangular' / 'gaussian',"
-                f"got {kernel_type}"
-            )
 
 
 @REGISTRY.register_loss(name="lncc")
