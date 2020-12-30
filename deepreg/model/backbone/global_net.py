@@ -44,7 +44,7 @@ class GlobalNet(tf.keras.Model):
         :param out_activation: str, activation at last layer
         :param kwargs:
         """
-        super(GlobalNet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # save parameters
         self._extract_levels = extract_levels

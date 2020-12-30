@@ -25,7 +25,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
-        super(SumSquaredDifference, self).__init__(reduction=reduction, name=name)
+        super().__init__(reduction=reduction, name=name)
 
     def call(self, y_true, y_pred):
         """
@@ -64,7 +64,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
-        super(GlobalMutualInformation, self).__init__(reduction=reduction, name=name)
+        super().__init__(reduction=reduction, name=name)
         self.num_bins = num_bins
         self.sigma_ratio = sigma_ratio
 
@@ -122,7 +122,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(GlobalMutualInformation, self).get_config()
+        config = super().get_config()
         config["num_bins"] = self.num_bins
         config["sigma_ratio"] = self.sigma_ratio
         return config
@@ -247,9 +247,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
-        super(LocalNormalizedCrossCorrelation, self).__init__(
-            reduction=reduction, name=name
-        )
+        super().__init__(reduction=reduction, name=name)
         if kernel_type not in self.kernel_fn_dict.keys():
             raise ValueError(
                 f"Wrong kernel_type {kernel_type} for LNCC loss type. "
@@ -319,7 +317,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(LocalNormalizedCrossCorrelation, self).get_config()
+        config = super().get_config()
         config["kernel_size"] = self.kernel_size
         config["kernel_type"] = self.kernel_type
         return config

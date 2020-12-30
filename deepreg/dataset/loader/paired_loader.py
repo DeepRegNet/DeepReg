@@ -42,7 +42,7 @@ class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape: (width, height, depth)
         """
-        super(PairedDataLoader, self).__init__(
+        super().__init__(
             moving_image_shape=moving_image_shape,
             fixed_image_shape=fixed_image_shape,
             labeled=labeled,

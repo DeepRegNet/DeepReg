@@ -16,9 +16,7 @@ class H5FileLoader(FileLoader):
     """Generalized loader for h5 files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
-        super(H5FileLoader, self).__init__(
-            dir_paths=dir_paths, name=name, grouped=grouped
-        )
+        super().__init__(dir_paths=dir_paths, name=name, grouped=grouped)
         self.h5_files = None
         self.data_path_splits = None
         self.set_data_structure()

@@ -45,7 +45,7 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
         :param period: save the checkpoint every X epochs
         :param save_on_train_end: save the checkpoint as the training ends
         """
-        super(CheckpointManagerCallback, self).__init__()
+        super().__init__()
         self._directory = directory
 
         self._checkpoint = tf.train.Checkpoint(model=model, optimizer=model.optimizer)

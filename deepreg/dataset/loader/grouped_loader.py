@@ -54,7 +54,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         :param seed: controls the randomness in sampling, if seed=None, then the randomness is not fixed
         :param image_shape: list or tuple of length 3, corresponding to (dim1, dim2, dim3) of the 3D image
         """
-        super(GroupedDataLoader, self).__init__(
+        super().__init__(
             image_shape=image_shape,
             labeled=labeled,
             sample_label=sample_label,

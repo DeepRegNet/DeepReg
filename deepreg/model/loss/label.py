@@ -64,7 +64,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
-        super(MultiScaleLoss, self).__init__(reduction=reduction, name=name)
+        super().__init__(reduction=reduction, name=name)
         assert kernel in ["gaussian", "cauchy"]
         self.scales = scales
         self.kernel = kernel
@@ -101,7 +101,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(MultiScaleLoss, self).get_config()
+        config = super().get_config()
         config["scales"] = self.scales
         config["kernel"] = self.kernel
         return config
@@ -144,9 +144,7 @@ class DiceScore(MultiScaleLoss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
-        super(DiceScore, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
@@ -176,7 +174,7 @@ class DiceScore(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(DiceScore, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
         return config
@@ -217,9 +215,7 @@ class CrossEntropy(MultiScaleLoss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
-        super(CrossEntropy, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
@@ -246,7 +242,7 @@ class CrossEntropy(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(CrossEntropy, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
         return config
@@ -279,9 +275,7 @@ class JaccardIndex(MultiScaleLoss):
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
-        super(JaccardIndex, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         self.binary = binary
 
     def _call(self, y_true, y_pred):
@@ -307,7 +301,7 @@ class JaccardIndex(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(JaccardIndex, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         return config
 

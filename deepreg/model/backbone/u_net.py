@@ -49,7 +49,7 @@ class UNet(tf.keras.Model):
         :param control_points: (tuple, None), specify the distance between control points (in voxels).
         :param kwargs:
         """
-        super(UNet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # init layer variables
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]

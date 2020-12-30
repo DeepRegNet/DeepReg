@@ -40,7 +40,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(UnpairedDataLoader, self).__init__(
+        super().__init__(
             image_shape=image_shape,
             labeled=labeled,
             sample_label=sample_label,

@@ -16,7 +16,7 @@ def test_restore_checkpoint_manager_callback():
         """A simple linear model."""
 
         def __init__(self):
-            super(Net, self).__init__()
+            super().__init__()
             self.l1 = tf.keras.layers.Dense(5)
 
         def __call__(self, x, training=False):

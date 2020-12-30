@@ -184,7 +184,7 @@ def test_generator_data_loader(caplog):
     # create mock data loader and sample index generator
     class Mock_data_loader:
         def __init__(self, **kwargs):
-            super(Mock_data_loader, self).__init__(**kwargs)
+            super().__init__(**kwargs)
 
         def get_data(index):
             return dummy_array

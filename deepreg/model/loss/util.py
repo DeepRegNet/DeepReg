@@ -7,9 +7,9 @@ class NegativeLossMixin(tf.keras.losses.Loss):
 
     def __init__(self, **kwargs):
         """Init."""
-        super(NegativeLossMixin, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = self.name + "Loss"
 
     def call(self, y_true, y_pred):
         """Revert the sign of loss."""
-        return -super(NegativeLossMixin, self).call(y_true=y_true, y_pred=y_pred)
+        return -super().call(y_true=y_true, y_pred=y_pred)

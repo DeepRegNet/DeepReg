@@ -14,7 +14,7 @@ class Activation(tf.keras.layers.Layer):
         :param identifier: e.g. "relu"
         :param kwargs:
         """
-        super(Activation, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._act = tf.keras.activations.get(identifier=identifier)
 
     def call(self, inputs, **kwargs):
@@ -30,7 +30,7 @@ class Norm(tf.keras.layers.Layer):
         :param axis: int
         :param kwargs:
         """
-        super(Norm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if name == "batch_norm":
             self._norm = tf.keras.layers.BatchNormalization(axis=axis, **kwargs)
         elif name == "layer_norm":
@@ -58,7 +58,7 @@ class MaxPool3d(tf.keras.layers.Layer):
         :param padding: str, same or valid
         :param kwargs:
         """
-        super(MaxPool3d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._max_pool = tf.keras.layers.MaxPool3D(
             pool_size=pool_size, strides=strides, padding=padding
         )
@@ -90,7 +90,7 @@ class Conv3d(tf.keras.layers.Layer):
         :param use_bias: bool, whether add bias to output
         :param kernel_initializer: str, defines the initialization method, defines the initialization method
         """
-        super(Conv3d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._conv3d = tf.keras.layers.Conv3D(
             filters=filters,
             kernel_size=kernel_size,
@@ -127,7 +127,7 @@ class Deconv3d(tf.keras.layers.Layer):
         :param padding: str, same or valid
         :param kwargs:
         """
-        super(Deconv3d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._filters = filters
         self._output_shape = output_shape
@@ -141,7 +141,7 @@ class Deconv3d(tf.keras.layers.Layer):
         self._Conv3DTranspose = None
 
     def build(self, input_shape):
-        super(Deconv3d, self).build(input_shape)
+        super().build(input_shape)
 
         if isinstance(self._kernel_size, int):
             self._kernel_size = [self._kernel_size] * 3
@@ -197,7 +197,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param padding: str, same or valid
         """
-        super(Conv3dBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # init layer variables
         self._conv3d = Conv3d(
             filters=filters,
@@ -242,7 +242,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         :param padding: str, same or valid
         :param kwargs:
         """
-        super(Deconv3dBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # init layer variables
         self._deconv3d = Deconv3d(
             filters=filters,
@@ -287,7 +287,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param kwargs:
         """
-        super(Residual3dBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # init layer variables
         self._conv3d_block = Conv3dBlock(
             filters=filters, kernel_size=kernel_size, strides=strides
@@ -333,7 +333,7 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param padding: str, same or valid
         """
-        super(DownSampleResnetBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._pooling = pooling
         # init layer variables
@@ -379,7 +379,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
                                if false use sum (default=False).
         :param kwargs:
         """
-        super(UpSampleResnetBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._filters = filters
         self._concat = concat
@@ -392,7 +392,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         """
         :param input_shape: tuple, (downsampled_image_shape, skip_connection image_shape)
         """
-        super(UpSampleResnetBlock, self).build(input_shape)
+        super().build(input_shape)
         skip_shape = input_shape[1][1:4]
         self._deconv3d_block = Deconv3dBlock(
             filters=self._filters, output_shape=skip_shape, strides=2
@@ -441,7 +441,7 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         :param activation: str, defines the activation function
         :param kwargs:
         """
-        super(Conv3dWithResize, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._output_shape = output_shape
         # init layer variables
@@ -479,7 +479,7 @@ class Warping(tf.keras.layers.Layer):
                                  or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
         :param kwargs:
         """
-        super(Warping, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.grid_ref = tf.expand_dims(
             layer_util.get_reference_grid(grid_size=fixed_image_size), axis=0
         )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
@@ -512,7 +512,7 @@ class IntDVF(tf.keras.layers.Layer):
         :param num_steps: int, number of steps for integration
         :param kwargs:
         """
-        super(IntDVF, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._warping = Warping(fixed_image_size=fixed_image_size)
         self._num_steps = num_steps
 
@@ -537,7 +537,7 @@ class Dense(tf.keras.layers.Layer):
         :param bias_initializer: str, default "zeros"
         :param kwargs:
         """
-        super(Dense, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # init layer variables
         self._flatten = tf.keras.layers.Flatten()
@@ -564,7 +564,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         :param strides: int, 1-D Tensor or list
         :param kwargs:
         """
-        super(AdditiveUpSampling, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._stride = stride
         self._output_shape = output_shape
@@ -606,7 +606,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param kwargs:
         """
-        super(LocalNetResidual3dBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # init layer variables
         self._conv3d = Conv3d(
             filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
@@ -630,7 +630,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         :param use_additive_upsampling: bool to used additive upsampling (default is True)
         :param kwargs:
         """
-        super(LocalNetUpSampleResnetBlock, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         # save parameters
         self._filters = filters
         self._use_additive_upsampling = use_additive_upsampling
@@ -644,7 +644,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         """
         :param input_shape: tuple (nonskip_tensor_shape, skip_tensor_shape)
         """
-        super(LocalNetUpSampleResnetBlock, self).build(input_shape)
+        super().build(input_shape)
 
         output_shape = input_shape[1][1:4]
         self._deconv3d_block = Deconv3dBlock(
@@ -681,7 +681,7 @@ class ResizeCPTransform(tf.keras.layers.Layer):
         :param control_point_spacing: list or int
         :param kwargs:
         """
-        super(ResizeCPTransform, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if isinstance(control_point_spacing, int):
             control_point_spacing = tuple([control_point_spacing] * 3)
@@ -692,7 +692,7 @@ class ResizeCPTransform(tf.keras.layers.Layer):
         self.cp_spacing = control_point_spacing
 
     def build(self, input_shape):
-        super(ResizeCPTransform, self).build(input_shape=input_shape)
+        super().build(input_shape=input_shape)
 
         self.kernel = layer_util.gaussian_filter_3d(self.kernel_sigma)
         output_shape = [
@@ -723,7 +723,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
 
     def __init__(self, cp_spacing: (int, tuple), output_shape: tuple, **kwargs):
 
-        super(BSplines3DTransform, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.filters = []
         self._output_shape = output_shape
@@ -739,7 +739,7 @@ class BSplines3DTransform(tf.keras.layers.Layer):
         :return: None
         """
 
-        super(BSplines3DTransform, self).build(input_shape=input_shape)
+        super().build(input_shape=input_shape)
 
         b = {
             0: lambda u: np.float64((1 - u) ** 3 / 6),

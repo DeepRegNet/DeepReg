@@ -152,7 +152,7 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape:  (width, height, depth)
         """
-        super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
+        super().__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
                 f"moving_image_shape and fixed_image_shape have to be length of three, "
@@ -200,7 +200,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
         it is assumed to be 3d, [dim1, dim2, dim3].
           moving_image_shape = fixed_image_shape = image_shape
         """
-        super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
+        super().__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
                 f"image_shape has to be length of three, "
@@ -229,7 +229,7 @@ class GeneratorDataLoader(DataLoader, ABC):
     """
 
     def __init__(self, **kwargs):
-        super(GeneratorDataLoader, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.loader_moving_image = None
         self.loader_fixed_image = None
         self.loader_moving_label = None

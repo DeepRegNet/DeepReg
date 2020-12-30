@@ -73,7 +73,7 @@ class GradientNorm(tf.keras.layers.Layer):
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
         :param name: name of the loss
         """
-        super(GradientNorm, self).__init__(name=name)
+        super().__init__(name=name)
         self.l1 = l1
 
     def call(self, inputs, **kwargs):
@@ -98,7 +98,7 @@ class GradientNorm(tf.keras.layers.Layer):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(GradientNorm, self).get_config()
+        config = super().get_config()
         config["l1"] = self.l1
         return config
 
@@ -117,7 +117,7 @@ class BendingEnergy(tf.keras.layers.Layer):
 
         :param name: name of the loss
         """
-        super(BendingEnergy, self).__init__(name=name)
+        super().__init__(name=name)
 
     def call(self, inputs, **kwargs):
         """
