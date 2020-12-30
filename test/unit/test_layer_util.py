@@ -89,7 +89,8 @@ def test_pyramid_combinations():
     with pytest.raises(ValueError) as err_info:
         layer_util.pyramid_combination(values=values, weights=weights)
     assert (
-        "In pyramid_combination, elements of values and weights should have same dimension"
+        "In pyramid_combination, "
+        "elements of values and weights should have same dimension"
         in str(err_info.value)
     )
 
@@ -99,8 +100,8 @@ def test_pyramid_combinations():
     with pytest.raises(ValueError) as err_info:
         layer_util.pyramid_combination(values=values, weights=weights)
     assert (
-        "In pyramid_combination, num_dim = len(weights), len(values) must be 2 ** num_dim"
-        in str(err_info.value)
+        "In pyramid_combination, num_dim = len(weights), "
+        "len(values) must be 2 ** num_dim" in str(err_info.value)
     )
 
 

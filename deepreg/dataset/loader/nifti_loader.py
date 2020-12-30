@@ -37,7 +37,8 @@ class NiftiFileLoader(FileLoader):
         """
         Store the data structure in the memory so that
         we can retrieve data using data_index
-        this function sets data_path_splits, a list of string tuples to identify path of data
+        this function sets data_path_splits,
+        a list of string tuples to identify path of data
 
         - if grouped, a split is (dir_path, group_path, file_name, suffix)
           data is stored in dir_path/name/group_path/file_name.suffix
@@ -104,7 +105,8 @@ class NiftiFileLoader(FileLoader):
         :param index: the data index which is required
 
           - for paired or unpaired, the index is one single int, data_index
-          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+          - for grouped, the index is a tuple of two ints,
+            (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -119,9 +121,8 @@ class NiftiFileLoader(FileLoader):
             data_index = self.group_struct[group_index][in_group_data_index]
         else:
             raise ValueError(
-                "index for NiftiFileLoader.get_data must be int, or tuple of length two, got {}".format(
-                    index
-                )
+                f"index for NiftiFileLoader.get_data must be int, "
+                f"or tuple of length two, got {index}"
             )
         # if not grouped:
         #   path  = dir_path/name/file_name.suffix

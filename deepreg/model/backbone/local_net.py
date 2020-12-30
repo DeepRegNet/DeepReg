@@ -16,12 +16,14 @@ class LocalNet(tf.keras.Model):
     Reference:
 
     - Hu, Yipeng, et al.
-      "Weakly-supervised convolutional neural networks for multimodal image registration."
+      "Weakly-supervised convolutional neural networks
+       for multimodal image registration."
       Medical image analysis 49 (2018): 1-13.
       https://doi.org/10.1016/j.media.2018.07.002
 
     - Hu, Yipeng, et al.
-      "Label-driven weakly-supervised learning for multimodal deformable image registration,"
+      "Label-driven weakly-supervised learning
+       for multimodal deformable image registration,"
       https://arxiv.org/abs/1711.01666
     """
 
@@ -44,13 +46,13 @@ class LocalNet(tf.keras.Model):
         So, extract_levels are between [0, E] with E = max(extract_levels),
         and D = min(extract_levels).
 
-        :param image_size: tuple, such as (dim1, dim2, dim3)
-        :param out_channels: int, number of channels for the extractions
-        :param num_channel_initial: int, number of initial channels.
-        :param extract_levels: list of int, number of extraction levels.
-        :param out_kernel_initializer: str, initializer to use for kernels.
-        :param out_activation: str, activation to use at end layer.
-        :param control_points: (tuple, None), specify the distance between control points (in voxels).
+        :param image_size: such as (dim1, dim2, dim3)
+        :param out_channels: number of channels for the extractions
+        :param num_channel_initial: number of initial channels.
+        :param extract_levels: number of extraction levels.
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :param control_points: specify the distance between control points (in voxels).
         :param kwargs:
         """
         super().__init__(**kwargs)

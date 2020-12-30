@@ -28,7 +28,7 @@ def sample_count(ni, direction):
 
 def test_init():
     """
-    Test __init__ catches exceptions with appropriate messages and counts samples correctly
+    Test exceptions with appropriate messages and counts samples correctly
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
         for train_split in ["test", "train"]:
@@ -45,8 +45,8 @@ def test_init():
                         seed=None,
                     )
                     if train_split == "test" and prob < 1:
-                        # catch exception when trying to sample between fewer than 2 groups. In "test" we only have one
-                        # group
+                        # sample with fewer than 2 groups.
+                        # In "test" we only have one group
                         with pytest.raises(ValueError) as err_info:
                             data_loader = GroupedDataLoader(
                                 data_dir_paths=data_dir_paths,
@@ -57,7 +57,8 @@ def test_init():
                         assert "we need at least two groups" in str(err_info.value)
 
                     elif train_split == "train" and sample_in_group is True:
-                        # ensure sample count is accurate (only for train dir, test dir uses same logic)
+                        # ensure sample count is accurate
+                        # (only for train dir, test dir uses same logic)
                         data_loader = GroupedDataLoader(
                             data_dir_paths=data_dir_paths,
                             image_shape=image_shape,
@@ -68,7 +69,7 @@ def test_init():
                         data_loader.close()
 
                     elif sample_in_group is False and 0 < prob < 1:
-                        # catch exception when specifying conflicting intra/inter group parameters
+                        # specifying conflicting intra/inter group parameters
                         with pytest.raises(ValueError) as err_info:
                             data_loader = GroupedDataLoader(
                                 data_dir_paths=data_dir_paths,
@@ -83,7 +84,8 @@ def test_init():
 
 def test_validate_data_files():
     """
-    Test validate_data_files function looks for inconsistencies in the fixed/moving image and label lists.
+    Test validate_data_files function looks for inconsistencies
+     in the fixed/moving image and label lists.
     If there is any issue it will raise an error, otherwise it returns None.
     """
     for key_file_loader, file_loader in FileLoaderDict.items():

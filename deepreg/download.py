@@ -87,7 +87,8 @@ def main(args=None):
     download(dirs, args.output_dir, args.branch)
 
     print(
-        "\nDownload complete. Please refer to the DeepReg Quick Start guide for next steps."
+        "\nDownload complete. "
+        "Please refer to the DeepReg Quick Start guide for next steps."
     )
 
 

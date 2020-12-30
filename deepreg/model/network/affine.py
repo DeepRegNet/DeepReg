@@ -29,11 +29,13 @@ def affine_forward(
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :return: tuple(affine, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-
-      - affine is the affine transformation matrix predicted by the network (batch, 4, 3)
+      - affine is the affine transformation matrix predicted by the network,
+        of shape (batch, 4, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_image is the predicted (warped) moving image
+        of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 

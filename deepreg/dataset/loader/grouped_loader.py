@@ -17,7 +17,9 @@ from deepreg.dataset.util import check_difference_between_two_lists
 class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     """
     Load grouped data.
-    Yield indexes of images to load using sample_index_generator from GeneratorDataLoader.
+
+    Yield indexes of images to load using
+    sample_index_generator from GeneratorDataLoader.
     AbstractUnpairedLoader handles different file formats
     """
 
@@ -40,19 +42,26 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
 
           - images
           - labels
+
         :param labeled: bool, true if the data is labeled, false if unlabeled
-        :param sample_label: "sample" or "all", read `get_label_indices` in deepreg/dataset/util.py for more details.
+        :param sample_label: "sample" or "all", read `get_label_indices`
+            in deepreg/dataset/util.py for more details.
         :param intra_group_prob: float between 0 and 1,
 
           - 0 means generating only inter-group samples,
           - 1 means generating only intra-group samples
+
         :param intra_group_option: str, "forward", "backward, or "unconstrained"
         :param sample_image_in_group: bool,
 
-          - if true, only one image pair will be yielded for each group, so one epoch has num_groups pairs of data,
+          - if true, only one image pair will be yielded for each group,
+            so one epoch has num_groups pairs of data,
           - if false, iterate through this loader will generate all possible pairs
-        :param seed: controls the randomness in sampling, if seed=None, then the randomness is not fixed
-        :param image_shape: list or tuple of length 3, corresponding to (dim1, dim2, dim3) of the 3D image
+
+        :param seed: controls the randomness in sampling,
+            if seed=None, then the randomness is not fixed
+        :param image_shape: list or tuple of length 3,
+            corresponding to (dim1, dim2, dim3) of the 3D image
         """
         super().__init__(
             image_shape=image_shape,
@@ -92,7 +101,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                     f"There are {self.num_groups} groups, "
                     f"we need at least two groups for inter group sampling"
                 )
-        # calculate number of samples and save pre-calculated sample indices if available
+        # calculate number of samples and save pre-calculated sample indices
         if self.sample_image_in_group is True:
             # one image pair in each group (pair) will be yielded
             self.sample_indices = None
@@ -101,7 +110,8 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             # all possible pair in each group (pair) will be yielded
             if intra_group_prob not in [0, 1]:
                 raise ValueError(
-                    "Mixing intra and inter groups is not supported when not sampling pairs."
+                    "Mixing intra and inter groups is not supported"
+                    " when not sampling pairs."
                 )
             if intra_group_prob == 0:  # inter group
                 self.sample_indices = self.get_inter_sample_indices()
@@ -168,8 +178,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
           - image1 of group1 is moving image
           - image2 of group2 is fixed image
 
-        All pairs of images in the dataset are registered. Assuming group i has ni images,
-        and that N=[n1, n2, ..., nI], then in total the number of samples are:
+        All pairs of images in the dataset are registered.
+        Assuming group i has ni images and that N=[n1, n2, ..., nI],
+        then in total the number of samples are:
         sum(N) * (sum(N)-1) - sum( N * (N-1) )
 
         :return: a list of sample indices
@@ -230,7 +241,8 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                         pass
                     else:
                         raise ValueError(
-                            f"Unknown intra_group_option, must be forward/backward/unconstrained, "
+                            f"Unknown intra_group_option, "
+                            f"must be forward/backward/unconstrained, "
                             f"got {self.intra_group_option}"
                         )
                 else:

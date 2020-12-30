@@ -35,7 +35,8 @@ class Registry:
             )
         if not force and self.contains(category=category, key=key):
             raise ValueError(
-                f"Key {key} in category {category} has been registered with {self._dict[(category, key)]}"
+                f"Key {key} in category {category} has been registered"
+                f" with {self._dict[(category, key)]}"
             )
         # register value
         self._dict[(category, key)] = value
@@ -58,8 +59,9 @@ class Registry:
         It can be used as a decorator or a normal function.
 
         :param category: The type of the category.
-        :param name: The class name to be registered. If not specified, the class name will be used.
-        :param force: Whether to override an existing class with the same name. Default: False.
+        :param name: The class name to be registered.
+            If not specified, the class name will be used.
+        :param force: Whether to override an existing class with the same name.
         :param cls: Class to be registered.
         :return: The given class or a decorator.
         """
@@ -103,10 +105,12 @@ class Registry:
             return cls(**args)
         except TypeError as err:
             raise ValueError(
-                f"Configuration is not compatible for Class {cls} of category {category}.\n"
+                f"Configuration is not compatible "
+                f"for Class {cls} of category {category}.\n"
                 f"Potentially an outdated configuration has been used.\n"
-                f"Please check the latest documentation of the class."
-                f"and arrange the required keys at the same level as `name` in configuration file.\n"
+                f"Please check the latest documentation of the class"
+                f"and arrange the required keys at the same level"
+                f" as `name` in configuration file.\n"
                 f"{err}"
             )
 

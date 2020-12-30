@@ -17,7 +17,8 @@ class GlobalNet(tf.keras.Model):
     Reference:
 
     - Hu, Yipeng, et al.
-      "Label-driven weakly-supervised learning for multimodal deformable image registration,"
+      "Label-driven weakly-supervised learning
+      for multimodal deformable image registration,"
       https://arxiv.org/abs/1711.01666
     """
 

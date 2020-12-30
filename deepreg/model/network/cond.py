@@ -24,7 +24,8 @@ def conditional_forward(
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :return: (pred_fixed_label, fixed_grid), where
 
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 

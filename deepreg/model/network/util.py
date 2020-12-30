@@ -46,7 +46,7 @@ def build_backbone(
         out_kernel_initializer = "zeros"
     else:
         raise ValueError(
-            f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
+            f"method name has to be one of ddf/dvf/conditional/affine, "
             f"got {method_name}"
         )
 

@@ -12,8 +12,7 @@ import deepreg.model.layer as layer
 
 def test_activation():
     """
-    Test the layer.Activation class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Activation class and its default attributes.
     """
     activation = layer.Activation()
     assert isinstance(activation._act, type(tf.keras.activations.relu))
@@ -21,8 +20,7 @@ def test_activation():
 
 def test_norm():
     """
-    Test the layer.Norm class, its default attributes and errors raised. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Norm class, its default attributes and errors raised.
     """
 
     norm = layer.Norm()
@@ -34,8 +32,7 @@ def test_norm():
 
 def test_maxpool3d():
     """
-    Test the layer.MaxPool3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.MaxPool3d class and its default attributes.
     """
     pooling = layer.MaxPool3d(2)
 
@@ -47,8 +44,7 @@ def test_maxpool3d():
 
 def test_conv3d():
     """
-    Test the layer.Conv3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Conv3d class and its default attributes.
     """
 
     conv3d = layer.Conv3d(8)
@@ -63,9 +59,7 @@ def test_conv3d():
 
 def test_deconv3d():
     """
-    Test the layer.Deconv3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
-    """
+    Test the layer.Deconv3d class and its default attributes."""
     batch_size = 5
     channels = 4
     input_size = (32, 32, 16)
@@ -87,8 +81,7 @@ def test_deconv3d():
 
 def test_conv3dBlock():
     """
-    Test the layer.Conv3dBlock class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Conv3dBlock class and its default attributes.
     """
 
     conv3dBlock = layer.Conv3dBlock(8)
@@ -106,8 +99,7 @@ def test_conv3dBlock():
 
 def test_deconv3dBlock():
     """
-    Test the layer.Deconv3dBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.Deconv3dBlock class and its default attributes.
     """
 
     deconv3dBlock = layer.Deconv3dBlock(8)
@@ -131,8 +123,7 @@ def test_deconv3dBlock():
 
 def test_residual3dBlock():
     """
-    Test the layer.Residual3dBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.Residual3dBlock class and its default attributes.
     """
     res3dBlock = layer.Residual3dBlock(8)
 
@@ -151,8 +142,7 @@ def test_residual3dBlock():
 
 def test_downsampleResnetBlock():
     """
-    Test the layer.DownSampleResnetBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.DownSampleResnetBlock class and its default attributes.
     """
     model = layer.DownSampleResnetBlock(8)
 
@@ -170,8 +160,7 @@ def test_downsampleResnetBlock():
 
 def test_upsampleResnetBlock():
     """
-    Test the layer.UpSampleResnetBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.UpSampleResnetBlock class and its default attributes.
     """
     batch_size = 5
     channels = 4
@@ -193,7 +182,7 @@ def test_upsampleResnetBlock():
 
 def test_init_conv3dWithResize():
     """
-    Test the layer.Conv3dWithResize class, its default attributes and it's call function.
+    Test the layer.Conv3dWithResize class's default attributes and call function.
     """
     batch_size = 5
     channels = 4
@@ -266,7 +255,7 @@ def test_initDVF():
 
 def test_dense():
     """
-    Test the layer.Dense class and its default attributes. No need to test the call() function since a
+    Test the layer.Dense class and its default attributes.
     concatenation of tensorflow classes
     """
     model = layer.Dense(8)
@@ -307,8 +296,8 @@ def test_additiveUpSampling():
 
 def test_localNetResidual3dBlock():
     """
-    Test the layer.LocalNetResidual3dBlock class, its default attributes and its call() function. No need to test
-    the call() function since its a concatenation of tensorflow classes.
+    Test the layer.LocalNetResidual3dBlock class's,
+    default attributes and call() function.
     """
 
     # Test __init__()
@@ -327,7 +316,8 @@ def test_localNetResidual3dBlock():
 
 def test_localNetUpSampleResnetBlock():
     """
-    Test the layer.LocalNetUpSampleResnetBlock class, its default attributes and its call() function.
+    Test the layer.LocalNetUpSampleResnetBlock class,
+    its default attributes and its call() function.
     """
     batch_size = 5
     channels = 4
@@ -396,7 +386,8 @@ class TestResizeCPTransform:
 
 class TestBSplines3DTransform:
     """
-    Test the layer.BSplines3DTransform class, its default attributes and its call() function.
+    Test the layer.BSplines3DTransform class,
+    its default attributes and its call() function.
     """
 
     @pytest.mark.parametrize(

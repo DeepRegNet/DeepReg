@@ -26,9 +26,6 @@ class TestSumSquaredDistance:
         ],
     )
     def test_output(self, y_true, y_pred, shape, expected):
-        """
-        Testing ssd function (sum of squared differences) by comparing the output to expected.
-        """
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))
@@ -49,9 +46,6 @@ class TestGlobalMutualInformation:
         ],
     )
     def test_zero_info(self, y_true, y_pred, shape, expected):
-        """
-        Testing ssd function (sum of squared differences) by comparing the output to expected.
-        """
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))
@@ -128,9 +122,6 @@ class TestLocalNormalizedCrossCorrelation:
         ],
     )
     def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
-        """
-        Testing ssd function (sum of squared differences) by comparing the output to expected.
-        """
         y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
         expected = expected * np.ones(shape=(shape[0],))

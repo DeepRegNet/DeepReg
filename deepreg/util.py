@@ -28,7 +28,8 @@ def build_dataset(
     :param preprocess_config: configuration for preprocess
     :param mode: train or valid or test
     :param training: bool, if true, data augmentation and shuffling will be added
-    :param repeat: bool, if true, dataset will be repeated, true for train/valid dataset during model.fit
+    :param repeat: bool, if true, dataset will be repeated,
+        true for train/valid dataset during model.fit
     :return:
     - (data_loader_train, dataset_train, steps_per_epoch_train)
     - (data_loader_val, dataset_val, steps_per_epoch_valid)

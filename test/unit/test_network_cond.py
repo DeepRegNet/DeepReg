@@ -45,9 +45,6 @@ def test_conditional_forward():
 
 
 def test_build_conditional_model():
-    """
-    Testing that build_conditional_model function returns the tensors with correct shapes
-    """
     moving_image_size = (1, 3, 5)
     fixed_image_size = (2, 4, 6)
     batch_size = 1

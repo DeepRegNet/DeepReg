@@ -54,7 +54,7 @@ class MaxPool3d(tf.keras.layers.Layer):
         Layer wraps tf.keras.layers.MaxPool3D
 
         :param pool_size: int or tuple of 3 ints
-        :param strides: int or tuple of 3 ints or None, if None default will be pool_size
+        :param strides: int or tuple of 3 ints, if None default will be pool_size
         :param padding: str, same or valid
         :param kwargs:
         """
@@ -85,10 +85,11 @@ class Conv3d(tf.keras.layers.Layer):
         :param filters: number of channels of the output
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param padding: str, same or valid
-        :param activation: str, defines the activation function
-        :param use_bias: bool, whether add bias to output
-        :param kernel_initializer: str, defines the initialization method, defines the initialization method
+        :param padding: same or valid
+        :param activation: defines the activation function
+        :param use_bias: whether add bias to output
+        :param kernel_initializer: defines the initialization method,
+            defines the initialization method
         """
         super().__init__(**kwargs)
         self._conv3d = tf.keras.layers.Conv3D(
@@ -149,12 +150,14 @@ class Deconv3d(tf.keras.layers.Layer):
             self._strides = [self._strides] * 3
 
         if self._output_shape is not None:
+            # pylint: disable-next=line-too-long
             """
             https://github.com/tensorflow/tensorflow/blob/1cf0898dd4331baf93fe77205550f2c2e6c90ee5/tensorflow/python/keras/utils/conv_utils.py#L139-L185
             When the output shape is defined, the padding should be calculated manually
             if padding == 'same':
                 pad = filter_size // 2
-                length = ((input_length - 1) * stride + filter_size - 2 * pad + output_padding)
+                length = ((input_length - 1) * stride + filter_size
+                         - 2 * pad + output_padding)
             """
             self._padding = "same"
             self._output_padding = [
@@ -375,8 +378,8 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
         :param filters: number of channels of the output
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param concat: bool,specify how to combine input and skip connection images. If True, use concatenation
-                               if false use sum (default=False).
+        :param concat: bool,specify how to combine input and skip connection images.
+            If True, use concatenation, otherwise use sum (default=False).
         :param kwargs:
         """
         super().__init__(**kwargs)
@@ -390,7 +393,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         """
-        :param input_shape: tuple, (downsampled_image_shape, skip_connection image_shape)
+        :param input_shape: tuple, (downsampled_image_shape, skip_image_shape)
         """
         super().build(input_shape)
         skip_shape = input_shape[1][1:4]
@@ -476,7 +479,7 @@ class Warping(tf.keras.layers.Layer):
           where vol = image, loc_shift = ddf
 
         :param fixed_image_size: shape = (f_dim1, f_dim2, f_dim3)
-                                 or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
+             or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
         :param kwargs:
         """
         super().__init__(**kwargs)
@@ -578,12 +581,10 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         if inputs.shape[4] % self._stride != 0:
             raise ValueError("The channel dimension can not be divided by the stride")
         output = layer_util.resize3d(image=inputs, size=self._output_shape)
-        output = tf.split(
-            output, num_or_size_splits=self._stride, axis=4
-        )  # a list of (batch, out_dim1, out_dim2, out_dim3, channels//stride), num = stride
-        output = tf.reduce_sum(
-            tf.stack(output, axis=5), axis=5
-        )  # (batch, out_dim1, out_dim2, out_dim3, channels//stride)
+        # a list of (batch, out_dim1, out_dim2, out_dim3, channels//stride)
+        output = tf.split(output, num_or_size_splits=self._stride, axis=4)
+        # (batch, out_dim1, out_dim2, out_dim3, channels//stride)
+        output = tf.reduce_sum(tf.stack(output, axis=5), axis=5)
         return output
 
 
@@ -627,7 +628,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         Layer up-samples tensor with two inputs (skipped and down-sampled).
 
         :param filters: int, number of output channels
-        :param use_additive_upsampling: bool to used additive upsampling (default is True)
+        :param use_additive_upsampling: bool to used additive upsampling
         :param kwargs:
         """
         super().__init__(**kwargs)
@@ -711,13 +712,16 @@ class ResizeCPTransform(tf.keras.layers.Layer):
 class BSplines3DTransform(tf.keras.layers.Layer):
     """
      Layer for BSplines interpolation with precomputed cubic spline filters.
-     It assumes a full sized image from which: (1) it compute the contol points values by downsampling the initial
-     image (2) performs the interpolation and (3) crops the image around the valid values.
+     It assumes a full sized image from which:
+     1. it compute the contol points values by downsampling the initial image
+     2. performs the interpolation
+     3. crops the image around the valid values.
 
-    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels) in each dimension.
-                       When a single int is used, the same spacing to all dimensions is used
-    :param output_shape: tuple containing the output shape (batch_size, dim0, dim1, dim2, 3) of the high resolution
-                         deformation fields.
+    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels)
+        in each dimension. When a single int is used,
+        the same spacing to all dimensions is used
+    :param output_shape: (batch_size, dim0, dim1, dim2, 3) of the high resolution
+        deformation fields.
     :param kwargs:
     """
 

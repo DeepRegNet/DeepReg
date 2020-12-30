@@ -22,7 +22,8 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         """
         Init.
 
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -46,7 +47,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
     y_true and y_pred have to be at least 4d tensor, including batch axis.
 
-    Reference: https://dspace.mit.edu/handle/1721.1/123142, Section 3.1, equation 3.1-3.5, Algorithm 1
+    Reference: https://dspace.mit.edu/handle/1721.1/123142,
+        Section 3.1, equation 3.1-3.5, Algorithm 1
     """
 
     def __init__(
@@ -61,7 +63,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         :param num_bins: number of bins for intensity
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -72,8 +75,10 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         """
         Return loss for a batch.
 
-        :param y_true: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
-        :param y_pred: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
+        :param y_true: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
+        :param y_pred: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
         # adjust
@@ -226,7 +231,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     Reference:
 
-        - Zero-normalized cross-correlation (ZNCC): https://en.wikipedia.org/wiki/Cross-correlation
+        - Zero-normalized cross-correlation (ZNCC):
+            https://en.wikipedia.org/wiki/Cross-correlation
         - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
     """
 
@@ -248,7 +254,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -265,8 +272,10 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         """
         Return loss for a batch.
 
-        :param y_true: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
-        :param y_pred: shape = (batch, dim1, dim2, dim3) or (batch, dim1, dim2, dim3, ch)
+        :param y_true: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
+        :param y_pred: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
         # adjust

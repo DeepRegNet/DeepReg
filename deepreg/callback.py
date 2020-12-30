@@ -80,9 +80,10 @@ def build_checkpoint_callback(
     )
     if ckpt_path:
         initial_epoch = ckpt_path.split("-")[-1]
-        assert (
-            initial_epoch.isdigit()
-        ), f"Checkpoint path for checkpoint manager must be of form ckpt-epoch_count, got {ckpt_path}"
+        assert initial_epoch.isdigit(), (
+            f"Checkpoint path for checkpoint manager "
+            f"must be of form ckpt-epoch_count, got {ckpt_path}"
+        )
         initial_epoch = int(initial_epoch)
         checkpoint_manager_callback.restore(ckpt_path)
     else:

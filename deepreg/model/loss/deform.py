@@ -61,7 +61,7 @@ def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
 @REGISTRY.register_loss(name="gradient")
 class GradientNorm(tf.keras.layers.Layer):
     """
-    Calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference.
+    Calculate the L1/L2 norm of ddf using central finite difference.
 
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
@@ -106,7 +106,7 @@ class GradientNorm(tf.keras.layers.Layer):
 @REGISTRY.register_loss(name="bending")
 class BendingEnergy(tf.keras.layers.Layer):
     """
-    Calculate the bending energy based on second-order differentiation of ddf using central finite difference.
+    Calculate the bending energy of ddf using central finite difference.
 
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """

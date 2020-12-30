@@ -32,8 +32,10 @@ def ddf_dvf_forward(
     :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
       - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_image is the predicted (warped) moving image
+        of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 

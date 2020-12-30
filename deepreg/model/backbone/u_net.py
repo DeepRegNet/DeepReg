@@ -36,17 +36,17 @@ class UNet(tf.keras.Model):
         """
         Initialise UNet.
 
-        :param image_size: tuple, (dim1, dim2, dim3), dims of input image.
-        :param out_channels: int, number of channels for the output
-        :param num_channel_initial: int, number of initial channels
-        :param depth: int, input is at level 0, bottom is at level depth
-        :param out_kernel_initializer: str, which kernel to use as initializer
-        :param out_activation: str, activation at last layer
-        :param pooling: Boolean, for downsampling, use non-parameterized
+        :param image_size: (dim1, dim2, dim3), dims of input image.
+        :param out_channels: number of channels for the output
+        :param num_channel_initial: number of initial channels
+        :param depth: input is at level 0, bottom is at level depth
+        :param out_kernel_initializer: which kernel to use as initializer
+        :param out_activation: activation at last layer
+        :param pooling: for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
-        :param concat_skip: Boolean, when upsampling, concatenate skipped
+        :param concat_skip: when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
-        :param control_points: (tuple, None), specify the distance between control points (in voxels).
+        :param control_points: specify the distance between control points (in voxels).
         :param kwargs:
         """
         super().__init__(**kwargs)

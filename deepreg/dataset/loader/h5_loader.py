@@ -96,7 +96,8 @@ class H5FileLoader(FileLoader):
         :param index: the data index which is required
 
           - for paired or unpaired, the index is one single int, data_index
-          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+          - for grouped, the index is a tuple of two ints,
+            (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -128,7 +129,8 @@ class H5FileLoader(FileLoader):
         verify consistency between
         images and label, moving and fixed.
 
-        :return: data_path_splits as the data can be identified using dir_path and data_key
+        :return: data_path_splits as the data can be identified
+            using dir_path and data_key
         """
         return self.data_path_splits
 
