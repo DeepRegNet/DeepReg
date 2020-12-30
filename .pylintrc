@@ -38,7 +38,7 @@ enable=indexing-exception,old-raise-syntax
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=design,similarities,no-self-use,attribute-defined-outside-init,locally-disabled,star-args,pointless-except,bad-option-value,global-statement,fixme,suppressed-message,useless-suppression,locally-enabled,no-member,no-name-in-module,import-error,unsubscriptable-object,unbalanced-tuple-unpacking,undefined-variable,not-context-manager,invalid-sequence-index
+disable=design,similarities,no-self-use,attribute-defined-outside-init,locally-disabled,star-args,pointless-except,bad-option-value,global-statement,fixme,suppressed-message,useless-suppression,locally-enabled,no-member,no-name-in-module,import-error,unsubscriptable-object,unbalanced-tuple-unpacking,undefined-variable,not-context-manager,invalid-sequence-index,unexpected-keyword-arg,no-value-for-parameter
 
 
 # Set the cache size for astng objects.
@@ -171,13 +171,13 @@ no-docstring-rgx=(__.*__|main)
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
-docstring-min-length=10
+docstring-min-length=1
 
 
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=88
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=(?x)
@@ -200,11 +200,11 @@ single-line-if-stmt=y
 no-space-check=
 
 # Maximum number of lines in a module
-max-module-lines=99999
+max-module-lines=1000
 
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
-indent-string='  '
+indent-string='    '
 
 
 [SIMILARITIES]
@@ -316,10 +316,10 @@ deprecated-members=string.atof,string.atoi,string.atol,string.capitalize,string.
 
 [DOCSTRING]
 
-default-docstring-type=google
+default-docstring-type=sphinx
 # List of exceptions that do not need to be mentioned in the Raises section of
 # a docstring.
-ignore-exceptions=AssertionError,NotImplementedError,StopIteration,TypeError
+ignore-exceptions=AssertionError,NotImplementedError,StopIteration,TypeError,ValueError
 
 
 
