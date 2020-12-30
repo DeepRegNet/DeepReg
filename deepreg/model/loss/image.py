@@ -120,6 +120,11 @@ class GlobalMutualInformation3D(tf.keras.losses.Loss):
 
 @REGISTRY.register_loss(name="gmi")
 class GlobalMutualInformation3DLoss(NegativeLossMixin, GlobalMutualInformation3D):
+    """
+    Revert the sign of GlobalMutualInformation3D
+    so that minimizing the loss is to maximize the information.
+    """
+
     pass
 
 
@@ -287,4 +292,9 @@ class LocalNormalizedCrossCorrelation3D(tf.keras.losses.Loss):
 class LocalNormalizedCrossCorrelation3DLoss(
     NegativeLossMixin, LocalNormalizedCrossCorrelation3D
 ):
+    """
+    Revert the sign of LocalNormalizedCrossCorrelation3D
+    so that minimizing the loss is to maximize the correlation.
+    """
+
     pass

@@ -2,6 +2,8 @@ import tensorflow as tf
 
 
 class NegativeLossMixin(tf.keras.losses.Loss):
+    """Mixin class to revert the sign of the loss value."""
+
     def __init__(self, **kwargs):
         super(NegativeLossMixin, self).__init__(**kwargs)
         self.name = self.name + "Loss"

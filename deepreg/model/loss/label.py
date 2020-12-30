@@ -171,6 +171,11 @@ class DiceScore(MultiScaleLoss):
 
 @REGISTRY.register_loss(name="dice")
 class DiceLoss(NegativeLossMixin, DiceScore):
+    """
+    Revert the sign of DiceScore
+    so that minimizing the loss is to maximize the dice score.
+    """
+
     pass
 
 
@@ -285,6 +290,11 @@ class JaccardIndex(MultiScaleLoss):
 
 @REGISTRY.register_loss(name="jaccard")
 class JaccardLoss(NegativeLossMixin, JaccardIndex):
+    """
+    Revert the sign of JaccardIndex
+    so that minimizing the loss is to maximize the Jaccard index.
+    """
+
     pass
 
 
