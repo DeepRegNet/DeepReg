@@ -11,6 +11,7 @@ notebook
 numpy==1.18.5
 pandas
 pre-commit
+pylint
 pytest
 pytest-cov
 pytest-dependency
