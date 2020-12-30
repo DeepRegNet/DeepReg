@@ -96,7 +96,15 @@ class Registry:
 
         name = args.pop("name")
         cls = self.get(category=category, key=name)
-        return cls(**args)
+        try:
+            return cls(**args)
+        except TypeError as err:
+            raise ValueError(
+                f"Configuration  is not compatible for Class {cls} of category {category}.\n"
+                f"Please check the class documentation "
+                f"and arrange the required keys at the same level as `name` in configuration file.\n"
+                f"{err}"
+            )
 
     def copy(self):
         copied = Registry()
