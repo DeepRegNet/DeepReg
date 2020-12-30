@@ -59,7 +59,7 @@ class TestRegistry:
             (
                 BACKBONE_CLASS,
                 {"name": "unet"},
-                "Configuration  is not compatible for Class",
+                "Configuration is not compatible for Class",
             ),
         ],
     )
