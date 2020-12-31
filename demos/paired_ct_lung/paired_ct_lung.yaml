@@ -12,8 +12,8 @@ train:
   method: "ddf" # the registration method, value should be ddf / dvf / conditional
   backbone:
     name: "local" # value should be local / global / unet
-    num_channel_initial: 16 # number of initial channel in local net, controls the size of the network
-    extract_levels: [0, 1, 2, 3]
+    num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2]
   loss:
     dissimilarity:
       image:
@@ -26,7 +26,7 @@ train:
           loss_type: "dice"
           loss_scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 0.1
+      weight: 10
       energy_type: "bending"
   preprocess:
     batch_size: 4
@@ -36,4 +36,4 @@ train:
     adam:
       learning_rate: 1.0e-5
   epochs: 10000
-  save_period: 1000
+  save_period: 2000
