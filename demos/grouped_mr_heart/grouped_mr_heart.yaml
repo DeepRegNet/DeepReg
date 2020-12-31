@@ -16,14 +16,14 @@ train:
   method: "ddf" # the registration method, value should be ddf / dvf / conditional
   backbone:
     name: "local" # value should be local / global / unet
-    num_channel_initial: 16 # number of initial channel in local net, controls the size of the network
+    num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
     extract_levels: [0, 1, 2, 3]
 
   # define the loss function for training
   loss:
     dissimilarity:
       image:
-        name: "lncc"
+        name: "gmi"
         weight: 1.0
       label:
         weight: 0.0
@@ -34,8 +34,8 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 1.0 # weight of regularization loss
-      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
+      weight: 10 # weight of regularization loss
+      energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer
   optimizer:
