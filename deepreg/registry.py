@@ -27,6 +27,12 @@ class Registry:
     def _register(self, category: str, key: str, value: Callable, force: bool):
         """
         Registers the value with the registry.
+
+        :param category: name of the class category
+        :param key: unique identity
+        :param value: class to be registered
+        :param force: if True, overwrite the existing value
+            in case the key has been registered.
         """
         # sanity check
         if category not in KNOWN_CATEGORIES:

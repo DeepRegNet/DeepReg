@@ -113,6 +113,8 @@ def test_abstract_unpaired_data_loader():
 def test_generator_data_loader(caplog):
     """
     Test the functions in GeneratorDataLoader
+
+    :param caplog: used to check warning message.
     """
     generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
 

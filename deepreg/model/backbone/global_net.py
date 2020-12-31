@@ -43,7 +43,7 @@ class GlobalNet(tf.keras.Model):
         :param extract_levels: list, which levels from net to extract
         :param out_kernel_initializer: str, which kernel to use as initializer
         :param out_activation: str, activation at last layer
-        :param kwargs:
+        :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
 

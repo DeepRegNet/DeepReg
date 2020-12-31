@@ -58,7 +58,9 @@ def download(dirs, output_dir="./", branch="main"):
 
 def main(args=None):
     """
-    Function to run in command line with argparse to download data.
+    Entry point for downloading data.
+
+    :param args:
     """
 
     parser = argparse.ArgumentParser()

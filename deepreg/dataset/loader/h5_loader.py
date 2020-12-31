@@ -16,6 +16,13 @@ class H5FileLoader(FileLoader):
     """Generalized loader for h5 files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
+        """
+        Init.
+
+        :param dir_paths: path of h5 files.
+        :param name: name is used to identify the file names.
+        :param grouped: whether the data is grouped.
+        """
         super().__init__(dir_paths=dir_paths, name=name, grouped=grouped)
         self.h5_files = None
         self.data_path_splits = None

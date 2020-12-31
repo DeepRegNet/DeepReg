@@ -108,9 +108,6 @@ class TestLocalNet:
         [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_init(self, image_size, extract_levels, control_points):
-        """
-        Testing init of LocalNet as expected
-        """
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -164,12 +161,7 @@ class TestLocalNet:
         [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_call(self, image_size, extract_levels, control_points):
-        """
-        Asserting that output shape of LocalNet call method
-        is correct.
-        """
         # initialising LocalNet instance
-
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -202,10 +194,6 @@ class TestUNet:
         [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
     def test_init(self, image_size, depth, control_points):
-        """
-        Testing init of UNet as expected
-        """
-
         network = u.UNet(
             image_size=image_size,
             out_channels=3,
@@ -257,10 +245,6 @@ class TestUNet:
         [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
     def test_call_unet(self, image_size, depth, control_points):
-        """
-        Asserting that output shape of UNet call method
-        is correct.
-        """
         out = 3
         # initialising UNet instance
         network = u.UNet(

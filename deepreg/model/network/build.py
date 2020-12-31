@@ -24,6 +24,7 @@ def build_model(
     :param labeled: true if the label of moving/fixed images are provided
     :param batch_size: mini-batch size
     :param train_config: train configuration
+    :param registry: registry to construct class objects
     :return: the built tf.keras.Model
     """
     if train_config["method"] in ["ddf", "dvf"]:

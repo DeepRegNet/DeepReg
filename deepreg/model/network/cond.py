@@ -83,6 +83,7 @@ def build_conditional_model(
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
     :param train_config: config for the model and loss
+    :param registry: registry to construct class objects
     :return: the built tf.keras.Model
     """
     # inputs

@@ -68,8 +68,8 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
-    :param model_method: str, ddf / dvf / affine / conditional
-    :param save_dir: str, path to store dir
+    :param model_method: ddf / dvf / affine / conditional
+    :param save_dir: path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     """
@@ -266,10 +266,12 @@ def predict(
     :param mode: train / valid / test, to define which split of dataset to be evaluated
     :param batch_size: int, batch size to perform predictions in
     :param log_dir: path to store logs
+    :param log_root: folder name to store logs
     :param sample_label: sample/all, not used
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
+    :param registry: registry to construct class objects
     """
     # TODO support custom sample_label
     logging.warning(
@@ -352,8 +354,9 @@ def predict(
 
 def main(args=None):
     """
-    Function to run in command line with argparse to predict results on data
-    for a given model.
+    Entry point for predict script.
+
+    :param args:
     """
     parser = argparse.ArgumentParser()
 

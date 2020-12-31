@@ -13,7 +13,6 @@ from deepreg.dataset.loader.h5_loader import H5FileLoader
 
 
 def get_loader_h5_file_names(loader: H5FileLoader) -> List[str]:
-    """return the h5 file names in the H5FileLoader"""
     return [f.filename for f in loader.h5_files.values()]
 
 

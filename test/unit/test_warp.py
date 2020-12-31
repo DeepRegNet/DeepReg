@@ -19,9 +19,6 @@ class TestMain:
         ],
     )
     def test_main(self, out_path: str, expected_path: str):
-        """
-        Integration test by checking the output file exists
-        """
         main(
             args=["--image", self.image_path, "--ddf", self.ddf_path, "--out", out_path]
         )

@@ -152,6 +152,7 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         num_indices = 2 corresponding to (image_index, label_index)
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape:  (width, height, depth)
+        :param kwargs: additional arguments.
         """
         super().__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
@@ -197,9 +198,11 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
 
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
-        - image_shape is the shape of images fed into dataset,
-        it is assumed to be 3d, [dim1, dim2, dim3].
-          moving_image_shape = fixed_image_shape = image_shape
+        Init.
+
+        :param image_shape: (dim1, dim2, dim3), for unpaired data,
+            moving_image_shape = fixed_image_shape = image_shape
+        :param kwargs: additional arguments.
         """
         super().__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
@@ -230,6 +233,11 @@ class GeneratorDataLoader(DataLoader, ABC):
     """
 
     def __init__(self, **kwargs):
+        """
+        Init.
+
+        :param kwargs: additional arguments.
+        """
         super().__init__(**kwargs)
         self.loader_moving_image = None
         self.loader_fixed_image = None

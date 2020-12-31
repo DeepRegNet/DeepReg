@@ -63,8 +63,11 @@ def warp(image_path: str, ddf_path: str, out_path: str):
 
 
 def main(args=None):
-    """Entry point for warp script."""
+    """
+    Entry point for warp script.
 
+    :param args:
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

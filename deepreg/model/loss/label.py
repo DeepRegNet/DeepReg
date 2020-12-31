@@ -53,7 +53,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "MultiScaleLoss",
     ):
         """
@@ -71,7 +71,13 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self.kernel = kernel
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-        """Use _call to calculate loss at different scales."""
+        """
+        Use _call to calculate loss at different scales.
+
+        :param y_true: ground-truth tensor.
+        :param y_pred: predicted tensor.
+        :return: multi-scale loss.
+        """
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
         kernel_fn = self.kernel_fn_dict[self.kernel]
@@ -97,7 +103,13 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         return loss
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-        """Return loss for a batch."""
+        """
+        Return loss for a batch.
+
+        :param y_true: ground-truth tensor.
+        :param y_pred: predicted tensor.
+        :return: negated loss.
+        """
         raise NotImplementedError
 
     def get_config(self):
@@ -132,7 +144,7 @@ class DiceScore(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "DiceScore",
     ):
         """
@@ -202,7 +214,7 @@ class CrossEntropy(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "CrossEntropy",
     ):
         """
@@ -264,7 +276,7 @@ class JaccardIndex(MultiScaleLoss):
         binary: bool = False,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "JaccardIndex",
     ):
         """

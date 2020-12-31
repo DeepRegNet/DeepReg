@@ -59,11 +59,17 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
 
 
 def build_checkpoint_callback(
-    model, dataset, log_dir: str, save_period: int, ckpt_path: str
+    model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    log_dir: str,
+    save_period: int,
+    ckpt_path: str,
 ) -> (CheckpointManagerCallback, int):
     """
     Function to prepare callbacks for training.
 
+    :param model: model to train
+    :param dataset: dataset for training
     :param log_dir: directory of logs
     :param save_period: save the checkpoint every X epochs
     :param ckpt_path: path to restore ckpt

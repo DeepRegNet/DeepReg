@@ -38,7 +38,6 @@ class TestBuildBackbone:
     @pytest.mark.parametrize("out_channels", [1, 2, 3])
     @pytest.mark.parametrize("backbone_name", ["local", "global"])
     def test_local_global_backbone(self, method_name, out_channels, backbone_name):
-        """Only test the function returns successfully"""
         util.build_backbone(
             image_size=(2, 3, 4),
             out_channels=out_channels,
@@ -54,7 +53,6 @@ class TestBuildBackbone:
     @pytest.mark.parametrize("method_name", ["ddf", "dvf", "conditional", "affine"])
     @pytest.mark.parametrize("out_channels", [1, 2, 3])
     def test_unet_backbone(self, method_name, out_channels):
-        """Only test the function returns successfully"""
         util.build_backbone(
             image_size=(2, 3, 4),
             out_channels=out_channels,

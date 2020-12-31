@@ -27,7 +27,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         data_dir_paths: List[str],
         labeled: bool,
         sample_label: str,
-        seed,
+        seed: int,
         image_shape: (list, tuple),
     ):
         """
@@ -36,6 +36,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         :param file_loader:
         :param data_dir_paths: paths of the directories storing data,
             the data are saved under four different sub-directories: images, labels
+        :param labeled: whether the data is labeled.
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)

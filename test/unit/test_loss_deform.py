@@ -59,7 +59,6 @@ def test_gradient_dxyz():
 class TestGradientNorm:
     @pytest.mark.parametrize("l1", [True, False])
     def test_call(self, l1):
-        """test the calculation of l1/l2 norm for image gradients"""
         tensor = tf.ones([4, 50, 50, 50, 3])
         got = deform.GradientNorm(l1=l1)(tensor)
         expected = 0

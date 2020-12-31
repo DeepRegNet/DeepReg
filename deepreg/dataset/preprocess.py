@@ -16,7 +16,21 @@ class AffineTransformation3D:
     the transformed grids for the moving and fixed images.
     """
 
-    def __init__(self, moving_image_size, fixed_image_size, batch_size, scale=0.1):
+    def __init__(
+        self,
+        moving_image_size: tuple,
+        fixed_image_size: tuple,
+        batch_size: int,
+        scale: float = 0.1,
+    ):
+        """
+        Init.
+
+        :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+        :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
+        :param batch_size: size of mini-batch
+        :param scale: a positive float controlling the scale of transformation
+        """
         self._batch_size = batch_size
         self._scale = scale
         self._moving_grid_ref = layer_util.get_reference_grid(

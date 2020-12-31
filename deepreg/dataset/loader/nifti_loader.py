@@ -26,6 +26,13 @@ class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
+        """
+        Init.
+
+        :param dir_paths: path of directories having nifti files.
+        :param name: name is used to identify the subdirectories.
+        :param grouped: whether the data is grouped.
+        """
         super().__init__(dir_paths=dir_paths, name=name, grouped=grouped)
         self.data_path_splits = None
         self.set_data_structure()

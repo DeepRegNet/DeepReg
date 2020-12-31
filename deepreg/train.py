@@ -79,6 +79,7 @@ def train(
     :param log_root: root of logs
     :param log_dir: where to store logs in training
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
+    :param registry: registry to construct class objects
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -166,7 +167,11 @@ def train(
 
 
 def main(args=None):
-    """Entry point for train script."""
+    """
+    Entry point for train script.
+
+    :param args:
+    """
 
     parser = argparse.ArgumentParser()
 

@@ -47,7 +47,7 @@ class UNet(tf.keras.Model):
         :param concat_skip: when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
         :param control_points: specify the distance between control points (in voxels).
-        :param kwargs:
+        :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
 

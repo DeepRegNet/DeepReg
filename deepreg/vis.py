@@ -195,7 +195,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
 
     num_images = np.prod(size)
     if int(len(img_paths)) != int(num_images):
-        raise Exception(
+        raise ValueError(
             "The number of images supplied is "
             + str(len(img_paths))
             + " whereas the number required is "
@@ -212,7 +212,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
         img = load_nifti_file(img_path)
         shape = np.shape(img)
         if shape != img_shape:
-            raise Exception("all images do not have equal shapes")
+            raise ValueError("all images do not have equal shapes")
         imgs.append(img)
 
     frames = []
@@ -260,7 +260,10 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
 def main(args=None):
     """
     CLI for deepreg_vis tool.
+
     Requires ffmpeg wirter to write gif files.
+
+    :param args:
     """
     parser = argparse.ArgumentParser(
         description="deepreg_vis", formatter_class=argparse.RawTextHelpFormatter

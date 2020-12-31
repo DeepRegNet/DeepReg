@@ -16,6 +16,8 @@ from deepreg.dataset.loader.unpaired_loader import UnpairedDataLoader
 def load_yaml(file_path: str) -> dict:
     """
     load the yaml file and return a dictionary
+
+    :param file_path: path of the yaml file.
     """
     assert file_path.endswith(".yaml")
     with open(file_path) as file:

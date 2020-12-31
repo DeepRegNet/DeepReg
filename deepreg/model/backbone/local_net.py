@@ -53,7 +53,7 @@ class LocalNet(tf.keras.Model):
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
         :param control_points: specify the distance between control points (in voxels).
-        :param kwargs:
+        :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
 

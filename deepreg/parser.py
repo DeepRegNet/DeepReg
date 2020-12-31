@@ -6,7 +6,16 @@ import yaml
 
 
 def update_nested_dict(d: dict, u: dict) -> dict:
-    """https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth"""
+    """
+    Merge two dicts.
+
+    https://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+
+    :param d: dict to be overwritten in case of conflicts.
+    :param u: dict to be merged into d.
+    :return:
+    """
+
     for k, v in u.items():
         if isinstance(v, collections.Mapping):
             d[k] = update_nested_dict(d.get(k, {}), v)
@@ -15,8 +24,13 @@ def update_nested_dict(d: dict, u: dict) -> dict:
     return d
 
 
-def load_configs(config_path: (str, list)):
-    """load multiple configs and update the nested dictionary"""
+def load_configs(config_path: (str, list)) -> dict:
+    """
+    Load multiple configs and update the nested dictionary.
+
+    :param config_path: list of paths or one path.
+    :return:
+    """
     if isinstance(config_path, str):
         config_path = [config_path]
     config = dict()
@@ -29,13 +43,24 @@ def load_configs(config_path: (str, list)):
 
 
 def save(config: dict, out_dir: str, filename: str = "config.yaml"):
+    """
+    Save the config into a yaml file.
+
+    :param config: configuration to be outputed
+    :param out_dir: directory of the output file
+    :param filename: name of the output file
+    """
     assert filename.endswith(".yaml")
     with open(os.path.join(out_dir, filename), "w+") as f:
         f.write(yaml.dump(config))
 
 
 def config_sanity_check(config: dict):
-    """check if the given config satisfies the requirements."""
+    """
+    Check if the given config satisfies the requirements.
+
+    :param config: entire config.
+    """
 
     # check data
     assert "dataset" in config.keys()

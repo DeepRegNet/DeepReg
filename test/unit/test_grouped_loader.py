@@ -16,8 +16,14 @@ DataPaths = dict(nifti="data/test/nifti/grouped", h5="data/test/h5/grouped")
 image_shape = (64, 64, 60)
 
 
-def sample_count(ni, direction):
-    """helper function calculates number of samples"""
+def sample_count(ni: list, direction: str) -> int:
+    """
+    Count number of samples.
+
+    :param ni: list, each element correspond to the number of images per group
+    :param direction: unconstrained/forward/backward
+    :return: number of samples in total
+    """
     ni = np.array(ni)
     if direction == "unconstrained":
         sample_total = sum(ni * (ni - 1))
