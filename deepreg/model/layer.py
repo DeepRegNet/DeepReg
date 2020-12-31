@@ -681,7 +681,7 @@ class ResizeCPTransform(tf.keras.layers.Layer):
     It uses an anti-aliasing Gaussian filter before downsampling.
     """
 
-    def __init__(self, control_point_spacing: (list, int), **kwargs):
+    def __init__(self, control_point_spacing: (list, tuple, int), **kwargs):
         """
         :param control_point_spacing: list or int
         :param kwargs: additional arguments.

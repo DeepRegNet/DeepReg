@@ -349,7 +349,7 @@ class TestResizeCPTransform:
 
         if isinstance(cp_spacing, int):
             cp_spacing = [cp_spacing] * 3
-        assert model.cp_spacing == parameter
+        assert list(model.cp_spacing) == list(parameter)
         assert model.kernel_sigma == [0.44 * cp for cp in cp_spacing]
 
     @pytest.mark.parametrize(
