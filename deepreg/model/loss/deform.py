@@ -91,6 +91,7 @@ class GradientNorm(tf.keras.layers.Layer):
         return tf.reduce_mean(norms)
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(GradientNorm, self).get_config()
         config["l1"] = self.l1
         return config
@@ -103,7 +104,7 @@ class BendingEnergy(tf.keras.layers.Layer):
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, name="BendingEnergy"):
+    def __init__(self, name: str = "BendingEnergy"):
         """
         :param name: name of the loss
         """

@@ -52,7 +52,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         name="GlobalMutualInformation",
     ):
         """
-        :param num_bins: number of bins for intensity
+        :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
         :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
@@ -112,6 +112,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(GlobalMutualInformation, self).get_config()
         config["num_bins"] = self.num_bins
         config["sigma_ratio"] = self.sigma_ratio
@@ -130,7 +131,7 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
 
 def build_rectangular_kernel(kernel_size: int, input_channel: int):
     """
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
@@ -143,7 +144,7 @@ def build_rectangular_kernel(kernel_size: int, input_channel: int):
 
 def build_triangular_kernel(kernel_size: int, input_channel: int):
     """
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
@@ -174,7 +175,7 @@ def build_triangular_kernel(kernel_size: int, input_channel: int):
 
 def build_gaussian_kernel(kernel_size: int, input_channel: int):
     """
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
@@ -301,6 +302,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(LocalNormalizedCrossCorrelation, self).get_config()
         config["kernel_size"] = self.kernel_size
         config["kernel_type"] = self.kernel_type

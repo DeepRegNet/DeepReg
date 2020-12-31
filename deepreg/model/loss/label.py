@@ -99,6 +99,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         raise NotImplementedError
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(MultiScaleLoss, self).get_config()
         config["scales"] = self.scales
         config["kernel"] = self.kernel
@@ -168,6 +169,7 @@ class DiceScore(MultiScaleLoss):
         return (numerator + EPS) / (denominator + EPS)
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(DiceScore, self).get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
@@ -236,6 +238,7 @@ class CrossEntropy(MultiScaleLoss):
         return -(1 - self.neg_weight) * loss_pos - self.neg_weight * loss_neg
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(CrossEntropy, self).get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
@@ -292,6 +295,7 @@ class JaccardIndex(MultiScaleLoss):
         return (y_prod + EPS) / (y_sum - y_prod + EPS)
 
     def get_config(self):
+        """Return the config dictionary for recreating this class."""
         config = super(JaccardIndex, self).get_config()
         config["binary"] = self.binary
         return config
