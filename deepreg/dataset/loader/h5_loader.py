@@ -142,11 +142,5 @@ class H5FileLoader(FileLoader):
 
     def close(self):
         """Close opened h5 file handles."""
-        for f in self.h5_files.values():
-            if f.__bool__():
-                # close file if it is open
-                try:
-                    f.close()
-                except RuntimeError:
-                    # to ignore RuntimeError: Can't increment id ref count
-                    pass
+        for f in set(self.h5_files.values()):
+            f.close()
