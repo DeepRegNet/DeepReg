@@ -142,5 +142,5 @@ class H5FileLoader(FileLoader):
 
     def close(self):
         """Close opened h5 file handles."""
-        for f in set(self.h5_files.values()):
+        for f in self.h5_files.values():
             f.close()
