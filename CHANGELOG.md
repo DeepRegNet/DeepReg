@@ -32,7 +32,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
-- Fixed build error when downloading data from private repo.
+- Fixed build error when downloading data from the private repository.
+- Fixed the typo for CLI tools in documents.
 
 ## [0.1.0] - 2020-11-02
 
