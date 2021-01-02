@@ -17,7 +17,7 @@ train:
   backbone:
     name: "local" # value should be local / global / unet
     num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
-    extract_levels: [0, 1, 2, 3]
+    extract_levels: [0, 1, 2, 3, 4]
 
   # define the loss function for training
   loss:
@@ -34,7 +34,7 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 10 # weight of regularization loss
+      weight: 1 # weight of regularization loss
       energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer
