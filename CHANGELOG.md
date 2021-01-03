@@ -17,6 +17,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
 - Added deepreg_download entry point to access non-release folders required for Quick
   Start.
+- Improved demo configurations with the updated pre-trained models for:
+  grouped_mask_prostate_longitudinal, paried_mrus_prostate, unpaired_us_prostate_cv.
 
 ### Changed
 
