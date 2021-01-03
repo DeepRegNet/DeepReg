@@ -13,12 +13,12 @@ train:
   backbone:
     name: "local" # value should be local / global / unet
     num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
-    extract_levels: [0, 1, 2, 3]
+    extract_levels: [0, 1, 2]
   loss:
     dissimilarity:
       image:
         name: "ssd"
-        weight: 1
+        weight: 10.0
       label:
         weight: 1.0
         name: "multi_scale"
@@ -26,7 +26,7 @@ train:
           loss_type: "dice"
           loss_scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 1
+      weight: 10.0
       energy_type: "bending"
   preprocess:
     batch_size: 4
@@ -35,5 +35,5 @@ train:
     name: "adam"
     adam:
       learning_rate: 1.0e-5
-  epochs: 10000
-  save_period: 2000
+  epochs: 8000
+  save_period: 1000
