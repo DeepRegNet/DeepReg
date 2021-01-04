@@ -32,8 +32,8 @@ if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-ZIP_PATH = "unpaired_us_prostate_cv-ckpt"
-ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_us_prostate_cv-ckpt.zip"
+ZIP_PATH = "unpaired_us_prostate_cv_1"
+ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_us_prostate_cv_1.zip"
 
 zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
 get_file(os.path.abspath(zip_file), ORIGIN)
