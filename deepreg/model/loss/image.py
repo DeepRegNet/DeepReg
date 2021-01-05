@@ -138,7 +138,7 @@ def build_rectangular_kernel(kernel_size: int, input_channel: int):
         - kernel_vol, scalar
     """
     filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
-    kernel_vol = kernel_size ** 3
+    kernel_vol = tf.cast(kernel_size ** 3, dtype=filters.dtype)
     return filters, kernel_vol
 
 
