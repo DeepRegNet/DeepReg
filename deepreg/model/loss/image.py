@@ -217,7 +217,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     kernel_fn_dict = dict(
         gaussian=build_gaussian_kernel,
         rectangular=build_rectangular_kernel,
-        triangular=build_rectangular_kernel,
+        triangular=build_triangular_kernel,
     )
 
     def __init__(
