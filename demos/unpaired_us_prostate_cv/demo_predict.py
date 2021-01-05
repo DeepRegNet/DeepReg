@@ -32,7 +32,7 @@ print(
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}.yaml "
-    f"--ckpt_path demos/{name}/dataset/pretrained/weights-epoch5000.ckpt "
+    f"--ckpt_path demos/{name}/dataset/pretrained/ckpt-6000 "
     f"--log_root demos/{name} "
     "--log_dir logs_predict "
     "--save_png --mode test\n"
@@ -42,7 +42,7 @@ print(
 
 log_root = f"demos/{name}"
 log_dir = "logs_predict/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-ckpt_path = f"{log_root}/dataset/pretrained/weights-epoch5000.ckpt"
+ckpt_path = f"{log_root}/dataset/pretrained/ckpt-6000"
 config_path = [f"{log_root}/{name}.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
