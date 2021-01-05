@@ -113,14 +113,30 @@ if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-ZIP_PATH = "grouped_mr_heart-ckpt"
-ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mr_heart-ckpt.zip"
+num_zipfiles = 21
+zip_filepath = os.path.abspath(os.path.join(MODEL_PATH, "grouped_mr_heart_1.zip"))
+zip_file_parts = [
+    zip_filepath + ".%03d" % (idx + 1) for idx in range(num_zipfiles)
+]  # https://github.com/DeepRegNet/deepreg-model-zoo/blob/master/grouped_mr_heart_1/grouped_mr_heart_1.zip.021
+for idx, zip_file in enumerate(zip_file_parts, start=1):
+    ORIGIN = (
+        "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mr_heart_1/grouped_mr_heart_1.zip.%03d"
+        % idx
+    )
+    get_file(zip_file, ORIGIN)
 
-zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
-get_file(os.path.abspath(zip_file), ORIGIN)
-with zipfile.ZipFile(zip_file, "r") as zf:
+# combine all the files then extract
+with open(os.path.join(MODEL_PATH, zip_filepath), "ab") as f:
+    for zip_file in zip_file_parts:
+        with open(zip_file, "rb") as z:
+            f.write(z.read())
+with zipfile.ZipFile(zip_filepath, "r") as zf:
     zf.extractall(path=MODEL_PATH)
-os.remove(zip_file)
+
+# remove zip files
+for zip_file in zip_file_parts:
+    os.remove(zip_file)
+os.remove(zip_filepath)
 
 print(
     "pretrained model is downloaded and unzipped in %s." % os.path.abspath(MODEL_PATH)
