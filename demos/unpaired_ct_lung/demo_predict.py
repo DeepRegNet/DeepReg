@@ -32,7 +32,7 @@ print(
     "The prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}.yaml "
-    f"--ckpt_path demos/{name}/dataset/pretrained/learn2reg_t2_unpaired_train_logs/save/weights-epoch1500.ckpt "
+    f"--ckpt_path demos/{name}/dataset/pretrained/unpaired_ct_lung_1/ckpt-4000 "
     f"--log_root demos/{name} "
     "--log_dir logs_predict "
     "--save_png --mode test\n"
