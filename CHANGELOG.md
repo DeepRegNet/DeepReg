@@ -19,7 +19,7 @@ adheres to [Semantic Versioning](http://semver.org/).
   Start.
 - Improved demo configurations with the updated pre-trained models for:
   grouped_mask_prostate_longitudinal, paried_mrus_prostate, unpaired_us_prostate_cv,
-  grouped_mr_heart.
+  grouped_mr_heart, paired_ct_lung.
 
 ### Changed
 
