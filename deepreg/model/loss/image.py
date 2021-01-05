@@ -74,9 +74,9 @@ def local_normalized_cross_correlation(
         pad_filter = tf.constant(
             [
                 [0, 0],
-                [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-                [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-                [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+                [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+                [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+                [int((fsize - 1) / 2), int((fsize + 1) / 2)],
                 [0, 0],
             ]
         )
