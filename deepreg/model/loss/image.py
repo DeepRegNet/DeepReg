@@ -155,9 +155,9 @@ def build_triangular_kernel(kernel_size: int, input_channel: int):
     pad_filter = tf.constant(
         [
             [0, 0],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
             [0, 0],
         ]
     )
