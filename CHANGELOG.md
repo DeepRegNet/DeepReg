@@ -11,9 +11,12 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added registry for backbone models.
+- Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
+- Added deepreg_download entry point to access non-release folders required for Quick
+  Start.
 
 ### Changed
 
@@ -22,6 +25,10 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Migrated from Travis-CI to GitHub Actions.
 - Simplified configuration for backbone models.
 - Simplified contributing documentation.
+- Uniform kernel size for LNCC loss.
+- Improved demo configurations with the updated pre-trained models for:
+  grouped_mask_prostate_longitudinal, paried_mrus_prostate, unpaired_us_prostate_cv,
+  grouped_mr_heart, unpaired_ct_lung, paired_ct_lung.
 
 ### Fixed
 
