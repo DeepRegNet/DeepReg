@@ -32,6 +32,7 @@
     docs/cli
     docs/configuration
     docs/dataset_loader
+    docs/registry
     docs/experimental
 
 .. toctree::

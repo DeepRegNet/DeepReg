@@ -231,16 +231,18 @@ for folder in folders:
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 
-url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_demo_logs.zip"
-
+url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_1.zip"
 fname = "pretrained.zip"
 os.chdir(os.path.join(main_path, project_dir))
 
+# download and unzip into pretrained subfolder
 get_file(os.path.join(os.getcwd(), fname), url)
-
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
 
 # remove pretrained.zip
 os.remove(fname)
-print("Pretrained model downloaded")
+print(
+    "Pretrained model downloaded: %s"
+    % os.path.abspath(os.path.join(data_folder_name, "pretrained"))
+)

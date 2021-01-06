@@ -63,7 +63,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         """
         Init.
 
-        :param num_bins: number of bins for intensity
+        :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
         :param reduction: using AUTO reduction,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
@@ -146,7 +146,7 @@ def build_rectangular_kernel(
     """
     Return a rectangular kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
@@ -163,7 +163,7 @@ def build_triangular_kernel(
     """
     Return a triangular kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
@@ -173,9 +173,9 @@ def build_triangular_kernel(
     pad_filter = tf.constant(
         [
             [0, 0],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize - 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
+            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
             [0, 0],
         ]
     )
@@ -197,7 +197,7 @@ def build_gaussian_kernel(
     """
     Return a Gaussian kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel
+    :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
         - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
@@ -241,7 +241,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     kernel_fn_dict = dict(
         gaussian=build_gaussian_kernel,
         rectangular=build_rectangular_kernel,
-        triangular=build_rectangular_kernel,
+        triangular=build_triangular_kernel,
     )
 
     def __init__(

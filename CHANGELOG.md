@@ -27,13 +27,18 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Migrated from Travis-CI to GitHub Actions.
 - Simplified configuration for backbone models and losses.
 - Simplified contributing documentation.
+- Uniform kernel size for LNCC loss.
+- Improved demo configurations with the updated pre-trained models for:
+  grouped_mask_prostate_longitudinal, paried_mrus_prostate, unpaired_us_prostate_cv,
+  grouped_mr_heart, unpaired_ct_lung, paired_ct_lung.
 
 ### Fixed
 
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
-- Fixed build error when downloading data from private repo.
+- Fixed build error when downloading data from the private repository.
+- Fixed the typo for CLI tools in documents.
 
 ## [0.1.0] - 2020-11-02
 

@@ -66,48 +66,20 @@ class TestGlobalMutualInformation:
         assert got == expected
 
 
-class TestKernelFuncs:
+@pytest.mark.parametrize("name", ["gaussian", "triangular", "rectangular"])
+def test_kernel_fn(name):
     kernel_size = 3
     input_channel = 5
-
-    def test_rectangular(self):
-        filters, kernel_vol = image.build_rectangular_kernel(
-            self.kernel_size, self.input_channel
-        )
-        assert filters.shape == (
-            self.kernel_size,
-            self.kernel_size,
-            self.kernel_size,
-            self.input_channel,
-            1,
-        )
-        assert kernel_vol.shape == ()
-
-    def test_triangular(self):
-        filters, kernel_vol = image.build_triangular_kernel(
-            self.kernel_size, self.input_channel
-        )
-        assert filters.shape == (
-            self.kernel_size - 1,
-            self.kernel_size - 1,
-            self.kernel_size - 1,
-            self.input_channel,
-            1,
-        )
-        assert kernel_vol.shape == ()
-
-    def test_gaussian(self):
-        filters, kernel_vol = image.build_gaussian_kernel(
-            self.kernel_size, self.input_channel
-        )
-        assert filters.shape == (
-            self.kernel_size,
-            self.kernel_size,
-            self.kernel_size,
-            self.input_channel,
-            1,
-        )
-        assert kernel_vol.shape == ()
+    kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
+    filters, kernel_vol = kernel_fn(kernel_size, input_channel)
+    assert filters.shape == (
+        kernel_size,
+        kernel_size,
+        kernel_size,
+        input_channel,
+        1,
+    )
+    assert kernel_vol.shape == ()
 
 
 class TestLocalNormalizedCrossCorrelation:
