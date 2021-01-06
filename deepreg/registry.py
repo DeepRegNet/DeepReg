@@ -74,11 +74,59 @@ class Registry:
 
         return decorator
 
+    def build_from_config(self, category: str, config: dict, default_args=None):
+        """
+        Build a class instance from config dict.
+
+        :param category:
+        :param config: Config dict. It should at least contain the key "name".
+        :param default_args:
+        :return: The constructed object/instance.
+        """
+        if not isinstance(config, dict):
+            raise ValueError(f"config must be a dict, but got {type(config)}")
+        if "name" not in config:
+            raise ValueError(f"`config` must contain the key `name`, but got {config}")
+        args = config.copy()
+
+        # insert key, value pairs if key is not in args
+        if default_args is not None:
+            for name, value in default_args.items():
+                args.setdefault(name, value)
+
+        name = args.pop("name")
+        cls = self.get(category=category, key=name)
+        try:
+            return cls(**args)
+        except TypeError as err:
+            raise ValueError(
+                f"Configuration is not compatible for Class {cls} of category {category}.\n"
+                f"Potentially an outdated configuration has been used.\n"
+                f"Please check the latest documentation of the class."
+                f"and arrange the required keys at the same level as `name` in configuration file.\n"
+                f"{err}"
+            )
+
+    def copy(self):
+        copied = Registry()
+        copied._dict = self._dict.copy()
+        return copied
+
     def register_backbone(self, name: str, cls: Callable = None, force: bool = False):
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
 
-    def get_backbone(self, key):
-        return self.get(category=BACKBONE_CLASS, key=key)
+    def build_backbone(self, config: dict, default_args=None):
+        return self.build_from_config(
+            category=BACKBONE_CLASS, config=config, default_args=default_args
+        )
+
+    def register_loss(self, name: str, cls: Callable = None, force: bool = False):
+        return self.register(category=LOSS_CLASS, name=name, cls=cls, force=force)
+
+    def build_loss(self, config: dict, default_args=None):
+        return self.build_from_config(
+            category=LOSS_CLASS, config=config, default_args=default_args
+        )
 
 
 REGISTRY = Registry()

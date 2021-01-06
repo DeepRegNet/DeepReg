@@ -156,16 +156,14 @@ def calculate_metrics(
         y_pred = pred_fixed_image[sample_index : (sample_index + 1), :, :, :]
         y_true = tf.expand_dims(y_true, axis=4)
         y_pred = tf.expand_dims(y_pred, axis=4)
-        ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
+        ssd = image_loss.SumSquaredDifference()(y_true=y_true, y_pred=y_pred).numpy()
     else:
         ssd = None
 
     if fixed_label is not None and pred_fixed_label is not None:
         y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
         y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-        dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True).numpy()[
-            0
-        ]
+        dice = label_loss.DiceScore(binary=True)(y_true=y_true, y_pred=y_pred).numpy()
         tre = label_loss.compute_centroid_distance(
             y_true=y_true, y_pred=y_pred, grid=fixed_grid_ref[0, :, :, :, :]
         ).numpy()[0]

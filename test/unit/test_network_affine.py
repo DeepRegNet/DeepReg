@@ -69,18 +69,13 @@ def test_build_affine_model():
                 "extract_levels": [1, 2, 3],
             },
             "loss": {
-                "dissimilarity": {
-                    "image": {"name": "lncc", "weight": 0.1},
-                    "label": {
-                        "name": "multi_scale",
-                        "weight": 1,
-                        "multi_scale": {
-                            "loss_type": "dice",
-                            "loss_scales": [0, 1, 2, 4, 8, 16, 32],
-                        },
-                    },
+                "image": {"name": "lncc", "weight": 0.1},
+                "label": {
+                    "name": "dice",
+                    "weight": 1,
+                    "scales": [0, 1, 2, 4, 8, 16, 32],
                 },
-                "regularization": {"weight": 0.0, "energy_type": "bending"},
+                "regularization": {"weight": 0.0, "name": "bending"},
             },
         },
         registry=REGISTRY,

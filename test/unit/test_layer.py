@@ -501,7 +501,6 @@ class TestBSplines3DTransform:
         )
 
         field = tf.random.normal(shape=num_cp, dtype=tf.float32)
-        print(field.shape)
 
         ddf = model.call(field)
         assert ddf.shape == input_size

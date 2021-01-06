@@ -13,104 +13,117 @@ import tensorflow as tf
 import deepreg.model.loss.image as image
 
 
-class TestDissimilarityFn:
-    """
-    Testing computed dissimilarity function by comparing to precomputed,
-    the dissimilarity function can be either normalized cross correlation or sum square error function.
-    """
-
-    y_true = tf.constant(np.array(range(12)).reshape((2, 1, 2, 3)), dtype=tf.float32)
-    y_pred = 0.6 * tf.ones((2, 1, 2, 3), dtype=tf.float32)
-
+class TestSumSquaredDistance:
     @pytest.mark.parametrize(
-        "y_true,y_pred,name,expected,tol",
+        "y_true,y_pred,shape,expected",
         [
-            (y_true, y_pred, "lncc", [-0.68002254, -0.9608879], 0),
-            (y_pred, y_pred, "lncc", [-1.0, -1.0], 0),
-            (y_pred, 0 * y_pred, "ssd", [0.36, 0.36], 0),
-            (y_pred, y_pred, "ssd", [0.0, 0.0], 0),
-            (y_pred, y_pred, "gmi", [0.0, 0.0], 1e-6),
+            (0.6, 0.3, (3,), 0.09),
+            (0.6, 0.3, (3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.5, 0.5, (3, 3), 0.0),
+            (0.3, 0.6, (3, 3), 0.09),
         ],
     )
-    def test_output(self, y_true, y_pred, name, expected, tol):
-        got = image.dissimilarity_fn(y_true, y_pred, name)
-        assert is_equal_tf(got, expected, atol=tol)
-
-    def test_error(self):
-        # unknown func name
-        with pytest.raises(ValueError) as err_info:
-            image.dissimilarity_fn(self.y_true, self.y_pred, "")
-        assert "Unknown loss type" in str(err_info.value)
-
-
-class TestSSD:
-    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
-    y_pred = 0.5 * y_true
-
-    @pytest.mark.parametrize(
-        "y_true,y_pred,expected",
-        [
-            (y_true, y_pred, [0.25, 0.25]),
-            (y_true, -y_pred, [2.25, 2.25]),
-            (y_pred, y_pred, [0, 0]),
-            (y_pred, -y_pred, [1, 1]),
-        ],
-    )
-    def test_output(self, y_true, y_pred, expected):
+    def test_output(self, y_true, y_pred, shape, expected):
         """
         Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
-        got = image.ssd(
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = image.SumSquaredDifference().call(
             y_true,
             y_pred,
         )
         assert is_equal_tf(got, expected)
 
 
-class TestLNCC:
-    y_true = tf.ones((2, 1, 2, 3, 2), dtype=tf.float32)
-    y_pred = 0.5 * y_true
-
+class TestGlobalMutualInformation:
     @pytest.mark.parametrize(
-        "y_true,y_pred,kernel_type,expected",
+        "y_true,y_pred,shape,expected",
         [
-            (y_true, y_pred, "rectangular", [1, 1]),
-            (y_true, y_pred, "triangular", [1, 1]),
-            (y_true, y_pred, "gaussian", [1, 1]),
-            (y_pred, y_pred, "rectangular", [1, 1]),
-            (y_pred, y_pred, "triangular", [1, 1]),
-            (y_pred, y_pred, "gaussian", [1, 1]),
+            (0.6, 0.3, (3, 3, 3, 3), 0.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), 0.0),
+            (0.0, 1.0, (3, 3, 3, 3, 3), 0.0),
         ],
     )
-    def test_output(self, y_true, y_pred, kernel_type, expected):
+    def test_zero_info(self, y_true, y_pred, shape, expected):
         """
-        Testing computed local normalized cross correlation function by comparing the output to expected.
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
         """
-        got = image.local_normalized_cross_correlation(
-            y_true, y_pred, kernel_type=kernel_type
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = image.GlobalMutualInformation().call(
+            y_true,
+            y_pred,
+        )
+        assert is_equal_tf(got, expected)
+
+    def test_get_config(self):
+        got = image.GlobalMutualInformation().get_config()
+        expected = dict(
+            num_bins=23,
+            sigma_ratio=0.5,
+            reduction=tf.keras.losses.Reduction.AUTO,
+            name="GlobalMutualInformation",
+        )
+        assert got == expected
+
+
+@pytest.mark.parametrize("name", ["gaussian", "triangular", "rectangular"])
+def test_kernel_fn(name):
+    kernel_size = 3
+    input_channel = 5
+    kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
+    filters, kernel_vol = kernel_fn(kernel_size, input_channel)
+    assert filters.shape == (
+        kernel_size,
+        kernel_size,
+        kernel_size,
+        input_channel,
+        1,
+    )
+    assert kernel_vol.shape == ()
+
+
+class TestLocalNormalizedCrossCorrelation:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,shape,kernel_type,expected",
+        [
+            (0.6, 0.3, (3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.0, 1.0, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "gaussian", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "triangular", 1.0),
+        ],
+    )
+    def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
+        """
+        Testing ssd function (sum of squared differences) by comparing the output to expected.
+        """
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = image.LocalNormalizedCrossCorrelation(kernel_type=kernel_type).call(
+            y_true,
+            y_pred,
         )
         assert is_equal_tf(got, expected)
 
     def test_error(self):
+        y = np.ones(shape=(3, 3, 3, 3))
         with pytest.raises(ValueError) as err_info:
-            image.local_normalized_cross_correlation(
-                self.y_true, self.y_pred, kernel_type="constant"
-            )
-        assert "Wrong kernel_type for LNCC loss type." in str(err_info.value)
+            image.LocalNormalizedCrossCorrelation(kernel_type="constant").call(y, y)
+        assert "Wrong kernel_type constant for LNCC loss type." in str(err_info.value)
 
-
-class TestGMI:
-    @pytest.mark.parametrize(
-        "y_true,y_pred,expected",
-        [
-            [tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2, 1, 2, 3, 2)), tf.zeros((2,))],
-            [tf.ones((2, 1, 2, 3, 2)), tf.ones((2, 1, 2, 3, 2)), tf.zeros((2,))],
-        ],
-    )
-    def test_output(self, y_true, y_pred, expected):
-        """
-        Testing computed global mutual information between images
-        using image.global_mutual_information by comparing to precomputed.
-        """
-        got = image.global_mutual_information(y_true=y_true, y_pred=y_pred)
-        assert is_equal_tf(got, expected, atol=1.0e-6)
+    def test_get_config(self):
+        got = image.LocalNormalizedCrossCorrelation().get_config()
+        expected = dict(
+            kernel_size=9,
+            kernel_type="rectangular",
+            reduction=tf.keras.losses.Reduction.AUTO,
+            name="LocalNormalizedCrossCorrelation",
+        )
+        assert got == expected

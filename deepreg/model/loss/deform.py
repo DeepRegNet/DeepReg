@@ -5,6 +5,8 @@ from typing import Callable
 
 import tensorflow as tf
 
+from deepreg.registry import REGISTRY
+
 
 def gradient_dx(fx: tf.Tensor) -> tf.Tensor:
     """
@@ -54,69 +56,83 @@ def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
     return tf.stack([fn(fxyz[..., i]) for i in [0, 1, 2]], axis=4)
 
 
-def compute_gradient_norm(ddf: tf.Tensor, l1: bool = False) -> tf.Tensor:
+@REGISTRY.register_loss(name="gradient")
+class GradientNorm(tf.keras.layers.Layer):
     """
     Calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference.
-
-    :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
-    :param l1: bool true if calculate L1 norm, otherwise L2 norm
-    :return: shape = (batch, )
+    y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
-    # first order gradient
-    # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
-    dfdx = gradient_dxyz(ddf, gradient_dx)
-    dfdy = gradient_dxyz(ddf, gradient_dy)
-    dfdz = gradient_dxyz(ddf, gradient_dz)
-    if l1:
-        norms = tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)
-    else:
-        norms = dfdx ** 2 + dfdy ** 2 + dfdz ** 2
-    return tf.reduce_mean(norms, [1, 2, 3, 4])  # (batch,)
+
+    def __init__(self, l1: bool = False, name="GradientNorm"):
+        """
+
+        :param l1: bool true if calculate L1 norm, otherwise L2 norm
+        :param name: name of the loss
+        """
+        super(GradientNorm, self).__init__(name=name)
+        self.l1 = l1
+
+    def call(self, inputs, **kwargs):
+        """
+        :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
+        :return: shape = (batch, )
+        """
+        assert len(inputs.shape) == 5
+        ddf = inputs
+        # first order gradient
+        # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
+        dfdx = gradient_dxyz(ddf, gradient_dx)
+        dfdy = gradient_dxyz(ddf, gradient_dy)
+        dfdz = gradient_dxyz(ddf, gradient_dz)
+        if self.l1:
+            norms = tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)
+        else:
+            norms = dfdx ** 2 + dfdy ** 2 + dfdz ** 2
+        return tf.reduce_mean(norms)
+
+    def get_config(self):
+        """Return the config dictionary for recreating this class."""
+        config = super(GradientNorm, self).get_config()
+        config["l1"] = self.l1
+        return config
 
 
-def compute_bending_energy(ddf: tf.Tensor) -> tf.Tensor:
+@REGISTRY.register_loss(name="bending")
+class BendingEnergy(tf.keras.layers.Layer):
     """
     Calculate the bending energy based on second-order differentiation of ddf using central finite difference.
-
-    :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
-    :return: shape = (batch, )
-    """
-    # first order gradient
-    # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
-    dfdx = gradient_dxyz(ddf, gradient_dx)
-    dfdy = gradient_dxyz(ddf, gradient_dy)
-    dfdz = gradient_dxyz(ddf, gradient_dz)
-
-    # second order gradient
-    # (batch, m_dim1-4, m_dim2-4, m_dim3-4, 3)
-    dfdxx = gradient_dxyz(dfdx, gradient_dx)
-    dfdyy = gradient_dxyz(dfdy, gradient_dy)
-    dfdzz = gradient_dxyz(dfdz, gradient_dz)
-    dfdxy = gradient_dxyz(dfdx, gradient_dy)
-    dfdyz = gradient_dxyz(dfdy, gradient_dz)
-    dfdxz = gradient_dxyz(dfdx, gradient_dz)
-
-    # (dx + dy + dz) ** 2 = dxx + dyy + dzz + 2*(dxy + dyz + dzx)
-    energy = dfdxx ** 2 + dfdyy ** 2 + dfdzz ** 2
-    energy += 2 * dfdxy ** 2 + 2 * dfdxz ** 2 + 2 * dfdyz ** 2
-    return tf.reduce_mean(energy, [1, 2, 3, 4])
-
-
-def local_displacement_energy(ddf: tf.Tensor, energy_type: str, **kwargs) -> tf.Tensor:
-    """
-    Calculate the displacement energy of the ddf based on finite difference.
-
-    :param ddf: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
-    :param energy_type: type of the energy
-    :param kwargs: absorb additional arguments
-    :return: shape = (batch,)
+    y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    if energy_type == "bending":
-        return compute_bending_energy(ddf)
-    elif energy_type == "gradient-l2":
-        return compute_gradient_norm(ddf, l1=False)
-    elif energy_type == "gradient-l1":
-        return compute_gradient_norm(ddf, l1=True)
-    else:
-        raise ValueError(f"Unknown energy_type {energy_type}.")
+    def __init__(self, name: str = "BendingEnergy"):
+        """
+        :param name: name of the loss
+        """
+        super(BendingEnergy, self).__init__(name=name)
+
+    def call(self, inputs, **kwargs):
+        """
+        :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
+        :return: shape = (batch, )
+        """
+        assert len(inputs.shape) == 5
+        ddf = inputs
+        # first order gradient
+        # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)
+        dfdx = gradient_dxyz(ddf, gradient_dx)
+        dfdy = gradient_dxyz(ddf, gradient_dy)
+        dfdz = gradient_dxyz(ddf, gradient_dz)
+
+        # second order gradient
+        # (batch, m_dim1-4, m_dim2-4, m_dim3-4, 3)
+        dfdxx = gradient_dxyz(dfdx, gradient_dx)
+        dfdyy = gradient_dxyz(dfdy, gradient_dy)
+        dfdzz = gradient_dxyz(dfdz, gradient_dz)
+        dfdxy = gradient_dxyz(dfdx, gradient_dy)
+        dfdyz = gradient_dxyz(dfdy, gradient_dz)
+        dfdxz = gradient_dxyz(dfdx, gradient_dz)
+
+        # (dx + dy + dz) ** 2 = dxx + dyy + dzz + 2*(dxy + dyz + dzx)
+        energy = dfdxx ** 2 + dfdyy ** 2 + dfdzz ** 2
+        energy += 2 * dfdxy ** 2 + 2 * dfdxz ** 2 + 2 * dfdyz ** 2
+        return tf.reduce_mean(energy)

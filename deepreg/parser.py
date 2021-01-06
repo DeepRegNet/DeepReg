@@ -69,12 +69,12 @@ def config_sanity_check(config: dict):
             )
 
     # image loss weights should >= 0
-    loss_weight = config["train"]["loss"]["dissimilarity"]["image"]["weight"]
+    loss_weight = config["train"]["loss"]["image"]["weight"]
     if loss_weight <= 0:
         logging.warning(f"The image loss {loss_weight} is not positive.")
 
     # label loss weights should >= 0
-    loss_weight = config["train"]["loss"]["dissimilarity"]["label"]["weight"]
+    loss_weight = config["train"]["loss"]["label"]["weight"]
     if loss_weight <= 0:
         logging.warning(f"The label loss {loss_weight} is not positive.")
 
