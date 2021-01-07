@@ -1,3 +1,4 @@
+"""Define different loss classes for image, label and regularization."""
 # flake8: noqa
 from deepreg.model.loss.deform import BendingEnergy, GradientNorm
 from deepreg.model.loss.image import (

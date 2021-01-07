@@ -1,6 +1,4 @@
-"""
-Module provides regularization energy functions for ddf.
-"""
+"""Provide regularization functions and classes for ddf."""
 from typing import Callable
 
 import tensorflow as tf
@@ -11,6 +9,7 @@ from deepreg.registry import REGISTRY
 def gradient_dx(fx: tf.Tensor) -> tf.Tensor:
     """
     Calculate gradients on x-axis of a 3D tensor using central finite difference.
+
     It moves the tensor along axis 1 to calculate the approximate gradient, the x axis,
     dx[i] = (x[i+1] - x[i-1]) / 2.
 
@@ -23,6 +22,7 @@ def gradient_dx(fx: tf.Tensor) -> tf.Tensor:
 def gradient_dy(fy: tf.Tensor) -> tf.Tensor:
     """
     Calculate gradients on y-axis of a 3D tensor using central finite difference.
+
     It moves the tensor along axis 2 to calculate the approximate gradient, the y axis,
     dy[i] = (y[i+1] - y[i-1]) / 2.
 
@@ -35,6 +35,7 @@ def gradient_dy(fy: tf.Tensor) -> tf.Tensor:
 def gradient_dz(fz: tf.Tensor) -> tf.Tensor:
     """
     Calculate gradients on z-axis of a 3D tensor using central finite difference.
+
     It moves the tensor along axis 3 to calculate the approximate gradient, the z axis,
     dz[i] = (z[i+1] - z[i-1]) / 2.
 
@@ -47,6 +48,7 @@ def gradient_dz(fz: tf.Tensor) -> tf.Tensor:
 def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
     """
     Calculate gradients on x,y,z-axis of a tensor using central finite difference.
+
     The gradients are calculated along x, y, z separately then stacked together.
 
     :param fxyz: shape = (..., 3)
@@ -59,23 +61,28 @@ def gradient_dxyz(fxyz: tf.Tensor, fn: Callable) -> tf.Tensor:
 @REGISTRY.register_loss(name="gradient")
 class GradientNorm(tf.keras.layers.Layer):
     """
-    Calculate the L1/L2 norm of the first-order differentiation of ddf using central finite difference.
+    Calculate the L1/L2 norm of ddf using central finite difference.
+
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, l1: bool = False, name="GradientNorm"):
+    def __init__(self, l1: bool = False, name: str = "GradientNorm"):
         """
+        Init.
 
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
         :param name: name of the loss
         """
-        super(GradientNorm, self).__init__(name=name)
+        super().__init__(name=name)
         self.l1 = l1
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
+        Return a scalar loss.
+
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
-        :return: shape = (batch, )
+        :param kwargs: additional arguments.
+        :return: shape = ()
         """
         assert len(inputs.shape) == 5
         ddf = inputs
@@ -92,7 +99,7 @@ class GradientNorm(tf.keras.layers.Layer):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(GradientNorm, self).get_config()
+        config = super().get_config()
         config["l1"] = self.l1
         return config
 
@@ -100,20 +107,26 @@ class GradientNorm(tf.keras.layers.Layer):
 @REGISTRY.register_loss(name="bending")
 class BendingEnergy(tf.keras.layers.Layer):
     """
-    Calculate the bending energy based on second-order differentiation of ddf using central finite difference.
+    Calculate the bending energy of ddf using central finite difference.
+
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
     def __init__(self, name: str = "BendingEnergy"):
         """
+        Init.
+
         :param name: name of the loss
         """
-        super(BendingEnergy, self).__init__(name=name)
+        super().__init__(name=name)
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
+        Return a scalar loss.
+
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
-        :return: shape = (batch, )
+        :param kwargs: additional arguments.
+        :return: shape = ()
         """
         assert len(inputs.shape) == 5
         ddf = inputs

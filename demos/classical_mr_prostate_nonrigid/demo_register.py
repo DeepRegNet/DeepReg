@@ -59,7 +59,7 @@ fixed_image = tf.cast(tf.expand_dims(fid["image1"], axis=0), dtype=tf.float32)
 
 # optimisation
 @tf.function
-def train_step(warper, weights, optimizer, mov, fix):
+def train_step(warper, weights, optimizer, mov, fix) -> tuple:
     """
     Train step function for backprop using gradient tape
 
@@ -69,9 +69,10 @@ def train_step(warper, weights, optimizer, mov, fix):
     :param mov: moving image [1, m_dim1, m_dim2, m_dim3]
     :param fix: fixed image [1, f_dim1, f_dim2, f_dim3]
     :return:
-        loss: overall loss to optimise
-        loss_image: image dissimilarity
-        loss_deform: deformation regularisation
+        a tuple:
+            - loss: overall loss to optimise
+            - loss_image: image dissimilarity
+            - loss_deform: deformation regularisation
     """
     with tf.GradientTape() as tape:
         pred = warper(inputs=[weights, mov])

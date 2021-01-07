@@ -11,6 +11,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added registry for backbone models and losses.
+- Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
 - Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.

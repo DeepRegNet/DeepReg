@@ -185,7 +185,9 @@ def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     return values_floor + values_ceil
 
 
-def resample(vol, loc, interpolation="linear"):
+def resample(
+    vol: tf.Tensor, loc: tf.Tensor, interpolation: str = "linear"
+) -> tf.Tensor:
     r"""
     Sample the volume at given locations.
 
@@ -459,10 +461,13 @@ def warp_image_ddf(
     """
     Warp an image with given DDF.
 
-    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3) or (batch, m_dim1, m_dim2, m_dim3, ch)
+    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
+        or (batch, m_dim1, m_dim2, m_dim3, ch)
     :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3) or None, if None grid_reg will be calculated based on ddf
-    :return: shape = (batch, f_dim1, f_dim2, f_dim3) or (batch, f_dim1, f_dim2, f_dim3, ch)
+    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3)
+        if None grid_reg will be calculated based on ddf
+    :return: shape = (batch, f_dim1, f_dim2, f_dim3)
+        or (batch, f_dim1, f_dim2, f_dim3, ch)
     """
     if len(image.shape) not in [4, 5]:
         raise ValueError(
@@ -584,12 +589,15 @@ def resize3d(
 
 def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
     """
-    Define a gaussian filter in 3d for smoothing e.g., feature maps before being downsampled using a convolution
-    operations. The filter size is defined 3*kernel_sigma
+    Define a gaussian filter in 3d for smoothing.
+
+    The filter size is defined 3*kernel_sigma
 
 
-    :param kernel_sigma: the deviation at each direction (list) or use an isotropic deviation (int)
-    :return: kernel: tf.Tensor specify a gaussian kernel of shape: [3*k for k in kernel_sigma]
+    :param kernel_sigma: the deviation at each direction (list)
+        or use an isotropic deviation (int)
+    :return: kernel: tf.Tensor specify a gaussian kernel of shape:
+        [3*k for k in kernel_sigma]
     """
     if isinstance(kernel_sigma, int):
         kernel_sigma = (kernel_sigma, kernel_sigma, kernel_sigma)
@@ -601,9 +609,9 @@ def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
     # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
     coord = [np.arange(ks) for ks in kernel_size]
 
-    YY, XX, ZZ = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
+    xx, yy, zz = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
     xyz_grid = np.concatenate(
-        (YY[np.newaxis], XX[np.newaxis], ZZ[np.newaxis]), axis=0
+        (xx[np.newaxis], yy[np.newaxis], zz[np.newaxis]), axis=0
     )  # 2, y, x
 
     mean = np.asarray([(ks - 1) / 2.0 for ks in kernel_size])

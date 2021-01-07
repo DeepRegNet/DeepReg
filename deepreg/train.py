@@ -30,10 +30,10 @@ def build_config(
     type and to parse the configuration for training.
 
     :param config_path: list of str, path to config file
-    :param log_root: str, root of logs
-    :param log_dir: str, path to where training logs to be stored.
-    :param ckpt_path: str, path where model is stored.
-    :param max_epochs: int, if max_epochs > 0, will use it to overwrite the configuration
+    :param log_root: root of logs
+    :param log_dir: path to where training logs to be stored.
+    :param ckpt_path: path where model is stored.
+    :param max_epochs: if max_epochs > 0, use it to overwrite the configuration
     :return: - config: a dictionary saving configuration
              - log_dir: the path of directory to save logs
     """
@@ -72,13 +72,14 @@ def train(
     """
     Function to train a model.
 
-    :param gpu: str, which local gpu to use to train
-    :param config_path: str, path to configuration set up
-    :param gpu_allow_growth: bool, whether or not to allocate whole GPU memory to training
-    :param ckpt_path: str, where to store training checkpoints
-    :param log_root: str, root of logs
-    :param log_dir: str, where to store logs in training
-    :param max_epochs: int, if max_epochs > 0, will use it to overwrite the configuration
+    :param gpu: which local gpu to use to train
+    :param config_path: path to configuration set up
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training
+    :param ckpt_path: where to store training checkpoints
+    :param log_root: root of logs
+    :param log_dir: where to store logs in training
+    :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
+    :param registry: registry to construct class objects
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -166,7 +167,11 @@ def train(
 
 
 def main(args=None):
-    """Entry point for train script."""
+    """
+    Entry point for train script.
+
+    :param args:
+    """
 
     parser = argparse.ArgumentParser()
 
@@ -205,7 +210,8 @@ def main(args=None):
     parser.add_argument(
         "--log_dir",
         "-l",
-        help="Name of log directory. The directory is under log root, e.g. logs/ by default."
+        help="Name of log directory."
+        "The directory is under log root, e.g. logs/ by default."
         "If not provided, a timestamp based folder will be created.",
         default="",
         type=str,

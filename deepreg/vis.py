@@ -6,6 +6,7 @@ Requires ffmpeg writer to write gif files
 
 import argparse
 import os
+from typing import List
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -16,12 +17,13 @@ from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer_util import warp_image_ddf
 
 
-def string_to_list(string):
+def string_to_list(string: str) -> List[str]:
     """
     Converts a comma separated string to a list of strings
     also removes leading or trailing spaces from each element in list.
 
     :param string: string which is to be converted to list
+    :return: list of strings
     """
     return [elem.strip() for elem in string.split(",")]
 
@@ -184,7 +186,8 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
     :param img_paths: list or comma separated string of image paths
     :param save_path: path to directory where visualisation/s is/are to be saved
     :param interval: time in miliseconds between frames of gif
-    :param size: number of columns and rows of images for the tiled gif (tuple e.g. (2,2))
+    :param size: number of columns and rows of images for the tiled gif
+        (tuple e.g. (2,2))
     :param fname: filename to save visualisation to
     """
     if type(img_paths) is str:
@@ -192,7 +195,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
 
     num_images = np.prod(size)
     if int(len(img_paths)) != int(num_images):
-        raise Exception(
+        raise ValueError(
             "The number of images supplied is "
             + str(len(img_paths))
             + " whereas the number required is "
@@ -209,7 +212,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
         img = load_nifti_file(img_path)
         shape = np.shape(img)
         if shape != img_shape:
-            raise Exception("all images do not have equal shapes")
+            raise ValueError("all images do not have equal shapes")
         imgs.append(img)
 
     frames = []
@@ -257,7 +260,10 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
 def main(args=None):
     """
     CLI for deepreg_vis tool.
+
     Requires ffmpeg wirter to write gif files.
+
+    :param args:
     """
     parser = argparse.ArgumentParser(
         description="deepreg_vis", formatter_class=argparse.RawTextHelpFormatter
@@ -266,14 +272,18 @@ def main(args=None):
     parser.add_argument(
         "--mode",
         "-m",
-        help="Mode of visualisation \n0 for animtion over image slices, \n1 for warp animation, \n2 for tile plot",
+        help="Mode of visualisation \n"
+        "0 for animtion over image slices, \n"
+        "1 for warp animation, \n"
+        "2 for tile plot",
         type=int,
         required=True,
     )
     parser.add_argument(
         "--image-paths",
         "-i",
-        help="File path for image file (can specify multiple paths using a comma separated string)",
+        help="File path for image file "
+        "(can specify multiple paths using a comma separated string)",
         type=str,
         required=True,
     )
@@ -286,42 +296,51 @@ def main(args=None):
 
     parser.add_argument(
         "--interval",
-        help="Interval between frames of animation (in miliseconds) \nApplicable only if --mode 0 or --mode 1 or --mode 3",
+        help="Interval between frames of animation (in miliseconds)\n"
+        "Applicable only if --mode 0 or --mode 1 or --mode 3",
         type=int,
         default=50,
     )
     parser.add_argument(
         "--ddf-path",
-        help="Path to ddf used for warping image/s \nApplicable only and required if --mode 1",
+        help="Path to ddf used for warping images\n"
+        "Applicable only and required if --mode 1",
         type=str,
         default=None,
     )
     parser.add_argument(
         "--num-interval",
-        help="Number of intervals to use for warping \nApplicable only if --mode 1",
+        help="Number of intervals to use for warping\n" "Applicable only if --mode 1",
         type=int,
         default=100,
     )
     parser.add_argument(
         "--slice-inds",
-        help="Comma separated string of indexes of slices to be used for the visualisation \nApplicable only if --mode 1 or --mode 2",
+        help="Comma separated string of indexes of slices"
+        " to be used for the visualisation\n"
+        "Applicable only if --mode 1 or --mode 2",
         type=str,
         default=None,
     )
     parser.add_argument(
         "--fname",
-        help="File name (with extension like .png, .jpeg, .gif, ...) to save visualisation to \nApplicable only if --mode 2 or --mode 3",
+        help="File name (with extension like .png, .jpeg, .gif, ...)"
+        " to save visualisation to\n"
+        "Applicable only if --mode 2 or --mode 3",
         type=str,
         default=None,
     )
     parser.add_argument(
         "--col-titles",
-        help="Comma separated string of column titles to use (inferred from file names if not provided) \nApplicable only if --mode 2",
+        help="Comma separated string of column titles to use "
+        "(inferred from file names if not provided)\n"
+        "Applicable only if --mode 2",
         default=None,
     )
     parser.add_argument(
         "--size",
-        help="Comma separated string of number of columns and rows (e.g. '2,2') \nApplicable only if --mode 3",
+        help="Comma separated string of number of columns and rows (e.g. '2,2')\n"
+        "Applicable only if --mode 3",
         default="2,2",
     )
 

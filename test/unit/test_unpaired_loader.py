@@ -18,7 +18,8 @@ DataPaths = dict(nifti="data/test/nifti/unpaired", h5="data/test/h5/unpaired")
 
 def test_sample_index_generator():
     """
-    Test to check the randomness and deterministic index generator for train/test respectively.
+    Test to check the randomness and deterministic index generator
+    for train/test respectively.
     """
     image_shape = (64, 64, 60)
 
@@ -58,7 +59,8 @@ def test_sample_index_generator():
 
 def test_validate_data_files():
     """
-    Test the validate_data_files functions that looks for inconsistencies in the fixed/moving image and label lists.
+    Test the validate_data_files functions that looks for inconsistencies
+    in the fixed/moving image and label lists.
     If there is any issue it will raise an error, otherwise it returns None.
     """
     for key_file_loader, file_loader in FileLoaderDict.items():
@@ -81,7 +83,8 @@ def test_validate_data_files():
 
 def test_close():
     """
-    Test the close function. Only needed for H5 data loaders for now. Since fixed/moving loaders are the same for
+    Test the close function. Only needed for H5 data loaders for now.
+    Since fixed/moving loaders are the same for
     unpaired data loader, only need to test the moving.
     """
     for key_file_loader, file_loader in FileLoaderDict.items():

@@ -40,9 +40,6 @@ def get_loader(loader_name):
     ],
 )
 def test_load_nifti_file(path, shape):
-    """
-    check if the nifti files can be correctly loaded
-    """
     arr = load_nifti_file(file_path=path)
     assert arr.shape == shape
 

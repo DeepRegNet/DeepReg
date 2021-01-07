@@ -73,9 +73,9 @@ moving_labels = tf.stack(
 )
 
 
-## optimisation
+# optimisation
 @tf.function
-def train_step(grid, weights, optimizer, mov, fix):
+def train_step(grid, weights, optimizer, mov, fix) -> object:
     """
     Train step function for backprop using gradient tape
 

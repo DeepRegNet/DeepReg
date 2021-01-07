@@ -34,7 +34,8 @@ filenames = [sorted(os.listdir(os.path.join(DATA_PATH, fn))) for fn in data_type
 num_data = set([len(fn) for fn in filenames])
 if len(num_data) != 1:
     raise (
-        "Number of data are not the same between moving/fixed/images/labels. Please run this download script again."
+        "Number of data are not the same between moving/fixed/images/labels. "
+        "Please run this download script again."
     )
 else:
     num_data = num_data.pop()

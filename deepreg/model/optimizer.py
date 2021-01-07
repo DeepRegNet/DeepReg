@@ -5,7 +5,7 @@ Functions parsing the config optimizer options
 import tensorflow as tf
 
 
-def build_optimizer(optimizer_config: dict):
+def build_optimizer(optimizer_config: dict) -> tf.optimizers.Optimizer:
     """
     Parsing the optimiser options and parameters
     from config dictionary.

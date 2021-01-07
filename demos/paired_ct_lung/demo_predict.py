@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 import argparse
 from datetime import datetime
 

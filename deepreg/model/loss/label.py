@@ -1,6 +1,4 @@
-"""
-Module provides different loss functions for calculating the dissimilarities between labels.
-"""
+"""Provide different loss or metrics classes for labels."""
 
 from typing import List, Optional
 
@@ -14,7 +12,7 @@ EPS = tf.keras.backend.epsilon()
 
 def gaussian_kernel1d(sigma: int) -> tf.Tensor:
     """
-    Calculates a gaussian kernel.
+    Calculate a gaussian kernel.
 
     :param sigma: number defining standard deviation for
                   gaussian kernel.
@@ -43,7 +41,9 @@ def cauchy_kernel1d(sigma: int) -> tf.Tensor:
 
 class MultiScaleLoss(tf.keras.losses.Loss):
     """
-    Apply the loss at different scales (gaussian or cauchy smoothing).
+    Base class for multi-scale loss.
+
+    It applies the loss at different scales (gaussian or cauchy smoothing).
     It is assumed that loss values are between 0 and 1.
     """
 
@@ -53,23 +53,31 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "MultiScaleLoss",
     ):
         """
+        Init.
 
-        :param scales: list of scalars or None, if None, do not apply any scaling
-        :param kernel: gaussian or cauchy
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name: str, name of the loss
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss.
         """
-        super(MultiScaleLoss, self).__init__(reduction=reduction, name=name)
+        super().__init__(reduction=reduction, name=name)
         assert kernel in ["gaussian", "cauchy"]
         self.scales = scales
         self.kernel = kernel
 
-    def call(self, y_true, y_pred):
-        """Use _call to calculate loss at different scales."""
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Use _call to calculate loss at different scales.
+
+        :param y_true: ground-truth tensor.
+        :param y_pred: predicted tensor.
+        :return: multi-scale loss.
+        """
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
         kernel_fn = self.kernel_fn_dict[self.kernel]
@@ -94,13 +102,19 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         loss = loss / len(self.scales)
         return loss
 
-    def _call(self, y_true, y_pred):
-        """correspond to the loss without scaling"""
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Return loss for a batch.
+
+        :param y_true: ground-truth tensor.
+        :param y_pred: predicted tensor.
+        :return: negated loss.
+        """
         raise NotImplementedError
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(MultiScaleLoss, self).get_config()
+        config = super().get_config()
         config["scales"] = self.scales
         config["kernel"] = self.kernel
         return config
@@ -108,16 +122,18 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
 class DiceScore(MultiScaleLoss):
     """
-    Calculates dice score:
-    0. pos_w + neg_w = 1
-    1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
-    2. num = 2 *  (pos_w * y_true * y_pred + neg_w * (1−y_true) * (1−y_pred))
-           = 2 *  ((pos_w+neg_w) * y_prod - neg_w * y_sum + neg_w)
-           = 2 *  (y_prod - neg_w * y_sum + neg_w)
-    3. denom = (pos_w * (y_true + y_pred) + neg_w * (1−y_true + 1−y_pred))
-             = (pos_w-neg_w) * y_sum + 2 * neg_w
-             = (1-2*neg_w) * y_sum + 2 * neg_w
-    4. dice score = num / denom
+    Define dice score.
+
+    The formulation is:
+        0. pos_w + neg_w = 1
+        1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
+        2. num = 2 *  (pos_w * y_true * y_pred + neg_w * (1−y_true) * (1−y_pred))
+               = 2 *  ((pos_w+neg_w) * y_prod - neg_w * y_sum + neg_w)
+               = 2 *  (y_prod - neg_w * y_sum + neg_w)
+        3. denom = (pos_w * (y_true + y_pred) + neg_w * (1−y_true + 1−y_pred))
+                 = (pos_w-neg_w) * y_sum + 2 * neg_w
+                 = (1-2*neg_w) * y_sum + 2 * neg_w
+        4. dice score = num / denom
 
     where num and denom are summed over all axes except the batch axis.
     """
@@ -128,27 +144,29 @@ class DiceScore(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "DiceScore",
     ):
         """
+        Init.
 
-        :param binary: if True, project y_true, y_pred to 0 or 1
-        :param neg_weight: weight for negative class
-        :param scales: list of scalars or None, if None, do not apply any scaling
-        :param kernel: gaussian or cauchy
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name: str, name of the loss
+        :param binary: if True, project y_true, y_pred to 0 or 1.
+        :param neg_weight: weight for negative class.
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss.
         """
-        super(DiceScore, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
@@ -170,7 +188,7 @@ class DiceScore(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(DiceScore, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
         return config
@@ -178,19 +196,15 @@ class DiceScore(MultiScaleLoss):
 
 @REGISTRY.register_loss(name="dice")
 class DiceLoss(NegativeLossMixin, DiceScore):
-    """
-    Revert the sign of DiceScore
-    so that minimizing the loss is to maximize the dice score.
-    """
-
-    pass
+    """Revert the sign of DiceScore."""
 
 
 @REGISTRY.register_loss(name="cross-entropy")
 class CrossEntropy(MultiScaleLoss):
     """
-    Calculates weighted cross-entropy:
+    Define weighted cross-entropy.
 
+    The formulation is:
         loss = − pos_w * y_true log(y_pred) - neg_w * (1−y_true) log(1−y_pred)
     """
 
@@ -200,27 +214,29 @@ class CrossEntropy(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "CrossEntropy",
     ):
         """
+        Init.
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param neg_weight: weight for negative class
-        :param scales: list of scalars or None, if None, do not apply any scaling
-        :param kernel: gaussian or cauchy
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name: str, name of the loss
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss.
         """
-        super(CrossEntropy, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         assert 0 <= neg_weight <= 1
         self.binary = binary
         self.neg_weight = neg_weight
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
@@ -239,7 +255,7 @@ class CrossEntropy(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(CrossEntropy, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         config["neg_weight"] = self.neg_weight
         return config
@@ -247,8 +263,9 @@ class CrossEntropy(MultiScaleLoss):
 
 class JaccardIndex(MultiScaleLoss):
     """
-    Calculates Jaccard index:
+    Define Jaccard index.
 
+    The formulation is:
     1. num = y_true * y_pred
     2. denom = y_true + y_pred - y_true * y_pred
     3. Jaccard index = num / denom
@@ -259,24 +276,26 @@ class JaccardIndex(MultiScaleLoss):
         binary: bool = False,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction=tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
         name: str = "JaccardIndex",
     ):
         """
+        Init.
 
-        :param binary: if True, project y_true, y_pred to 0 or 1
-        :param scales: list of scalars or None, if None, do not apply any scaling
-        :param kernel: gaussian or cauchy
-        :param reduction: using AUTO reduction, calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name: str, name of the loss
+        :param binary: if True, project y_true, y_pred to 0 or 1.
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: str, name of the loss.
         """
-        super(JaccardIndex, self).__init__(
-            scales=scales, kernel=kernel, reduction=reduction, name=name
-        )
+        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
         self.binary = binary
 
-    def _call(self, y_true, y_pred):
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
+        Return loss for a batch.
+
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
@@ -296,24 +315,19 @@ class JaccardIndex(MultiScaleLoss):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super(JaccardIndex, self).get_config()
+        config = super().get_config()
         config["binary"] = self.binary
         return config
 
 
 @REGISTRY.register_loss(name="jaccard")
 class JaccardLoss(NegativeLossMixin, JaccardIndex):
-    """
-    Revert the sign of JaccardIndex
-    so that minimizing the loss is to maximize the Jaccard index.
-    """
-
-    pass
+    """Revert the sign of JaccardIndex."""
 
 
 def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
-    Creates a 3d separable filter.
+    Create a 3d separable filter.
 
     Here `tf.nn.conv3d` accepts the `filters` argument of shape
     (filter_depth, filter_height, filter_width, in_channels, out_channels),
@@ -386,8 +400,7 @@ def compute_centroid_distance(
 
 def foreground_proportion(y: tf.Tensor) -> tf.Tensor:
     """
-    Calculating the percentage of foreground vs
-    background per 3d volume.
+    Calculate the percentage of foreground vs background per 3d volume.
 
     :param y: shape = (batch, dim1, dim2, dim3), a 3D label tensor
     :return: shape = (batch,)

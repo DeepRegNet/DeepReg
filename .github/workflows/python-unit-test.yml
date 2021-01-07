@@ -20,10 +20,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install codecov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Linting
+        # W9006 can't be checked like this as we need to ignore ValueError
+        run: |
+          pylint --disable=all --enable=C0103,C0301,R1725,W0107,W9012,W9015 *
+          pylint --exit-zero *
+        timeout-minutes: 10
       - name: Unit test with pytest
         run: |
-          pip install pytest
-          pip install pytest-cov
           pytest --cov-report=xml --cov=deepreg --durations=10 --durations-min=1.0 ./test/unit/
         timeout-minutes: 10
       - name: Upload coverage to Codecov

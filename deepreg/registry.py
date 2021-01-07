@@ -27,6 +27,12 @@ class Registry:
     def _register(self, category: str, key: str, value: Callable, force: bool):
         """
         Registers the value with the registry.
+
+        :param category: name of the class category
+        :param key: unique identity
+        :param value: class to be registered
+        :param force: if True, overwrite the existing value
+            in case the key has been registered.
         """
         # sanity check
         if category not in KNOWN_CATEGORIES:
@@ -35,7 +41,8 @@ class Registry:
             )
         if not force and self.contains(category=category, key=key):
             raise ValueError(
-                f"Key {key} in category {category} has been registered with {self._dict[(category, key)]}"
+                f"Key {key} in category {category} has been registered"
+                f" with {self._dict[(category, key)]}"
             )
         # register value
         self._dict[(category, key)] = value
@@ -50,7 +57,7 @@ class Registry:
 
     def register(
         self, category: str, name: str, cls: Callable = None, force: bool = False
-    ):
+    ) -> Callable:
         """
         Register a py class.
         A record will be added to `self._dict`, whose key is the class
@@ -58,9 +65,11 @@ class Registry:
         It can be used as a decorator or a normal function.
 
         :param category: The type of the category.
-        :param name: The class name to be registered. If not specified, the class name will be used.
-        :param force: Whether to override an existing class with the same name. Default: False.
+        :param name: The class name to be registered.
+            If not specified, the class name will be used.
+        :param force: Whether to override an existing class with the same name.
         :param cls: Class to be registered.
+        :return: The given class or a decorator.
         """
         # use it as a normal method: x.register_module(module=SomeClass)
         if cls is not None:
@@ -68,13 +77,15 @@ class Registry:
             return cls
 
         # use it as a decorator: @x.register(name, category)
-        def decorator(_cls):
-            self._register(category=category, key=name, value=_cls, force=force)
-            return _cls
+        def decorator(c: Callable) -> Callable:
+            self._register(category=category, key=name, value=c, force=force)
+            return c
 
         return decorator
 
-    def build_from_config(self, category: str, config: dict, default_args=None):
+    def build_from_config(
+        self, category: str, config: dict, default_args=None
+    ) -> object:
         """
         Build a class instance from config dict.
 
@@ -100,10 +111,12 @@ class Registry:
             return cls(**args)
         except TypeError as err:
             raise ValueError(
-                f"Configuration is not compatible for Class {cls} of category {category}.\n"
+                f"Configuration is not compatible "
+                f"for Class {cls} of category {category}.\n"
                 f"Potentially an outdated configuration has been used.\n"
-                f"Please check the latest documentation of the class."
-                f"and arrange the required keys at the same level as `name` in configuration file.\n"
+                f"Please check the latest documentation of the class"
+                f"and arrange the required keys at the same level"
+                f" as `name` in configuration file.\n"
                 f"{err}"
             )
 

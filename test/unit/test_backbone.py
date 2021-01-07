@@ -15,7 +15,7 @@ import deepreg.model.backbone.u_net as u
 import deepreg.model.layer as layer
 
 
-def test_init_GlobalNet():
+def test_init_global_net():
     """
     Testing init of GlobalNet is built as expected.
     """
@@ -72,7 +72,7 @@ def test_init_GlobalNet():
     assert isinstance(global_test._dense_layer, layer.Dense)
 
 
-def test_call_GlobalNet():
+def test_call_global_net():
     """
     Asserting that output shape of globalnet Call method
     is correct.
@@ -108,9 +108,6 @@ class TestLocalNet:
         [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_init(self, image_size, extract_levels, control_points):
-        """
-        Testing init of LocalNet as expected
-        """
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -164,12 +161,7 @@ class TestLocalNet:
         [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_call(self, image_size, extract_levels, control_points):
-        """
-        Asserting that output shape of LocalNet call method
-        is correct.
-        """
         # initialising LocalNet instance
-
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -202,10 +194,6 @@ class TestUNet:
         [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
     def test_init(self, image_size, depth, control_points):
-        """
-        Testing init of UNet as expected
-        """
-
         network = u.UNet(
             image_size=image_size,
             out_channels=3,
@@ -256,11 +244,7 @@ class TestUNet:
         "image_size,depth,control_points",
         [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
-    def test_call_UNet(self, image_size, depth, control_points):
-        """
-        Asserting that output shape of UNet call method
-        is correct.
-        """
+    def test_call_unet(self, image_size, depth, control_points):
         out = 3
         # initialising UNet instance
         network = u.UNet(
