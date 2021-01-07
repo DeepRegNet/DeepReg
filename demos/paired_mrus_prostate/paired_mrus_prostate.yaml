@@ -29,19 +29,16 @@ train:
 
   # define the loss function for training
   loss:
-    dissimilarity:
-      image:
-        name: "ssd"
-        weight: 0
-      label:
-        weight: 1.0
-        name: "multi_scale"
-        multi_scale:
-          loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16]
+    image:
+      name: "ssd"
+      weight: 0
+    label:
+      weight: 1.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # value should be bending / gradient-l1 / gradient-l2
+      name: "bending" # options include "bending", "gradient"
 
   # define the optimizer
   optimizer:

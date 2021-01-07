@@ -151,12 +151,15 @@ def build_ddf_dvf_model(
 
     # add loss and metric
     loss_config = train_config["loss"]
-    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_ddf_loss(
+        model=model, ddf=ddf, loss_config=loss_config, registry=registry
+    )
     model = add_image_loss(
         model=model,
         fixed_image=fixed_image,
         pred_fixed_image=pred_fixed_image,
         loss_config=loss_config,
+        registry=registry,
     )
     model = add_label_loss(
         model=model,
@@ -164,6 +167,7 @@ def build_ddf_dvf_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
+        registry=registry,
     )
 
     return model

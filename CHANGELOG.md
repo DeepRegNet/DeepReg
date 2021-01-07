@@ -10,7 +10,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added registry for backbone models.
+- Added registry for backbone models and losses.
 - Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
@@ -20,10 +20,11 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Refactored loss functions into classes.
 - Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
 - Migrated from Travis-CI to GitHub Actions.
-- Simplified configuration for backbone models.
+- Simplified configuration for backbone models and losses.
 - Simplified contributing documentation.
 - Uniform kernel size for LNCC loss.
 - Improved demo configurations with the updated pre-trained models for:
@@ -35,7 +36,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
-- Fixed build error when downloading data from private repo.
+- Fixed build error when downloading data from the private repository.
+- Fixed the typo for CLI tools in documents.
 
 ## [0.1.0] - 2020-11-02
 
