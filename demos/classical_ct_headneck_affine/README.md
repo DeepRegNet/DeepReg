@@ -57,13 +57,13 @@ python demos/classical_ct_headneck_affine/demo_register.py
 ## Visualise
 
 The following command can be executed to generate a plot of three image slices from the
-the fixed image, warped image and moving image (left to right) to visualise the
+the moving image, warped image and fixed image (left to right) to visualise the
 registration. Please see the visualisation tool docs
 [here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/source/docs/visualisation_tool.md)
 for more visualisation options such as animated gifs.
 
 ```bash
-deepreg_vis -m 2 -i 'demos/classical_ct_headneck_affine/logs_reg/fixed_image.nii.gz, demos/classical_ct_headneck_affine/logs_reg/warped_moving_image.nii.gz, demos/classical_ct_headneck_affine/logs_reg/moving_image.nii.gz' --slice-inds '4, 8, 12' -s demos/classical_ct_headneck_affine/logs_reg
+deepreg_vis -m 2 -i 'demos/classical_ct_headneck_affine/logs_reg/moving_image.nii.gz, demos/classical_ct_headneck_affine/logs_reg/warped_moving_image.nii.gz, demos/classical_ct_headneck_affine/logs_reg/fixed_image.nii.gz' --slice-inds '4, 8, 12' -s demos/classical_ct_headneck_affine/logs_reg
 ```
 
 Note: The registration script must be run before running the command to generate the
