@@ -82,13 +82,13 @@ saved under `logs_train` as mentioned above.
 ## Visualise
 
 The following command can be executed to generate a plot of three image slices from the
-the fixed image, moving image and warped image (left to right) to visualise the
+the fixed image, warped image and moving image (left to right) to visualise the
 registration. Please see the visualisation tool docs
 [here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/source/docs/visualisation_tool.md)
 for more visualisation options such as animated gifs.
 
 ```bash
-deepreg_vis -m 2 -i 'demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz' --slice-inds '12, 20, 36' -s demos/paired_mrus_prostate/logs_predict
+deepreg_vis -m 2 -i 'demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz' --slice-inds '12, 20, 36' -s demos/paired_mrus_prostate/logs_predict
 ```
 
 Note: The prediction must be run before running the command to generate the
