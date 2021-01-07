@@ -84,7 +84,7 @@ registration. Please see the visualisation tool docs
 for more visualisation options such as animated gifs.
 
 ```bash
-deepreg_vis -m 2 -i 'demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '12, 18, 26' -s demos/grouped_mr_heart/logs_predict
+deepreg_vis -m 2 -i 'demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/grouped_mr_heart/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '14,10,20' -s demos/grouped_mr_heart/logs_predict
 ```
 
 Note: The prediction must be run before running the command to generate the

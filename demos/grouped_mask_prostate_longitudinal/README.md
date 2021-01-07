@@ -87,7 +87,7 @@ registration. Please see the visualisation tool docs
 for more visualisation options such as animated gifs.
 
 ```bash
-deepreg_vis -m 2 -i 'demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '12, 18, 26' -s demos/grouped_mask_prostate_longitudinal/logs_predict
+deepreg_vis -m 2 -i 'demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/grouped_mask_prostate_longitudinal/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '10,16,20' -s demos/grouped_mask_prostate_longitudinal/logs_predict
 ```
 
 Note: The prediction must be run before running the command to generate the
