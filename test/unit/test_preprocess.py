@@ -75,6 +75,58 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     assert outputs["fixed_image"].shape == fixed_image_size
 
 
+class TestAbstractPreprocessClass:
+    @pytest.mark.parametrize(
+        "fix_dims,mov_dims,batch_size",
+        [
+            ((9, 9, 9), (9, 9, 9), 2),
+            ((9, 9, 9), (15, 15, 15), 2),
+            ((9, 9, 9), (3, 3, 3), 2),
+        ],
+    )
+    def test_call(self, fix_dims, mov_dims, batch_size):
+        """
+        Test that __call__() raises NotImplementedError.
+        :param fix_dims:
+        :param mov_dims:
+        :param batch_size:
+        :return:
+        """
+        with pytest.raises(NotImplementedError):
+            abs_clr = preprocess.AbstractPreprocess(
+                mov_dims,
+                fix_dims,
+                batch_size,
+            )
+
+            abs_clr({})
+
+    @pytest.mark.parametrize(
+        "fix_dims,mov_dims,batch_size",
+        [
+            ((9, 9, 9), (9, 9, 9), 2),
+            ((9, 9, 9), (15, 15, 15), 2),
+            ((9, 9, 9), (3, 3, 3), 2),
+        ],
+    )
+    def test_transform(self, fix_dims, mov_dims, batch_size):
+        """
+        Test that tranform() raises NotImplementedError.
+        :param fix_dims:
+        :param mov_dims:
+        :param batch_size:
+        :return:
+        """
+        with pytest.raises(NotImplementedError):
+            abs_clr = preprocess.AbstractPreprocess(
+                mov_dims,
+                fix_dims,
+                batch_size,
+            )
+
+            abs_clr.transform({})
+
+
 class TestAffineTransformation3d:
     @pytest.mark.parametrize(
         "dims,batch_size,scale",

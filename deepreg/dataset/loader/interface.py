@@ -143,12 +143,8 @@ class DataLoader:
                     )
                 )
 
-            def transform(inputs: dict):
-                return reduce(lambda out, f: f(out), transform_list, inputs)
-
-            # print(transform_list[0])
             dataset = dataset.map(
-                transform,
+                lambda inputs: reduce(lambda out, f: f(out), transform_list, inputs),
                 num_parallel_calls=tf.data.experimental.AUTOTUNE,
             )
 
