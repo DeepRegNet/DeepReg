@@ -1,8 +1,7 @@
 """Provide different loss or metrics classes for images."""
-
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.model.loss.util import NegativeLossMixin, separable_filter
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -140,83 +139,66 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """Revert the sign of GlobalMutualInformation."""
 
 
-def build_rectangular_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
+def build_rectangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a rectangular kernel for LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
+    :param kernel_size: scalar, size of the 1-D kernel
     :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
-        - kernel_vol, scalar
+        - filters, of shape (kernel_size, 1, 1)
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for normalization purposes
     """
-    filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
-    kernel_vol = kernel_size ** 3
-    return filters, tf.constant(kernel_vol)
+
+    filters = tf.ones(shape=(kernel_size, 1, 1), dtype="float32")
+    kernel_vol = tf.reduce_sum(filters) ** 3
+    return filters, kernel_vol
 
 
-def build_triangular_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
+def build_triangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a triangular kernel for LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D triangular kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
+    :param kernel_size: scalar, size of the 1-D kernel
     :return:
-        - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
-        - kernel_vol, scalar
+        - filters, of shape (kernel_size, 1, 1)
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for normalization purposes
     """
     fsize = int((kernel_size + 1) / 2)
     pad_filter = tf.constant(
         [
             [0, 0],
             [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
             [0, 0],
         ]
     )
 
-    f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
+    f1 = tf.ones(shape=(1, fsize, 1), dtype="float32") / fsize
     f1 = tf.pad(f1, pad_filter, "CONSTANT")
-    f2 = tf.ones(shape=(fsize, fsize, fsize, 1, input_channel)) / fsize
+    f2 = tf.ones(shape=(fsize, 1, 1), dtype="float32") / fsize
 
-    filters = tf.nn.conv3d(f1, f2, strides=[1, 1, 1, 1, 1], padding="SAME")
-    filters = tf.transpose(filters, perm=[1, 2, 3, 4, 0])
-    kernel_vol = tf.reduce_sum(filters ** 2)
+    filters = tf.nn.conv1d(f1, f2, stride=[1, 1, 1], padding="SAME")
+    filters = tf.transpose(filters, perm=[1, 2, 0])
+    kernel_vol = tf.reduce_sum(filters) ** 3
 
     return filters, kernel_vol
 
 
-def build_gaussian_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
+def build_gaussian_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a Gaussian kernel for LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian kernel for LocalNormalizedCrossCorrelation.
 
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
+    :param kernel_size: scalar, size of the 1-D kernel
     :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
-        - kernel_vol, scalar
+        - filters, of shape (kernel_size, 1, 1)
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for normalization purposes
     """
     mean = (kernel_size - 1) / 2.0
     sigma = kernel_size / 3
 
-    grid_dim = tf.range(0, kernel_size)
-    grid_dim_ch = tf.range(0, input_channel)
-    grid = tf.expand_dims(
-        tf.cast(
-            tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim, grid_dim_ch), 0),
-            dtype="float32",
-        ),
-        axis=-1,
-    )
-    filters = tf.exp(-tf.reduce_sum(tf.square(grid - mean), axis=0) / (2 * sigma ** 2))
-    kernel_vol = tf.reduce_sum(filters ** 2)
+    grid = tf.range(0, kernel_size, dtype="float32")
+    grid = tf.reshape(grid, [-1, 1, 1])
+    filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
+    kernel_vol = tf.reduce_sum(filters) ** 3
 
     return filters, kernel_vol
 
@@ -288,12 +270,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         filters, kernel_vol = self.kernel_fn(
             kernel_size=self.kernel_size,
-            input_channel=y_true.shape[4],
         )
         filters = tf.cast(filters, dtype=y_true.dtype)
         kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
-        strides = [1, 1, 1, 1, 1]
-        padding = "SAME"
 
         # t = y_true, p = y_pred
         # (batch, dim1, dim2, dim3, ch)
@@ -303,11 +282,11 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         # sum over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
-        p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
-        t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
-        p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
-        tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
+        t_sum = separable_filter(y_true, kernel=filters)
+        p_sum = separable_filter(y_pred, kernel=filters)
+        t2_sum = separable_filter(t2, kernel=filters)
+        p2_sum = separable_filter(p2, kernel=filters)
+        tp_sum = separable_filter(tp, kernel=filters)
 
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
