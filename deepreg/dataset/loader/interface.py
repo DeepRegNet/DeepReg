@@ -96,7 +96,8 @@ class DataLoader:
         :param training: bool, indicating if it's training or not
         :param batch_size: int, size of mini batch
         :param repeat: bool, indicating if we need to repeat the dataset
-        :param shuffle_buffer_num_batch: int, when shuffling, the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+        :param shuffle_buffer_num_batch: int, when shuffling,
+            the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
         :returns dataset:
         """
@@ -188,11 +189,12 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         num_indices = 2 corresponding to (image_index, label_index)
         :param moving_image_shape: (width, height, depth)
         :param fixed_image_shape:  (width, height, depth)
+        :param kwargs: additional arguments.
         """
-        super(AbstractPairedDataLoader, self).__init__(num_indices=2, **kwargs)
+        super().__init__(num_indices=2, **kwargs)
         if len(moving_image_shape) != 3 or len(fixed_image_shape) != 3:
             raise ValueError(
-                f"moving_image_shape and fixed_image_shape have to be length of three, "
+                f"moving_image_shape and fixed_image_shape have length of three, "
                 f"corresponding to (width, height, depth), "
                 f"got moving_image_shape = {moving_image_shape} "
                 f"and fixed_image_shape = {fixed_image_shape}"
@@ -233,11 +235,13 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
 
     def __init__(self, image_shape: (list, tuple), **kwargs):
         """
-        - image_shape is the shape of images fed into dataset,
-        it is assumed to be 3d, [dim1, dim2, dim3].
-          moving_image_shape = fixed_image_shape = image_shape
+        Init.
+
+        :param image_shape: (dim1, dim2, dim3), for unpaired data,
+            moving_image_shape = fixed_image_shape = image_shape
+        :param kwargs: additional arguments.
         """
-        super(AbstractUnpairedDataLoader, self).__init__(num_indices=3, **kwargs)
+        super().__init__(num_indices=3, **kwargs)
         if len(image_shape) != 3:
             raise ValueError(
                 f"image_shape has to be length of three, "
@@ -266,7 +270,12 @@ class GeneratorDataLoader(DataLoader, ABC):
     """
 
     def __init__(self, **kwargs):
-        super(GeneratorDataLoader, self).__init__(**kwargs)
+        """
+        Init.
+
+        :param kwargs: additional arguments.
+        """
+        super().__init__(**kwargs)
         self.loader_moving_image = None
         self.loader_fixed_image = None
         self.loader_moving_label = None
@@ -356,8 +365,10 @@ class GeneratorDataLoader(DataLoader, ABC):
         Only used in sample_image_label.
         :param moving_image: np.ndarray of shape (m_dim1, m_dim2, m_dim3)
         :param fixed_image: np.ndarray of shape (f_dim1, f_dim2, f_dim3)
-        :param moving_label: np.ndarray of shape (m_dim1, m_dim2, m_dim3) or (m_dim1, m_dim2, m_dim3, num_labels) or None
-        :param fixed_label: np.ndarray of shape (f_dim1, f_dim2, f_dim3) or (f_dim1, f_dim2, f_dim3, num_labels) or None
+        :param moving_label: np.ndarray of shape (m_dim1, m_dim2, m_dim3)
+            or (m_dim1, m_dim2, m_dim3, num_labels)
+        :param fixed_label: np.ndarray of shape (f_dim1, f_dim2, f_dim3)
+            or (f_dim1, f_dim2, f_dim3, num_labels)
         :param image_indices: list
         """
         # images should never be None, and labels should all be non-None or None
@@ -377,14 +388,16 @@ class GeneratorDataLoader(DataLoader, ABC):
             if np.min(arr) < 0 or np.max(arr) > 1:
                 raise ValueError(
                     f"Sample {image_indices}'s {name}'s values are not between [0, 1]. "
-                    f"Its minimum value is {np.min(arr)} and its maximum value is {np.max(arr)}.\n"
+                    f"Its minimum value is {np.min(arr)} "
+                    f"and its maximum value is {np.max(arr)}.\n"
                     f"The images are automatically normalized on image level: "
                     f"x = (x - min(x) + EPS) / (max(x) - min(x) + EPS). \n"
-                    f"Labels are assumed to have values between [0,1] and they are not normalised. "
+                    f"Labels are assumed to have values between [0,1] "
+                    f"and they are not normalised. "
                     f"This is to prevent accidental use of other encoding methods "
                     f"other than one-hot to represent multiple class labels.\n"
                     f"If the label values are intended to represent multiple labels, "
-                    f"please convert them to one hot / binary masks in multiple channels, "
+                    f"convert them to one hot / binary masks in multiple channels, "
                     f"with each channel representing one label only.\n"
                     f"Please read the dataset requirements section "
                     f"in docs/doc_data_loader.md for more detailed information."
@@ -395,7 +408,7 @@ class GeneratorDataLoader(DataLoader, ABC):
         ):
             if len(arr.shape) != 3:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}' shape should have dimension of 3. "
+                    f"Sample {image_indices}'s {name}' shape should be 3D. "
                     f"Got {arr.shape}."
                 )
         # when data are labeled
@@ -406,19 +419,23 @@ class GeneratorDataLoader(DataLoader, ABC):
             ):
                 if len(arr.shape) not in [3, 4]:
                     raise ValueError(
-                        f"Sample {image_indices}'s {name}' shape should have dimension of 3 or 4. "
+                        f"Sample {image_indices}'s {name}' shape should be 3D or 4D. "
                         f"Got {arr.shape}."
                     )
             # image and label is better to have the same shape
             if moving_image.shape[:3] != moving_label.shape[:3]:
                 logging.warning(
-                    f"Sample {image_indices}'s moving image and label have different shapes. "
-                    f"moving_image.shape = {moving_image.shape}, moving_label.shape = {moving_label.shape}"
+                    f"Sample {image_indices}'s moving image and label "
+                    f"have different shapes. "
+                    f"moving_image.shape = {moving_image.shape}, "
+                    f"moving_label.shape = {moving_label.shape}"
                 )
             if fixed_image.shape[:3] != fixed_label.shape[:3]:
                 logging.warning(
-                    f"Sample {image_indices}'s fixed image and label have different shapes. "
-                    f"fixed_image.shape = {fixed_image.shape}, fixed_label.shape = {fixed_label.shape}"
+                    f"Sample {image_indices}'s fixed image and label "
+                    f"have different shapes. "
+                    f"fixed_image.shape = {fixed_image.shape}, "
+                    f"fixed_label.shape = {fixed_label.shape}"
                 )
             # number of labels for fixed and fixed images should be the same
             num_labels_moving = (
@@ -429,7 +446,8 @@ class GeneratorDataLoader(DataLoader, ABC):
             )
             if num_labels_moving != num_labels_fixed:
                 raise ValueError(
-                    f"Sample {image_indices}'s moving image and fixed image have different numbers of labels. "
+                    f"Sample {image_indices}'s moving image and fixed image "
+                    f"have different numbers of labels. "
                     f"moving: {num_labels_moving}, fixed: {num_labels_fixed}"
                 )
 
@@ -535,13 +553,14 @@ class FileLoader:
         :param index: the data index which is required
 
           - for paired or unpaired, the index is one single int, data_index
-          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+          - for grouped, the index is a tuple of two ints,
+            (group_index, in_group_data_index)
 
         :return: the data array at the specified index
         """
         raise NotImplementedError
 
-    def get_data_ids(self):
+    def get_data_ids(self) -> List[str]:
         """
         Return the unique IDs of the data in this data set.
         This function is used to verify the consistency between

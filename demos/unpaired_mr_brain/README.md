@@ -72,6 +72,23 @@ for more details about prediction output.
 python demos/unpaired_mr_brain/demo_predict.py
 ```
 
+## Visualise
+
+The following command can be executed to generate a plot of three image slices from the
+the moving image, warped image and fixed image (left to right) to visualise the
+registration. Please see the visualisation tool docs
+[here](https://github.com/DeepRegNet/DeepReg/blob/main/docs/source/docs/visualisation_tool.md)
+for more visualisation options such as animated gifs.
+
+```bash
+deepreg_vis -m 2 -i 'demos/unpaired_mr_brain/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/unpaired_mr_brain/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/unpaired_mr_brain/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '20,32,44' -s demos/unpaired_mr_brain/logs_predict/
+```
+
+Note: The prediction must be run before running the command to generate the
+visualisation. The `<time-stamp>` and `<pair-number>` must be entered by the user.
+
+![plot](../assets/unpaired_mr_brain.png)
+
 ## Contact
 
 Please [raise an issue](https://github.com/DeepRegNet/DeepReg/issues/new/choose) for any

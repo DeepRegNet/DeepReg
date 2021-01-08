@@ -12,7 +12,9 @@ setup(
     include_package_data=True,
     version="0.0.0",
     license="apache-2.0",
-    description="DeepReg is a freely available, community-supported open-source toolkit for research and education in medical image registration using deep learning.",
+    description="DeepReg is a freely available, "
+    "community-supported open-source toolkit for research and education"
+    " in medical image registration using deep learning.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="DeepReg Development Team and Community",
@@ -33,6 +35,7 @@ setup(
             "deepreg_predict=deepreg.predict:main",
             "deepreg_warp=deepreg.warp:main",
             "deepreg_vis=deepreg.vis:main",
+            "deepreg_download=deepreg.download:main",
         ]
     },
     classifiers=[

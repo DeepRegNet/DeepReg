@@ -1,43 +1,6 @@
 import tensorflow as tf
 
 
-def build_callbacks(
-    model, dataset, log_dir: str, histogram_freq: int, save_period: int
-) -> list:
-    """
-    Function to prepare callbacks for training.
-
-    :param log_dir: directory of logs
-    :param histogram_freq: save the histogram every X epochs
-    :param save_period: save the checkpoint every X epochs
-    :return: a list of callbacks
-    """
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=histogram_freq
-    )
-
-    # fit the model for 1 step to initialise optimiser arguments as trackable Variables
-    model.fit(
-        x=dataset,
-        steps_per_epoch=1,
-        epochs=1,
-    )
-
-    checkpoint_manager_callback = CheckpointManagerCallback(
-        model, log_dir + "/save", period=save_period
-    )
-    return [tensorboard_callback, checkpoint_manager_callback]
-
-
-def restore_model(callbacks, ckpt_path):
-    if ckpt_path:
-        initial_epoch = int(ckpt_path.split("-")[-1])
-        callbacks[1].restore(ckpt_path)
-    else:
-        initial_epoch = 0
-    return initial_epoch
-
-
 class CheckpointManagerCallback(tf.keras.callbacks.Callback):
     def __init__(
         self, model, directory, period: int = 1, save_on_train_end: bool = True
@@ -50,7 +13,7 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
         :param period: save the checkpoint every X epochs
         :param save_on_train_end: save the checkpoint as the training ends
         """
-        super(CheckpointManagerCallback, self).__init__()
+        super().__init__()
         self._directory = directory
 
         self._checkpoint = tf.train.Checkpoint(model=model, optimizer=model.optimizer)
@@ -88,8 +51,47 @@ class CheckpointManagerCallback(tf.keras.callbacks.Callback):
 
     def _save(self):
         """
-        checkpoint saved as './{}/ckpt-{}'.format(self._directory, self._epoch_count)
+        checkpoint saved as f"{self._directory}/ckpt-{self._epoch_count}"
         """
         if self._last_save != self._epoch_count:
             self._manager.save(checkpoint_number=self._epoch_count)
             self._last_save = self._epoch_count
+
+
+def build_checkpoint_callback(
+    model: tf.keras.Model,
+    dataset: tf.data.Dataset,
+    log_dir: str,
+    save_period: int,
+    ckpt_path: str,
+) -> (CheckpointManagerCallback, int):
+    """
+    Function to prepare callbacks for training.
+
+    :param model: model to train
+    :param dataset: dataset for training
+    :param log_dir: directory of logs
+    :param save_period: save the checkpoint every X epochs
+    :param ckpt_path: path to restore ckpt
+    :return: a list of callbacks
+    """
+    # fit the model for 1 step to initialise optimiser arguments as trackable Variables
+    model.fit(
+        x=dataset,
+        steps_per_epoch=1,
+        epochs=1,
+    )
+    checkpoint_manager_callback = CheckpointManagerCallback(
+        model, log_dir + "/save", period=save_period
+    )
+    if ckpt_path:
+        initial_epoch = ckpt_path.split("-")[-1]
+        assert initial_epoch.isdigit(), (
+            f"Checkpoint path for checkpoint manager "
+            f"must be of form ckpt-epoch_count, got {ckpt_path}"
+        )
+        initial_epoch = int(initial_epoch)
+        checkpoint_manager_callback.restore(ckpt_path)
+    else:
+        initial_epoch = 0
+    return checkpoint_manager_callback, initial_epoch

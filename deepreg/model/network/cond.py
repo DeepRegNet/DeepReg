@@ -24,7 +24,8 @@ def conditional_forward(
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :return: (pred_fixed_label, fixed_grid), where
 
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
@@ -82,6 +83,7 @@ def build_conditional_model(
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
     :param train_config: config for the model and loss
+    :param registry: registry to construct class objects
     :return: the built tf.keras.Model
     """
     # inputs
@@ -132,6 +134,7 @@ def build_conditional_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=train_config["loss"],
+        registry=registry,
     )
 
     return model

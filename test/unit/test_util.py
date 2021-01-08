@@ -72,10 +72,6 @@ def test_build_dataset():
 
 @pytest.mark.parametrize("log_root,log_dir", [("logs", ""), ("logs", "custom")])
 def test_build_log_dir(log_root: str, log_dir: str):
-    """
-    Test build_log_dir for default directory and custom directory
-    """
-
     built_log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
     head, tail = os.path.split(built_log_dir)
     assert head == log_root
@@ -119,7 +115,6 @@ class TestSaveArray:
         ],
     )
     def test_3d_4d(self, arr: (tf.Tensor, np.ndarray)):
-        """test 3d/4d TensorFlow/Numpy inputs"""
         save_array(save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True)
         assert self.get_num_files_in_dir(self.png_dir, suffix=".png") == 4
         assert self.get_num_files_in_dir(self.save_dir, suffix=".nii.gz") == 1
@@ -134,7 +129,6 @@ class TestSaveArray:
         ],
     )
     def test_wrong_shape(self, arr: (tf.Tensor, np.ndarray), err_msg: str):
-        """test TensorFlow/Numpy inputs with incorrect shapes"""
         with pytest.raises(ValueError) as err_info:
             save_array(
                 save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True

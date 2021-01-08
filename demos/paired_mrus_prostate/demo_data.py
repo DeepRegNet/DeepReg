@@ -34,7 +34,8 @@ filenames = [sorted(os.listdir(os.path.join(DATA_PATH, fn))) for fn in data_type
 num_data = set([len(fn) for fn in filenames])
 if len(num_data) != 1:
     raise (
-        "Number of data are not the same between moving/fixed/images/labels. Please run this download script again."
+        "Number of data are not the same between moving/fixed/images/labels. "
+        "Please run this download script again."
     )
 else:
     num_data = num_data.pop()
@@ -67,8 +68,8 @@ if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-ZIP_PATH = "paired_mrus_prostate-ckpt"
-ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_mrus_prostate-ckpt.zip"
+ZIP_PATH = "paired_mrus_prostate_1"
+ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_mrus_prostate_1.zip"
 
 zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
 get_file(os.path.abspath(zip_file), ORIGIN)

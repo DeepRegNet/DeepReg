@@ -110,7 +110,11 @@ def test_save():
 
 
 def test_config_sanity_check(caplog):
-    """test config_sanity_check by check error messages"""
+    """
+    Test config_sanity_check by check error messages
+
+    :param caplog: used to check warning message.
+    """
     # dataset is not in the key
     with pytest.raises(AssertionError):
         config_sanity_check(config=dict())
@@ -184,7 +188,8 @@ def test_config_sanity_check(caplog):
             train=dict(
                 method="ddf",
                 loss=dict(
-                    dissimilarity=dict(image=dict(weight=0.0), label=dict(weight=0.0)),
+                    image=dict(weight=0.0),
+                    label=dict(weight=0.0),
                     regularization=dict(weight=0.0),
                 ),
             ),

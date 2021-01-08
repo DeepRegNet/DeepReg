@@ -15,7 +15,7 @@
 
     tutorial/registration
     tutorial/cross_val
-    tutorial/custom
+    tutorial/run_cluster
 
 .. toctree::
     :hidden:
@@ -32,6 +32,7 @@
     docs/cli
     docs/configuration
     docs/dataset_loader
+    docs/registry
     docs/experimental
 
 .. toctree::

@@ -185,7 +185,9 @@ def pyramid_combination(values: list, weights: list) -> tf.Tensor:
     return values_floor + values_ceil
 
 
-def resample(vol, loc, interpolation="linear"):
+def resample(
+    vol: tf.Tensor, loc: tf.Tensor, interpolation: str = "linear"
+) -> tf.Tensor:
     r"""
     Sample the volume at given locations.
 
@@ -487,10 +489,13 @@ def warp_image_ddf(
     """
     Warp an image with given DDF.
 
-    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3) or (batch, m_dim1, m_dim2, m_dim3, ch)
+    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
+        or (batch, m_dim1, m_dim2, m_dim3, ch)
     :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3) or None, if None grid_reg will be calculated based on ddf
-    :return: shape = (batch, f_dim1, f_dim2, f_dim3) or (batch, f_dim1, f_dim2, f_dim3, ch)
+    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3)
+        if None grid_reg will be calculated based on ddf
+    :return: shape = (batch, f_dim1, f_dim2, f_dim3)
+        or (batch, f_dim1, f_dim2, f_dim3, ch)
     """
     if len(image.shape) not in [4, 5]:
         raise ValueError(
@@ -608,3 +613,60 @@ def resize3d(
     if not has_channel:
         output = tf.squeeze(output, axis=-1)
     return output
+
+
+def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
+    """
+    Define a gaussian filter in 3d for smoothing.
+
+    The filter size is defined 3*kernel_sigma
+
+
+    :param kernel_sigma: the deviation at each direction (list)
+        or use an isotropic deviation (int)
+    :return: kernel: tf.Tensor specify a gaussian kernel of shape:
+        [3*k for k in kernel_sigma]
+    """
+    if isinstance(kernel_sigma, int):
+        kernel_sigma = (kernel_sigma, kernel_sigma, kernel_sigma)
+
+    kernel_size = [
+        int(np.ceil(ks * 3) + np.mod(np.ceil(ks * 3) + 1, 2)) for ks in kernel_sigma
+    ]
+
+    # Create a x, y coordinate grid of shape (kernel_size, kernel_size, 2)
+    coord = [np.arange(ks) for ks in kernel_size]
+
+    xx, yy, zz = np.meshgrid(coord[0], coord[1], coord[2], indexing="ij")
+    xyz_grid = np.concatenate(
+        (xx[np.newaxis], yy[np.newaxis], zz[np.newaxis]), axis=0
+    )  # 2, y, x
+
+    mean = np.asarray([(ks - 1) / 2.0 for ks in kernel_size])
+    mean = mean.reshape(-1, 1, 1, 1)
+    variance = np.asarray([ks ** 2.0 for ks in kernel_sigma])
+    variance = variance.reshape(-1, 1, 1, 1)
+
+    # Calculate the 2-dimensional gaussian kernel which is
+    # the product of two gaussian distributions for two different
+    # variables (in this case called x and y)
+    # 2.506628274631 = sqrt(2 * pi)
+
+    norm_kernel = 1.0 / (np.sqrt(2 * np.pi) ** 3 + np.prod(kernel_sigma))
+    kernel = norm_kernel * np.exp(
+        -np.sum((xyz_grid - mean) ** 2.0 / (2 * variance), axis=0)
+    )
+
+    # Make sure sum of values in gaussian kernel equals 1.
+    kernel = kernel / np.sum(kernel)
+
+    # Reshape
+    kernel = kernel.reshape(kernel_size[0], kernel_size[1], kernel_size[2])
+
+    # Total kernel
+    total_kernel = np.zeros(tuple(kernel_size) + (3, 3))
+    total_kernel[..., 0, 0] = kernel
+    total_kernel[..., 1, 1] = kernel
+    total_kernel[..., 2, 2] = kernel
+
+    return tf.convert_to_tensor(total_kernel, dtype=tf.float32)

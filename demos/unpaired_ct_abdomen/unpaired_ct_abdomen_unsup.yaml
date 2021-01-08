@@ -17,19 +17,16 @@ train:
     pooling: true
     concat_skip: true
   loss:
-    dissimilarity:
-      image:
-        name: "ssd"
-        weight: 1
-      label:
-        weight: 0
-        name: "multi_scale"
-        multi_scale:
-          loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16]
+    image:
+      name: "ssd"
+      weight: 1
+    label:
+      weight: 0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
       weight: 0.1
-      energy_type: "gradient-l2"
+      name: "gradient"
   preprocess:
     batch_size: 4
     shuffle_buffer_num_batch: 1

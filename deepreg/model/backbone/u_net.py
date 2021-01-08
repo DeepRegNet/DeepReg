@@ -4,8 +4,10 @@
 import tensorflow as tf
 
 from deepreg.model import layer
+from deepreg.registry import REGISTRY
 
 
+@REGISTRY.register_backbone(name="unet")
 class UNet(tf.keras.Model):
     """
     Class that implements an adapted 3D UNet.
@@ -28,24 +30,26 @@ class UNet(tf.keras.Model):
         out_activation: str,
         pooling: bool = True,
         concat_skip: bool = False,
+        control_points: (tuple, None) = None,
         **kwargs,
     ):
         """
         Initialise UNet.
 
-        :param image_size: tuple, (dim1, dim2, dim3), dims of input image.
-        :param out_channels: int, number of channels for the output
-        :param num_channel_initial: int, number of initial channels
-        :param depth: int, input is at level 0, bottom is at level depth
-        :param out_kernel_initializer: str, which kernel to use as initializer
-        :param out_activation: str, activation at last layer
-        :param pooling: Boolean, for downsampling, use non-parameterized
+        :param image_size: (dim1, dim2, dim3), dims of input image.
+        :param out_channels: number of channels for the output
+        :param num_channel_initial: number of initial channels
+        :param depth: input is at level 0, bottom is at level depth
+        :param out_kernel_initializer: which kernel to use as initializer
+        :param out_activation: activation at last layer
+        :param pooling: for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
-        :param concat_skip: Boolean, when upsampling, concatenate skipped
+        :param concat_skip: when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
-        :param kwargs:
+        :param control_points: specify the distance between control points (in voxels).
+        :param kwargs: additional arguments.
         """
-        super(UNet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # init layer variables
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
@@ -69,7 +73,18 @@ class UNet(tf.keras.Model):
             activation=out_activation,
         )
 
-    def call(self, inputs, training=None, mask=None):
+        self.resize = (
+            layer.ResizeCPTransform(control_points)
+            if control_points is not None
+            else False
+        )
+        self.interpolate = (
+            layer.BSplines3DTransform(control_points, image_size)
+            if control_points is not None
+            else False
+        )
+
+    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Builds graph based on built layers.
 
@@ -103,4 +118,9 @@ class UNet(tf.keras.Model):
 
         # output
         output = self._output_conv3d(inputs=up_sampled)
+
+        if self.resize:
+            output = self.resize(output)
+            output = self.interpolate(output)
+
         return output

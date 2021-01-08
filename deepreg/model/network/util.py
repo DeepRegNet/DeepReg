@@ -6,8 +6,6 @@ Module to build backbone modules based on passed inputs.
 
 import tensorflow as tf
 
-import deepreg.model.loss.deform as deform_loss
-import deepreg.model.loss.image as image_loss
 import deepreg.model.loss.label as label_loss
 from deepreg.registry import Registry
 
@@ -27,7 +25,7 @@ def build_backbone(
     :param out_channels: int, number of out channels, ch_out
     :param method_name: str, one of ddf, dvf and conditional
     :param config: dict, backbone configuration
-    :param registry: the registry object having all backbone classes
+    :param registry: the registry object having all registered classes
     :return: tf.keras.Model
     """
     if not (
@@ -35,12 +33,6 @@ def build_backbone(
         and len(image_size) == 3
     ):
         raise ValueError(f"image_size must be tuple of length 3, got {image_size}")
-
-    if method_name not in ["ddf", "dvf", "conditional", "affine"]:
-        raise ValueError(
-            f"method name has to be one of ddf/dvf/conditional/affine in build_backbone, "
-            f"got {method_name}"
-        )
 
     if method_name in ["ddf", "dvf"]:
         out_activation = None
@@ -52,15 +44,22 @@ def build_backbone(
     elif method_name in ["affine"]:
         out_activation = None
         out_kernel_initializer = "zeros"
+    else:
+        raise ValueError(
+            f"method name has to be one of ddf/dvf/conditional/affine, "
+            f"got {method_name}"
+        )
 
-    backbone_cls = registry.get_backbone(key=config["name"])
-    return backbone_cls(
-        image_size=image_size,
-        out_channels=out_channels,
-        out_kernel_initializer=out_kernel_initializer,
-        out_activation=out_activation,
-        **config,
+    backbone = registry.build_backbone(
+        config=config,
+        default_args=dict(
+            image_size=image_size,
+            out_channels=out_channels,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+        ),
     )
+    return backbone
 
 
 def build_inputs(
@@ -111,7 +110,10 @@ def build_inputs(
 
 
 def add_ddf_loss(
-    model: tf.keras.Model, ddf: tf.Tensor, loss_config: dict
+    model: tf.keras.Model,
+    ddf: tf.Tensor,
+    loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add regularization loss of ddf into model.
@@ -119,11 +121,15 @@ def add_ddf_loss(
     :param model: tf.keras.Model
     :param ddf: tensor of shape (batch, m_dim1, m_dim2, m_dim3, 3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
-    loss_reg = tf.reduce_mean(
-        deform_loss.local_displacement_energy(ddf, **loss_config["regularization"])
-    )
-    weighted_loss_reg = loss_reg * loss_config["regularization"]["weight"]
+    if loss_config["regularization"]["weight"] <= 0:
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
+    config = loss_config["regularization"].copy()
+    weight = config.pop("weight", 1)
+    loss_reg = registry.build_loss(config=config)(inputs=ddf)
+    weighted_loss_reg = loss_reg * weight
     model.add_loss(weighted_loss_reg)
     model.add_metric(loss_reg, name="loss/regularization", aggregation="mean")
     model.add_metric(
@@ -137,6 +143,7 @@ def add_image_loss(
     fixed_image: tf.Tensor,
     pred_fixed_image: tf.Tensor,
     loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add image dissimilarity loss of ddf into model.
@@ -145,27 +152,26 @@ def add_image_loss(
     :param fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_image: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
-    if loss_config["dissimilarity"]["image"]["weight"] > 0:
-        loss_image = tf.reduce_mean(
-            image_loss.dissimilarity_fn(
-                y_true=fixed_image,
-                y_pred=pred_fixed_image,
-                **loss_config["dissimilarity"]["image"],
-            )
-        )
-        weighted_loss_image = (
-            loss_image * loss_config["dissimilarity"]["image"]["weight"]
-        )
-        model.add_loss(weighted_loss_image)
-        model.add_metric(
-            loss_image, name="loss/image_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_image,
-            name="loss/weighted_image_dissimilarity",
-            aggregation="mean",
-        )
+    if loss_config["image"]["weight"] <= 0:
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
+    config = loss_config["image"].copy()
+    weight = config.pop("weight", 1)
+
+    loss_image = registry.build_loss(config=config)(
+        y_true=fixed_image,
+        y_pred=pred_fixed_image,
+    )
+    weighted_loss_image = loss_image * weight
+    model.add_loss(weighted_loss_image)
+    model.add_metric(loss_image, name="loss/image_dissimilarity", aggregation="mean")
+    model.add_metric(
+        weighted_loss_image,
+        name="loss/weighted_image_dissimilarity",
+        aggregation="mean",
+    )
     return model
 
 
@@ -175,6 +181,7 @@ def add_label_loss(
     fixed_label: (tf.Tensor, None),
     pred_fixed_label: (tf.Tensor, None),
     loss_config: dict,
+    registry: Registry,
 ) -> tf.keras.Model:
     """
     Add label dissimilarity loss of ddf into model.
@@ -184,45 +191,46 @@ def add_label_loss(
     :param fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param pred_fixed_label: tensor of shape (batch, f_dim1, f_dim2, f_dim3)
     :param loss_config: config for loss
+    :param registry: the registry object having all registered classes
     """
-    if fixed_label is not None:
-        loss_label = tf.reduce_mean(
-            label_loss.get_dissimilarity_fn(
-                config=loss_config["dissimilarity"]["label"]
-            )(y_true=fixed_label, y_pred=pred_fixed_label)
-        )
-        weighted_loss_label = (
-            loss_label * loss_config["dissimilarity"]["label"]["weight"]
-        )
-        model.add_loss(weighted_loss_label)
-        model.add_metric(
-            loss_label, name="loss/label_dissimilarity", aggregation="mean"
-        )
-        model.add_metric(
-            weighted_loss_label,
-            name="loss/weighted_label_dissimilarity",
-            aggregation="mean",
-        )
+    if fixed_label is None:
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
+    if loss_config["image"]["weight"] <= 0:
+        # TODO will refactor the way building models
+        return model  # pragma: no cover
+    config = loss_config["label"].copy()
+    weight = config.pop("weight", 1)
+    loss_label = registry.build_loss(config=config)(
+        y_true=fixed_label,
+        y_pred=pred_fixed_label,
+    )
+    weighted_loss_label = loss_label * weight
+    model.add_loss(weighted_loss_label)
+    model.add_metric(loss_label, name="loss/label", aggregation="mean")
+    model.add_metric(
+        weighted_loss_label,
+        name="loss/weighted_label",
+        aggregation="mean",
+    )
 
-        # metrics
-        dice_binary = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=True
-        )
-        dice_float = label_loss.dice_score(
-            y_true=fixed_label, y_pred=pred_fixed_label, binary=False
-        )
-        tre = label_loss.compute_centroid_distance(
-            y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
-        )
-        foreground_label = label_loss.foreground_proportion(y=fixed_label)
-        foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
-        model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
-        model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
-        model.add_metric(tre, name="metric/tre", aggregation="mean")
-        model.add_metric(
-            foreground_label, name="metric/foreground_label", aggregation="mean"
-        )
-        model.add_metric(
-            foreground_pred, name="metric/foreground_pred", aggregation="mean"
-        )
+    # metrics
+    dice_binary = label_loss.DiceScore(binary=True)(
+        y_true=fixed_label, y_pred=pred_fixed_label
+    )
+    dice_float = label_loss.DiceScore(binary=False)(
+        y_true=fixed_label, y_pred=pred_fixed_label
+    )
+    tre = label_loss.compute_centroid_distance(
+        y_true=fixed_label, y_pred=pred_fixed_label, grid=grid_fixed
+    )
+    foreground_label = label_loss.foreground_proportion(y=fixed_label)
+    foreground_pred = label_loss.foreground_proportion(y=pred_fixed_label)
+    model.add_metric(dice_binary, name="metric/dice_binary", aggregation="mean")
+    model.add_metric(dice_float, name="metric/dice_float", aggregation="mean")
+    model.add_metric(tre, name="metric/tre", aggregation="mean")
+    model.add_metric(
+        foreground_label, name="metric/foreground_label", aggregation="mean"
+    )
+    model.add_metric(foreground_pred, name="metric/foreground_pred", aggregation="mean")
     return model

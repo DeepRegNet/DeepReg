@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from deepreg.model.network.cond import build_conditional_model, conditional_forward
 from deepreg.model.network.util import build_backbone
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY
 
 
 def test_conditional_forward():
@@ -28,7 +28,7 @@ def test_conditional_forward():
             "extract_levels": [1, 2, 3],
         },
         method_name="conditional",
-        registry=Registry(),
+        registry=REGISTRY,
     )
 
     # Check conditional mode network output shapes - Pass
@@ -45,9 +45,6 @@ def test_conditional_forward():
 
 
 def test_build_conditional_model():
-    """
-    Testing that build_conditional_model function returns the tensors with correct shapes
-    """
     moving_image_size = (1, 3, 5)
     fixed_image_size = (2, 4, 6)
     batch_size = 1
@@ -66,21 +63,16 @@ def test_build_conditional_model():
                 "extract_levels": [1, 2, 3],
             },
             "loss": {
-                "dissimilarity": {
-                    "image": {"name": "lncc", "weight": 0.0},
-                    "label": {
-                        "name": "multi_scale",
-                        "weight": 1,
-                        "multi_scale": {
-                            "loss_type": "dice",
-                            "loss_scales": [0, 1, 2, 4, 8, 16, 32],
-                        },
-                    },
+                "image": {"name": "lncc", "weight": 0.0},
+                "label": {
+                    "name": "dice",
+                    "weight": 1,
+                    "scales": [0, 1, 2, 4, 8, 16, 32],
                 },
-                "regularization": {"weight": 0.5, "energy_type": "bending"},
+                "regularization": {"weight": 0.5, "name": "bending"},
             },
         },
-        registry=Registry(),
+        registry=REGISTRY,
     )
 
     inputs = {

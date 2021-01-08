@@ -3,10 +3,17 @@ import numpy as np
 
 def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
     """
-    Normalize a numpy array such that
+    Normalize a numpy array.
+
+    The array is normalized such that
     its values are normalized from [v_min, v_max] to [0, 1].
     If min/max are not provided, will use the min/max of the array.
     Values outside of [v_min, v_max] will be clipped.
+
+    :param arr: array to be normalized
+    :param v_min: minimum of the value before normalization.
+    :param v_max: maximum of the value before normalization.
+    :return: normalized array.
     """
     v_min = np.min(arr) if v_min is None else v_min
     v_max = np.max(arr) if v_max is None else v_max

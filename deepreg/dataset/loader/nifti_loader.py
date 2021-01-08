@@ -26,9 +26,14 @@ class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
-        super(NiftiFileLoader, self).__init__(
-            dir_paths=dir_paths, name=name, grouped=grouped
-        )
+        """
+        Init.
+
+        :param dir_paths: path of directories having nifti files.
+        :param name: name is used to identify the subdirectories.
+        :param grouped: whether the data is grouped.
+        """
+        super().__init__(dir_paths=dir_paths, name=name, grouped=grouped)
         self.data_path_splits = None
         self.set_data_structure()
         self.group_struct = None
@@ -39,7 +44,8 @@ class NiftiFileLoader(FileLoader):
         """
         Store the data structure in the memory so that
         we can retrieve data using data_index
-        this function sets data_path_splits, a list of string tuples to identify path of data
+        this function sets data_path_splits,
+        a list of string tuples to identify path of data
 
         - if grouped, a split is (dir_path, group_path, file_name, suffix)
           data is stored in dir_path/name/group_path/file_name.suffix
@@ -106,7 +112,8 @@ class NiftiFileLoader(FileLoader):
         :param index: the data index which is required
 
           - for paired or unpaired, the index is one single int, data_index
-          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+          - for grouped, the index is a tuple of two ints,
+            (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -121,9 +128,8 @@ class NiftiFileLoader(FileLoader):
             data_index = self.group_struct[group_index][in_group_data_index]
         else:
             raise ValueError(
-                "index for NiftiFileLoader.get_data must be int, or tuple of length two, got {}".format(
-                    index
-                )
+                f"index for NiftiFileLoader.get_data must be int, "
+                f"or tuple of length two, got {index}"
             )
         # if not grouped:
         #   path  = dir_path/name/file_name.suffix
@@ -142,7 +148,7 @@ class NiftiFileLoader(FileLoader):
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_data_ids(self):
+    def get_data_ids(self) -> List[str]:
         """
         Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
@@ -160,4 +166,4 @@ class NiftiFileLoader(FileLoader):
 
     def close(self):
         """Close opened files."""
-        pass
+        return

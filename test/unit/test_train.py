@@ -49,11 +49,6 @@ class TestBuildConfig:
         assert got_config["train"]["save_period"] == expected_save_period
 
 
-def test_train_and_predict():
-    """Covered by test_train_and_predict_main"""
-    pass
-
-
 def test_train_and_predict_main():
     """
     Test main in train and predict by checking it can run.

@@ -1,7 +1,7 @@
 import pytest
 
 from deepreg.model.network.build import build_model
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY
 
 
 class TestBuildModel:
@@ -16,18 +16,13 @@ class TestBuildModel:
             "extract_levels": [1, 2, 3],
         },
         "loss": {
-            "dissimilarity": {
-                "image": {"name": "lncc", "weight": 0.1},
-                "label": {
-                    "name": "multi_scale",
-                    "weight": 1,
-                    "multi_scale": {
-                        "loss_type": "dice",
-                        "loss_scales": [0, 1, 2, 4, 8, 16, 32],
-                    },
-                },
+            "image": {"name": "lncc", "weight": 0.1},
+            "label": {
+                "name": "dice",
+                "weight": 1,
+                "scales": [0, 1, 2, 4, 8, 16, 32],
             },
-            "regularization": {"weight": 0.0, "energy_type": "bending"},
+            "regularization": {"weight": 0.0, "name": "bending"},
         },
     }
 
@@ -51,7 +46,7 @@ class TestBuildModel:
             labeled=True,
             batch_size=self.batch_size,
             train_config=train_config,
-            registry=Registry(),
+            registry=REGISTRY,
         )
 
     def test_build_err(self):
@@ -65,6 +60,6 @@ class TestBuildModel:
                 labeled=True,
                 batch_size=self.batch_size,
                 train_config=train_config,
-                registry=Registry(),
+                registry=REGISTRY,
             )
         assert "Unknown method" in str(err_info.value)

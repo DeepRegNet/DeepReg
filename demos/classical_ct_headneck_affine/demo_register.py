@@ -9,8 +9,8 @@ import h5py
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
-import deepreg.model.loss.image as image_loss
 import deepreg.util as util
+from deepreg.registry import REGISTRY
 
 # parser is used to simplify testing
 # please run the script with --no-test flag to ensure non-testing mode
@@ -40,7 +40,7 @@ DATA_PATH = "dataset"
 FILE_PATH = os.path.join(DATA_PATH, "demo.h5")
 
 ## registration parameters
-image_loss_name = "ssd"
+image_loss_config = {"name": "ssd"}
 learning_rate = 0.01
 total_iter = int(10) if args.test else int(1000)
 
@@ -73,9 +73,9 @@ moving_labels = tf.stack(
 )
 
 
-## optimisation
+# optimisation
 @tf.function
-def train_step(grid, weights, optimizer, mov, fix):
+def train_step(grid, weights, optimizer, mov, fix) -> object:
     """
     Train step function for backprop using gradient tape
 
@@ -88,8 +88,9 @@ def train_step(grid, weights, optimizer, mov, fix):
     """
     with tf.GradientTape() as tape:
         pred = layer_util.resample(vol=mov, loc=layer_util.warp_grid(grid, weights))
-        loss = image_loss.dissimilarity_fn(
-            y_true=fix, y_pred=pred, name=image_loss_name
+        loss = REGISTRY.build_loss(config=image_loss_config)(
+            y_true=fix,
+            y_pred=pred,
         )
     gradients = tape.gradient(loss, [weights])
     optimizer.apply_gradients(zip(gradients, [weights]))
@@ -107,7 +108,7 @@ optimiser = tf.optimizers.Adam(learning_rate)
 for step in range(total_iter):
     loss_opt = train_step(grid_ref, var_affine, optimiser, moving_image, fixed_image)
     if (step % 50) == 0:  # print info
-        tf.print("Step", step, image_loss_name, loss_opt)
+        tf.print("Step", step, image_loss_config["name"], loss_opt)
 
 ## warp the moving image using the optimised affine transformation
 grid_opt = layer_util.warp_grid(grid_ref, var_affine)

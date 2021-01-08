@@ -3,6 +3,8 @@ Module for generating the preprocessing
 3D Affine/DDF Transforms for moving and fixed images.
 """
 
+from typing import Dict
+
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
@@ -14,7 +16,21 @@ class AffineTransformation3D:
     the transformed grids for the moving and fixed images.
     """
 
-    def __init__(self, moving_image_size, fixed_image_size, batch_size, scale=0.1):
+    def __init__(
+        self,
+        moving_image_size: tuple,
+        fixed_image_size: tuple,
+        batch_size: int,
+        scale: float = 0.1,
+    ):
+        """
+        Init.
+
+        :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+        :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
+        :param batch_size: size of mini-batch
+        :param scale: a positive float controlling the scale of transformation
+        """
         self._batch_size = batch_size
         self._scale = scale
         self._moving_grid_ref = layer_util.get_reference_grid(
@@ -22,7 +38,7 @@ class AffineTransformation3D:
         )
         self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
 
-    def _gen_transforms(self):
+    def _gen_transforms(self) -> tf.Tensor:
         """
         Function that generates a random 3D transformation parameters
         for a batch of data.
@@ -34,14 +50,16 @@ class AffineTransformation3D:
         )
 
     @staticmethod
-    def _transform(image, grid_ref, transforms):
+    def _transform(
+        image: tf.Tensor, grid_ref: tf.Tensor, transforms: tf.Tensor
+    ) -> tf.Tensor:
         """
         Resamples an input image from the reference grid by the series
         of input transforms.
 
         :param image: shape = (batch, dim1, dim2, dim3)
-        :param grid_ref: shape = [dim1, dim2, dim3, 3]
-        :param transforms: shape = [batch, 4, 3]
+        :param grid_ref: shape = (dim1, dim2, dim3, 3)
+        :param transforms: shape = (batch, 4, 3)
         :return: shape = (batch, dim1, dim2, dim3)
         """
         transformed = layer_util.resample(
@@ -49,7 +67,7 @@ class AffineTransformation3D:
         )
         return transformed
 
-    def transform(self, inputs: dict):
+    def transform(self, inputs: Dict[str, tf.Tensor]) -> Dict[str, tf.Tensor]:
         """
         Creates random transforms for the input images and their labels,
         and transforms them based on the resampled reference grids.
@@ -232,7 +250,10 @@ class DDFTransformation3D:
         )
 
 
-def resize_inputs(inputs: dict, moving_image_size: tuple, fixed_image_size: tuple):
+def resize_inputs(
+    inputs: Dict[str, tf.Tensor], moving_image_size: tuple, fixed_image_size: tuple
+) -> Dict[str, tf.Tensor]:
+
     """
     Resize inputs
     :param inputs:

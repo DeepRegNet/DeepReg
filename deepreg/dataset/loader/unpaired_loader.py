@@ -27,20 +27,21 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         data_dir_paths: List[str],
         labeled: bool,
         sample_label: str,
-        seed,
+        seed: int,
         image_shape: (list, tuple),
     ):
         """
         Load data which are unpaired, labeled or unlabeled.
 
         :param file_loader:
-        :param data_dir_paths: paths of the directories storing data,  the data has to be saved under four different
-          sub-directories: images, labels
+        :param data_dir_paths: paths of the directories storing data,
+            the data are saved under four different sub-directories: images, labels
+        :param labeled: whether the data is labeled.
         :param sample_label:
         :param seed:
         :param image_shape: (width, height, depth)
         """
-        super(UnpairedDataLoader, self).__init__(
+        super().__init__(
             image_shape=image_shape,
             labeled=labeled,
             sample_label=sample_label,
@@ -68,7 +69,8 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
     def validate_data_files(self):
         """
         Verify all loader have the same files.
-        Since fixed and moving loaders come from the same file_loader, there is no need to check both (avoid duplicate).
+        Since fixed and moving loaders come from the same file_loader,
+        there is no need to check both (avoid duplicate).
         """
         if self.labeled:
             image_ids = self.loader_moving_image.get_data_ids()
