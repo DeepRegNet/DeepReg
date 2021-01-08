@@ -4,12 +4,9 @@ from typing import List, Optional
 
 import tensorflow as tf
 
-from deepreg.model.loss.util import (
-    NegativeLossMixin,
-    cauchy_kernel1d,
-    gaussian_kernel1d,
-    separable_filter,
-)
+from deepreg.model.loss.util import NegativeLossMixin, cauchy_kernel1d
+from deepreg.model.loss.util import gaussian_kernel1d_sigma as gaussian_kernel1d
+from deepreg.model.loss.util import separable_filter
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -303,3 +300,51 @@ class JaccardIndex(MultiScaleLoss):
 @REGISTRY.register_loss(name="jaccard")
 class JaccardLoss(NegativeLossMixin, JaccardIndex):
     """Revert the sign of JaccardIndex."""
+
+
+def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
+    """
+    Calculate the centroid of the mask.
+    :param mask: shape = (batch, dim1, dim2, dim3)
+    :param grid: shape = (dim1, dim2, dim3, 3)
+    :return: shape = (batch, 3), batch of vectors denoting
+             location of centroids.
+    """
+    assert len(mask.shape) == 4
+    assert len(grid.shape) == 4
+    bool_mask = tf.expand_dims(
+        tf.cast(mask >= 0.5, dtype=tf.float32), axis=4
+    )  # (batch, dim1, dim2, dim3, 1)
+    masked_grid = bool_mask * tf.expand_dims(
+        grid, axis=0
+    )  # (batch, dim1, dim2, dim3, 3)
+    numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # (batch, 3)
+    denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3])  # (batch, 1)
+    return (numerator + EPS) / (denominator + EPS)  # (batch, 3)
+
+
+def compute_centroid_distance(
+    y_true: tf.Tensor, y_pred: tf.Tensor, grid: tf.Tensor
+) -> tf.Tensor:
+    """
+    Calculate the L2-distance between two tensors' centroids.
+    :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
+    :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
+    :param grid: tensor, shape = (dim1, dim2, dim3, 3)
+    :return: shape = (batch,)
+    """
+    centroid_1 = compute_centroid(mask=y_pred, grid=grid)  # (batch, 3)
+    centroid_2 = compute_centroid(mask=y_true, grid=grid)  # (batch, 3)
+    return tf.sqrt(tf.reduce_sum((centroid_1 - centroid_2) ** 2, axis=1))
+
+
+def foreground_proportion(y: tf.Tensor) -> tf.Tensor:
+    """
+    Calculate the percentage of foreground vs background per 3d volume.
+    :param y: shape = (batch, dim1, dim2, dim3), a 3D label tensor
+    :return: shape = (batch,)
+    """
+    y = tf.cast(y >= 0.5, dtype=tf.float32)
+    return tf.reduce_sum(y, axis=[1, 2, 3]) / tf.reduce_sum(
+        tf.ones_like(y), axis=[1, 2, 3]
+    )
