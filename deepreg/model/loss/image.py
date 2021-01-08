@@ -1,7 +1,13 @@
 """Provide different loss or metrics classes for images."""
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin, separable_filter
+from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.model.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
+from deepreg.model.loss.util import (
+    rectangular_kernel1d,
+    separable_filter,
+    triangular_kernel1d,
+)
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -139,76 +145,6 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """Revert the sign of GlobalMutualInformation."""
 
 
-def build_rectangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular
-    kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
-    """
-
-    filters = tf.ones(shape=(kernel_size, 1, 1), dtype="float32")
-    kernel_vol = tf.reduce_sum(filters) ** 3
-    return filters, kernel_vol
-
-
-def build_triangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a the 1D filter for separable convolution equivalent to a 3-D triangular
-    kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
-    """
-    fsize = int((kernel_size + 1) / 2)
-    pad_filter = tf.constant(
-        [
-            [0, 0],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [0, 0],
-        ]
-    )
-
-    f1 = tf.ones(shape=(1, fsize, 1), dtype="float32") / fsize
-    f1 = tf.pad(f1, pad_filter, "CONSTANT")
-    f2 = tf.ones(shape=(fsize, 1, 1), dtype="float32") / fsize
-
-    filters = tf.nn.conv1d(f1, f2, stride=[1, 1, 1], padding="SAME")
-    filters = tf.transpose(filters, perm=[1, 2, 0])
-    kernel_vol = tf.reduce_sum(filters) ** 3
-
-    return filters, kernel_vol
-
-
-def build_gaussian_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
-    kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
-    """
-    mean = (kernel_size - 1) / 2.0
-    sigma = kernel_size / 3
-
-    grid = tf.range(0, kernel_size, dtype="float32")
-    grid = tf.reshape(grid, [-1, 1, 1])
-    filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
-    kernel_vol = tf.reduce_sum(filters) ** 3
-
-    return filters, kernel_vol
-
-
 class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
@@ -227,9 +163,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
 
     kernel_fn_dict = dict(
-        gaussian=build_gaussian_kernel,
-        rectangular=build_rectangular_kernel,
-        triangular=build_triangular_kernel,
+        gaussian=gaussian_kernel1d,
+        rectangular=rectangular_kernel1d,
+        triangular=triangular_kernel1d,
     )
 
     def __init__(
@@ -274,9 +210,10 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
-        filters, kernel_vol = self.kernel_fn(
+        filters = self.kernel_fn(
             kernel_size=self.kernel_size,
         )
+        kernel_vol = tf.reduce_sum(filters) ** 3
         filters = tf.cast(filters, dtype=y_true.dtype)
         kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
 

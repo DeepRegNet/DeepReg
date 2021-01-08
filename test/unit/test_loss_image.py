@@ -70,17 +70,12 @@ class TestGlobalMutualInformation:
 def test_kernel_fn(name):
     kernel_size = 3
     kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
-    filters, kernel_vol = kernel_fn(kernel_size)
+    filters = kernel_fn(kernel_size)
     assert filters.shape == (
         kernel_size,
         1,
         1,
     )
-    assert kernel_vol.shape == ()
-    print(kernel_vol)
-    print(tf.reduce_sum(filters) ** 3)
-
-    assert kernel_vol == tf.reduce_sum(filters) ** 3
 
 
 class TestLocalNormalizedCrossCorrelation:
