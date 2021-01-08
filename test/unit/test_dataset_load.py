@@ -16,6 +16,8 @@ from deepreg.dataset.loader.unpaired_loader import UnpairedDataLoader
 def load_yaml(file_path: str) -> dict:
     """
     load the yaml file and return a dictionary
+
+    :param file_path: path of the yaml file.
     """
     assert file_path.endswith(".yaml")
     with open(file_path) as file:
@@ -24,7 +26,8 @@ def load_yaml(file_path: str) -> dict:
 
 def test_get_data_loader():
     """
-    Test for get_data_loader to make sure it get correct data loader and raise correct errors
+    Test for get_data_loader to make sure
+    it get correct data loader and raise correct errors
     """
 
     # single paired data loader
@@ -93,7 +96,8 @@ def test_get_data_loader():
 
 def test_get_single_data_loader():
     """
-    Test for get_single_data_loader to make sure it get correct data loader and raise correct errors
+    Test for get_single_data_loader to make sure
+    it get correct data loader and raise correct errors
     Mainly based on nifti file loader
     """
     common_args = dict(
@@ -153,8 +157,9 @@ def test_get_single_data_loader():
             common_args=common_args,
             data_dir_paths=[config["dataset"]["dir"]["train"]],
         )
-    assert "Paired Loader requires 'moving_image_shape' and 'fixed_image_shape'" in str(
-        err_info.value
+    assert (
+        "Paired Loader requires 'moving_image_shape' "
+        "and 'fixed_image_shape'" in str(err_info.value)
     )
 
     # wrong keys for unpaired loader

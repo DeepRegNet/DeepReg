@@ -16,9 +16,14 @@ class H5FileLoader(FileLoader):
     """Generalized loader for h5 files."""
 
     def __init__(self, dir_paths: List[str], name: str, grouped: bool):
-        super(H5FileLoader, self).__init__(
-            dir_paths=dir_paths, name=name, grouped=grouped
-        )
+        """
+        Init.
+
+        :param dir_paths: path of h5 files.
+        :param name: name is used to identify the file names.
+        :param grouped: whether the data is grouped.
+        """
+        super().__init__(dir_paths=dir_paths, name=name, grouped=grouped)
         self.h5_files = None
         self.data_path_splits = None
         self.set_data_structure()
@@ -98,7 +103,8 @@ class H5FileLoader(FileLoader):
         :param index: the data index which is required
 
           - for paired or unpaired, the index is one single int, data_index
-          - for grouped, the index is a tuple of two ints, (group_index, in_group_data_index)
+          - for grouped, the index is a tuple of two ints,
+            (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
         if isinstance(index, int):  # paired or unpaired
@@ -124,13 +130,14 @@ class H5FileLoader(FileLoader):
             arr = arr[:, :, :, 0]
         return arr
 
-    def get_data_ids(self):
+    def get_data_ids(self) -> List[str]:
         """
         Get the unique IDs of data in this data set to
         verify consistency between
         images and label, moving and fixed.
 
-        :return: data_path_splits as the data can be identified using dir_path and data_key
+        :return: data_path_splits as the data can be identified
+            using dir_path and data_key
         """
         return self.data_path_splits
 

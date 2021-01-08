@@ -18,7 +18,7 @@ def affine_forward(
     moving_label: (tf.Tensor, None),
     moving_image_size: tuple,
     fixed_image_size: tuple,
-):
+) -> (tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor):
     """
     Perform the network forward pass.
 
@@ -29,11 +29,13 @@ def affine_forward(
     :param moving_image_size: tuple like (m_dim1, m_dim2, m_dim3)
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :return: tuple(affine, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-
-      - affine is the affine transformation matrix predicted by the network (batch, 4, 3)
+      - affine is the affine transformation matrix predicted by the network,
+        of shape (batch, 4, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_image is the predicted (warped) moving image
+        of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
@@ -76,7 +78,7 @@ def build_affine_model(
     batch_size: int,
     train_config: dict,
     registry: Registry,
-):
+) -> tf.keras.Model:
     """
     Build a model which outputs the parameters for affine transformation.
 
@@ -86,6 +88,7 @@ def build_affine_model(
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
     :param train_config: config for the model and loss
+    :param registry: registry to construct class objects
     :return: the built tf.keras.Model
     """
 
@@ -139,12 +142,15 @@ def build_affine_model(
 
     # add loss and metric
     loss_config = train_config["loss"]
-    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_ddf_loss(
+        model=model, ddf=ddf, loss_config=loss_config, registry=registry
+    )
     model = add_image_loss(
         model=model,
         fixed_image=fixed_image,
         pred_fixed_image=pred_fixed_image,
         loss_config=loss_config,
+        registry=registry,
     )
     model = add_label_loss(
         model=model,
@@ -152,6 +158,7 @@ def build_affine_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
+        registry=registry,
     )
 
     return model

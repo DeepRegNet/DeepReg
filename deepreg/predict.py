@@ -16,8 +16,9 @@ import tensorflow as tf
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
+from deepreg.callback import build_checkpoint_callback
 from deepreg.model.network.build import build_model
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY, Registry
 from deepreg.util import (
     build_dataset,
     build_log_dir,
@@ -67,8 +68,8 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
-    :param model_method: str, ddf / dvf / affine / conditional
-    :param save_dir: str, path to store dir
+    :param model_method: ddf / dvf / affine / conditional
+    :param save_dir: path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     """
@@ -222,11 +223,6 @@ def build_config(
     :return: - config, configuration dictionary
              - log_dir, path of the directory for saving outputs
     """
-    # check ckpt_path
-    if not ckpt_path.endswith(".ckpt"):
-        raise ValueError(
-            "checkpoint path should end with .ckpt, got {}".format(ckpt_path)
-        )
 
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
@@ -241,7 +237,7 @@ def build_config(
         # use customized config
         logging.warning(
             "Using customized configuration."
-            "The code might break if the config of the model doesn't match the saved model."
+            "The code might break if the config doesn't match the saved model."
         )
         config = config_parser.load_configs(config_path)
     return config, log_dir
@@ -259,25 +255,28 @@ def predict(
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
-    registry: Registry = Registry(),
+    registry: Registry = REGISTRY,
 ):
     """
     Function to predict some metrics from the saved model and logging results.
 
-    :param gpu: str, which env gpu to use.
-    :param gpu_allow_growth: bool, whether to allow gpu growth or not
-    :param ckpt_path: str, where model is stored, should be like log_folder/save/xxx.ckpt
+    :param gpu: which env gpu to use.
+    :param gpu_allow_growth: whether to allow gpu growth or not
+    :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
     :param mode: train / valid / test, to define which split of dataset to be evaluated
     :param batch_size: int, batch size to perform predictions in
-    :param log_dir: str, path to store logs
+    :param log_dir: path to store logs
+    :param log_root: folder name to store logs
     :param sample_label: sample/all, not used
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
+    :param registry: registry to construct class objects
     """
     # TODO support custom sample_label
     logging.warning(
-        "sample_label is not used in predict. It is True if and only if mode == 'train'."
+        "sample_label is not used in predict. "
+        "It is True if and only if mode == 'train'."
     )
 
     # env vars
@@ -320,8 +319,20 @@ def predict(
     model.compile(optimizer=optimizer)
 
     # load weights
-    # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-objec
-    model.load_weights(ckpt_path).expect_partial()
+    if ckpt_path.endswith(".ckpt"):
+        # for ckpt from tf.keras.callbacks.ModelCheckpoint
+        # skip warnings because of optimizers
+        # https://stackoverflow.com/questions/58289342/tf2-0-translation-model-error-when-restoring-the-saved-model-unresolved-object
+        model.load_weights(ckpt_path).expect_partial()  # pragma: no cover
+    else:
+        # for ckpts from ckpt manager callback
+        _, _ = build_checkpoint_callback(
+            model=model,
+            dataset=dataset,
+            log_dir=log_dir,
+            save_period=config["train"]["save_period"],
+            ckpt_path=ckpt_path,
+        )
 
     # predict
     fixed_grid_ref = tf.expand_dims(
@@ -343,8 +354,9 @@ def predict(
 
 def main(args=None):
     """
-    Function to run in command line with argparse to predict results on data
-    for a given model.
+    Entry point for predict script.
+
+    :param args:
     """
     parser = argparse.ArgumentParser()
 
@@ -378,7 +390,8 @@ def main(args=None):
     parser.add_argument(
         "--mode",
         "-m",
-        help="Define the split of data to be used for prediction. One of train / valid / test",
+        help="Define the split of data to be used for prediction."
+        "train or valid or test",
         type=str,
         default="test",
         required=True,
@@ -440,4 +453,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

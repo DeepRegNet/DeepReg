@@ -6,6 +6,7 @@ Tests for deepreg/model/backbone
 from test.unit.util import is_equal_tf
 
 import numpy as np
+import pytest
 import tensorflow as tf
 
 import deepreg.model.backbone.global_net as g
@@ -14,7 +15,7 @@ import deepreg.model.backbone.u_net as u
 import deepreg.model.layer as layer
 
 
-def test_init_GlobalNet():
+def test_init_global_net():
     """
     Testing init of GlobalNet is built as expected.
     """
@@ -71,7 +72,7 @@ def test_init_GlobalNet():
     assert isinstance(global_test._dense_layer, layer.Dense)
 
 
-def test_call_GlobalNet():
+def test_call_global_net():
     """
     Asserting that output shape of globalnet Call method
     is correct.
@@ -97,143 +98,171 @@ def test_call_GlobalNet():
     assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
-# testing LocalNet
-def test_init_LocalNet():
+class TestLocalNet:
     """
-    Testing init of LocalNet as expected
+    Test the backbone.local_net.LocalNet class
     """
-    local_test = loc.LocalNet(
-        image_size=[1, 2, 3],
-        out_channels=3,
-        num_channel_initial=3,
-        extract_levels=[1, 2, 3],
-        out_kernel_initializer="he_normal",
-        out_activation="softmax",
+
+    @pytest.mark.parametrize(
+        "image_size,extract_levels,control_points",
+        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
+    def test_init(self, image_size, extract_levels, control_points):
+        network = loc.LocalNet(
+            image_size=image_size,
+            out_channels=3,
+            num_channel_initial=3,
+            extract_levels=extract_levels,
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            control_points=control_points,
+        )
 
-    # asserting initialised var for extract_levels is the same - Pass
-    assert local_test._extract_levels == [1, 2, 3]
-    # asserting initialised var for extract_max_level is the same - Pass
-    assert local_test._extract_max_level == 3
-    # asserting initialised var for extract_min_level is the same - Pass
-    assert local_test._extract_min_level == 1
+        # asserting initialised var for extract_levels is the same - Pass
+        assert network._extract_levels == extract_levels
+        # asserting initialised var for extract_max_level is the same - Pass
+        assert network._extract_max_level == max(extract_levels)
+        # asserting initialised var for extract_min_level is the same - Pass
+        assert network._extract_min_level == min(extract_levels)
 
-    # assert downsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.DownSampleResnetBlock)
-        for item in local_test._downsample_blocks
+        # assert downsample blocks type is correct, Pass
+        assert all(
+            isinstance(item, layer.DownSampleResnetBlock)
+            for item in network._downsample_blocks
+        )
+        # assert number of downsample blocks is correct (== max level), Pass
+        assert len(network._downsample_blocks) == max(extract_levels)
+
+        # assert upsample blocks type is correct, Pass
+        assert all(
+            isinstance(item, layer.LocalNetUpSampleResnetBlock)
+            for item in network._upsample_blocks
+        )
+        # assert number of upsample blocks is correct (== max level - min level), Pass
+        assert len(network._upsample_blocks) == max(extract_levels) - min(
+            extract_levels
+        )
+
+        # assert upsample blocks type is correct, Pass
+        assert all(
+            isinstance(item, layer.Conv3dWithResize) for item in network._extract_layers
+        )
+        # assert number of upsample blocks is correct (== extract_levels), Pass
+        assert len(network._extract_layers) == len(extract_levels)
+
+        if control_points is None:
+            assert network.resize is False
+        else:
+            assert isinstance(network.resize, layer.ResizeCPTransform)
+            assert isinstance(network.interpolate, layer.BSplines3DTransform)
+
+    @pytest.mark.parametrize(
+        "image_size,extract_levels,control_points",
+        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
-    # assert number of downsample blocks is correct (== max level), Pass
-    assert len(local_test._downsample_blocks) == 3
+    def test_call(self, image_size, extract_levels, control_points):
+        # initialising LocalNet instance
+        network = loc.LocalNet(
+            image_size=image_size,
+            out_channels=3,
+            num_channel_initial=3,
+            extract_levels=extract_levels,
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            control_points=control_points,
+        )
 
-    # assert upsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.LocalNetUpSampleResnetBlock)
-        for item in local_test._upsample_blocks
-    )
-    # assert number of upsample blocks is correct (== max level - min level), Pass
-    assert len(local_test._upsample_blocks) == 3 - 1
-
-    # assert upsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.Conv3dWithResize) for item in local_test._extract_layers
-    )
-    # assert number of upsample blocks is correct (== extract_levels), Pass
-    assert len(local_test._extract_layers) == 3
+        # pass an input of all zeros
+        inputs = tf.constant(
+            np.zeros(
+                (5, image_size[0], image_size[1], image_size[2], 3), dtype=np.float32
+            )
+        )
+        # get outputs by calling
+        output = network.call(inputs)
+        # expected shape is (5, 1, 2, 3, 3)
+        assert all(x == y for x, y in zip(inputs.shape, output.shape))
 
 
-def test_call_LocalNet():
+class TestUNet:
     """
-    Asserting that output shape of LocalNet call method
-    is correct.
+    Test the backbone.u_net.UNet class
     """
-    out = 3
-    im_size = [1, 2, 3]
-    # initialising LocalNet instance
-    global_test = loc.LocalNet(
-        image_size=im_size,
-        out_channels=out,
-        num_channel_initial=3,
-        extract_levels=[1, 2, 3],
-        out_kernel_initializer="glorot_uniform",
-        out_activation="sigmoid",
+
+    @pytest.mark.parametrize(
+        "image_size,depth,control_points",
+        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
-    # pass an input of all zeros
-    inputs = tf.constant(
-        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+    def test_init(self, image_size, depth, control_points):
+        network = u.UNet(
+            image_size=image_size,
+            out_channels=3,
+            num_channel_initial=2,
+            depth=depth,
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            control_points=control_points,
+        )
+
+        # asserting num channels initial is the same, Pass
+        assert network._num_channel_initial == 2
+
+        # asserting depth is the same, Pass
+        assert network._depth == depth
+
+        # assert downsample blocks type is correct, Pass
+        assert all(
+            isinstance(item, layer.DownSampleResnetBlock)
+            for item in network._downsample_blocks
+        )
+        # assert number of downsample blocks is correct (== depth), Pass
+        assert len(network._downsample_blocks) == depth
+
+        # assert bottom_conv3d type is correct, Pass
+        assert isinstance(network._bottom_conv3d, layer.Conv3dBlock)
+
+        # assert bottom res3d type is correct, Pass
+        assert isinstance(network._bottom_res3d, layer.Residual3dBlock)
+        # assert upsample blocks type is correct, Pass
+        assert all(
+            isinstance(item, layer.UpSampleResnetBlock)
+            for item in network._upsample_blocks
+        )
+        # assert number of upsample blocks is correct (== depth), Pass
+        assert len(network._upsample_blocks) == depth
+
+        # assert output_conv3d is correct type, Pass
+        assert isinstance(network._output_conv3d, layer.Conv3dWithResize)
+
+        if control_points is None:
+            assert network.resize is False
+        else:
+            assert isinstance(network.resize, layer.ResizeCPTransform)
+            assert isinstance(network.interpolate, layer.BSplines3DTransform)
+
+    @pytest.mark.parametrize(
+        "image_size,depth,control_points",
+        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
-    # get outputs by calling
-    output = global_test.call(inputs)
-    # expected shape is (5, 1, 2, 3, 3)
-    assert all(x == y for x, y in zip(inputs.shape, output.shape))
-
-
-# testing UNet
-def test_init_UNet():
-    """
-    Testing init of UNet as expected
-    """
-    local_test = u.UNet(
-        image_size=[1, 2, 3],
-        out_channels=3,
-        num_channel_initial=3,
-        depth=5,
-        out_kernel_initializer="he_normal",
-        out_activation="softmax",
-    )
-
-    # asserting num channels initial is the same, Pass
-    assert local_test._num_channel_initial == 3
-
-    # asserting depth is the same, Pass
-    assert local_test._depth == 5
-
-    # assert downsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.DownSampleResnetBlock)
-        for item in local_test._downsample_blocks
-    )
-    # assert number of downsample blocks is correct (== depth), Pass
-    assert len(local_test._downsample_blocks) == 5
-
-    # assert bottom_conv3d type is correct, Pass
-    assert isinstance(local_test._bottom_conv3d, layer.Conv3dBlock)
-
-    # assert bottom res3d type is correct, Pass
-    assert isinstance(local_test._bottom_res3d, layer.Residual3dBlock)
-    # assert upsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.UpSampleResnetBlock)
-        for item in local_test._upsample_blocks
-    )
-    # assert number of upsample blocks is correct (== depth), Pass
-    assert len(local_test._upsample_blocks) == 5
-
-    # assert output_conv3d is correct type, Pass
-    assert isinstance(local_test._output_conv3d, layer.Conv3dWithResize)
-
-
-def test_call_UNet():
-    """
-    Asserting that output shape of UNet call method
-    is correct.
-    """
-    out = 3
-    im_size = [1, 2, 3]
-    # initialising LocalNet instance
-    global_test = u.UNet(
-        image_size=im_size,
-        out_channels=out,
-        num_channel_initial=3,
-        depth=6,
-        out_kernel_initializer="glorot_uniform",
-        out_activation="sigmoid",
-    )
-    # pass an input of all zeros
-    inputs = tf.constant(
-        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
-    )
-    # get outputs by calling
-    output = global_test.call(inputs)
-    # expected shape is (5, 1, 2, 3)
-    assert all(x == y for x, y in zip(inputs.shape, output.shape))
+    def test_call_unet(self, image_size, depth, control_points):
+        out = 3
+        # initialising UNet instance
+        network = u.UNet(
+            image_size=image_size,
+            out_channels=3,
+            num_channel_initial=2,
+            depth=depth,
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            control_points=control_points,
+        )
+        # pass an input of all zeros
+        inputs = tf.constant(
+            np.zeros(
+                (5, image_size[0], image_size[1], image_size[2], out), dtype=np.float32
+            )
+        )
+        # get outputs by calling
+        output = network.call(inputs)
+        # expected shape is (5, 1, 2, 3)
+        assert all(x == y for x, y in zip(inputs.shape, output.shape))

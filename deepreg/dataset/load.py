@@ -36,7 +36,8 @@ def get_data_loader(data_config: dict, mode: str) -> (DataLoader, None):
     for data_dir_path in data_dir_paths:
         if not os.path.isdir(data_dir_path):
             raise ValueError(
-                f"Data directory path {data_dir_path} for mode {mode} is not a directory or does not exist"
+                f"Data directory path {data_dir_path} for mode {mode}"
+                f" is not a directory or does not exist"
             )
 
     return get_single_data_loader(
@@ -104,7 +105,8 @@ def get_single_data_loader(
             msg += (
                 "Grouped Loader requires 'image_shape', "
                 "as the data are not paired and will be resized to the same shape.\n"
-                "It also requires 'intra_group_prob', 'intra_group_option', and 'sample_image_in_group'.\n"
+                "It also requires 'intra_group_prob', "
+                "'intra_group_option', and 'sample_image_in_group'.\n"
             )
         raise ValueError(f"{msg}" f"The given dataset config is {data_config}\n")
     raise ValueError(

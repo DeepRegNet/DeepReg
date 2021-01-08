@@ -6,7 +6,7 @@ Tests for deepreg/model/network/util
 import pytest
 
 import deepreg.model.network.util as util
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY
 
 
 class TestBuildBackbone:
@@ -17,7 +17,7 @@ class TestBuildBackbone:
                 out_channels=1,
                 config={},
                 method_name="ddf",
-                registry=Registry(),
+                registry=REGISTRY,
             )
         assert "image_size must be tuple of length 3" in str(err_info.value)
 
@@ -28,18 +28,16 @@ class TestBuildBackbone:
                 out_channels=1,
                 config={"backbone": "local"},
                 method_name="wrong",
-                registry=Registry(),
+                registry=REGISTRY,
             )
-        assert (
-            "method name has to be one of ddf/dvf/conditional/affine in build_backbone"
-            in str(err_info.value)
+        assert "method name has to be one of ddf/dvf/conditional/affine" in str(
+            err_info.value
         )
 
     @pytest.mark.parametrize("method_name", ["ddf", "dvf", "conditional", "affine"])
     @pytest.mark.parametrize("out_channels", [1, 2, 3])
     @pytest.mark.parametrize("backbone_name", ["local", "global"])
     def test_local_global_backbone(self, method_name, out_channels, backbone_name):
-        """Only test the function returns successfully"""
         util.build_backbone(
             image_size=(2, 3, 4),
             out_channels=out_channels,
@@ -49,13 +47,12 @@ class TestBuildBackbone:
                 "extract_levels": [1, 2, 3],
             },
             method_name=method_name,
-            registry=Registry(),
+            registry=REGISTRY,
         )
 
     @pytest.mark.parametrize("method_name", ["ddf", "dvf", "conditional", "affine"])
     @pytest.mark.parametrize("out_channels", [1, 2, 3])
     def test_unet_backbone(self, method_name, out_channels):
-        """Only test the function returns successfully"""
         util.build_backbone(
             image_size=(2, 3, 4),
             out_channels=out_channels,
@@ -65,7 +62,7 @@ class TestBuildBackbone:
                 "depth": 4,
             },
             method_name=method_name,
-            registry=Registry(),
+            registry=REGISTRY,
         )
 
 

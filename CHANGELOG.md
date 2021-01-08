@@ -10,23 +10,35 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added registry for backbone models.
+- Added registry for backbone models and losses.
+- Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
+- Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
   README.md.
 - Added CMIC seminar where DeepReg was introduced to the project README.md.
+- Added deepreg_download entry point to access non-release folders required for Quick
+  Start.
 
 ### Changed
 
+- Refactored loss functions into classes.
+- Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
 - Migrated from Travis-CI to GitHub Actions.
-- Simplified configuration for backbone models.
+- Simplified configuration for backbone models and losses.
 - Simplified contributing documentation.
+- Uniform kernel size for LNCC loss.
+- Improved demo configurations with the updated pre-trained models for:
+  grouped_mask_prostate_longitudinal, paried_mrus_prostate, unpaired_us_prostate_cv,
+  grouped_mr_heart, unpaired_ct_lung, paired_ct_lung.
 
 ### Fixed
 
+- Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
-- Fixed build error when downloading data from private repo.
+- Fixed build error when downloading data from the private repository.
+- Fixed the typo for CLI tools in documents.
 
 ## [0.1.0] - 2020-11-02
 

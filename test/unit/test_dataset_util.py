@@ -50,7 +50,7 @@ def test_sorted_h5_keys_many():
 
 def test_get_sorted_file_paths_in_dir_with_suffix():
     """
-    Checking sorted file names returned by get_sorted_file_paths_in_dir_with_suffix function
+    Checking sorted file names returned
     """
 
     # one dir, single suffix

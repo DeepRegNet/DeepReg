@@ -22,7 +22,6 @@ def ddf_dvf_forward(
 ) -> [(tf.Tensor, None), tf.Tensor, tf.Tensor, (tf.Tensor, None), tf.Tensor]:
     """
     Perform the network forward pass.
-
     :param backbone: model architecture object, e.g. model.backbone.local_net
     :param moving_image: tensor of shape (batch, m_dim1, m_dim2, m_dim3)
     :param fixed_image:  tensor of shape (batch, f_dim1, f_dim2, f_dim3)
@@ -31,11 +30,12 @@ def ddf_dvf_forward(
     :param fixed_image_size: tuple like (f_dim1, f_dim2, f_dim3)
     :param output_dvf: bool, if true, model outputs dvf, if false, model outputs ddf
     :return: (dvf, ddf, pred_fixed_image, pred_fixed_label, fixed_grid), where
-
       - dvf is the dense velocity field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
       - ddf is the dense displacement field of shape (batch, f_dim1, f_dim2, f_dim3, 3)
-      - pred_fixed_image is the predicted (warped) moving image of shape (batch, f_dim1, f_dim2, f_dim3)
-      - pred_fixed_label is the predicted (warped) moving label of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_image is the predicted (warped) moving image
+        of shape (batch, f_dim1, f_dim2, f_dim3)
+      - pred_fixed_label is the predicted (warped) moving label
+        of shape (batch, f_dim1, f_dim2, f_dim3)
       - fixed_grid is the grid of shape(f_dim1, f_dim2, f_dim3, 3)
     """
 
@@ -95,6 +95,7 @@ def build_ddf_dvf_model(
     :param labeled: bool, indicating if the data is labeled
     :param batch_size: int, size of mini-batch
     :param train_config: config for the model and loss
+    :param registry: registry to construct class objects
     :return: the built tf.keras.Model
     """
 
@@ -136,7 +137,9 @@ def build_ddf_dvf_model(
     outputs = {"ddf": ddf}
     if dvf is not None:
         outputs["dvf"] = dvf
+
     model_name = train_config["method"].upper() + "RegistrationModel"
+
     if moving_label is None:  # unlabeled
         model = tf.keras.Model(
             inputs=inputs, outputs=outputs, name=model_name + "WithoutLabel"
@@ -151,12 +154,15 @@ def build_ddf_dvf_model(
 
     # add loss and metric
     loss_config = train_config["loss"]
-    model = add_ddf_loss(model=model, ddf=ddf, loss_config=loss_config)
+    model = add_ddf_loss(
+        model=model, ddf=ddf, loss_config=loss_config, registry=registry
+    )
     model = add_image_loss(
         model=model,
         fixed_image=fixed_image,
         pred_fixed_image=pred_fixed_image,
         loss_config=loss_config,
+        registry=registry,
     )
     model = add_label_loss(
         model=model,
@@ -164,6 +170,7 @@ def build_ddf_dvf_model(
         fixed_label=fixed_label,
         pred_fixed_label=pred_fixed_label,
         loss_config=loss_config,
+        registry=registry,
     )
 
     return model

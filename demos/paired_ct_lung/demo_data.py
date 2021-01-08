@@ -66,7 +66,7 @@ if os.path.exists(path_to_train) is not True:
     os.mkdir(os.path.join(path_to_train, "moving_labels"))
 
 
-def moveFilesIntoCorrectPath(
+def move_files_into_correct_path(
     fnames, path_to_images_and_labels, new_path, suffix, sub_folder_name
 ):
     os.chdir(os.path.join(path_to_images_and_labels, sub_folder_name))
@@ -82,10 +82,10 @@ def moveFilesIntoCorrectPath(
 
 
 if os.path.exists(path_to_images_and_labels):
-    moveFilesIntoCorrectPath(
+    move_files_into_correct_path(
         images_fnames, path_to_images_and_labels, path_to_train, "images", "scans"
     )
-    moveFilesIntoCorrectPath(
+    move_files_into_correct_path(
         labels_fnames, path_to_images_and_labels, path_to_train, "labels", "lungMasks"
     )
 
@@ -123,7 +123,7 @@ if os.path.exists(path_to_test) is not True:
         int(int(ratio_of_test_and_valid_samples * len(unique_case_names) / 2)) + 1 :
     ]
 
-    def moveTestCasesIntoCorrectPath(test_cases, path_to_train, path_to_test):
+    def move_test_cases_into_correct_path(test_cases, path_to_train, path_to_test):
         folder_names = os.listdir(path_to_train)
         os.chdir(path_to_train)
         for case in test_cases:
@@ -136,7 +136,7 @@ if os.path.exists(path_to_test) is not True:
                         destination = os.path.join(path_to_test, folder)
                         shutil.move(source, destination)
 
-    moveTestCasesIntoCorrectPath(test_cases, path_to_train, path_to_test)
+    move_test_cases_into_correct_path(test_cases, path_to_train, path_to_test)
 
     os.mkdir(path_to_valid)
     os.mkdir(os.path.join(path_to_valid, "fixed_images"))
@@ -144,7 +144,7 @@ if os.path.exists(path_to_test) is not True:
     os.mkdir(os.path.join(path_to_valid, "moving_images"))
     os.mkdir(os.path.join(path_to_valid, "moving_labels"))
 
-    moveTestCasesIntoCorrectPath(valid_cases, path_to_train, path_to_valid)
+    move_test_cases_into_correct_path(valid_cases, path_to_train, path_to_valid)
 
 ######## NAMING FILES SUCH THAT THEIR NAMES MATCH FOR PAIRING ########
 
@@ -231,16 +231,18 @@ for folder in folders:
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 
-url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_demo_logs.zip"
-
+url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_1.zip"
 fname = "pretrained.zip"
 os.chdir(os.path.join(main_path, project_dir))
 
+# download and unzip into pretrained subfolder
 get_file(os.path.join(os.getcwd(), fname), url)
-
 with zipfile.ZipFile(fname, "r") as zip_ref:
     zip_ref.extractall(os.path.join(data_folder_name, "pretrained"))
 
 # remove pretrained.zip
 os.remove(fname)
-print("Pretrained model downloaded")
+print(
+    "Pretrained model downloaded: %s"
+    % os.path.abspath(os.path.join(data_folder_name, "pretrained"))
+)

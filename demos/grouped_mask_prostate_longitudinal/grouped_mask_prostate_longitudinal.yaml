@@ -21,21 +21,17 @@ train:
 
   # define the loss function for training
   loss:
-    dissimilarity:
-      image:
-        name: "ssd"
-        weight: 1.0
-      label:
-        weight: 0.0
-        name: "multi_scale"
-        multi_scale:
-          loss_type: "dice"
-          loss_scales: [0, 1, 2, 4, 8, 16]
-        single_scale:
-          loss_type: "cross-entropy"
+    image:
+      name: "ssd"
+      weight: 1.0
+    label:
+      weight: 0.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 1.0 # weight of regularization loss
-      energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
+      weight: 0.01 # weight of regularization loss
+      name: "gradient" # options include "bending", "gradient"
+      l1: false # false for l2, true for l1
 
   # define the optimizer
   optimizer:
@@ -48,5 +44,5 @@ train:
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 
   # other training hyper-parameters
-  epochs: 500 # number of training epochs
-  save_period: 50 # the model will be saved every `save_period` epochs.
+  epochs: 5000 # number of training epochs
+  save_period: 1000 # the model will be saved every `save_period` epochs.

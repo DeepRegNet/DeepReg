@@ -28,7 +28,8 @@ def build_dataset(
     :param preprocess_config: configuration for preprocess
     :param mode: train or valid or test
     :param training: bool, if true, data augmentation and shuffling will be added
-    :param repeat: bool, if true, dataset will be repeated, true for train/valid dataset during model.fit
+    :param repeat: bool, if true, dataset will be repeated,
+        true for train/valid dataset during model.fit
     :return:
     - (data_loader_train, dataset_train, steps_per_epoch_train)
     - (data_loader_val, dataset_val, steps_per_epoch_valid)
@@ -156,16 +157,14 @@ def calculate_metrics(
         y_pred = pred_fixed_image[sample_index : (sample_index + 1), :, :, :]
         y_true = tf.expand_dims(y_true, axis=4)
         y_pred = tf.expand_dims(y_pred, axis=4)
-        ssd = image_loss.ssd(y_true=y_true, y_pred=y_pred).numpy()[0]
+        ssd = image_loss.SumSquaredDifference()(y_true=y_true, y_pred=y_pred).numpy()
     else:
         ssd = None
 
     if fixed_label is not None and pred_fixed_label is not None:
         y_true = fixed_label[sample_index : (sample_index + 1), :, :, :]
         y_pred = pred_fixed_label[sample_index : (sample_index + 1), :, :, :]
-        dice = label_loss.dice_score(y_true=y_true, y_pred=y_pred, binary=True).numpy()[
-            0
-        ]
+        dice = label_loss.DiceScore(binary=True)(y_true=y_true, y_pred=y_pred).numpy()
         tre = label_loss.compute_centroid_distance(
             y_true=y_true, y_pred=y_pred, grid=fixed_grid_ref[0, :, :, :, :]
         ).numpy()[0]

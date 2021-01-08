@@ -12,8 +12,7 @@ import deepreg.model.layer as layer
 
 def test_activation():
     """
-    Test the layer.Activation class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Activation class and its default attributes.
     """
     activation = layer.Activation()
     assert isinstance(activation._act, type(tf.keras.activations.relu))
@@ -21,8 +20,7 @@ def test_activation():
 
 def test_norm():
     """
-    Test the layer.Norm class, its default attributes and errors raised. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Norm class, its default attributes and errors raised.
     """
 
     norm = layer.Norm()
@@ -34,8 +32,7 @@ def test_norm():
 
 def test_maxpool3d():
     """
-    Test the layer.MaxPool3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.MaxPool3d class and its default attributes.
     """
     pooling = layer.MaxPool3d(2)
 
@@ -47,8 +44,7 @@ def test_maxpool3d():
 
 def test_conv3d():
     """
-    Test the layer.Conv3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
+    Test the layer.Conv3d class and its default attributes.
     """
 
     conv3d = layer.Conv3d(8)
@@ -63,9 +59,7 @@ def test_conv3d():
 
 def test_deconv3d():
     """
-    Test the layer.Deconv3d class and its default attributes. No need to test the call() function since its
-    a tensorflow class
-    """
+    Test the layer.Deconv3d class and its default attributes."""
     batch_size = 5
     channels = 4
     input_size = (32, 32, 16)
@@ -78,81 +72,77 @@ def test_deconv3d():
     deconv3d.build(input_tensor_shape)
 
     assert tuple(deconv3d._output_padding) == output_padding
-    assert isinstance(deconv3d._Conv3DTranspose, tf.keras.layers.Conv3DTranspose)
+    assert isinstance(deconv3d._deconv3d, tf.keras.layers.Conv3DTranspose)
     assert tuple(deconv3d._kernel_size) == (3, 3, 3)
     assert tuple(deconv3d._strides) == (2, 2, 2)
     assert deconv3d._padding == "same"
-    assert deconv3d._Conv3DTranspose.use_bias is True
+    assert deconv3d._deconv3d.use_bias is True
 
 
-def test_conv3dBlock():
+def test_conv3d_block():
     """
-    Test the layer.Conv3dBlock class and its default attributes. No need to test the call() function since its
-    a tensorflow class
-    """
-
-    conv3dBlock = layer.Conv3dBlock(8)
-
-    assert isinstance(conv3dBlock._conv3d, layer.Conv3d)
-
-    assert conv3dBlock._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert conv3dBlock._conv3d._conv3d.strides == (1, 1, 1)
-    assert conv3dBlock._conv3d._conv3d.padding == "same"
-    assert conv3dBlock._conv3d._conv3d.use_bias is False
-
-    assert isinstance(conv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(conv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
-
-
-def test_deconv3dBlock():
-    """
-    Test the layer.Deconv3dBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.Conv3dBlock class and its default attributes.
     """
 
-    deconv3dBlock = layer.Deconv3dBlock(8)
+    conv3d_block = layer.Conv3dBlock(8)
 
-    assert isinstance(deconv3dBlock._deconv3d, layer.Deconv3d)
-    assert deconv3dBlock._deconv3d._Conv3DTranspose is None
+    assert isinstance(conv3d_block._conv3d, layer.Conv3d)
 
-    deconv3dBlock._deconv3d.build((8, 8))
+    assert conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
+    assert conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
+    assert conv3d_block._conv3d._conv3d.padding == "same"
+    assert conv3d_block._conv3d._conv3d.use_bias is False
+
+    assert isinstance(conv3d_block._act._act, type(tf.keras.activations.relu))
+    assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
+
+
+def test_deconv3d_block():
+    """
+    Test the layer.Deconv3dBlock class and its default attributes.
+    """
+
+    deconv3d_block = layer.Deconv3dBlock(8)
+
+    assert isinstance(deconv3d_block._deconv3d, layer.Deconv3d)
+    assert deconv3d_block._deconv3d._deconv3d is None
+
+    deconv3d_block._deconv3d.build((8, 8))
 
     assert isinstance(
-        deconv3dBlock._deconv3d._Conv3DTranspose, tf.keras.layers.Conv3DTranspose
+        deconv3d_block._deconv3d._deconv3d, tf.keras.layers.Conv3DTranspose
     )
-    assert tuple(deconv3dBlock._deconv3d._kernel_size) == (3, 3, 3)
-    assert tuple(deconv3dBlock._deconv3d._strides) == (1, 1, 1)
-    assert deconv3dBlock._deconv3d._padding == "same"
-    assert deconv3dBlock._deconv3d._Conv3DTranspose.use_bias is False
+    assert tuple(deconv3d_block._deconv3d._kernel_size) == (3, 3, 3)
+    assert tuple(deconv3d_block._deconv3d._strides) == (1, 1, 1)
+    assert deconv3d_block._deconv3d._padding == "same"
+    assert deconv3d_block._deconv3d._deconv3d.use_bias is False
 
-    assert isinstance(deconv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(deconv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
+    assert isinstance(deconv3d_block._act._act, type(tf.keras.activations.relu))
+    assert isinstance(deconv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
 
-def test_residual3dBlock():
+def test_residual3d_block():
     """
-    Test the layer.Residual3dBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.Residual3dBlock class and its default attributes.
     """
-    res3dBlock = layer.Residual3dBlock(8)
+    res3d_block = layer.Residual3dBlock(8)
 
-    assert isinstance(res3dBlock._conv3d_block, layer.Conv3dBlock)
-    assert res3dBlock._conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert res3dBlock._conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
+    assert isinstance(res3d_block._conv3d_block, layer.Conv3dBlock)
+    assert res3d_block._conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
+    assert res3d_block._conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
 
-    assert isinstance(res3dBlock._conv3d, layer.Conv3d)
-    assert res3dBlock._conv3d._conv3d.use_bias is False
-    assert res3dBlock._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert res3dBlock._conv3d._conv3d.strides == (1, 1, 1)
+    assert isinstance(res3d_block._conv3d, layer.Conv3d)
+    assert res3d_block._conv3d._conv3d.use_bias is False
+    assert res3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
+    assert res3d_block._conv3d._conv3d.strides == (1, 1, 1)
 
-    assert isinstance(res3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(res3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
+    assert isinstance(res3d_block._act._act, type(tf.keras.activations.relu))
+    assert isinstance(res3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
 
-def test_downsampleResnetBlock():
+def test_downsample_resnet_block():
     """
-    Test the layer.DownSampleResnetBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.DownSampleResnetBlock class and its default attributes.
     """
     model = layer.DownSampleResnetBlock(8)
 
@@ -168,10 +158,9 @@ def test_downsampleResnetBlock():
     assert isinstance(model._conv3d_block3, layer.Conv3dBlock)
 
 
-def test_upsampleResnetBlock():
+def test_upsample_resnet_block():
     """
-    Test the layer.UpSampleResnetBlock class and its default attributes. No need to test the call() function since a
-    concatenation of tensorflow classes
+    Test the layer.UpSampleResnetBlock class and its default attributes.
     """
     batch_size = 5
     channels = 4
@@ -191,9 +180,9 @@ def test_upsampleResnetBlock():
     assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
 
 
-def test_init_conv3dWithResize():
+def test_init_conv3d_with_resize():
     """
-    Test the layer.Conv3dWithResize class, its default attributes and it's call function.
+    Test the layer.Conv3dWithResize class's default attributes and call function.
     """
     batch_size = 5
     channels = 4
@@ -242,7 +231,7 @@ def test_warping():
     assert all(x == y for x, y in zip((batch_size,) + fixed_image_size, output.shape))
 
 
-def test_initDVF():
+def test_init_dvf():
     """
     Test the layer.IntDVF class, its default attributes and its call() method.
     """
@@ -266,7 +255,7 @@ def test_initDVF():
 
 def test_dense():
     """
-    Test the layer.Dense class and its default attributes. No need to test the call() function since a
+    Test the layer.Dense class and its default attributes.
     concatenation of tensorflow classes
     """
     model = layer.Dense(8)
@@ -275,7 +264,7 @@ def test_dense():
     assert isinstance(model._dense, tf.keras.layers.Dense)
 
 
-def test_additiveUpSampling():
+def test_additive_upsampling():
     """
     Test the layer.AdditiveUpSampling class and its default attributes.
     """
@@ -305,29 +294,30 @@ def test_additiveUpSampling():
         model(inputs)
 
 
-def test_localNetResidual3dBlock():
+def test_local_net_residual3d_block():
     """
-    Test the layer.LocalNetResidual3dBlock class, its default attributes and its call() function. No need to test
-    the call() function since its a concatenation of tensorflow classes.
+    Test the layer.LocalNetResidual3dBlock class's,
+    default attributes and call() function.
     """
 
     # Test __init__()
-    conv3dBlock = layer.LocalNetResidual3dBlock(8)
+    conv3d_block = layer.LocalNetResidual3dBlock(8)
 
-    assert isinstance(conv3dBlock._conv3d, layer.Conv3d)
+    assert isinstance(conv3d_block._conv3d, layer.Conv3d)
 
-    assert conv3dBlock._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert conv3dBlock._conv3d._conv3d.strides == (1, 1, 1)
-    assert conv3dBlock._conv3d._conv3d.padding == "same"
-    assert conv3dBlock._conv3d._conv3d.use_bias is False
+    assert conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
+    assert conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
+    assert conv3d_block._conv3d._conv3d.padding == "same"
+    assert conv3d_block._conv3d._conv3d.use_bias is False
 
-    assert isinstance(conv3dBlock._act._act, type(tf.keras.activations.relu))
-    assert isinstance(conv3dBlock._norm._norm, tf.keras.layers.BatchNormalization)
+    assert isinstance(conv3d_block._act._act, type(tf.keras.activations.relu))
+    assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
 
-def test_localNetUpSampleResnetBlock():
+def test_local_net_upsample_resnet_block():
     """
-    Test the layer.LocalNetUpSampleResnetBlock class, its default attributes and its call() function.
+    Test the layer.LocalNetUpSampleResnetBlock class,
+    its default attributes and its call() function.
     """
     batch_size = 5
     channels = 4
@@ -348,3 +338,160 @@ def test_localNetUpSampleResnetBlock():
     assert isinstance(model._additive_upsampling, layer.AdditiveUpSampling)
     assert isinstance(model._conv3d_block, layer.Conv3dBlock)
     assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
+
+
+class TestResizeCPTransform:
+    @pytest.mark.parametrize(
+        "parameter,cp_spacing", [((8, 8, 8), 8), ((8, 24, 16), (8, 24, 16))]
+    )
+    def test_attributes(self, parameter, cp_spacing):
+        model = layer.ResizeCPTransform(cp_spacing)
+
+        if isinstance(cp_spacing, int):
+            cp_spacing = [cp_spacing] * 3
+        assert list(model.cp_spacing) == list(parameter)
+        assert model.kernel_sigma == [0.44 * cp for cp in cp_spacing]
+
+    @pytest.mark.parametrize(
+        "input_size,output_size,cp_spacing",
+        [
+            ((1, 8, 8, 8, 3), (12, 8, 12), (8, 16, 8)),
+            ((1, 8, 8, 8, 3), (12, 12, 12), 8),
+        ],
+    )
+    def test_build(self, input_size, output_size, cp_spacing):
+
+        model = layer.ResizeCPTransform(cp_spacing)
+        model.build(input_size)
+
+        assert [a == b for a, b, in zip(model._output_shape, output_size)]
+
+    @pytest.mark.parametrize(
+        "input_size,output_size,cp_spacing",
+        [
+            ((1, 68, 68, 68, 3), (1, 12, 8, 12, 3), (8, 16, 8)),
+            ((1, 68, 68, 68, 3), (1, 12, 12, 12, 3), 8),
+        ],
+    )
+    def test_call(self, input_size, output_size, cp_spacing):
+
+        model = layer.ResizeCPTransform(cp_spacing)
+        model.build(input_size)
+
+        input = tf.random.normal(shape=input_size, dtype=tf.float32)
+        output = model(input)
+
+        assert output.shape == output_size
+
+
+class TestBSplines3DTransform:
+    """
+    Test the layer.BSplines3DTransform class,
+    its default attributes and its call() function.
+    """
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 8, 8, 8, 3), 8), ((1, 8, 8, 8, 3), (8, 16, 12))],
+    )
+    def test_init(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
+
+        if isinstance(cp, int):
+            cp = (cp, cp, cp)
+
+        assert model.cp_spacing == cp
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
+    )
+    def generate_filter_coefficients(self, cp_spacing):
+
+        b = {
+            0: lambda u: np.float64((1 - u) ** 3 / 6),
+            1: lambda u: np.float64((3 * (u ** 3) - 6 * (u ** 2) + 4) / 6),
+            2: lambda u: np.float64((-3 * (u ** 3) + 3 * (u ** 2) + 3 * u + 1) / 6),
+            3: lambda u: np.float64(u ** 3 / 6),
+        }
+
+        filters = np.zeros(
+            (
+                4 * cp_spacing[0],
+                4 * cp_spacing[1],
+                4 * cp_spacing[2],
+                3,
+                3,
+            ),
+            dtype=np.float32,
+        )
+
+        for u in range(cp_spacing[0]):
+            for v in range(cp_spacing[1]):
+                for w in range(cp_spacing[2]):
+                    for x in range(4):
+                        for y in range(4):
+                            for z in range(4):
+                                for it_dim in range(3):
+                                    u_norm = 1 - (u + 0.5) / cp_spacing[0]
+                                    v_norm = 1 - (v + 0.5) / cp_spacing[1]
+                                    w_norm = 1 - (w + 0.5) / cp_spacing[2]
+                                    filters[
+                                        x * cp_spacing[0] + u,
+                                        y * cp_spacing[1] + v,
+                                        z * cp_spacing[2] + w,
+                                        it_dim,
+                                        it_dim,
+                                    ] = (
+                                        b[x](u_norm) * b[y](v_norm) * b[z](w_norm)
+                                    )
+        return filters
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
+    )
+    def test_build(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
+
+        model.build(input_size)
+        assert model.filter.shape == (
+            4 * cp[0],
+            4 * cp[1],
+            4 * cp[2],
+            3,
+            3,
+        )
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
+    )
+    def test_coefficients(self, input_size, cp):
+
+        filters = self.generate_filter_coefficients(cp_spacing=cp)
+
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
+        model.build(input_size)
+
+        assert np.allclose(filters, model.filter.numpy(), atol=1e-8)
+
+    @pytest.mark.parametrize(
+        "input_size,cp",
+        [((1, 8, 8, 8, 3), (8, 8, 8)), ((1, 8, 8, 8, 3), (8, 16, 12))],
+    )
+    def test_interpolation(self, input_size, cp):
+        model = layer.BSplines3DTransform(cp, input_size[1:-1])
+        model.build(input_size)
+
+        vol_shape = input_size[1:-1]
+        num_cp = (
+            [input_size[0]]
+            + [int(np.ceil(isize / cpsize) + 3) for isize, cpsize in zip(vol_shape, cp)]
+            + [input_size[-1]]
+        )
+
+        field = tf.random.normal(shape=num_cp, dtype=tf.float32)
+
+        ddf = model.call(field)
+        assert ddf.shape == input_size

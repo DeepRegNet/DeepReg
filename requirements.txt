@@ -1,6 +1,7 @@
 argparse
 black>=20.8b1
 flake8
+GitPython
 h5py<2.11.0,>=2.10.0
 isort
 m2r2
@@ -10,13 +11,15 @@ notebook
 numpy==1.18.5
 pandas
 pre-commit
+pydocstyle
+pylint
 pytest
 pytest-cov
 pytest-dependency
 pyyaml>=5.3.1
 scipy
 seed-isort-config
-sphinx==3.2.1
+sphinx==3.4.2
 sphinx-notfound-page
 sphinx-rtd-theme
 sphinx-tabs

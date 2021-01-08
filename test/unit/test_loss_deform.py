@@ -56,50 +56,28 @@ def test_gradient_dxyz():
     assert is_equal_tf(get, expect)
 
 
-def test_compute_gradient_norm():
-    """test the calculation of l1/l2 norm for image gradients"""
-    # l1 norm
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_gradient_norm(tensor, l1=True)
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
+class TestGradientNorm:
+    @pytest.mark.parametrize("l1", [True, False])
+    def test_call(self, l1):
+        tensor = tf.ones([4, 50, 50, 50, 3])
+        got = deform.GradientNorm(l1=l1)(tensor)
+        expected = 0
+        assert is_equal_tf(got, expected)
 
-    # l2 norm
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_gradient_norm(tensor)
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
+    def test_get_config(self):
+        got = deform.GradientNorm().get_config()
+        expected = {
+            "name": "GradientNorm",
+            "l1": False,
+            "dtype": "float32",
+            "trainable": True,
+        }
+        assert got == expected
 
 
-def test_compute_bending_energy():
+def test_bending_energy():
     """test the calculation of bending energy"""
     tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.compute_bending_energy(tensor)
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-
-def test_local_displacement_energy():
-    """test the computation of local displacement energy for ddf"""
-    # bending energy
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "bending")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # l1 norm on gradient
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "gradient-l1")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # l2 norm on gradient
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    get = deform.local_displacement_energy(tensor, "gradient-l2")
-    expect = tf.zeros([4])
-    assert is_equal_tf(get, expect)
-
-    # not supported energy type
-    tensor = tf.ones([4, 50, 50, 50, 3])
-    with pytest.raises(ValueError):
-        deform.local_displacement_energy(tensor, "a wrong string")
+    got = deform.BendingEnergy()(tensor)
+    expected = 0
+    assert is_equal_tf(got, expected)

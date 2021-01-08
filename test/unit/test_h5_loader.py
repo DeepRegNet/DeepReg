@@ -13,7 +13,6 @@ from deepreg.dataset.loader.h5_loader import H5FileLoader
 
 
 def get_loader_h5_file_names(loader: H5FileLoader) -> List[str]:
-    """return the h5 file names in the H5FileLoader"""
     return [f.filename for f in loader.h5_files.values()]
 
 
@@ -118,7 +117,7 @@ class TestH5FileLoader:
         with pytest.raises(ValueError) as err_info:
             H5FileLoader(dir_paths=dir_paths, name=loader.name, grouped=loader.grouped)
         assert "dir_paths have repeated elements" in str(err_info.value)
-        loader.close()
+        # no need to close files as they haven't been opened yet
 
     @pytest.mark.parametrize(
         "name,err_msg",
