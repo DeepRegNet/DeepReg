@@ -27,7 +27,7 @@ class AbstractPreprocess(object):
         self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
         self._batch_size = batch_size
 
-    def __call__(self, inputs: dict, *args, **kwargs):
+    def __call__(self, inputs: dict, *args, **kwargs) -> Dict[str, tf.Tensor]:
         """
         Method that calls transform()
         :param inputs: dict, containing images and labels.
@@ -211,8 +211,7 @@ class FFDTransformation3D(AbstractPreprocess):
         Function that generates a random ddf field
         for a batch of data.
 
-        :param image_size (tuple): (batch, dim1, dim2, dim3) reference image shape
-            for the transform.
+        :param image_size: (batch, dim1, dim2, dim3) reference image shape for the transform.
         :return: shape = (batch, dim1, dim2, dim3, 3)
         """
         return layer_util.random_ddf_transform_generator(
