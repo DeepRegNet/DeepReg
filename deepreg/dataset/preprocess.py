@@ -144,8 +144,8 @@ class AffineTransformation3D(AbstractPreprocess):
         )
 
 
-@REGISTRY.register_data_augmentation(name="ddf")
-class DDFTransformation3D(AbstractPreprocess):
+@REGISTRY.register_data_augmentation(name="ffd")
+class FFDTransformation3D(AbstractPreprocess):
     """
     DDFTransformation3D class for using spatial transformation as a data augmentation technique
     """

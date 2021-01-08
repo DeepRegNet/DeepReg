@@ -80,7 +80,7 @@ class Test_DataLoader:
                     "data_augmentation": {
                         "affine": {"name": "affine"},
                         "ddf": {
-                            "name": "ddf",
+                            "name": "ffd",
                             "field_strength": 1,
                             "lowres_size": (3, 3, 3),
                         },
