@@ -1,6 +1,6 @@
 """
-Module for generating the preprocessing
-3D Affine/DDF Transforms for moving and fixed images.
+Module containing data augmentation techniques.
+  - 3D Affine/DDF Transforms for moving and fixed images.
 """
 
 from typing import Dict
@@ -8,9 +8,31 @@ from typing import Dict
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
+from deepreg.registry import REGISTRY
 
 
-class AffineTransformation3D:
+class AbstractPreprocess(object):
+    def __init__(
+        self, moving_image_size: tuple, fixed_image_size: tuple, batch_size: int
+    ):
+        self._moving_grid_ref = layer_util.get_reference_grid(
+            grid_size=moving_image_size
+        )
+        self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
+        self._batch_size = batch_size
+
+    def __call__(self, inputs: dict, *args, **kwargs):
+        return self.transform(inputs=inputs)
+
+    def transform(self, inputs: dict):
+        """
+        Method defined to call the transformation
+        """
+        raise NotImplementedError
+
+
+@REGISTRY.register_data_augmentation(name="affine")
+class AffineTransformation3D(AbstractPreprocess):
     """
     AffineTransformation3D class for maintaining and updating
     the transformed grids for the moving and fixed images.
@@ -31,12 +53,12 @@ class AffineTransformation3D:
         :param batch_size: size of mini-batch
         :param scale: a positive float controlling the scale of transformation
         """
-        self._batch_size = batch_size
-        self._scale = scale
-        self._moving_grid_ref = layer_util.get_reference_grid(
-            grid_size=moving_image_size
+        super().__init__(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            batch_size=batch_size,
         )
-        self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
+        self._scale = scale
 
     def _gen_transforms(self) -> tf.Tensor:
         """
@@ -122,7 +144,8 @@ class AffineTransformation3D:
         )
 
 
-class DDFTransformation3D:
+@REGISTRY.register_data_augmentation(name="ddf")
+class DDFTransformation3D(AbstractPreprocess):
     """
     DDFTransformation3D class for using spatial transformation as a data augmentation technique
     """
@@ -149,20 +172,21 @@ class DDFTransformation3D:
         :param lowres_size: tuple = (1, 1, 1).
         """
 
+        super().__init__(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            batch_size=batch_size,
+        )
+
         assert tuple(lowres_size) <= tuple(moving_image_size)
         assert tuple(lowres_size) <= tuple(fixed_image_size)
 
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
-        self._batch_size = batch_size
         self._field_strength = field_strength
         self._lowres_size = lowres_size
-        self._moving_grid_ref = tf.expand_dims(
-            layer_util.get_reference_grid(grid_size=moving_image_size), axis=0
-        )
-        self._fixed_grid_ref = tf.expand_dims(
-            layer_util.get_reference_grid(grid_size=fixed_image_size), axis=0
-        )
+        self._moving_grid_ref = tf.expand_dims(self._moving_grid_ref, axis=0)
+        self._fixed_grid_ref = tf.expand_dims(self._fixed_grid_ref, axis=0)
 
     def _gen_transforms(self, image_size):
         """

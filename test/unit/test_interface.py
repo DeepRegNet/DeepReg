@@ -7,7 +7,6 @@ from test.unit.util import is_equal_np
 
 import numpy as np
 import pytest
-import tensorflow as tf
 
 from deepreg.dataset.loader.interface import (
     AbstractPairedDataLoader,
@@ -16,36 +15,10 @@ from deepreg.dataset.loader.interface import (
     FileLoader,
     GeneratorDataLoader,
 )
+from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
+from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.util import normalize_array
-from deepreg.registry import Registry
-
-
-class AbstractDataLoaderWithShapes(DataLoader):
-    def __init__(
-        self,
-        moving_image_shape: (list, tuple),
-        fixed_image_shape: (list, tuple),
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self._moving_image_shape = moving_image_shape
-        self._fixed_image_shape = fixed_image_shape
-
-    @property
-    def moving_image_shape(self) -> tuple:
-        """
-        Return the moving image shape.
-        :return: shape of moving image
-        """
-        return self._moving_image_shape
-
-    @property
-    def fixed_image_shape(self) -> tuple:
-        """
-        Return the fixed image shape.
-        :return: shape of fixed image
-        """
-        return self._fixed_image_shape
+from deepreg.registry import REGISTRY
 
 
 class Test_DataLoader:
@@ -90,17 +63,33 @@ class Test_DataLoader:
     @pytest.mark.parametrize(
         "labeled,moving_shape,fixed_shape,batch_size,data_augmentation",
         [
-            (True, (9, 9, 9), (9, 9, 9), 1, None),
+            (True, (9, 9, 9), (9, 9, 9), 1, {}),
             (
                 True,
                 (9, 9, 9),
                 (15, 15, 15),
                 1,
-                {"ddf": {"field_strength": 1, "lowres_size": (3, 3, 3)}},
+                {"data_augmentation": {"affine": {"name": "affine"}}},
+            ),
+            (
+                True,
+                (9, 9, 9),
+                (15, 15, 15),
+                1,
+                {
+                    "data_augmentation": {
+                        "affine": {"name": "affine"},
+                        "ddf": {
+                            "name": "ddf",
+                            "field_strength": 1,
+                            "lowres_size": (3, 3, 3),
+                        },
+                    }
+                },
             ),
         ],
     )
-    def test_get_transforms(
+    def test_get_dataset_and_preprocess(
         self, labeled, moving_shape, fixed_shape, batch_size, data_augmentation
     ):
         """
@@ -109,44 +98,48 @@ class Test_DataLoader:
         and the shape of the output of this function. See test_preprocess.py for more testing regarding the concrete
         transforms.
         """
-        data_loader = AbstractDataLoaderWithShapes(
-            moving_image_shape=moving_shape,
+
+        data_dir_path = [
+            "data/test/nifti/paired/train",
+            "data/test/nifti/paired/test",
+        ]
+        common_args = dict(
+            file_loader=NiftiFileLoader, labeled=True, sample_label="all", seed=None
+        )
+
+        data_loader = PairedDataLoader(
+            data_dir_paths=data_dir_path,
             fixed_image_shape=fixed_shape,
-            labeled=labeled,
-            num_indices=1,
-            sample_label="all",
+            moving_image_shape=moving_shape,
+            **common_args,
         )
 
-        T = data_loader.get_transform(
+        dataset = data_loader.get_dataset_and_preprocess(
+            training=True,
             batch_size=batch_size,
-            registry=Registry(),
-            data_augmentation=data_augmentation,
+            repeat=True,
+            shuffle_buffer_num_batch=1,
+            registry=REGISTRY,
+            **data_augmentation,
         )
 
-        assert hasattr(T, "__call__")
-
-        inputs = dict(
-            moving_image=tf.constant(
-                np.zeros((batch_size,) + moving_shape + (1,)), dtype=np.float32
-            ),
-            fixed_image=tf.constant(
-                np.zeros((batch_size,) + fixed_shape + (1,)), dtype=np.float32
-            ),
-            moving_label=tf.constant(
-                np.zeros((batch_size,) + moving_shape + (1,)), dtype=np.float32
-            ),
-            fixed_label=tf.constant(
-                np.zeros((batch_size,) + fixed_shape + (1,)), dtype=np.float32
-            ),
-            indices=[1],
-        )
-
-        outputs = T(inputs)
-
-        assert outputs["moving_image"].shape == inputs["moving_image"].shape
-        assert outputs["fixed_image"].shape == inputs["fixed_image"].shape
-        assert outputs["moving_label"].shape == inputs["moving_label"].shape
-        assert outputs["fixed_label"].shape == inputs["fixed_label"].shape
+        for outputs in dataset.take(1):
+            assert (
+                outputs["moving_image"].shape
+                == (batch_size,) + data_loader.moving_image_shape
+            )
+            assert (
+                outputs["fixed_image"].shape
+                == (batch_size,) + data_loader.fixed_image_shape
+            )
+            assert (
+                outputs["moving_label"].shape
+                == (batch_size,) + data_loader.moving_image_shape
+            )
+            assert (
+                outputs["fixed_label"].shape
+                == (batch_size,) + data_loader.fixed_image_shape
+            )
 
 
 def test_abstract_paired_data_loader():

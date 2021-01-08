@@ -142,5 +142,17 @@ class Registry:
             category=LOSS_CLASS, config=config, default_args=default_args
         )
 
+    def register_data_augmentation(
+        self, name: str, cls: Callable = None, force: bool = False
+    ):
+        return self.register(
+            category=DATA_AUGMENTATION_CLASS, name=name, cls=cls, force=force
+        )
+
+    def build_data_augmentation(self, config: dict, default_args=None):
+        return self.build_from_config(
+            category=DATA_AUGMENTATION_CLASS, config=config, default_args=default_args
+        )
+
 
 REGISTRY = Registry()

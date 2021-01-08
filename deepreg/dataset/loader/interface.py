@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.dataset.loader.util import normalize_array
-from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
+from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
 from deepreg.registry import Registry
 
@@ -122,53 +122,34 @@ class DataLoader:
             )
         if repeat:
             dataset = dataset.repeat()
+
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-        if training:
-            transform = self.get_transform(
-                batch_size=batch_size, registry=registry, **kwargs
-            )
+        transform_list = []
+        if training and "data_augmentation" in kwargs.keys():
+            for key, value in kwargs["data_augmentation"].items():
+                transform_list.append(
+                    registry.build_data_augmentation(
+                        config=value,
+                        default_args={
+                            "moving_image_size": self.moving_image_shape,
+                            "fixed_image_size": self.fixed_image_shape,
+                            "batch_size": batch_size,
+                        },
+                    )
+                )
 
+            def transform(inputs: dict):
+                return reduce(lambda out, f: f(out), transform_list, inputs)
+
+            # print(transform_list[0])
             dataset = dataset.map(
                 transform,
                 num_parallel_calls=tf.data.experimental.AUTOTUNE,
             )
 
         return dataset
-
-    def get_transform(
-        self,
-        batch_size: int,
-        registry: Registry,
-        data_augmentation: (dict, None) = None,
-    ):
-
-        transform_list = []
-        transform_list.append(
-            AffineTransformation3D(
-                moving_image_size=self.moving_image_shape,
-                fixed_image_size=self.fixed_image_shape,
-                batch_size=batch_size,
-            )
-        )
-
-        if data_augmentation is not None:
-            for method, parameters in data_augmentation.items():
-                da_cls = registry.get_da(key=method)
-                transform_list.append(
-                    da_cls(
-                        moving_image_size=self.moving_image_shape,
-                        fixed_image_size=self.fixed_image_shape,
-                        batch_size=batch_size,
-                        **parameters,
-                    )
-                )
-
-        def transform(inputs: dict):
-            return reduce(lambda out, f: f.transform(out), transform_list, inputs)
-
-        return transform
 
     def close(self):
         pass
