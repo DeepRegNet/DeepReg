@@ -141,14 +141,14 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
 
 def build_rectangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular kernel for
-    LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular
+    kernel for LocalNormalizedCrossCorrelation.
 
     :param kernel_size: scalar, size of the 1-D kernel
     :return:
         - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for
-                    normalization purposes
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
+                      3D kernel used for normalization purposes
     """
 
     filters = tf.ones(shape=(kernel_size, 1, 1), dtype="float32")
@@ -158,14 +158,14 @@ def build_rectangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
 
 def build_triangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a the 1D filter for separable convolution equivalent to a 3-D triangular kernel for
-    LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D triangular
+    kernel for LocalNormalizedCrossCorrelation.
 
     :param kernel_size: scalar, size of the 1-D kernel
     :return:
         - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for
-                      normalization purposes
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
+                      3D kernel used for normalization purposes
     """
     fsize = int((kernel_size + 1) / 2)
     pad_filter = tf.constant(
@@ -189,14 +189,14 @@ def build_triangular_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
 
 def build_gaussian_kernel(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian kernel for
-    LocalNormalizedCrossCorrelation.
+    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
+    kernel for LocalNormalizedCrossCorrelation.
 
     :param kernel_size: scalar, size of the 1-D kernel
     :return:
         - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent 3D kernel used for
-                      normalization purposes
+        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
+                      3D kernel used for normalization purposes
     """
     mean = (kernel_size - 1) / 2.0
     sigma = kernel_size / 3
