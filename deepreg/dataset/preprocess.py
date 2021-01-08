@@ -211,7 +211,8 @@ class FFDTransformation3D(AbstractPreprocess):
         Function that generates a random ddf field
         for a batch of data.
 
-        :param image_size: (batch, dim1, dim2, dim3) reference image shape for the transform.
+        :param image_size: (batch, dim1, dim2, dim3) reference image shape for
+        the transform.
         :return: shape = (batch, dim1, dim2, dim3, 3)
         """
         return layer_util.random_ddf_transform_generator(
