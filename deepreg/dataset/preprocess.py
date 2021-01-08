@@ -15,6 +15,12 @@ class AbstractPreprocess(object):
     def __init__(
         self, moving_image_size: tuple, fixed_image_size: tuple, batch_size: int
     ):
+        """
+        Abstract class for Preprocess
+        :param moving_image_size:
+        :param fixed_image_size:
+        :param batch_size:
+        """
         self._moving_grid_ref = layer_util.get_reference_grid(
             grid_size=moving_image_size
         )
@@ -22,11 +28,20 @@ class AbstractPreprocess(object):
         self._batch_size = batch_size
 
     def __call__(self, inputs: dict, *args, **kwargs):
+        """
+        Method that calls transform()
+        :param inputs: dict, containing images and labels.
+        :param args: dict, preprocessing parameters
+        :param kwargs:
+        :return:
+        """
         return self.transform(inputs=inputs)
 
     def transform(self, inputs: dict):
         """
         Method defined to call the transformation
+        :param inputs: dict, containing images and labels.
+        :return:
         """
         raise NotImplementedError
 
@@ -191,13 +206,13 @@ class FFDTransformation3D(AbstractPreprocess):
         self._moving_grid_ref = tf.expand_dims(self._moving_grid_ref, axis=0)
         self._fixed_grid_ref = tf.expand_dims(self._fixed_grid_ref, axis=0)
 
-    def _gen_transforms(self, image_size):
+    def _gen_transforms(self, image_size: tuple) -> tf.Tensor:
         """
         Function that generates a random ddf field
         for a batch of data.
 
         :param image_size (tuple): (batch, dim1, dim2, dim3) reference image shape
-        for the transform.
+            for the transform.
         :return: shape = (batch, dim1, dim2, dim3, 3)
         """
         return layer_util.random_ddf_transform_generator(
@@ -208,7 +223,7 @@ class FFDTransformation3D(AbstractPreprocess):
         )
 
     @staticmethod
-    def _transform(image, grid_ref, transforms):
+    def _transform(image, grid_ref, transforms) -> tf.Tensor:
         """
         Resamples an input image from the reference grid by the series
         of input transforms.
@@ -223,7 +238,7 @@ class FFDTransformation3D(AbstractPreprocess):
         )
         return transformed
 
-    def transform(self, inputs: dict):
+    def transform(self, inputs: dict) -> Dict[str, tf.Tensor]:
         """
         Creates random transforms for the input images and their labels,
         and transforms them based on the resampled reference grids.

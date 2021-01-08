@@ -98,6 +98,9 @@ class DataLoader:
         :param repeat: bool, indicating if we need to repeat the dataset
         :param shuffle_buffer_num_batch: int, when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+        :param repeat: bool, indicating if we need to repeat the dataset
+        :param registry: object with the registered pairs (category,name)
+        :param kwargs:
 
         :returns dataset:
         """

@@ -75,7 +75,7 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     assert outputs["fixed_image"].shape == fixed_image_size
 
 
-class Test_AffineTransformation3d:
+class TestAffineTransformation3d:
     @pytest.mark.parametrize(
         "dims,batch_size,scale",
         [
@@ -238,7 +238,7 @@ class Test_AffineTransformation3d:
         assert len(outputs.get("indices")) == len(indices)
 
 
-class Test_FFDTransformation3d:
+class TestFFDTransformation3d:
     @pytest.mark.parametrize(
         "fix_dims,mov_dims,batch_size,field_strength,lowres_size,raise_error",
         [

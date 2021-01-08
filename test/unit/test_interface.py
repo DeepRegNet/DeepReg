@@ -21,7 +21,7 @@ from deepreg.dataset.loader.util import normalize_array
 from deepreg.registry import REGISTRY
 
 
-class Test_Dataloader:
+class TestDataLoader:
     @pytest.mark.parametrize(
         "labeled,num_indices,sample_label,seed",
         [
