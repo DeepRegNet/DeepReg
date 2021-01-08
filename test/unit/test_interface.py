@@ -21,7 +21,7 @@ from deepreg.dataset.loader.util import normalize_array
 from deepreg.registry import REGISTRY
 
 
-class Test_DataLoader:
+class Test_Dataloader:
     @pytest.mark.parametrize(
         "labeled,num_indices,sample_label,seed",
         [
@@ -35,6 +35,14 @@ class Test_DataLoader:
         ],
     )
     def test_init(self, labeled, num_indices, sample_label, seed):
+        """
+        Test init function of DataLoader class
+        :param labeled: bool
+        :param num_indices: int
+        :param sample_label: str
+        :param seed: float/int/None
+        :return:
+        """
         DataLoader(
             labeled=labeled,
             num_indices=num_indices,
@@ -93,12 +101,19 @@ class Test_DataLoader:
         self, labeled, moving_shape, fixed_shape, batch_size, data_augmentation
     ):
         """
-        Test get_transforms() function. For that, an Abstract Data Loader is created only to set the moving
-        and fixed shapes that are used in get_transforms(). Here we test that the get_transform() returns a function
-        and the shape of the output of this function. See test_preprocess.py for more testing regarding the concrete
-        transforms.
-        """
+        Test get_transforms() function. For that, an Abstract Data Loader is created
+        only to set the moving  and fixed shapes that are used in get_transforms().
+        Here we test that the get_transform() returns a function and the shape of
+        the output of this function. See test_preprocess.py for more testing regarding
+        the concrete transforms.
 
+        :param labeled: bool
+        :param moving_shape: tuple
+        :param fixed_shape: tuple
+        :param batch_size: int
+        :param data_augmentation: dict
+        :return:
+        """
         data_dir_path = [
             "data/test/nifti/paired/train",
             "data/test/nifti/paired/test",
@@ -204,7 +219,6 @@ def test_abstract_unpaired_data_loader():
 def test_generator_data_loader(caplog):
     """
     Test the functions in GeneratorDataLoader
-
     :param caplog: used to check warning message.
     """
     generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")

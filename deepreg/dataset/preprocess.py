@@ -147,7 +147,8 @@ class AffineTransformation3D(AbstractPreprocess):
 @REGISTRY.register_data_augmentation(name="ffd")
 class FFDTransformation3D(AbstractPreprocess):
     """
-    DDFTransformation3D class for using spatial transformation as a data augmentation technique
+    DDFTransformation3D class for using spatial transformation as a data augmentation
+    technique
     """
 
     def __init__(
@@ -161,14 +162,16 @@ class FFDTransformation3D(AbstractPreprocess):
         """
         Creates a DDF transformation for data augmentation.
 
-        To simulate smooth deformation fields, we interpolate from a low resolution field of size lowres_size
-        using linear interpolation. The variance of the deformation field is drawn from a uniform variable
+        To simulate smooth deformation fields, we interpolate from a low resolution
+        field of size lowres_size using linear interpolation. The variance of the
+        deformation field is drawn from a uniform variable
         between [0, field_strength].
 
         :param moving_image_size: tuple
         :param fixed_image_size: tuple
         :param batch_size: int
-        :param field_strength: int = 1. It is used as the upper bound for the deformation field variance
+        :param field_strength: int = 1. It is used as the upper bound for the
+        deformation field variance
         :param lowres_size: tuple = (1, 1, 1).
         """
 
@@ -193,7 +196,8 @@ class FFDTransformation3D(AbstractPreprocess):
         Function that generates a random ddf field
         for a batch of data.
 
-        :param image_size (tuple): (batch, dim1, dim2, dim3) reference image shape for the transform.
+        :param image_size (tuple): (batch, dim1, dim2, dim3) reference image shape
+        for the transform.
         :return: shape = (batch, dim1, dim2, dim3, 3)
         """
         return layer_util.random_ddf_transform_generator(

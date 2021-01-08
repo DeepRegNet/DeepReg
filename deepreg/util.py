@@ -32,6 +32,8 @@ def build_dataset(
     :param training: bool, if true, data augmentation and shuffling will be added
     :param repeat: bool, if true, dataset will be repeated,
         true for train/valid dataset during model.fit
+    :param registry: registry to construct class objects
+
     :return:
     - (data_loader_train, dataset_train, steps_per_epoch_train)
     - (data_loader_val, dataset_val, steps_per_epoch_valid)

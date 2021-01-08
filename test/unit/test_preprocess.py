@@ -29,6 +29,10 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     """
     Test resize_inputs by confirming that it generates
     appropriate output sizes on a simple test case.
+    :param input_size: tuple
+    :param moving_image_size: tuple
+    :param fixed_image_size: tuple
+    :return:
     """
     # labeled data - Pass
     moving_image = tf.ones(input_size)
@@ -71,7 +75,7 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     assert outputs["fixed_image"].shape == fixed_image_size
 
 
-class Test_AffineTransformation3D:
+class Test_AffineTransformation3d:
     @pytest.mark.parametrize(
         "dims,batch_size,scale",
         [
@@ -84,6 +88,10 @@ class Test_AffineTransformation3D:
         """
         Test _gen_transforms() by confirming that it generates
         appropriate transform output sizes.
+        :param dims: tuple
+        :param batch_size: int
+        :param scale: float
+        :return:
         """
 
         moving_image = np.random.uniform(size=dims)
@@ -108,6 +116,10 @@ class Test_AffineTransformation3D:
         """
         Test _transform() by confirming that it generates
         appropriate transform output sizes.
+        :param dims: tuple
+        :param batch_size: int
+        :param scale: int
+        :return:
         """
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
@@ -154,6 +166,10 @@ class Test_AffineTransformation3D:
         """
         Test transform() by comfirming that it transforms
         images and labels only as necessary and when provided.
+        :param dims: tuple
+        :param batch_size: int
+        :param scale: int
+        :return:
         """
         # Common test setup.
         moving_image = np.random.uniform(size=dims)
@@ -222,7 +238,7 @@ class Test_AffineTransformation3D:
         assert len(outputs.get("indices")) == len(indices)
 
 
-class Test_DDFTransformation3D:
+class Test_FFDTransformation3d:
     @pytest.mark.parametrize(
         "fix_dims,mov_dims,batch_size,field_strength,lowres_size,raise_error",
         [
@@ -235,14 +251,21 @@ class Test_DDFTransformation3D:
         self, fix_dims, mov_dims, batch_size, field_strength, lowres_size, raise_error
     ):
         """
-        Test initialization of DDFTransformation3D class
+        Test initialization of FFDTransformation3D class
+        :param fix_dims: tuple
+        :param mov_dims: tuple
+        :param batch_size: int
+        :param field_strength: int
+        :param lowres_size: tuple
+        :param raise_error: bool, True if the specified parameters will raise error
+        :return:
         """
         moving_image = np.random.uniform(size=mov_dims)
         fixed_image = np.random.uniform(size=fix_dims)
 
         if raise_error:
             with pytest.raises(AssertionError):
-                ddf_transform_3d = preprocess.DDFTransformation3D(
+                ddf_transform_3d = preprocess.FFDTransformation3D(
                     moving_image.shape,
                     fixed_image.shape,
                     batch_size,
@@ -251,7 +274,7 @@ class Test_DDFTransformation3D:
                 )
         else:
 
-            ddf_transform_3d = preprocess.DDFTransformation3D(
+            ddf_transform_3d = preprocess.FFDTransformation3D(
                 moving_image.shape,
                 fixed_image.shape,
                 batch_size,
@@ -274,11 +297,15 @@ class Test_DDFTransformation3D:
         """
         Test _gen_transforms() by confirming that it generates
         appropriate transform output sizes.
+        :param dims: tuple
+        :param batch_size: int
+        :param field_strength: int
+        :param lowres_size: tuple
         """
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
 
-        ddf_transform_3d = preprocess.DDFTransformation3D(
+        ddf_transform_3d = preprocess.FFDTransformation3D(
             moving_image.shape,
             fixed_image.shape,
             batch_size,
@@ -301,6 +328,10 @@ class Test_DDFTransformation3D:
         """
         Test _transform() by confirming that it generates
         appropriate transform output sizes.
+        :param dims: tuple
+        :param batch_size: int
+        :param field_strength: int
+        :param lowres_size: tuple
         """
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
@@ -312,7 +343,7 @@ class Test_DDFTransformation3D:
             np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
         )
 
-        ddf_transform_3d = preprocess.DDFTransformation3D(
+        ddf_transform_3d = preprocess.FFDTransformation3D(
             moving_image.shape,
             fixed_image.shape,
             batch_size,
@@ -349,12 +380,16 @@ class Test_DDFTransformation3D:
         """
         Test transform() by confirming that it generates
         appropriate transform output sizes.
+        :param dims: tuple
+        :param batch_size: int
+        :param field_strength: int
+        :param lowres_size: tuple
         """
         # Common test setup.
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
 
-        ddf_transform_3d = preprocess.DDFTransformation3D(
+        ddf_transform_3d = preprocess.FFDTransformation3D(
             moving_image.shape,
             fixed_image.shape,
             batch_size,
