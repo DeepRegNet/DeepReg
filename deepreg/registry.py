@@ -125,6 +125,14 @@ class Registry:
         copied._dict = self._dict.copy()
         return copied
 
+    def register_model(self, name: str, cls: Callable = None, force: bool = False):
+        return self.register(category=MODEL_CLASS, name=name, cls=cls, force=force)
+
+    def build_model(self, config: dict, default_args=None):
+        return self.build_from_config(
+            category=MODEL_CLASS, config=config, default_args=default_args
+        )
+
     def register_backbone(self, name: str, cls: Callable = None, force: bool = False):
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
 

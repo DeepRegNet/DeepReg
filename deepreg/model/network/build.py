@@ -2,7 +2,6 @@ import tensorflow as tf
 
 from deepreg.model.network.affine import build_affine_model
 from deepreg.model.network.cond import build_conditional_model
-from deepreg.model.network.ddf_dvf import build_ddf_dvf_model
 from deepreg.registry import Registry
 
 
@@ -28,14 +27,16 @@ def build_model(
     :return: the built tf.keras.Model
     """
     if train_config["method"] in ["ddf", "dvf"]:
-        return build_ddf_dvf_model(
-            moving_image_size=moving_image_size,
-            fixed_image_size=fixed_image_size,
-            index_size=index_size,
-            labeled=labeled,
-            batch_size=batch_size,
-            train_config=train_config,
-            registry=registry,
+        return registry.build_model(
+            config=dict(
+                name=train_config["method"],
+                moving_image_size=moving_image_size,
+                fixed_image_size=fixed_image_size,
+                index_size=index_size,
+                labeled=labeled,
+                batch_size=batch_size,
+                config=train_config,
+            )
         )
     elif train_config["method"] == "conditional":
         return build_conditional_model(
