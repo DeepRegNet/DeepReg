@@ -8,6 +8,7 @@ import argparse
 import os
 
 import tensorflow as tf
+from tensorflow.keras.mixed_precision import experimental as mixed_precision
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
@@ -62,6 +63,7 @@ def train(
     gpu: str,
     config_path: (str, list),
     gpu_allow_growth: bool,
+    use_mixed_precision: bool,
     ckpt_path: str,
     log_dir: str,
     log_root: str = "logs",
@@ -110,9 +112,15 @@ def train(
         repeat=True,
     )
 
+    # use mixed precision if configured so
+    # https://www.tensorflow.org/guide/mixed_precision
+    if use_mixed_precision:
+        policy = mixed_precision.Policy("mixed_float16")
+        mixed_precision.set_policy(policy)
+
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
-    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
     if len(tf.config.list_physical_devices("GPU")) > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
@@ -149,7 +157,8 @@ def train(
     callbacks = [tensorboard_callback, ckpt_callback]
 
     # train
-    # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
+    # it's necessary to define the steps_per_epoch and validation_steps
+    # to prevent errors like
     # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
     model.fit(
         x=dataset_train,
@@ -191,6 +200,12 @@ def main(args=None):
         "--gpu_allow_growth",
         "-gr",
         help="Prevent TensorFlow from reserving all available GPU memory",
+        default=False,
+    )
+
+    parser.add_argument(
+        "--mixed_precision",
+        help="Use TensorFlow mixed precision to accelerate training",
         default=False,
     )
 
@@ -239,6 +254,7 @@ def main(args=None):
         gpu=args.gpu,
         config_path=args.config_path,
         gpu_allow_growth=args.gpu_allow_growth,
+        use_mixed_precision=args.mixed_precision,
         ckpt_path=args.ckpt_path,
         log_root=args.log_root,
         log_dir=args.log_dir,
