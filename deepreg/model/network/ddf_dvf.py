@@ -334,7 +334,9 @@ class ConditionalModel(RegistrationModel):
                 out_activation="sigmoid",
             ),
         )
+        # (batch, f_dim1, f_dim2, f_dim3)
         pred_fixed_label = backbone(inputs=backbone_inputs)
+        pred_fixed_label = tf.squeeze(pred_fixed_label, axis=4)
 
         return tf.keras.Model(inputs=inputs, outputs=pred_fixed_label)
 

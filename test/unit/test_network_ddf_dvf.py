@@ -70,6 +70,7 @@ def pytest_generate_tests(metafunc):
     This function is called once per each test function.
     It takes the attribute `params` from the test class,
     and then use the same `params` for all tests inside the class.
+    This is specific for test of registration models only.
 
     This is modified from the pytest documentation,
     where their version defined the params for each test function separately.
@@ -203,3 +204,27 @@ class TestDVFModel:
         assert indices.shape == (batch_size, index_size)
         expected = 8 if labeled else 5
         assert len(processed) == expected
+
+
+class TestConditionalModel:
+    params = [
+        dict(method=method, labeled=labeled, backbone=backbone)
+        for method, labeled, backbone in itertools.product(
+            ["conditional"], [True], ["local", "unet"]
+        )
+    ]
+
+    def test_build_model(self, model, labeled, backbone):
+        assert len(model._model.outputs) == 1
+        pred_fixed_label = model._model.outputs[0]
+        assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
+
+    def test_build_loss(self, model, labeled, backbone):
+        assert len(model._model.losses) == 1
+
+    def test_postprocess(self, model, labeled, backbone):
+        indices, processed = model.postprocess(
+            inputs=model._model.inputs, outputs=model._model.outputs
+        )
+        assert indices.shape == (batch_size, index_size)
+        assert len(processed) == 5
