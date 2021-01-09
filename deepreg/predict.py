@@ -78,28 +78,21 @@ def predict_on_dataset(
 
     sample_index_strs = []
     metric_lists = []
-    for _, inputs_dict in enumerate(dataset):
-        batch_size = inputs_dict[list(inputs_dict.keys())[0]].shape[0]
-        inputs = [
-            inputs_dict[k]
-            for k in [
-                "moving_image",
-                "fixed_image",
-                "indices",
-                "moving_label",
-                "fixed_label",
-            ]
-            if k in inputs_dict.keys()
-        ]
+    for _, inputs in enumerate(dataset):
+        batch_size = inputs[list(inputs.keys())[0]].shape[0]
         outputs = model.predict(x=inputs, batch_size=batch_size)
-        inputs = [x.numpy() for x in inputs]
-        assert [isinstance(x, np.ndarray) for x in outputs]
         indices, processed = model.postprocess(inputs=inputs, outputs=outputs)
+
+        # convert to np arrays
+        indices = indices.numpy()
+        processed = {
+            k: (v[0].numpy() if isinstance(v[0], tf.Tensor) else v[0], v[1], v[2])
+            for k, v in processed.items()
+        }
+
         # save images of inputs and outputs
         for sample_index in range(batch_size):
-            # save moving/fixed image under pair_dir
-            # save moving/fixed label, pred fixed image/label, ddf/dvf under label dir
-            # if labeled, label dir is a sub dir of pair_dir, otherwise = pair_dir
+            # save label independent tensors under pair_dir, otherwise under label_dir
 
             # init output path
             indices_i = indices[sample_index, :].astype(int).tolist()
@@ -109,7 +102,6 @@ def predict_on_dataset(
 
             for name, (arr, normalize, on_label) in processed.items():
                 if name == "theta":
-                    arr = arr.numpy()
                     np.savetxt(
                         fname=os.path.join(pair_dir, "affine.txt"),
                         x=arr[sample_index, :, :].numpy(),

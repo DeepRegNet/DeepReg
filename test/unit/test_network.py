@@ -16,8 +16,8 @@ fixed_image_size = (2, 4, 6)
 index_size = 2
 batch_size = 3
 backbone_args = {
-    "local": {"extract_levels": [1, 2, 3]},
-    "global": {"extract_levels": [1, 2, 3]},
+    "local": {"extract_levels": [1, 2]},
+    "global": {"extract_levels": [1, 2]},
     "unet": {"depth": 2},
 }
 config = {
@@ -29,7 +29,7 @@ config = {
         "label": {
             "name": "dice",
             "weight": 1,
-            "scales": [0, 1, 2],
+            "scales": [0, 1],
         },
         "regularization": {"weight": 0.1, "name": "bending"},
     },
@@ -115,26 +115,31 @@ class TestRegistrationModel:
 
     def test_build_inputs(self, empty_model, labeled):
         inputs = empty_model.build_inputs()
-        if labeled:
-            assert len(inputs) == 5
-            moving_image, fixed_image, indices, moving_label, fixed_label = inputs
-            assert moving_label.shape == (batch_size, *moving_image_size)
-            assert fixed_label.shape == (batch_size, *fixed_image_size)
-        else:
-            assert len(inputs) == 3
-            moving_image, fixed_image, indices = inputs
+        expected_inputs_len = 5 if labeled else 3
+        assert len(inputs) == expected_inputs_len
+
+        moving_image = inputs["moving_image"]
+        fixed_image = inputs["fixed_image"]
+        indices = inputs["indices"]
         assert moving_image.shape == (batch_size, *moving_image_size)
         assert fixed_image.shape == (batch_size, *fixed_image_size)
         assert indices.shape == (batch_size, index_size)
 
+        if labeled:
+            moving_label = inputs["moving_label"]
+            fixed_label = inputs["fixed_label"]
+            assert moving_label.shape == (batch_size, *moving_image_size)
+            assert fixed_label.shape == (batch_size, *fixed_image_size)
+
     def test_concat_images(self, empty_model, labeled):
         inputs = empty_model.build_inputs()
+        moving_image = inputs["moving_image"]
+        fixed_image = inputs["fixed_image"]
         if labeled:
-            moving_image, fixed_image, _, moving_label, _ = inputs
+            moving_label = inputs["moving_label"]
             images = empty_model.concat_images(moving_image, fixed_image, moving_label)
             assert images.shape == (batch_size, *fixed_image_size, 3)
         else:
-            moving_image, fixed_image, _ = inputs
             images = empty_model.concat_images(moving_image, fixed_image)
             assert images.shape == (batch_size, *fixed_image_size, 2)
 
@@ -148,15 +153,17 @@ class TestDDFModel:
     ]
 
     def test_build_model(self, model, labeled, backbone):
-        if labeled:
-            assert len(model._model.outputs) == 3
-            ddf, pred_fixed_image, pred_fixed_label = model._model.outputs
-            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
-        else:
-            assert len(model._model.outputs) == 2
-            ddf, pred_fixed_image = model._model.outputs
+        expected_outputs_len = 3 if labeled else 2
+        assert len(model._outputs) == expected_outputs_len
+
+        ddf = model._outputs["ddf"]
+        pred_fixed_image = model._outputs["pred_fixed_image"]
         assert ddf.shape == (batch_size, *fixed_image_size, 3)
         assert pred_fixed_image.shape == (batch_size, *fixed_image_size)
+
+        if labeled:
+            pred_fixed_label = model._outputs["pred_fixed_label"]
+            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
 
     def test_build_loss(self, model, labeled, backbone):
         expected = 3 if labeled else 2
@@ -164,7 +171,7 @@ class TestDDFModel:
 
     def test_postprocess(self, model, labeled, backbone):
         indices, processed = model.postprocess(
-            inputs=model._model.inputs, outputs=model._model.outputs
+            inputs=model._inputs, outputs=model._outputs
         )
         assert indices.shape == (batch_size, index_size)
         expected = 7 if labeled else 4
@@ -182,16 +189,19 @@ class TestDVFModel:
     ]
 
     def test_build_model(self, model, labeled, backbone):
-        if labeled:
-            assert len(model._model.outputs) == 4
-            dvf, ddf, pred_fixed_image, pred_fixed_label = model._model.outputs
-            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
-        else:
-            assert len(model._model.outputs) == 3
-            dvf, ddf, pred_fixed_image = model._model.outputs
+        expected_outputs_len = 4 if labeled else 3
+        assert len(model._outputs) == expected_outputs_len
+
+        dvf = model._outputs["dvf"]
+        ddf = model._outputs["ddf"]
+        pred_fixed_image = model._outputs["pred_fixed_image"]
         assert dvf.shape == (batch_size, *fixed_image_size, 3)
         assert ddf.shape == (batch_size, *fixed_image_size, 3)
         assert pred_fixed_image.shape == (batch_size, *fixed_image_size)
+
+        if labeled:
+            pred_fixed_label = model._outputs["pred_fixed_label"]
+            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
 
     def test_build_loss(self, model, labeled, backbone):
         expected = 3 if labeled else 2
@@ -199,7 +209,7 @@ class TestDVFModel:
 
     def test_postprocess(self, model, labeled, backbone):
         indices, processed = model.postprocess(
-            inputs=model._model.inputs, outputs=model._model.outputs
+            inputs=model._inputs, outputs=model._outputs
         )
         assert indices.shape == (batch_size, index_size)
         expected = 8 if labeled else 5
@@ -215,8 +225,8 @@ class TestConditionalModel:
     ]
 
     def test_build_model(self, model, labeled, backbone):
-        assert len(model._model.outputs) == 1
-        pred_fixed_label = model._model.outputs[0]
+        assert len(model._outputs) == 1
+        pred_fixed_label = model._outputs["pred_fixed_label"]
         assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
 
     def test_build_loss(self, model, labeled, backbone):
@@ -224,7 +234,7 @@ class TestConditionalModel:
 
     def test_postprocess(self, model, labeled, backbone):
         indices, processed = model.postprocess(
-            inputs=model._model.inputs, outputs=model._model.outputs
+            inputs=model._inputs, outputs=model._outputs
         )
         assert indices.shape == (batch_size, index_size)
         assert len(processed) == 5
