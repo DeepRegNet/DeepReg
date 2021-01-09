@@ -1,135 +1,205 @@
 # coding=utf-8
 
 """
-Tests for deepreg/model/network/ddf_dvf.py
+Tests for deepreg/_model/network/ddf_dvf.py
 """
-import pytest
-import tensorflow as tf
+import itertools
+from unittest.mock import MagicMock, patch
 
-from deepreg.model.network.ddf_dvf import build_ddf_dvf_model, ddf_dvf_forward
-from deepreg.model.network.util import build_backbone
+import pytest
+
+from deepreg.model.network.ddf_dvf import RegistrationModel
 from deepreg.registry import REGISTRY
 
-
-def test_ddf_dvf_forward():
-    """
-    Testing that ddf_dvf_forward function returns the tensors with correct shapes
-    """
-
-    moving_image_size = (1, 3, 5)
-    fixed_image_size = (2, 4, 6)
-    batch_size = 1
-
-    local_net = build_backbone(
-        image_size=fixed_image_size,
-        out_channels=3,
-        config={
-            "name": "local",
-            "num_channel_initial": 4,
-            "extract_levels": [1, 2, 3],
+moving_image_size = (1, 3, 5)
+fixed_image_size = (2, 4, 6)
+index_size = 2
+batch_size = 3
+backbone_args = {
+    "local": {"extract_levels": [1, 2, 3]},
+    "global": {"extract_levels": [1, 2, 3]},
+    "unet": {"depth": 2},
+}
+config = {
+    "backbone": {
+        "num_channel_initial": 4,
+    },
+    "loss": {
+        "image": {"name": "lncc", "weight": 0.1},
+        "label": {
+            "name": "dice",
+            "weight": 1,
+            "scales": [0, 1, 2, 4, 8, 16, 32],
         },
-        method_name="ddf",
-        registry=REGISTRY,
-    )
-
-    # Check DDF mode network output shapes - Pass
-    dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_dvf_forward(
-        backbone=local_net,
-        moving_image=tf.ones((batch_size,) + moving_image_size),
-        fixed_image=tf.ones((batch_size,) + fixed_image_size),
-        moving_label=tf.ones((batch_size,) + moving_image_size),
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-        output_dvf=False,
-    )
-    assert dvf is None
-    assert ddf.shape == (batch_size,) + fixed_image_size + (3,)
-    assert pred_fixed_image.shape == (batch_size,) + fixed_image_size
-    assert pred_fixed_label.shape == (batch_size,) + fixed_image_size
-    assert grid_fixed.shape == fixed_image_size + (3,)
-
-    # Check DVF mode network output shapes - Pass
-    dvf, ddf, pred_fixed_image, pred_fixed_label, grid_fixed = ddf_dvf_forward(
-        backbone=local_net,
-        moving_image=tf.ones((batch_size,) + moving_image_size),
-        fixed_image=tf.ones((batch_size,) + fixed_image_size),
-        moving_label=tf.ones((batch_size,) + moving_image_size),
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-        output_dvf=True,
-    )
-    assert dvf.shape == (batch_size,) + fixed_image_size + (3,)
-    assert ddf.shape == (batch_size,) + fixed_image_size + (3,)
-    assert pred_fixed_image.shape == (batch_size,) + fixed_image_size
-    assert pred_fixed_label.shape == (batch_size,) + fixed_image_size
-    assert grid_fixed.shape == fixed_image_size + (3,)
+        "regularization": {"weight": 0.1, "name": "bending"},
+    },
+}
 
 
-def test_build_ddf_dvf_model():
+@pytest.fixture
+def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
     """
-    Testing that build_ddf_dvf_model function returns the tensors with correct shapes
+    A specific registration model object.
+
+    :param method: name of method
+    :param labeled: whether the data is labeled
+    :param backbone: name of backbone
+    :return: the built object
     """
-    moving_image_size = (1, 3, 5)
-    fixed_image_size = (2, 4, 6)
-    batch_size = 1
-    train_config = {
-        "method": "ddf",
-        "backbone": {
-            "name": "local",
-            "num_channel_initial": 4,
-            "extract_levels": [1, 2, 3],
-        },
-        "loss": {
-            "image": {"name": "lncc", "weight": 0.1},
-            "label": {
-                "name": "dice",
-                "weight": 1,
-                "scales": [0, 1, 2, 4, 8, 16, 32],
-            },
-            "regularization": {"weight": 0.0, "name": "bending"},
-        },
-    }
-
-    # Create DDF model
-    model_ddf = build_ddf_dvf_model(
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-        index_size=1,
-        labeled=True,
-        batch_size=batch_size,
-        train_config=train_config,
-        registry=REGISTRY,
+    _config = config.copy()
+    _config["method"] = method
+    _config["backbone"]["name"] = backbone
+    _config["backbone"] = {**backbone_args[backbone], **_config["backbone"]}
+    return REGISTRY.build_model(
+        config=dict(
+            name=method,  # TODO we store method twice
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            config=_config,
+        )
     )
 
-    # Create DVF model
-    train_config["method"] = "dvf"
-    model_dvf = build_ddf_dvf_model(
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-        index_size=1,
-        labeled=True,
-        batch_size=batch_size,
-        train_config=train_config,
-        registry=REGISTRY,
+
+def pytest_generate_tests(metafunc):
+    """
+    Test parameter generator.
+
+    This function is called once per each test function.
+    It takes the attribute `params` from the test class,
+    and then use the same `params` for all tests inside the class.
+
+    This is modified from the pytest documentation,
+    where their version defined the params for each test function separately.
+
+    https://docs.pytest.org/en/stable/example/parametrize.html#parametrizing-test-methods-through-per-class-configuration
+
+    :param metafunc:
+    :return:
+    """
+    #
+    funcarglist = metafunc.cls.params
+    argnames = sorted(funcarglist[0])
+    metafunc.parametrize(
+        argnames, [[funcargs[name] for name in argnames] for funcargs in funcarglist]
     )
-    inputs = {
-        "moving_image": tf.ones((batch_size,) + moving_image_size),
-        "fixed_image": tf.ones((batch_size,) + fixed_image_size),
-        "indices": 1,
-        "moving_label": tf.ones((batch_size,) + moving_image_size),
-        "fixed_label": tf.ones((batch_size,) + fixed_image_size),
-    }
-    outputs_ddf = model_ddf(inputs)
-    outputs_dvf = model_dvf(inputs)
 
-    expected_outputs_keys = ["dvf", "ddf", "pred_fixed_label"]
-    assert all(keys in expected_outputs_keys for keys in outputs_ddf)
-    assert outputs_ddf["pred_fixed_label"].shape == (batch_size,) + fixed_image_size
-    assert outputs_ddf["ddf"].shape == (batch_size,) + fixed_image_size + (3,)
-    with pytest.raises(KeyError):
-        outputs_ddf["dvf"]
 
-    assert all(keys in expected_outputs_keys for keys in outputs_dvf)
-    assert outputs_dvf["pred_fixed_label"].shape == (batch_size,) + fixed_image_size
-    assert outputs_dvf["dvf"].shape == (batch_size,) + fixed_image_size + (3,)
-    assert outputs_dvf["ddf"].shape == (batch_size,) + fixed_image_size + (3,)
+class TestRegistrationModel:
+    params = [dict(labeled=True), dict(labeled=False)]
+
+    @pytest.fixture
+    def empty_model(self, labeled: bool) -> RegistrationModel:
+        """
+        A RegistrationModel with build_model and build_loss mocked/overwritten.
+
+        :param labeled: whether the data is labeled
+        :return: the mocked object
+        """
+        with patch.multiple(
+            RegistrationModel,
+            build_model=MagicMock(return_value=None),
+            build_loss=MagicMock(return_value=None),
+        ):
+            return RegistrationModel(
+                moving_image_size=moving_image_size,
+                fixed_image_size=fixed_image_size,
+                index_size=index_size,
+                labeled=labeled,
+                batch_size=batch_size,
+                config=dict(),
+            )
+
+    def test_build_inputs(self, empty_model, labeled):
+        inputs = empty_model.build_inputs()
+        if labeled:
+            assert len(inputs) == 5
+            moving_image, fixed_image, indices, moving_label, fixed_label = inputs
+            assert moving_label.shape == (batch_size, *moving_image_size)
+            assert fixed_label.shape == (batch_size, *fixed_image_size)
+        else:
+            assert len(inputs) == 3
+            moving_image, fixed_image, indices = inputs
+        assert moving_image.shape == (batch_size, *moving_image_size)
+        assert fixed_image.shape == (batch_size, *fixed_image_size)
+        assert indices.shape == (batch_size, index_size)
+
+    def test_concat_images(self, empty_model, labeled):
+        inputs = empty_model.build_inputs()
+        if labeled:
+            moving_image, fixed_image, _, moving_label, _ = inputs
+            images = empty_model.concat_images(moving_image, fixed_image, moving_label)
+            assert images.shape == (batch_size, *fixed_image_size, 3)
+        else:
+            moving_image, fixed_image, _ = inputs
+            images = empty_model.concat_images(moving_image, fixed_image)
+            assert images.shape == (batch_size, *fixed_image_size, 2)
+
+
+class TestDDFModel:
+    params = [
+        dict(method=method, labeled=labeled, backbone=backbone)
+        for method, labeled, backbone in itertools.product(
+            ["ddf"], [True, False], ["local", "global", "unet"]
+        )
+    ]
+
+    def test_build_model(self, model, labeled, backbone):
+        if labeled:
+            assert len(model._model.outputs) == 3
+            ddf, pred_fixed_image, pred_fixed_label = model._model.outputs
+            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
+        else:
+            assert len(model._model.outputs) == 2
+            ddf, pred_fixed_image = model._model.outputs
+        assert ddf.shape == (batch_size, *fixed_image_size, 3)
+        assert pred_fixed_image.shape == (batch_size, *fixed_image_size)
+
+    def test_build_loss(self, model, labeled, backbone):
+        expected = 3 if labeled else 2
+        assert len(model._model.losses) == expected
+
+    def test_postprocess(self, model, labeled, backbone):
+        indices, processed = model.postprocess(
+            inputs=model._model.inputs, outputs=model._model.outputs
+        )
+        assert indices.shape == (batch_size, index_size)
+        expected = 7 if labeled else 4
+        if backbone == "global":
+            expected += 1
+        assert len(processed) == expected
+
+
+class TestDVFModel:
+    params = [
+        dict(method=method, labeled=labeled, backbone=backbone)
+        for method, labeled, backbone in itertools.product(
+            ["dvf"], [True, False], ["local", "unet"]
+        )
+    ]
+
+    def test_build_model(self, model, labeled, backbone):
+        if labeled:
+            assert len(model._model.outputs) == 4
+            dvf, ddf, pred_fixed_image, pred_fixed_label = model._model.outputs
+            assert pred_fixed_label.shape == (batch_size, *fixed_image_size)
+        else:
+            assert len(model._model.outputs) == 3
+            dvf, ddf, pred_fixed_image = model._model.outputs
+        assert dvf.shape == (batch_size, *fixed_image_size, 3)
+        assert ddf.shape == (batch_size, *fixed_image_size, 3)
+        assert pred_fixed_image.shape == (batch_size, *fixed_image_size)
+
+    def test_build_loss(self, model, labeled, backbone):
+        expected = 3 if labeled else 2
+        assert len(model._model.losses) == expected
+
+    def test_postprocess(self, model, labeled, backbone):
+        indices, processed = model.postprocess(
+            inputs=model._model.inputs, outputs=model._model.outputs
+        )
+        assert indices.shape == (batch_size, index_size)
+        expected = 8 if labeled else 5
+        assert len(processed) == expected

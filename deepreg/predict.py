@@ -110,6 +110,7 @@ def predict_on_dataset(
 
             for name, (arr, normalize, on_label) in processed.items():
                 if name == "theta":
+                    arr = arr.numpy()
                     np.savetxt(
                         fname=os.path.join(pair_dir, "affine.txt"),
                         x=arr[sample_index, :, :].numpy(),
