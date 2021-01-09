@@ -46,10 +46,10 @@ def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
     :param backbone: name of backbone
     :return: the built object
     """
-    _config = config.copy()
-    _config["method"] = method
-    _config["backbone"]["name"] = backbone
-    _config["backbone"] = {**backbone_args[backbone], **_config["backbone"]}
+    copied = config.copy()
+    copied["method"] = method
+    copied["backbone"]["name"] = backbone
+    copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
     return REGISTRY.build_model(
         config=dict(
             name=method,  # TODO we store method twice
@@ -58,7 +58,7 @@ def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
             index_size=index_size,
             labeled=labeled,
             batch_size=batch_size,
-            config=_config,
+            config=copied,
         )
     )
 

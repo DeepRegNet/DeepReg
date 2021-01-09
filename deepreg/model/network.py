@@ -1,3 +1,5 @@
+from typing import Dict
+
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
@@ -34,7 +36,7 @@ class RegistrationModel(tf.keras.Model):
     def build_model(self):
         raise NotImplementedError
 
-    def build_inputs(self):
+    def build_inputs(self) -> Dict[str, tf.keras.layers.Input]:
         """
         Build input tensors.
 
