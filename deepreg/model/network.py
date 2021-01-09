@@ -1,4 +1,5 @@
-from typing import Dict
+from abc import abstractmethod
+from typing import Dict, Optional
 
 import tensorflow as tf
 
@@ -7,12 +8,21 @@ from deepreg.registry import REGISTRY
 
 
 def dict_without(d: dict, key) -> dict:
+    """
+    Return a copy of the given dict without a certain key.
+
+    :param d: dict to be copied.
+    :param key: key to be removed.
+    :return: the copy without a key
+    """
     copied = d.copy()
     copied.pop(key)
     return copied
 
 
 class RegistrationModel(tf.keras.Model):
+    """Interface for registration model."""
+
     def __init__(
         self,
         moving_image_size: tuple,
@@ -21,8 +31,20 @@ class RegistrationModel(tf.keras.Model):
         labeled: bool,
         batch_size: int,
         config: dict,
+        name: str = "RegistrationModel",
     ):
-        super().__init__()
+        """
+        Init.
+
+        :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+        :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
+        :param index_size: number of indices for identify each sample
+        :param labeled: if the data is labeled
+        :param batch_size: size of mini-batch
+        :param config: config for method, backbone, and loss.
+        :param name: name of the model
+        """
+        super().__init__(name=name)
         self.moving_image_size = moving_image_size
         self.fixed_image_size = fixed_image_size
         self.index_size = index_size
@@ -30,17 +52,31 @@ class RegistrationModel(tf.keras.Model):
         self.batch_size = batch_size
         self.config = config
 
+        self._inputs = None  # save inputs of self._model as dict
+        self._outputs = None  # save outputs of self._model as dict
         self._model = self.build_model()
         self.build_loss()
 
+    def get_config(self):
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["moving_image_size"] = self.moving_image_size
+        config["fixed_image_size"] = self.fixed_image_size
+        config["index_size"] = self.index_size
+        config["labeled"] = self.labeled
+        config["batch_size"] = self.batch_size
+        config["config"] = self.config
+        config["name"] = self.name
+
+    @abstractmethod
     def build_model(self):
-        raise NotImplementedError
+        """Build the model to be saved as self._model."""
 
     def build_inputs(self) -> Dict[str, tf.keras.layers.Input]:
         """
         Build input tensors.
 
-        :return: tuple
+        :return: dict of inputs.
         """
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         moving_image = tf.keras.Input(
@@ -86,7 +122,20 @@ class RegistrationModel(tf.keras.Model):
             indices=indices,
         )
 
-    def concat_images(self, moving_image, fixed_image, moving_label=None):
+    def concat_images(
+        self,
+        moving_image: tf.Tensor,
+        fixed_image: tf.Tensor,
+        moving_label: Optional[tf.Tensor] = None,
+    ) -> tf.Tensor:
+        """
+        Adjust image shape and concatenate them together.
+
+        :param moving_image: registration source
+        :param fixed_image: registration target
+        :param moving_label: optional, only used for conditional model.
+        :return:
+        """
         images = []
 
         # (batch, m_dim1, m_dim2, m_dim3, 1)
@@ -112,7 +161,13 @@ class RegistrationModel(tf.keras.Model):
         images = tf.concat(images, axis=4)
         return images
 
-    def _build_loss(self, name: str, inputs_dict):
+    def _build_loss(self, name: str, inputs_dict: dict):
+        """
+        Build and add one weighted loss together with the metrics.
+
+        :param name: name of loss
+        :param inputs_dict: inputs for loss function
+        """
         # build loss
         config = self.config["loss"][name]
         loss_cls = REGISTRY.build_loss(config=dict_without(d=config, key="weight"))
@@ -132,19 +187,50 @@ class RegistrationModel(tf.keras.Model):
             aggregation="mean",
         )
 
+    @abstractmethod
     def build_loss(self):
-        raise NotImplementedError
+        """Build losses according to configs."""
 
-    def call(self, inputs, training=None, mask=None):
+    def call(
+        self, inputs: Dict[str, tf.Tensor], training=None, mask=None
+    ) -> Dict[str, tf.Tensor]:
+        """
+        Call the self._model.
+
+        :param inputs: a dict of tensors
+        :param training:
+        :param mask:
+        :return:
+        """
         return self._model(inputs, training=training, mask=mask)
 
-    def postprocess(self, inputs, outputs):
-        raise NotImplementedError
+    @abstractmethod
+    def postprocess(
+        self,
+        inputs: Dict[str, tf.Tensor],
+        outputs: Dict[str, tf.Tensor],
+    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+        """
+        Return a dict used for saving inputs and outputs.
+
+        In the returned dict, each value is (tensor, normalize, on_label), where
+        - normalize = True if the tensor need to be normalized to [0, 1]
+        - on_label = True if the tensor depends on label
+        """
 
 
 @REGISTRY.register_model(name="ddf")
 class DDFModel(RegistrationModel):
+    """
+    A registration model predicts DDF.
+
+    When using global net as backbone,
+    the model predicts an affine transformation parameters,
+    and a DDF is calculated based on that.
+    """
+
     def build_model(self):
+        """Build the model to be saved as self._model."""
         # build inputs
         inputs = self.build_inputs()
         moving_image = inputs["moving_image"]
@@ -192,6 +278,7 @@ class DDFModel(RegistrationModel):
         return tf.keras.Model(inputs=inputs, outputs=outputs)
 
     def build_loss(self):
+        """Build losses according to configs."""
         fixed_image = self._inputs["fixed_image"]
         ddf = self._outputs["ddf"]
         pred_fixed_image = self._outputs["pred_fixed_image"]
@@ -213,10 +300,18 @@ class DDFModel(RegistrationModel):
                 inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
             )
 
-    def postprocess(self, inputs, outputs):
-        # each value is (tensor, normalize, on_label), where
-        # - normalize = True if the tensor need to be normalized to [0, 1]
-        # - on_label = True if the tensor depends on label
+    def postprocess(
+        self,
+        inputs: Dict[str, tf.Tensor],
+        outputs: Dict[str, tf.Tensor],
+    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+        """
+        Return a dict used for saving inputs and outputs.
+
+        In the returned dict, each value is (tensor, normalize, on_label), where
+        - normalize = True if the tensor need to be normalized to [0, 1]
+        - on_label = True if the tensor depends on label
+        """
         indices = inputs["indices"]
         processed = dict(
             moving_image=(inputs["moving_image"], True, False),
@@ -245,8 +340,9 @@ class DDFModel(RegistrationModel):
 
 
 @REGISTRY.register_model(name="dvf")
-class DVFModel(RegistrationModel):
+class DVFModel(DDFModel):
     def build_model(self):
+        """Build the model to be saved as self._model."""
         # build inputs
         inputs = self.build_inputs()
         moving_image = inputs["moving_image"]
@@ -291,59 +387,27 @@ class DVFModel(RegistrationModel):
         self._outputs = outputs
         return tf.keras.Model(inputs=inputs, outputs=outputs)
 
-    def build_loss(self):
-        fixed_image = self._inputs["fixed_image"]
-        ddf = self._outputs["ddf"]
-        pred_fixed_image = self._outputs["pred_fixed_image"]
+    def postprocess(
+        self,
+        inputs: Dict[str, tf.Tensor],
+        outputs: Dict[str, tf.Tensor],
+    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+        """
+        Return a dict used for saving inputs and outputs.
 
-        # ddf
-        self._build_loss(name="regularization", inputs_dict=dict(inputs=ddf))
-
-        # image
-        self._build_loss(
-            name="image", inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image)
-        )
-
-        # label
-        if self.labeled:
-            fixed_label = self._inputs["fixed_label"]
-            pred_fixed_label = self._outputs["pred_fixed_label"]
-            self._build_loss(
-                name="label",
-                inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
-            )
-
-    def postprocess(self, inputs, outputs):
-        # each value is (tensor, normalize, on_label), where
-        # - normalize = True if the tensor need to be normalized to [0, 1]
-        # - on_label = True if the tensor depends on label
-        indices = inputs["indices"]
-        processed = dict(
-            moving_image=(inputs["moving_image"], True, False),
-            fixed_image=(inputs["fixed_image"], True, False),
-            dvf=(outputs["dvf"], True, False),
-            ddf=(outputs["ddf"], True, False),
-            pred_fixed_image=(outputs["pred_fixed_image"], True, False),
-        )
-
-        if not self.labeled:
-            return indices, processed
-
-        processed = {
-            **dict(
-                moving_label=(inputs["moving_label"], False, True),
-                fixed_label=(inputs["fixed_label"], False, True),
-                pred_fixed_label=(outputs["pred_fixed_label"], False, True),
-            ),
-            **processed,
-        }
-
+        In the returned dict, each value is (tensor, normalize, on_label), where
+        - normalize = True if the tensor need to be normalized to [0, 1]
+        - on_label = True if the tensor depends on label
+        """
+        indices, processed = super().postprocess(inputs=inputs, outputs=outputs)
+        outputs["dvf"] = (outputs["dvf"], True, False)
         return indices, processed
 
 
 @REGISTRY.register_model(name="conditional")
 class ConditionalModel(RegistrationModel):
     def build_model(self):
+        """Build the model to be saved as self._model."""
         assert self.labeled
 
         # build inputs
@@ -373,6 +437,7 @@ class ConditionalModel(RegistrationModel):
         return tf.keras.Model(inputs=inputs, outputs=outputs)
 
     def build_loss(self):
+        """Build losses according to configs."""
         fixed_label = self._inputs["fixed_label"]
         pred_fixed_label = self._outputs["pred_fixed_label"]
 
@@ -381,11 +446,18 @@ class ConditionalModel(RegistrationModel):
             inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
         )
 
-    def postprocess(self, inputs, outputs):
+    def postprocess(
+        self,
+        inputs: Dict[str, tf.Tensor],
+        outputs: Dict[str, tf.Tensor],
+    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+        """
+        Return a dict used for saving inputs and outputs.
 
-        # each value is (tensor, normalize, on_label), where
-        # - normalize = True if the tensor need to be normalized to [0, 1]
-        # - on_label = True if the tensor depends on label
+        In the returned dict, each value is (tensor, normalize, on_label), where
+        - normalize = True if the tensor need to be normalized to [0, 1]
+        - on_label = True if the tensor depends on label
+        """
         indices = inputs["indices"]
         processed = dict(
             moving_image=(inputs["moving_image"], True, False),
