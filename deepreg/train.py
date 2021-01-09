@@ -8,7 +8,6 @@ import argparse
 import os
 
 import tensorflow as tf
-from tensorflow.keras.mixed_precision import experimental as mixed_precision
 
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
@@ -67,7 +66,6 @@ def train(
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
-    use_mixed_precision: bool = False,
     registry: Registry = REGISTRY,
 ):
     """
@@ -80,7 +78,6 @@ def train(
     :param log_root: root of logs
     :param log_dir: where to store logs in training
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
-    :param use_mixed_precision: if true mix float32 and float16 for training.
     :param registry: registry to construct class objects
     """
     # set env variables
@@ -112,12 +109,6 @@ def train(
         training=False,
         repeat=True,
     )
-
-    # use mixed precision if configured so
-    # https://www.tensorflow.org/guide/mixed_precision
-    if use_mixed_precision:
-        policy = mixed_precision.Policy("mixed_float16")
-        mixed_precision.set_policy(policy)
 
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
@@ -160,8 +151,8 @@ def train(
     callbacks = [tensorboard_callback, ckpt_callback]
 
     # train
-    # it's necessary to define the steps_per_epoch and validation_steps
-    # to prevent errors like
+    # it's necessary to define the steps_per_epoch
+    # and validation_steps to prevent errors like
     # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
     model.fit(
         x=dataset_train,
@@ -203,12 +194,6 @@ def main(args=None):
         "--gpu_allow_growth",
         "-gr",
         help="Prevent TensorFlow from reserving all available GPU memory",
-        default=False,
-    )
-
-    parser.add_argument(
-        "--mixed_precision",
-        help="Use TensorFlow mixed precision to accelerate training",
         default=False,
     )
 
@@ -257,7 +242,6 @@ def main(args=None):
         gpu=args.gpu,
         config_path=args.config_path,
         gpu_allow_growth=args.gpu_allow_growth,
-        use_mixed_precision=args.mixed_precision,
         ckpt_path=args.ckpt_path,
         log_root=args.log_root,
         log_dir=args.log_dir,
