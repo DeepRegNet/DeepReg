@@ -17,7 +17,6 @@ import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.callback import build_checkpoint_callback
-from deepreg.model.network.build import build_model
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import (
     build_dataset,
@@ -250,14 +249,16 @@ def predict(
     optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # model
-    model = build_model(
-        moving_image_size=data_loader.moving_image_shape,
-        fixed_image_size=data_loader.fixed_image_shape,
-        index_size=data_loader.num_indices,
-        labeled=config["dataset"]["labeled"],
-        batch_size=preprocess_config["batch_size"],
-        train_config=config["train"],
-        registry=registry,
+    model = registry.build_model(
+        config=dict(
+            name=config["train"]["method"],
+            moving_image_size=data_loader.moving_image_shape,
+            fixed_image_size=data_loader.fixed_image_shape,
+            index_size=data_loader.num_indices,
+            labeled=config["dataset"]["labeled"],
+            batch_size=config["train"]["preprocess"]["batch_size"],
+            config=config["train"],
+        )
     )
 
     # metrics

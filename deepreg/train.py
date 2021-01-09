@@ -12,7 +12,6 @@ import tensorflow as tf
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.callback import build_checkpoint_callback
-from deepreg.model.network.build import build_model
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import build_dataset, build_log_dir
 
@@ -120,14 +119,16 @@ def train(
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
-        model = build_model(
-            moving_image_size=data_loader_train.moving_image_shape,
-            fixed_image_size=data_loader_train.fixed_image_shape,
-            index_size=data_loader_train.num_indices,
-            labeled=config["dataset"]["labeled"],
-            batch_size=config["train"]["preprocess"]["batch_size"],
-            train_config=config["train"],
-            registry=registry,
+        model = registry.build_model(
+            config=dict(
+                name=config["train"]["method"],
+                moving_image_size=data_loader_train.moving_image_shape,
+                fixed_image_size=data_loader_train.fixed_image_shape,
+                index_size=data_loader_train.num_indices,
+                labeled=config["dataset"]["labeled"],
+                batch_size=config["train"]["preprocess"]["batch_size"],
+                config=config["train"],
+            )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 

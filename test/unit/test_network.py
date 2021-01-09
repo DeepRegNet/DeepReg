@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from deepreg.model.network.ddf_dvf import RegistrationModel
+from deepreg.model.network import RegistrationModel
 from deepreg.registry import REGISTRY
 
 moving_image_size = (1, 3, 5)
@@ -29,7 +29,7 @@ config = {
         "label": {
             "name": "dice",
             "weight": 1,
-            "scales": [0, 1, 2, 4, 8, 16, 32],
+            "scales": [0, 1, 2],
         },
         "regularization": {"weight": 0.1, "name": "bending"},
     },

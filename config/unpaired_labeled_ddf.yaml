@@ -10,7 +10,7 @@ dataset:
 
 train:
   # define neural network structure
-  method: "ddf" # options include "ddf", "dvf", "conditional" and "affine"
+  method: "ddf" # options include "ddf", "dvf", "conditional"
   backbone:
     name: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
     num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
