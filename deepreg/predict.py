@@ -104,7 +104,7 @@ def predict_on_dataset(
                 if name == "theta":
                     np.savetxt(
                         fname=os.path.join(pair_dir, "affine.txt"),
-                        x=arr[sample_index, :, :].numpy(),
+                        X=arr[sample_index, :, :],
                         delimiter=",",
                     )
                     continue
@@ -122,7 +122,7 @@ def predict_on_dataset(
 
             # calculate metric
             sample_index_str = "_".join([str(x) for x in indices_i])
-            if sample_index_str in sample_index_strs:
+            if sample_index_str in sample_index_strs:  # pragma: no cover
                 raise ValueError(
                     "Sample is repeated, maybe the dataset has been repeated."
                 )

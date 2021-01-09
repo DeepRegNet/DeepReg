@@ -154,6 +154,10 @@ class TestDDFModel:
 
     def test_build_model(self, model, labeled, backbone):
         expected_outputs_len = 3 if labeled else 2
+        if backbone == "global":
+            expected_outputs_len += 1
+            theta = model._outputs["theta"]
+            assert theta.shape == (batch_size, 4, 3)
         assert len(model._outputs) == expected_outputs_len
 
         ddf = model._outputs["ddf"]

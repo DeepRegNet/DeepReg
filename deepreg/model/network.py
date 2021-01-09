@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
+from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
 
 
@@ -209,13 +210,16 @@ class RegistrationModel(tf.keras.Model):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+    ) -> (tf.Tensor, Dict):
         """
         Return a dict used for saving inputs and outputs.
 
-        In the returned dict, each value is (tensor, normalize, on_label), where
-        - normalize = True if the tensor need to be normalized to [0, 1]
-        - on_label = True if the tensor depends on label
+        :param inputs: dict of model inputs
+        :param outputs: dict of model outputs
+        :return: tuple, indices and a dict.
+            In the dict, each value is (tensor, normalize, on_label), where
+            - normalize = True if the tensor need to be normalized to [0, 1]
+            - on_label = True if the tensor depends on label
         """
 
 
@@ -232,9 +236,9 @@ class DDFModel(RegistrationModel):
     def build_model(self):
         """Build the model to be saved as self._model."""
         # build inputs
-        inputs = self.build_inputs()
-        moving_image = inputs["moving_image"]
-        fixed_image = inputs["fixed_image"]
+        self._inputs = self.build_inputs()
+        moving_image = self._inputs["moving_image"]
+        fixed_image = self._inputs["fixed_image"]
 
         # build ddf
         backbone_inputs = self.concat_images(moving_image, fixed_image)
@@ -247,35 +251,31 @@ class DDFModel(RegistrationModel):
                 out_activation=None,
             ),
         )
-        # save backbone in case of affine to retrieve theta
-        self._backbone = backbone
 
-        # (f_dim1, f_dim2, f_dim3, 3)
-        ddf = backbone(inputs=backbone_inputs)
+        if isinstance(backbone, GlobalNet):
+            # (f_dim1, f_dim2, f_dim3, 3), (4, 3)
+            ddf, theta = backbone(inputs=backbone_inputs)
+            self._outputs = dict(ddf=ddf, theta=theta)
+        else:
+            # (f_dim1, f_dim2, f_dim3, 3)
+            ddf = backbone(inputs=backbone_inputs)
+            self._outputs = dict(ddf=ddf)
 
         # build outputs
         warping = layer.Warping(fixed_image_size=self.fixed_image_size)
         # (f_dim1, f_dim2, f_dim3, 3)
         pred_fixed_image = warping(inputs=[ddf, moving_image])
+        self._outputs["pred_fixed_image"] = pred_fixed_image
 
         if not self.labeled:
-            outputs = dict(ddf=ddf, pred_fixed_image=pred_fixed_image)
-            self._inputs = inputs
-            self._outputs = outputs
-            return tf.keras.Model(inputs=inputs, outputs=outputs)
+            return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
         # (f_dim1, f_dim2, f_dim3, 3)
-        moving_label = inputs["moving_label"]
+        moving_label = self._inputs["moving_label"]
         pred_fixed_label = warping(inputs=[ddf, moving_label])
 
-        outputs = dict(
-            ddf=ddf,
-            pred_fixed_image=pred_fixed_image,
-            pred_fixed_label=pred_fixed_label,
-        )
-        self._inputs = inputs
-        self._outputs = outputs
-        return tf.keras.Model(inputs=inputs, outputs=outputs)
+        self._outputs["pred_fixed_label"] = pred_fixed_label
+        return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
     def build_loss(self):
         """Build losses according to configs."""
@@ -304,13 +304,16 @@ class DDFModel(RegistrationModel):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+    ) -> (tf.Tensor, Dict):
         """
         Return a dict used for saving inputs and outputs.
 
-        In the returned dict, each value is (tensor, normalize, on_label), where
-        - normalize = True if the tensor need to be normalized to [0, 1]
-        - on_label = True if the tensor depends on label
+        :param inputs: dict of model inputs
+        :param outputs: dict of model outputs
+        :return: tuple, indices and a dict.
+            In the dict, each value is (tensor, normalize, on_label), where
+            - normalize = True if the tensor need to be normalized to [0, 1]
+            - on_label = True if the tensor depends on label
         """
         indices = inputs["indices"]
         processed = dict(
@@ -321,8 +324,8 @@ class DDFModel(RegistrationModel):
         )
 
         # save theta for affine model
-        if hasattr(self._backbone, "theta"):
-            processed["theta"] = (self._backbone.theta, None, None)
+        if "theta" in outputs:
+            processed["theta"] = (outputs["theta"], None, None)
 
         if not self.labeled:
             return indices, processed
@@ -341,12 +344,18 @@ class DDFModel(RegistrationModel):
 
 @REGISTRY.register_model(name="dvf")
 class DVFModel(DDFModel):
+    """
+    A registration model predicts DVF.
+
+    DDF is calculated based on DVF.
+    """
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         # build inputs
-        inputs = self.build_inputs()
-        moving_image = inputs["moving_image"]
-        fixed_image = inputs["fixed_image"]
+        self._inputs = self.build_inputs()
+        moving_image = self._inputs["moving_image"]
+        fixed_image = self._inputs["fixed_image"]
 
         # build ddf
         backbone_inputs = self.concat_images(moving_image, fixed_image)
@@ -367,40 +376,35 @@ class DVFModel(DDFModel):
         # (f_dim1, f_dim2, f_dim3, 3)
         pred_fixed_image = warping(inputs=[ddf, moving_image])
 
+        self._outputs = dict(dvf=dvf, ddf=ddf, pred_fixed_image=pred_fixed_image)
+
         if not self.labeled:
-            outputs = dict(dvf=dvf, ddf=ddf, pred_fixed_image=pred_fixed_image)
-            self._inputs = inputs
-            self._outputs = outputs
-            return tf.keras.Model(inputs=inputs, outputs=outputs)
+            return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
         # (f_dim1, f_dim2, f_dim3, 3)
-        moving_label = inputs["moving_label"]
+        moving_label = self._inputs["moving_label"]
         pred_fixed_label = warping(inputs=[ddf, moving_label])
 
-        outputs = dict(
-            dvf=dvf,
-            ddf=ddf,
-            pred_fixed_image=pred_fixed_image,
-            pred_fixed_label=pred_fixed_label,
-        )
-        self._inputs = inputs
-        self._outputs = outputs
-        return tf.keras.Model(inputs=inputs, outputs=outputs)
+        self._outputs["pred_fixed_label"] = pred_fixed_label
+        return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
     def postprocess(
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+    ) -> (tf.Tensor, Dict):
         """
         Return a dict used for saving inputs and outputs.
 
-        In the returned dict, each value is (tensor, normalize, on_label), where
-        - normalize = True if the tensor need to be normalized to [0, 1]
-        - on_label = True if the tensor depends on label
+        :param inputs: dict of model inputs
+        :param outputs: dict of model outputs
+        :return: tuple, indices and a dict.
+            In the dict, each value is (tensor, normalize, on_label), where
+            - normalize = True if the tensor need to be normalized to [0, 1]
+            - on_label = True if the tensor depends on label
         """
         indices, processed = super().postprocess(inputs=inputs, outputs=outputs)
-        outputs["dvf"] = (outputs["dvf"], True, False)
+        processed["dvf"] = (outputs["dvf"], True, False)
         return indices, processed
 
 
@@ -411,10 +415,10 @@ class ConditionalModel(RegistrationModel):
         assert self.labeled
 
         # build inputs
-        inputs = self.build_inputs()
-        moving_image = inputs["moving_image"]
-        fixed_image = inputs["fixed_image"]
-        moving_label = inputs["moving_label"]
+        self._inputs = self.build_inputs()
+        moving_image = self._inputs["moving_image"]
+        fixed_image = self._inputs["fixed_image"]
+        moving_label = self._inputs["moving_label"]
 
         # build ddf
         backbone_inputs = self.concat_images(moving_image, fixed_image, moving_label)
@@ -431,10 +435,8 @@ class ConditionalModel(RegistrationModel):
         pred_fixed_label = backbone(inputs=backbone_inputs)
         pred_fixed_label = tf.squeeze(pred_fixed_label, axis=4)
 
-        outputs = dict(pred_fixed_label=pred_fixed_label)
-        self._inputs = inputs
-        self._outputs = outputs
-        return tf.keras.Model(inputs=inputs, outputs=outputs)
+        self._outputs = dict(pred_fixed_label=pred_fixed_label)
+        return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
     def build_loss(self):
         """Build losses according to configs."""
@@ -450,13 +452,16 @@ class ConditionalModel(RegistrationModel):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict[str, (tf.Tensor, bool, bool)]):
+    ) -> (tf.Tensor, Dict):
         """
         Return a dict used for saving inputs and outputs.
 
-        In the returned dict, each value is (tensor, normalize, on_label), where
-        - normalize = True if the tensor need to be normalized to [0, 1]
-        - on_label = True if the tensor depends on label
+        :param inputs: dict of model inputs
+        :param outputs: dict of model outputs
+        :return: tuple, indices and a dict.
+            In the dict, each value is (tensor, normalize, on_label), where
+            - normalize = True if the tensor need to be normalized to [0, 1]
+            - on_label = True if the tensor depends on label
         """
         indices = inputs["indices"]
         processed = dict(

@@ -6,6 +6,7 @@ pytest style
 """
 
 import os
+import shutil
 
 import pytest
 
@@ -49,9 +50,18 @@ class TestBuildConfig:
         assert got_config["train"]["save_period"] == expected_save_period
 
 
-def test_train_and_predict_main():
+@pytest.mark.parametrize(
+    "config_paths",
+    [
+        ["config/unpaired_labeled_ddf.yaml"],
+        ["config/unpaired_labeled_ddf.yaml", "config/test/affine.yaml"],
+    ],
+)
+def test_train_and_predict_main(config_paths):
     """
     Test main in train and predict by checking it can run.
+
+    :param config_paths: list of file paths for configuration.
     """
     train_main(
         args=[
@@ -60,8 +70,8 @@ def test_train_and_predict_main():
             "--log_dir",
             "test_train",
             "--config_path",
-            "config/unpaired_labeled_ddf.yaml",
         ]
+        + config_paths
     )
 
     # check output folders
@@ -92,3 +102,6 @@ def test_train_and_predict_main():
     assert os.path.isfile("logs/test_predict/test/metrics.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_per_label.csv")
     assert os.path.isfile("logs/test_predict/test/metrics_stats_overall.csv")
+
+    shutil.rmtree("logs/test_train")
+    shutil.rmtree("logs/test_predict")
