@@ -113,6 +113,17 @@ class TestRegistrationModel:
                 config=dict(),
             )
 
+    def test_get_config(self, empty_model, labeled):
+        got = empty_model.get_config()
+        assert got == dict(
+            moving_image_size=moving_image_size,
+            fixed_image_size=fixed_image_size,
+            index_size=index_size,
+            labeled=labeled,
+            batch_size=batch_size,
+            config=dict(),
+        )
+
     def test_build_inputs(self, empty_model, labeled):
         inputs = empty_model.build_inputs()
         expected_inputs_len = 5 if labeled else 3

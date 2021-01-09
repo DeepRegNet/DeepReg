@@ -198,12 +198,12 @@ class RegistrationModel(tf.keras.Model):
         """
         Call the self._model.
 
-        :param inputs: a dict of tensors
-        :param training:
-        :param mask:
+        :param inputs: a dict of tensors.
+        :param training: training or not.
+        :param mask: maks for inputs.
         :return:
         """
-        return self._model(inputs, training=training, mask=mask)
+        return self._model(inputs, training=training, mask=mask)  # pragma: no cover
 
     @abstractmethod
     def postprocess(
