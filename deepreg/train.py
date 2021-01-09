@@ -123,7 +123,8 @@ def train(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
-    if len(tf.config.list_physical_devices("GPU")) > 1:
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
+    if num_devices > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
         strategy = tf.distribute.get_strategy()
@@ -137,6 +138,7 @@ def train(
                 labeled=config["dataset"]["labeled"],
                 batch_size=config["train"]["preprocess"]["batch_size"],
                 config=config["train"],
+                num_devices=num_devices,
             )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])

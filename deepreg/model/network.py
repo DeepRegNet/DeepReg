@@ -32,6 +32,7 @@ class RegistrationModel(tf.keras.Model):
         labeled: bool,
         batch_size: int,
         config: dict,
+        num_devices: int = 1,
         name: str = "RegistrationModel",
     ):
         """
@@ -43,6 +44,8 @@ class RegistrationModel(tf.keras.Model):
         :param labeled: if the data is labeled
         :param batch_size: size of mini-batch
         :param config: config for method, backbone, and loss.
+        :param num_devices: number of GPU used,
+            global_batch_size = batch_size*num_devices
         :param name: name of the model
         """
         super().__init__(name=name)
@@ -52,6 +55,8 @@ class RegistrationModel(tf.keras.Model):
         self.labeled = labeled
         self.batch_size = batch_size
         self.config = config
+        self.num_devices = num_devices
+        self.global_batch_size = num_devices * batch_size
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
@@ -67,6 +72,7 @@ class RegistrationModel(tf.keras.Model):
         config["labeled"] = self.labeled
         config["batch_size"] = self.batch_size
         config["config"] = self.config
+        config["num_devices"] = self.num_devices
         config["name"] = self.name
 
     @abstractmethod
@@ -172,7 +178,7 @@ class RegistrationModel(tf.keras.Model):
         # build loss
         config = self.config["loss"][name]
         loss_cls = REGISTRY.build_loss(config=dict_without(d=config, key="weight"))
-        loss = loss_cls(**inputs_dict)
+        loss = loss_cls(**inputs_dict) / self.global_batch_size
         weighted_loss = loss * config["weight"]
 
         # add loss
