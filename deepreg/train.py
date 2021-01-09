@@ -63,11 +63,11 @@ def train(
     gpu: str,
     config_path: (str, list),
     gpu_allow_growth: bool,
-    use_mixed_precision: bool,
     ckpt_path: str,
     log_dir: str,
     log_root: str = "logs",
     max_epochs: int = -1,
+    use_mixed_precision: bool = False,
     registry: Registry = REGISTRY,
 ):
     """
@@ -80,6 +80,7 @@ def train(
     :param log_root: root of logs
     :param log_dir: where to store logs in training
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
+    :param use_mixed_precision: if true mix float32 and float16 for training.
     :param registry: registry to construct class objects
     """
     # set env variables
