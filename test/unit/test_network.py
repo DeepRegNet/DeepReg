@@ -122,6 +122,8 @@ class TestRegistrationModel:
             labeled=labeled,
             batch_size=batch_size,
             config=dict(),
+            num_devices=1,
+            name="RegistrationModel",
         )
 
     def test_build_inputs(self, empty_model, labeled):

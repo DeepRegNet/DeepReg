@@ -65,15 +65,16 @@ class RegistrationModel(tf.keras.Model):
 
     def get_config(self):
         """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config["moving_image_size"] = self.moving_image_size
-        config["fixed_image_size"] = self.fixed_image_size
-        config["index_size"] = self.index_size
-        config["labeled"] = self.labeled
-        config["batch_size"] = self.batch_size
-        config["config"] = self.config
-        config["num_devices"] = self.num_devices
-        config["name"] = self.name
+        return dict(
+            moving_image_size=self.moving_image_size,
+            fixed_image_size=self.fixed_image_size,
+            index_size=self.index_size,
+            labeled=self.labeled,
+            batch_size=self.batch_size,
+            config=self.config,
+            num_devices=self.num_devices,
+            name=self.name,
+        )
 
     @abstractmethod
     def build_model(self):
