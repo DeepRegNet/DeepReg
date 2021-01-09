@@ -6,6 +6,8 @@ import itertools
 import numpy as np
 import tensorflow as tf
 
+EPS = tf.keras.backend.epsilon()
+
 
 def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     """
@@ -75,7 +77,9 @@ def get_n_bits_combinations(num_bits: int) -> list:
     return [list(i) for i in itertools.product([0, 1], repeat=num_bits)]
 
 
-def pyramid_combination(values: list, weights: list) -> tf.Tensor:
+def pyramid_combination(
+    values: list, weight_floor: list, weight_ceil: list
+) -> tf.Tensor:
     r"""
     Calculates linear interpolation (a weighted sum) using values of
     hypercube corners in dimension n.
@@ -156,37 +160,57 @@ def pyramid_combination(values: list, weights: list) -> tf.Tensor:
                    (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, ch)
                    the order is consistent with get_n_bits_combinations
                    loc_shape is independent from n, aka num_dim
-    :param weights: a list having weights of floor points,
+    :param weight_floor: a list having weights of floor points,
+                    it has n tensors of shape
+                    (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, 1)
+    :param weight_ceil: a list having weights of ceil points,
                     it has n tensors of shape
                     (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, 1)
     :return: one tensor of the same shape as an element in values
              (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, 1)
     """
-    if len(values[0].shape) != len(weights[0].shape):
-        raise ValueError(
-            f"In pyramid_combination, "
-            f"elements of values and weights should have same dimension. "
-            f"value shape = {values[0].shape}, "
-            f"weight = {weights[0].shape}"
-        )
-    if 2 ** len(weights) != len(values):
+    if len(values[0].shape) != len(weight_floor[0].shape):
         raise ValueError(
             "In pyramid_combination, "
-            "num_dim = len(weights), "
+            "elements of values and weight_floor should have same dimension. "
+            f"value shape = {values[0].shape}, "
+            f"weight_floor = {weight_floor[0].shape}"
+        )
+    if 2 ** len(weight_floor) != len(values):
+        raise ValueError(
+            "In pyramid_combination, "
+            "num_dim = len(weight_floor), "
             "len(values) must be 2 ** num_dim, "
-            "But len(weights) = {}, len(values) = {}".format(len(weights), len(values))
+            f"But len(weight_floor) = {len(weight_floor)}, len(values) = {len(values)}"
         )
 
-    if len(weights) == 1:  # one dimension
-        return values[0] * weights[0] + values[1] * (1 - weights[0])
+    if len(weight_floor) == 1:  # one dimension
+        return values[0] * weight_floor[0] + values[1] * weight_ceil[0]
     # multi dimension
-    values_floor = pyramid_combination(values[::2], weights[:-1]) * weights[-1]
-    values_ceil = pyramid_combination(values[1::2], weights[:-1]) * (1 - weights[-1])
+    values_floor = (
+        pyramid_combination(
+            values=values[::2],
+            weight_floor=weight_floor[:-1],
+            weight_ceil=weight_ceil[:-1],
+        )
+        * weight_floor[-1]
+    )
+    values_ceil = (
+        pyramid_combination(
+            values=values[1::2],
+            weight_floor=weight_floor[:-1],
+            weight_ceil=weight_ceil[:-1],
+        )
+        * weight_ceil[-1]
+    )
     return values_floor + values_ceil
 
 
 def resample(
-    vol: tf.Tensor, loc: tf.Tensor, interpolation: str = "linear"
+    vol: tf.Tensor,
+    loc: tf.Tensor,
+    interpolation: str = "linear",
+    zero_boundary: bool = True,
 ) -> tf.Tensor:
     r"""
     Sample the volume at given locations.
@@ -234,10 +258,10 @@ def resample(
     loc_shape = loc.shape[1:-1]
     dim_vol = loc.shape[-1]  # dimension of vol
     if dim_vol == len(vol.shape) - 1:
-        # vol.shape = (batch, \*vol_shape)
+        # vol.shape = (batch, *vol_shape)
         has_ch = False
     elif dim_vol == len(vol.shape) - 2:
-        # vol.shape = (batch, \*vol_shape, ch)
+        # vol.shape = (batch, *vol_shape, ch)
         has_ch = True
     else:
         raise ValueError(
@@ -252,56 +276,62 @@ def resample(
 
     # loc_floor_ceil has n sublists
     # each one corresponds to the floor and ceil coordinates for d-th dimension
-    # each tensor is of shape (batch, \*loc_shape), dtype int32
+    # each tensor is of shape (batch, *loc_shape), dtype int32
 
     # weight_floor has n tensors
     # each tensor is the weight for the corner of floor coordinates
-    # each tensor's shape is (batch, \*loc_shape) if volume has no feature channel
-    #                        (batch, \*loc_shape, 1) if volume has feature channel
+    # each tensor's shape is (batch, *loc_shape) if volume has no feature channel
+    #                        (batch, *loc_shape, 1) if volume has feature channel
     loc_unstack = tf.unstack(loc, axis=-1)
-    loc_floor_ceil, weight_floor = [], []
+    loc_floor_ceil, weight_floor, weight_ceil = [], [], []
     for dim, loc_d in enumerate(loc_unstack):
         # using for loop is faster than using list comprehension
         # clip to be inside 0 ~ (l_dim d - 1)
         clipped = tf.clip_by_value(
             loc_d, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
-        )  # shape = (batch, \*loc_shape)
-        c_ceil = tf.math.ceil(clipped)  # shape = (batch, \*loc_shape)
-        c_floor = tf.maximum(c_ceil - 1, 0)  # shape = (batch, \*loc_shape)
-        w_floor = c_ceil - clipped  # shape = (batch, \*loc_shape)
+        )  # shape = (batch, *loc_shape)
+        c_ceil = tf.math.ceil(clipped)  # shape = (batch, *loc_shape)
+        c_floor = tf.math.floor(clipped)  # shape = (batch, *loc_shape)
+        w_floor = c_ceil - clipped  # shape = (batch, *loc_shape)
+        w_ceil = clipped - c_floor if zero_boundary else 1 - w_floor
         if has_ch:
-            w_floor = tf.expand_dims(w_floor, -1)  # shape = (batch, \*loc_shape, 1)
+            w_floor = tf.expand_dims(w_floor, -1)  # shape = (batch, *loc_shape, 1)
+            w_ceil = tf.expand_dims(w_ceil, -1)  # shape = (batch, *loc_shape, 1)
+
         loc_floor_ceil.append([tf.cast(c_floor, tf.int32), tf.cast(c_ceil, tf.int32)])
         weight_floor.append(w_floor)
+        weight_ceil.append(w_ceil)
 
     # 2**n corners, each is a list of n binary values
     corner_indices = get_n_bits_combinations(num_bits=len(vol_shape))
 
     # batch_coords[b, l1, ..., lm] = b
-    # range(batch_size) on axis 0 and repeated on other axises
+    # range(batch_size) on axis 0 and repeated on other axes
     # add batch coords manually is faster than using batch_dims in tf.gather_nd
     batch_coords = tf.tile(
         tf.reshape(tf.range(batch_size), [batch_size] + [1] * len(loc_shape)),
         [1] + loc_shape,
-    )  # shape = (batch, \*loc_shape)
+    )  # shape = (batch, *loc_shape)
 
     # get vol values on n-dim hypercube corners
     # corner_values has 2 ** n elements
-    # each of shape (batch, \*loc_shape) or (batch, \*loc_shape, ch)
+    # each of shape (batch, *loc_shape) or (batch, *loc_shape, ch)
     corner_values = [
         tf.gather_nd(
-            vol,  # shape = (batch, \*vol_shape) or (batch, \*vol_shape, ch)
+            vol,  # shape = (batch, *vol_shape) or (batch, *vol_shape, ch)
             tf.stack(
                 [batch_coords]
                 + [loc_floor_ceil[axis][fc_idx] for axis, fc_idx in enumerate(c)],
                 axis=-1,
-            ),  # shape = (batch, \*loc_shape, n+1) after stack
+            ),  # shape = (batch, *loc_shape, n+1) after stack
         )
         for c in corner_indices  # c is list of len n
-    ]  # each tensor has shape (batch, \*loc_shape) or (batch, \*loc_shape, ch)
+    ]  # each tensor has shape (batch, *loc_shape) or (batch, *loc_shape, ch)
 
     # resample
-    sampled = pyramid_combination(corner_values, weight_floor)
+    sampled = pyramid_combination(
+        values=corner_values, weight_floor=weight_floor, weight_ceil=weight_ceil
+    )
     return sampled
 
 
