@@ -21,6 +21,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Modified the implementation of resampler to support zero boundary condition.
 - Refactored loss functions into classes.
 - Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
