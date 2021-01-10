@@ -19,13 +19,17 @@ from deepreg.model.layer_util import (
 from deepreg.registry import REGISTRY
 
 
-class AbstractTransformation3D:
+class RandomTransformation3D(tf.keras.layers.Layer):
     """
     An interface for different types of transformation.
     """
 
     def __init__(
-        self, moving_image_size: tuple, fixed_image_size: tuple, batch_size: int
+        self,
+        moving_image_size: tuple,
+        fixed_image_size: tuple,
+        batch_size: int,
+        name: str = "RandomTransformation3D",
     ):
         """
         Abstract class for image transformation.
@@ -33,22 +37,14 @@ class AbstractTransformation3D:
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param batch_size: size of mini-batch
+        :param name: name of layer
         """
+        super().__init__(name=name)
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
         self._batch_size = batch_size
         self._moving_grid_ref = get_reference_grid(grid_size=moving_image_size)
         self._fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
-
-    def __call__(self, inputs: dict, *args, **kwargs) -> Dict[str, tf.Tensor]:
-        """
-        Method that calls transform()
-        :param inputs: dict, containing images and labels.
-        :param args: dict, preprocessing parameters
-        :param kwargs:
-        :return:
-        """
-        return self.transform(inputs=inputs)
 
     @abstractmethod
     def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
@@ -72,7 +68,7 @@ class AbstractTransformation3D:
         :return: shape = (batch, dim1, dim2, dim3)
         """
 
-    def transform(self, inputs: Dict[str, tf.Tensor]) -> Dict[str, tf.Tensor]:
+    def call(self, inputs: Dict[str, tf.Tensor], **kwargs) -> Dict[str, tf.Tensor]:
         """
         Creates random params for the input images and their labels,
         and params them based on the resampled reference grids.
@@ -87,6 +83,7 @@ class AbstractTransformation3D:
                 moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
                 fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
                 indices, shape = (batch, num_indices)
+        :param kwargs: other arguments
         :return: dictionary with the same structure as inputs
         """
 
@@ -121,11 +118,19 @@ class AbstractTransformation3D:
             indices=indices,
         )
 
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["moving_image_size"] = self._moving_image_size
+        config["fixed_image_size"] = self._fixed_image_size
+        config["batch_size"] = self._batch_size
+        return config
+
 
 @REGISTRY.register_data_augmentation(name="affine")
-class AffineTransformation3D(AbstractTransformation3D):
+class RandomAffine3D(RandomTransformation3D):
     """
-    AffineTransformation3D class for maintaining and updating
+    RandomAffine3D class for maintaining and updating
     the transformed grids for the moving and fixed images.
     """
 
@@ -135,6 +140,7 @@ class AffineTransformation3D(AbstractTransformation3D):
         fixed_image_size: tuple,
         batch_size: int,
         scale: float = 0.1,
+        name: str = "RandomAffine3D",
     ):
         """
         Init.
@@ -143,13 +149,21 @@ class AffineTransformation3D(AbstractTransformation3D):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param batch_size: size of mini-batch
         :param scale: a positive float controlling the scale of transformation
+        :param name: name of the layer
         """
         super().__init__(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             batch_size=batch_size,
+            name=name,
         )
         self._scale = scale
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["scale"] = self._scale
+        return config
 
     def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
@@ -179,7 +193,7 @@ class AffineTransformation3D(AbstractTransformation3D):
 
 
 @REGISTRY.register_data_augmentation(name="ffd")
-class FFDTransformation3D(AbstractTransformation3D):
+class FFDTransformation3D(RandomTransformation3D):
     """
     DDFTransformation3D class for using spatial transformation as a data augmentation
     technique
@@ -221,6 +235,13 @@ class FFDTransformation3D(AbstractTransformation3D):
         self._field_strength = field_strength
         self._low_res_size = low_res_size
 
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["field_strength"] = self._field_strength
+        config["low_res_size"] = self._low_res_size
+        return config
+
     def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
         Generates two random ddf fields for moving and fixed images.
@@ -233,14 +254,8 @@ class FFDTransformation3D(AbstractTransformation3D):
             field_strength=self._field_strength,
             low_res_size=self._low_res_size,
         )
-        moving = gen_rand_ddf(
-            image_size=self._moving_image_size,
-            **kwargs,
-        )
-        fixed = gen_rand_ddf(
-            image_size=self._fixed_image_size,
-            **kwargs,
-        )
+        moving = gen_rand_ddf(image_size=self._moving_image_size, **kwargs)
+        fixed = gen_rand_ddf(image_size=self._fixed_image_size, **kwargs)
         return moving, fixed
 
     @staticmethod

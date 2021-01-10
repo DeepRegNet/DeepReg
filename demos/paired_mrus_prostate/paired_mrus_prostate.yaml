@@ -48,6 +48,8 @@ train:
 
   # define the hyper-parameters for preprocessing
   preprocess:
+    data_augmentation:
+      name: "affine"
     batch_size: 4
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 

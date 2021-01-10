@@ -77,7 +77,7 @@ class TestDataLoader:
                 (9, 9, 9),
                 (15, 15, 15),
                 1,
-                {"data_augmentation": {"affine": {"name": "affine"}}},
+                {"data_augmentation": {"name": "affine"}},
             ),
             (
                 True,
@@ -85,14 +85,14 @@ class TestDataLoader:
                 (15, 15, 15),
                 1,
                 {
-                    "data_augmentation": {
-                        "affine": {"name": "affine"},
-                        "ddf": {
+                    "data_augmentation": [
+                        {"name": "affine"},
+                        {
                             "name": "ffd",
                             "field_strength": 1,
                             "low_res_size": (3, 3, 3),
                         },
-                    }
+                    ],
                 },
             ),
         ],

@@ -97,7 +97,7 @@ class TestAffineTransformation3d:
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
 
-        affine_transform_3d = preprocess.AffineTransformation3D(
+        affine_transform_3d = preprocess.RandomAffine3D(
             moving_image.shape, fixed_image.shape, batch_size, scale
         )
 
@@ -133,7 +133,7 @@ class TestAffineTransformation3d:
             np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
         )
 
-        affine_transform_3d = preprocess.AffineTransformation3D(
+        affine_transform_3d = preprocess.RandomAffine3D(
             moving_image.shape, fixed_image.shape, batch_size, scale
         )
 
@@ -181,7 +181,7 @@ class TestAffineTransformation3d:
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
 
-        affine_transform_3d = preprocess.AffineTransformation3D(
+        affine_transform_3d = preprocess.RandomAffine3D(
             moving_image.shape, fixed_image.shape, batch_size, scale
         )
 
@@ -201,7 +201,7 @@ class TestAffineTransformation3d:
             "indices": indices,
         }
 
-        outputs = affine_transform_3d.transform(inputs)
+        outputs = affine_transform_3d(inputs)
 
         assert outputs.get("moving_image") is not None
         assert outputs.get("fixed_image") is not None
@@ -229,7 +229,7 @@ class TestAffineTransformation3d:
             "indices": indices,
         }
 
-        outputs = affine_transform_3d.transform(inputs)
+        outputs = affine_transform_3d(inputs)
 
         assert outputs.get("moving_image") is not None
         assert outputs.get("fixed_image") is not None
@@ -418,7 +418,7 @@ class TestFFDTransformation3d:
             "indices": indices,
         }
 
-        outputs = ddf_transform_3d.transform(inputs)
+        outputs = ddf_transform_3d(inputs)
 
         assert outputs.get("moving_image") is not None
         assert outputs.get("fixed_image") is not None
@@ -446,7 +446,7 @@ class TestFFDTransformation3d:
             "indices": indices,
         }
 
-        outputs = ddf_transform_3d.transform(inputs)
+        outputs = ddf_transform_3d(inputs)
 
         assert outputs.get("moving_image") is not None
         assert outputs.get("fixed_image") is not None
