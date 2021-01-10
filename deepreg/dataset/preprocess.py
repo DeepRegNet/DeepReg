@@ -39,6 +39,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param batch_size: size of mini-batch
         :param name: name of layer
+        :param trainable: if this layer is trainable
         """
         super().__init__(trainable=trainable, name=name)
         self._moving_image_size = moving_image_size
@@ -227,6 +228,8 @@ class RandomDDFTransform3D(RandomTransformation3D):
         :param field_strength: int = 1. It is used as the upper bound for the
         deformation field variance
         :param low_res_size: tuple = (1, 1, 1).
+        :param name: name of layer
+        :param kwargs: extra arguments
         """
 
         super().__init__(

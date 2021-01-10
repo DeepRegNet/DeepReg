@@ -33,7 +33,10 @@ def test_resize_inputs(
     """
     Check return shapes.
 
-    :param name: name of the layer
+    :param moving_input_size: input moving image/label shape
+    :param fixed_input_size: input fixed image/label shape
+    :param moving_image_size: output moving image/label shape
+    :param fixed_image_size: output fixed image/label shape
     :param labeled: if data is labeled
     """
     num_indices = 2
@@ -93,7 +96,7 @@ class TestRandomTransformation:
         ddf=preprocess.RandomDDFTransform3D,
     )
 
-    def build_layer(self, name):
+    def build_layer(self, name: str) -> preprocess.RandomTransformation3D:
         """
         Build a layer given the layer name.
 
@@ -132,6 +135,8 @@ class TestRandomTransformation:
         Check return shapes and moving/fixed params should be different.
 
         :param name: name of the layer
+        :param moving_param_shape: params shape for moving image/label
+        :param fixed_param_shape: params shape for fixed image/label
         """
         layer = self.build_layer(name)
         moving, fixed = layer.gen_transform_params()
