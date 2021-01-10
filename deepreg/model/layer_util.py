@@ -269,14 +269,16 @@ def resample(
         )
     vol_shape = vol.shape[1 : dim_vol + 1]
 
-    # get floor/ceil for loc
+    # get floor/ceil for loc and stack, then clip together
     # loc, loc_floor, loc_ceil are have shape (batch, *loc_shape, n)
     loc_ceil = tf.math.ceil(loc)
     loc_floor = loc_ceil - 1
-
-    # clip loc to get anchors and weights
-    # loc_unstack has n tensors of shape (batch, l_dim 1, ..., l_dim m)
-    # the d-th tensor corresponds to the coordinates of d-th dimension
+    # (batch, *loc_shape, n, 3)
+    clipped = tf.stack([loc, loc_floor, loc_ceil], axis=-1)
+    clip_value_max = tf.cast(vol_shape, dtype=clipped.dtype) - 1  # (n,)
+    clipped_shape = [1] * (len(loc_shape) + 1) + [dim_vol, 1]
+    clip_value_max = tf.reshape(clip_value_max, shape=clipped_shape)
+    clipped = tf.clip_by_value(clipped, clip_value_min=0, clip_value_max=clip_value_max)
 
     # loc_floor_ceil has n sublists
     # each one corresponds to the floor and ceil coordinates for d-th dimension
@@ -289,17 +291,10 @@ def resample(
     loc_floor_ceil, weight_floor, weight_ceil = [], [], []
     # using for loop is faster than using list comprehension
     for dim in range(dim_vol):
-        c_values = tf.stack(
-            [loc[..., dim], loc_floor[..., dim], loc_ceil[..., dim]], axis=-1
-        )
-        # shape = (batch, *loc_shape, 3)
-        clipped = tf.clip_by_value(
-            c_values, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
-        )
         # shape = (batch, *loc_shape)
-        c_clipped = clipped[..., 0]
-        c_floor = clipped[..., 1]
-        c_ceil = clipped[..., 2]
+        c_clipped = clipped[..., dim, 0]
+        c_floor = clipped[..., dim, 1]
+        c_ceil = clipped[..., dim, 2]
         w_floor = c_ceil - c_clipped  # shape = (batch, *loc_shape)
         w_ceil = c_clipped - c_floor if zero_boundary else 1 - w_floor
         if has_ch:
