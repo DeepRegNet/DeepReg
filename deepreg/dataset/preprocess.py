@@ -42,11 +42,11 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         :param trainable: if this layer is trainable
         """
         super().__init__(trainable=trainable, name=name)
-        self._moving_image_size = moving_image_size
-        self._fixed_image_size = fixed_image_size
-        self._batch_size = batch_size
-        self._moving_grid_ref = get_reference_grid(grid_size=moving_image_size)
-        self._fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
+        self.moving_image_size = moving_image_size
+        self.fixed_image_size = fixed_image_size
+        self.batch_size = batch_size
+        self.moving_grid_ref = get_reference_grid(grid_size=moving_image_size)
+        self.fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
 
     @abstractmethod
     def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
@@ -95,10 +95,8 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
         moving_params, fixed_params = self.gen_transform_params()
 
-        moving_image = self.transform(
-            moving_image, self._moving_grid_ref, moving_params
-        )
-        fixed_image = self.transform(fixed_image, self._fixed_grid_ref, fixed_params)
+        moving_image = self.transform(moving_image, self.moving_grid_ref, moving_params)
+        fixed_image = self.transform(fixed_image, self.fixed_grid_ref, fixed_params)
 
         if "moving_label" not in inputs:  # unlabeled
             return dict(
@@ -107,10 +105,8 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         moving_label = inputs["moving_label"]
         fixed_label = inputs["fixed_label"]
 
-        moving_label = self.transform(
-            moving_label, self._moving_grid_ref, moving_params
-        )
-        fixed_label = self.transform(fixed_label, self._fixed_grid_ref, fixed_params)
+        moving_label = self.transform(moving_label, self.moving_grid_ref, moving_params)
+        fixed_label = self.transform(fixed_label, self.fixed_grid_ref, fixed_params)
 
         return dict(
             moving_image=moving_image,
@@ -123,18 +119,15 @@ class RandomTransformation3D(tf.keras.layers.Layer):
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["moving_image_size"] = self._moving_image_size
-        config["fixed_image_size"] = self._fixed_image_size
-        config["batch_size"] = self._batch_size
+        config["moving_image_size"] = self.moving_image_size
+        config["fixed_image_size"] = self.fixed_image_size
+        config["batch_size"] = self.batch_size
         return config
 
 
 @REGISTRY.register_data_augmentation(name="affine")
 class RandomAffineTransform3D(RandomTransformation3D):
-    """
-    RandomAffineTransform3D class for maintaining and updating
-    the transformed grids for the moving and fixed images.
-    """
+    """Apply random affine transformation to moving/fixed images separately."""
 
     def __init__(
         self,
@@ -162,12 +155,12 @@ class RandomAffineTransform3D(RandomTransformation3D):
             name=name,
             **kwargs,
         )
-        self._scale = scale
+        self.scale = scale
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["scale"] = self._scale
+        config["scale"] = self.scale
         return config
 
     def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
@@ -178,9 +171,9 @@ class RandomAffineTransform3D(RandomTransformation3D):
         :return: a tuple of tensors, each has shape = (batch, 4, 3)
         """
         theta = gen_rand_affine_transform(
-            batch_size=self._batch_size * 2, scale=self._scale
+            batch_size=self.batch_size * 2, scale=self.scale
         )
-        return theta[: self._batch_size], theta[self._batch_size :]
+        return theta[: self.batch_size], theta[self.batch_size :]
 
     @staticmethod
     def transform(
@@ -199,10 +192,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
 @REGISTRY.register_data_augmentation(name="ddf")
 class RandomDDFTransform3D(RandomTransformation3D):
-    """
-    RandomDDFTransform3D class for using spatial transformation as a data augmentation
-    technique
-    """
+    """Apply random DDF transformation to moving/fixed images separately."""
 
     def __init__(
         self,
@@ -211,7 +201,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
         batch_size: int,
         field_strength: int = 1,
         low_res_size: tuple = (1, 1, 1),
-        name="RandomDDFTransform3D",
+        name: str = "RandomDDFTransform3D",
         **kwargs,
     ):
         """
@@ -243,14 +233,14 @@ class RandomDDFTransform3D(RandomTransformation3D):
         assert tuple(low_res_size) <= tuple(moving_image_size)
         assert tuple(low_res_size) <= tuple(fixed_image_size)
 
-        self._field_strength = field_strength
-        self._low_res_size = low_res_size
+        self.field_strength = field_strength
+        self.low_res_size = low_res_size
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["field_strength"] = self._field_strength
-        config["low_res_size"] = self._low_res_size
+        config["field_strength"] = self.field_strength
+        config["low_res_size"] = self.low_res_size
         return config
 
     def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
@@ -261,16 +251,18 @@ class RandomDDFTransform3D(RandomTransformation3D):
             another one has shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         """
         kwargs = dict(
-            batch_size=self._batch_size,
-            field_strength=self._field_strength,
-            low_res_size=self._low_res_size,
+            batch_size=self.batch_size,
+            field_strength=self.field_strength,
+            low_res_size=self.low_res_size,
         )
-        moving = gen_rand_ddf(image_size=self._moving_image_size, **kwargs)
-        fixed = gen_rand_ddf(image_size=self._fixed_image_size, **kwargs)
+        moving = gen_rand_ddf(image_size=self.moving_image_size, **kwargs)
+        fixed = gen_rand_ddf(image_size=self.fixed_image_size, **kwargs)
         return moving, fixed
 
     @staticmethod
-    def transform(image, grid_ref, params) -> tf.Tensor:
+    def transform(
+        image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
+    ) -> tf.Tensor:
         """
         Transforms the reference grid and then resample the image.
 

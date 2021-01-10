@@ -28,7 +28,11 @@ import deepreg.dataset.preprocess as preprocess
 )
 @pytest.mark.parametrize("labeled", [True, False])
 def test_resize_inputs(
-    moving_input_size, fixed_input_size, moving_image_size, fixed_image_size, labeled
+    moving_input_size: tuple,
+    fixed_input_size: tuple,
+    moving_image_size: tuple,
+    fixed_image_size: tuple,
+    labeled: bool,
 ):
     """
     Check return shapes.
@@ -53,7 +57,7 @@ def test_resize_inputs(
 
     outputs = preprocess.resize_inputs(inputs, moving_image_size, fixed_image_size)
     assert inputs["indices"].shape == outputs["indices"].shape
-    for k in inputs.keys():
+    for k in inputs:
         if k == "indices":
             assert outputs[k].shape == inputs[k].shape
             continue
@@ -62,6 +66,7 @@ def test_resize_inputs(
 
 
 def test_random_transform_3d_get_config():
+    """Check config values."""
     config = dict(
         moving_image_size=(1, 2, 3),
         fixed_image_size=(2, 3, 4),
@@ -76,6 +81,8 @@ def test_random_transform_3d_get_config():
 
 
 class TestRandomTransformation:
+    """Test all functions of RandomTransformation class."""
+
     moving_image_size = (1, 2, 3)
     fixed_image_size = (2, 3, 4)
     batch_size = 2
@@ -107,7 +114,7 @@ class TestRandomTransformation:
         return self.layer_cls_dict[name](**config)
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
-    def test_get_config(self, name):
+    def test_get_config(self, name: str):
         """
         Check config values.
 
@@ -130,7 +137,9 @@ class TestRandomTransformation:
             ("ddf", (*moving_image_size, 3), (*fixed_image_size, 3)),
         ],
     )
-    def test_gen_transform_params(self, name, moving_param_shape, fixed_param_shape):
+    def test_gen_transform_params(
+        self, name: str, moving_param_shape: tuple, fixed_param_shape: tuple
+    ):
         """
         Check return shapes and moving/fixed params should be different.
 
@@ -145,7 +154,7 @@ class TestRandomTransformation:
         assert not is_equal_np(moving, fixed)
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
-    def test_transform(self, name):
+    def test_transform(self, name: str):
         """
         Check return shapes.
 
@@ -158,14 +167,14 @@ class TestRandomTransformation:
         moving_params, _ = layer.gen_transform_params()
         transformed = layer.transform(
             image=moving_image,
-            grid_ref=layer._moving_grid_ref,
+            grid_ref=layer.moving_grid_ref,
             params=moving_params,
         )
         assert transformed.shape == moving_image.shape
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
     @pytest.mark.parametrize("labeled", [True, False])
-    def test_call(self, name, labeled):
+    def test_call(self, name: str, labeled: bool):
         """
         Check return shapes.
 
@@ -189,5 +198,5 @@ class TestRandomTransformation:
             inputs["fixed_label"] = fixed_label
 
         outputs = layer.call(inputs)
-        for k in inputs.keys():
+        for k in inputs:
             assert outputs[k].shape == inputs[k].shape
