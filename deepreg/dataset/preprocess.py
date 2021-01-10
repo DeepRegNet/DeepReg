@@ -30,6 +30,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         fixed_image_size: tuple,
         batch_size: int,
         name: str = "RandomTransformation3D",
+        trainable: bool = False,
     ):
         """
         Abstract class for image transformation.
@@ -39,7 +40,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         :param batch_size: size of mini-batch
         :param name: name of layer
         """
-        super().__init__(name=name)
+        super().__init__(trainable=trainable, name=name)
         self._moving_image_size = moving_image_size
         self._fixed_image_size = fixed_image_size
         self._batch_size = batch_size
@@ -128,9 +129,9 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
 
 @REGISTRY.register_data_augmentation(name="affine")
-class RandomAffine3D(RandomTransformation3D):
+class RandomAffineTransform3D(RandomTransformation3D):
     """
-    RandomAffine3D class for maintaining and updating
+    RandomAffineTransform3D class for maintaining and updating
     the transformed grids for the moving and fixed images.
     """
 
@@ -140,7 +141,8 @@ class RandomAffine3D(RandomTransformation3D):
         fixed_image_size: tuple,
         batch_size: int,
         scale: float = 0.1,
-        name: str = "RandomAffine3D",
+        name: str = "RandomAffineTransform3D",
+        **kwargs,
     ):
         """
         Init.
@@ -150,12 +152,14 @@ class RandomAffine3D(RandomTransformation3D):
         :param batch_size: size of mini-batch
         :param scale: a positive float controlling the scale of transformation
         :param name: name of the layer
+        :param kwargs: extra arguments
         """
         super().__init__(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             batch_size=batch_size,
             name=name,
+            **kwargs,
         )
         self._scale = scale
 
@@ -192,10 +196,10 @@ class RandomAffine3D(RandomTransformation3D):
         return resample(vol=image, loc=warp_grid(grid_ref, params))
 
 
-@REGISTRY.register_data_augmentation(name="ffd")
-class FFDTransformation3D(RandomTransformation3D):
+@REGISTRY.register_data_augmentation(name="ddf")
+class RandomDDFTransform3D(RandomTransformation3D):
     """
-    DDFTransformation3D class for using spatial transformation as a data augmentation
+    RandomDDFTransform3D class for using spatial transformation as a data augmentation
     technique
     """
 
@@ -206,6 +210,8 @@ class FFDTransformation3D(RandomTransformation3D):
         batch_size: int,
         field_strength: int = 1,
         low_res_size: tuple = (1, 1, 1),
+        name="RandomDDFTransform3D",
+        **kwargs,
     ):
         """
         Creates a DDF transformation for data augmentation.
@@ -227,6 +233,8 @@ class FFDTransformation3D(RandomTransformation3D):
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             batch_size=batch_size,
+            name=name,
+            **kwargs,
         )
 
         assert tuple(low_res_size) <= tuple(moving_image_size)

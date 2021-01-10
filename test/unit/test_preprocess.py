@@ -10,7 +10,8 @@ transform function, such as:
 Are assumed working, and are tested separately in
 test_layer_util.py; as such we just check output size here.
 """
-import numpy as np
+from test.unit.util import is_equal_np
+
 import pytest
 import tensorflow as tf
 
@@ -75,387 +76,159 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     assert outputs["fixed_image"].shape == fixed_image_size
 
 
-class TestAffineTransformation3d:
-    @pytest.mark.parametrize(
-        "dims,batch_size,scale",
-        [
-            ((3, 3, 3), 2, 0.1),
-            ((9, 9, 9), 1, 0.1),
-            ((3, 3, 3), 10, 0.1),
-        ],
+def test_random_transform_3d_get_config():
+    config = dict(
+        moving_image_size=(1, 2, 3),
+        fixed_image_size=(2, 3, 4),
+        batch_size=3,
+        name="TestRandomTransformation3D",
     )
-    def test__gen_transforms(self, dims, batch_size, scale):
+    expected = {"trainable": False, "dtype": "float32", **config}
+    transform = preprocess.RandomTransformation3D(**config)
+    got = transform.get_config()
+
+    assert got == expected
+
+
+class TestRandomAffine3D:
+    moving_image_size = (1, 2, 3)
+    fixed_image_size = (2, 3, 4)
+    batch_size = 2
+    scale = 0.2
+    num_indices = 3
+    name = "TestRandomAffineTransform3D"
+    config = dict(
+        moving_image_size=moving_image_size,
+        fixed_image_size=fixed_image_size,
+        batch_size=batch_size,
+        scale=scale,
+        name=name,
+    )
+    layer = preprocess.RandomAffineTransform3D(**config)
+
+    def test_get_config(self):
+        got = self.layer.get_config()
+        expected = {"trainable": False, "dtype": "float32", **self.config}
+        assert got == expected
+
+    def test_gen_transform_params(self):
+        """Check return shapes and moving/fixed params should be different."""
+
+        moving, fixed = self.layer._gen_transform_params()
+        assert moving.shape == (self.batch_size, 4, 3)
+        assert fixed.shape == (self.batch_size, 4, 3)
+        assert not is_equal_np(moving, fixed)
+
+    def test__transform(self):
+        """Check return shapes."""
+        moving_image = tf.random.uniform(
+            shape=(self.batch_size, *self.moving_image_size)
+        )
+        moving_params, _ = self.layer._gen_transform_params()
+        transformed = self.layer._transform(
+            image=moving_image,
+            grid_ref=self.layer._moving_grid_ref,
+            params=moving_params,
+        )
+        assert transformed.shape == moving_image.shape
+
+    @pytest.mark.parametrize(
+        "labeled",
+        [True, False],
+    )
+    def test_call(self, labeled):
         """
         Check return shapes.
 
-        :param dims: tuple
-        :param batch_size: int
-        :param scale: float
-        :return:
+        :param labeled: if data is labeled
         """
-
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        affine_transform_3d = preprocess.RandomAffine3D(
-            moving_image.shape, fixed_image.shape, batch_size, scale
+        moving_shape = (self.batch_size, *self.moving_image_size)
+        fixed_shape = (self.batch_size, *self.fixed_image_size)
+        moving_image = tf.random.uniform(moving_shape)
+        fixed_image = tf.random.uniform(fixed_shape)
+        indices = tf.ones((self.batch_size, self.num_indices))
+        inputs = dict(
+            moving_image=moving_image, fixed_image=fixed_image, indices=indices
         )
+        if labeled:
+            moving_label = tf.random.uniform(moving_shape)
+            fixed_label = tf.random.uniform(fixed_shape)
+            inputs["moving_label"] = moving_label
+            inputs["fixed_label"] = fixed_label
 
-        transforms = affine_transform_3d._gen_transform_params()
-        assert len(transforms) == 2
-        assert transforms[0].shape == (batch_size, 4, 3)
-        assert transforms[1].shape == (batch_size, 4, 3)
+        outputs = self.layer.call(inputs)
+        for k in inputs.keys():
+            assert outputs[k].shape == inputs[k].shape
+
+
+class TestDDFTransformation3D:
+    moving_image_size = (1, 2, 3)
+    fixed_image_size = (2, 3, 4)
+    batch_size = 2
+    field_strength = 0.2
+    low_res_size = (1, 2, 3)
+    num_indices = 3
+    name = "TestRandomDDFTransform3D"
+    config = dict(
+        moving_image_size=moving_image_size,
+        fixed_image_size=fixed_image_size,
+        batch_size=batch_size,
+        field_strength=field_strength,
+        low_res_size=low_res_size,
+        name=name,
+    )
+    layer = preprocess.RandomDDFTransform3D(**config)
+
+    def test_get_config(self):
+        got = self.layer.get_config()
+        expected = {"trainable": False, "dtype": "float32", **self.config}
+        assert got == expected
+
+    def test_gen_transform_params(self):
+        """Check return shapes and moving/fixed params should be different."""
+
+        moving, fixed = self.layer._gen_transform_params()
+        assert moving.shape == (self.batch_size, *self.moving_image_size, 3)
+        assert fixed.shape == (self.batch_size, *self.fixed_image_size, 3)
+        assert not is_equal_np(moving, fixed)
+
+    def test__transform(self):
+        """Check return shapes."""
+        moving_image = tf.random.uniform(
+            shape=(self.batch_size, *self.moving_image_size)
+        )
+        moving_params, _ = self.layer._gen_transform_params()
+        transformed = self.layer._transform(
+            image=moving_image,
+            grid_ref=self.layer._moving_grid_ref,
+            params=moving_params,
+        )
+        assert transformed.shape == moving_image.shape
 
     @pytest.mark.parametrize(
-        "dims,batch_size,scale",
-        [
-            ((3, 3, 3), 2, 0.1),
-            ((9, 9, 9), 1, 0.1),
-            ((3, 3, 3), 10, 0.1),
-        ],
+        "labeled",
+        [True, False],
     )
-    def test__transform(self, dims, batch_size, scale):
+    def test_call(self, labeled):
         """
-        Test _transform() by confirming that it generates
-        appropriate transform output sizes.
-        :param dims: tuple
-        :param batch_size: int
-        :param scale: int
-        :return:
+        Check return shapes.
+
+        :param labeled: if data is labeled
         """
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        moving_image_batched = np.float32(
-            np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
+        moving_shape = (self.batch_size, *self.moving_image_size)
+        fixed_shape = (self.batch_size, *self.fixed_image_size)
+        moving_image = tf.random.uniform(moving_shape)
+        fixed_image = tf.random.uniform(fixed_shape)
+        indices = tf.ones((self.batch_size, self.num_indices))
+        inputs = dict(
+            moving_image=moving_image, fixed_image=fixed_image, indices=indices
         )
-        fixed_image_batched = np.float32(
-            np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
+        if labeled:
+            moving_label = tf.random.uniform(moving_shape)
+            fixed_label = tf.random.uniform(fixed_shape)
+            inputs["moving_label"] = moving_label
+            inputs["fixed_label"] = fixed_label
 
-        affine_transform_3d = preprocess.RandomAffine3D(
-            moving_image.shape, fixed_image.shape, batch_size, scale
-        )
-
-        transforms = affine_transform_3d._gen_transform_params()
-        assert len(transforms) == 2
-        assert transforms[0].shape == (batch_size, 4, 3)
-        assert transforms[1].shape == (batch_size, 4, 3)
-
-        (
-            moving_transforms,
-            fixed_transforms,
-        ) = affine_transform_3d._gen_transform_params()
-        transformed_moving_image = affine_transform_3d._transform(
-            moving_image_batched,
-            affine_transform_3d._moving_grid_ref,
-            moving_transforms,
-        )
-        assert transformed_moving_image.shape == moving_image_batched.shape
-
-        transformed_fixed_image = affine_transform_3d._transform(
-            fixed_image_batched, affine_transform_3d._fixed_grid_ref, fixed_transforms
-        )
-        assert transformed_fixed_image.shape == fixed_image_batched.shape
-
-        assert not np.allclose(moving_transforms, fixed_transforms)
-
-    @pytest.mark.parametrize(
-        "dims,batch_size,scale",
-        [
-            ((3, 3, 3), 2, 0.1),
-            ((9, 9, 9), 1, 0.1),
-            ((3, 3, 3), 10, 0.1),
-        ],
-    )
-    def test_transform(self, dims, batch_size, scale):
-        """
-        Test transform() by comfirming that it params
-        images and labels only as necessary and when provided.
-        :param dims: tuple
-        :param batch_size: int
-        :param scale: int
-        :return:
-        """
-        # Common test setup.
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        affine_transform_3d = preprocess.RandomAffine3D(
-            moving_image.shape, fixed_image.shape, batch_size, scale
-        )
-
-        moving_image_batched = np.float32(
-            np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-        fixed_image_batched = np.float32(
-            np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-
-        indices = range(batch_size)
-
-        # Test with no labels provided.
-        inputs = {
-            "moving_image": moving_image_batched,
-            "fixed_image": fixed_image_batched,
-            "indices": indices,
-        }
-
-        outputs = affine_transform_3d(inputs)
-
-        assert outputs.get("moving_image") is not None
-        assert outputs.get("fixed_image") is not None
-        assert outputs.get("indices") is not None
-
-        assert outputs.get("moving_image").shape == moving_image_batched.shape
-        assert outputs.get("fixed_image").shape == fixed_image_batched.shape
-        assert len(outputs.get("indices")) == len(indices)
-
-        # Test with labels provided.
-        moving_label = np.round(np.random.uniform(size=dims))
-        fixed_label = np.round(np.random.uniform(size=dims))
-        moving_label_batched = np.float32(
-            np.repeat(moving_label[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-        fixed_label_batched = np.float32(
-            np.repeat(fixed_label[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-
-        inputs = {
-            "moving_image": moving_image_batched,
-            "fixed_image": fixed_image_batched,
-            "moving_label": moving_label_batched,
-            "fixed_label": fixed_label_batched,
-            "indices": indices,
-        }
-
-        outputs = affine_transform_3d(inputs)
-
-        assert outputs.get("moving_image") is not None
-        assert outputs.get("fixed_image") is not None
-        assert outputs.get("moving_label") is not None
-        assert outputs.get("fixed_label") is not None
-        assert outputs.get("indices") is not None
-
-        assert outputs.get("moving_image").shape == moving_image_batched.shape
-        assert outputs.get("fixed_image").shape == fixed_image_batched.shape
-        assert outputs.get("moving_label").shape == moving_image_batched.shape
-        assert outputs.get("fixed_label").shape == fixed_image_batched.shape
-        assert len(outputs.get("indices")) == len(indices)
-
-
-class TestFFDTransformation3d:
-    @pytest.mark.parametrize(
-        "fix_dims,mov_dims,batch_size,field_strength,low_res_size,raise_error",
-        [
-            ((9, 9, 9), (9, 9, 9), 2, 5, (3, 3, 3), False),
-            ((9, 9, 9), (15, 15, 15), 2, 5, (3, 3, 3), False),
-            ((9, 9, 9), (3, 3, 3), 2, 5, (9, 9, 9), True),
-        ],
-    )
-    def test_init(
-        self, fix_dims, mov_dims, batch_size, field_strength, low_res_size, raise_error
-    ):
-        """
-        Test initialization of FFDTransformation3D class
-        :param fix_dims: tuple
-        :param mov_dims: tuple
-        :param batch_size: int
-        :param field_strength: int
-        :param low_res_size: tuple
-        :param raise_error: bool, True if the specified parameters will raise error
-        :return:
-        """
-        moving_image = np.random.uniform(size=mov_dims)
-        fixed_image = np.random.uniform(size=fix_dims)
-
-        if raise_error:
-            with pytest.raises(AssertionError):
-                ddf_transform_3d = preprocess.FFDTransformation3D(
-                    moving_image.shape,
-                    fixed_image.shape,
-                    batch_size,
-                    field_strength,
-                    low_res_size,
-                )
-        else:
-
-            ddf_transform_3d = preprocess.FFDTransformation3D(
-                moving_image.shape,
-                fixed_image.shape,
-                batch_size,
-                field_strength,
-                low_res_size,
-            )
-
-            assert ddf_transform_3d._moving_grid_ref.shape == mov_dims + (3,)
-            assert ddf_transform_3d._fixed_grid_ref.shape == fix_dims + (3,)
-
-    @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,low_res_size",
-        [
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-            ((15, 15, 15), 2, 5, (3, 3, 3)),
-            ((3, 3, 3), 2, 5, (3, 3, 3)),
-        ],
-    )
-    def test__gen_transforms(self, dims, batch_size, field_strength, low_res_size):
-        """
-        Test _gen_transforms() by confirming that it generates
-        appropriate transform output sizes.
-        :param dims: tuple
-        :param batch_size: int
-        :param field_strength: int
-        :param low_res_size: tuple
-        """
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        ddf_transform_3d = preprocess.FFDTransformation3D(
-            moving_image.shape,
-            fixed_image.shape,
-            batch_size,
-            field_strength,
-            low_res_size,
-        )
-
-        transforms = ddf_transform_3d._gen_transform_params()
-        assert len(transforms) == 2
-        assert transforms[0].shape == (batch_size,) + dims + (3,)
-        assert transforms[1].shape == (batch_size,) + dims + (3,)
-
-    @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,low_res_size",
-        [
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-        ],
-    )
-    def test__transform(self, dims, batch_size, field_strength, low_res_size):
-        """
-        Test _transform() by confirming that it generates
-        appropriate transform output sizes.
-        :param dims: tuple
-        :param batch_size: int
-        :param field_strength: int
-        :param low_res_size: tuple
-        """
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        moving_image_batched = np.float32(
-            np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-        fixed_image_batched = np.float32(
-            np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-
-        ddf_transform_3d = preprocess.FFDTransformation3D(
-            moving_image.shape,
-            fixed_image.shape,
-            batch_size,
-            field_strength,
-            low_res_size,
-        )
-
-        moving_transforms, fixed_transforms = ddf_transform_3d._gen_transform_params()
-
-        transformed_moving_image = ddf_transform_3d._transform(
-            moving_image_batched, ddf_transform_3d._moving_grid_ref, moving_transforms
-        )
-        assert transformed_moving_image.shape == moving_image_batched.shape
-
-        transformed_fixed_image = ddf_transform_3d._transform(
-            fixed_image_batched, ddf_transform_3d._fixed_grid_ref, fixed_transforms
-        )
-        assert transformed_fixed_image.shape == fixed_image_batched.shape
-
-        assert not np.allclose(moving_transforms, fixed_transforms)
-
-    @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,low_res_size",
-        [
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-            ((9, 9, 9), 2, 5, (3, 3, 3)),
-        ],
-    )
-    def test_transform(self, dims, batch_size, field_strength, low_res_size):
-        """
-        Test transform() by confirming that it generates
-        appropriate transform output sizes.
-        :param dims: tuple
-        :param batch_size: int
-        :param field_strength: int
-        :param low_res_size: tuple
-        """
-        # Common test setup.
-        moving_image = np.random.uniform(size=dims)
-        fixed_image = np.random.uniform(size=dims)
-
-        ddf_transform_3d = preprocess.FFDTransformation3D(
-            moving_image.shape,
-            fixed_image.shape,
-            batch_size,
-            field_strength,
-            low_res_size,
-        )
-
-        moving_image_batched = np.float32(
-            np.repeat(moving_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-        fixed_image_batched = np.float32(
-            np.repeat(fixed_image[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-
-        indices = range(batch_size)
-
-        # Test with no labels provided.
-        inputs = {
-            "moving_image": moving_image_batched,
-            "fixed_image": fixed_image_batched,
-            "indices": indices,
-        }
-
-        outputs = ddf_transform_3d(inputs)
-
-        assert outputs.get("moving_image") is not None
-        assert outputs.get("fixed_image") is not None
-        assert outputs.get("indices") is not None
-
-        assert outputs.get("moving_image").shape == moving_image_batched.shape
-        assert outputs.get("fixed_image").shape == fixed_image_batched.shape
-        assert len(outputs.get("indices")) == len(indices)
-
-        # Test with labels provided.
-        moving_label = np.round(np.random.uniform(size=dims))
-        fixed_label = np.round(np.random.uniform(size=dims))
-        moving_label_batched = np.float32(
-            np.repeat(moving_label[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-        fixed_label_batched = np.float32(
-            np.repeat(fixed_label[np.newaxis, :, :, :], batch_size, axis=0)
-        )
-
-        inputs = {
-            "moving_image": moving_image_batched,
-            "fixed_image": fixed_image_batched,
-            "moving_label": moving_label_batched,
-            "fixed_label": fixed_label_batched,
-            "indices": indices,
-        }
-
-        outputs = ddf_transform_3d(inputs)
-
-        assert outputs.get("moving_image") is not None
-        assert outputs.get("fixed_image") is not None
-        assert outputs.get("moving_label") is not None
-        assert outputs.get("fixed_label") is not None
-        assert outputs.get("indices") is not None
-
-        assert outputs.get("moving_image").shape == moving_image_batched.shape
-        assert outputs.get("fixed_image").shape == fixed_image_batched.shape
-        assert outputs.get("moving_label").shape == moving_image_batched.shape
-        assert outputs.get("fixed_label").shape == fixed_image_batched.shape
-        assert len(outputs.get("indices")) == len(indices)
+        outputs = self.layer.call(inputs)
+        for k in inputs.keys():
+            assert outputs[k].shape == inputs[k].shape
