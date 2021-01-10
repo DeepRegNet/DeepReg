@@ -493,7 +493,7 @@ def warp_image_ddf(
     :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
         or (batch, m_dim1, m_dim2, m_dim3, ch)
     :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3)
+    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3) or (1, f_dim1, f_dim2, f_dim3, 3)
         if None grid_reg will be calculated based on ddf
     :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         or (batch, f_dim1, f_dim2, f_dim3, ch)
@@ -510,8 +510,11 @@ def warp_image_ddf(
         )
 
     if grid_ref is None:
+        # shape = (f_dim1, f_dim2, f_dim3, 3)
+        grid_ref = get_reference_grid(grid_size=ddf.shape[1:4])
+    if len(grid_ref.shape) == 4:
         # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = tf.expand_dims(get_reference_grid(grid_size=ddf.shape[1:4]), axis=0)
+        grid_ref = grid_ref[None, ...]
     if not (
         len(grid_ref.shape) == 5
         and grid_ref.shape[0] == 1
