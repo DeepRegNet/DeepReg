@@ -90,7 +90,7 @@ class TestDataLoader:
                         "ddf": {
                             "name": "ffd",
                             "field_strength": 1,
-                            "lowres_size": (3, 3, 3),
+                            "low_res_size": (3, 3, 3),
                         },
                     }
                 },

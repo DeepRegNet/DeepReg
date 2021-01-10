@@ -75,58 +75,6 @@ def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
     assert outputs["fixed_image"].shape == fixed_image_size
 
 
-class TestAbstractPreprocessClass:
-    @pytest.mark.parametrize(
-        "fix_dims,mov_dims,batch_size",
-        [
-            ((9, 9, 9), (9, 9, 9), 2),
-            ((9, 9, 9), (15, 15, 15), 2),
-            ((9, 9, 9), (3, 3, 3), 2),
-        ],
-    )
-    def test_call(self, fix_dims, mov_dims, batch_size):
-        """
-        Test that __call__() raises NotImplementedError.
-        :param fix_dims:
-        :param mov_dims:
-        :param batch_size:
-        :return:
-        """
-        with pytest.raises(NotImplementedError):
-            abs_clr = preprocess.AbstractPreprocess(
-                mov_dims,
-                fix_dims,
-                batch_size,
-            )
-
-            abs_clr({})
-
-    @pytest.mark.parametrize(
-        "fix_dims,mov_dims,batch_size",
-        [
-            ((9, 9, 9), (9, 9, 9), 2),
-            ((9, 9, 9), (15, 15, 15), 2),
-            ((9, 9, 9), (3, 3, 3), 2),
-        ],
-    )
-    def test_transform(self, fix_dims, mov_dims, batch_size):
-        """
-        Test that tranform() raises NotImplementedError.
-        :param fix_dims:
-        :param mov_dims:
-        :param batch_size:
-        :return:
-        """
-        with pytest.raises(NotImplementedError):
-            abs_clr = preprocess.AbstractPreprocess(
-                mov_dims,
-                fix_dims,
-                batch_size,
-            )
-
-            abs_clr.transform({})
-
-
 class TestAffineTransformation3d:
     @pytest.mark.parametrize(
         "dims,batch_size,scale",
@@ -138,8 +86,8 @@ class TestAffineTransformation3d:
     )
     def test__gen_transforms(self, dims, batch_size, scale):
         """
-        Test _gen_transforms() by confirming that it generates
-        appropriate transform output sizes.
+        Check return shapes.
+
         :param dims: tuple
         :param batch_size: int
         :param scale: float
@@ -154,7 +102,9 @@ class TestAffineTransformation3d:
         )
 
         transforms = affine_transform_3d._gen_transforms()
-        assert transforms.shape == (batch_size, 4, 3)
+        assert len(transforms) == 2
+        assert transforms[0].shape == (batch_size, 4, 3)
+        assert transforms[1].shape == (batch_size, 4, 3)
 
     @pytest.mark.parametrize(
         "dims,batch_size,scale",
@@ -188,9 +138,11 @@ class TestAffineTransformation3d:
         )
 
         transforms = affine_transform_3d._gen_transforms()
-        assert transforms.shape == (batch_size, 4, 3)
+        assert len(transforms) == 2
+        assert transforms[0].shape == (batch_size, 4, 3)
+        assert transforms[1].shape == (batch_size, 4, 3)
 
-        moving_transforms = affine_transform_3d._gen_transforms()
+        moving_transforms, fixed_transforms = affine_transform_3d._gen_transforms()
         transformed_moving_image = affine_transform_3d._transform(
             moving_image_batched,
             affine_transform_3d._moving_grid_ref,
@@ -198,7 +150,6 @@ class TestAffineTransformation3d:
         )
         assert transformed_moving_image.shape == moving_image_batched.shape
 
-        fixed_transforms = affine_transform_3d._gen_transforms()
         transformed_fixed_image = affine_transform_3d._transform(
             fixed_image_batched, affine_transform_3d._fixed_grid_ref, fixed_transforms
         )
@@ -292,7 +243,7 @@ class TestAffineTransformation3d:
 
 class TestFFDTransformation3d:
     @pytest.mark.parametrize(
-        "fix_dims,mov_dims,batch_size,field_strength,lowres_size,raise_error",
+        "fix_dims,mov_dims,batch_size,field_strength,low_res_size,raise_error",
         [
             ((9, 9, 9), (9, 9, 9), 2, 5, (3, 3, 3), False),
             ((9, 9, 9), (15, 15, 15), 2, 5, (3, 3, 3), False),
@@ -300,7 +251,7 @@ class TestFFDTransformation3d:
         ],
     )
     def test_init(
-        self, fix_dims, mov_dims, batch_size, field_strength, lowres_size, raise_error
+        self, fix_dims, mov_dims, batch_size, field_strength, low_res_size, raise_error
     ):
         """
         Test initialization of FFDTransformation3D class
@@ -308,7 +259,7 @@ class TestFFDTransformation3d:
         :param mov_dims: tuple
         :param batch_size: int
         :param field_strength: int
-        :param lowres_size: tuple
+        :param low_res_size: tuple
         :param raise_error: bool, True if the specified parameters will raise error
         :return:
         """
@@ -322,7 +273,7 @@ class TestFFDTransformation3d:
                     fixed_image.shape,
                     batch_size,
                     field_strength,
-                    lowres_size,
+                    low_res_size,
                 )
         else:
 
@@ -331,28 +282,28 @@ class TestFFDTransformation3d:
                 fixed_image.shape,
                 batch_size,
                 field_strength,
-                lowres_size,
+                low_res_size,
             )
 
-            assert ddf_transform_3d._moving_grid_ref.shape == (1,) + mov_dims + (3,)
-            assert ddf_transform_3d._fixed_grid_ref.shape == (1,) + fix_dims + (3,)
+            assert ddf_transform_3d._moving_grid_ref.shape == mov_dims + (3,)
+            assert ddf_transform_3d._fixed_grid_ref.shape == fix_dims + (3,)
 
     @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,lowres_size",
+        "dims,batch_size,field_strength,low_res_size",
         [
             ((9, 9, 9), 2, 5, (3, 3, 3)),
             ((15, 15, 15), 2, 5, (3, 3, 3)),
             ((3, 3, 3), 2, 5, (3, 3, 3)),
         ],
     )
-    def test__gen_transforms(self, dims, batch_size, field_strength, lowres_size):
+    def test__gen_transforms(self, dims, batch_size, field_strength, low_res_size):
         """
         Test _gen_transforms() by confirming that it generates
         appropriate transform output sizes.
         :param dims: tuple
         :param batch_size: int
         :param field_strength: int
-        :param lowres_size: tuple
+        :param low_res_size: tuple
         """
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
@@ -362,28 +313,30 @@ class TestFFDTransformation3d:
             fixed_image.shape,
             batch_size,
             field_strength,
-            lowres_size,
+            low_res_size,
         )
 
-        transforms = ddf_transform_3d._gen_transforms(dims)
-        assert transforms.shape == (batch_size,) + dims + (3,)
+        transforms = ddf_transform_3d._gen_transforms()
+        assert len(transforms) == 2
+        assert transforms[0].shape == (batch_size,) + dims + (3,)
+        assert transforms[1].shape == (batch_size,) + dims + (3,)
 
     @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,lowres_size",
+        "dims,batch_size,field_strength,low_res_size",
         [
             ((9, 9, 9), 2, 5, (3, 3, 3)),
             ((9, 9, 9), 2, 5, (3, 3, 3)),
             ((9, 9, 9), 2, 5, (3, 3, 3)),
         ],
     )
-    def test__transform(self, dims, batch_size, field_strength, lowres_size):
+    def test__transform(self, dims, batch_size, field_strength, low_res_size):
         """
         Test _transform() by confirming that it generates
         appropriate transform output sizes.
         :param dims: tuple
         :param batch_size: int
         :param field_strength: int
-        :param lowres_size: tuple
+        :param low_res_size: tuple
         """
         moving_image = np.random.uniform(size=dims)
         fixed_image = np.random.uniform(size=dims)
@@ -400,19 +353,16 @@ class TestFFDTransformation3d:
             fixed_image.shape,
             batch_size,
             field_strength,
-            lowres_size,
+            low_res_size,
         )
 
-        transforms = ddf_transform_3d._gen_transforms(dims)
-        assert transforms.shape == (batch_size,) + dims + (3,)
+        moving_transforms, fixed_transforms = ddf_transform_3d._gen_transforms()
 
-        moving_transforms = ddf_transform_3d._gen_transforms(dims)
         transformed_moving_image = ddf_transform_3d._transform(
             moving_image_batched, ddf_transform_3d._moving_grid_ref, moving_transforms
         )
         assert transformed_moving_image.shape == moving_image_batched.shape
 
-        fixed_transforms = ddf_transform_3d._gen_transforms(dims)
         transformed_fixed_image = ddf_transform_3d._transform(
             fixed_image_batched, ddf_transform_3d._fixed_grid_ref, fixed_transforms
         )
@@ -421,21 +371,21 @@ class TestFFDTransformation3d:
         assert not np.allclose(moving_transforms, fixed_transforms)
 
     @pytest.mark.parametrize(
-        "dims,batch_size,field_strength,lowres_size",
+        "dims,batch_size,field_strength,low_res_size",
         [
             ((9, 9, 9), 2, 5, (3, 3, 3)),
             ((9, 9, 9), 2, 5, (3, 3, 3)),
             ((9, 9, 9), 2, 5, (3, 3, 3)),
         ],
     )
-    def test_transform(self, dims, batch_size, field_strength, lowres_size):
+    def test_transform(self, dims, batch_size, field_strength, low_res_size):
         """
         Test transform() by confirming that it generates
         appropriate transform output sizes.
         :param dims: tuple
         :param batch_size: int
         :param field_strength: int
-        :param lowres_size: tuple
+        :param low_res_size: tuple
         """
         # Common test setup.
         moving_image = np.random.uniform(size=dims)
@@ -446,7 +396,7 @@ class TestFFDTransformation3d:
             fixed_image.shape,
             batch_size,
             field_strength,
-            lowres_size,
+            low_res_size,
         )
 
         moving_image_batched = np.float32(

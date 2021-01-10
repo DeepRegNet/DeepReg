@@ -26,7 +26,7 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     (M, N, P) for ‘ij’ indexing.
 
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
-    :return: shape = [dim1, dim2, dim3, 3],
+    :return: shape = (dim1, dim2, dim3, 3),
              grid[i, j, k, :] = [i j k]
     """
 
@@ -436,7 +436,7 @@ def random_ddf_transform_generator(
     batch_size: int,
     image_size: tuple,
     field_strength: (tuple, list),
-    lowres_size: (tuple, list),
+    low_res_size: (tuple, list),
     seed: (int, None) = None,
 ) -> tf.Tensor:
     """
@@ -444,7 +444,7 @@ def random_ddf_transform_generator(
     :param batch_size:
     :param image_size:
     :param field_strength: maximum field strength, computed as a U[0,field_strength]
-    :param lowres_size: low_resolution deformation field that will be upsampled to
+    :param low_res_size: low_resolution deformation field that will be upsampled to
                         the original size in order to get smooth and more realistic
                         fields.
     :param seed: control the randomness
@@ -452,11 +452,11 @@ def random_ddf_transform_generator(
     """
 
     np.random.seed(seed=seed)
-    lowres_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
-    lowres_field = lowres_strength * np.random.randn(
-        batch_size, lowres_size[0], lowres_size[1], lowres_size[2], 3
+    low_res_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
+    low_res_field = low_res_strength * np.random.randn(
+        batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
     )
-    highres_field = resize3d(lowres_field, image_size)
+    highres_field = resize3d(low_res_field, image_size)
 
     return highres_field
 
