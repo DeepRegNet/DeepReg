@@ -90,58 +90,103 @@ def test_random_transform_3d_get_config():
     assert got == expected
 
 
-class TestRandomAffine3D:
+class TestRandomTransformation:
     moving_image_size = (1, 2, 3)
     fixed_image_size = (2, 3, 4)
     batch_size = 2
     scale = 0.2
     num_indices = 3
-    name = "TestRandomAffineTransform3D"
-    config = dict(
+    name = "TestTransformation"
+    common_config = dict(
         moving_image_size=moving_image_size,
         fixed_image_size=fixed_image_size,
         batch_size=batch_size,
-        scale=scale,
         name=name,
     )
-    layer = preprocess.RandomAffineTransform3D(**config)
+    extra_config_dict = dict(
+        affine=dict(scale=0.2), ddf=dict(field_strength=0.2, low_res_size=(1, 2, 3))
+    )
+    layer_cls_dict = dict(
+        affine=preprocess.RandomAffineTransform3D,
+        ddf=preprocess.RandomDDFTransform3D,
+    )
 
-    def test_get_config(self):
-        got = self.layer.get_config()
-        expected = {"trainable": False, "dtype": "float32", **self.config}
+    def build_layer(self, name):
+        """
+        Build a layer given the layer name.
+
+        :param name: name of the layer
+        :return: built layer object
+        """
+        config = {**self.common_config, **self.extra_config_dict[name]}
+        return self.layer_cls_dict[name](**config)
+
+    @pytest.mark.parametrize("name", ["affine", "ddf"])
+    def test_get_config(self, name):
+        """
+        Check config values.
+
+        :param name: name of the layer
+        """
+        layer = self.build_layer(name)
+        got = layer.get_config()
+        expected = {
+            "trainable": False,
+            "dtype": "float32",
+            **self.common_config,
+            **self.extra_config_dict[name],
+        }
         assert got == expected
 
-    def test_gen_transform_params(self):
-        """Check return shapes and moving/fixed params should be different."""
+    @pytest.mark.parametrize(
+        ("name", "moving_param_shape", "fixed_param_shape"),
+        [
+            ("affine", (4, 3), (4, 3)),
+            ("ddf", (*moving_image_size, 3), (*fixed_image_size, 3)),
+        ],
+    )
+    def test_gen_transform_params(self, name, moving_param_shape, fixed_param_shape):
+        """
+        Check return shapes and moving/fixed params should be different.
 
-        moving, fixed = self.layer._gen_transform_params()
-        assert moving.shape == (self.batch_size, 4, 3)
-        assert fixed.shape == (self.batch_size, 4, 3)
+        :param name: name of the layer
+        """
+        layer = self.build_layer(name)
+        moving, fixed = layer._gen_transform_params()
+        assert moving.shape == (self.batch_size, *moving_param_shape)
+        assert fixed.shape == (self.batch_size, *fixed_param_shape)
         assert not is_equal_np(moving, fixed)
 
-    def test__transform(self):
-        """Check return shapes."""
+    @pytest.mark.parametrize("name", ["affine", "ddf"])
+    def test__transform(self, name):
+        """
+        Check return shapes.
+
+        :param name: name of the layer
+        """
+        layer = self.build_layer(name)
         moving_image = tf.random.uniform(
             shape=(self.batch_size, *self.moving_image_size)
         )
-        moving_params, _ = self.layer._gen_transform_params()
-        transformed = self.layer._transform(
+        moving_params, _ = layer._gen_transform_params()
+        transformed = layer._transform(
             image=moving_image,
-            grid_ref=self.layer._moving_grid_ref,
+            grid_ref=layer._moving_grid_ref,
             params=moving_params,
         )
         assert transformed.shape == moving_image.shape
 
-    @pytest.mark.parametrize(
-        "labeled",
-        [True, False],
-    )
-    def test_call(self, labeled):
+    @pytest.mark.parametrize("name", ["affine", "ddf"])
+    @pytest.mark.parametrize("labeled", [True, False])
+    def test_call(self, name, labeled):
         """
         Check return shapes.
 
+        :param name: name of the layer
         :param labeled: if data is labeled
         """
+        layer = self.build_layer(name)
+
         moving_shape = (self.batch_size, *self.moving_image_size)
         fixed_shape = (self.batch_size, *self.fixed_image_size)
         moving_image = tf.random.uniform(moving_shape)
@@ -156,79 +201,6 @@ class TestRandomAffine3D:
             inputs["moving_label"] = moving_label
             inputs["fixed_label"] = fixed_label
 
-        outputs = self.layer.call(inputs)
-        for k in inputs.keys():
-            assert outputs[k].shape == inputs[k].shape
-
-
-class TestDDFTransformation3D:
-    moving_image_size = (1, 2, 3)
-    fixed_image_size = (2, 3, 4)
-    batch_size = 2
-    field_strength = 0.2
-    low_res_size = (1, 2, 3)
-    num_indices = 3
-    name = "TestRandomDDFTransform3D"
-    config = dict(
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-        batch_size=batch_size,
-        field_strength=field_strength,
-        low_res_size=low_res_size,
-        name=name,
-    )
-    layer = preprocess.RandomDDFTransform3D(**config)
-
-    def test_get_config(self):
-        got = self.layer.get_config()
-        expected = {"trainable": False, "dtype": "float32", **self.config}
-        assert got == expected
-
-    def test_gen_transform_params(self):
-        """Check return shapes and moving/fixed params should be different."""
-
-        moving, fixed = self.layer._gen_transform_params()
-        assert moving.shape == (self.batch_size, *self.moving_image_size, 3)
-        assert fixed.shape == (self.batch_size, *self.fixed_image_size, 3)
-        assert not is_equal_np(moving, fixed)
-
-    def test__transform(self):
-        """Check return shapes."""
-        moving_image = tf.random.uniform(
-            shape=(self.batch_size, *self.moving_image_size)
-        )
-        moving_params, _ = self.layer._gen_transform_params()
-        transformed = self.layer._transform(
-            image=moving_image,
-            grid_ref=self.layer._moving_grid_ref,
-            params=moving_params,
-        )
-        assert transformed.shape == moving_image.shape
-
-    @pytest.mark.parametrize(
-        "labeled",
-        [True, False],
-    )
-    def test_call(self, labeled):
-        """
-        Check return shapes.
-
-        :param labeled: if data is labeled
-        """
-        moving_shape = (self.batch_size, *self.moving_image_size)
-        fixed_shape = (self.batch_size, *self.fixed_image_size)
-        moving_image = tf.random.uniform(moving_shape)
-        fixed_image = tf.random.uniform(fixed_shape)
-        indices = tf.ones((self.batch_size, self.num_indices))
-        inputs = dict(
-            moving_image=moving_image, fixed_image=fixed_image, indices=indices
-        )
-        if labeled:
-            moving_label = tf.random.uniform(moving_shape)
-            fixed_label = tf.random.uniform(fixed_shape)
-            inputs["moving_label"] = moving_label
-            inputs["fixed_label"] = fixed_label
-
-        outputs = self.layer.call(inputs)
+        outputs = layer.call(inputs)
         for k in inputs.keys():
             assert outputs[k].shape == inputs[k].shape
