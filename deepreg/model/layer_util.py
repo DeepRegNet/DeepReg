@@ -490,7 +490,8 @@ def warp_image_ddf(
     :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
         or (batch, m_dim1, m_dim2, m_dim3, ch)
     :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3) or (1, f_dim1, f_dim2, f_dim3, 3)
+    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3)
+        or (1, f_dim1, f_dim2, f_dim3, 3)
         if None grid_reg will be calculated based on ddf
     :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         or (batch, f_dim1, f_dim2, f_dim3, ch)
@@ -566,7 +567,7 @@ def resize3d(
         has_channel = False
         has_batch = True
         input_image_shape = image.shape[1:4]
-    elif image_dim == 3:
+    else:
         has_channel = False
         has_batch = False
         input_image_shape = image.shape[0:3]
