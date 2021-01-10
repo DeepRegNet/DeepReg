@@ -111,10 +111,12 @@ class TestPyramidCombination:
 
 
 class TestLinearResample:
-    # vol are values on grid [0,1]x[0,2]
+    x_min, x_max = 0, 2
+    y_min, y_max = 0, 2
+    # vol are values on grid [0,2]x[0,2]
     # values on each point is 3x+y
-    # shape = (1,2,3)
-    vol = tf.constant(np.array([[[0, 1, 2], [3, 4, 5]]]), dtype=tf.float32)
+    # shape = (1,3,3)
+    vol = tf.constant(np.array([[[0, 1, 2], [3, 4, 5], [6, 7, 8]]]), dtype=tf.float32)
     # loc are some points, especially
     # shape = (1,4,3,2)
     loc = tf.constant(
@@ -122,9 +124,9 @@ class TestLinearResample:
             [
                 [
                     [[0, 0], [0, 1], [1, 2]],  # boundary corners
-                    [[0.4, 0], [0.5, 2], [0.6, 2]],  # boundary edge
-                    [[-0.4, 0.7], [0, 3], [2, 2]],  # outside boundary
-                    [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],  # internal
+                    [[0.4, 0], [0.5, 2], [2, 1.7]],  # boundary edge
+                    [[-0.4, 0.7], [0, 3], [2, 3]],  # outside boundary
+                    [[0.4, 0.7], [1, 1], [0.6, 0.3]],  # internal
                 ]
             ]
         ),
@@ -135,8 +137,8 @@ class TestLinearResample:
     def test_repeat_extrapolation(self, channel):
         x = self.loc[..., 0]
         y = self.loc[..., 1]
-        x = tf.clip_by_value(x, 0, 1)
-        y = tf.clip_by_value(y, 0, 2)
+        x = tf.clip_by_value(x, self.x_min, self.x_max)
+        y = tf.clip_by_value(y, self.y_min, self.y_max)
         expected = 3 * x + y
 
         vol = self.vol
@@ -152,8 +154,16 @@ class TestLinearResample:
         x = self.loc[..., 0]
         y = self.loc[..., 1]
         expected = 3 * x + y
-        expected = expected * tf.cast(x > 0, tf.float32) * tf.cast(x < 1, tf.float32)
-        expected = expected * tf.cast(y > 0, tf.float32) * tf.cast(y < 2, tf.float32)
+        expected = (
+            expected
+            * tf.cast(x > self.x_min, tf.float32)
+            * tf.cast(x <= self.x_max, tf.float32)
+        )
+        expected = (
+            expected
+            * tf.cast(y > self.y_min, tf.float32)
+            * tf.cast(y <= self.y_max, tf.float32)
+        )
 
         vol = self.vol
         if channel > 0:

@@ -6,8 +6,6 @@ import itertools
 import numpy as np
 import tensorflow as tf
 
-EPS = tf.keras.backend.epsilon()
-
 
 def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     """
@@ -244,10 +242,11 @@ def resample(
     :param vol: shape = (batch, \*vol_shape) or (batch, \*vol_shape, ch)
       with the last channel for features
     :param loc: shape = (batch, \*loc_shape, n)
-      such that loc[b, l1, ..., ln, :] = [v1, ..., vn] is of shape (n,),
+      such that loc[b, l1, ..., lm, :] = [v1, ..., vn] is of shape (n,),
       which represents a point in vol, with coordinates (v1, ..., vn)
     :param interpolation: linear only, TODO support nearest
-    :return: shape = (batch, l_dim 1, ..., l_dim n)
+    :param zero_boundary: if true, values on or outside boundary will be zeros
+    :return: shape = (batch, \*loc_shape) or (batch, \*loc_shape, ch)
     """
 
     if interpolation != "linear":
@@ -256,7 +255,7 @@ def resample(
     # init
     batch_size = vol.shape[0]
     loc_shape = loc.shape[1:-1]
-    dim_vol = loc.shape[-1]  # dimension of vol
+    dim_vol = loc.shape[-1]  # dimension of vol, n
     if dim_vol == len(vol.shape) - 1:
         # vol.shape = (batch, *vol_shape)
         has_ch = False
@@ -270,6 +269,11 @@ def resample(
         )
     vol_shape = vol.shape[1 : dim_vol + 1]
 
+    # get floor/ceil for loc
+    # loc, loc_floor, loc_ceil are have shape (batch, *loc_shape, n)
+    loc_ceil = tf.math.ceil(loc)
+    loc_floor = loc_ceil - 1
+
     # clip loc to get anchors and weights
     # loc_unstack has n tensors of shape (batch, l_dim 1, ..., l_dim m)
     # the d-th tensor corresponds to the coordinates of d-th dimension
@@ -282,18 +286,22 @@ def resample(
     # each tensor is the weight for the corner of floor coordinates
     # each tensor's shape is (batch, *loc_shape) if volume has no feature channel
     #                        (batch, *loc_shape, 1) if volume has feature channel
-    loc_unstack = tf.unstack(loc, axis=-1)
     loc_floor_ceil, weight_floor, weight_ceil = [], [], []
-    for dim, loc_d in enumerate(loc_unstack):
-        # using for loop is faster than using list comprehension
-        # clip to be inside 0 ~ (l_dim d - 1)
+    # using for loop is faster than using list comprehension
+    for dim in range(dim_vol):
+        c_values = tf.stack(
+            [loc[..., dim], loc_floor[..., dim], loc_ceil[..., dim]], axis=-1
+        )
+        # shape = (batch, *loc_shape, 3)
         clipped = tf.clip_by_value(
-            loc_d, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
-        )  # shape = (batch, *loc_shape)
-        c_ceil = tf.math.ceil(clipped)  # shape = (batch, *loc_shape)
-        c_floor = tf.math.floor(clipped)  # shape = (batch, *loc_shape)
-        w_floor = c_ceil - clipped  # shape = (batch, *loc_shape)
-        w_ceil = clipped - c_floor if zero_boundary else 1 - w_floor
+            c_values, clip_value_min=0, clip_value_max=vol_shape[dim] - 1
+        )
+        # shape = (batch, *loc_shape)
+        c_clipped = clipped[..., 0]
+        c_floor = clipped[..., 1]
+        c_ceil = clipped[..., 2]
+        w_floor = c_ceil - c_clipped  # shape = (batch, *loc_shape)
+        w_ceil = c_clipped - c_floor if zero_boundary else 1 - w_floor
         if has_ch:
             w_floor = tf.expand_dims(w_floor, -1)  # shape = (batch, *loc_shape, 1)
             w_ceil = tf.expand_dims(w_ceil, -1)  # shape = (batch, *loc_shape, 1)
