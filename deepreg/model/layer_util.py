@@ -473,10 +473,8 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     :return: shape = (batch, dim1, dim2, dim3, 3)
     """
 
-    grid_size = grid.get_shape().as_list()
-
     # grid_padded[i,j,k,:] = [i j k 1], shape = (dim1, dim2, dim3, 4)
-    grid_padded = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)
+    grid_padded = tf.concat([grid, tf.ones_like(grid[..., :1])], axis=3)
 
     # grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
     # shape = (batch, dim1, dim2, dim3, 3)
