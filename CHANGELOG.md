@@ -35,6 +35,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
