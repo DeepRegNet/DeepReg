@@ -19,61 +19,43 @@ import deepreg.dataset.preprocess as preprocess
 
 
 @pytest.mark.parametrize(
-    "input_size,moving_image_size,fixed_image_size",
+    ("moving_input_size", "fixed_input_size", "moving_image_size", "fixed_image_size"),
     [
-        ((2, 2, 2), (1, 3, 5), (2, 4, 6)),
-        ((2, 2, 2), (1, 3, 5), (1, 3, 5)),
-        ((4, 4, 4), (4, 4, 4), (2, 4, 6)),
+        ((1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6)),
+        ((3, 4, 5), (4, 5, 6), (1, 2, 3), (2, 3, 4)),
+        ((2, 2, 2), (2, 2, 2), (2, 2, 2), (2, 2, 2)),
     ],
 )
-def test_resize_inputs(input_size, moving_image_size, fixed_image_size):
+@pytest.mark.parametrize("labeled", [True, False])
+def test_resize_inputs(
+    moving_input_size, fixed_input_size, moving_image_size, fixed_image_size, labeled
+):
     """
-    Test resize_inputs by confirming that it generates
-    appropriate output sizes on a simple test case.
-    :param input_size: tuple
-    :param moving_image_size: tuple
-    :param fixed_image_size: tuple
-    :return:
+    Check return shapes.
+
+    :param name: name of the layer
+    :param labeled: if data is labeled
     """
-    # labeled data - Pass
-    moving_image = tf.ones(input_size)
-    fixed_image = tf.ones(input_size)
-    moving_label = tf.ones(input_size)
-    fixed_label = tf.ones(input_size)
-    indices = tf.ones((2,))
+    num_indices = 2
 
-    inputs = dict(
-        moving_image=moving_image,
-        fixed_image=fixed_image,
-        moving_label=moving_label,
-        fixed_label=fixed_label,
-        indices=indices,
-    )
-    outputs = preprocess.resize_inputs(
-        inputs=inputs,
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-    )
-
-    assert outputs["moving_image"].shape == moving_image_size
-    assert outputs["fixed_image"].shape == fixed_image_size
-    assert outputs["moving_label"].shape == moving_image_size
-    assert outputs["fixed_label"].shape == fixed_image_size
-
-    # unlabeled data - Pass
-    moving_image = tf.ones(input_size)
-    fixed_image = tf.ones(input_size)
-    indices = tf.ones((2,))
-
+    moving_image = tf.random.uniform(moving_input_size)
+    fixed_image = tf.random.uniform(fixed_input_size)
+    indices = tf.ones((num_indices,))
     inputs = dict(moving_image=moving_image, fixed_image=fixed_image, indices=indices)
-    outputs = preprocess.resize_inputs(
-        inputs=inputs,
-        moving_image_size=moving_image_size,
-        fixed_image_size=fixed_image_size,
-    )
+    if labeled:
+        moving_label = tf.random.uniform(moving_input_size)
+        fixed_label = tf.random.uniform(fixed_input_size)
+        inputs["moving_label"] = moving_label
+        inputs["fixed_label"] = fixed_label
 
-    assert outputs["moving_image"].shape == moving_image_size
-    assert outputs["fixed_image"].shape == fixed_image_size
+    outputs = preprocess.resize_inputs(inputs, moving_image_size, fixed_image_size)
+    assert inputs["indices"].shape == outputs["indices"].shape
+    for k in inputs.keys():
+        if k == "indices":
+            assert outputs[k].shape == inputs[k].shape
+            continue
+        expected_shape = moving_image_size if "moving" in k else fixed_image_size
+        assert outputs[k].shape == expected_shape
 
 
 def test_random_transform_3d_get_config():
@@ -152,13 +134,13 @@ class TestRandomTransformation:
         :param name: name of the layer
         """
         layer = self.build_layer(name)
-        moving, fixed = layer._gen_transform_params()
+        moving, fixed = layer.gen_transform_params()
         assert moving.shape == (self.batch_size, *moving_param_shape)
         assert fixed.shape == (self.batch_size, *fixed_param_shape)
         assert not is_equal_np(moving, fixed)
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
-    def test__transform(self, name):
+    def test_transform(self, name):
         """
         Check return shapes.
 
@@ -168,8 +150,8 @@ class TestRandomTransformation:
         moving_image = tf.random.uniform(
             shape=(self.batch_size, *self.moving_image_size)
         )
-        moving_params, _ = layer._gen_transform_params()
-        transformed = layer._transform(
+        moving_params, _ = layer.gen_transform_params()
+        transformed = layer.transform(
             image=moving_image,
             grid_ref=layer._moving_grid_ref,
             params=moving_params,

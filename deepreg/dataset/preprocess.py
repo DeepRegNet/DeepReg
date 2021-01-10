@@ -48,7 +48,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         self._fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
 
     @abstractmethod
-    def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
         Generates transformation parameters for moving and fixed image.
 
@@ -57,7 +57,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
     @staticmethod
     @abstractmethod
-    def _transform(
+    def transform(
         image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
     ) -> tf.Tensor:
         """
@@ -92,12 +92,12 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         fixed_image = inputs["fixed_image"]
         indices = inputs["indices"]
 
-        moving_params, fixed_params = self._gen_transform_params()
+        moving_params, fixed_params = self.gen_transform_params()
 
-        moving_image = self._transform(
+        moving_image = self.transform(
             moving_image, self._moving_grid_ref, moving_params
         )
-        fixed_image = self._transform(fixed_image, self._fixed_grid_ref, fixed_params)
+        fixed_image = self.transform(fixed_image, self._fixed_grid_ref, fixed_params)
 
         if "moving_label" not in inputs:  # unlabeled
             return dict(
@@ -106,10 +106,10 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         moving_label = inputs["moving_label"]
         fixed_label = inputs["fixed_label"]
 
-        moving_label = self._transform(
+        moving_label = self.transform(
             moving_label, self._moving_grid_ref, moving_params
         )
-        fixed_label = self._transform(fixed_label, self._fixed_grid_ref, fixed_params)
+        fixed_label = self.transform(fixed_label, self._fixed_grid_ref, fixed_params)
 
         return dict(
             moving_image=moving_image,
@@ -169,7 +169,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
         config["scale"] = self._scale
         return config
 
-    def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
         Function that generates the random 3D transformation parameters
         for a batch of data for moving and fixed image.
@@ -182,7 +182,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
         return theta[: self._batch_size], theta[self._batch_size :]
 
     @staticmethod
-    def _transform(
+    def transform(
         image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
     ) -> tf.Tensor:
         """
@@ -250,7 +250,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
         config["low_res_size"] = self._low_res_size
         return config
 
-    def _gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
         Generates two random ddf fields for moving and fixed images.
 
@@ -267,7 +267,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
         return moving, fixed
 
     @staticmethod
-    def _transform(image, grid_ref, params) -> tf.Tensor:
+    def transform(image, grid_ref, params) -> tf.Tensor:
         """
         Transforms the reference grid and then resample the image.
 
@@ -309,17 +309,17 @@ def resize_inputs(
             fixed_image, shape = (f_dim1, f_dim2, f_dim3)
             indices, shape = (num_indices, )
     """
-    moving_image = inputs.get("moving_image")
-    fixed_image = inputs.get("fixed_image")
-    moving_label = inputs.get("moving_label", None)
-    fixed_label = inputs.get("fixed_label", None)
-    indices = inputs.get("indices")
+    moving_image = inputs["moving_image"]
+    fixed_image = inputs["fixed_image"]
+    indices = inputs["indices"]
 
     moving_image = resize3d(image=moving_image, size=moving_image_size)
     fixed_image = resize3d(image=fixed_image, size=fixed_image_size)
 
-    if moving_label is None:  # unlabeled
+    if "moving_label" not in inputs:  # unlabeled
         return dict(moving_image=moving_image, fixed_image=fixed_image, indices=indices)
+    moving_label = inputs["moving_label"]
+    fixed_label = inputs["fixed_label"]
 
     moving_label = resize3d(image=moving_label, size=moving_image_size)
     fixed_label = resize3d(image=fixed_label, size=fixed_image_size)
