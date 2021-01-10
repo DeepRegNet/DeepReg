@@ -101,7 +101,7 @@ class TestAffineTransformation3d:
             moving_image.shape, fixed_image.shape, batch_size, scale
         )
 
-        transforms = affine_transform_3d._gen_transforms()
+        transforms = affine_transform_3d._gen_transform_params()
         assert len(transforms) == 2
         assert transforms[0].shape == (batch_size, 4, 3)
         assert transforms[1].shape == (batch_size, 4, 3)
@@ -137,12 +137,15 @@ class TestAffineTransformation3d:
             moving_image.shape, fixed_image.shape, batch_size, scale
         )
 
-        transforms = affine_transform_3d._gen_transforms()
+        transforms = affine_transform_3d._gen_transform_params()
         assert len(transforms) == 2
         assert transforms[0].shape == (batch_size, 4, 3)
         assert transforms[1].shape == (batch_size, 4, 3)
 
-        moving_transforms, fixed_transforms = affine_transform_3d._gen_transforms()
+        (
+            moving_transforms,
+            fixed_transforms,
+        ) = affine_transform_3d._gen_transform_params()
         transformed_moving_image = affine_transform_3d._transform(
             moving_image_batched,
             affine_transform_3d._moving_grid_ref,
@@ -167,7 +170,7 @@ class TestAffineTransformation3d:
     )
     def test_transform(self, dims, batch_size, scale):
         """
-        Test transform() by comfirming that it transforms
+        Test transform() by comfirming that it params
         images and labels only as necessary and when provided.
         :param dims: tuple
         :param batch_size: int
@@ -316,7 +319,7 @@ class TestFFDTransformation3d:
             low_res_size,
         )
 
-        transforms = ddf_transform_3d._gen_transforms()
+        transforms = ddf_transform_3d._gen_transform_params()
         assert len(transforms) == 2
         assert transforms[0].shape == (batch_size,) + dims + (3,)
         assert transforms[1].shape == (batch_size,) + dims + (3,)
@@ -356,7 +359,7 @@ class TestFFDTransformation3d:
             low_res_size,
         )
 
-        moving_transforms, fixed_transforms = ddf_transform_3d._gen_transforms()
+        moving_transforms, fixed_transforms = ddf_transform_3d._gen_transform_params()
 
         transformed_moving_image = ddf_transform_3d._transform(
             moving_image_batched, ddf_transform_3d._moving_grid_ref, moving_transforms

@@ -305,7 +305,7 @@ def resample(
     return sampled
 
 
-def random_transform_generator(
+def gen_rand_affine_transform(
     batch_size: int, scale: float, seed: (int, None) = None
 ) -> tf.Tensor:
     """
@@ -432,7 +432,7 @@ def random_transform_generator(
     return tf.cast(theta, dtype=tf.float32)
 
 
-def random_ddf_transform_generator(
+def gen_rand_ddf(
     batch_size: int,
     image_size: tuple,
     field_strength: (tuple, list),
@@ -456,9 +456,8 @@ def random_ddf_transform_generator(
     low_res_field = low_res_strength * np.random.randn(
         batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
     )
-    highres_field = resize3d(low_res_field, image_size)
-
-    return highres_field
+    high_res_field = resize3d(low_res_field, image_size)
+    return high_res_field
 
 
 def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:

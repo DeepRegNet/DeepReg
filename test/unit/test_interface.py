@@ -105,7 +105,7 @@ class TestDataLoader:
         only to set the moving  and fixed shapes that are used in get_transforms().
         Here we test that the get_transform() returns a function and the shape of
         the output of this function. See test_preprocess.py for more testing regarding
-        the concrete transforms.
+        the concrete params.
 
         :param labeled: bool
         :param moving_shape: tuple
