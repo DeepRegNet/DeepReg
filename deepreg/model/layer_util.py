@@ -116,36 +116,37 @@ def pyramid_combination(
 
     The weights correspond to the floor corners.
     For example, when num_dimension = len(loc_shape) = num_bits = 3,
-    weights = [w1, w2, w3] (ignoring the batch dimension).
+    weight_floor = [w1, w2, w3] (ignoring the batch dimension).
+    weight_ceil = [u1, u2, u3] (ignoring the batch dimension).
 
     So for corner with coords (x, y, z), x, y, z's values are 0 or 1
 
-    - weight for x = w1 if x = 0 else 1-w1
-    - weight for y = w2 if y = 0 else 1-w2
-    - weight for z = w3 if z = 0 else 1-w3
+    - weight for x = w1 if x = 0 else u1
+    - weight for y = w2 if y = 0 else u2
+    - weight for z = w3 if z = 0 else u3
 
     so the weight for (x, y, z) is
 
-    W_xyz = ((1-x) * w1 + x * (1-w1))
-    * ((1-y) * w2 + y * (1-w2))
-    * ((1-z) * w3 + z * (1-w3))
+    W_xyz = ((1-x) * w1 + x * u1)
+          * ((1-y) * w2 + y * u2)
+          * ((1-z) * w3 + z * u3)
 
-     = (W_xy * (1-z)) * w3 + (W_xy * z) * (1-w3)
+    Let
 
-    where W_xy is the weight for (x, y), let
+    W_xy = ((1-x) * w1 + x * u1)
+         * ((1-y) * w2 + y * u2)
+
+    Then
 
     - W_xy0 = W_xy * w3
-    - W_xy1 = W_xy * (1-w3)
+    - W_xy1 = W_xy * u3
 
     So, the final sum V equals
 
       sum over x,y,z (V_xyz * W_xyz)
-
-      = sum over x,y ( V_xy0 * W_xy0 + V_xy1 * W_xy1 )
-
-      = sum over x,y ( V_xy0 * W_xy * w3 + V_xy1 * W_xy * (1-w3) )
-
-      = sum over x,y ( W_xy * (V_xy0 * w3 + V_xy1 * W_xy * (1-w3)) )
+      = sum over x,y (V_xy0 * W_xy0 + V_xy1 * W_xy1)
+      = sum over x,y (V_xy0 * W_xy * w3 + V_xy1 * W_xy * u3)
+      = sum over x,y (V_xy0 * W_xy) * w3 + sum over x,y (V_xy1 * W_xy) * u3
 
     That's why we call this pyramid combination.
     It calculates the linear interpolation gradually, starting from
