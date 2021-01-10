@@ -235,6 +235,7 @@ def predict(
         mode=mode,
         training=False,
         repeat=False,
+        registry=registry,
     )
 
     # optimizer
