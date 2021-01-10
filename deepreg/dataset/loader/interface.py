@@ -3,14 +3,16 @@ Interface between the data loaders and file loaders.
 """
 import logging
 from abc import ABC
+from functools import reduce
 from typing import List
 
 import numpy as np
 import tensorflow as tf
 
 from deepreg.dataset.loader.util import normalize_array
-from deepreg.dataset.preprocess import AffineTransformation3D, resize_inputs
+from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
+from deepreg.registry import Registry
 
 
 class DataLoader:
@@ -87,6 +89,8 @@ class DataLoader:
         batch_size: int,
         repeat: bool,
         shuffle_buffer_num_batch: int,
+        registry: Registry = Registry(),
+        **kwargs,
     ) -> tf.data.Dataset:
         """
         :param training: bool, indicating if it's training or not
@@ -94,6 +98,9 @@ class DataLoader:
         :param repeat: bool, indicating if we need to repeat the dataset
         :param shuffle_buffer_num_batch: int, when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+        :param repeat: bool, indicating if we need to repeat the dataset
+        :param registry: object with the registered pairs (category,name)
+        :param kwargs:
 
         :returns dataset:
         """
@@ -118,19 +125,29 @@ class DataLoader:
             )
         if repeat:
             dataset = dataset.repeat()
+
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-        if training:
-            # TODO add cropping, but crop first or rotation first?
-            affine_transform = AffineTransformation3D(
-                moving_image_size=self.moving_image_shape,
-                fixed_image_size=self.fixed_image_shape,
-                batch_size=batch_size,
-            )
+
+        transform_list = []
+        if training and "data_augmentation" in kwargs.keys():
+            for key, value in kwargs["data_augmentation"].items():
+                transform_list.append(
+                    registry.build_data_augmentation(
+                        config=value,
+                        default_args={
+                            "moving_image_size": self.moving_image_shape,
+                            "fixed_image_size": self.fixed_image_shape,
+                            "batch_size": batch_size,
+                        },
+                    )
+                )
+
             dataset = dataset.map(
-                affine_transform.transform,
+                lambda inputs: reduce(lambda out, f: f(out), transform_list, inputs),
                 num_parallel_calls=tf.data.experimental.AUTOTUNE,
             )
+
         return dataset
 
     def close(self):
