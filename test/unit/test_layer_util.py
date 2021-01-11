@@ -196,7 +196,7 @@ def test_random_transform_generator():
     """
     # Check shapes are correct Batch Size = 1 - Pass
     batch_size = 1
-    transforms = layer_util.random_transform_generator(batch_size, 0)
+    transforms = layer_util.gen_rand_affine_transform(batch_size, 0)
     assert transforms.shape == (batch_size, 4, 3)
 
     # Check numerical outputs are correct for a given seed - Pass
@@ -216,7 +216,7 @@ def test_random_transform_generator():
             dtype=np.float32,
         )
     )  # shape = (1, 4, 3)
-    got = layer_util.random_transform_generator(
+    got = layer_util.gen_rand_affine_transform(
         batch_size=batch_size, scale=scale, seed=seed
     )
     assert is_equal_tf(got, expected)

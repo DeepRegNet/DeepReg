@@ -26,7 +26,7 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     (M, N, P) for ‘ij’ indexing.
 
     :param grid_size: list or tuple of size 3, [dim1, dim2, dim3]
-    :return: shape = [dim1, dim2, dim3, 3],
+    :return: shape = (dim1, dim2, dim3, 3),
              grid[i, j, k, :] = [i j k]
     """
 
@@ -339,7 +339,7 @@ def resample(
     return sampled
 
 
-def random_transform_generator(
+def gen_rand_affine_transform(
     batch_size: int, scale: float, seed: (int, None) = None
 ) -> tf.Tensor:
     """
@@ -466,11 +466,11 @@ def random_transform_generator(
     return tf.cast(theta, dtype=tf.float32)
 
 
-def random_ddf_transform_generator(
+def gen_rand_ddf(
     batch_size: int,
     image_size: tuple,
     field_strength: (tuple, list),
-    lowres_size: (tuple, list),
+    low_res_size: (tuple, list),
     seed: (int, None) = None,
 ) -> tf.Tensor:
     """
@@ -478,7 +478,7 @@ def random_ddf_transform_generator(
     :param batch_size:
     :param image_size:
     :param field_strength: maximum field strength, computed as a U[0,field_strength]
-    :param lowres_size: low_resolution deformation field that will be upsampled to
+    :param low_res_size: low_resolution deformation field that will be upsampled to
                         the original size in order to get smooth and more realistic
                         fields.
     :param seed: control the randomness
@@ -486,13 +486,12 @@ def random_ddf_transform_generator(
     """
 
     np.random.seed(seed=seed)
-    lowres_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
-    lowres_field = lowres_strength * np.random.randn(
-        batch_size, lowres_size[0], lowres_size[1], lowres_size[2], 3
+    low_res_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
+    low_res_field = low_res_strength * np.random.randn(
+        batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
     )
-    highres_field = resize3d(lowres_field, image_size)
-
-    return highres_field
+    high_res_field = resize3d(low_res_field, image_size)
+    return high_res_field
 
 
 def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
@@ -507,10 +506,8 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     :return: shape = (batch, dim1, dim2, dim3, 3)
     """
 
-    grid_size = grid.get_shape().as_list()
-
     # grid_padded[i,j,k,:] = [i j k 1], shape = (dim1, dim2, dim3, 4)
-    grid_padded = tf.concat([grid, tf.ones(grid_size[:3] + [1])], axis=3)
+    grid_padded = tf.concat([grid, tf.ones_like(grid[..., :1])], axis=3)
 
     # grid_warped[b,i,j,k,p] = sum_over_q (grid_padded[i,j,k,q] * theta[b,q,p])
     # shape = (batch, dim1, dim2, dim3, 3)
@@ -527,7 +524,8 @@ def warp_image_ddf(
     :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
         or (batch, m_dim1, m_dim2, m_dim3, ch)
     :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (1, f_dim1, f_dim2, f_dim3, 3)
+    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3)
+        or (1, f_dim1, f_dim2, f_dim3, 3)
         if None grid_reg will be calculated based on ddf
     :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         or (batch, f_dim1, f_dim2, f_dim3, ch)
@@ -544,8 +542,11 @@ def warp_image_ddf(
         )
 
     if grid_ref is None:
+        # shape = (f_dim1, f_dim2, f_dim3, 3)
+        grid_ref = get_reference_grid(grid_size=ddf.shape[1:4])
+    if len(grid_ref.shape) == 4:
         # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = tf.expand_dims(get_reference_grid(grid_size=ddf.shape[1:4]), axis=0)
+        grid_ref = grid_ref[None, ...]
     if not (
         len(grid_ref.shape) == 5
         and grid_ref.shape[0] == 1
@@ -600,7 +601,7 @@ def resize3d(
         has_channel = False
         has_batch = True
         input_image_shape = image.shape[1:4]
-    elif image_dim == 3:
+    else:
         has_channel = False
         has_batch = False
         input_image_shape = image.shape[0:3]
