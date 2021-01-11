@@ -116,37 +116,38 @@ def pyramid_combination(
 
     The weights correspond to the floor corners.
     For example, when num_dimension = len(loc_shape) = num_bits = 3,
-    weight_floor = [w1, w2, w3] (ignoring the batch dimension).
-    weight_ceil = [u1, u2, u3] (ignoring the batch dimension).
+    weight_floor = [f1, f2, f3] (ignoring the batch dimension).
+    weight_ceil = [c1, c2, c3] (ignoring the batch dimension).
 
     So for corner with coords (x, y, z), x, y, z's values are 0 or 1
 
-    - weight for x = w1 if x = 0 else u1
-    - weight for y = w2 if y = 0 else u2
-    - weight for z = w3 if z = 0 else u3
+    - weight for x = f1 if x = 0 else c1
+    - weight for y = f2 if y = 0 else c2
+    - weight for z = f3 if z = 0 else c3
 
     so the weight for (x, y, z) is
 
-    W_xyz = ((1-x) * w1 + x * u1)
-          * ((1-y) * w2 + y * u2)
-          * ((1-z) * w3 + z * u3)
+    W_xyz = ((1-x) * f1 + x * c1)
+          * ((1-y) * f2 + y * c2)
+          * ((1-z) * f3 + z * c3)
 
     Let
 
-    W_xy = ((1-x) * w1 + x * u1)
-         * ((1-y) * w2 + y * u2)
+    W_xy = ((1-x) * f1 + x * c1)
+         * ((1-y) * f2 + y * c2)
 
     Then
 
-    - W_xy0 = W_xy * w3
-    - W_xy1 = W_xy * u3
+    - W_xy0 = W_xy * f3
+    - W_xy1 = W_xy * c3
 
-    So, the final sum V equals
+    Similar to W_xyz, denote V_xyz the value at (x, y, z),
+    the final sum V equals
 
       sum over x,y,z (V_xyz * W_xyz)
-      = sum over x,y (V_xy0 * W_xy0 + V_xy1 * W_xy1)
-      = sum over x,y (V_xy0 * W_xy * w3 + V_xy1 * W_xy * u3)
-      = sum over x,y (V_xy0 * W_xy) * w3 + sum over x,y (V_xy1 * W_xy) * u3
+    = sum over x,y (V_xy0 * W_xy0 + V_xy1 * W_xy1)
+    = sum over x,y (V_xy0 * W_xy * f3 + V_xy1 * W_xy * c3)
+    = sum over x,y (V_xy0 * W_xy) * f3 + sum over x,y (V_xy1 * W_xy) * c3
 
     That's why we call this pyramid combination.
     It calculates the linear interpolation gradually, starting from
@@ -168,10 +169,12 @@ def pyramid_combination(
     :return: one tensor of the same shape as an element in values
              (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, 1)
     """
-    if len(values[0].shape) != len(weight_floor[0].shape):
+    if len(values[0].shape) != len(weight_floor[0].shape) or len(
+        values[0].shape
+    ) != len(weight_ceil[0].shape):
         raise ValueError(
-            "In pyramid_combination, "
-            "elements of values and weight_floor should have same dimension. "
+            "In pyramid_combination, elements of "
+            "values, weight_floor, and weight_ceil should have same dimension. "
             f"value shape = {values[0].shape}, "
             f"weight_floor = {weight_floor[0].shape}"
         )
