@@ -58,7 +58,7 @@ fixed_image = (fixed_image - tf.reduce_min(fixed_image)) / (
 
 # generate a radomly-affine-transformed moving image
 fixed_image_size = fixed_image.shape
-transform_random = layer_util.random_transform_generator(batch_size=1, scale=0.2)
+transform_random = layer_util.gen_rand_affine_transform(batch_size=1, scale=0.2)
 grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size[1:4])
 grid_random = layer_util.warp_grid(grid_ref, transform_random)
 moving_image = layer_util.resample(vol=fixed_image, loc=grid_random)

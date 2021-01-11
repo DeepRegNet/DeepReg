@@ -3,54 +3,25 @@ Module containing data augmentation techniques.
   - 3D Affine/DDF Transforms for moving and fixed images.
 """
 
+from abc import abstractmethod
 from typing import Dict
 
 import tensorflow as tf
 
-import deepreg.model.layer_util as layer_util
+from deepreg.model.layer_util import (
+    gen_rand_affine_transform,
+    gen_rand_ddf,
+    get_reference_grid,
+    resample,
+    resize3d,
+    warp_grid,
+)
 from deepreg.registry import REGISTRY
 
 
-class AbstractPreprocess(object):
-    def __init__(
-        self, moving_image_size: tuple, fixed_image_size: tuple, batch_size: int
-    ):
-        """
-        Abstract class for Preprocess
-        :param moving_image_size:
-        :param fixed_image_size:
-        :param batch_size:
-        """
-        self._moving_grid_ref = layer_util.get_reference_grid(
-            grid_size=moving_image_size
-        )
-        self._fixed_grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
-        self._batch_size = batch_size
-
-    def __call__(self, inputs: dict, *args, **kwargs) -> Dict[str, tf.Tensor]:
-        """
-        Method that calls transform()
-        :param inputs: dict, containing images and labels.
-        :param args: dict, preprocessing parameters
-        :param kwargs:
-        :return:
-        """
-        return self.transform(inputs=inputs)
-
-    def transform(self, inputs: dict):
-        """
-        Method defined to call the transformation
-        :param inputs: dict, containing images and labels.
-        :return:
-        """
-        raise NotImplementedError
-
-
-@REGISTRY.register_data_augmentation(name="affine")
-class AffineTransformation3D(AbstractPreprocess):
+class RandomTransformation3D(tf.keras.layers.Layer):
     """
-    AffineTransformation3D class for maintaining and updating
-    the transformed grids for the moving and fixed images.
+    An interface for different types of transformation.
     """
 
     def __init__(
@@ -58,7 +29,114 @@ class AffineTransformation3D(AbstractPreprocess):
         moving_image_size: tuple,
         fixed_image_size: tuple,
         batch_size: int,
+        name: str = "RandomTransformation3D",
+        trainable: bool = False,
+    ):
+        """
+        Abstract class for image transformation.
+
+        :param moving_image_size: (m_dim1, m_dim2, m_dim3)
+        :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
+        :param batch_size: size of mini-batch
+        :param name: name of layer
+        :param trainable: if this layer is trainable
+        """
+        super().__init__(trainable=trainable, name=name)
+        self.moving_image_size = moving_image_size
+        self.fixed_image_size = fixed_image_size
+        self.batch_size = batch_size
+        self.moving_grid_ref = get_reference_grid(grid_size=moving_image_size)
+        self.fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
+
+    @abstractmethod
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+        """
+        Generates transformation parameters for moving and fixed image.
+
+        :return: two tensors
+        """
+
+    @staticmethod
+    @abstractmethod
+    def transform(
+        image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
+    ) -> tf.Tensor:
+        """
+        Transforms the reference grid and then resample the image.
+
+        :param image: shape = (batch, dim1, dim2, dim3)
+        :param grid_ref: shape = (dim1, dim2, dim3, 3)
+        :param params: parameters for transformation
+        :return: shape = (batch, dim1, dim2, dim3)
+        """
+
+    def call(self, inputs: Dict[str, tf.Tensor], **kwargs) -> Dict[str, tf.Tensor]:
+        """
+        Creates random params for the input images and their labels,
+        and params them based on the resampled reference grids.
+        :param inputs: a dict having multiple tensors
+            if labeled:
+                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
+                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
+                moving_label, shape = (batch, m_dim1, m_dim2, m_dim3)
+                fixed_label, shape = (batch, f_dim1, f_dim2, f_dim3)
+                indices, shape = (batch, num_indices)
+            else, unlabeled:
+                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
+                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
+                indices, shape = (batch, num_indices)
+        :param kwargs: other arguments
+        :return: dictionary with the same structure as inputs
+        """
+
+        moving_image = inputs["moving_image"]
+        fixed_image = inputs["fixed_image"]
+        indices = inputs["indices"]
+
+        moving_params, fixed_params = self.gen_transform_params()
+
+        moving_image = self.transform(moving_image, self.moving_grid_ref, moving_params)
+        fixed_image = self.transform(fixed_image, self.fixed_grid_ref, fixed_params)
+
+        if "moving_label" not in inputs:  # unlabeled
+            return dict(
+                moving_image=moving_image, fixed_image=fixed_image, indices=indices
+            )
+        moving_label = inputs["moving_label"]
+        fixed_label = inputs["fixed_label"]
+
+        moving_label = self.transform(moving_label, self.moving_grid_ref, moving_params)
+        fixed_label = self.transform(fixed_label, self.fixed_grid_ref, fixed_params)
+
+        return dict(
+            moving_image=moving_image,
+            fixed_image=fixed_image,
+            moving_label=moving_label,
+            fixed_label=fixed_label,
+            indices=indices,
+        )
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["moving_image_size"] = self.moving_image_size
+        config["fixed_image_size"] = self.fixed_image_size
+        config["batch_size"] = self.batch_size
+        return config
+
+
+@REGISTRY.register_data_augmentation(name="affine")
+class RandomAffineTransform3D(RandomTransformation3D):
+    """Apply random affine transformation to moving/fixed images separately."""
+
+    def __init__(
+        self,
+        moving_image_size: tuple,
+        fixed_image_size: tuple,
+        batch_size: int,
         scale: float = 0.1,
+        name: str = "RandomAffineTransform3D",
+        **kwargs,
     ):
         """
         Init.
@@ -67,104 +145,54 @@ class AffineTransformation3D(AbstractPreprocess):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param batch_size: size of mini-batch
         :param scale: a positive float controlling the scale of transformation
+        :param name: name of the layer
+        :param kwargs: extra arguments
         """
         super().__init__(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             batch_size=batch_size,
+            name=name,
+            **kwargs,
         )
-        self._scale = scale
+        self.scale = scale
 
-    def _gen_transforms(self) -> tf.Tensor:
-        """
-        Function that generates a random 3D transformation parameters
-        for a batch of data.
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["scale"] = self.scale
+        return config
 
-        :return: shape = (batch, 4, 3)
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
-        return layer_util.random_transform_generator(
-            batch_size=self._batch_size, scale=self._scale
+        Function that generates the random 3D transformation parameters
+        for a batch of data for moving and fixed image.
+
+        :return: a tuple of tensors, each has shape = (batch, 4, 3)
+        """
+        theta = gen_rand_affine_transform(
+            batch_size=self.batch_size * 2, scale=self.scale
         )
+        return theta[: self.batch_size], theta[self.batch_size :]
 
     @staticmethod
-    def _transform(
-        image: tf.Tensor, grid_ref: tf.Tensor, transforms: tf.Tensor
+    def transform(
+        image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
     ) -> tf.Tensor:
         """
-        Resamples an input image from the reference grid by the series
-        of input transforms.
+        Transforms the reference grid and then resample the image.
 
         :param image: shape = (batch, dim1, dim2, dim3)
         :param grid_ref: shape = (dim1, dim2, dim3, 3)
-        :param transforms: shape = (batch, 4, 3)
+        :param params: shape = (batch, 4, 3)
         :return: shape = (batch, dim1, dim2, dim3)
         """
-        transformed = layer_util.resample(
-            vol=image, loc=layer_util.warp_grid(grid_ref, transforms)
-        )
-        return transformed
-
-    def transform(self, inputs: Dict[str, tf.Tensor]) -> Dict[str, tf.Tensor]:
-        """
-        Creates random transforms for the input images and their labels,
-        and transforms them based on the resampled reference grids.
-        :param inputs:
-            if labeled:
-                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
-                moving_label, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_label, shape = (batch, f_dim1, f_dim2, f_dim3)
-                indices, shape = (batch, num_indices, )
-            else, unlabeled:
-                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
-                indices, shape = (batch, num_indices, )
-        :return: dictionary with the same structure as inputs
-        """
-
-        moving_image = inputs.get("moving_image")
-        fixed_image = inputs.get("fixed_image")
-        moving_label = inputs.get("moving_label", None)
-        fixed_label = inputs.get("fixed_label", None)
-        indices = inputs.get("indices")
-
-        moving_transforms = self._gen_transforms()
-        fixed_transforms = self._gen_transforms()
-
-        moving_image = self._transform(
-            moving_image, self._moving_grid_ref, moving_transforms
-        )
-        fixed_image = self._transform(
-            fixed_image, self._fixed_grid_ref, fixed_transforms
-        )
-
-        if moving_label is None:  # unlabeled
-            return dict(
-                moving_image=moving_image, fixed_image=fixed_image, indices=indices
-            )
-
-        moving_label = self._transform(
-            moving_label, self._moving_grid_ref, moving_transforms
-        )
-        fixed_label = self._transform(
-            fixed_label, self._fixed_grid_ref, fixed_transforms
-        )
-
-        return dict(
-            moving_image=moving_image,
-            fixed_image=fixed_image,
-            moving_label=moving_label,
-            fixed_label=fixed_label,
-            indices=indices,
-        )
+        return resample(vol=image, loc=warp_grid(grid_ref, params))
 
 
-@REGISTRY.register_data_augmentation(name="ffd")
-class FFDTransformation3D(AbstractPreprocess):
-    """
-    DDFTransformation3D class for using spatial transformation as a data augmentation
-    technique
-    """
+@REGISTRY.register_data_augmentation(name="ddf")
+class RandomDDFTransform3D(RandomTransformation3D):
+    """Apply random DDF transformation to moving/fixed images separately."""
 
     def __init__(
         self,
@@ -172,13 +200,15 @@ class FFDTransformation3D(AbstractPreprocess):
         fixed_image_size: tuple,
         batch_size: int,
         field_strength: int = 1,
-        lowres_size: tuple = (1, 1, 1),
+        low_res_size: tuple = (1, 1, 1),
+        name: str = "RandomDDFTransform3D",
+        **kwargs,
     ):
         """
         Creates a DDF transformation for data augmentation.
 
         To simulate smooth deformation fields, we interpolate from a low resolution
-        field of size lowres_size using linear interpolation. The variance of the
+        field of size low_res_size using linear interpolation. The variance of the
         deformation field is drawn from a uniform variable
         between [0, field_strength].
 
@@ -187,116 +217,66 @@ class FFDTransformation3D(AbstractPreprocess):
         :param batch_size: int
         :param field_strength: int = 1. It is used as the upper bound for the
         deformation field variance
-        :param lowres_size: tuple = (1, 1, 1).
+        :param low_res_size: tuple = (1, 1, 1).
+        :param name: name of layer
+        :param kwargs: extra arguments
         """
 
         super().__init__(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             batch_size=batch_size,
+            name=name,
+            **kwargs,
         )
 
-        assert tuple(lowres_size) <= tuple(moving_image_size)
-        assert tuple(lowres_size) <= tuple(fixed_image_size)
+        assert tuple(low_res_size) <= tuple(moving_image_size)
+        assert tuple(low_res_size) <= tuple(fixed_image_size)
 
-        self._moving_image_size = moving_image_size
-        self._fixed_image_size = fixed_image_size
-        self._field_strength = field_strength
-        self._lowres_size = lowres_size
-        self._moving_grid_ref = tf.expand_dims(self._moving_grid_ref, axis=0)
-        self._fixed_grid_ref = tf.expand_dims(self._fixed_grid_ref, axis=0)
+        self.field_strength = field_strength
+        self.low_res_size = low_res_size
 
-    def _gen_transforms(self, image_size: tuple) -> tf.Tensor:
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["field_strength"] = self.field_strength
+        config["low_res_size"] = self.low_res_size
+        return config
+
+    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
         """
-        Function that generates a random ddf field
-        for a batch of data.
+        Generates two random ddf fields for moving and fixed images.
 
-        :param image_size: (batch, dim1, dim2, dim3) reference image shape for
-        the transform.
-        :return: shape = (batch, dim1, dim2, dim3, 3)
+        :return: tuple, one has shape = (batch, m_dim1, m_dim2, m_dim3, 3)
+            another one has shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         """
-        return layer_util.random_ddf_transform_generator(
-            batch_size=self._batch_size,
-            image_size=image_size,
-            field_strength=self._field_strength,
-            lowres_size=self._lowres_size,
+        kwargs = dict(
+            batch_size=self.batch_size,
+            field_strength=self.field_strength,
+            low_res_size=self.low_res_size,
         )
+        moving = gen_rand_ddf(image_size=self.moving_image_size, **kwargs)
+        fixed = gen_rand_ddf(image_size=self.fixed_image_size, **kwargs)
+        return moving, fixed
 
     @staticmethod
-    def _transform(image, grid_ref, transforms) -> tf.Tensor:
+    def transform(
+        image: tf.Tensor, grid_ref: tf.Tensor, params: tf.Tensor
+    ) -> tf.Tensor:
         """
-        Resamples an input image from the reference grid by the series
-        of input transforms.
+        Transforms the reference grid and then resample the image.
 
         :param image: shape = (batch, dim1, dim2, dim3)
-        :param grid_ref: shape = [1, dim1, dim2, dim3, 3]
-        :param transforms: shape = [batch, dim1, dim2, dim3, 3]
+        :param grid_ref: shape = (dim1, dim2, dim3, 3)
+        :param params: DDF, shape = (batch, dim1, dim2, dim3, 3)
         :return: shape = (batch, dim1, dim2, dim3)
         """
-        transformed = layer_util.warp_image_ddf(
-            image=image, ddf=transforms, grid_ref=grid_ref
-        )
-        return transformed
-
-    def transform(self, inputs: dict) -> Dict[str, tf.Tensor]:
-        """
-        Creates random transforms for the input images and their labels,
-        and transforms them based on the resampled reference grids.
-        :param inputs:
-            if labeled:
-                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
-                moving_label, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_label, shape = (batch, f_dim1, f_dim2, f_dim3)
-                indices, shape = (batch, num_indices, )
-            else, unlabeled:
-                moving_image, shape = (batch, m_dim1, m_dim2, m_dim3)
-                fixed_image, shape = (batch, f_dim1, f_dim2, f_dim3)
-                indices, shape = (batch, num_indices, )
-        :return: dictionary with the same structure as inputs
-        """
-
-        moving_image = inputs.get("moving_image")
-        fixed_image = inputs.get("fixed_image")
-        moving_label = inputs.get("moving_label", None)
-        fixed_label = inputs.get("fixed_label", None)
-        indices = inputs.get("indices")
-
-        moving_transforms = self._gen_transforms(self._moving_image_size)
-        fixed_transforms = self._gen_transforms(self._fixed_image_size)
-
-        moving_image = self._transform(
-            moving_image, self._moving_grid_ref, moving_transforms
-        )
-        fixed_image = self._transform(
-            fixed_image, self._fixed_grid_ref, fixed_transforms
-        )
-
-        if moving_label is None:  # unlabeled
-            return dict(
-                moving_image=moving_image, fixed_image=fixed_image, indices=indices
-            )
-
-        moving_label = self._transform(
-            moving_label, self._moving_grid_ref, moving_transforms
-        )
-        fixed_label = self._transform(
-            fixed_label, self._fixed_grid_ref, fixed_transforms
-        )
-
-        return dict(
-            moving_image=moving_image,
-            fixed_image=fixed_image,
-            moving_label=moving_label,
-            fixed_label=fixed_label,
-            indices=indices,
-        )
+        return resample(vol=image, loc=grid_ref[None, ...] + params)
 
 
 def resize_inputs(
     inputs: Dict[str, tf.Tensor], moving_image_size: tuple, fixed_image_size: tuple
 ) -> Dict[str, tf.Tensor]:
-
     """
     Resize inputs
     :param inputs:
@@ -324,20 +304,20 @@ def resize_inputs(
             fixed_image, shape = (f_dim1, f_dim2, f_dim3)
             indices, shape = (num_indices, )
     """
-    moving_image = inputs.get("moving_image")
-    fixed_image = inputs.get("fixed_image")
-    moving_label = inputs.get("moving_label", None)
-    fixed_label = inputs.get("fixed_label", None)
-    indices = inputs.get("indices")
+    moving_image = inputs["moving_image"]
+    fixed_image = inputs["fixed_image"]
+    indices = inputs["indices"]
 
-    moving_image = layer_util.resize3d(image=moving_image, size=moving_image_size)
-    fixed_image = layer_util.resize3d(image=fixed_image, size=fixed_image_size)
+    moving_image = resize3d(image=moving_image, size=moving_image_size)
+    fixed_image = resize3d(image=fixed_image, size=fixed_image_size)
 
-    if moving_label is None:  # unlabeled
+    if "moving_label" not in inputs:  # unlabeled
         return dict(moving_image=moving_image, fixed_image=fixed_image, indices=indices)
+    moving_label = inputs["moving_label"]
+    fixed_label = inputs["fixed_label"]
 
-    moving_label = layer_util.resize3d(image=moving_label, size=moving_image_size)
-    fixed_label = layer_util.resize3d(image=fixed_label, size=fixed_image_size)
+    moving_label = resize3d(image=moving_label, size=moving_image_size)
+    fixed_label = resize3d(image=fixed_label, size=fixed_image_size)
 
     return dict(
         moving_image=moving_image,

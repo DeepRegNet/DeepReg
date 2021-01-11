@@ -3,8 +3,7 @@ Interface between the data loaders and file loaders.
 """
 import logging
 from abc import ABC
-from functools import reduce
-from typing import List
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import tensorflow as tf
@@ -12,7 +11,7 @@ import tensorflow as tf
 from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
-from deepreg.registry import Registry
+from deepreg.registry import REGISTRY, Registry
 
 
 class DataLoader:
@@ -89,8 +88,8 @@ class DataLoader:
         batch_size: int,
         repeat: bool,
         shuffle_buffer_num_batch: int,
-        registry: Registry = Registry(),
-        **kwargs,
+        data_augmentation: Optional[Union[List, Dict]] = None,
+        registry: Registry = REGISTRY,
     ) -> tf.data.Dataset:
         """
         :param training: bool, indicating if it's training or not
@@ -99,9 +98,8 @@ class DataLoader:
         :param shuffle_buffer_num_batch: int, when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
         :param repeat: bool, indicating if we need to repeat the dataset
+        :param data_augmentation: augmentation config, can be a list of dict or dict.
         :param registry: object with the registered pairs (category,name)
-        :param kwargs:
-
         :returns dataset:
         """
 
@@ -129,24 +127,21 @@ class DataLoader:
         dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-        transform_list = []
-        if training and "data_augmentation" in kwargs.keys():
-            for key, value in kwargs["data_augmentation"].items():
-                transform_list.append(
-                    registry.build_data_augmentation(
-                        config=value,
-                        default_args={
-                            "moving_image_size": self.moving_image_shape,
-                            "fixed_image_size": self.fixed_image_shape,
-                            "batch_size": batch_size,
-                        },
-                    )
+        if training and data_augmentation is not None:
+            if isinstance(data_augmentation, dict):
+                data_augmentation = [data_augmentation]
+            for config in data_augmentation:
+                da_fn = registry.build_data_augmentation(
+                    config=config,
+                    default_args={
+                        "moving_image_size": self.moving_image_shape,
+                        "fixed_image_size": self.fixed_image_shape,
+                        "batch_size": batch_size,
+                    },
                 )
-
-            dataset = dataset.map(
-                lambda inputs: reduce(lambda out, f: f(out), transform_list, inputs),
-                num_parallel_calls=tf.data.experimental.AUTOTUNE,
-            )
+                dataset = dataset.map(
+                    da_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE
+                )
 
         return dataset
 

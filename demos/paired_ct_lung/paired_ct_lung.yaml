@@ -26,6 +26,8 @@ train:
       weight: 10.0
       name: "bending"
   preprocess:
+    data_augmentation:
+      name: "affine"
     batch_size: 4
     shuffle_buffer_num_batch: 1
   optimizer:

@@ -10,7 +10,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added registry for backbone models and losses.
+- Added DDF data augmentation.
+- Added the registry for backbone models and losses.
 - Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
 - Added badges for code quality and maintainability.
 - Added additional links (CoC, PyPI) and information (contributing, citing) to project
@@ -21,6 +22,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Refactored affine transform data augmentation.
 - Refactored loss functions into classes.
 - Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
@@ -44,23 +46,23 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added option to change kernel size and a kernel type for LNCC image similarity loss.
+- Added option to change the kernel size and type for LNCC image similarity loss.
 - Added visualization tool for generating gifs from model outputs.
-- Added max_epochs argument for training to overwrite configuration.
-- Added log_root argument for training and prediction to customize the log file
+- Added the max_epochs argument for training to overwrite configuration.
+- Added the log_root argument for training and prediction to customize the log file
   location.
 - Added more meaningful error messages for data loading.
 - Added integration tests for all demos.
 - Added environment.yml file for Conda environment creation.
 - Added Dockerfile.
-- Added documentation about using UCL cluster with DeepReg.
+- Added the documentation about using UCL cluster with DeepReg.
 
 ### Changed
 
 - Updated TensorFlow version to 2.3.1.
 - Updated the pre-trained models in MR brain demo.
 - Updated instruction on Conda environment creation.
-- Updated documentation regarding pre-commit and unit-testing.
+- Updated the documentation regarding pre-commit and unit-testing.
 - Updated the issue and pull-request templates.
 - Updated the instructions for all demos.
 - Updated pre-commit hooks version.
