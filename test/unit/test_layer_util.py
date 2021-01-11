@@ -92,9 +92,8 @@ class TestPyramidCombination:
                 values=values, weight_floor=weights, weight_ceil=1 - weights
             )
         assert (
-            "In pyramid_combination, "
-            "elements of values and weight_floor should have same dimension"
-            in str(err_info.value)
+            "In pyramid_combination, elements of values, weight_floor, "
+            "and weight_ceil should have same dimension" in str(err_info.value)
         )
 
     def test_error_len(self):
