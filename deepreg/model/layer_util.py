@@ -169,42 +169,41 @@ def pyramid_combination(
     :return: one tensor of the same shape as an element in values
              (\*loc_shape) or (batch, \*loc_shape) or (batch, \*loc_shape, 1)
     """
-    if len(values[0].shape) != len(weight_floor[0].shape) or len(
-        values[0].shape
-    ) != len(weight_ceil[0].shape):
+    v_shape = values[0].shape
+    wf_shape = weight_floor[0].shape
+    wc_shape = weight_ceil[0].shape
+    if len(v_shape) != len(wf_shape) or len(v_shape) != len(wc_shape):
         raise ValueError(
             "In pyramid_combination, elements of "
             "values, weight_floor, and weight_ceil should have same dimension. "
-            f"value shape = {values[0].shape}, "
-            f"weight_floor = {weight_floor[0].shape}"
+            f"value shape = {v_shape}, "
+            f"weight_floor = {wf_shape}, "
+            f"weight_ceil = {wc_shape}."
         )
     if 2 ** len(weight_floor) != len(values):
         raise ValueError(
             "In pyramid_combination, "
             "num_dim = len(weight_floor), "
             "len(values) must be 2 ** num_dim, "
-            f"But len(weight_floor) = {len(weight_floor)}, len(values) = {len(values)}"
+            f"But len(weight_floor) = {len(weight_floor)}, "
+            f"len(values) = {len(values)}"
         )
 
     if len(weight_floor) == 1:  # one dimension
         return values[0] * weight_floor[0] + values[1] * weight_ceil[0]
     # multi dimension
-    values_floor = (
-        pyramid_combination(
-            values=values[::2],
-            weight_floor=weight_floor[:-1],
-            weight_ceil=weight_ceil[:-1],
-        )
-        * weight_floor[-1]
+    values_floor = pyramid_combination(
+        values=values[::2],
+        weight_floor=weight_floor[:-1],
+        weight_ceil=weight_ceil[:-1],
     )
-    values_ceil = (
-        pyramid_combination(
-            values=values[1::2],
-            weight_floor=weight_floor[:-1],
-            weight_ceil=weight_ceil[:-1],
-        )
-        * weight_ceil[-1]
+    values_floor = values_floor * weight_floor[-1]
+    values_ceil = pyramid_combination(
+        values=values[1::2],
+        weight_floor=weight_floor[:-1],
+        weight_ceil=weight_ceil[:-1],
     )
+    values_ceil = values_ceil * weight_ceil[-1]
     return values_floor + values_ceil
 
 
@@ -451,7 +450,7 @@ def gen_rand_affine_transform(
     """
 
     assert 0 <= scale <= 1
-    np.random.seed(seed=seed)
+    np.random.seed(seed)
     noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # shape = (batch, 4, 3)
 
     # old represents four corners of a cube
@@ -488,7 +487,7 @@ def gen_rand_ddf(
     :return:
     """
 
-    np.random.seed(seed=seed)
+    np.random.seed(seed)
     low_res_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
     low_res_field = low_res_strength * np.random.randn(
         batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
