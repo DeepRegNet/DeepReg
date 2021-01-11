@@ -59,7 +59,7 @@ def warp(image_path: str, ddf_path: str, out_path: str):
     warped_image = warped_image[0, ...]  # removed added batch dimension
 
     # save output
-    nib.save(img=nib.Nifti2Image(warped_image, affine=np.eye(4)), filename=out_path)
+    nib.save(img=nib.Nifti1Image(warped_image, affine=np.eye(4)), filename=out_path)
 
 
 def main(args=None):

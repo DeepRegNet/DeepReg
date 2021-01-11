@@ -23,6 +23,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Refactored affine transform data augmentation.
+- Modified the implementation of resampler to support zero boundary condition.
 - Refactored loss functions into classes.
 - Use CheckpointManager callback for saving and support training restore.
 - Changed distribute strategy to default for <= 1 GPU.
@@ -36,6 +37,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
 - Removed invalid `first` argument in DataLoader for sample_index generator.
