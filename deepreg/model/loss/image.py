@@ -149,11 +149,28 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
 
-    The loss is based on a moving kernel/window over the y_true/y_pred,
-    within the window the square of zncc is calculated.
-    The kernel can be a rectangular / triangular / gaussian window.
-    The final loss is the averaged loss over all windows.
-    y_true and y_pred have to be at least 4d tensor, including batch axis.
+    Denote y_true as t and y_pred as p. Consider a window having n elements.
+    Each position in the window corresponds a weight w_i for i=1:n.
+
+    Define the discrete expectation in the window E[t] as
+
+        E[t] = sum_i(w_i * t_i) / sum_i(w_i)
+
+    Similarly, the discrete variance in the window V[t] is
+
+        V[t] = E[t**2] - E[t] ** 2
+
+    The local squared zero-normalized cross-correlation is therefore
+
+        E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
+
+    where the expectation in numerator is
+
+        E[ (t-E[t]) * (p-E[p]) ] = E[t * p] - E[t] * E[p]
+
+    Different kernel corresponds to different weights.
+
+    For now, y_true and y_pred have to be at least 4d tensor, including batch axis.
 
     Reference:
 
