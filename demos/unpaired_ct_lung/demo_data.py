@@ -259,7 +259,9 @@ for folder in folders:
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 
-url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_lung/20210110.zip"
+url = (
+    "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_lung_1.zip"
+)
 
 fname = "pretrained.zip"
 
