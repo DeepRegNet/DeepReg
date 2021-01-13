@@ -3,7 +3,8 @@ from typing import Callable
 BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
 MODEL_CLASS = "model_class"
-KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS]
+DATA_AUGMENTATION_CLASS = "da_class"
+KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS, DATA_AUGMENTATION_CLASS]
 
 
 class Registry:
@@ -139,6 +140,18 @@ class Registry:
     def build_loss(self, config: dict, default_args=None):
         return self.build_from_config(
             category=LOSS_CLASS, config=config, default_args=default_args
+        )
+
+    def register_data_augmentation(
+        self, name: str, cls: Callable = None, force: bool = False
+    ):
+        return self.register(
+            category=DATA_AUGMENTATION_CLASS, name=name, cls=cls, force=force
+        )
+
+    def build_data_augmentation(self, config: dict, default_args=None):
+        return self.build_from_config(
+            category=DATA_AUGMENTATION_CLASS, config=config, default_args=default_args
         )
 
 

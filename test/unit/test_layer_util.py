@@ -49,140 +49,143 @@ def test_get_n_bits_combinations():
     ]
 
 
-def test_pyramid_combinations():
-    """
-    Test pyramid_combinations by confirming that it generates
-    appropriate solutions for simple 1D and 2D cases.
-    """
-    # Check numerical outputs are correct for a simple 1D pair of weights, values - Pass
-    weights = tf.constant(np.array([[0.2]], dtype=np.float32))
-    values = tf.constant(np.array([[1], [2]], dtype=np.float32))
-    # expected = 1 * 0.2 + 2 * 2
-    expected = tf.constant(np.array([1.8], dtype=np.float32))
-    got = layer_util.pyramid_combination(values=values, weights=weights)
-    assert is_equal_tf(got, expected)
+class TestPyramidCombination:
+    def test_1d(self):
+        weights = tf.constant(np.array([[0.2]], dtype=np.float32))
+        values = tf.constant(np.array([[1], [2]], dtype=np.float32))
 
-    # Check numerical outputs are correct for a 2D pair of weights, values - Pass
-    weights = tf.constant(np.array([[0.2], [0.3]], dtype=np.float32))
-    values = tf.constant(
-        np.array(
-            [
-                [1],  # value at corner (0, 0), weight = 0.2 * 0.3
-                [2],  # value at corner (0, 1), weight = 0.2 * 0.7
-                [3],  # value at corner (1, 0), weight = 0.8 * 0.3
-                [4],  # value at corner (1, 1), weight = 0.8 * 0.7
-            ],
-            dtype=np.float32,
+        # expected = 1 * 0.2 + 2 * 2
+        expected = tf.constant(np.array([1.8], dtype=np.float32))
+        got = layer_util.pyramid_combination(
+            values=values, weight_floor=weights, weight_ceil=1 - weights
         )
-    )
-    # expected = 1 * 0.2 * 0.3
-    #          + 2 * 0.2 * 0.7
-    #          + 3 * 0.8 * 0.3
-    #          + 4 * 0.8 * 0.7
-    expected = tf.constant(np.array([3.3], dtype=np.float32))
-    got = layer_util.pyramid_combination(values=values, weights=weights)
-    assert is_equal_tf(got, expected)
+        assert is_equal_tf(got, expected)
 
-    # Check input lengths match - Fail
-    weights = tf.constant(np.array([[[0.2]], [[0.2]]], dtype=np.float32))
-    values = tf.constant(np.array([[1], [2]], dtype=np.float32))
-    with pytest.raises(ValueError) as err_info:
-        layer_util.pyramid_combination(values=values, weights=weights)
-    assert (
-        "In pyramid_combination, "
-        "elements of values and weights should have same dimension"
-        in str(err_info.value)
-    )
+    def test_2d(self):
+        weights = tf.constant(np.array([[0.2], [0.3]], dtype=np.float32))
+        values = tf.constant(
+            np.array(
+                [
+                    [1],  # value at corner (0, 0), weight = 0.2 * 0.3
+                    [2],  # value at corner (0, 1), weight = 0.2 * 0.7
+                    [3],  # value at corner (1, 0), weight = 0.8 * 0.3
+                    [4],  # value at corner (1, 1), weight = 0.8 * 0.7
+                ],
+                dtype=np.float32,
+            )
+        )
+        # expected = 1 * 0.2 * 0.3
+        #          + 2 * 0.2 * 0.7
+        #          + 3 * 0.8 * 0.3
+        #          + 4 * 0.8 * 0.7
+        expected = tf.constant(np.array([3.3], dtype=np.float32))
+        got = layer_util.pyramid_combination(
+            values=values, weight_floor=weights, weight_ceil=1 - weights
+        )
+        assert is_equal_tf(got, expected)
 
-    # Check input lengths match - Fail
-    weights = tf.constant(np.array([[0.2]], dtype=np.float32))
-    values = tf.constant(np.array([[1]], dtype=np.float32))
-    with pytest.raises(ValueError) as err_info:
-        layer_util.pyramid_combination(values=values, weights=weights)
-    assert (
-        "In pyramid_combination, num_dim = len(weights), "
-        "len(values) must be 2 ** num_dim" in str(err_info.value)
-    )
+    def test_error_dim(self):
+        weights = tf.constant(np.array([[[0.2]], [[0.2]]], dtype=np.float32))
+        values = tf.constant(np.array([[1], [2]], dtype=np.float32))
+        with pytest.raises(ValueError) as err_info:
+            layer_util.pyramid_combination(
+                values=values, weight_floor=weights, weight_ceil=1 - weights
+            )
+        assert (
+            "In pyramid_combination, elements of values, weight_floor, "
+            "and weight_ceil should have same dimension" in str(err_info.value)
+        )
+
+    def test_error_len(self):
+        weights = tf.constant(np.array([[0.2]], dtype=np.float32))
+        values = tf.constant(np.array([[1]], dtype=np.float32))
+        with pytest.raises(ValueError) as err_info:
+            layer_util.pyramid_combination(
+                values=values, weight_floor=weights, weight_ceil=1 - weights
+            )
+        assert (
+            "In pyramid_combination, num_dim = len(weight_floor), "
+            "len(values) must be 2 ** num_dim" in str(err_info.value)
+        )
 
 
-def test_resample():
-    """
-    Test resample by confirming that it generates appropriate
-    resampling on two test cases with outputs within is_equal_tf's
-    tolerance level, and one which should fail (incompatible shapes).
-    """
-    # linear, vol has no feature channel - Pass
-    interpolation = "linear"
-    vol = tf.constant(
-        np.array([[[0, 1, 2], [3, 4, 5]]], dtype=np.float32)
-    )  # shape = [1,2,3]
+class TestLinearResample:
+    x_min, x_max = 0, 2
+    y_min, y_max = 0, 2
+    # vol are values on grid [0,2]x[0,2]
+    # values on each point is 3x+y
+    # shape = (1,3,3)
+    vol = tf.constant(np.array([[[0, 1, 2], [3, 4, 5], [6, 7, 8]]]), dtype=tf.float32)
+    # loc are some points, especially
+    # shape = (1,4,3,2)
     loc = tf.constant(
         np.array(
             [
                 [
-                    [[0, 0], [0, 1], [0, 3]],  # outside frame
-                    [[0.4, 0], [0.5, 1], [0.6, 2]],
-                    [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
+                    [[0, 0], [0, 1], [1, 2]],  # boundary corners
+                    [[0.4, 0], [0.5, 2], [2, 1.7]],  # boundary edge
+                    [[-0.4, 0.7], [0, 3], [2, 3]],  # outside boundary
+                    [[0.4, 0.7], [1, 1], [0.6, 0.3]],  # internal
                 ]
-            ],  # resampled = 3x+y
-            dtype=np.float32,
-        )
-    )  # shape = [1,3,3,2]
-    want = tf.constant(
-        np.array([[[0, 1, 2], [1.2, 2.5, 3.8], [1.9, 2, 2.1]]], dtype=np.float32)
-    )  # shape = [1,3,3]
-    get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert is_equal_tf(want, get)
+            ]
+        ),
+        dtype=tf.float32,
+    )
 
-    # linear, vol has feature channel - Pass
-    interpolation = "linear"
-    vol = tf.constant(
-        np.array(
-            [[[[0, 0], [1, 1], [2, 2]], [[3, 3], [4, 4], [5, 5]]]], dtype=np.float32
-        )
-    )  # shape = [1,2,3,2]
-    loc = tf.constant(
-        np.array(
-            [
-                [
-                    [[0, 0], [0, 1], [0, 3]],  # outside frame
-                    [[0.4, 0], [0.5, 1], [0.6, 2]],
-                    [[0.4, 0.7], [0.5, 0.5], [0.6, 0.3]],
-                ]
-            ],  # resampled = 3x+y
-            dtype=np.float32,
-        )
-    )  # shape = [1,3,3,2]
-    want = tf.constant(
-        np.array(
-            [
-                [
-                    [[0, 0], [1, 1], [2, 2]],
-                    [[1.2, 1.2], [2.5, 2.5], [3.8, 3.8]],
-                    [[1.9, 1.9], [2, 2], [2.1, 2.1]],
-                ]
-            ],
-            dtype=np.float32,
-        )
-    )  # shape = [1,3,3,2]
-    get = layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert is_equal_tf(want, get)
+    @pytest.mark.parametrize("channel", [0, 1, 2])
+    def test_repeat_extrapolation(self, channel):
+        x = self.loc[..., 0]
+        y = self.loc[..., 1]
+        x = tf.clip_by_value(x, self.x_min, self.x_max)
+        y = tf.clip_by_value(y, self.y_min, self.y_max)
+        expected = 3 * x + y
 
-    # Inconsistent shapes for resampling - Fail
-    interpolation = "linear"
-    vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
-    loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
-    with pytest.raises(ValueError) as err_info:
-        layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert "vol shape inconsistent with loc" in str(err_info.value)
+        vol = self.vol
+        if channel > 0:
+            vol = tf.repeat(vol[..., None], channel, axis=-1)
+            expected = tf.repeat(expected[..., None], channel, axis=-1)
 
-    # Non-'linear' resampling - Fail
-    interpolation = "some-string"
-    vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
-    loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
-    with pytest.raises(ValueError) as err_info:
-        layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
-    assert "resample supports only linear interpolation" in str(err_info.value)
+        got = layer_util.resample(vol=vol, loc=self.loc, zero_boundary=False)
+        assert is_equal_tf(expected, got)
+
+    @pytest.mark.parametrize("channel", [0, 1, 2])
+    def test_repeat_zero_bound(self, channel):
+        x = self.loc[..., 0]
+        y = self.loc[..., 1]
+        expected = 3 * x + y
+        expected = (
+            expected
+            * tf.cast(x > self.x_min, tf.float32)
+            * tf.cast(x <= self.x_max, tf.float32)
+        )
+        expected = (
+            expected
+            * tf.cast(y > self.y_min, tf.float32)
+            * tf.cast(y <= self.y_max, tf.float32)
+        )
+
+        vol = self.vol
+        if channel > 0:
+            vol = tf.repeat(vol[..., None], channel, axis=-1)
+            expected = tf.repeat(expected[..., None], channel, axis=-1)
+
+        got = layer_util.resample(vol=vol, loc=self.loc, zero_boundary=True)
+        assert is_equal_tf(expected, got)
+
+    def test_shape_error(self):
+        vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
+        loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
+        with pytest.raises(ValueError) as err_info:
+            layer_util.resample(vol=vol, loc=loc)
+        assert "vol shape inconsistent with loc" in str(err_info.value)
+
+    def test_interpolation_error(self):
+        interpolation = "nearest"
+        vol = tf.constant(np.array([[0]], dtype=np.float32))  # shape = [1,1]
+        loc = tf.constant(np.array([[0, 0], [0, 0]], dtype=np.float32))  # shape = [2,2]
+        with pytest.raises(ValueError) as err_info:
+            layer_util.resample(vol=vol, loc=loc, interpolation=interpolation)
+        assert "resample supports only linear interpolation" in str(err_info.value)
 
 
 def test_random_transform_generator():
@@ -192,7 +195,7 @@ def test_random_transform_generator():
     """
     # Check shapes are correct Batch Size = 1 - Pass
     batch_size = 1
-    transforms = layer_util.random_transform_generator(batch_size, 0)
+    transforms = layer_util.gen_rand_affine_transform(batch_size, 0)
     assert transforms.shape == (batch_size, 4, 3)
 
     # Check numerical outputs are correct for a given seed - Pass
@@ -212,7 +215,7 @@ def test_random_transform_generator():
             dtype=np.float32,
         )
     )  # shape = (1, 4, 3)
-    got = layer_util.random_transform_generator(
+    got = layer_util.gen_rand_affine_transform(
         batch_size=batch_size, scale=scale, seed=seed
     )
     assert is_equal_tf(got, expected)
@@ -417,6 +420,5 @@ class TestGaussianFilter3D:
         [(1, 1, 1), (2, 2, 2), (5, 5, 5)],
     )
     def test_sum(self, kernel_sigma):
-
         filter = layer_util.gaussian_filter_3d(kernel_sigma)
         assert np.allclose(np.sum(filter), 3, atol=1e-3)

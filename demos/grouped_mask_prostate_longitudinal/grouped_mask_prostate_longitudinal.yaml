@@ -40,6 +40,8 @@ train:
       learning_rate: 1.0e-5
 
   preprocess:
+    data_augmentation:
+      name: "affine"
     batch_size: 4
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
 

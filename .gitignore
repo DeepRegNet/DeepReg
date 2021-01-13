@@ -146,3 +146,6 @@ demos/*/*.zip
 demos/*/logs_reg
 demos/*/logs_train
 demos/*/logs_predict
+
+# test folders
+deepreg_download_temp_dir/
