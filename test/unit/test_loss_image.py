@@ -66,16 +66,12 @@ class TestGlobalMutualInformation:
         assert got == expected
 
 
+@pytest.mark.parametrize("kernel_size", [3, 5, 7])
 @pytest.mark.parametrize("name", ["gaussian", "triangular", "rectangular"])
-def test_kernel_fn(name):
-    kernel_size = 3
+def test_kernel_fn(kernel_size, name):
     kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
     filters = kernel_fn(kernel_size)
-    assert filters.shape == (
-        kernel_size,
-        1,
-        1,
-    )
+    assert filters.shape == (kernel_size,)
 
 
 class TestLocalNormalizedCrossCorrelation:
@@ -90,9 +86,9 @@ class TestLocalNormalizedCrossCorrelation:
         ],
     )
     def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
-        y_true = y_true * np.ones(shape=shape)
-        y_pred = y_pred * np.ones(shape=shape)
-        expected = expected * np.ones(shape=(shape[0],))
+        y_true = y_true * tf.ones(shape=shape)
+        y_pred = y_pred * tf.ones(shape=shape)
+        expected = expected * tf.ones(shape=(shape[0],))
         got = image.LocalNormalizedCrossCorrelation(kernel_type=kernel_type).call(
             y_true,
             y_pred,

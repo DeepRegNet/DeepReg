@@ -37,7 +37,7 @@ def rectangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     :return: kernel_weights, of shape (kernel_size, )
     """
 
-    kernel = tf.ones(shape=(kernel_size,), dtype="float32")
+    kernel = tf.ones(shape=(kernel_size,), dtype=tf.float32)
     return kernel
 
 
@@ -53,24 +53,26 @@ def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     :param kernel_size: scalar, size of the 1-D kernel
     :return: kernel_weights, of shape (kernel_size, )
     """
+    assert kernel_size >= 3
     assert kernel_size % 2 != 0
 
     padding = kernel_size // 4
 
     # (kernel_size, )
-    kernel = tf.ones(shape=(kernel_size - padding * 2,), dtype="float32")
-    kernel = tf.pad(
-        kernel, paddings=[padding, padding], mode="CONSTANT", constant_values=0
-    )
-    # (padding, )
-    filters = tf.ones(shape=(padding, 1, 1), dtype="float32")
+    kernel = [0] * padding + [1] * (kernel_size - padding * 2) + [0] * padding
+    kernel = tf.constant(kernel, dtype=tf.float32)
+
+    if kernel_size == 3:
+        return kernel
+
+    # (padding*2, )
+    filters = tf.ones(shape=(padding * 2, 1, 1), dtype=tf.float32)
+
     # (kernel_size, 1, 1)
     kernel = tf.nn.conv1d(
         kernel[:, None, None], filters=filters, stride=[1, 1, 1], padding="SAME"
     )
-    kernel = kernel[:, 0, 0]
-
-    return kernel
+    return kernel[:, 0, 0]
 
 
 def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
@@ -83,7 +85,7 @@ def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     mean = (kernel_size - 1) / 2.0
     sigma = kernel_size / 3
 
-    grid = tf.range(0, kernel_size, dtype="float32")
+    grid = tf.range(0, kernel_size, dtype=tf.float32)
     filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
 
     return filters

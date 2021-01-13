@@ -211,6 +211,15 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
 
+        # (kernel_size, )
+        self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
+        # E[1] = sum_i(w_i), ()
+        self.kernel_vol = tf.reduce_sum(
+            self.kernel[:, None, None]
+            * self.kernel[None, :, None]
+            * self.kernel[None, None, :]
+        )
+
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
@@ -227,13 +236,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
-        filters = self.kernel_fn(
-            kernel_size=self.kernel_size,
-        )
-        kernel_vol = tf.reduce_sum(filters) ** 3
-        filters = tf.cast(filters, dtype=y_true.dtype)
-        kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
-
         # t = y_true, p = y_pred
         # (batch, dim1, dim2, dim3, ch)
         t2 = y_true * y_true
@@ -242,31 +244,25 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         # sum over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_sum = separable_filter(y_true, kernel=filters)
-        p_sum = separable_filter(y_pred, kernel=filters)
-        t2_sum = separable_filter(t2, kernel=filters)
-        p2_sum = separable_filter(p2, kernel=filters)
-        tp_sum = separable_filter(tp, kernel=filters)
+        t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
+        p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
+        t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
+        p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
+        tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
 
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_avg = t_sum / kernel_vol
-        p_avg = p_sum / kernel_vol
+        t_avg = t_sum / self.kernel_vol  # E[t]
+        p_avg = p_sum / self.kernel_vol  # E[p]
 
-        # normalized cross correlation between t and p
-        # sum[(t - mean[t]) * (p - mean[p])] / std[t] / std[p]
-        # denoted by num / denom
-        # assume we sum over N values
-        # num = sum[t * p - mean[t] * p - t * mean[p] + mean[t] * mean[p]]
-        #     = sum[t*p] - sum[t] * sum[p] / N * 2 + sum[t] * sum[p] / N
-        #     = sum[t*p] - sum[t] * sum[p] / N
-        #     = sum[t*p] - sum[t] * mean[p] = cross
-        # the following is actually squared ncc
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_avg * t_sum
-        t_var = t2_sum - t_avg * t_sum  # std[t] ** 2
-        p_var = p2_sum - p_avg * p_sum  # std[p] ** 2
+        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+
+        # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self):
