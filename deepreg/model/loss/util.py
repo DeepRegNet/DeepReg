@@ -34,42 +34,41 @@ def rectangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     kernel for LocalNormalizedCrossCorrelation.
 
     :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
+    :return: kernel_weights, of shape (kernel_size, )
     """
 
-    kernel = tf.ones(shape=(kernel_size, 1, 1), dtype="float32")
+    kernel = tf.ones(shape=(kernel_size,), dtype="float32")
     return kernel
 
 
 def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     """
-    Return a the 1D filter for separable convolution equivalent to a 3-D triangular
-    kernel for LocalNormalizedCrossCorrelation.
+    1D triangular kernel.
+
+    Assume kernel_size is odd, it will be a smoothed from
+    a kernel which center part is zero.
+    Then length of the ones will be around half kernel_size.
+    The weight scale of the kernel does not matter as LNCC will normalize it.
 
     :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
+    :return: kernel_weights, of shape (kernel_size, )
     """
-    fsize = int((kernel_size + 1) / 2)
-    pad_filter = tf.constant(
-        [
-            [0, 0],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [0, 0],
-        ]
+    assert kernel_size % 2 != 0
+
+    padding = kernel_size // 4
+
+    # (kernel_size, )
+    kernel = tf.ones(shape=(kernel_size - padding * 2,), dtype="float32")
+    kernel = tf.pad(
+        kernel, paddings=[padding, padding], mode="CONSTANT", constant_values=0
     )
-
-    f1 = tf.ones(shape=(1, fsize, 1), dtype="float32") / fsize
-    f1 = tf.pad(f1, pad_filter, "CONSTANT")
-    f2 = tf.ones(shape=(fsize, 1, 1), dtype="float32") / fsize
-
-    kernel = tf.nn.conv1d(f1, f2, stride=[1, 1, 1], padding="SAME")
-    kernel = tf.transpose(kernel, perm=[1, 2, 0])
+    # (padding, )
+    filters = tf.ones(shape=(padding, 1, 1), dtype="float32")
+    # (kernel_size, 1, 1)
+    kernel = tf.nn.conv1d(
+        kernel[:, None, None], filters=filters, stride=[1, 1, 1], padding="SAME"
+    )
+    kernel = kernel[:, 0, 0]
 
     return kernel
 
@@ -79,16 +78,12 @@ def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
     kernel for LocalNormalizedCrossCorrelation.
     :param kernel_size: scalar, size of the 1-D kernel
-    :return:
-        - filters, of shape (kernel_size, 1, 1)
-        - kernel_vol, scalar indicating the sum of the coefficients of the equivalent
-                      3D kernel used for normalization purposes
+    :return: filters, of shape (kernel_size, )
     """
     mean = (kernel_size - 1) / 2.0
     sigma = kernel_size / 3
 
     grid = tf.range(0, kernel_size, dtype="float32")
-    grid = tf.reshape(grid, [-1, 1, 1])
     filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
 
     return filters
@@ -100,7 +95,7 @@ def gaussian_kernel1d_sigma(sigma: int) -> tf.Tensor:
 
     :param sigma: number defining standard deviation for
                   gaussian kernel.
-    :return: shape = (dim, ) or ()
+    :return: shape = (dim, )
     """
     assert sigma > 0
     tail = int(sigma * 3)
@@ -114,7 +109,7 @@ def cauchy_kernel1d(sigma: int) -> tf.Tensor:
     Approximating cauchy kernel in 1d.
 
     :param sigma: int, defining standard deviation of kernel.
-    :return: shape = (dim, ) or ()
+    :return: shape = (dim, )
     """
     assert sigma > 0
     tail = int(sigma * 5)
