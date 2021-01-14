@@ -10,6 +10,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added global NCC loss
 - Added DDF data augmentation.
 - Added the registry for backbone models and losses.
 - Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
