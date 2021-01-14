@@ -66,59 +66,58 @@ class TestGlobalMutualInformation:
         assert got == expected
 
 
-#
-# @pytest.mark.parametrize("name", ["gaussian", "triangular", "rectangular"])
-# def test_kernel_fn(name):
-#     kernel_size = 3
-#     input_channel = 5
-#     kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
-#     filters, kernel_vol = kernel_fn(kernel_size, input_channel)
-#     assert filters.shape == (
-#         kernel_size,
-#         kernel_size,
-#         kernel_size,
-#         input_channel,
-#         1,
-#     )
-#     assert kernel_vol.shape == ()
-#
-#
-# class TestLocalNormalizedCrossCorrelation:
-#     @pytest.mark.parametrize(
-#         "y_true,y_pred,shape,kernel_type,expected",
-#         [
-#             (0.6, 0.3, (3, 3, 3, 3), "rectangular", 1.0),
-#             (0.6, 0.3, (3, 3, 3, 3, 3), "rectangular", 1.0),
-#             (0.0, 1.0, (3, 3, 3, 3, 3), "rectangular", 1.0),
-#             (0.6, 0.3, (3, 3, 3, 3, 3), "gaussian", 1.0),
-#             (0.6, 0.3, (3, 3, 3, 3, 3), "triangular", 1.0),
-#         ],
-#     )
-#     def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
-#         y_true = y_true * np.ones(shape=shape)
-#         y_pred = y_pred * np.ones(shape=shape)
-#         expected = expected * np.ones(shape=(shape[0],))
-#         got = image.LocalNormalizedCrossCorrelation(kernel_type=kernel_type).call(
-#             y_true,
-#             y_pred,
-#         )
-#         assert is_equal_tf(got, expected)
-#
-#     def test_error(self):
-#         y = np.ones(shape=(3, 3, 3, 3))
-#         with pytest.raises(ValueError) as err_info:
-#             image.LocalNormalizedCrossCorrelation(kernel_type="constant").call(y, y)
-#         assert "Wrong kernel_type constant for LNCC loss type." in str(err_info.value)
-#
-#     def test_get_config(self):
-#         got = image.LocalNormalizedCrossCorrelation().get_config()
-#         expected = dict(
-#             kernel_size=9,
-#             kernel_type="rectangular",
-#             reduction=tf.keras.losses.Reduction.AUTO,
-#             name="LocalNormalizedCrossCorrelation",
-#         )
-#         assert got == expected
+@pytest.mark.parametrize("name", ["gaussian", "triangular", "rectangular"])
+def test_kernel_fn(name):
+    kernel_size = 3
+    input_channel = 5
+    kernel_fn = image.LocalNormalizedCrossCorrelation.kernel_fn_dict[name]
+    filters, kernel_vol = kernel_fn(kernel_size, input_channel)
+    assert filters.shape == (
+        kernel_size,
+        kernel_size,
+        kernel_size,
+        input_channel,
+        1,
+    )
+    assert kernel_vol.shape == ()
+
+
+class TestLocalNormalizedCrossCorrelation:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,shape,kernel_type,expected",
+        [
+            (0.6, 0.3, (3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.0, 1.0, (3, 3, 3, 3, 3), "rectangular", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "gaussian", 1.0),
+            (0.6, 0.3, (3, 3, 3, 3, 3), "triangular", 1.0),
+        ],
+    )
+    def test_zero_info(self, y_true, y_pred, shape, kernel_type, expected):
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = image.LocalNormalizedCrossCorrelation(kernel_type=kernel_type).call(
+            y_true,
+            y_pred,
+        )
+        assert is_equal_tf(got, expected)
+
+    def test_error(self):
+        y = np.ones(shape=(3, 3, 3, 3))
+        with pytest.raises(ValueError) as err_info:
+            image.LocalNormalizedCrossCorrelation(kernel_type="constant").call(y, y)
+        assert "Wrong kernel_type constant for LNCC loss type." in str(err_info.value)
+
+    def test_get_config(self):
+        got = image.LocalNormalizedCrossCorrelation().get_config()
+        expected = dict(
+            kernel_size=9,
+            kernel_type="rectangular",
+            reduction=tf.keras.losses.Reduction.AUTO,
+            name="LocalNormalizedCrossCorrelation",
+        )
+        assert got == expected
 
 
 class TestGlobalNormalizedCrossCorrelation:
@@ -132,6 +131,7 @@ class TestGlobalNormalizedCrossCorrelation:
         ],
     )
     def test_output(self, y_true, y_pred, shape, expected):
+
         y_true = y_true * np.zeros(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
 
