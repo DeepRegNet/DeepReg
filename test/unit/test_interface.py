@@ -15,40 +15,146 @@ from deepreg.dataset.loader.interface import (
     FileLoader,
     GeneratorDataLoader,
 )
+from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
+from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.util import normalize_array
+from deepreg.registry import REGISTRY
 
 
-def test_data_loader():
-    """
-    Test the functions in DataLoader
-    """
+class TestDataLoader:
+    @pytest.mark.parametrize(
+        "labeled,num_indices,sample_label,seed",
+        [
+            (True, 1, "all", 0),
+            (False, 1, "all", 0),
+            (None, 1, "all", 0),
+            (True, 1, "sample", 0),
+            (True, 1, "all", 0),
+            (True, 1, None, 0),
+            (True, 1, "sample", None),
+        ],
+    )
+    def test_init(self, labeled, num_indices, sample_label, seed):
+        """
+        Test init function of DataLoader class
+        :param labeled: bool
+        :param num_indices: int
+        :param sample_label: str
+        :param seed: float/int/None
+        :return:
+        """
+        DataLoader(
+            labeled=labeled,
+            num_indices=num_indices,
+            sample_label=sample_label,
+            seed=seed,
+        )
 
-    # init
-    # inputs, no error means passed
-    for labeled in [True, False, None]:
-        DataLoader(labeled=labeled, num_indices=1, sample_label="all", seed=0)
-    for sample_label in ["sample", "all", None]:
-        DataLoader(labeled=True, num_indices=1, sample_label=sample_label, seed=0)
-    for num_indices in [1]:
-        DataLoader(labeled=True, num_indices=num_indices, sample_label="sample", seed=0)
-    for seed in [0, None]:
-        DataLoader(labeled=True, num_indices=1, sample_label="sample", seed=seed)
+        data_loader = DataLoader(
+            labeled=labeled,
+            num_indices=num_indices,
+            sample_label=sample_label,
+            seed=seed,
+        )
 
-    # not implemented properties / functions
-    data_loader = DataLoader(labeled=True, num_indices=1, sample_label="sample", seed=0)
-    with pytest.raises(NotImplementedError):
-        data_loader.moving_image_shape
-    with pytest.raises(NotImplementedError):
-        data_loader.fixed_image_shape
-    with pytest.raises(NotImplementedError):
-        data_loader.num_samples
-    with pytest.raises(NotImplementedError):
-        data_loader.get_dataset()
+        with pytest.raises(NotImplementedError):
+            data_loader.moving_image_shape
+        with pytest.raises(NotImplementedError):
+            data_loader.fixed_image_shape
+        with pytest.raises(NotImplementedError):
+            data_loader.num_samples
+        with pytest.raises(NotImplementedError):
+            data_loader.get_dataset()
 
-    # implemented functions
-    # TODO test get_dataset_and_preprocess
+        data_loader.close()
 
-    data_loader.close()
+    @pytest.mark.parametrize(
+        "labeled,moving_shape,fixed_shape,batch_size,data_augmentation",
+        [
+            (True, (9, 9, 9), (9, 9, 9), 1, {}),
+            (
+                True,
+                (9, 9, 9),
+                (15, 15, 15),
+                1,
+                {"data_augmentation": {"name": "affine"}},
+            ),
+            (
+                True,
+                (9, 9, 9),
+                (15, 15, 15),
+                1,
+                {
+                    "data_augmentation": [
+                        {"name": "affine"},
+                        {
+                            "name": "ddf",
+                            "field_strength": 1,
+                            "low_res_size": (3, 3, 3),
+                        },
+                    ],
+                },
+            ),
+        ],
+    )
+    def test_get_dataset_and_preprocess(
+        self, labeled, moving_shape, fixed_shape, batch_size, data_augmentation
+    ):
+        """
+        Test get_transforms() function. For that, an Abstract Data Loader is created
+        only to set the moving  and fixed shapes that are used in get_transforms().
+        Here we test that the get_transform() returns a function and the shape of
+        the output of this function. See test_preprocess.py for more testing regarding
+        the concrete params.
+
+        :param labeled: bool
+        :param moving_shape: tuple
+        :param fixed_shape: tuple
+        :param batch_size: int
+        :param data_augmentation: dict
+        :return:
+        """
+        data_dir_path = [
+            "data/test/nifti/paired/train",
+            "data/test/nifti/paired/test",
+        ]
+        common_args = dict(
+            file_loader=NiftiFileLoader, labeled=True, sample_label="all", seed=None
+        )
+
+        data_loader = PairedDataLoader(
+            data_dir_paths=data_dir_path,
+            fixed_image_shape=fixed_shape,
+            moving_image_shape=moving_shape,
+            **common_args,
+        )
+
+        dataset = data_loader.get_dataset_and_preprocess(
+            training=True,
+            batch_size=batch_size,
+            repeat=True,
+            shuffle_buffer_num_batch=1,
+            registry=REGISTRY,
+            **data_augmentation,
+        )
+
+        for outputs in dataset.take(1):
+            assert (
+                outputs["moving_image"].shape
+                == (batch_size,) + data_loader.moving_image_shape
+            )
+            assert (
+                outputs["fixed_image"].shape
+                == (batch_size,) + data_loader.fixed_image_shape
+            )
+            assert (
+                outputs["moving_label"].shape
+                == (batch_size,) + data_loader.moving_image_shape
+            )
+            assert (
+                outputs["fixed_label"].shape
+                == (batch_size,) + data_loader.fixed_image_shape
+            )
 
 
 def test_abstract_paired_data_loader():
@@ -113,7 +219,6 @@ def test_abstract_unpaired_data_loader():
 def test_generator_data_loader(caplog):
     """
     Test the functions in GeneratorDataLoader
-
     :param caplog: used to check warning message.
     """
     generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")

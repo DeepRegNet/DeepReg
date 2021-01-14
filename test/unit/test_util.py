@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
+from deepreg.registry import REGISTRY
 from deepreg.train import build_config
 from deepreg.util import (
     build_dataset,
@@ -43,6 +44,7 @@ def test_build_dataset():
         mode="train",
         training=False,
         repeat=False,
+        registry=REGISTRY,
     )
 
     # check output types
@@ -60,6 +62,7 @@ def test_build_dataset():
         mode="valid",
         training=False,
         repeat=False,
+        registry=REGISTRY,
     )
 
     assert data_loader_valid is None
@@ -167,7 +170,7 @@ class TestSaveArray:
         nifti_file_path = os.path.join(self.save_dir, self.arr_name + ".nii.gz")
         # save arr1
         os.makedirs(self.save_dir, exist_ok=True)
-        nib.save(img=nib.Nifti2Image(arr1, affine=np.eye(4)), filename=nifti_file_path)
+        nib.save(img=nib.Nifti1Image(arr1, affine=np.eye(4)), filename=nifti_file_path)
         # save arr2 w/o overwrite
         save_array(
             save_dir=self.save_dir,

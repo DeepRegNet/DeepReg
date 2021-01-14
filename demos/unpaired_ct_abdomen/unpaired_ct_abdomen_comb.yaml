@@ -28,6 +28,8 @@ train:
       weight: 0.1
       name: "gradient"
   preprocess:
+    data_augmentation:
+      name: "affine"
     batch_size: 4
     shuffle_buffer_num_batch: 1
   optimizer:
