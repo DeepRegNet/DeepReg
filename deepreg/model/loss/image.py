@@ -343,3 +343,58 @@ class LocalNormalizedCrossCorrelationLoss(
     NegativeLossMixin, LocalNormalizedCrossCorrelation
 ):
     """Revert the sign of LocalNormalizedCrossCorrelation."""
+
+
+class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
+    """
+    Global squared zero-normalized cross-correlation.
+
+    Compute the squared cross-correlation between the reference and moving images
+    y_true and y_pred have to be at least 4d tensor, including batch axis.
+
+    Reference:
+
+        - Zero-normalized cross-correlation (ZNCC):
+            https://en.wikipedia.org/wiki/Cross-correlation
+
+    """
+
+    def __init__(
+        self,
+        reduction: str = tf.keras.losses.Reduction.AUTO,
+        name: str = "GlobalNormalizedCrossCorrelation",
+    ):
+        """
+        Init.
+        :param reduction: using AUTO reduction,
+            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param name: name of the loss
+        """
+        super().__init__(reduction=reduction, name=name)
+
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Return loss for a batch.
+
+        :param y_true: shape = (batch, ...)
+        :param y_pred: shape = (batch, ...)
+        :return: shape = (batch,)
+        """
+
+        axis = [a for a in range(1, len(y_true.shape))]
+        mu_pred = tf.reduce_mean(y_pred, axis=axis)
+        mu_true = tf.reduce_mean(y_true, axis=axis)
+        var_pred = tf.math.reduce_variance(y_pred, axis=axis)
+        var_true = tf.math.reduce_variance(y_true, axis=axis)
+        numerator = tf.abs(
+            tf.reduce_mean((y_pred - mu_pred) * (y_true - mu_true), axis=axis)
+        )
+
+        return (numerator * numerator + EPS) / (var_pred * var_true + EPS)
+
+
+@REGISTRY.register_loss(name="gncc")
+class GlobalNormalizedCrossCorrelationLoss(
+    NegativeLossMixin, GlobalNormalizedCrossCorrelation
+):
+    """Revert the sign of GlobalNormalizedCrossCorrelation."""
