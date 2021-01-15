@@ -25,7 +25,7 @@ dataset:
     test: "data/test/h5/paired/test" # folder contains test data
 ```
 
-Multiple dataset directories can be specified, such that data is sampled across several
+Multiple dataset directories can be specified, such that data are sampled across several
 folders:
 
 ```yaml
@@ -128,22 +128,65 @@ network.
 - `fixed_image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the
   3D fixed image.
 
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  moving_image_shape: [16, 16, 3]
+  fixed_image_shape: [16, 16, 3]
+```
+
 ##### Unpaired
 
 - `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
   image.
 
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "unpaired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  image_shape: [16, 16, 3]
+```
+
 ##### Grouped
 
 - `intra_group_prob`: float, between 0 and 1. Passing 0 would only generate inter-group
   samples, and passing 1 would only generate intra-group samples.
-- `sample_label`: method for sampling the labels "sample", "all" `intra_group_option`:
-  str, "forward", "backward, or "unconstrained"
+- `sample_label`: method for sampling the labels "sample", "all"
+- `intra_group_option`: str, "forward", "backward, or "unconstrained"
 - `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
   group, so one epoch has num_groups pairs of data, if false, iterate through this
   loader will generate all possible pairs.
 - `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
   image.
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "grouped" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  image_shape: [16, 16, 3]
+  sample_image_in_group: true
+  intra_group_prob: 0.7
+  intra_group_option: "forward"
+```
 
 See the [dataset loader configuration](dataset_loader.html) for more details.
 
@@ -163,10 +206,10 @@ train:
   method: "ddf" # One of ddf, dvf, conditional
 ```
 
-### Backbone - required
+### Name - required
 
-The `backbone` section defines the backbone network for the registration. This section
-has several subsections. The `name` and `num_channel_initial` are global to all backbone
+The `name` section defines the backbone network for the registration. This section has
+several subsections. The `num_channel_initial` argumnt is global to all backbone
 methods, and there are specific arguments for some of the backbones to define their
 implementation.
 
@@ -174,6 +217,8 @@ implementation.
 
 The `name` is used to define the network. It should be string type, one of "unet",
 "local" or "global", to define a UNet, LocalNet or GlobalNet backbone, respectively.
+With Registry functionalities, you can also define your own networks to pass to DeepReg
+train via config.
 
 The `num_channel_initial` is used to define the number of initial channels for the
 network, and should be int type.
@@ -181,8 +226,7 @@ network, and should be int type.
 ```yaml
 train:
   method: "ddf" # One of ddf, dvf, conditional
-  backbone:
-    name: "unet" # One of unet, local, global
+  name: "unet" # One of unet, local, global: networks currently supported by DeepReg
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
 ```
 
@@ -199,12 +243,12 @@ The UNet model requires several additional arguments to define it's structure:
 ```yaml
 train:
   method: "ddf" # One of ddf, dvf, conditional
-  backbone:
-    name: "unet" # One of unet, local, global
+  name: "unet"
+    name:  # One of unet, local, global
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     depth: 3
-    pooling: False
-    concat_skip: True
+    pooling: false
+    concat_skip: true
 ```
 
 #### Local and GlobalNet
@@ -236,8 +280,8 @@ The losses in DeepReg are defined depending on the type of network to be built, 
 be split into two sections: dissimilarity loss (between moving and fixed tensors), and
 regularization losses (on the DDFs predicted).
 
-DeepReg uses `tf.keras.Model` `add_loss()` method to add losses to the model, which
-provides some flexibility in configuration.
+DeepReg uses `tf.keras.Model` `add_loss()` in the Registry method to add losses to the
+model, which provides some flexibility in configuration.
 
 Currently, DeepReg offers conditional, ddf/dvf and affine registration pre-built models.
 The models are configured to add the losses as follows:
@@ -252,7 +296,7 @@ such that the model can be built accordingly.
 #### Image
 
 - `weight`: float type, weight of individual loss element in total loss function.
-- `name`: string type, one of "lncc", "ssd" or "gmi". EG.
+- `name`: string type, one of "lncc", "ssd" or "gmi".
 
 ```yaml
 train:
@@ -278,7 +322,7 @@ train:
   - `multi_scale`:
     - `loss_type`: string type, name of loss to use. Options currently include "dice",
       "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
-    - `loss_scales`: list of ints, what
+    - `loss_scales`: list of ints, what scales to output the loss
   - `single_scale`:
     - `loss_type`: name of loss to use. Options currently include "dice",
       "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
@@ -373,12 +417,15 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
   optimizer:
     name: "sgd"
     sgd:
       learning_rate: 1.0e-5
       momentum: 0.9
-      nesterov: False
+      nesterov: false
 ```
 
 ### Preprocess - required
@@ -398,12 +445,15 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
   optimizer:
     name: "sgd"
     sgd:
       learning_rate: 1.0e-5
       momentum: 0.9
-      nesterov: False
+      nesterov: false
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
@@ -421,12 +471,15 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
   optimizer:
     name: "sgd"
     sgd:
       learning_rate: 1.0e-5
       momentum: 0.9
-      nesterov: False
+      nesterov: false
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
@@ -446,12 +499,15 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
   optimizer:
     name: "sgd"
     sgd:
       learning_rate: 1.0e-5
       momentum: 0.9
-      nesterov: False
+      nesterov: false
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
