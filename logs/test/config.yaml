@@ -1,0 +1,67 @@
+dataset:
+  dir:
+    test: data/test/nifti/unpaired/test
+    train: data/test/nifti/unpaired/train
+    valid: data/test/nifti/unpaired/test
+  format: nifti
+  image_shape:
+  - 16
+  - 16
+  - 16
+  labeled: false
+  type: unpaired
+train:
+  epochs: 2
+  loss:
+    dissimilarity:
+      image:
+        name: lncc
+        weight: 0.1
+      label:
+        multi_scale:
+          loss_scales:
+          - 0
+          - 1
+          - 2
+          - 4
+          - 8
+          - 16
+          - 32
+          loss_type: dice
+        name: multi_scale
+        single_scale:
+          loss_type: cross-entropy
+        weight: 1.0
+    regularization:
+      energy_type: bending
+      weight: 0.5
+  model:
+    backbone: local
+    local:
+      extract_levels:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      num_channel_initial: 1
+    method: ddf
+    unet:
+      concat_skip: false
+      depth: 2
+      num_channel_initial: 1
+      pooling: true
+  optimizer:
+    adam:
+      learning_rate: 1.0e-05
+    name: adam
+    rms:
+      learning_rate: 0.0001
+      momentum: 0.9
+    sgd:
+      learning_rate: 0.0001
+      momentum: 0.9
+  preprocess:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1
+  save_period: 2

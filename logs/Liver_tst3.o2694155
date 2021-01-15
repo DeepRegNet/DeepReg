@@ -1,0 +1,262 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+Enough GPUs available.
+Allocating card 0
+ernie.local
+Thu 14 Jan 17:46:27 GMT 2021
+2021-01-14 17:47:12.372550: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+WARNING:root:Log directory logs/test exists already.
+2021-01-14 17:48:44.894852: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcuda.so.1
+2021-01-14 17:48:44.938976: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:5e:00.0 name: GeForce RTX 2080 computeCapability: 7.5
+coreClock: 1.71GHz coreCount: 46 deviceMemorySize: 7.79GiB deviceMemoryBandwidth: 417.23GiB/s
+2021-01-14 17:48:44.939011: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-14 17:48:45.779371: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-01-14 17:48:46.181046: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-01-14 17:48:46.631949: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-01-14 17:48:48.287242: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-01-14 17:48:49.053194: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-01-14 17:48:52.446013: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-01-14 17:48:52.448733: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-01-14 17:48:52.511263: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-01-14 17:48:52.917764: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 3600000000 Hz
+2021-01-14 17:48:52.918804: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x4e17110 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-01-14 17:48:52.918852: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-01-14 17:48:53.072430: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x4e19c90 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-01-14 17:48:53.072494: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): GeForce RTX 2080, Compute Capability 7.5
+2021-01-14 17:48:53.189481: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:5e:00.0 name: GeForce RTX 2080 computeCapability: 7.5
+coreClock: 1.71GHz coreCount: 46 deviceMemorySize: 7.79GiB deviceMemoryBandwidth: 417.23GiB/s
+2021-01-14 17:48:53.189553: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-14 17:48:53.189597: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-01-14 17:48:53.189622: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-01-14 17:48:53.189646: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-01-14 17:48:53.189669: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-01-14 17:48:53.189692: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-01-14 17:48:53.189722: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-01-14 17:48:53.191943: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-01-14 17:48:53.202902: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-14 17:49:07.822890: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-01-14 17:49:07.823036: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263]      0 
+2021-01-14 17:49:07.823046: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1276] 0:   N 
+2021-01-14 17:49:07.824593: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 7260 MB memory) -> physical GPU (device: 0, name: GeForce RTX 2080, pci bus id: 0000:5e:00.0, compute capability: 7.5)
+2021-01-14 17:49:12.512371: I tensorflow/core/profiler/lib/profiler_session.cc:164] Profiler session started.
+2021-01-14 17:49:12.512419: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1391] Profiler found 1 GPUs
+2021-01-14 17:49:12.513539: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcupti.so.10.1'; dlerror: libcupti.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:/share/apps/python-3.7.2-shared/lib:/opt/gridengine/lib/lx-amd64
+2021-01-14 17:49:12.530499: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcupti.so
+2021-01-14 17:49:12.713398: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1513] CUPTI activity buffer flushed
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+2021-01-14 17:50:21.673542: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:172] Filling up shuffle buffer (this may take a while): 1 of 2
+2021-01-14 17:50:41.615584: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:221] Shuffle buffer filled.
+2021-01-14 17:51:11.740488: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-01-14 17:51:26.993752: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+Epoch 1/2
+ 1/32 [..............................] - ETA: 0s - loss: -0.0559 - loss/regularization: 0.0000e+00 - loss/weighted_regularization: 0.0000e+00 - loss/image_dissimilarity: -0.5585 - loss/weighted_image_dissimilarity: -0.05592021-01-14 17:51:33.409617: I tensorflow/core/profiler/lib/profiler_session.cc:164] Profiler session started.
+WARNING:tensorflow:From /home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/summary_ops_v2.py:1277: stop (from tensorflow.python.eager.profiler) is deprecated and will be removed after 2020-07-01.
+Instructions for updating:
+use `tf.profiler.experimental.stop` instead.
+WARNING:tensorflow:From /home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/summary_ops_v2.py:1277: stop (from tensorflow.python.eager.profiler) is deprecated and will be removed after 2020-07-01.
+Instructions for updating:
+use `tf.profiler.experimental.stop` instead.
+2021-01-14 17:51:58.325023: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1513] CUPTI activity buffer flushed
+2021-01-14 17:51:58.357652: I tensorflow/core/profiler/internal/gpu/device_tracer.cc:223]  GpuTracer has collected 2403 callback api events and 2403 activity events. 
+2021-01-14 17:51:58.548882: I tensorflow/core/profiler/rpc/client/save_profile.cc:176] Creating directory: logs/test/train/plugins/profile/2021_01_14_17_51_58
+2021-01-14 17:51:58.609144: I tensorflow/core/profiler/rpc/client/save_profile.cc:182] Dumped gzipped tool data for trace.json.gz to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.trace.json.gz
+2021-01-14 17:51:58.687679: I tensorflow/core/profiler/rpc/client/save_profile.cc:176] Creating directory: logs/test/train/plugins/profile/2021_01_14_17_51_58
+2021-01-14 17:51:58.693987: I tensorflow/core/profiler/rpc/client/save_profile.cc:182] Dumped gzipped tool data for memory_profile.json.gz to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.memory_profile.json.gz
+2021-01-14 17:51:58.710262: I tensorflow/python/profiler/internal/profiler_wrapper.cc:111] Creating directory: logs/test/train/plugins/profile/2021_01_14_17_51_58Dumped tool data for xplane.pb to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.xplane.pb
+Dumped tool data for overview_page.pb to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.overview_page.pb
+Dumped tool data for input_pipeline.pb to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.input_pipeline.pb
+Dumped tool data for tensorflow_stats.pb to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.tensorflow_stats.pb
+Dumped tool data for kernel_stats.pb to logs/test/train/plugins/profile/2021_01_14_17_51_58/ernie.local.kernel_stats.pb
+
+ 2/32 [>.............................] - ETA: 6:19 - loss: -0.0550 - loss/regularization: 5.7188e-09 - loss/weighted_regularization: 2.8594e-09 - loss/image_dissimilarity: -0.5503 - loss/weighted_image_dissimilarity: -0.0550 3/32 [=>............................] - ETA: 9:44 - loss: -0.0527 - loss/regularization: 2.0802e-08 - loss/weighted_regularization: 1.0401e-08 - loss/image_dissimilarity: -0.5266 - loss/weighted_image_dissimilarity: -0.0527 4/32 [==>...........................] - ETA: 10:40 - loss: -0.0558 - loss/regularization: 3.9976e-08 - loss/weighted_regularization: 1.9988e-08 - loss/image_dissimilarity: -0.5577 - loss/weighted_image_dissimilarity: -0.0558 5/32 [===>..........................] - ETA: 13:45 - loss: -0.0555 - loss/regularization: 7.0928e-08 - loss/weighted_regularization: 3.5464e-08 - loss/image_dissimilarity: -0.5553 - loss/weighted_image_dissimilarity: -0.0555 6/32 [====>.........................] - ETA: 17:18 - loss: -0.0585 - loss/regularization: 1.0407e-07 - loss/weighted_regularization: 5.2035e-08 - loss/image_dissimilarity: -0.5850 - loss/weighted_image_dissimilarity: -0.0585 7/32 [=====>........................] - ETA: 17:29 - loss: -0.0576 - loss/regularization: 1.4484e-07 - loss/weighted_regularization: 7.2421e-08 - loss/image_dissimilarity: -0.5759 - loss/weighted_image_dissimilarity: -0.0576 8/32 [======>.......................] - ETA: 18:50 - loss: -0.0571 - loss/regularization: 1.9292e-07 - loss/weighted_regularization: 9.6460e-08 - loss/image_dissimilarity: -0.5710 - loss/weighted_image_dissimilarity: -0.0571 9/32 [=======>......................] - ETA: 18:22 - loss: -0.0565 - loss/regularization: 2.4965e-07 - loss/weighted_regularization: 1.2482e-07 - loss/image_dissimilarity: -0.5647 - loss/weighted_image_dissimilarity: -0.056510/32 [========>.....................] - ETA: 18:53 - loss: -0.0560 - loss/regularization: 3.0830e-07 - loss/weighted_regularization: 1.5415e-07 - loss/image_dissimilarity: -0.5604 - loss/weighted_image_dissimilarity: -0.056011/32 [=========>....................] - ETA: 18:06 - loss: -0.0566 - loss/regularization: 3.7875e-07 - loss/weighted_regularization: 1.8938e-07 - loss/image_dissimilarity: -0.5663 - loss/weighted_image_dissimilarity: -0.056612/32 [==========>...................] - ETA: 16:46 - loss: -0.0569 - loss/regularization: 4.4627e-07 - loss/weighted_regularization: 2.2314e-07 - loss/image_dissimilarity: -0.5695 - loss/weighted_image_dissimilarity: -0.056913/32 [===========>..................] - ETA: 16:45 - loss: -0.0579 - loss/regularization: 5.2580e-07 - loss/weighted_regularization: 2.6290e-07 - loss/image_dissimilarity: -0.5787 - loss/weighted_image_dissimilarity: -0.057914/32 [============>.................] - ETA: 16:05 - loss: -0.0583 - loss/regularization: 6.1583e-07 - loss/weighted_regularization: 3.0792e-07 - loss/image_dissimilarity: -0.5832 - loss/weighted_image_dissimilarity: -0.058315/32 [=============>................] - ETA: 15:38 - loss: -0.0584 - loss/regularization: 7.1313e-07 - loss/weighted_regularization: 3.5656e-07 - loss/image_dissimilarity: -0.5836 - loss/weighted_image_dissimilarity: -0.058416/32 [==============>...............] - ETA: 14:42 - loss: -0.0582 - loss/regularization: 7.9872e-07 - loss/weighted_regularization: 3.9936e-07 - loss/image_dissimilarity: -0.5819 - loss/weighted_image_dissimilarity: -0.058217/32 [==============>...............] - ETA: 13:40 - loss: -0.0586 - loss/regularization: 9.1445e-07 - loss/weighted_regularization: 4.5723e-07 - loss/image_dissimilarity: -0.5859 - loss/weighted_image_dissimilarity: -0.058618/32 [===============>..............] - ETA: 12:47 - loss: -0.0587 - loss/regularization: 1.0315e-06 - loss/weighted_regularization: 5.1575e-07 - loss/image_dissimilarity: -0.5871 - loss/weighted_image_dissimilarity: -0.058719/32 [================>.............] - ETA: 11:42 - loss: -0.0585 - loss/regularization: 1.1844e-06 - loss/weighted_regularization: 5.9220e-07 - loss/image_dissimilarity: -0.5853 - loss/weighted_image_dissimilarity: -0.058520/32 [=================>............] - ETA: 11:00 - loss: -0.0583 - loss/regularization: 1.3307e-06 - loss/weighted_regularization: 6.6537e-07 - loss/image_dissimilarity: -0.5831 - loss/weighted_image_dissimilarity: -0.058321/32 [==================>...........] - ETA: 9:59 - loss: -0.0578 - loss/regularization: 1.4596e-06 - loss/weighted_regularization: 7.2979e-07 - loss/image_dissimilarity: -0.5784 - loss/weighted_image_dissimilarity: -0.0578 22/32 [===================>..........] - ETA: 9:13 - loss: -0.0573 - loss/regularization: 1.6115e-06 - loss/weighted_regularization: 8.0576e-07 - loss/image_dissimilarity: -0.5731 - loss/weighted_image_dissimilarity: -0.057323/32 [====================>.........] - ETA: 8:10 - loss: -0.0570 - loss/regularization: 1.7524e-06 - loss/weighted_regularization: 8.7621e-07 - loss/image_dissimilarity: -0.5700 - loss/weighted_image_dissimilarity: -0.057024/32 [=====================>........] - ETA: 7:22 - loss: -0.0571 - loss/regularization: 1.9071e-06 - loss/weighted_regularization: 9.5357e-07 - loss/image_dissimilarity: -0.5707 - loss/weighted_image_dissimilarity: -0.057125/32 [======================>.......] - ETA: 6:28 - loss: -0.0569 - loss/regularization: 2.0880e-06 - loss/weighted_regularization: 1.0440e-06 - loss/image_dissimilarity: -0.5687 - loss/weighted_image_dissimilarity: -0.056926/32 [=======================>......] - ETA: 5:33 - loss: -0.0568 - loss/regularization: 2.2171e-06 - loss/weighted_regularization: 1.1086e-06 - loss/image_dissimilarity: -0.5684 - loss/weighted_image_dissimilarity: -0.056827/32 [========================>.....] - ETA: 4:44 - loss: -0.0571 - loss/regularization: 2.4038e-06 - loss/weighted_regularization: 1.2019e-06 - loss/image_dissimilarity: -0.5707 - loss/weighted_image_dissimilarity: -0.05712021-01-14 18:17:57.454371: W tensorflow/core/framework/op_kernel.cc:1755] Unknown: error: Error -3 while decompressing data: invalid code lengths set
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 280, in data_generator
+    fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/numpy/core/_asarray.py", line 85, in asarray
+    return array(a, dtype, copy=False, order=order)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 391, in __array__
+    arr = self._get_scaled(dtype=dtype, slicer=())
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 358, in _get_scaled
+    scaled = apply_read_scaling(self._get_unscaled(slicer=slicer), scl_slope, scl_inter)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 337, in _get_unscaled
+    mmap=self._mmap)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/volumeutils.py", line 522, in array_from_file
+    n_read = infile.readinto(data_bytes)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 276, in read
+    return self._buffer.read(size)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/_compression.py", line 68, in readinto
+    data = self.read(len(byte_view))
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 471, in read
+    uncompress = self._decompressor.decompress(buf, size)
+
+zlib.error: Error -3 while decompressing data: invalid code lengths set
+
+
+Traceback (most recent call last):
+  File "/home/bryanko/venvs/deepreg/bin/deepreg_train", line 33, in <module>
+    sys.exit(load_entry_point('deepreg', 'console_scripts', 'deepreg_train')())
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 256, in main
+    max_epochs=args.max_epochs,
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 177, in train
+    callbacks=callbacks,
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/keras/engine/training.py", line 108, in _method_wrapper
+    return method(self, *args, **kwargs)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/keras/engine/training.py", line 1098, in fit
+    tmp_logs = train_function(iterator)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 780, in __call__
+    result = self._call(*args, **kwds)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 807, in _call
+    return self._stateless_fn(*args, **kwds)  # pylint: disable=not-callable
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 2829, in __call__
+    return graph_function._filtered_call(args, kwargs)  # pylint: disable=protected-access
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1848, in _filtered_call
+    cancellation_manager=cancellation_manager)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1924, in _call_flat
+    ctx, args, cancellation_manager=cancellation_manager))
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 550, in call
+    ctx=ctx)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/execute.py", line 60, in quick_execute
+    inputs, attrs, num_outputs)
+tensorflow.python.framework.errors_impl.UnknownError: 2 root error(s) found.
+  (0) Unknown:  error: Error -3 while decompressing data: invalid code lengths set
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 280, in data_generator
+    fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/numpy/core/_asarray.py", line 85, in asarray
+    return array(a, dtype, copy=False, order=order)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 391, in __array__
+    arr = self._get_scaled(dtype=dtype, slicer=())
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 358, in _get_scaled
+    scaled = apply_read_scaling(self._get_unscaled(slicer=slicer), scl_slope, scl_inter)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 337, in _get_unscaled
+    mmap=self._mmap)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/volumeutils.py", line 522, in array_from_file
+    n_read = infile.readinto(data_bytes)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 276, in read
+    return self._buffer.read(size)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/_compression.py", line 68, in readinto
+    data = self.read(len(byte_view))
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 471, in read
+    uncompress = self._decompressor.decompress(buf, size)
+
+zlib.error: Error -3 while decompressing data: invalid code lengths set
+
+
+	 [[{{node PyFunc}}]]
+	 [[MultiDeviceIteratorGetNextFromShard]]
+	 [[RemoteCall]]
+	 [[IteratorGetNext]]
+	 [[div_no_nan_1/ReadVariableOp_1/_32]]
+  (1) Unknown:  error: Error -3 while decompressing data: invalid code lengths set
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 280, in data_generator
+    fixed_image = self.loader_fixed_image.get_data(index=fixed_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/numpy/core/_asarray.py", line 85, in asarray
+    return array(a, dtype, copy=False, order=order)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 391, in __array__
+    arr = self._get_scaled(dtype=dtype, slicer=())
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 358, in _get_scaled
+    scaled = apply_read_scaling(self._get_unscaled(slicer=slicer), scl_slope, scl_inter)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/arrayproxy.py", line 337, in _get_unscaled
+    mmap=self._mmap)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/volumeutils.py", line 522, in array_from_file
+    n_read = infile.readinto(data_bytes)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 276, in read
+    return self._buffer.read(size)
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/_compression.py", line 68, in readinto
+    data = self.read(len(byte_view))
+
+  File "/share/apps/python-3.7.2-shared/lib/python3.7/gzip.py", line 471, in read
+    uncompress = self._decompressor.decompress(buf, size)
+
+zlib.error: Error -3 while decompressing data: invalid code lengths set
+
+
+	 [[{{node PyFunc}}]]
+	 [[MultiDeviceIteratorGetNextFromShard]]
+	 [[RemoteCall]]
+	 [[IteratorGetNext]]
+0 successful operations.
+0 derived errors ignored. [Op:__inference_train_function_19649]
+
+Function call stack:
+train_function -> train_function
+
+GPU Epilog Script v0.30

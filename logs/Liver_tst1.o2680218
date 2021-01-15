@@ -1,0 +1,5 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+ls: cannot access /var/gpu/*.free: No such file or directory
+Not enough GPUs available on gonzo-605-3.local, rescheduling job...
+GPU Epilog Script v0.30
