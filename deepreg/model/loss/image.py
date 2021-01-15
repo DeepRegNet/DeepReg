@@ -382,8 +382,8 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         """
 
         axis = [a for a in range(1, len(y_true.shape))]
-        mu_pred = tf.reduce_mean(y_pred, axis=axis)
-        mu_true = tf.reduce_mean(y_true, axis=axis)
+        mu_pred = tf.reduce_mean(y_pred, axis=axis, keepdims=True)
+        mu_true = tf.reduce_mean(y_true, axis=axis, keepdims=True)
         var_pred = tf.math.reduce_variance(y_pred, axis=axis)
         var_true = tf.math.reduce_variance(y_true, axis=axis)
         numerator = tf.abs(

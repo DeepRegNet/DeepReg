@@ -124,18 +124,18 @@ class TestGlobalNormalizedCrossCorrelation:
     @pytest.mark.parametrize(
         "y_true,y_pred,shape,expected",
         [
-            (0.6, 0.3, (3,), 1),
             (0.6, 0.3, (3, 3), 1),
-            (0.6, -0.3, (3, 3), 1),
             (0.6, 0.3, (3, 3, 3), 1),
+            (0.6, -0.3, (3, 3, 3), 1),
+            (0.6, 0.3, (3, 3, 3, 3), 1),
         ],
     )
     def test_output(self, y_true, y_pred, shape, expected):
 
-        y_true = y_true * np.zeros(shape=shape)
+        y_true = y_true * np.ones(shape=shape)
         y_pred = y_pred * np.ones(shape=shape)
 
-        pad_width = tuple([(1, 1)] * len(shape))
+        pad_width = tuple([(0, 0)] + [(1, 1)] * (len(shape) - 1))
         y_true = np.pad(y_true, pad_width=pad_width)
         y_pred = np.pad(y_pred, pad_width=pad_width)
 
@@ -144,7 +144,6 @@ class TestGlobalNormalizedCrossCorrelation:
             y_pred,
         )
 
-        total_shape = tuple([s + sum(p) for s, p in zip(shape, pad_width)])
-        expected = expected * np.ones(shape=(total_shape[0],))
+        expected = expected * np.ones(shape=(shape[0],))
 
         assert is_equal_tf(got, expected)
