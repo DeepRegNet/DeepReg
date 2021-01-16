@@ -310,7 +310,8 @@ train:
       weight: 0.1
 ```
 
-The following are the default image losses:
+The following are the default image losses. Additional arguments should be added at the
+same indent level:
 
 - `lncc`: Calls a local normalized cross-correlation type loss. Requires the following
   arguments:
@@ -358,7 +359,8 @@ train:
       scales: [1, 2]
 ```
 
-The default losses require the following arguments:
+The default losses require the following arguments. Additional arguments should be added
+at the same indent level:
 
 - `dice`: Calls a Dice loss on the labels, requires the following arguments:
 
