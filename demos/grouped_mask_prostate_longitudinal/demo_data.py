@@ -111,7 +111,7 @@ if os.path.exists(MODEL_PATH):
 os.mkdir(MODEL_PATH)
 
 ZIP_PATH = "grouped_mask_prostate_longitudinal_1"
-ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mask_prostate_longitudinal/20210110.zip"
+ORIGIN = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/demo/grouped_mask_prostate_longitudinal/20210110.zip"
 
 zip_file = os.path.join(MODEL_PATH, ZIP_PATH + ".zip")
 get_file(os.path.abspath(zip_file), ORIGIN)
