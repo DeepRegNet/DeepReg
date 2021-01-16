@@ -264,7 +264,8 @@ The GlobalNet encodes the image and uses the bottleneck layer to output an affin
 transformation using a FCN.
 
 - `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
-  be >=0). Eg. [1, 2, 3, 5] will extract information at those levels (but not 4).
+  be >=0). WARNING: this argument will be deprecated in a future release as it is not
+  used by the network.
 
 ```yaml
 train:
