@@ -338,8 +338,9 @@ following two arguments are global to all provided losses:
 
 - `weight`: float type, weight of individual loss element in total loss function.
 - `scales`: list, or None. Optional argument. If you do not pass this argument (or pass
-  the list [1]), the loss is calculated at a single scale. If you past a list of
-  length > 1, a multi-scale loss will be used.
+  the list [0], the value `null` or an empty value pair), the loss is calculated at a
+  single scale. If you past a list of length > 1, a multi-scale loss will be used.
+  WARNING: an empty list ([]) will raise an error.
 - `kernel`: str, "gaussian" or "cauchy", default "gaussian". Optional argument. Defines
   the kernel to use for multi-scale losses.
 
