@@ -37,6 +37,7 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed a bug due to typo when image loss weight is zero, label loss is not applied.
 - Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
