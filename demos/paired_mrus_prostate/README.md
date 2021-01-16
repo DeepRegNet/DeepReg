@@ -3,6 +3,9 @@
 > **Note**: Please read the
 > [DeepReg Demo Disclaimer](introduction.html#demo-disclaimer).
 
+> **Warning**:
+> [This demo ought to be improved in the future.](https://github.com/DeepRegNet/DeepReg/issues/621).
+
 [Source Code](https://github.com/DeepRegNet/DeepReg/tree/main/demos/paired_mrus_brain)
 
 This demo uses DeepReg to re-implement the algorithms described in
