@@ -196,7 +196,7 @@ def add_label_loss(
     if fixed_label is None:
         # TODO will refactor the way building models
         return model  # pragma: no cover
-    if loss_config["image"]["weight"] <= 0:
+    if loss_config["label"]["weight"] <= 0:
         # TODO will refactor the way building models
         return model  # pragma: no cover
     config = loss_config["label"].copy()
