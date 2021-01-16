@@ -373,8 +373,6 @@ The default losses require the following arguments:
   - `neg_weight`: float, default=0.0. Defines the weight of the background class (0)
     versus foreground class, which is weighted as (1-neg_weight).
 
-- `mean-squared`:
-- `generalised_dice`:
 - `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
 0.5.
 <!-- - `neg_weight`: float, default=0.0. Defines the weight of the background class (0) versus foreground class, which is weighted as (1-neg_weight). -->
