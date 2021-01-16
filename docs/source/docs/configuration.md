@@ -206,19 +206,13 @@ train:
   method: "ddf" # One of ddf, dvf, conditional
 ```
 
-### Name - required
+### Backbone - required
 
-The `name` section defines the backbone network for the registration. This section has
-several subsections. The `num_channel_initial` argumnt is global to all backbone
-methods, and there are specific arguments for some of the backbones to define their
-implementation.
-
-#### Global parameters for train
-
-The `name` is used to define the network. It should be string type, one of "unet",
-"local" or "global", to define a UNet, LocalNet or GlobalNet backbone, respectively.
-With Registry functionalities, you can also define your own networks to pass to DeepReg
-train via config.
+The `backbone` subsection is used to define the network, with all the network specific
+arguments under the same indent. The first argument should be the argument `name`, which
+should be string type, one of "unet", "local" or "global", to define a UNet, LocalNet or
+GlobalNet backbone, respectively. With Registry functionalities, you can also define
+your own networks to pass to DeepReg train via config.
 
 The `num_channel_initial` is used to define the number of initial channels for the
 network, and should be int type.
@@ -226,7 +220,8 @@ network, and should be int type.
 ```yaml
 train:
   method: "ddf" # One of ddf, dvf, conditional
-  name: "unet" # One of unet, local, global: networks currently supported by DeepReg
+  backbone:
+    name: "unet" # One of unet, local, global: networks currently supported by DeepReg
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
 ```
 
@@ -243,8 +238,8 @@ The UNet model requires several additional arguments to define it's structure:
 ```yaml
 train:
   method: "ddf" # One of ddf, dvf, conditional
-  name: "unet"
-    name:  # One of unet, local, global
+  backbone:
+    name: "unet" # One of unet, local, global
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     depth: 3
     pooling: false
@@ -277,23 +272,27 @@ train:
 This section defines the loss in training.
 
 The losses in DeepReg are defined depending on the type of network to be built, and can
-be split into two sections: dissimilarity loss (between moving and fixed tensors), and
-regularization losses (on the DDFs predicted).
+be split into three sections: imag and label losses (between moving and fixed tensors),
+and regularization losses (on the DDFs predicted).
 
 DeepReg uses `tf.keras.Model` `add_loss()` in the Registry method to add losses to the
 model, which provides some flexibility in configuration.
 
 Currently, DeepReg offers conditional, ddf/dvf and affine registration pre-built models.
-The models are configured to add the losses as follows:
+Traditionally, models have been configured with the following losses:
 
 - Conditional: label loss.
 - DDF/DVF: ddf loss, image loss, label loss.
 - Affine: ddf loss, image loss, label loss.
 
-Therefore, currently, the config file requires all the appropriate fields to be passed
-such that the model can be built accordingly.
+The above sections are necessary to build a model correctly. Not passing all sections as
+defined above may raise errors. Currently you can call one loss per field eg. one label
+loss type, one image loss type and one ddf/dvf loss type.
 
 #### Image
+
+The image loss calculates dissimilarity between image tensors passed through the
+network.
 
 - `weight`: float type, weight of individual loss element in total loss function.
 - `name`: string type, one of "lncc", "ssd" or "gmi".
@@ -306,26 +305,42 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
-    dissimilarity:
-      image:
-        name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
-        weight: 0.1
+    image:
+      name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      weight: 0.1
 ```
+
+The following are the default image losses:
+
+- `lncc`: Calls a local normalized cross-correlation type loss. Requires the following
+  arguments:
+
+  - `kernel_size`: int, optional, default=9. Kernel size or kernel sigma for
+    kernel_type="gaussian".
+  - `kernel_type`: str, optional, default="rectangular". One of "rectangular",
+    "triangular" or "gaussian"
+
+- `ssd`: Calls a sum of squared differences loss. No additional arguments required.
+
+- `gmi`: Calls a global mutual informatin loss. Requires the following arguments:
+  - `num_bins`: int, optional, default=23. Number of bins for intensity.
+  - `sigma_ratio`: float, optional, default=0.5. A hyper parameter for the gaussian
+    function.
 
 #### Label
 
+The label loss calculates dissimilarity between labels.
+
+All pre-implemented losses can be used as multi-scale or single scale losses.
+Multi-scale losses require a kernel Additionally, all losses can be weighted, so the
+following two arguments are global to all provided losses:
+
 - `weight`: float type, weight of individual loss element in total loss function.
-- `name`: string type, "multi_scale" or "single_scale", defines the resolution of
-  kernels to use with the loss.
-  - The same string should be passed as a field to the dictionary, with the following
-    additional arguments under each field:
-  - `multi_scale`:
-    - `loss_type`: string type, name of loss to use. Options currently include "dice",
-      "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
-    - `loss_scales`: list of ints, what scales to output the loss
-  - `single_scale`:
-    - `loss_type`: name of loss to use. Options currently include "dice",
-      "cross-entropy", "mean-squared", "generalised_dice" and "jaccard".
+- `scales`: list, or None. Optional argument. If you do not pass this argument (or pass
+  the list [1]), the loss is calculated at a single scale. If you past a list of
+  length > 1, a multi-scale loss will be used.
+- `kernel`: str, "gaussian" or "cauchy", default "gaussian". Optional argument. Defines
+  the kernel to use for multi-scale losses.
 
 EG.
 
@@ -337,14 +352,32 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
-    dissimilarity:
-      label:
-        weight: 1.0
-        name: "multi_scale" # "multi_scale" or "single_scale"
-        multi_scale:
-          loss_type: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
-          loss_scales: [0, 1, 2, 4, 8, 16, 32]
+    label:
+      weight: 1.0
+      name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+      scales: [1, 2]
 ```
+
+The default losses require the following arguments:
+
+- `dice`: Calls a Dice loss on the labels, requires the following arguments:
+
+  - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
+  - `neg_weight`: float, default=0.0. Defines the weight of the background class (0)
+    versus foreground class, which is weighted as (1-neg_weight).
+
+- `cross-entropy`: Calls a cross-entropy loss between labels, requires the following
+  arguments:
+
+  - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
+  - `neg_weight`: float, default=0.0. Defines the weight of the background class (0)
+    versus foreground class, which is weighted as (1-neg_weight).
+
+- `mean-squared`:
+- `generalised_dice`:
+- `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
+0.5.
+<!-- - `neg_weight`: float, default=0.0. Defines the weight of the background class (0) versus foreground class, which is weighted as (1-neg_weight). -->
 
 #### Regularization
 
@@ -352,8 +385,12 @@ The regularization section configures the losses for the DDF. To instantiate thi
 of the loss, pass "regularization" into the config file as a field.
 
 - `weight`: float type, weight of the regularization loss.
-- `energy_type`: string type, the type of deformation energy to compute. Options include
-  "bending", "gradient-l1", and "gradient-l2"
+- `name`: string type, the type of deformation energy to compute. Options include
+  "bending", "gradient"
+
+If the `gradient` loss is used, another optional argument can be passed at the same
+indent level: - `l1`: bool, optional, default is false. Indicates whether to calculate
+the L1 (true) or L2 (false) loss by modifying the bool argument.
 
 EG.
 
@@ -367,7 +404,43 @@ train:
   loss:
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+      name: "bending" # options include "bending", "gradient"
+```
+
+or
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "gradient" # options include "bending", "gradient"
+      l1: false
+```
+
+#### Multiple Losses
+
+Add multiple losses by putting all the fields in the same file.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    image:
+      name: "gmi"
+      weight: 1.0
+    label:
+      weight: 1.0
+      name: "dice"
 ```
 
 ### Optimizer - required
@@ -402,6 +475,9 @@ train:
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
     extract_levels: [0, 1, 2]
   loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
   optimizer:
     name: "adam"
     adam:
@@ -419,7 +495,7 @@ train:
   loss:
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+      name: "bending" # options include "bending", "gradient"
   optimizer:
     name: "sgd"
     sgd:
@@ -447,7 +523,7 @@ train:
   loss:
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+      name: "bending" # options include "bending", "gradient"
   optimizer:
     name: "sgd"
     sgd:
@@ -473,7 +549,7 @@ train:
   loss:
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+      name: "bending" # options include "bending", "gradient"
   optimizer:
     name: "sgd"
     sgd:
@@ -501,7 +577,7 @@ train:
   loss:
     regularization:
       weight: 0.5 # weight of regularization loss
-      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+      name: "bending" # options include "bending", "gradient"
   optimizer:
     name: "sgd"
     sgd:
