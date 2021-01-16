@@ -4,8 +4,7 @@ Besides the arguments provided to the command line tools, detailed training and
 prediction configuration is specified in a `yaml` file. The configuration file contains
 two sections, `dataset` and `train`. Within `dataset` one specifies the data file
 formas, sizes, as well as the data loader to use. The `train` section specifies
-parameters related to the neural network. `yaml` files are used as they can be easily
-generated from basic Python dictionary structures.
+parameters related to the neural network.
 
 ## Dataset section
 
@@ -61,8 +60,8 @@ details.
 
 ### Labeled key - Required
 
-The `labeled` key indicates whether labels should be used during training. A Boolean is
-used to indicate the usage of labels:
+The `labeled` key indicates whether segmentation labels should be used during training.
+A Boolean is used to indicate the usage of labels:
 
 ```yaml
 dataset:
@@ -73,6 +72,9 @@ dataset:
   format: "nifti"
   labeled: true
 ```
+
+If the value passed is false, the labels will not be used in training even when they are
+available in the associated directories.
 
 ### Type key - Required
 
@@ -94,16 +96,18 @@ dataset:
 #### Data loader dependent keys
 
 Depending on which string is passed to the `type` key, DeepReg will initialise a
-different data loader instance with different sampling strategies. These are reviewed in
-depth in the [dataset loader configuration](dataset_loader.html) documentation. Here we
-outline the arguments necessary to configure the different dataloaders.
+different data loader instance with different sampling strategies. These are described
+in depth in the [dataset loader configuration](dataset_loader.html) documentation. Here
+we outline the arguments necessary to configure the different dataloaders.
 
 ###### Sample_label - Required
 
 In the case that we have more than one label per image, we need to inform the loader
 which one to use. We can use the `sample_label` argument to indicate which method to
-use. Pass one of "sample", for random sampling, or "all" to use all the available
-labels:
+use.
+
+- `all`:
+- `sample`
 
 ```yaml
 dataset:
@@ -121,6 +125,9 @@ In the case the `labeled` argument is false, the sample_label is unused, but sti
 be passed. Additionally, if the tensors in the files only have one label, regardless of
 the `sample_label` argument, the data loader will only pass the one label to the
 network.
+
+For more details please refer to
+[Read The Docs](https://deepreg.readthedocs.io/en/latest/docs/exp_label_sampling.html).
 
 ##### Paired
 
@@ -250,8 +257,8 @@ train:
 #### Local and GlobalNet
 
 The LocalNet has an encoder-decoder structure, and extracts information from tensors at
-certain levels. We can define which levels to extract info from with the
-`extract_levels` argument.
+one or multiple resolution levels. We can define which levels to extract info from with
+the `extract_levels` argument.
 
 The GlobalNet encodes the image and uses the bottleneck layer to output an affine
 transformation using a FCN.
@@ -273,7 +280,7 @@ train:
 This section defines the loss in training.
 
 The losses in DeepReg are defined depending on the type of network to be built, and can
-be split into three sections: imag and label losses (between moving and fixed tensors),
+be split into three sections: image and label losses (between moving and fixed tensors),
 and regularization losses (on the DDFs predicted).
 
 DeepReg uses `tf.keras.Model` `add_loss()` in the Registry method to add losses to the
@@ -290,10 +297,14 @@ The above sections are necessary to build a model correctly. Not passing all sec
 defined above may raise errors. Currently you can call one loss per field eg. one label
 loss type, one image loss type and one ddf/dvf loss type.
 
+However, setting the weight to 0 will effectively mean the model ignores the loss.
+Additionally, weights on label loss will be ignored if the `labeled` key is false or if
+segmentation labels are unavailable.
+
 #### Image
 
-The image loss calculates dissimilarity between image tensors passed through the
-network.
+The image loss calculates dissimilarity between warped image tensors and fixed image
+tensors.
 
 - `weight`: float type, weight of individual loss element in total loss function.
 - `name`: string type, one of "lncc", "ssd" or "gmi".
@@ -311,7 +322,7 @@ train:
       weight: 0.1
 ```
 
-The following are the default image losses. Additional arguments should be added at the
+The following are the DeepReg image losses. Additional arguments should be added at the
 same indent level:
 
 - `lncc`: Calls a local normalized cross-correlation type loss. Requires the following
@@ -326,21 +337,21 @@ same indent level:
 
 - `gmi`: Calls a global mutual informatin loss. Requires the following arguments:
   - `num_bins`: int, optional, default=23. Number of bins for intensity.
-  - `sigma_ratio`: float, optional, default=0.5. A hyper parameter for the gaussian
-    function.
+  - `sigma_ratio`: float, optional, default=0.5. A hyperparameter for the Gaussian
+    kernel density estimation.
 
 #### Label
 
 The label loss calculates dissimilarity between labels.
 
-All pre-implemented losses can be used as multi-scale or single scale losses.
+All default DeepReg losses can be used as multi-scale or single scale losses.
 Multi-scale losses require a kernel Additionally, all losses can be weighted, so the
 following two arguments are global to all provided losses:
 
 - `weight`: float type, weight of individual loss element in total loss function.
 - `scales`: list of ints, or None. Optional argument. If you do not pass this argument
   (or pass the list [0], the value `null` or an empty value pair), the loss is
-  calculated at a single scale. If you past a list of length > 1, a multi-scale loss
+  calculated at a single scale. If you pass a list of length > 1, a multi-scale loss
   will be used. WARNING: an empty list ([]) will raise an error.
 - `kernel`: str, "gaussian" or "cauchy", default "gaussian". Optional argument. Defines
   the kernel to use for multi-scale losses.
@@ -367,19 +378,21 @@ at the same indent level:
 - `dice`: Calls a Dice loss on the labels, requires the following arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. Defines the weight of the background class (0)
-    versus foreground class, which is weighted as (1-neg_weight).
+  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
+    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
+    respectively.
 
 - `cross-entropy`: Calls a cross-entropy loss between labels, requires the following
   arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. Defines the weight of the background class (0)
-    versus foreground class, which is weighted as (1-neg_weight).
+  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
+    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
+    respectively.
 
 - `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
 0.5.
-<!-- - `neg_weight`: float, default=0.0. Defines the weight of the background class (0) versus foreground class, which is weighted as (1-neg_weight). -->
+<!-- - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight, respectively. -->
 
 #### Regularization
 
@@ -390,9 +403,9 @@ of the loss, pass "regularization" into the config file as a field.
 - `name`: string type, the type of deformation energy to compute. Options include
   "bending", "gradient"
 
-If the `gradient` loss is used, another optional argument can be passed at the same
-indent level: - `l1`: bool, optional, default is false. Indicates whether to calculate
-the L1 (true) or L2 (false) loss by modifying the bool argument.
+If the `gradient` loss is used, another argument must be passed at the same indent
+level: - `l1`: bool. Indicates whether to calculate the L1-norm (true) or L2-norm
+(false) gradient loss of the ddf.
 
 EG.
 
@@ -451,7 +464,7 @@ The optimizer can be defined by using a `name` and then passing optimizer specif
 arguments with the same name. All optimizers can use the `learning_rate` argument.
 
 - `name`: string type, is used to define the optimizer during training. One of "adam",
-  "sgd", "rms". There must be another additional field with the same name.
+  "sgd", "rms".
 
 - `adam`: If adam is passed into `name`, the `adam` field must be passed. The dictionary
   can be empty, which initalises a default
