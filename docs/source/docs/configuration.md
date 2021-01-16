@@ -2,10 +2,10 @@
 
 Besides the arguments provided to the command line tools, detailed training and
 prediction configuration is specified in a `yaml` file. The configuration file contains
-two sections, `dataset` and `train`. Within `dataset` one specifies the data types,
-sizes, as well as the data loader to use. The `train` section specifies parameters
-related to the neural network. `yaml` files are used as they can be easily generated
-from basic Python dictionary structures.
+two sections, `dataset` and `train`. Within `dataset` one specifies the data file
+formas, sizes, as well as the data loader to use. The `train` section specifies
+parameters related to the neural network. `yaml` files are used as they can be easily
+generated from basic Python dictionary structures.
 
 ## Dataset section
 
@@ -31,30 +31,31 @@ folders:
 ```yaml
 dataset:
   dir:
-    train:
+    train: # folders containing training data
       - "data/test/h5/paired/train1"
-      - "data/test/h5/paired/train2" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+      - "data/test/h5/paired/train2"
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
 ```
 
 ### Format key - Required
 
-The type of data we supply the data loaders will influence the behaviour, so we must
-specify the data type using the `format` key. Currently, DeepReg data loaders support
-nifti and h5 file types - alternate file formats will raise errors in the data loaders.
-To indicate which format to use, pass a string to this field as either "nifti" or "h5":
+The data file format we supply the data loaders will influence the behaviour, so we must
+specify the data file format using the `format` key. Currently, DeepReg data loaders
+support nifti and h5 file types - alternate file formats will raise errors in the data
+loaders. To indicate which format to use, pass a string to this field as either "nifti"
+or "h5":
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
+    train: "data/test/h5/paired/train" # folders contains training data
     valid: "data/test/h5/paired/valid" # folder contains validation data
     test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti"
 ```
 
-Depending on the data type, DeepReg will expect the images and labels to be stored in
+Depending on the data file format, DeepReg expects the images and labels to be stored in
 specific structures: check the [data loader configuration](dataset_loader.html) for more
 details.
 
@@ -76,7 +77,7 @@ dataset:
 ### Type key - Required
 
 The type of data loader used will depend on how one wants to train the network.
-Currently, DeepReg data loaders support the "paired", "unpaired" and "grouped" training
+Currently, DeepReg data loaders support the `paired`, `unpaired` and `grouped` training
 strategies. Passing a string that doesn't match any of the above would raise an error.
 The data loader type would be specified using the `type` key:
 
@@ -99,9 +100,9 @@ outline the arguments necessary to configure the different dataloaders.
 
 ###### Sample_label - Required
 
-In the case that we have more than one label per image, we need to indicate to the
-loader which one to use. We can use the `sample_label` argument to indicate which method
-to use. Pass one of "sample", for random sampling, or "all" to use all the available
+In the case that we have more than one label per image, we need to inform the loader
+which one to use. We can use the `sample_label` argument to indicate which method to
+use. Pass one of "sample", for random sampling, or "all" to use all the available
 labels:
 
 ```yaml
@@ -117,16 +118,16 @@ dataset:
 ```
 
 In the case the `labeled` argument is false, the sample_label is unused, but still must
-be passed. Additionally, if the tensors in the files only have one label, irregardles of
+be passed. Additionally, if the tensors in the files only have one label, regardless of
 the `sample_label` argument, the data loader will only pass the one label to the
 network.
 
 ##### Paired
 
-- `moving_image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the
-  3D moving image.
-- `fixed_image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the
-  3D fixed image.
+- `moving_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2,
+  dim3) of the 3D moving image.
+- `fixed_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3)
+  of the 3D fixed image.
 
 ```yaml
 dataset:
@@ -144,8 +145,8 @@ dataset:
 
 ##### Unpaired
 
-- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
-  image.
+- `image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3) of
+  the 3D image.
 
 ```yaml
 dataset:
@@ -337,10 +338,10 @@ Multi-scale losses require a kernel Additionally, all losses can be weighted, so
 following two arguments are global to all provided losses:
 
 - `weight`: float type, weight of individual loss element in total loss function.
-- `scales`: list, or None. Optional argument. If you do not pass this argument (or pass
-  the list [0], the value `null` or an empty value pair), the loss is calculated at a
-  single scale. If you past a list of length > 1, a multi-scale loss will be used.
-  WARNING: an empty list ([]) will raise an error.
+- `scales`: list of ints, or None. Optional argument. If you do not pass this argument
+  (or pass the list [0], the value `null` or an empty value pair), the loss is
+  calculated at a single scale. If you past a list of length > 1, a multi-scale loss
+  will be used. WARNING: an empty list ([]) will raise an error.
 - `kernel`: str, "gaussian" or "cauchy", default "gaussian". Optional argument. Defines
   the kernel to use for multi-scale losses.
 
