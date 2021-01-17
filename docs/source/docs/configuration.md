@@ -103,18 +103,22 @@ we outline the arguments necessary to configure the different dataloaders.
 ###### Sample_label - Required
 
 In the case that we have more than one label per image, we need to inform the loader
-which one to use. We can use the `sample_label` argument to indicate which method to
-use.
+which one to use. We can use the `sample_label` argument to indicate which method to use
+during training.
 
 - `all`: for one image that has x number of labels, the loader yields x image-label
   pairs with the same image. Occurs over all images, over one epoch.
 - `sample`: for one image that has x number of labels, the loader yields 1 image-label
   pair randomly sampled from all the labels. Occurs for all images in one epoch.
 
+During validation and testing (ie for `valid` and `test` directories), data loaders will
+be built to sample `all` the data-label pairs, regardless of the argument passed to
+`sample_label`.
+
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
+    train: "data/test/h5/paired/train" # folders contains training data
     valid: "data/test/h5/paired/valid" # folder contains validation data
     test: "data/test/h5/paired/test" # folder contains test data
   format: "nifti"
@@ -263,7 +267,7 @@ one or multiple resolution levels. We can define which levels to extract info fr
 the `extract_levels` argument.
 
 The GlobalNet encodes the image and uses the bottleneck layer to output an affine
-transformation using a FCN.
+transformation using a CNN.
 
 - `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
   be >=0). WARNING: this argument will be deprecated in a future release as it is not
