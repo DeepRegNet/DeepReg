@@ -6,10 +6,15 @@ to make them as straightforward as possible.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.1.1] - In Progress
+## [1.0.0] - In Progress
+
+Release comment: introduction of Registry funcionalities and modifications to the
+configuration files means that old configuraton files are no longer compatible with the
+updates.
 
 ### Added
 
+- Added config file docs with details on how new config works.
 - Added DDF data augmentation.
 - Added the registry for backbone models and losses.
 - Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
