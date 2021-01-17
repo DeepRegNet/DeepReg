@@ -106,8 +106,10 @@ In the case that we have more than one label per image, we need to inform the lo
 which one to use. We can use the `sample_label` argument to indicate which method to
 use.
 
-- `all`:
-- `sample`
+- `all`: for one image that has x number of labels, the loader yields x image-label
+  pairs with the same image. Occurs over all images, over one epoch.
+- `sample`: for one image that has x number of labels, the loader yields 1 image-label
+  pair randomly sampled from all the labels. Occurs for all images in one epoch.
 
 ```yaml
 dataset:
@@ -172,7 +174,7 @@ dataset:
 
 - `intra_group_prob`: float, between 0 and 1. Passing 0 would only generate inter-group
   samples, and passing 1 would only generate intra-group samples.
-- `sample_label`: method for sampling the labels "sample", "all"
+- `sample_label`: method for sampling the labels "sample", "all".
 - `intra_group_option`: str, "forward", "backward, or "unconstrained"
 - `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
   group, so one epoch has num_groups pairs of data, if false, iterate through this
