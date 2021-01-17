@@ -2,19 +2,613 @@
 
 Besides the arguments provided to the command line tools, detailed training and
 prediction configuration is specified in a `yaml` file. The configuration file contains
-two sections, `dataset` and `train`.
+two sections, `dataset` and `train`. Within `dataset` one specifies the data file
+formas, sizes, as well as the data loader to use. The `train` section specifies
+parameters related to the neural network.
 
 ## Dataset section
+
+The `dataset` section specifies the path to the data to be used during training, the
+data loader to use as well as the specific arguments to configure the data loader.
+
+### Dir key - Required
+
+The paths to the training, validation and testing data are specified under a `dir`
+dictionary key like this:
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train" # folder contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+```
+
+Multiple dataset directories can be specified, such that data are sampled across several
+folders:
+
+```yaml
+dataset:
+  dir:
+    train: # folders containing training data
+      - "data/test/h5/paired/train1"
+      - "data/test/h5/paired/train2"
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
+```
+
+### Format key - Required
+
+The data file format we supply the data loaders will influence the behaviour, so we must
+specify the data file format using the `format` key. Currently, DeepReg data loaders
+support nifti and h5 file types - alternate file formats will raise errors in the data
+loaders. To indicate which format to use, pass a string to this field as either "nifti"
+or "h5":
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+```
+
+Depending on the data file format, DeepReg expects the images and labels to be stored in
+specific structures: check the [data loader configuration](dataset_loader.html) for more
+details.
+
+### Labeled key - Required
+
+The `labeled` key indicates whether segmentation labels should be used during training.
+A Boolean is used to indicate the usage of labels:
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  labeled: true
+```
+
+If the value passed is false, the labels will not be used in training even when they are
+available in the associated directories.
+
+### Type key - Required
+
+The type of data loader used will depend on how one wants to train the network.
+Currently, DeepReg data loaders support the `paired`, `unpaired` and `grouped` training
+strategies. Passing a string that doesn't match any of the above would raise an error.
+The data loader type would be specified using the `type` key:
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
+```
+
+#### Data loader dependent keys
+
+Depending on which string is passed to the `type` key, DeepReg will initialise a
+different data loader instance with different sampling strategies. These are described
+in depth in the [dataset loader configuration](dataset_loader.html) documentation. Here
+we outline the arguments necessary to configure the different dataloaders.
+
+###### Sample_label - Required
+
+In the case that we have more than one label per image, we need to inform the loader
+which one to use. We can use the `sample_label` argument to indicate which method to use
+during training.
+
+- `all`: for one image that has x number of labels, the loader yields x image-label
+  pairs with the same image. Occurs over all images, over one epoch.
+- `sample`: for one image that has x number of labels, the loader yields 1 image-label
+  pair randomly sampled from all the labels. Occurs for all images in one epoch.
+
+During validation and testing (ie for `valid` and `test` directories), data loaders will
+be built to sample `all` the data-label pairs, regardless of the argument passed to
+`sample_label`.
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+```
+
+In the case the `labeled` argument is false, the sample_label is unused, but still must
+be passed. Additionally, if the tensors in the files only have one label, regardless of
+the `sample_label` argument, the data loader will only pass the one label to the
+network.
+
+For more details please refer to
+[Read The Docs](https://deepreg.readthedocs.io/en/latest/docs/exp_label_sampling.html).
+
+##### Paired
+
+- `moving_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2,
+  dim3) of the 3D moving image.
+- `fixed_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3)
+  of the 3D fixed image.
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  moving_image_shape: [16, 16, 3]
+  fixed_image_shape: [16, 16, 3]
+```
+
+##### Unpaired
+
+- `image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3) of
+  the 3D image.
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "unpaired" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  image_shape: [16, 16, 3]
+```
+
+##### Grouped
+
+- `intra_group_prob`: float, between 0 and 1. Passing 0 would only generate inter-group
+  samples, and passing 1 would only generate intra-group samples.
+- `sample_label`: method for sampling the labels "sample", "all".
+- `intra_group_option`: str, "forward", "backward, or "unconstrained"
+- `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
+  group, so one epoch has num_groups pairs of data, if false, iterate through this
+  loader will generate all possible pairs.
+- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
+  image.
+
+```yaml
+dataset:
+  dir:
+    train: "data/test/h5/paired/train1" # folders contains training data
+    valid: "data/test/h5/paired/valid" # folder contains validation data
+    test: "data/test/h5/paired/test" # folder contains test data
+  format: "nifti"
+  type: "grouped" # one of "paired", "unpaired" or "grouped"
+  labeled: true
+  sample_label: "sample" # one of "sample", "all" or None
+  image_shape: [16, 16, 3]
+  sample_image_in_group: true
+  intra_group_prob: 0.7
+  intra_group_option: "forward"
+```
 
 See the [dataset loader configuration](dataset_loader.html) for more details.
 
 ## Train section
 
 The `train` section defines the neural network training hyper-parameters, by specifying
-subsections, `model`, `loss`, `optimizer`, `preprocess` and other training
-hyper-parameter, including `epochs` and `save_period`. See an
-[example configuration](https://github.com/DeepRegNet/DeepReg/blob/main/config/unpaired_labeled_ddf.yaml),
-with comments on the available options in each subsection.
+subsections, `method`, `backbone`, `loss`, `optimizer`, `preprocess` and other training
+hyper-parameters, including `epochs` and `save_period`.
 
-This section is highly application-specific. More examples can be found in
-[DeepReg Demos](../demo/introduction.html).
+### Method - required
+
+The `method` argument defines the registration type. It must be a string type, one of
+"ddf", "dvf", "conditional", which are the currently supported registration methods.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+```
+
+### Backbone - required
+
+The `backbone` subsection is used to define the network, with all the network specific
+arguments under the same indent. The first argument should be the argument `name`, which
+should be string type, one of "unet", "local" or "global", to define a UNet, LocalNet or
+GlobalNet backbone, respectively. With Registry functionalities, you can also define
+your own networks to pass to DeepReg train via config.
+
+The `num_channel_initial` is used to define the number of initial channels for the
+network, and should be int type.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "unet" # One of unet, local, global: networks currently supported by DeepReg
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+```
+
+#### UNet
+
+The UNet model requires several additional arguments to define it's structure:
+
+- `depth`: int, defines the depth of the UNet from first to bottom, bottleneck layer.
+- `pooling`: Boolean, pooling method used for downsampling. True: non-parametrized
+  pooling will be used, False: conv3d will be used.
+- `concat_skip`: Boolean, concatenation method for skip layers in UNet. True:
+  concatenation of layers, False: addition is used instead.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "unet" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 3
+    pooling: false
+    concat_skip: true
+```
+
+#### Local and GlobalNet
+
+The LocalNet has an encoder-decoder structure, and extracts information from tensors at
+one or multiple resolution levels. We can define which levels to extract info from with
+the `extract_levels` argument.
+
+The GlobalNet encodes the image and uses the bottleneck layer to output an affine
+transformation using a CNN.
+
+- `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
+  be >=0). WARNING: this argument will be deprecated in a future release as it is not
+  used by the network.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+```
+
+### Loss - required
+
+This section defines the loss in training.
+
+The losses in DeepReg are defined depending on the type of network to be built, and can
+be split into three sections: image and label losses (between moving and fixed tensors),
+and regularization losses (on the DDFs predicted).
+
+DeepReg uses `tf.keras.Model` `add_loss()` in the Registry method to add losses to the
+model, which provides some flexibility in configuration.
+
+Currently, DeepReg offers conditional, ddf/dvf and affine registration pre-built models.
+Traditionally, models have been configured with the following losses:
+
+- Conditional: label loss.
+- DDF/DVF: ddf loss, image loss, label loss.
+- Affine: ddf loss, image loss, label loss.
+
+The above sections are necessary to build a model correctly. Not passing all sections as
+defined above may raise errors. Currently you can call one loss per field eg. one label
+loss type, one image loss type and one ddf/dvf loss type.
+
+However, setting the weight to 0 will effectively mean the model ignores the loss.
+Additionally, weights on label loss will be ignored if the `labeled` key is false or if
+segmentation labels are unavailable.
+
+#### Image
+
+The image loss calculates dissimilarity between warped image tensors and fixed image
+tensors.
+
+- `weight`: float type, weight of individual loss element in total loss function.
+- `name`: string type, one of "lncc", "ssd" or "gmi".
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    image:
+      name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      weight: 0.1
+```
+
+The following are the DeepReg image losses. Additional arguments should be added at the
+same indent level:
+
+- `lncc`: Calls a local normalized cross-correlation type loss. Requires the following
+  arguments:
+
+  - `kernel_size`: int, optional, default=9. Kernel size or kernel sigma for
+    kernel_type="gaussian".
+  - `kernel_type`: str, optional, default="rectangular". One of "rectangular",
+    "triangular" or "gaussian"
+
+- `ssd`: Calls a sum of squared differences loss. No additional arguments required.
+
+- `gmi`: Calls a global mutual informatin loss. Requires the following arguments:
+  - `num_bins`: int, optional, default=23. Number of bins for intensity.
+  - `sigma_ratio`: float, optional, default=0.5. A hyperparameter for the Gaussian
+    kernel density estimation.
+
+#### Label
+
+The label loss calculates dissimilarity between labels.
+
+All default DeepReg losses can be used as multi-scale or single scale losses.
+Multi-scale losses require a kernel Additionally, all losses can be weighted, so the
+following two arguments are global to all provided losses:
+
+- `weight`: float type, weight of individual loss element in total loss function.
+- `scales`: list of ints, or None. Optional argument. If you do not pass this argument
+  (or pass the list [0], the value `null` or an empty value pair), the loss is
+  calculated at a single scale. If you pass a list of length > 1, a multi-scale loss
+  will be used. WARNING: an empty list ([]) will raise an error.
+- `kernel`: str, "gaussian" or "cauchy", default "gaussian". Optional argument. Defines
+  the kernel to use for multi-scale losses.
+
+EG.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    label:
+      weight: 1.0
+      name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+      scales: [1, 2]
+```
+
+The default losses require the following arguments. Additional arguments should be added
+at the same indent level:
+
+- `dice`: Calls a Dice loss on the labels, requires the following arguments:
+
+  - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
+  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
+    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
+    respectively.
+
+- `cross-entropy`: Calls a cross-entropy loss between labels, requires the following
+  arguments:
+
+  - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
+  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
+    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
+    respectively.
+
+- `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
+0.5.
+<!-- - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight, respectively. -->
+
+#### Regularization
+
+The regularization section configures the losses for the DDF. To instantiate this part
+of the loss, pass "regularization" into the config file as a field.
+
+- `weight`: float type, weight of the regularization loss.
+- `name`: string type, the type of deformation energy to compute. Options include
+  "bending", "gradient"
+
+If the `gradient` loss is used, another argument must be passed at the same indent
+level: - `l1`: bool. Indicates whether to calculate the L1-norm (true) or L2-norm
+(false) gradient loss of the ddf.
+
+EG.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+```
+
+or
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "gradient" # options include "bending", "gradient"
+      l1: false
+```
+
+#### Multiple Losses
+
+Add multiple losses by putting all the fields in the same file.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    image:
+      name: "gmi"
+      weight: 1.0
+    label:
+      weight: 1.0
+      name: "dice"
+```
+
+### Optimizer - required
+
+The optimizer can be defined by using a `name` and then passing optimizer specific
+arguments with the same name. All optimizers can use the `learning_rate` argument.
+
+- `name`: string type, is used to define the optimizer during training. One of "adam",
+  "sgd", "rms".
+
+- `adam`: If adam is passed into `name`, the `adam` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used.
+- `sgd`: If sgd is passed into `name`, the `sgd` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras SGD optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/SGD).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used instead.
+- `rms`: If rms is passed into `name`, the `rms` field must be passed. The dictionary
+  can be empty, which initalises a default
+  [Keras RMSprop optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/RMSprop).
+  Alternatively, fields with names equivalent to those specified in the optimizer
+  documentation can be used instead.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "adam"
+    adam:
+```
+
+or
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: false
+```
+
+### Preprocess - required
+
+The `preprocess` field defines how the dataloader feeds data into the model.
+
+- `batch_size`: int, the batch size to pass to the network on each training step.
+- `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
+  memory to buffer training, such that shuffle_buffer_size = batch_size \*
+  shuffle_buffer_num_batch.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: false
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+```
+
+### Epochs - required
+
+The `epochs` field defines number of epochs to train the network for.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: false
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+  epochs: 1000
+```
+
+### Saving frequency - required
+
+The `save_period` field defines the save frequency - the model will be saved every
+`save_period` epochs.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: false
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+  epochs: 1000
+  save_period: 5
+```
