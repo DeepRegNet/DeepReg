@@ -1,3 +1,4 @@
+import logging
 from abc import abstractmethod
 from typing import Dict, Optional
 
@@ -176,11 +177,34 @@ class RegistrationModel(tf.keras.Model):
         :param name: name of loss
         :param inputs_dict: inputs for loss function
         """
+        if name not in self.config["loss"]:
+            # loss config is not defined
+            logging.warning(
+                f"The configuration for loss {name} is not defined."
+                f"Loss is not used."
+            )
+            return
+
+        loss_config = self.config["loss"][name]
+
+        if "weight" not in loss_config:
+            # default loss weight 1
+            logging.warning(
+                f"The weight for loss {name} is not defined."
+                f"Default weight = 1.0 is used."
+            )
+            loss_config["weight"] = 1.0
+
         # build loss
-        config = self.config["loss"][name]
-        loss_cls = REGISTRY.build_loss(config=dict_without(d=config, key="weight"))
+        weight = loss_config["weight"]
+
+        if weight == 0:
+            logging.warning(f"The weight for loss {name} is zero." f"Loss is not used.")
+            return
+
+        loss_cls = REGISTRY.build_loss(config=dict_without(d=loss_config, key="weight"))
         loss = loss_cls(**inputs_dict) / self.global_batch_size
-        weighted_loss = loss * config["weight"]
+        weighted_loss = loss * weight
 
         # add loss
         self._model.add_loss(weighted_loss)
