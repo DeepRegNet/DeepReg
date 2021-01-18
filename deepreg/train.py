@@ -12,7 +12,6 @@ import tensorflow as tf
 import deepreg.model.optimizer as opt
 import deepreg.parser as config_parser
 from deepreg.callback import build_checkpoint_callback
-from deepreg.model.network.build import build_model
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import build_dataset, build_log_dir
 
@@ -115,21 +114,25 @@ def train(
 
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
-    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
-    if len(tf.config.list_physical_devices("GPU")) > 1:
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
+    if num_devices > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
-        model = build_model(
-            moving_image_size=data_loader_train.moving_image_shape,
-            fixed_image_size=data_loader_train.fixed_image_shape,
-            index_size=data_loader_train.num_indices,
-            labeled=config["dataset"]["labeled"],
-            batch_size=config["train"]["preprocess"]["batch_size"],
-            train_config=config["train"],
-            registry=registry,
+        model = registry.build_model(
+            config=dict(
+                name=config["train"]["method"],
+                moving_image_size=data_loader_train.moving_image_shape,
+                fixed_image_size=data_loader_train.fixed_image_shape,
+                index_size=data_loader_train.num_indices,
+                labeled=config["dataset"]["labeled"],
+                batch_size=config["train"]["preprocess"]["batch_size"],
+                config=config["train"],
+                num_devices=num_devices,
+            )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
@@ -150,7 +153,8 @@ def train(
     callbacks = [tensorboard_callback, ckpt_callback]
 
     # train
-    # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
+    # it's necessary to define the steps_per_epoch
+    # and validation_steps to prevent errors like
     # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
     model.fit(
         x=dataset_train,

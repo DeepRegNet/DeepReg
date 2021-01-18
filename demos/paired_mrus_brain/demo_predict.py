@@ -49,7 +49,7 @@ if args.test:
 
 predict(
     gpu="0",
-    gpu_allow_growth=False,
+    gpu_allow_growth=True,
     ckpt_path=ckpt_path,
     mode="test",
     batch_size=1,

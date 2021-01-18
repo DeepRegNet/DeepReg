@@ -113,14 +113,12 @@ if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)
 os.mkdir(MODEL_PATH)
 
-num_zipfiles = 21
-zip_filepath = os.path.abspath(os.path.join(MODEL_PATH, "grouped_mr_heart_1.zip"))
-zip_file_parts = [
-    zip_filepath + ".%03d" % (idx + 1) for idx in range(num_zipfiles)
-]  # https://github.com/DeepRegNet/deepreg-model-zoo/blob/master/grouped_mr_heart_1/grouped_mr_heart_1.zip.021
-for idx, zip_file in enumerate(zip_file_parts, start=1):
+num_zipfiles = 11
+zip_filepath = os.path.abspath(os.path.join(MODEL_PATH, "checkpoint.zip"))
+zip_file_parts = [zip_filepath + ".%02d" % idx for idx in range(num_zipfiles)]
+for idx, zip_file in enumerate(zip_file_parts):
     ORIGIN = (
-        "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/grouped_mr_heart_1/grouped_mr_heart_1.zip.%03d"
+        "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/demo/grouped_mr_heart/20210110/part.%02d"
         % idx
     )
     get_file(zip_file, ORIGIN)

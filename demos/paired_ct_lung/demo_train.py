@@ -46,7 +46,7 @@ if args.test:
 train(
     gpu="0",
     config_path=config_path,
-    gpu_allow_growth=False,
+    gpu_allow_growth=True,
     ckpt_path="",
     log_root=log_root,
     log_dir=log_dir,
