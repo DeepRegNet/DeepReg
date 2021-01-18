@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
 
 def check_vis_single_config_demo(name, slice):
     time_stamp = sorted(os.listdir(f"demos/{name}/logs_predict"))[-1]
