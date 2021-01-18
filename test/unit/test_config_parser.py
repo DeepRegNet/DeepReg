@@ -8,7 +8,12 @@ import pytest
 import yaml
 from testfixtures import TempDirectory
 
-from deepreg.parser import config_sanity_check, load_configs, save, update_nested_dict
+from deepreg.config.parser import (
+    config_sanity_check,
+    load_configs,
+    save,
+    update_nested_dict,
+)
 
 
 def test_update_nested_dict():
