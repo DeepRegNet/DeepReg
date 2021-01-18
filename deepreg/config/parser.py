@@ -40,8 +40,20 @@ def load_configs(config_path: (str, list)) -> dict:
         with open(config_path_i) as file:
             config_i = yaml.load(file, Loader=yaml.FullLoader)
         config = update_nested_dict(d=config, u=config_i)
-    config = config_sanity_check(config)
-    return config
+    loaded_config = config_sanity_check(config)
+
+    if loaded_config != config:
+        # config got updated
+        head = os.path.split(config_path[0])[0]
+        filename = "updated_config.yaml"
+        save(config=loaded_config, out_dir=head, filename=filename)
+        logging.error(
+            f"Used config is outdated. "
+            f"An updated version has been saved at "
+            f"{os.path.join(head, filename)}"
+        )
+
+    return loaded_config
 
 
 def save(config: dict, out_dir: str, filename: str = "config.yaml"):
@@ -64,6 +76,7 @@ def config_sanity_check(config: dict):
     :param config: entire config.
     """
 
+    # back compatibility support
     config = parse_v011(config)
 
     # check data
