@@ -4,6 +4,8 @@ import os
 
 import yaml
 
+from deepreg.config.v011 import parse_v011
+
 
 def update_nested_dict(d: dict, u: dict) -> dict:
     """
@@ -38,7 +40,7 @@ def load_configs(config_path: (str, list)) -> dict:
         with open(config_path_i) as file:
             config_i = yaml.load(file, Loader=yaml.FullLoader)
         config = update_nested_dict(d=config, u=config_i)
-    config_sanity_check(config)
+    config = config_sanity_check(config)
     return config
 
 
@@ -61,6 +63,8 @@ def config_sanity_check(config: dict):
 
     :param config: entire config.
     """
+
+    config = parse_v011(config)
 
     # check data
     assert "dataset" in config.keys()
@@ -107,3 +111,5 @@ def config_sanity_check(config: dict):
     loss_weight = config["train"]["loss"]["regularization"]["weight"]
     if loss_weight <= 0:
         logging.warning(f"The regularization loss {loss_weight} is not positive.")
+
+    return config
