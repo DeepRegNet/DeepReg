@@ -3,7 +3,7 @@
 from copy import deepcopy
 
 
-def parse_v011(old_config: dict):
+def parse_v011(old_config: dict) -> dict:
     """
     Transform configuration from V0.1.1 format to the latest format.
 
@@ -34,7 +34,7 @@ def parse_v011(old_config: dict):
     return new_config
 
 
-def parse_model(model_config: dict):
+def parse_model(model_config: dict) -> dict:
     """
     Parse the model configuration.
 
@@ -56,7 +56,7 @@ def parse_model(model_config: dict):
     return model_config
 
 
-def parse_loss(loss_config: dict):
+def parse_loss(loss_config: dict) -> dict:
     """
     Parse the loss configuration.
 
@@ -120,7 +120,7 @@ def parse_loss(loss_config: dict):
     return loss_config
 
 
-def parse_preprocess(preprocess_config: dict):
+def parse_preprocess(preprocess_config: dict) -> dict:
     """
     Parse the preprocess configuration.
 

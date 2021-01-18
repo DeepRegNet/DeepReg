@@ -69,7 +69,7 @@ def save(config: dict, out_dir: str, filename: str = "config.yaml"):
         f.write(yaml.dump(config))
 
 
-def config_sanity_check(config: dict):
+def config_sanity_check(config: dict) -> dict:
     """
     Check if the given config satisfies the requirements.
 
