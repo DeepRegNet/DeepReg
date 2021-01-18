@@ -1,5 +1,6 @@
 import logging
 from abc import abstractmethod
+from copy import deepcopy
 from typing import Dict, Optional
 
 import tensorflow as tf
@@ -17,7 +18,7 @@ def dict_without(d: dict, key) -> dict:
     :param key: key to be removed.
     :return: the copy without a key
     """
-    copied = d.copy()
+    copied = deepcopy(d)
     copied.pop(key)
     return copied
 

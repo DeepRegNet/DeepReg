@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Callable
 
 BACKBONE_CLASS = "backbone_class"
@@ -99,7 +100,7 @@ class Registry:
             raise ValueError(f"config must be a dict, but got {type(config)}")
         if "name" not in config:
             raise ValueError(f"`config` must contain the key `name`, but got {config}")
-        args = config.copy()
+        args = deepcopy(config)
 
         # insert key, value pairs if key is not in args
         if default_args is not None:
@@ -123,7 +124,7 @@ class Registry:
 
     def copy(self):
         copied = Registry()
-        copied._dict = self._dict.copy()
+        copied._dict = deepcopy(self._dict)
         return copied
 
     def register_model(self, name: str, cls: Callable = None, force: bool = False):

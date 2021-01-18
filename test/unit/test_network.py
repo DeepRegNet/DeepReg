@@ -4,6 +4,7 @@
 Tests for deepreg/_model/network/ddf_dvf.py
 """
 import itertools
+from copy import deepcopy
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -46,7 +47,7 @@ def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
     :param backbone: name of backbone
     :return: the built object
     """
-    copied = config.copy()
+    copied = deepcopy(config)
     copied["method"] = method
     copied["backbone"]["name"] = backbone
     copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
