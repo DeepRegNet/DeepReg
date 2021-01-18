@@ -1,0 +1,53 @@
+dataset:
+  dir:
+    train: "demos/grouped_mr_heart/dataset/train"
+    valid: "demos/grouped_mr_heart/dataset/val"
+    test: "demos/grouped_mr_heart/dataset/test"
+  format: "nifti"
+  type: "grouped" # paired / unpaired / grouped
+  labeled: false
+  intra_group_prob: 1
+  intra_group_option: "unconstrained" # forward / backward / unconstrained
+  sample_image_in_group: true
+  image_shape: [128, 128, 28]
+
+train:
+  # define neural network structure
+  model:
+    method: "ddf" # the registration method, value should be ddf / dvf / conditional
+    backbone: "local" # value should be local / global / unet
+    local:
+      num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
+      extract_levels: [0, 1, 2, 3, 4]
+
+  # define the loss function for training
+  loss:
+    dissimilarity:
+      image:
+        name: "gmi"
+        weight: 1.0
+      label:
+        weight: 0.0
+        name: "multi_scale"
+        multi_scale:
+          loss_type: "dice"
+          loss_scales: [0, 1, 2, 4, 8, 16]
+        single_scale:
+          loss_type: "cross-entropy"
+    regularization:
+      weight: 1.0 # weight of regularization loss
+      energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
+
+  # define the optimizer
+  optimizer:
+    name: "adam" # value should be adam / sgd / rms
+    adam:
+      learning_rate: 1.0e-4
+
+  preprocess:
+    batch_size: 4
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 4000 # number of training epochs
+  save_period: 1000 # the model will be saved every `save_period` epochs.
