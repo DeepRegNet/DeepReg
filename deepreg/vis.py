@@ -67,7 +67,7 @@ def gif_slices(img_paths, save_path="", interval=50):
 
 def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles=None):
     """
-    Generate a tiled plot of muliple images for multiple slices in the image.
+    Generate a tiled plot of multiple images for multiple slices in the image.
     Rows are different slices, columns are different images.
 
     :param img_paths: list or comma separated string of image paths
@@ -98,13 +98,10 @@ def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles
 
     plt.figure(figsize=(num_imgs * 2, num_inds * 2))
 
-    imgs = []
-    for img_path in img_paths:
-        img = load_nifti_file(img_path)
-        imgs.append(img)
+    imgs = [load_nifti_file(p) for p in img_paths]
 
-    for img, col_num in zip(imgs, range(num_imgs)):
-        for index, row_num in zip(slice_inds, range(num_inds)):
+    for col_num, img in enumerate(imgs):
+        for row_num, index in enumerate(slice_inds):
             plt.subplot(num_inds, num_imgs, subplot_mat[row_num, col_num])
             plt.imshow(img[:, :, index])
             plt.axis("off")

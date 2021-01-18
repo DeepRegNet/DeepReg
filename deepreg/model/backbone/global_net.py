@@ -70,7 +70,9 @@ class GlobalNet(tf.keras.Model):
             units=12, bias_initializer=self.transform_initial
         )
 
-    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
+    def call(
+        self, inputs: tf.Tensor, training=None, mask=None
+    ) -> (tf.Tensor, tf.Tensor):
         """
         Build GlobalNet graph based on built layers.
 
@@ -88,10 +90,10 @@ class GlobalNet(tf.keras.Model):
         )  # level E of encoding
 
         # predict affine parameters theta of shape = [batch, 4, 3]
-        self.theta = self._dense_layer(h_out)
-        self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
+        theta = self._dense_layer(h_out)
+        theta = tf.reshape(theta, shape=(-1, 4, 3))
 
         # warp the reference grid with affine parameters to output a ddf
-        grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
-        output = grid_warped - self.reference_grid
-        return output
+        grid_warped = layer_util.warp_grid(self.reference_grid, theta)
+        ddf = grid_warped - self.reference_grid
+        return ddf, theta

@@ -1,9 +1,9 @@
 # Configuration File
 
-Besides the arguments provided to the command line tools, detailed training and
-prediction configuration is specified in a `yaml` file. The configuration file contains
+In addition to the arguments provided to the command line tools, detailed training and
+prediction configuration is specified in a `YAML` file. The configuration file contains
 two sections, `dataset` and `train`. Within `dataset` one specifies the data file
-formas, sizes, as well as the data loader to use. The `train` section specifies
+formats, sizes, as well as the data loader to use. The `train` section specifies
 parameters related to the neural network.
 
 ## Dataset section
@@ -11,7 +11,7 @@ parameters related to the neural network.
 The `dataset` section specifies the path to the data to be used during training, the
 data loader to use as well as the specific arguments to configure the data loader.
 
-### Dir key - Required
+### Dir key - Required
 
 The paths to the training, validation and testing data are specified under a `dir`
 dictionary key like this:
@@ -19,9 +19,9 @@ dictionary key like this:
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folder contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
 ```
 
 Multiple dataset directories can be specified, such that data are sampled across several
@@ -39,18 +39,18 @@ dataset:
 
 ### Format key - Required
 
-The data file format we supply the data loaders will influence the behaviour, so we must
+The data file format we supply the data loaders will influence the behavior, so we must
 specify the data file format using the `format` key. Currently, DeepReg data loaders
-support nifti and h5 file types - alternate file formats will raise errors in the data
+support Nifti and H5 file types - alternate file formats will raise errors in the data
 loaders. To indicate which format to use, pass a string to this field as either "nifti"
 or "h5":
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
 ```
 
@@ -58,7 +58,7 @@ Depending on the data file format, DeepReg expects the images and labels to be s
 specific structures: check the [data loader configuration](dataset_loader.html) for more
 details.
 
-### Labeled key - Required
+### Labeled key - Required
 
 The `labeled` key indicates whether segmentation labels should be used during training.
 A Boolean is used to indicate the usage of labels:
@@ -66,9 +66,9 @@ A Boolean is used to indicate the usage of labels:
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
   labeled: true
 ```
@@ -79,26 +79,26 @@ available in the associated directories.
 ### Type key - Required
 
 The type of data loader used will depend on how one wants to train the network.
-Currently, DeepReg data loaders support the `paired`, `unpaired` and `grouped` training
+Currently, DeepReg data loaders support the `paired`, `unpaired`, and `grouped` training
 strategies. Passing a string that doesn't match any of the above would raise an error.
 The data loader type would be specified using the `type` key:
 
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
-  type: "paired" # one of "paired", "unpaired" or "grouped"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
 ```
 
-#### Data loader dependent keys
+#### Data loader dependent keys
 
-Depending on which string is passed to the `type` key, DeepReg will initialise a
+Depending on which string is passed to the `type` key, DeepReg will initialize a
 different data loader instance with different sampling strategies. These are described
 in depth in the [dataset loader configuration](dataset_loader.html) documentation. Here
-we outline the arguments necessary to configure the different dataloaders.
+we outline the arguments necessary to configure the different data loaders.
 
 ###### Sample_label - Required
 
@@ -118,13 +118,13 @@ be built to sample `all` the data-label pairs, regardless of the argument passed
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
-  type: "paired" # one of "paired", "unpaired" or "grouped"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
   labeled: true
-  sample_label: "sample" # one of "sample", "all" or None
+  sample_label: "sample" # one of "sample", "all" or None
 ```
 
 In the case the `labeled` argument is false, the sample_label is unused, but still must
@@ -145,18 +145,18 @@ For more details please refer to
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
-  type: "paired" # one of "paired", "unpaired" or "grouped"
+  type: "paired" # one of "paired", "unpaired" or "grouped"
   labeled: true
-  sample_label: "sample" # one of "sample", "all" or None
+  sample_label: "sample" # one of "sample", "all" or None
   moving_image_shape: [16, 16, 3]
   fixed_image_shape: [16, 16, 3]
 ```
 
-##### Unpaired
+##### Unpaired
 
 - `image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3) of
   the 3D image.
@@ -164,13 +164,13 @@ dataset:
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
-  type: "unpaired" # one of "paired", "unpaired" or "grouped"
+  type: "unpaired" # one of "paired", "unpaired" or "grouped"
   labeled: true
-  sample_label: "sample" # one of "sample", "all" or None
+  sample_label: "sample" # one of "sample", "all" or None
   image_shape: [16, 16, 3]
 ```
 
@@ -189,13 +189,13 @@ dataset:
 ```yaml
 dataset:
   dir:
-    train: "data/test/h5/paired/train1" # folders contains training data
-    valid: "data/test/h5/paired/valid" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    train: "data/test/h5/paired/train" # folder containing training data
+    valid: "data/test/h5/paired/valid" # folder containing validation data
+    test: "data/test/h5/paired/test" # folder containing test data
   format: "nifti"
-  type: "grouped" # one of "paired", "unpaired" or "grouped"
+  type: "grouped" # one of "paired", "unpaired" or "grouped"
   labeled: true
-  sample_label: "sample" # one of "sample", "all" or None
+  sample_label: "sample" # one of "sample", "all" or None
   image_shape: [16, 16, 3]
   sample_image_in_group: true
   intra_group_prob: 0.7
@@ -210,19 +210,21 @@ The `train` section defines the neural network training hyper-parameters, by spe
 subsections, `method`, `backbone`, `loss`, `optimizer`, `preprocess` and other training
 hyper-parameters, including `epochs` and `save_period`.
 
-### Method - required
+### Method - required
 
-The `method` argument defines the registration type. It must be a string type, one of
-"ddf", "dvf", "conditional", which are the currently supported registration methods.
+The `method` argument defines the registration type. It must be a string. Feasible
+values are: `ddf`, `dvf`, and `conditional`, corresponding to the dense displacement
+field (DDF) based model, dense velocity field (DDF) based model, and conditional model
+presented in the [registration tutorial](../tutorial/registration.html).
 
 ```yaml
 train:
   method: "ddf" # One of ddf, dvf, conditional
 ```
 
-### Backbone - required
+### Backbone - required
 
-The `backbone` subsection is used to define the network, with all the network specific
+The `backbone` subsection is used to define the network, with all the network-specific
 arguments under the same indent. The first argument should be the argument `name`, which
 should be string type, one of "unet", "local" or "global", to define a UNet, LocalNet or
 GlobalNet backbone, respectively. With Registry functionalities, you can also define
@@ -241,10 +243,10 @@ train:
 
 #### UNet
 
-The UNet model requires several additional arguments to define it's structure:
+The UNet model requires several additional arguments to define its structure:
 
 - `depth`: int, defines the depth of the UNet from first to bottom, bottleneck layer.
-- `pooling`: Boolean, pooling method used for downsampling. True: non-parametrized
+- `pooling`: Boolean, pooling method used for down-sampling. True: non-parametrized
   pooling will be used, False: conv3d will be used.
 - `concat_skip`: Boolean, concatenation method for skip layers in UNet. True:
   concatenation of layers, False: addition is used instead.
@@ -260,9 +262,9 @@ train:
     concat_skip: true
 ```
 
-#### Local and GlobalNet
+#### Local and GlobalNet
 
-The LocalNet has an encoder-decoder structure, and extracts information from tensors at
+The LocalNet has an encoder-decoder structure and extracts information from tensors at
 one or multiple resolution levels. We can define which levels to extract info from with
 the `extract_levels` argument.
 
@@ -282,38 +284,41 @@ train:
     extract_levels: [0, 1, 2]
 ```
 
-### Loss - required
+### Loss - required
 
 This section defines the loss in training.
 
-The losses in DeepReg are defined depending on the type of network to be built, and can
-be split into three sections: image and label losses (between moving and fixed tensors),
-and regularization losses (on the DDFs predicted).
+There are three different categories of losses in DeepReg:
 
-DeepReg uses `tf.keras.Model` `add_loss()` in the Registry method to add losses to the
-model, which provides some flexibility in configuration.
+- **image loss**: loss between the fixed image and predicted fixed image (warped moving
+  image).
+- **label loss**: loss between the fixed label and predicted fixed label (warped moving
+  label).
+- **regularization loss**: loss on predicted dense displacement field (DDF).
 
-Currently, DeepReg offers conditional, ddf/dvf and affine registration pre-built models.
-Traditionally, models have been configured with the following losses:
+Not all losses are applicable for all models, the details are in the following table.
 
-- Conditional: label loss.
-- DDF/DVF: ddf loss, image loss, label loss.
-- Affine: ddf loss, image loss, label loss.
+|                     | DDF / DVF                      | Conditional    |
+| ------------------- | ------------------------------ | -------------- |
+| Image Loss          | Applicable                     | Non-applicable |
+| Label Loss          | Applicable if data are labeled | Applicable     |
+| Regularization Loss | Applicable                     | Non-applicable |
 
-The above sections are necessary to build a model correctly. Not passing all sections as
-defined above may raise errors. Currently you can call one loss per field eg. one label
-loss type, one image loss type and one ddf/dvf loss type.
+The configuration for non-applicable losses will be ignored without errors. The loss
+will also be ignored if the weight is zero. However, each model must define at least one
+loss, otherwise error will be raised by TensorFlow.
 
-However, setting the weight to 0 will effectively mean the model ignores the loss.
-Additionally, weights on label loss will be ignored if the `labeled` key is false or if
-segmentation labels are unavailable.
+For each loss, there are multiple existing loss functions to choose. The registry
+mechanism can also be used to use custom loss functions. Please read the
+[registry documentation](registry.html) for more details.
 
-#### Image
+#### Image
 
 The image loss calculates dissimilarity between warped image tensors and fixed image
 tensors.
 
-- `weight`: float type, weight of individual loss element in total loss function.
+- `weight`: float type, the weight of individual loss element in the total loss
+  function.
 - `name`: string type, one of "lncc", "ssd" or "gmi".
 
 ```yaml
@@ -347,7 +352,7 @@ same indent level:
   - `sigma_ratio`: float, optional, default=0.5. A hyperparameter for the Gaussian
     kernel density estimation.
 
-#### Label
+#### Label
 
 The label loss calculates dissimilarity between labels.
 
@@ -401,12 +406,12 @@ at the same indent level:
 0.5.
 <!-- - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight, respectively. -->
 
-#### Regularization
+#### Regularization
 
 The regularization section configures the losses for the DDF. To instantiate this part
 of the loss, pass "regularization" into the config file as a field.
 
-- `weight`: float type, weight of the regularization loss.
+- `weight`: float type, the weight of the regularization loss.
 - `name`: string type, the type of deformation energy to compute. Options include
   "bending", "gradient"
 
@@ -465,7 +470,7 @@ train:
       name: "dice"
 ```
 
-### Optimizer - required
+### Optimizer - required
 
 The optimizer can be defined by using a `name` and then passing optimizer specific
 arguments with the same name. All optimizers can use the `learning_rate` argument.
@@ -474,17 +479,17 @@ arguments with the same name. All optimizers can use the `learning_rate` argumen
   "sgd", "rms".
 
 - `adam`: If adam is passed into `name`, the `adam` field must be passed. The dictionary
-  can be empty, which initalises a default
+  can be empty, which initializes a default
   [Keras Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam).
   Alternatively, fields with names equivalent to those specified in the optimizer
   documentation can be used.
 - `sgd`: If sgd is passed into `name`, the `sgd` field must be passed. The dictionary
-  can be empty, which initalises a default
+  can be empty, which initializes a default
   [Keras SGD optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/SGD).
   Alternatively, fields with names equivalent to those specified in the optimizer
   documentation can be used instead.
 - `rms`: If rms is passed into `name`, the `rms` field must be passed. The dictionary
-  can be empty, which initalises a default
+  can be empty, which initializes a default
   [Keras RMSprop optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/RMSprop).
   Alternatively, fields with names equivalent to those specified in the optimizer
   documentation can be used instead.
@@ -526,9 +531,9 @@ train:
       nesterov: false
 ```
 
-### Preprocess - required
+### Preprocess - required
 
-The `preprocess` field defines how the dataloader feeds data into the model.
+The `preprocess` field defines how the data loader feeds data into the model.
 
 - `batch_size`: int, the batch size to pass to the network on each training step.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
@@ -559,7 +564,7 @@ train:
 
 ### Epochs - required
 
-The `epochs` field defines number of epochs to train the network for.
+The `epochs` field defines the number of epochs to train the network for.
 
 ```yaml
 train:
@@ -584,7 +589,7 @@ train:
   epochs: 1000
 ```
 
-### Saving frequency - required
+### Saving frequency - required
 
 The `save_period` field defines the save frequency - the model will be saved every
 `save_period` epochs.

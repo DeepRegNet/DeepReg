@@ -18,13 +18,13 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "SumSquaredDifference",
     ):
         """
         Init.
 
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
@@ -57,7 +57,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "GlobalMutualInformation",
     ):
         """
@@ -65,7 +65,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
@@ -248,7 +248,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self,
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "LocalNormalizedCrossCorrelation",
     ):
         """
@@ -256,7 +256,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
