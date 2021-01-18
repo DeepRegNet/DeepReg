@@ -158,6 +158,47 @@ class TestRegistrationModel:
             assert images.shape == (batch_size, *fixed_image_size, 2)
 
 
+class TestBuildLoss:
+    params = [
+        dict(option=0, expected=2),
+        dict(option=1, expected=2),
+        dict(option=2, expected=3),
+    ]
+
+    def test_no_image_loss(self, option: int, expected: int):
+        method = "ddf"
+        backbone = "local"
+        labeled = True
+        copied = deepcopy(config)
+        copied["method"] = method
+        copied["backbone"]["name"] = backbone
+        copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
+
+        if option == 0:
+            # remove image loss config, so loss is not used
+            copied["loss"].pop("image")
+        elif option == 1:
+            # set image loss weight to zero, so loss is not used
+            copied["loss"]["image"]["weight"] = 0.0
+        else:
+            # remove image loss weight, so loss is used with default weight 1
+            copied["loss"]["image"].pop("weight")
+
+        ddf_model = REGISTRY.build_model(
+            config=dict(
+                name=method,  # TODO we store method twice
+                moving_image_size=moving_image_size,
+                fixed_image_size=fixed_image_size,
+                index_size=index_size,
+                labeled=labeled,
+                batch_size=batch_size,
+                config=copied,
+            )
+        )
+
+        assert len(ddf_model._model.losses) == expected
+
+
 class TestDDFModel:
     params = [
         dict(method=method, labeled=labeled, backbone=backbone)
