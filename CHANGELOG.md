@@ -6,7 +6,7 @@ to make them as straightforward as possible.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.0.0rc1] - In Progress
+## [1.0.0-rc1] - In Progress
 
 Release comment: introduction of Registry functionalities and modifications to the
 configuration files means that old configuration files are no longer compatible with the
