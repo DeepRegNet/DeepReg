@@ -44,8 +44,8 @@ def load_configs(config_path: (str, list)) -> dict:
 
     if loaded_config != config:
         # config got updated
-        head = os.path.split(config_path[0])[0]
-        filename = "updated_config.yaml"
+        head, tail = os.path.split(config_path[0])
+        filename = "updated_" + tail
         save(config=loaded_config, out_dir=head, filename=filename)
         logging.error(
             f"Used config is outdated. "

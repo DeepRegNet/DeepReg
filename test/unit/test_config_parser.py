@@ -72,28 +72,33 @@ def test_update_nested_dict():
     assert got == expected
 
 
-def test_load_configs():
-    """
-    test load_configs by checking outputs
-    """
-    # single config
-    # input is str not list
-    with open("config/unpaired_labeled_ddf.yaml") as file:
-        expected = yaml.load(file, Loader=yaml.FullLoader)
-    got = load_configs("config/unpaired_labeled_ddf.yaml")
-    assert got == expected
+class TestLoadConfigs:
+    def test_single_config(self):
+        with open("config/unpaired_labeled_ddf.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs("config/unpaired_labeled_ddf.yaml")
+        assert got == expected
 
-    # multiple configs
-    with open("config/unpaired_labeled_ddf.yaml") as file:
-        expected = yaml.load(file, Loader=yaml.FullLoader)
-    got = load_configs(
-        config_path=[
-            "config/test/ddf.yaml",
-            "config/test/unpaired_nifti.yaml",
-            "config/test/labeled.yaml",
-        ]
-    )
-    assert got == expected
+    def test_multiple_configs(self):
+        with open("config/unpaired_labeled_ddf.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs(
+            config_path=[
+                "config/test/ddf.yaml",
+                "config/test/unpaired_nifti.yaml",
+                "config/test/labeled.yaml",
+            ]
+        )
+        assert got == expected
+
+    def test_outdated_config(self):
+        with open("demos/grouped_mr_heart/grouped_mr_heart.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs("config/test/grouped_mr_heart_v011.yaml")
+        assert got == expected
+        updated_file_path = "config/test/updated_grouped_mr_heart_v011.yaml"
+        assert os.path.isfile(updated_file_path)
+        os.remove(updated_file_path)
 
 
 def test_save():
