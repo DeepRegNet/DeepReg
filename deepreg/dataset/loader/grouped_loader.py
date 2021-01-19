@@ -222,7 +222,9 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
                     num_images_in_group = self.num_images_per_group[group_index]
                     if num_images_in_group < 2:
                         # skip groups having <2 images
-                        continue
+                        # currently have not encountered
+                        continue  # pragma: no cover
+
                     image_index1, image_index2 = rnd.sample(
                         [i for i in range(num_images_in_group)], 2
                     )  # sample two unique indices
