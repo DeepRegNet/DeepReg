@@ -90,10 +90,8 @@ def config_sanity_check(config: dict) -> dict:
         assert mode in data_config["dir"].keys()
         data_dir = data_config["dir"][mode]
         if data_dir is None:
-            logging.warning("Data directory for {} is not defined.".format(mode))
-        if not (
-            isinstance(data_dir, str) or isinstance(data_dir, list) or data_dir is None
-        ):
+            logging.warning(f"Data directory for {mode} is not defined.")
+        if not (isinstance(data_dir, (str, list)) or data_dir is None):
             raise ValueError(
                 f"data_dir for mode {mode} must be string or list of strings,"
                 f"got {data_dir}."
@@ -109,19 +107,12 @@ def config_sanity_check(config: dict) -> dict:
                 "For conditional model, data have to be labeled, got unlabeled data."
             )
 
-    # image loss weights should >= 0
-    loss_weight = config["train"]["loss"]["image"]["weight"]
-    if loss_weight <= 0:
-        logging.warning(f"The image loss {loss_weight} is not positive.")
-
-    # label loss weights should >= 0
-    loss_weight = config["train"]["loss"]["label"]["weight"]
-    if loss_weight <= 0:
-        logging.warning(f"The label loss {loss_weight} is not positive.")
-
-    # regularization loss weights should >= 0
-    loss_weight = config["train"]["loss"]["regularization"]["weight"]
-    if loss_weight <= 0:
-        logging.warning(f"The regularization loss {loss_weight} is not positive.")
+    # loss weights should >= 0
+    for name in ["image", "label", "regularization"]:
+        loss_weight = config["train"]["loss"][name]["weight"]
+        if loss_weight <= 0:
+            logging.warning(
+                "The %s loss weight %.2f is not positive.", name, loss_weight
+            )
 
     return config

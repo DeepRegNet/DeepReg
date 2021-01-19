@@ -1,7 +1,14 @@
 import pytest
 import yaml
 
-from deepreg.config.v011 import parse_loss, parse_model, parse_v011
+from deepreg.config.v011 import (
+    parse_image_loss,
+    parse_label_loss,
+    parse_loss,
+    parse_model,
+    parse_reg_loss,
+    parse_v011,
+)
 
 
 @pytest.mark.parametrize(
@@ -52,40 +59,55 @@ class TestParseModel:
         assert got == expected
 
 
-class TestParseLoss:
-    config_v011 = {
-        "loss": {
-            "dissimilarity": {
-                "image": {"name": "gmi", "weight": 2.0},
-                "label": {"name": "multi_scale", "weight": 2.0},
-            }
-        }
-    }
-
-    def test_image(self):
-        loss_config = {
-            "dissimilarity": {
-                "image": {
-                    "name": "lncc",
-                    "weight": 2.0,
-                    "lncc": {
-                        "kernel_size": 9,
-                        "kernel_type": "rectangular",
-                    },
-                },
-            }
-        }
-        expected = {
+def test_parse_loss():
+    loss_config = {
+        "dissimilarity": {
             "image": {
                 "name": "lncc",
                 "weight": 2.0,
+                "lncc": {
+                    "kernel_size": 9,
+                    "kernel_type": "rectangular",
+                },
+            },
+        }
+    }
+    expected = {
+        "image": {
+            "name": "lncc",
+            "weight": 2.0,
+            "kernel_size": 9,
+            "kernel_type": "rectangular",
+        },
+    }
+    got = parse_loss(loss_config=loss_config)
+    assert got == expected
+
+
+def test_parse_image_loss():
+    loss_config = {
+        "image": {
+            "name": "lncc",
+            "weight": 2.0,
+            "lncc": {
                 "kernel_size": 9,
                 "kernel_type": "rectangular",
             },
-        }
-        got = parse_loss(loss_config=loss_config)
-        assert got == expected
+        },
+    }
+    expected = {
+        "image": {
+            "name": "lncc",
+            "weight": 2.0,
+            "kernel_size": 9,
+            "kernel_type": "rectangular",
+        },
+    }
+    got = parse_image_loss(loss_config=loss_config)
+    assert got == expected
 
+
+class TestParseLabelLoss:
     def test_label_multi_scale(self):
         loss_config = {
             "label": {
@@ -104,23 +126,21 @@ class TestParseLoss:
                 "scales": [0, 1],
             },
         }
-        got = parse_loss(loss_config=loss_config)
+        got = parse_label_loss(loss_config=loss_config)
         assert got == expected
 
     def test_label_single_scale(self):
         loss_config = {
-            "dissimilarity": {
-                "label": {
-                    "name": "single_scale",
-                    "single_scale": {
-                        "loss_type": "dice_generalized",
-                    },
-                    "multi_scale": {
-                        "loss_type": "mean-squared",
-                        "loss_scales": [0, 1],
-                    },
+            "label": {
+                "name": "single_scale",
+                "single_scale": {
+                    "loss_type": "dice_generalized",
                 },
-            }
+                "multi_scale": {
+                    "loss_type": "mean-squared",
+                    "loss_scales": [0, 1],
+                },
+            },
         }
         expected = {
             "label": {
@@ -128,30 +148,31 @@ class TestParseLoss:
                 "weight": 1.0,
             },
         }
-        got = parse_loss(loss_config=loss_config)
+        got = parse_label_loss(loss_config=loss_config)
         assert got == expected
 
-    @pytest.mark.parametrize(
-        ("energy_type", "loss_name", "extra_args"),
-        [
-            ("bending", "bending", {}),
-            ("gradient-l2", "gradient", {"l1": False}),
-            ("gradient-l1", "gradient", {"l1": True}),
-        ],
-    )
-    def test_regularization(self, energy_type: str, loss_name: str, extra_args: dict):
-        loss_config = {
-            "regularization": {
-                "energy_type": energy_type,
-                "weight": 2.0,
-            }
+
+@pytest.mark.parametrize(
+    ("energy_type", "loss_name", "extra_args"),
+    [
+        ("bending", "bending", {}),
+        ("gradient-l2", "gradient", {"l1": False}),
+        ("gradient-l1", "gradient", {"l1": True}),
+    ],
+)
+def test_parse_reg_loss(energy_type: str, loss_name: str, extra_args: dict):
+    loss_config = {
+        "regularization": {
+            "energy_type": energy_type,
+            "weight": 2.0,
         }
-        expected = {
-            "regularization": {
-                "name": loss_name,
-                "weight": 2.0,
-                **extra_args,
-            },
-        }
-        got = parse_loss(loss_config=loss_config)
-        assert got == expected
+    }
+    expected = {
+        "regularization": {
+            "name": loss_name,
+            "weight": 2.0,
+            **extra_args,
+        },
+    }
+    got = parse_reg_loss(loss_config=loss_config)
+    assert got == expected

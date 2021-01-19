@@ -207,6 +207,6 @@ def test_config_sanity_check(caplog):
     assert "Data directory for train is not defined." in caplog.text
     assert "Data directory for valid is not defined." in caplog.text
     assert "Data directory for test is not defined." in caplog.text
-    assert "The image loss 0.0 is not positive." in caplog.text
-    assert "The label loss 0.0 is not positive." in caplog.text
-    assert "The regularization loss 0.0 is not positive." in caplog.text
+    assert "The image loss weight 0.00 is not positive." in caplog.text
+    assert "The label loss weight 0.00 is not positive." in caplog.text
+    assert "The regularization loss weight 0.00 is not positive." in caplog.text
