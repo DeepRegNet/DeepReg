@@ -16,11 +16,6 @@ def parse_v011(old_config: dict) -> dict:
     new_config = deepcopy(old_config)
 
     model_config = new_config["train"].pop("model", None)
-    if model_config is None:
-        if "method" in new_config["train"] and "backbone" in new_config["train"]:
-            method = new_config["train"].pop("method")
-            backbone = new_config["train"].pop("backbone")
-            model_config = dict(method=method, backbone=backbone)
     if model_config is not None:
         model_config = parse_model(model_config=model_config)
         new_config["train"].update(model_config)

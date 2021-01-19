@@ -120,9 +120,6 @@ def test_config_sanity_check(caplog):
 
     :param caplog: used to check warning message.
     """
-    # dataset is not in the key
-    with pytest.raises(AssertionError):
-        config_sanity_check(config=dict())
 
     # unknown data type
     with pytest.raises(ValueError) as err_info:
@@ -171,7 +168,7 @@ def test_config_sanity_check(caplog):
                     dir=dict(train=None, valid=None, test=None),
                     labeled=False,
                 ),
-                train=dict(method="conditional"),
+                train=dict(method="conditional", loss=dict(), preprocess=dict()),
             )
         )
     assert "For conditional model, data have to be labeled, got unlabeled data." in str(
@@ -193,10 +190,11 @@ def test_config_sanity_check(caplog):
             train=dict(
                 method="ddf",
                 loss=dict(
-                    image=dict(weight=0.0),
-                    label=dict(weight=0.0),
-                    regularization=dict(weight=0.0),
+                    image=dict(name="lncc", weight=0.0),
+                    label=dict(name="ssd", weight=0.0),
+                    regularization=dict(name="bending", weight=0.0),
                 ),
+                preprocess=dict(),
             ),
         )
     )

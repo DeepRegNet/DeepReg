@@ -76,11 +76,7 @@ def config_sanity_check(config: dict) -> dict:
     :param config: entire config.
     """
 
-    # back compatibility support
-    config = parse_v011(config)
-
     # check data
-    assert "dataset" in config.keys()
     data_config = config["dataset"]
 
     if data_config["type"] not in ["paired", "unpaired", "grouped"]:
@@ -102,6 +98,9 @@ def config_sanity_check(config: dict) -> dict:
                 f"data_dir for mode {mode} must be string or list of strings,"
                 f"got {data_dir}."
             )
+
+    # back compatibility support
+    config = parse_v011(config)
 
     # check model
     if config["train"]["method"] == "conditional":
