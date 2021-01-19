@@ -48,7 +48,7 @@
       <a href="https://github.com/psf/black">
       <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style">
       </a>
-        <a href="https://scrutinizer-ci.com/g/DeepRegNet/DeepReg/">
+      <a href="https://scrutinizer-ci.com/g/DeepRegNet/DeepReg/">
       <img src="https://scrutinizer-ci.com/g/DeepRegNet/DeepReg/badges/quality-score.png" alt="Code Quality">
       </a>
       <a href="https://codeclimate.com/github/DeepRegNet/DeepReg/maintainability">
