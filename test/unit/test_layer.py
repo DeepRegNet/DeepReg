@@ -27,7 +27,8 @@ class TestNorm:
         :param name: name of norm
         """
 
-        layer.Norm()
+        norm_layer = layer.Norm(name=name)
+        assert norm_layer._norm is not None
 
     def test_error(self):
         with pytest.raises(ValueError):

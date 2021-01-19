@@ -74,7 +74,7 @@ def predict_on_dataset(
     """
     # remove the save_dir in case it exists
     if os.path.exists(save_dir):
-        shutil.rmtree(save_dir)
+        shutil.rmtree(save_dir)  # pragma: no cover
 
     sample_index_strs = []
     metric_lists = []
