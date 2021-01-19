@@ -42,6 +42,7 @@ updates.
 
 ### Fixed
 
+- Fixed several dead links in the documentation.
 - Fixed a bug due to typo when image loss weight is zero, label loss is not applied.
 - Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
