@@ -145,7 +145,8 @@ class NiftiFileLoader(FileLoader):
         arr = load_nifti_file(file_path=file_path)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
             # for labels, if there's only one label, remove the last dimension
-            arr = arr[:, :, :, 0]
+            # currently have not encountered
+            arr = arr[:, :, :, 0]  # pragma: no cover
         return arr
 
     def get_data_ids(self) -> List[str]:
