@@ -11,7 +11,7 @@ dataset:
   labeled: false
   type: unpaired
 train:
-  epochs: 2
+  epochs: 10
   loss:
     dissimilarity:
       image:
@@ -45,7 +45,7 @@ train:
       - 3
       - 4
       num_channel_initial: 1
-    method: ddf
+    method: dvf
     unet:
       concat_skip: false
       depth: 2
