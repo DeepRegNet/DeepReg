@@ -15,6 +15,7 @@ updates.
 ### Added
 
 - Added backward compatible config parser.
+- Added tests so that test coverage is 100%.
 - Added config file docs with details on how new config works.
 - Added DDF data augmentation.
 - Added the registry for backbone models and losses.
@@ -43,6 +44,7 @@ updates.
 
 ### Fixed
 
+- Fixed several dead links in the documentation.
 - Fixed a bug due to typo when image loss weight is zero, label loss is not applied.
 - Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
