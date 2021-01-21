@@ -1,0 +1,62 @@
+dataset:
+  dir:
+    train: "data/test/nifti/unpaired/train" # required
+    valid: "data/test/nifti/unpaired/test" # required
+    test: "data/test/nifti/unpaired/test" # required
+  format: "nifti"
+  type: "unpaired" # paired / unpaired / grouped
+  labeled: false # whether to use the labels if available, "true" or "false"
+  image_shape: [16, 16, 16]
+
+train:
+  # define neural network structure
+  model:
+    method: "dvf" # options include "ddf", "dvf", "conditional" and "affine"
+    backbone: "local" # options include "local", "unet" and "global" - use "global" when method=="affine"
+    local:
+      num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
+      extract_levels: [0, 1, 2, 3, 4] # this defines the resolution levels used to compose the output ddf, e.g. one does not use the highest resolution level can be specified as [0,1,2,3]
+    unet:
+      num_channel_initial: 1 # number of initial channel in u-net, controls the size of the network
+      depth: 2 # depth of u-net, the input is at depth = 0, and the bottom is at depth = depth
+      pooling: true # for downsampling, use non-parameterized pooling if true, otherwise use conv3d
+      concat_skip: false #　when upsampling, concatenate skipped tensor if true, otherwise use addition
+
+  # define the loss function for training
+  loss:
+    dissimilarity:
+      image:
+        name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+        weight: 0.1
+      label:
+        weight: 1.0
+        name: "multi_scale" # "multi_scale" or "single_scale"
+        multi_scale:
+          loss_type: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+          loss_scales: [0, 1, 2, 4, 8, 16, 32]
+        single_scale:
+          loss_type: "cross-entropy" # # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      energy_type: "bending" # options include "bending", "gradient-l1" and "gradient-l2"
+
+  # define the optimizer
+  optimizer:
+    name: "adam" # options include "adam", "sgd" and "rms"
+    adam:
+      learning_rate: 1.0e-5
+    sgd:
+      learning_rate: 1.0e-4
+      momentum: 0.9
+    rms:
+      learning_rate: 1.0e-4
+      momentum: 0.9
+
+  # define the hyper-parameters for preprocessing
+  preprocess:
+    batch_size: 2
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 10 # number of training epochs
+  save_period: 2 # the model will be saved every `save_period` epochs.
