@@ -1,0 +1,178 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+Enough GPUs available.
+Allocating card 0
+gonzo-605-11.local
+Wed 20 Jan 17:36:29 GMT 2021
+2021-01-20 17:36:51.945552: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+WARNING:root:Log directory logs/test exists already.
+2021-01-20 17:37:23.849348: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcuda.so.1
+2021-01-20 17:37:23.893146: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-01-20 17:37:23.893192: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-20 17:37:27.430003: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-01-20 17:37:30.003033: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-01-20 17:37:30.239508: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-01-20 17:37:31.173102: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-01-20 17:37:31.700984: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-01-20 17:37:34.557716: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-01-20 17:37:34.560314: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-01-20 17:37:34.605309: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-01-20 17:37:34.663750: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 2400030000 Hz
+2021-01-20 17:37:34.666178: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x47a5f30 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-01-20 17:37:34.666200: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-01-20 17:37:34.807614: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x400f190 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-01-20 17:37:34.807651: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): GeForce GTX 1080 Ti, Compute Capability 6.1
+2021-01-20 17:37:35.093347: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-01-20 17:37:35.093406: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-20 17:37:35.093458: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-01-20 17:37:35.093488: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-01-20 17:37:35.093513: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-01-20 17:37:35.093537: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-01-20 17:37:35.093561: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-01-20 17:37:35.093594: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-01-20 17:37:35.096810: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-01-20 17:37:35.110156: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-01-20 17:37:43.047130: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-01-20 17:37:43.047291: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263]      0 
+2021-01-20 17:37:43.047309: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1276] 0:   N 
+2021-01-20 17:37:43.051200: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10273 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
+2021-01-20 17:37:46.031410: I tensorflow/core/profiler/lib/profiler_session.cc:164] Profiler session started.
+2021-01-20 17:37:46.031459: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1391] Profiler found 1 GPUs
+2021-01-20 17:37:46.033090: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcupti.so.10.1'; dlerror: libcupti.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:/share/apps/python-3.7.2-shared/lib:/opt/gridengine/lib/lx-amd64
+2021-01-20 17:37:46.043939: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcupti.so
+2021-01-20 17:37:46.251211: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1513] CUPTI activity buffer flushed
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+2021-01-20 17:38:28.763420: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:172] Filling up shuffle buffer (this may take a while): 1 of 2
+2021-01-20 17:38:55.795779: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:221] Shuffle buffer filled.
+2021-01-20 17:38:56.488809: W tensorflow/core/framework/op_kernel.cc:1755] Unknown: ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 278, in data_generator
+    moving_image = self.loader_moving_image.get_data(index=moving_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/loadsave.py", line 55, in load
+    raise ImageFileError(f'Cannot work out file type of "{filename}"')
+
+nibabel.filebasedimages.ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+
+
+Epoch 1/10
+Traceback (most recent call last):
+  File "/home/bryanko/venvs/deepreg/bin/deepreg_train", line 33, in <module>
+    sys.exit(load_entry_point('deepreg', 'console_scripts', 'deepreg_train')())
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 256, in main
+    max_epochs=args.max_epochs,
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 177, in train
+    callbacks=callbacks,
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/keras/engine/training.py", line 108, in _method_wrapper
+    return method(self, *args, **kwargs)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/keras/engine/training.py", line 1098, in fit
+    tmp_logs = train_function(iterator)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 780, in __call__
+    result = self._call(*args, **kwds)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/def_function.py", line 840, in _call
+    return self._stateless_fn(*args, **kwds)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 2829, in __call__
+    return graph_function._filtered_call(args, kwargs)  # pylint: disable=protected-access
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1848, in _filtered_call
+    cancellation_manager=cancellation_manager)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 1924, in _call_flat
+    ctx, args, cancellation_manager=cancellation_manager))
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/function.py", line 550, in call
+    ctx=ctx)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/execute.py", line 60, in quick_execute
+    inputs, attrs, num_outputs)
+tensorflow.python.framework.errors_impl.UnknownError: 2 root error(s) found.
+  (0) Unknown:  ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 278, in data_generator
+    moving_image = self.loader_moving_image.get_data(index=moving_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/loadsave.py", line 55, in load
+    raise ImageFileError(f'Cannot work out file type of "{filename}"')
+
+nibabel.filebasedimages.ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+
+
+	 [[{{node PyFunc}}]]
+	 [[MultiDeviceIteratorGetNextFromShard]]
+	 [[RemoteCall]]
+	 [[IteratorGetNext]]
+	 [[div_no_nan_2/ReadVariableOp/_230]]
+  (1) Unknown:  ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+Traceback (most recent call last):
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/script_ops.py", line 244, in __call__
+    ret = func(*args)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/autograph/impl/api.py", line 302, in wrapper
+    return func(*args, **kwargs)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 827, in generator_py_func
+    values = next(generator_state.get_iterator(iterator_id))
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 278, in data_generator
+    moving_image = self.loader_moving_image.get_data(index=moving_index)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 134, in get_data
+    arr = load_nifti_file(file_path=file_path)
+
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/nifti_loader.py", line 22, in load_nifti_file
+    return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
+
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/nibabel/loadsave.py", line 55, in load
+    raise ImageFileError(f'Cannot work out file type of "{filename}"')
+
+nibabel.filebasedimages.ImageFileError: Cannot work out file type of "data/test/nifti/unpaired/train/images/cluster/project7/brain_age/MS/Rotated/output/slicesdir_000009_rotated.nii"
+
+
+	 [[{{node PyFunc}}]]
+	 [[MultiDeviceIteratorGetNextFromShard]]
+	 [[RemoteCall]]
+	 [[IteratorGetNext]]
+0 successful operations.
+0 derived errors ignored. [Op:__inference_train_function_24071]
+
+Function call stack:
+train_function -> train_function
+
+GPU Epilog Script v0.30
