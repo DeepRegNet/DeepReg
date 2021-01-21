@@ -1,0 +1,2 @@
+model_checkpoint_path: "weights-epoch10.ckpt"
+all_model_checkpoint_paths: "weights-epoch10.ckpt"
