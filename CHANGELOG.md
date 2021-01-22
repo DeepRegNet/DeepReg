@@ -6,14 +6,15 @@ to make them as straightforward as possible.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.0.0] - In Progress
+## [1.0.0-rc1] - In Progress
 
-Release comment: introduction of Registry funcionalities and modifications to the
-configuration files means that old configuraton files are no longer compatible with the
+Release comment: introduction of Registry functionalities and modifications to the
+configuration files means that old configuration files are no longer compatible with the
 updates.
 
 ### Added
 
+- Added backward compatible config parser.
 - Added tests so that test coverage is 100%.
 - Added config file docs with details on how new config works.
 - Added DDF data augmentation.

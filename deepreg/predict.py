@@ -13,9 +13,9 @@ import shutil
 import numpy as np
 import tensorflow as tf
 
+import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
-import deepreg.parser as config_parser
 from deepreg.callback import build_checkpoint_callback
 from deepreg.registry import REGISTRY, Registry
 from deepreg.util import (
