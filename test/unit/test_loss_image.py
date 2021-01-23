@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-import deepreg.model.loss.image as image
+import deepreg.loss.image as image
 
 
 class TestSumSquaredDistance:

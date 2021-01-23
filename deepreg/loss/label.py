@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
