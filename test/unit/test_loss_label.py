@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-import deepreg.model.loss.label as label
+import deepreg.loss.label as label
 
 
 @pytest.mark.parametrize("sigma", [1, 3, 2.2])
