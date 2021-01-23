@@ -1,4 +1,4 @@
-name: Demo Test
+name: Integration Test
 
 on:
   schedule:
