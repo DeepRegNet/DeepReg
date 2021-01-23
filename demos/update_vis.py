@@ -131,7 +131,8 @@ def main(args=None):
             execute_commands([f"python demos/{demo_name}/demo_data.py"])
             execute_commands(
                 [
-                    f"python demos/{demo_name}/demo_predict.py --method {multi_config_methods[ind]}"
+                    f"python demos/{demo_name}/demo_predict.py"
+                    f" --method {multi_config_methods[ind]}"
                 ]
             )
             check_vis_unpaired_ct_abdomen(
