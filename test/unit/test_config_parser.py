@@ -8,7 +8,12 @@ import pytest
 import yaml
 from testfixtures import TempDirectory
 
-from deepreg.parser import config_sanity_check, load_configs, save, update_nested_dict
+from deepreg.config.parser import (
+    config_sanity_check,
+    load_configs,
+    save,
+    update_nested_dict,
+)
 
 
 def test_update_nested_dict():
@@ -67,28 +72,33 @@ def test_update_nested_dict():
     assert got == expected
 
 
-def test_load_configs():
-    """
-    test load_configs by checking outputs
-    """
-    # single config
-    # input is str not list
-    with open("config/unpaired_labeled_ddf.yaml") as file:
-        expected = yaml.load(file, Loader=yaml.FullLoader)
-    got = load_configs("config/unpaired_labeled_ddf.yaml")
-    assert got == expected
+class TestLoadConfigs:
+    def test_single_config(self):
+        with open("config/unpaired_labeled_ddf.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs("config/unpaired_labeled_ddf.yaml")
+        assert got == expected
 
-    # multiple configs
-    with open("config/unpaired_labeled_ddf.yaml") as file:
-        expected = yaml.load(file, Loader=yaml.FullLoader)
-    got = load_configs(
-        config_path=[
-            "config/test/ddf.yaml",
-            "config/test/unpaired_nifti.yaml",
-            "config/test/labeled.yaml",
-        ]
-    )
-    assert got == expected
+    def test_multiple_configs(self):
+        with open("config/unpaired_labeled_ddf.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs(
+            config_path=[
+                "config/test/ddf.yaml",
+                "config/test/unpaired_nifti.yaml",
+                "config/test/labeled.yaml",
+            ]
+        )
+        assert got == expected
+
+    def test_outdated_config(self):
+        with open("demos/grouped_mr_heart/grouped_mr_heart.yaml") as file:
+            expected = yaml.load(file, Loader=yaml.FullLoader)
+        got = load_configs("config/test/grouped_mr_heart_v011.yaml")
+        assert got == expected
+        updated_file_path = "config/test/updated_grouped_mr_heart_v011.yaml"
+        assert os.path.isfile(updated_file_path)
+        os.remove(updated_file_path)
 
 
 def test_save():
@@ -115,9 +125,6 @@ def test_config_sanity_check(caplog):
 
     :param caplog: used to check warning message.
     """
-    # dataset is not in the key
-    with pytest.raises(AssertionError):
-        config_sanity_check(config=dict())
 
     # unknown data type
     with pytest.raises(ValueError) as err_info:
@@ -166,7 +173,7 @@ def test_config_sanity_check(caplog):
                     dir=dict(train=None, valid=None, test=None),
                     labeled=False,
                 ),
-                train=dict(method="conditional"),
+                train=dict(method="conditional", loss=dict(), preprocess=dict()),
             )
         )
     assert "For conditional model, data have to be labeled, got unlabeled data." in str(
@@ -188,10 +195,11 @@ def test_config_sanity_check(caplog):
             train=dict(
                 method="ddf",
                 loss=dict(
-                    image=dict(weight=0.0),
-                    label=dict(weight=0.0),
-                    regularization=dict(weight=0.0),
+                    image=dict(name="lncc", weight=0.0),
+                    label=dict(name="ssd", weight=0.0),
+                    regularization=dict(name="bending", weight=0.0),
                 ),
+                preprocess=dict(),
             ),
         )
     )
@@ -199,6 +207,6 @@ def test_config_sanity_check(caplog):
     assert "Data directory for train is not defined." in caplog.text
     assert "Data directory for valid is not defined." in caplog.text
     assert "Data directory for test is not defined." in caplog.text
-    assert "The image loss 0.0 is not positive." in caplog.text
-    assert "The label loss 0.0 is not positive." in caplog.text
-    assert "The regularization loss 0.0 is not positive." in caplog.text
+    assert "The image loss weight 0.00 is not positive." in caplog.text
+    assert "The label loss weight 0.00 is not positive." in caplog.text
+    assert "The regularization loss weight 0.00 is not positive." in caplog.text
