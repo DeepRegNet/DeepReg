@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
-from deepreg.model.backbone import BackboneInterface
+from deepreg.model.backbone.interface import BackboneInterface
 from deepreg.registry import REGISTRY
 
 
