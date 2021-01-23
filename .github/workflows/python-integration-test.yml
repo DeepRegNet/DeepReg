@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  demo-test:
+  integration-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -27,4 +27,4 @@ jobs:
         run: |
           pip install pytest
           pip install -e .
-          pytest ./test/demo/
+          pytest test/integration
