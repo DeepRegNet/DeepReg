@@ -3,7 +3,7 @@ import os
 import subprocess
 
 
-def check_vis_single_config_demo(name, slice):
+def vis_single_config_demo(name, slice):
     time = sorted(os.listdir(f"demos/{name}/logs_predict"))[-1]
     pair = sorted(os.listdir(f"demos/{name}/logs_predict/{time}/test"))[-1]
     cmd = [
@@ -11,13 +11,13 @@ def check_vis_single_config_demo(name, slice):
         f"'demos/{name}/logs_predict/{time}/test/{pair}/moving_image.nii.gz,"
         f"demos/{name}/logs_predict/{time}/test/{pair}/pred_fixed_image.nii.gz,"
         f"demos/{name}/logs_predict/{time}/test/{pair}/fixed_image.nii.gz'"
-        f" --slice-inds {slice} -s /home/zcemsus/deepreg_demo_vis/all_assets"
+        f" --slice-inds {slice} -s docs/source/assets"
         f" --fname {name}.png"
     ]
     execute_commands([cmd])
 
 
-def check_vis_unpaired_ct_abdomen(name, method, slice):
+def vis_unpaired_ct_abdomen(name, method, slice):
     time = sorted(os.listdir(f"demos/{name}/logs_predict/{method}"))[-1]
     pair = sorted(os.listdir(f"demos/{name}/logs_predict/{method}/{time}/test"))[-1]
     cmd = [
@@ -26,19 +26,19 @@ def check_vis_unpaired_ct_abdomen(name, method, slice):
         f"demos/{name}/logs_predict/{method}/{time}/test/{pair}/"
         f"pred_fixed_image.nii.gz,"
         f"demos/{name}/logs_predict/{method}/{time}/test/{pair}/fixed_image.nii.gz'"
-        f" --slice-inds {slice} -s /home/zcemsus/deepreg_demo_vis/all_assets"
+        f" --slice-inds {slice} -s docs/source/assets"
         f" --fname {name}.png"
     ]
     execute_commands([cmd])
 
 
-def check_vis_classical_demo(name, slice):
+def vis_classical_demo(name, slice):
     cmd = [
         f"deepreg_vis -m 2 -i "
         f"'demos/{name}/logs_reg/moving_image.nii.gz,"
         f"demos/{name}/logs_reg/warped_moving_image.nii.gz,"
         f"demos/{name}/logs_reg/fixed_image.nii.gz'"
-        f" --slice-inds {slice} -s /home/zcemsus/deepreg_demo_vis/all_assets"
+        f" --slice-inds {slice} -s docs/source/assets"
         f" --fname {name}.png"
     ]
     execute_commands([cmd])
@@ -124,7 +124,7 @@ def main(args=None):
             ind = single_config_names.index(demo_name)
             execute_commands([f"python demos/{demo_name}/demo_data.py"])
             execute_commands([f"python demos/{demo_name}/demo_predict.py"])
-            check_vis_single_config_demo(demo_name, single_config_slices[ind])
+            vis_single_config_demo(demo_name, single_config_slices[ind])
 
         elif demo_name in multi_config_names:
             ind = multi_config_names.index(demo_name)
@@ -135,7 +135,7 @@ def main(args=None):
                     f" --method {multi_config_methods[ind]}"
                 ]
             )
-            check_vis_unpaired_ct_abdomen(
+            vis_unpaired_ct_abdomen(
                 demo_name, multi_config_methods[ind], multi_config_slices[ind]
             )
 
@@ -143,7 +143,7 @@ def main(args=None):
             ind = classical_names.index(demo_name)
             execute_commands([f"python demos/{demo_name}/demo_data.py"])
             execute_commands([f"python demos/{demo_name}/demo_register.py"])
-            check_vis_classical_demo(demo_name, classical_slices[ind])
+            vis_classical_demo(demo_name, classical_slices[ind])
 
         else:
             raise Exception(f"{demo_name} was not recognised as a demo name")
