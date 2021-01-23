@@ -58,10 +58,10 @@ class CustomBackbone(BackboneInterface):
         """
         Builds graph based on built layers.
 
-        :param inputs: shape = [batch, f_dim1, f_dim2, f_dim3, in_channels]
+        :param inputs: shape = (batch, f_dim1, f_dim2, f_dim3, in_channels)
         :param training:
         :param mask:
-        :return: shape = [batch, f_dim1, f_dim2, f_dim3, out_channels]
+        :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
         """
         out = self.conv1(inputs)
         out = self.conv2(out)

@@ -9,10 +9,26 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+import deepreg.model.backbone as backbone
 import deepreg.model.backbone.global_net as g
 import deepreg.model.backbone.local_net as loc
 import deepreg.model.backbone.u_net as u
 import deepreg.model.layer as layer
+
+
+def test_backbone_interface():
+    """Test the get_config of the interface"""
+    config = dict(
+        image_size=(5, 5, 5),
+        out_channels=3,
+        num_channel_initial=4,
+        out_kernel_initializer="zeros",
+        out_activation="relu",
+        name="test",
+    )
+    model = backbone.BackboneInterface(**config)
+    got = model.get_config()
+    assert got == config
 
 
 def test_init_global_net():

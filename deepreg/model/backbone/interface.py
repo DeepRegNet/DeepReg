@@ -50,14 +50,11 @@ class BackboneInterface(tf.keras.Model):
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config.update(
-            dict(
-                image_size=self.image_size,
-                out_channels=self.out_channels,
-                num_channel_initial=self.num_channel_initial,
-                out_kernel_initializer=self.out_kernel_initializer,
-                out_activation=self.out_activation,
-            )
+        return dict(
+            image_size=self.image_size,
+            out_channels=self.out_channels,
+            num_channel_initial=self.num_channel_initial,
+            out_kernel_initializer=self.out_kernel_initializer,
+            out_activation=self.out_activation,
+            name=self.name,
         )
-        return config
