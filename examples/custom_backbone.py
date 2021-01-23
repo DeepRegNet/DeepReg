@@ -1,11 +1,12 @@
 import tensorflow as tf
 
+from deepreg.model.backbone import BackboneInterface
 from deepreg.registry import REGISTRY
 from deepreg.train import train
 
 
 @REGISTRY.register_backbone(name="custom_backbone")
-class CustomBackbone(tf.keras.Model):
+class CustomBackbone(BackboneInterface):
     """
     A dummy custom model for demonstration purpose only
     """
@@ -17,6 +18,7 @@ class CustomBackbone(tf.keras.Model):
         num_channel_initial: int,
         out_kernel_initializer: str,
         out_activation: str,
+        name: str = "CustomBackbone",
         **kwargs,
     ):
         """
@@ -26,17 +28,20 @@ class CustomBackbone(tf.keras.Model):
         :param out_channels: number of channels for the output
         :param num_channel_initial: number of initial channels
         :param depth: input is at level 0, bottom is at level depth
-        :param out_kernel_initializer: which kernel to use as initializer
-        :param out_activation: activation at last layer
+        :param out_kernel_initializer: kernel initializer for the last layer
+        :param out_activation: activation at the last layer
+        :param name: name of the backbone
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-
-        self.image_size = image_size
-        self.out_channels = out_channels
-        self.num_channel_initial = num_channel_initial
-        self.out_kernel_initializer = out_kernel_initializer
-        self.out_activation = out_activation
+        super().__init__(
+            image_size=image_size,
+            out_channels=out_channels,
+            num_channel_initial=num_channel_initial,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            name=name,
+            **kwargs,
+        )
 
         self.conv1 = tf.keras.layers.Conv3D(
             filters=num_channel_initial, kernel_size=3, padding="same"
@@ -61,20 +66,6 @@ class CustomBackbone(tf.keras.Model):
         out = self.conv1(inputs)
         out = self.conv2(out)
         return out
-
-    def get_config(self) -> dict:
-        """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config.update(
-            dict(
-                image_size=self.image_size,
-                out_channels=self.out_channels,
-                num_channel_initial=self.num_channel_initial,
-                out_kernel_initializer=self.out_kernel_initializer,
-                out_activation=self.out_activation,
-            )
-        )
-        return config
 
 
 config_path = "examples/config_custom_backbone.yaml"
