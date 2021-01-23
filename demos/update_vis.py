@@ -2,8 +2,6 @@ import argparse
 import os
 import subprocess
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
 
 def check_vis_single_config_demo(name, slice):
     time = sorted(os.listdir(f"demos/{name}/logs_predict"))[-1]
@@ -71,6 +69,17 @@ def main(args=None):
         type=str,
         default=None,
     )
+
+    parser.add_argument(
+        "--gpu",
+        "-g",
+        help="GPU to use for running predict/ register scripts for demos for vis"
+        "if not passed then CPU is used",
+        type=str,
+        default="",
+    )
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     single_config_names = [
         "grouped_mask_prostate_longitudinal",
