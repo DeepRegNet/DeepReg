@@ -12,7 +12,7 @@ train:
   # define neural network structure
   method: "ddf" # options include "ddf", "dvf", "conditional"
   backbone:
-    name: "custom" # options include "local", "unet" and "global" - use "global" when method=="affine"
+    name: "custom_backbone" # options include "local", "unet" and "global"
     num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
 
   # define the loss function for training

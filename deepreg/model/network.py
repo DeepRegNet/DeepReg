@@ -65,7 +65,7 @@ class RegistrationModel(tf.keras.Model):
         self._model = self.build_model()
         self.build_loss()
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         return dict(
             moving_image_size=self.moving_image_size,
