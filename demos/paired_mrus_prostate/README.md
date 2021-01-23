@@ -91,7 +91,7 @@ registration. Please see the visualisation tool docs
 for more visualisation options such as animated gifs.
 
 ```bash
-deepreg_vis -m 2 -i 'demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '12,20,36' -s demos/paired_mrus_prostate/logs_predict
+deepreg_vis -m 2 -i 'demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/moving_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/pred_fixed_image.nii.gz, demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>/fixed_image.nii.gz' --slice-inds '12,20,36' -s demos/paired_mrus_prostate/logs_predict/<time-stamp>/test/<pair-number>
 ```
 
 Note: The prediction must be run before running the command to generate the
