@@ -18,3 +18,9 @@ Deformation Loss
 
 .. automodule:: deepreg.loss.deform
     :members:
+
+Loss Util
+---------
+
+.. automodule:: deepreg.loss.util
+    :members:
