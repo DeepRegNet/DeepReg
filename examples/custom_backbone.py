@@ -77,7 +77,7 @@ class CustomBackbone(tf.keras.Model):
         return config
 
 
-config_path = "tutorial/config_custom_backbone.yaml"
+config_path = "examples/config_custom_backbone.yaml"
 train(
     gpu="",
     config_path=config_path,
