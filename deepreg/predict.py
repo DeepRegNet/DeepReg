@@ -17,7 +17,7 @@ import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
 from deepreg.callback import build_checkpoint_callback
-from deepreg.registry import REGISTRY, Registry
+from deepreg.registry import REGISTRY
 from deepreg.util import (
     build_dataset,
     build_log_dir,
@@ -191,7 +191,6 @@ def predict(
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
-    registry: Registry = REGISTRY,
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -207,7 +206,6 @@ def predict(
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
-    :param registry: registry to construct class objects
     """
     # TODO support custom sample_label
     logging.warning(
@@ -235,14 +233,13 @@ def predict(
         mode=mode,
         training=False,
         repeat=False,
-        registry=registry,
     )
 
     # optimizer
     optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # model
-    model = registry.build_model(
+    model = REGISTRY.build_model(
         config=dict(
             name=config["train"]["method"],
             moving_image_size=data_loader.moving_image_shape,
