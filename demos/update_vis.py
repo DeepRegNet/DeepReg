@@ -79,6 +79,8 @@ def main(args=None):
         default="",
     )
 
+    args = parser.parse_args(args)
+
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     single_config_names = [
@@ -109,7 +111,12 @@ def main(args=None):
     classical_names = ["classical_ct_headneck_affine", "classical_mr_prostate_nonrigid"]
     classical_slices = ["4,8,12", "4,8,12"]
 
-    demo_names = [elem.strip() for elem in args.demos.split(",")]
+    if args.demos is None:
+        demos = ", ".join(single_config_names + multi_config_names + classical_names)
+    else:
+        demos = args.demos
+
+    demo_names = [elem.strip() for elem in demos.split(",")]
 
     for demo_name in demo_names:
 
