@@ -23,5 +23,5 @@ class TestTutorial:
         ],
     )
     def test_registry(self, name: str):
-        cmds = [f"python tutorial/{name}.py"]
+        cmds = [f"python examples/{name}.py"]
         execute_commands(cmds)
