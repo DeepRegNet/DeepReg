@@ -4,7 +4,7 @@ flake8
 GitPython
 h5py<2.11.0,>=2.10.0
 isort
-m2r2
+m2r2>=0.2.6
 matplotlib
 nibabel
 notebook

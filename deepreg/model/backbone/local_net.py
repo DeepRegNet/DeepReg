@@ -18,13 +18,13 @@ class LocalNet(BackboneInterface):
 
     - Hu, Yipeng, et al.
       "Weakly-supervised convolutional neural networks
-       for multimodal image registration."
+      for multimodal image registration."
       Medical image analysis 49 (2018): 1-13.
       https://doi.org/10.1016/j.media.2018.07.002
 
     - Hu, Yipeng, et al.
       "Label-driven weakly-supervised learning
-       for multimodal deformable image registration,"
+      for multimodal deformable image registration,"
       https://arxiv.org/abs/1711.01666
     """
 

@@ -1,32 +1,80 @@
 # Registry
 
-> This is a functionality under active development. A full documentation will be
-> released later.
+DeepReg adopts the
+[registry system](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/registry.py)
+to facilitate the usage of custom functionalities.
 
-DeepReg is adopting the usage of the registry system recently, to facilitate the usage
-of custom functionalities including
+## Description
 
-- neural network architecture
-- loss
-- optimizer
-- data pre-processing
-- data loader
+The class `Registry` maintains a dictionary mapping `(category, key)` to `value`, where
 
-The registry is defined in `deepreg/registry.py`, where the class `Registry` maintains a
-dictionary mapping `(category, key)` to `value`. It also provides the
-`build_from_config` functionality, which allows creating a class instance from a config
-directly. This allows for the simplification of the config file such that each
-configuration only needs to provide the name of the class and the arguments to build the
-class for use.
+- `category` is the class category, e.g. `"backbone_class""` for backbone classes.
+- `key` is the name of the registered class, e.g. `"unet"` for the class `UNet`.
+- `value` is the registered class, e.g. `UNet` corresponding to `"unet"`.
 
-With the registry, when developing new classes **inside DeepReg**, we should use the
-corresponding decorator, so that the class is registered. Please check
-`deepreg/model/backbone/u_net.py` as an example. Moreover, the corresponding
-`__init__.py` (maybe multiple ones) should be modified so that these classes will be
-automatically registered when executing `import deepreg`. For defining custom classes
-outside DeepReg, more detailed tutorial will be released later.
+A global variable `REGISTRY = Registry()` is defined to provide a central control of all
+classes.
 
-For now, we only support custom classes of
+### Register a class
 
-- backbone
-- loss
+To register a class into `REGISTRY`, it is recommended to use `register` as a
+**decorator**. Consider the `UNet` class for backbone as an example.
+
+```python
+@REGISTRY.register(category="backbone_class", name="unet")
+class UNet:
+    """UNet-style backbone."""
+```
+
+The decorator will automatically register the class when this class get imported.
+Therefore, in order to make sure this class registered when we `import deepreg`, this
+class and related parent modules needs to be imported in the `__init__.py` files.
+
+For the purpose of code simplification, a specific register function is defined for each
+category. For instance, we can use `register_backbone` for `UNet`:
+
+```python
+@REGISTRY.register_backbone(name="unet")
+class UNet:
+    """UNet-style backbone."""
+```
+
+### Instantiate a class
+
+To instantiate a registered example in `REGISTRY`, we call `build_from_config` , which
+allows creating a class instance from a config directly. This allows for the
+simplification of the config file such that each configuration only needs to provide the
+name of the class and the arguments to build the class for use.
+
+For instance, to instantiate a UNet class,
+
+```python
+unet = REGISTRY.build_from_config(category="backbone_class", config={"name":"unet", **kwargs})
+```
+
+where `kwargs` represents other required arguments.
+
+Similarly, for the purpose of code simplification, a specific build function is defined
+for each category. For instance, we can use `build_backbone` for `UNet`:
+
+```python
+unet = REGISTRY.build_from_config(config={"name":"unet", **kwargs})
+```
+
+## Example usages
+
+To further explain how to use `REGISTRY` for using customized classes, detailed examples
+are provided for each category below.
+
+### Custom backbone
+
+To register a custom backbone class, the steps are as follows
+
+1. Import the `BackboneInterface` and implement a custom backbone class.
+2. Import `REGISTRY` and use the decorator `@REGISTRY.register_backbone` to register the
+   custom class.
+3. Use the registered name in the config for using the registered backbone.
+
+Please check the self-contained
+[example script](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_backbone.py)
+for further details.

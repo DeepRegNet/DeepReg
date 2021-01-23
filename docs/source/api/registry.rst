@@ -1,5 +1,6 @@
 Registry
 ========
 
-.. automodule:: deepreg.registry
-    :members:
+.. autoclass:: deepreg.registry.Registry
+   :members:
+   :private-members:
