@@ -1,3 +1,4 @@
+"""This script provides an example of using custom backbone for training."""
 import tensorflow as tf
 
 from deepreg.model.backbone import BackboneInterface
