@@ -26,7 +26,7 @@ class TestBuildConfig:
     def test_ckpt_path(self, ckpt_path):
         # check the code can pass
 
-        got_config, got_log_dir = build_config(
+        got_config, got_log_dir, _ = build_config(
             config_path=self.config_path,
             log_root=log_root,
             log_dir=self.log_dir,
