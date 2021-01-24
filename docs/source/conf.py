@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "DeepReg"
-copyright = "2020, DeepReg"
+copyright = "2021, DeepReg"
 author = "DeepReg"
 
 # -- General configuration ---------------------------------------------------

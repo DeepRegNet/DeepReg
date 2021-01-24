@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -112,7 +112,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         """
         raise NotImplementedError
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["scales"] = self.scales
@@ -186,7 +186,7 @@ class DiceScore(MultiScaleLoss):
         denominator = (1 - 2 * self.neg_weight) * y_sum + 2 * self.neg_weight
         return (numerator + EPS) / (denominator + EPS)
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
@@ -253,7 +253,7 @@ class CrossEntropy(MultiScaleLoss):
         loss_neg = tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1)
         return -(1 - self.neg_weight) * loss_pos - self.neg_weight * loss_neg
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
@@ -313,7 +313,7 @@ class JaccardIndex(MultiScaleLoss):
 
         return (y_prod + EPS) / (y_sum - y_prod + EPS)
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary

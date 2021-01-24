@@ -5,11 +5,12 @@ from typing import List
 import tensorflow as tf
 
 from deepreg.model import layer
+from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
 @REGISTRY.register_backbone(name="local")
-class LocalNet(tf.keras.Model):
+class LocalNet(Backbone):
     """
     Build LocalNet for image registration.
 
@@ -17,13 +18,13 @@ class LocalNet(tf.keras.Model):
 
     - Hu, Yipeng, et al.
       "Weakly-supervised convolutional neural networks
-       for multimodal image registration."
+      for multimodal image registration."
       Medical image analysis 49 (2018): 1-13.
       https://doi.org/10.1016/j.media.2018.07.002
 
     - Hu, Yipeng, et al.
       "Label-driven weakly-supervised learning
-       for multimodal deformable image registration,"
+      for multimodal deformable image registration,"
       https://arxiv.org/abs/1711.01666
     """
 
@@ -36,6 +37,7 @@ class LocalNet(tf.keras.Model):
         out_kernel_initializer: str,
         out_activation: str,
         control_points: (tuple, None) = None,
+        name: str = "LocalNet",
         **kwargs,
     ):
         """
@@ -53,9 +55,18 @@ class LocalNet(tf.keras.Model):
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
         :param control_points: specify the distance between control points (in voxels).
+        :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
+        super().__init__(
+            image_size=image_size,
+            out_channels=out_channels,
+            num_channel_initial=num_channel_initial,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            name=name,
+            **kwargs,
+        )
 
         # save parameters
         self._extract_levels = extract_levels
@@ -63,7 +74,6 @@ class LocalNet(tf.keras.Model):
         self._extract_min_level = min(self._extract_levels)  # D
 
         # init layer variables
-
         num_channels = [
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)

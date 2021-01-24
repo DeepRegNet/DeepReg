@@ -18,7 +18,6 @@ from deepreg.dataset.loader.interface import (
 from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.util import normalize_array
-from deepreg.registry import REGISTRY
 
 
 class TestDataLoader:
@@ -134,7 +133,6 @@ class TestDataLoader:
             batch_size=batch_size,
             repeat=True,
             shuffle_buffer_num_batch=1,
-            registry=REGISTRY,
             **data_augmentation,
         )
 

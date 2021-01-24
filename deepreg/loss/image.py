@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -127,7 +127,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         div = (pab + EPS) / (papb + EPS)
         return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["num_bins"] = self.num_bins
@@ -330,7 +330,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["kernel_size"] = self.kernel_size

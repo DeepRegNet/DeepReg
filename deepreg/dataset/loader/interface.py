@@ -11,7 +11,7 @@ import tensorflow as tf
 from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
-from deepreg.registry import REGISTRY, Registry
+from deepreg.registry import REGISTRY
 
 
 class DataLoader:
@@ -89,7 +89,6 @@ class DataLoader:
         repeat: bool,
         shuffle_buffer_num_batch: int,
         data_augmentation: Optional[Union[List, Dict]] = None,
-        registry: Registry = REGISTRY,
     ) -> tf.data.Dataset:
         """
         :param training: bool, indicating if it's training or not
@@ -99,7 +98,6 @@ class DataLoader:
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
         :param repeat: bool, indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
-        :param registry: object with the registered pairs (category,name)
         :returns dataset:
         """
 
@@ -131,7 +129,7 @@ class DataLoader:
             if isinstance(data_augmentation, dict):
                 data_augmentation = [data_augmentation]
             for config in data_augmentation:
-                da_fn = registry.build_data_augmentation(
+                da_fn = REGISTRY.build_data_augmentation(
                     config=config,
                     default_args={
                         "moving_image_size": self.moving_image_shape,

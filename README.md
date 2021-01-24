@@ -36,11 +36,11 @@
       <b>Code</b>
     </td>
     <td>
-      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%20Unit%20Test">
+      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%22Unit+Test%22">
       <img src="https://github.com/deepregnet/deepreg/workflows/Unit%20Test/badge.svg?branch=main" alt="Unit Test">
       </a>
-      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%20Demo%20Test">
-      <img src="https://github.com/deepregnet/deepreg/workflows/Demo%20Test/badge.svg?branch=main" alt="Demo Test">
+      <a href="https://github.com/DeepRegNet/DeepReg/actions?query=workflow%3A%22Integration+Test%22">
+      <img src="https://github.com/deepregnet/deepreg/workflows/Integration%20Test/badge.svg?branch=main" alt="Integration Test">
       </a>
       <a href="https://codecov.io/github/DeepRegNet/DeepReg">
       <img src="https://codecov.io/gh/DeepRegNet/DeepReg/branch/main/graph/badge.svg" alt="Coverage Status">

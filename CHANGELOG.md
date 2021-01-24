@@ -8,12 +8,12 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.0-rc1] - In Progress
 
-Release comment: introduction of Registry functionalities and modifications to the
-configuration files means that old configuration files are no longer compatible with the
-updates.
+Release comment: refactoring of models means that old checkpoint files are no longer
+compatible with the updates.
 
 ### Added
 
+- Added the docs on registry for backbone models.
 - Added backward compatible config parser.
 - Added tests so that test coverage is 100%.
 - Added config file docs with details on how new config works.

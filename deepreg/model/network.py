@@ -65,7 +65,7 @@ class RegistrationModel(tf.keras.Model):
         self._model = self.build_model()
         self.build_loss()
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         return dict(
             moving_image_size=self.moving_image_size,
@@ -442,6 +442,10 @@ class DVFModel(DDFModel):
 
 @REGISTRY.register_model(name="conditional")
 class ConditionalModel(RegistrationModel):
+    """
+    A registration model predicts fixed image label without DDF or DVF.
+    """
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         assert self.labeled
