@@ -22,19 +22,25 @@ To register a class into `REGISTRY`, it is recommended to use `register` as a
 **decorator**. Consider the `UNet` class for backbone as an example.
 
 ```python
+from deepreg.registry import REGISTRY
+
+
 @REGISTRY.register(category="backbone_class", name="unet")
 class UNet:
     """UNet-style backbone."""
 ```
 
-The decorator will automatically register the class when this class get imported.
-Therefore, in order to make sure this class registered when we `import deepreg`, this
-class and related parent modules needs to be imported in the `__init__.py` files.
+The decorator automatically registers the class upon import. To ensure that this class
+is registered when `import deepreg` is called, this class and related parent modules
+need to be imported in the `__init__.py` files.
 
 For the purpose of code simplicity, a specific register function is defined for each
 category. For instance, we can use `register_backbone` for `UNet`:
 
 ```python
+from deepreg.registry import REGISTRY
+
+
 @REGISTRY.register_backbone(name="unet")
 class UNet:
     """UNet-style backbone."""
@@ -52,7 +58,15 @@ resumed in the [registered classes](registered_classes.html) page.
 For instance, to instantiate a UNet class,
 
 ```python
-unet = REGISTRY.build_from_config(category="backbone_class", config={"name":"unet", **kwargs})
+from deepreg.registry import REGISTRY
+
+config = dict(name="unet",
+              image_size=(16,16,16),
+              out_channels=3,
+              num_channel_initial=2,
+              out_kernel_initializer="he_normal",
+              out_activation="")
+unet = REGISTRY.build_from_config(category="backbone_class", config=config)
 ```
 
 where `kwargs` represents other required arguments.
@@ -61,13 +75,24 @@ Similarly, for the purpose of code simplicity, a specific build function is defi
 each category. For instance, we can use `build_backbone` for `UNet`:
 
 ```python
-unet = REGISTRY.build_from_config(config={"name":"unet", **kwargs})
+from deepreg.registry import REGISTRY
+
+
+config = dict(name="unet",
+              image_size=(16,16,16),
+              out_channels=3,
+              num_channel_initial=2,
+              out_kernel_initializer="he_normal",
+              out_activation="")
+unet = REGISTRY.build_backbone(config=config)
 ```
 
 ## Example usages
 
 To further explain how to use `REGISTRY` for using customized classes, detailed examples
-are provided for each category below.
+are provided for the following categories:
+
+- backbone
 
 ### Custom backbone
 
