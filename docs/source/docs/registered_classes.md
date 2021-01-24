@@ -1,5 +1,7 @@
 # Registered Classes
 
+> This file is generated automatically.
+
 The following tables contain all registered classes with their categories and keys.
 
 ## Backbone

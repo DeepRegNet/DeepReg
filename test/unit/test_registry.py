@@ -116,6 +116,7 @@ class TestRegistry:
         # generate lines
         lines = (
             "# Registered Classes\n\n"
+            "> This file is generated automatically.\n\n"
             "The following tables contain all registered classes "
             "with their categories and keys."
         )
