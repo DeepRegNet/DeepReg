@@ -1,13 +1,13 @@
 """This script provides an example of using custom backbone for training."""
 import tensorflow as tf
 
-from deepreg.model.backbone import BackboneInterface
+from deepreg.model.backbone import Backbone
 from deepreg.registry import REGISTRY
 from deepreg.train import train
 
 
 @REGISTRY.register_backbone(name="custom_backbone")
-class CustomBackbone(BackboneInterface):
+class CustomBackbone(Backbone):
     """
     A dummy custom model for demonstration purpose only
     """

@@ -26,7 +26,7 @@ def test_backbone_interface():
         out_activation="relu",
         name="test",
     )
-    model = backbone.BackboneInterface(**config)
+    model = backbone.Backbone(**config)
     got = model.get_config()
     assert got == config
 

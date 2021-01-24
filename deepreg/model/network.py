@@ -442,6 +442,10 @@ class DVFModel(DDFModel):
 
 @REGISTRY.register_model(name="conditional")
 class ConditionalModel(RegistrationModel):
+    """
+    A registration model predicts fixed image label without DDF or DVF.
+    """
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         assert self.labeled

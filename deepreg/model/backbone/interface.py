@@ -3,7 +3,7 @@ from abc import abstractmethod
 import tensorflow as tf
 
 
-class BackboneInterface(tf.keras.Model):
+class Backbone(tf.keras.Model):
     """
     Interface class for backbones.
     """
@@ -15,7 +15,7 @@ class BackboneInterface(tf.keras.Model):
         num_channel_initial: int,
         out_kernel_initializer: str,
         out_activation: str,
-        name: str = "BackboneInterface",
+        name: str = "Backbone",
         **kwargs,
     ):
         """

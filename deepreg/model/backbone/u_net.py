@@ -4,12 +4,12 @@
 import tensorflow as tf
 
 from deepreg.model import layer
-from deepreg.model.backbone.interface import BackboneInterface
+from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
 @REGISTRY.register_backbone(name="unet")
-class UNet(BackboneInterface):
+class UNet(Backbone):
     """
     Class that implements an adapted 3D UNet.
 

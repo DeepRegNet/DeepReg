@@ -98,7 +98,7 @@ are provided for the following categories:
 
 To register a custom backbone class, the steps are as follows
 
-1. Inherit the `BackboneInterface` and implement a custom backbone class.
+1. Subclass the `Backbone` and implement a custom backbone class.
 2. Import `REGISTRY` and use the decorator `@REGISTRY.register_backbone` to register the
    custom class.
 3. Use the registered name in the config for using the registered backbone.

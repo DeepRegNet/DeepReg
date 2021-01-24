@@ -6,12 +6,12 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
-from deepreg.model.backbone.interface import BackboneInterface
+from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
 @REGISTRY.register_backbone(name="global")
-class GlobalNet(BackboneInterface):
+class GlobalNet(Backbone):
     """
     Build GlobalNet for image registration.
 
