@@ -33,6 +33,7 @@ def get_data_loader(data_config: dict, mode: str) -> (DataLoader, None):
         return None
     if isinstance(data_dir_paths, str):
         data_dir_paths = [data_dir_paths]
+    data_dir_paths = list(map(os.path.expanduser, data_dir_paths))
     for data_dir_path in data_dir_paths:
         if not os.path.isdir(data_dir_path):
             raise ValueError(
