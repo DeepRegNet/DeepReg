@@ -2,7 +2,7 @@
 
 DeepReg adopts the
 [registry system](https://github.com/DeepRegNet/DeepReg/blob/main/deepreg/registry.py)
-to facilitate the usage of custom functionalities.
+to facilitate the addition of custom functionalities.
 
 ## Description
 
@@ -13,7 +13,8 @@ The class `Registry` maintains a dictionary mapping `(category, key)` to `value`
 - `value` is the registered class, e.g. `UNet` corresponding to `"unet"`.
 
 A global variable `REGISTRY = Registry()` is defined to provide a central control of all
-classes.
+classes. The supported categories and the registered classes are resumed in the
+[registered classes](registered_classes.html) page.
 
 ### Register a class
 
@@ -30,7 +31,7 @@ The decorator will automatically register the class when this class get imported
 Therefore, in order to make sure this class registered when we `import deepreg`, this
 class and related parent modules needs to be imported in the `__init__.py` files.
 
-For the purpose of code simplification, a specific register function is defined for each
+For the purpose of code simplicity, a specific register function is defined for each
 category. For instance, we can use `register_backbone` for `UNet`:
 
 ```python
@@ -42,9 +43,11 @@ class UNet:
 ### Instantiate a class
 
 To instantiate a registered example in `REGISTRY`, we call `build_from_config` , which
-allows creating a class instance from a config directly. This allows for the
-simplification of the config file such that each configuration only needs to provide the
-name of the class and the arguments to build the class for use.
+allows creating a class instance from a config directly. The config should be a
+dictionary containing the key `name` and other required keys for the class. Please check
+the [configuration documentation](configuration.html) and the docstring of the related
+classes for detailed configuration requirements. The path of the registered classes are
+resumed in the [registered classes](registered_classes.html) page.
 
 For instance, to instantiate a UNet class,
 
@@ -54,8 +57,8 @@ unet = REGISTRY.build_from_config(category="backbone_class", config={"name":"une
 
 where `kwargs` represents other required arguments.
 
-Similarly, for the purpose of code simplification, a specific build function is defined
-for each category. For instance, we can use `build_backbone` for `UNet`:
+Similarly, for the purpose of code simplicity, a specific build function is defined for
+each category. For instance, we can use `build_backbone` for `UNet`:
 
 ```python
 unet = REGISTRY.build_from_config(config={"name":"unet", **kwargs})
@@ -70,7 +73,7 @@ are provided for each category below.
 
 To register a custom backbone class, the steps are as follows
 
-1. Import the `BackboneInterface` and implement a custom backbone class.
+1. Inherit the `BackboneInterface` and implement a custom backbone class.
 2. Import `REGISTRY` and use the decorator `@REGISTRY.register_backbone` to register the
    custom class.
 3. Use the registered name in the config for using the registered backbone.
