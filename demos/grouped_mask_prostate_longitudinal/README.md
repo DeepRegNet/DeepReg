@@ -12,6 +12,9 @@ This demo uses DeepReg to demonstrate a number of features:
   segmentation in this case - with deep learning;
 - Register intra-patient longitudinal data.
 
+This demo also implements the feature-based registration described in
+[Morphological Change Forecasting for Prostate Glands using Feature-based Registration and Kernel Density Extrapolation](https://arxiv.org/abs/2101.06425).
+
 ## Author
 
 DeepReg Development Team
