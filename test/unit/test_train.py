@@ -39,7 +39,7 @@ class TestBuildConfig:
         "max_epochs, expected_epochs, expected_save_period", [(-1, 2, 2), (3, 3, 2)]
     )
     def test_max_epochs(self, max_epochs, expected_epochs, expected_save_period):
-        got_config, _ = build_config(
+        got_config, _, _ = build_config(
             config_path=self.config_path,
             log_root=log_root,
             log_dir=self.log_dir,
