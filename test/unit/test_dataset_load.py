@@ -28,6 +28,12 @@ class TestGetDataLoader:
     @pytest.mark.parametrize("data_type", ["paired", "unpaired", "grouped"])
     @pytest.mark.parametrize("format", ["nifti", "h5"])
     def test_data_loader(self, data_type: str, format: str):
+        """
+        Test the data loader can be successfully built.
+
+        :param data_type: name of data loader for registry
+        :param format: name of file loader for registry
+        """
         # single paired data loader
         config = load_yaml(f"config/test/{data_type}_{format}.yaml")
         got = load.get_data_loader(data_config=config["dataset"], mode="train")
@@ -42,7 +48,11 @@ class TestGetDataLoader:
 
     @pytest.mark.parametrize("path", ["", None])
     def test_empty_path(self, path: Optional[str]):
-        """Test return without data path"""
+        """
+        Test return without data path.
+
+        :param path: training data path to be used
+        """
         config = load_yaml("config/test/paired_nifti.yaml")
         config["dataset"]["dir"]["train"] = path
         got = load.get_data_loader(data_config=config["dataset"], mode="train")
@@ -50,6 +60,11 @@ class TestGetDataLoader:
 
     @pytest.mark.parametrize("mode", ["train", "valid", "test"])
     def test_empty_config(self, mode: str):
+        """
+        Test return without data path for the mode.
+
+        :param mode: train or valid or test
+        """
         config = load_yaml("config/test/paired_nifti.yaml")
         config["dataset"]["dir"].pop(mode)
         got = load.get_data_loader(data_config=config["dataset"], mode=mode)
@@ -59,6 +74,11 @@ class TestGetDataLoader:
         "path", ["config/test/paired_nifti.yaml", "config/test/paired_nifti"]
     )
     def test_dir_err(self, path: Optional[str]):
+        """
+        Check the error is raised when the path is wrong.
+
+        :param path: training data path to be used
+        """
         config = load_yaml("config/test/paired_nifti.yaml")
         config["dataset"]["dir"]["train"] = path
         with pytest.raises(ValueError) as err_info:
@@ -66,6 +86,7 @@ class TestGetDataLoader:
         assert "is not a directory or does not exist" in str(err_info.value)
 
     def test_mode_err(self):
+        """Check the error is raised when the mode is wrong."""
         config = load_yaml("config/test/paired_nifti.yaml")
         with pytest.raises(AssertionError) as err_info:
             load.get_data_loader(data_config=config["dataset"], mode="example")
