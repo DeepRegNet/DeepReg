@@ -173,7 +173,12 @@ def test_config_sanity_check(caplog):
                     dir=dict(train=None, valid=None, test=None),
                     labeled=False,
                 ),
-                train=dict(method="conditional", loss=dict(), preprocess=dict()),
+                train=dict(
+                    method="conditional",
+                    loss=dict(),
+                    preprocess=dict(),
+                    optimizer=dict(name="Adam"),
+                ),
             )
         )
     assert "For conditional model, data have to be labeled, got unlabeled data." in str(
@@ -200,6 +205,7 @@ def test_config_sanity_check(caplog):
                     regularization=dict(name="bending", weight=0.0),
                 ),
                 preprocess=dict(),
+                optimizer=dict(name="Adam"),
             ),
         )
     )

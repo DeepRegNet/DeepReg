@@ -35,9 +35,8 @@ train:
 
   # define the optimizer
   optimizer:
-    name: "adam" # value should be adam / sgd / rms
-    adam:
-      learning_rate: 1.0e-4
+    name: "Adam"
+    learning_rate: 1.0e-4
 
   preprocess:
     data_augmentation:
