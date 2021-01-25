@@ -8,7 +8,6 @@ import yaml
 
 import deepreg.dataset.load as load
 from deepreg.dataset.loader.grouped_loader import GroupedDataLoader
-from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
 from deepreg.dataset.loader.paired_loader import PairedDataLoader
 from deepreg.dataset.loader.unpaired_loader import UnpairedDataLoader
 
@@ -92,98 +91,3 @@ def test_get_data_loader():
     with pytest.raises(AssertionError) as err_info:
         load.get_data_loader(data_config=config["dataset"], mode="example")
     assert "mode must be one of train/valid/test" in str(err_info.value)
-
-
-def test_get_single_data_loader():
-    """
-    Test for get_single_data_loader to make sure
-    it get correct data loader and raise correct errors
-    Mainly based on nifti file loader
-    """
-    common_args = dict(
-        file_loader=NiftiFileLoader, labeled=True, sample_label="sample", seed=0
-    )
-
-    # single paired data loader
-    config = load_yaml("config/test/paired_nifti.yaml")
-    got = load.get_single_data_loader(
-        data_type=config["dataset"]["type"],
-        data_config=config["dataset"],
-        common_args=common_args,
-        data_dir_paths=[config["dataset"]["dir"]["train"]],
-    )
-    assert isinstance(got, PairedDataLoader)
-
-    # single unpaired data loader
-    config = load_yaml("config/test/unpaired_nifti.yaml")
-    got = load.get_single_data_loader(
-        data_type=config["dataset"]["type"],
-        data_config=config["dataset"],
-        common_args=common_args,
-        data_dir_paths=[config["dataset"]["dir"]["train"]],
-    )
-    assert isinstance(got, UnpairedDataLoader)
-
-    # single grouped data loader
-    config = load_yaml("config/test/grouped_nifti.yaml")
-    got = load.get_single_data_loader(
-        data_type=config["dataset"]["type"],
-        data_config=config["dataset"],
-        common_args=common_args,
-        data_dir_paths=[config["dataset"]["dir"]["train"]],
-    )
-    assert isinstance(got, GroupedDataLoader)
-
-    # not supported data loader
-    config = load_yaml("config/test/paired_nifti.yaml")
-    with pytest.raises(ValueError) as err_info:
-        load.get_single_data_loader(
-            data_type="NotSupported",
-            data_config=config["dataset"],
-            common_args=common_args,
-            data_dir_paths=[config["dataset"]["dir"]["train"]],
-        )
-    assert "Unknown data format" in str(err_info.value)
-
-    # wrong keys for paired loader
-    config = load_yaml("config/test/paired_nifti.yaml")
-    # delete correct keys and add wrong one
-    config["dataset"].pop("moving_image_shape", None)
-    config["dataset"].pop("fixed_image_shape", None)
-    with pytest.raises(ValueError) as err_info:
-        load.get_single_data_loader(
-            data_type="paired",
-            data_config=config["dataset"],
-            common_args=common_args,
-            data_dir_paths=[config["dataset"]["dir"]["train"]],
-        )
-    assert (
-        "Paired Loader requires 'moving_image_shape' "
-        "and 'fixed_image_shape'" in str(err_info.value)
-    )
-
-    # wrong keys for unpaired loader
-    config = load_yaml("config/test/unpaired_nifti.yaml")
-    # delete correct keys and add wrong one
-    config["dataset"].pop("image_shape", None)
-    with pytest.raises(ValueError) as err_info:
-        load.get_single_data_loader(
-            data_type="unpaired",
-            data_config=config["dataset"],
-            common_args=common_args,
-            data_dir_paths=[config["dataset"]["dir"]["train"]],
-        )
-    assert "Unpaired Loader requires 'image_shape'" in str(err_info.value)
-
-    # wrong keys for grouped loader
-    config = load_yaml("config/test/unpaired_nifti.yaml")
-    # delete correct keys and add wrong one
-    config["dataset"].pop("intra_group_prob", None)
-    with pytest.raises(ValueError) as err_info:
-        load.get_single_data_loader(
-            data_type="grouped",
-            data_config=config["dataset"],
-            common_args=common_args,
-            data_dir_paths=[config["dataset"]["dir"]["train"]],
-        )
-    assert "Grouped Loader requires 'image_shape'" in str(err_info.value)
