@@ -2,12 +2,8 @@ import os
 from copy import deepcopy
 from typing import Optional
 
-from deepreg.dataset.loader.h5_loader import H5FileLoader
 from deepreg.dataset.loader.interface import DataLoader
-from deepreg.dataset.loader.nifti_loader import NiftiFileLoader
-from deepreg.registry import REGISTRY
-
-FileLoaderDict = dict(nifti=NiftiFileLoader, h5=H5FileLoader)
+from deepreg.registry import FILE_LOADER_CLASS, REGISTRY
 
 
 def get_data_loader(data_config: dict, mode: str) -> Optional[DataLoader]:
@@ -40,7 +36,7 @@ def get_data_loader(data_config: dict, mode: str) -> Optional[DataLoader]:
 
     default_args = dict(
         data_dir_paths=data_dir_paths,
-        file_loader=FileLoaderDict[data_config["format"]],
+        file_loader=REGISTRY.get(category=FILE_LOADER_CLASS, key=data_config["format"]),
         labeled=data_config["labeled"],
         sample_label="sample" if mode == "train" else "all",
         seed=None if mode == "train" else 0,

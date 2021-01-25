@@ -6,12 +6,14 @@ LOSS_CLASS = "loss_class"
 MODEL_CLASS = "model_class"
 DATA_AUGMENTATION_CLASS = "da_class"
 DATA_LOADER_CLASS = "data_loader_class"
+FILE_LOADER_CLASS = "file_loader_class"
 KNOWN_CATEGORIES = [
     BACKBONE_CLASS,
     LOSS_CLASS,
     MODEL_CLASS,
     DATA_AUGMENTATION_CLASS,
     DATA_LOADER_CLASS,
+    FILE_LOADER_CLASS,
 ]
 
 
@@ -273,6 +275,21 @@ class Registry:
         """
         return self.register(
             category=DATA_AUGMENTATION_CLASS, name=name, cls=cls, force=force
+        )
+
+    def register_file_loader(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a file loader class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(
+            category=FILE_LOADER_CLASS, name=name, cls=cls, force=force
         )
 
     def build_data_augmentation(

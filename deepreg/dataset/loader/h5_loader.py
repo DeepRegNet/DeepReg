@@ -8,10 +8,12 @@ import h5py
 import numpy as np
 
 from deepreg.dataset.loader.interface import FileLoader
+from deepreg.registry import REGISTRY
 
 DATA_KEY_FORMAT = "group-{}-{}"
 
 
+@REGISTRY.register_file_loader(name="h5")
 class H5FileLoader(FileLoader):
     """Generalized loader for h5 files."""
 
