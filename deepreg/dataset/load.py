@@ -11,12 +11,12 @@ def get_data_loader(data_config: dict, mode: str) -> Optional[DataLoader]:
     Return the corresponding data loader.
     Can't be placed in the same file of loader interfaces as it causes import cycle.
     :param data_config: a dictionary containing configuration for data
-    :param mode: string, must be "train"/"valid"/"test"
+    :param mode: string, must be train/valid/test
     :return: DataLoader or None, returns None if the data_dir_paths is empty
     """
     assert mode in ["train", "valid", "test"], "mode must be one of train/valid/test"
 
-    data_dir_paths = data_config["dir"][mode]
+    data_dir_paths = data_config["dir"].get(mode, None)
     if data_dir_paths is None or data_dir_paths == "":
         return None
     if isinstance(data_dir_paths, str):
