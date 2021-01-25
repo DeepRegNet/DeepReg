@@ -143,7 +143,7 @@ class TestRegistry:
             expected = re.sub(r":-+", "", lines)
             expected = expected.replace(" ", "")
             expected = expected + "\n"
-            # assert got == expected
+            assert got == expected
 
         # rewrite the file
         # if test failed, only need to temporarily comment out the assert
