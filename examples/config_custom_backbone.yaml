@@ -33,12 +33,6 @@ train:
     name: "adam" # options include "adam", "sgd" and "rms"
     adam:
       learning_rate: 1.0e-5
-    sgd:
-      learning_rate: 1.0e-4
-      momentum: 0.9
-    rms:
-      learning_rate: 1.0e-4
-      momentum: 0.9
 
   # define the hyper-parameters for preprocessing
   preprocess:

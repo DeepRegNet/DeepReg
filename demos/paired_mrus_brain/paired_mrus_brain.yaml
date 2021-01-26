@@ -31,8 +31,7 @@ train:
     batch_size: 2
     shuffle_buffer_num_batch: 1
   optimizer:
-    name: "adam"
-    adam:
-      learning_rate: 1.0e-4
+    name: "Adam"
+    learning_rate: 1.0e-4
   epochs: 2000
   save_period: 50

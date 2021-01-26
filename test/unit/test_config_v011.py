@@ -6,6 +6,7 @@ from deepreg.config.v011 import (
     parse_label_loss,
     parse_loss,
     parse_model,
+    parse_optimizer,
     parse_reg_loss,
     parse_v011,
 )
@@ -175,4 +176,23 @@ def test_parse_reg_loss(energy_type: str, loss_name: str, extra_args: dict):
         },
     }
     got = parse_reg_loss(loss_config=loss_config)
+    assert got == expected
+
+
+def test_parse_optimizer():
+    opt_config = {
+        "name": "adam",
+        "adam": {
+            "learning_rate": 1.0e-4,
+        },
+        "sgd": {
+            "learning_rate": 1.0e-4,
+            "momentum": 0.9,
+        },
+    }
+    expected = {
+        "name": "Adam",
+        "learning_rate": 1.0e-4,
+    }
+    got = parse_optimizer(opt_config=opt_config)
     assert got == expected

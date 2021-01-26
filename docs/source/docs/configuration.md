@@ -472,27 +472,12 @@ train:
 
 ### Optimizer - required
 
-The optimizer can be defined by using a `name` and then passing optimizer specific
-arguments with the same name. All optimizers can use the `learning_rate` argument.
+The optimizer can be defined by using a `name` with other required arugment. The name
+must be the same to the class name under `tf.keras.optimizers`.
 
-- `name`: string type, is used to define the optimizer during training. One of "adam",
-  "sgd", "rms".
-
-- `adam`: If adam is passed into `name`, the `adam` field must be passed. The dictionary
-  can be empty, which initializes a default
-  [Keras Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam).
-  Alternatively, fields with names equivalent to those specified in the optimizer
-  documentation can be used.
-- `sgd`: If sgd is passed into `name`, the `sgd` field must be passed. The dictionary
-  can be empty, which initializes a default
-  [Keras SGD optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/SGD).
-  Alternatively, fields with names equivalent to those specified in the optimizer
-  documentation can be used instead.
-- `rms`: If rms is passed into `name`, the `rms` field must be passed. The dictionary
-  can be empty, which initializes a default
-  [Keras RMSprop optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/RMSprop).
-  Alternatively, fields with names equivalent to those specified in the optimizer
-  documentation can be used instead.
+For instance, to use a default
+[Keras Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam),
+the configuration should be
 
 ```yaml
 train:
@@ -506,11 +491,12 @@ train:
       weight: 0.5 # weight of regularization loss
       name: "bending" # options include "bending", "gradient"
   optimizer:
-    name: "adam"
-    adam:
+    name: "Adam"
 ```
 
-or
+For a
+[Keras SGD optimizer](https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/SGD)
+with learning rate 0.001, the configuration should be
 
 ```yaml
 train:
@@ -524,11 +510,8 @@ train:
       weight: 0.5 # weight of regularization loss
       name: "bending" # options include "bending", "gradient"
   optimizer:
-    name: "sgd"
-    sgd:
-      learning_rate: 1.0e-5
-      momentum: 0.9
-      nesterov: false
+    name: "SGD"
+    learning_rate: 0.001
 ```
 
 ### Preprocess - required
