@@ -159,3 +159,74 @@ class TestJaccardIndex:
             name="JaccardIndex",
         )
         assert got == expected
+
+
+def test_foreground_prop_binary():
+    """
+    Test foreground function with a
+    tensor of zeros with some ones, asserting
+    equal to known precomputed tensor.
+    Testing with binary case.
+    """
+    array_eye = np.identity(3, dtype=np.float32)
+    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
+    tensor_eye[:, :, 0:3, 0:3] = array_eye
+    expect = tf.convert_to_tensor([1.0 / 3, 1.0 / 3, 1.0 / 3], dtype=tf.float32)
+    get = label.foreground_proportion(tensor_eye)
+    assert is_equal_tf(get, expect)
+
+
+def test_foreground_prop_simple():
+    """
+    Test foreground functions with a tensor
+    of zeros with some ones and some values below
+    one to assert the thresholding works.
+    """
+    array_eye = np.identity(3, dtype=np.float32)
+    tensor_eye = np.zeros((3, 3, 3, 3), dtype=np.float32)
+    tensor_eye[:, 0, :, :] = 0.4 * array_eye  # 0
+    tensor_eye[:, 1, :, :] = array_eye
+    tensor_eye[:, 2, :, :] = array_eye
+    tensor_eye = tf.convert_to_tensor(tensor_eye, dtype=tf.float32)
+    expect = [54 / (27 * 9), 54 / (27 * 9), 54 / (27 * 9)]
+    get = label.foreground_proportion(tensor_eye)
+    assert is_equal_tf(get, expect)
+
+
+def test_compute_centroid():
+    """
+    Testing compute centroid function
+    and comparing to expected values.
+    """
+    tensor_mask = np.zeros((3, 2, 2, 2))
+    tensor_mask[0, :, :, :] = np.ones((2, 2, 2))
+    tensor_mask = tf.constant(tensor_mask, dtype=tf.float32)
+
+    tensor_grid = np.ones((2, 2, 2, 3))
+    tensor_grid[:, :, :, 1] *= 2
+    tensor_grid[:, :, :, 2] *= 3
+    tensor_grid = tf.constant(tensor_grid, dtype=tf.float32)
+
+    expected = np.ones((3, 3))  # use 1 because 0/0 ~= (0+eps)/(0+eps) = 1
+    expected[0, :] = [1, 2, 3]
+    got = label.compute_centroid(tensor_mask, tensor_grid)
+    assert is_equal_tf(got, expected)
+
+
+def test_compute_centroid_d():
+    """
+    Testing compute centroid distance between equal
+    tensors returns 0s.
+    """
+    array_ones = np.ones((2, 2))
+    tensor_mask = np.zeros((3, 2, 2, 2))
+    tensor_mask[0, :, :, :] = array_ones
+    tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
+
+    tensor_grid = np.zeros((2, 2, 2, 3))
+    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
+
+    get = label.compute_centroid_distance(tensor_mask, tensor_mask, tensor_grid)
+    expect = np.zeros((3))
+    assert is_equal_tf(get, expect)
