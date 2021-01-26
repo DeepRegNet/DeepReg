@@ -132,8 +132,8 @@ class TestGlobalNormalizedCrossCorrelation:
     )
     def test_output(self, y_true, y_pred, shape, expected):
 
-        y_true = y_true * np.ones(shape=shape)
-        y_pred = y_pred * np.ones(shape=shape)
+        y_true = y_true * tf.ones(shape=shape)
+        y_pred = y_pred * tf.ones(shape=shape)
 
         pad_width = tuple([(0, 0)] + [(1, 1)] * (len(shape) - 1))
         y_true = np.pad(y_true, pad_width=pad_width)
@@ -144,6 +144,6 @@ class TestGlobalNormalizedCrossCorrelation:
             y_pred,
         )
 
-        expected = expected * np.ones(shape=(shape[0],))
+        expected = expected * tf.ones(shape=(shape[0],))
 
         assert is_equal_tf(got, expected)
