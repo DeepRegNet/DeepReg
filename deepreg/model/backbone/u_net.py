@@ -4,11 +4,12 @@
 import tensorflow as tf
 
 from deepreg.model import layer
+from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
 @REGISTRY.register_backbone(name="unet")
-class UNet(tf.keras.Model):
+class UNet(Backbone):
     """
     Class that implements an adapted 3D UNet.
 
@@ -31,6 +32,7 @@ class UNet(tf.keras.Model):
         pooling: bool = True,
         concat_skip: bool = False,
         control_points: (tuple, None) = None,
+        name: str = "Unet",
         **kwargs,
     ):
         """
@@ -40,16 +42,25 @@ class UNet(tf.keras.Model):
         :param out_channels: number of channels for the output
         :param num_channel_initial: number of initial channels
         :param depth: input is at level 0, bottom is at level depth
-        :param out_kernel_initializer: which kernel to use as initializer
-        :param out_activation: activation at last layer
+        :param out_kernel_initializer: kernel initializer for the last layer
+        :param out_activation: activation at the last layer
         :param pooling: for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
         :param concat_skip: when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
         :param control_points: specify the distance between control points (in voxels).
+        :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
+        super().__init__(
+            image_size=image_size,
+            out_channels=out_channels,
+            num_channel_initial=num_channel_initial,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            name=name,
+            **kwargs,
+        )
 
         # init layer variables
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]

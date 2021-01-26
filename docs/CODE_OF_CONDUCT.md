@@ -64,7 +64,8 @@ an explanation as to why the situation has not been resolved.
 All community leaders are obligated to respect the privacy and security of the reporter
 of any incident.
 
-## Conflicts of Interest If a complaint concerns a member of the community leaders and
+## Conflicts of Interest If a complaint concerns a member of the community leaders and
+
 should the reporter not feel comfortable sharing the report with such member, reports
 can be made privately to any of the members of the community leaders by contacting them
 privately. Contact methods are listed at

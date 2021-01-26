@@ -1,6 +1,9 @@
+import re
+
+import pandas as pd
 import pytest
 
-from deepreg.registry import BACKBONE_CLASS, LOSS_CLASS, REGISTRY
+from deepreg.registry import BACKBONE_CLASS, KNOWN_CATEGORIES, LOSS_CLASS, REGISTRY
 
 
 class TestRegistry:
@@ -42,8 +45,8 @@ class TestRegistry:
             (LOSS_CLASS, "dice"),
         ],
     )
-    def test_get_backbone(self, category, key, reg):
-        # no error means the unet has been registered
+    def test_get(self, category, key, reg):
+        # no error means the key has been registered
         _ = reg.get(category, key)
 
     def test_get_err(self, reg):
@@ -88,3 +91,63 @@ class TestRegistry:
     )
     def test_build_from_config(self, category, config, reg):
         _ = reg.build_from_config(category=category, config=config)
+
+    def test_doc(self):
+        """Test the doc maintaining the list of registered classes are correct."""
+
+        filename = "docs/source/docs/registered_classes.md"
+
+        # generate dataframe
+        name_to_category = {
+            "Backbone": "backbone_class",
+            "Model": "model_class",
+            "Loss": "loss_class",
+            "Data Augmentation": "da_class",
+            "Data Loader": "data_loader_class",
+            "File Loader": "file_loader_class",
+        }
+        for category in KNOWN_CATEGORIES:
+            assert category in name_to_category.values()
+
+        df = dict(category=[], key=[], value=[])
+        for (category, key), value in REGISTRY._dict.items():
+            df["category"].append(category)
+            df["key"].append(f'"{key}"')
+            df["value"].append(f"`{value.__module__}.{value.__name__}`")
+        df = pd.DataFrame(df)
+        df = df.sort_values(["category", "key"])
+
+        # generate lines
+        lines = (
+            "# Registered Classes\n\n"
+            "> This file is generated automatically.\n\n"
+            "The following tables contain all registered classes "
+            "with their categories and keys."
+        )
+
+        for category_name, category in name_to_category.items():
+            df_cat = df[df.category == category]
+            lines += f"\n\n## {category_name}\n\n"
+            lines += (
+                f"The category is `{category}`. "
+                f"Registered keys and values are as following.\n\n"
+            )
+            lines += df_cat[["key", "value"]].to_markdown(index=False)
+
+        # check file content
+        with open(filename, "r") as f:
+            got = f.readlines()
+            got = "".join(got)
+            got = re.sub(r":-+", "", got)
+            got = got.replace(" ", "")
+            expected = re.sub(r":-+", "", lines)
+            expected = expected.replace(" ", "")
+            expected = expected + "\n"
+            assert got == expected
+
+        # rewrite the file
+        # if test failed, only need to temporarily comment out the assert
+        # then regenerate the file
+        if got != expected:
+            with open(filename, "w") as f:
+                f.writelines(lines)

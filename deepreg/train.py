@@ -9,11 +9,10 @@ import os
 
 import tensorflow as tf
 
+import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
-import deepreg.parser as config_parser
 from deepreg.callback import build_checkpoint_callback
-from deepreg.model.network.build import build_model
-from deepreg.registry import REGISTRY, Registry
+from deepreg.registry import REGISTRY
 from deepreg.util import build_dataset, build_log_dir
 
 
@@ -64,10 +63,9 @@ def train(
     config_path: (str, list),
     gpu_allow_growth: bool,
     ckpt_path: str,
-    log_dir: str,
+    log_dir: str = "",
     log_root: str = "logs",
     max_epochs: int = -1,
-    registry: Registry = REGISTRY,
 ):
     """
     Function to train a model.
@@ -79,7 +77,6 @@ def train(
     :param log_root: root of logs
     :param log_dir: where to store logs in training
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
-    :param registry: registry to construct class objects
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -101,7 +98,6 @@ def train(
         mode="train",
         training=True,
         repeat=True,
-        registry=registry,
     )
     assert data_loader_train is not None  # train data should not be None
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
@@ -110,26 +106,29 @@ def train(
         mode="valid",
         training=False,
         repeat=True,
-        registry=registry,
     )
 
     # use strategy to support multiple GPUs
     # the network is mirrored in each GPU so that we can use larger batch size
-    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
-    if len(tf.config.list_physical_devices("GPU")) > 1:
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
+    if num_devices > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
-        model = build_model(
-            moving_image_size=data_loader_train.moving_image_shape,
-            fixed_image_size=data_loader_train.fixed_image_shape,
-            index_size=data_loader_train.num_indices,
-            labeled=config["dataset"]["labeled"],
-            batch_size=config["train"]["preprocess"]["batch_size"],
-            train_config=config["train"],
-            registry=registry,
+        model = REGISTRY.build_model(
+            config=dict(
+                name=config["train"]["method"],
+                moving_image_size=data_loader_train.moving_image_shape,
+                fixed_image_size=data_loader_train.fixed_image_shape,
+                index_size=data_loader_train.num_indices,
+                labeled=config["dataset"]["labeled"],
+                batch_size=config["train"]["preprocess"]["batch_size"],
+                config=config["train"],
+                num_devices=num_devices,
+            )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
@@ -150,7 +149,8 @@ def train(
     callbacks = [tensorboard_callback, ckpt_callback]
 
     # train
-    # it's necessary to define the steps_per_epoch and validation_steps to prevent errors like
+    # it's necessary to define the steps_per_epoch
+    # and validation_steps to prevent errors like
     # BaseCollectiveExecutor::StartAbort Out of range: End of sequence
     model.fit(
         x=dataset_train,

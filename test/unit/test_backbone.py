@@ -9,10 +9,26 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+import deepreg.model.backbone as backbone
 import deepreg.model.backbone.global_net as g
 import deepreg.model.backbone.local_net as loc
 import deepreg.model.backbone.u_net as u
 import deepreg.model.layer as layer
+
+
+def test_backbone_interface():
+    """Test the get_config of the interface"""
+    config = dict(
+        image_size=(5, 5, 5),
+        out_channels=3,
+        num_channel_initial=4,
+        out_kernel_initializer="zeros",
+        out_activation="relu",
+        name="test",
+    )
+    model = backbone.Backbone(**config)
+    got = model.get_config()
+    assert got == config
 
 
 def test_init_global_net():
@@ -78,7 +94,8 @@ def test_call_global_net():
     is correct.
     """
     out = 3
-    im_size = [1, 2, 3]
+    im_size = (1, 2, 3)
+    batch_size = 5
     # initialising GlobalNet instance
     global_test = g.GlobalNet(
         image_size=im_size,
@@ -90,12 +107,14 @@ def test_call_global_net():
     )
     # pass an input of all zeros
     inputs = tf.constant(
-        np.zeros((5, im_size[0], im_size[1], im_size[2], out), dtype=np.float32)
+        np.zeros(
+            (batch_size, im_size[0], im_size[1], im_size[2], out), dtype=np.float32
+        )
     )
     # get outputs by calling
-    output = global_test.call(inputs)
-    # expected shape is (5, 1, 2, 3, 3)
-    assert all(x == y for x, y in zip(inputs.shape, output.shape))
+    ddf, theta = global_test.call(inputs)
+    assert ddf.shape == (batch_size, *im_size, 3)
+    assert theta.shape == (batch_size, 4, 3)
 
 
 class TestLocalNet:

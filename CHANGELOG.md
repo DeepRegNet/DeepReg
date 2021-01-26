@@ -6,10 +6,17 @@ to make them as straightforward as possible.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project
 adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.1.1] - In Progress
+## [1.0.0-rc1] - In Progress
+
+Release comment: refactoring of models means that old checkpoint files are no longer
+compatible with the updates.
 
 ### Added
 
+- Added the docs on registry for backbone models.
+- Added backward compatible config parser.
+- Added tests so that test coverage is 100%.
+- Added config file docs with details on how new config works.
 - Added DDF data augmentation.
 - Added the registry for backbone models and losses.
 - Added pylint with partial check (C0103,C0301,R1725,W0107,W9012,W9015) to CI.
@@ -37,6 +44,8 @@ adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed several dead links in the documentation.
+- Fixed a bug due to typo when image loss weight is zero, label loss is not applied.
 - Fixed warp CLI tool by saving outputs in Nifti1 format.
 - Fixed optimiser storage and loading from checkpoints.
 - Fixed bias initialization for theta in GlobalNet.
