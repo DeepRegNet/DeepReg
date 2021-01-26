@@ -30,6 +30,7 @@ compatible with the updates.
 
 ### Changed
 
+- Refactored optimizer configuration.
 - Refactored affine transform data augmentation.
 - Modified the implementation of resampler to support zero boundary condition.
 - Refactored loss functions into classes.
