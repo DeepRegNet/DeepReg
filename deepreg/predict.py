@@ -163,6 +163,9 @@ def build_config(
     # init log directory
     log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
 
+    # replace the ~ with user home path
+    ckpt_path = os.path.expanduser(ckpt_path)
+
     # load config
     if config_path == "":
         # use default config, which should be provided in the log folder
@@ -176,7 +179,7 @@ def build_config(
             "The code might break if the config doesn't match the saved model."
         )
         config = config_parser.load_configs(config_path)
-    return config, log_dir
+    return config, log_dir, ckpt_path
 
 
 def predict(
@@ -218,7 +221,7 @@ def predict(
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
 
     # load config
-    config, log_dir = build_config(
+    config, log_dir, ckpt_path = build_config(
         config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
     preprocess_config = config["train"]["preprocess"]
