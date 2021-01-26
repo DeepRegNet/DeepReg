@@ -43,6 +43,9 @@ def build_config(
     # load config
     config = config_parser.load_configs(config_path)
 
+    # replace the ~ with user home path
+    ckpt_path = os.path.expanduser(ckpt_path)
+
     # overwrite epochs and save_period if necessary
     if max_epochs > 0:
         config["train"]["epochs"] = max_epochs
@@ -55,7 +58,7 @@ def build_config(
     gpus = tf.config.experimental.list_physical_devices("GPU")
     config["train"]["preprocess"]["batch_size"] *= max(len(gpus), 1)
 
-    return config, log_dir
+    return config, log_dir, ckpt_path
 
 
 def train(
@@ -83,7 +86,7 @@ def train(
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
 
     # load config
-    config, log_dir = build_config(
+    config, log_dir, ckpt_path = build_config(
         config_path=config_path,
         log_root=log_root,
         log_dir=log_dir,
