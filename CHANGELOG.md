@@ -13,6 +13,7 @@ compatible with the updates.
 
 ### Added
 
+- Added global NCC loss
 - Added the docs on registry for backbone models.
 - Added backward compatible config parser.
 - Added tests so that test coverage is 100%.
