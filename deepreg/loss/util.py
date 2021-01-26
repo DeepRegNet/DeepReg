@@ -56,23 +56,22 @@ def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     assert kernel_size >= 3
     assert kernel_size % 2 != 0
 
-    padding = kernel_size // 4
+    padding = kernel_size // 2
 
     # (kernel_size, )
-    kernel = [0] * padding + [1] * (kernel_size - padding * 2) + [0] * padding
+    kernel = (
+        [0] * (padding // 2 + 1) + [1] * (kernel_size - padding) + [0] * (padding // 2)
+    )
     kernel = tf.constant(kernel, dtype=tf.float32)
 
-    if kernel_size == 3:
-        return kernel
-
     # (padding*2, )
-    filters = tf.ones(shape=(padding * 2, 1, 1), dtype=tf.float32)
+    filters = tf.ones(shape=(kernel_size - padding, 1, 1), dtype=tf.float32)
 
     # (kernel_size, 1, 1)
     kernel = tf.nn.conv1d(
-        kernel[:, None, None], filters=filters, stride=[1, 1, 1], padding="SAME"
+        kernel[None, :, None], filters=filters, stride=[1, 1, 1], padding="SAME"
     )
-    return kernel[:, 0, 0]
+    return kernel[0, :, 0]
 
 
 def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
