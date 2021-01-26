@@ -18,16 +18,21 @@ def test_activation():
     assert isinstance(activation._act, type(tf.keras.activations.relu))
 
 
-def test_norm():
-    """
-    Test the layer.Norm class, its default attributes and errors raised.
-    """
+class TestNorm:
+    @pytest.mark.parametrize("name", ["batch_norm", "layer_norm"])
+    def test_norm(self, name: str):
+        """
+        Test the layer.Norm class
 
-    norm = layer.Norm()
-    assert isinstance(norm._norm, tf.keras.layers.BatchNormalization)
+        :param name: name of norm
+        """
 
-    with pytest.raises(ValueError):
-        layer.Norm(name="none")
+        norm_layer = layer.Norm(name=name)
+        assert norm_layer._norm is not None
+
+    def test_error(self):
+        with pytest.raises(ValueError):
+            layer.Norm(name="none")
 
 
 def test_maxpool3d():
@@ -360,7 +365,6 @@ class TestResizeCPTransform:
         ],
     )
     def test_build(self, input_size, output_size, cp_spacing):
-
         model = layer.ResizeCPTransform(cp_spacing)
         model.build(input_size)
 
@@ -374,7 +378,6 @@ class TestResizeCPTransform:
         ],
     )
     def test_call(self, input_size, output_size, cp_spacing):
-
         model = layer.ResizeCPTransform(cp_spacing)
         model.build(input_size)
 

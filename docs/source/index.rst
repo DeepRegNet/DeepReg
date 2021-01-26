@@ -42,6 +42,7 @@
 
     api/entry_point
     api/loader
+    api/registry
     api/network
     api/backbone
     api/layer

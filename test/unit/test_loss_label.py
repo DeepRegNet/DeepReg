@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-import deepreg.model.loss.label as label
+import deepreg.loss.label as label
 
 
 @pytest.mark.parametrize("sigma", [1, 3, 2.2])
@@ -44,7 +44,7 @@ class TestMultiScaleLoss:
         expected = dict(
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.AUTO,
+            reduction=tf.keras.losses.Reduction.SUM,
             name="MultiScaleLoss",
         )
         assert got == expected
@@ -89,7 +89,7 @@ class TestDiceScore:
             neg_weight=0.0,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.AUTO,
+            reduction=tf.keras.losses.Reduction.SUM,
             name="DiceScore",
         )
         assert got == expected
@@ -130,7 +130,7 @@ class TestCrossEntropy:
             neg_weight=0.0,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.AUTO,
+            reduction=tf.keras.losses.Reduction.SUM,
             name="CrossEntropy",
         )
         assert got == expected
@@ -173,7 +173,7 @@ class TestJaccardIndex:
             binary=False,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.AUTO,
+            reduction=tf.keras.losses.Reduction.SUM,
             name="JaccardIndex",
         )
         assert got == expected

@@ -8,7 +8,7 @@ from test.unit.util import is_equal_tf
 import pytest
 import tensorflow as tf
 
-import deepreg.model.loss.deform as deform
+import deepreg.loss.deform as deform
 
 
 def test_gradient_dx():

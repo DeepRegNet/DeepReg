@@ -1,21 +1,35 @@
-from typing import Callable
+from copy import deepcopy
+from typing import Callable, Optional
 
 BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
 MODEL_CLASS = "model_class"
 DATA_AUGMENTATION_CLASS = "da_class"
-KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS, DATA_AUGMENTATION_CLASS]
+DATA_LOADER_CLASS = "data_loader_class"
+FILE_LOADER_CLASS = "file_loader_class"
+KNOWN_CATEGORIES = [
+    BACKBONE_CLASS,
+    LOSS_CLASS,
+    MODEL_CLASS,
+    DATA_AUGMENTATION_CLASS,
+    DATA_LOADER_CLASS,
+    FILE_LOADER_CLASS,
+]
 
 
 class Registry:
     """
-    Registry maintains a dictionary which maps (category, key) to value.
+    Registry maintains a dictionary which maps `(category, key)` to `value`.
 
-    Multiple __init__.py files have been modified so that
-    when executing `from deepreg.registry import REGISTRY`
-    all classes have been registered.
+    Multiple __init__.py files have been modified so that the classes are registered
+    when executing:
+
+    .. code-block:: python
+
+        from deepreg.registry import REGISTRY
 
     References:
+
     - https://github.com/ray-project/ray/blob/00ef1179c012719a17c147a5c3b36d6bdbe97195/python/ray/tune/registry.py#L108
     - https://github.com/open-mmlab/mmdetection/blob/master/mmdet/models/builder.py
     - https://github.com/open-mmlab/mmcv/blob/master/mmcv/utils/registry.py
@@ -23,6 +37,7 @@ class Registry:
     """
 
     def __init__(self):
+        """Init registry with empty dict."""
         self._dict = {}
 
     def _register(self, category: str, key: str, value: Callable, force: bool):
@@ -48,10 +63,24 @@ class Registry:
         # register value
         self._dict[(category, key)] = value
 
-    def contains(self, category: str, key: str):
+    def contains(self, category: str, key: str) -> bool:
+        """
+        Verify if the key has been registered for the category.
+
+        :param category: category name.
+        :param key: value name.
+        :return: `True` if registered.
+        """
         return (category, key) in self._dict
 
-    def get(self, category, key):
+    def get(self, category: str, key: str) -> Callable:
+        """
+        Return the registered class.
+
+        :param category: category name.
+        :param key: value name.
+        :return: registered value.
+        """
         if self.contains(category=category, key=key):
             return self._dict[(category, key)]
         raise ValueError(f"Key {key} in category {category} has not been registered.")
@@ -85,21 +114,21 @@ class Registry:
         return decorator
 
     def build_from_config(
-        self, category: str, config: dict, default_args=None
+        self, category: str, config: dict, default_args: Optional[dict] = None
     ) -> object:
         """
         Build a class instance from config dict.
 
-        :param category:
-        :param config: Config dict. It should at least contain the key "name".
-        :param default_args:
-        :return: The constructed object/instance.
+        :param category: category name.
+        :param config: a dict which must contain the key "name".
+        :param default_args: optionally some default arguments.
+        :return: the instantiated class.
         """
         if not isinstance(config, dict):
             raise ValueError(f"config must be a dict, but got {type(config)}")
         if "name" not in config:
             raise ValueError(f"`config` must contain the key `name`, but got {config}")
-        args = config.copy()
+        args = deepcopy(config)
 
         # insert key, value pairs if key is not in args
         if default_args is not None:
@@ -122,34 +151,157 @@ class Registry:
             )
 
     def copy(self):
+        """Deep copy the registry."""
         copied = Registry()
-        copied._dict = self._dict.copy()
+        copied._dict = deepcopy(self._dict)
         return copied
 
-    def register_backbone(self, name: str, cls: Callable = None, force: bool = False):
+    def register_model(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a model class.
+
+        :param name: model name
+        :param cls: model class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(category=MODEL_CLASS, name=name, cls=cls, force=force)
+
+    def build_model(self, config: dict, default_args: Optional[dict] = None) -> object:
+        """
+        Instantiate a registered model class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a model instance
+        """
+        return self.build_from_config(
+            category=MODEL_CLASS, config=config, default_args=default_args
+        )
+
+    def register_backbone(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a backbone class.
+
+        :param name: backbone name
+        :param cls: backbone class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
 
-    def build_backbone(self, config: dict, default_args=None):
+    def build_backbone(
+        self, config: dict, default_args: Optional[dict] = None
+    ) -> object:
+        """
+        Instantiate a registered backbone class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a backbone instance
+        """
         return self.build_from_config(
             category=BACKBONE_CLASS, config=config, default_args=default_args
         )
 
-    def register_loss(self, name: str, cls: Callable = None, force: bool = False):
+    def register_loss(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a loss class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
         return self.register(category=LOSS_CLASS, name=name, cls=cls, force=force)
 
-    def build_loss(self, config: dict, default_args=None):
+    def build_loss(self, config: dict, default_args: Optional[dict] = None) -> object:
+        """
+        Instantiate a registered loss class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a loss instance
+        """
         return self.build_from_config(
             category=LOSS_CLASS, config=config, default_args=default_args
         )
 
+    def register_data_loader(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a data loader class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(
+            category=DATA_LOADER_CLASS, name=name, cls=cls, force=force
+        )
+
+    def build_data_loader(
+        self, config: dict, default_args: Optional[dict] = None
+    ) -> object:
+        """
+        Instantiate a registered data loader class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a loss instance
+        """
+        return self.build_from_config(
+            category=DATA_LOADER_CLASS, config=config, default_args=default_args
+        )
+
     def register_data_augmentation(
         self, name: str, cls: Callable = None, force: bool = False
-    ):
+    ) -> Callable:
+        """
+        Register a data augmentation class.
+
+        :param name: data augmentation name
+        :param cls: data augmentation class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
         return self.register(
             category=DATA_AUGMENTATION_CLASS, name=name, cls=cls, force=force
         )
 
-    def build_data_augmentation(self, config: dict, default_args=None):
+    def register_file_loader(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a file loader class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(
+            category=FILE_LOADER_CLASS, name=name, cls=cls, force=force
+        )
+
+    def build_data_augmentation(
+        self, config: dict, default_args: Optional[dict] = None
+    ) -> object:
+        """
+        Instantiate a registered data augmentation class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a data augmentation instance
+        """
         return self.build_from_config(
             category=DATA_AUGMENTATION_CLASS, config=config, default_args=default_args
         )

@@ -6,11 +6,12 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.model import layer, layer_util
+from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
 @REGISTRY.register_backbone(name="global")
-class GlobalNet(tf.keras.Model):
+class GlobalNet(Backbone):
     """
     Build GlobalNet for image registration.
 
@@ -30,6 +31,7 @@ class GlobalNet(tf.keras.Model):
         extract_levels: List[int],
         out_kernel_initializer: str,
         out_activation: str,
+        name: str = "GlobalNet",
         **kwargs,
     ):
         """
@@ -41,13 +43,23 @@ class GlobalNet(tf.keras.Model):
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
         :param extract_levels: list, which levels from net to extract
-        :param out_kernel_initializer: str, which kernel to use as initializer
-        :param out_activation: str, activation at last layer
+        :param out_kernel_initializer: not used
+        :param out_activation: not used
+        :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
+        super().__init__(
+            image_size=image_size,
+            out_channels=out_channels,
+            num_channel_initial=num_channel_initial,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            name=name,
+            **kwargs,
+        )
 
         # save parameters
+        assert out_channels == 3
         self._extract_levels = extract_levels
         self._extract_max_level = max(self._extract_levels)  # E
         self.reference_grid = layer_util.get_reference_grid(image_size)
@@ -70,14 +82,18 @@ class GlobalNet(tf.keras.Model):
             units=12, bias_initializer=self.transform_initial
         )
 
-    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
+    def call(
+        self, inputs: tf.Tensor, training=None, mask=None
+    ) -> (tf.Tensor, tf.Tensor):
         """
         Build GlobalNet graph based on built layers.
 
         :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
         :param training: None or bool.
         :param mask: None or tf.Tensor.
-        :return: shape = (batch, dim1, dim2, dim3, 3)
+        :return:
+            ddf shape = (batch, dim1, dim2, dim3, 3)
+            theta shape = (batch, 4, 3)
         """
         # down sample from level 0 to E
         h_in = inputs
@@ -87,11 +103,11 @@ class GlobalNet(tf.keras.Model):
             inputs=h_in, training=training
         )  # level E of encoding
 
-        # predict affine parameters theta of shape = [batch, 4, 3]
-        self.theta = self._dense_layer(h_out)
-        self.theta = tf.reshape(self.theta, shape=(-1, 4, 3))
+        # predict affine parameters theta of shape = (batch, 4, 3)
+        theta = self._dense_layer(h_out)
+        theta = tf.reshape(theta, shape=(-1, 4, 3))
 
         # warp the reference grid with affine parameters to output a ddf
-        grid_warped = layer_util.warp_grid(self.reference_grid, self.theta)
-        output = grid_warped - self.reference_grid
-        return output
+        grid_warped = layer_util.warp_grid(self.reference_grid, theta)
+        ddf = grid_warped - self.reference_grid
+        return ddf, theta

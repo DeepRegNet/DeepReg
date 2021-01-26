@@ -231,7 +231,7 @@ for folder in folders:
 
 ######## DOWNLOAD MODEL CKPT FROM MODEL ZOO ########
 
-url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/paired_ct_lung_1.zip"
+url = "https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/demo/paired_ct_lung/20210110.zip"
 fname = "pretrained.zip"
 os.chdir(os.path.join(main_path, project_dir))
 

@@ -8,10 +8,12 @@ import h5py
 import numpy as np
 
 from deepreg.dataset.loader.interface import FileLoader
+from deepreg.registry import REGISTRY
 
 DATA_KEY_FORMAT = "group-{}-{}"
 
 
+@REGISTRY.register_file_loader(name="h5")
 class H5FileLoader(FileLoader):
     """Generalized loader for h5 files."""
 
@@ -127,7 +129,8 @@ class H5FileLoader(FileLoader):
         arr = np.asarray(self.h5_files[dir_path][data_key], dtype=np.float32)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
             # for labels, if there's only one label, remove the last dimension
-            arr = arr[:, :, :, 0]
+            # currently have not encountered
+            arr = arr[:, :, :, 0]  # pragma: no cover
         return arr
 
     def get_data_ids(self) -> List[str]:

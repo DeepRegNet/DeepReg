@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import tensorflow as tf
 
-from deepreg.model.loss.util import NegativeLossMixin
+from deepreg.loss.util import NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -53,7 +53,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "MultiScaleLoss",
     ):
         """
@@ -61,7 +61,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -112,7 +112,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         """
         raise NotImplementedError
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["scales"] = self.scales
@@ -144,7 +144,7 @@ class DiceScore(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "DiceScore",
     ):
         """
@@ -154,7 +154,7 @@ class DiceScore(MultiScaleLoss):
         :param neg_weight: weight for negative class.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -186,7 +186,7 @@ class DiceScore(MultiScaleLoss):
         denominator = (1 - 2 * self.neg_weight) * y_sum + 2 * self.neg_weight
         return (numerator + EPS) / (denominator + EPS)
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
@@ -214,7 +214,7 @@ class CrossEntropy(MultiScaleLoss):
         neg_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "CrossEntropy",
     ):
         """
@@ -224,7 +224,7 @@ class CrossEntropy(MultiScaleLoss):
         :param neg_weight: weight for negative class
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -253,7 +253,7 @@ class CrossEntropy(MultiScaleLoss):
         loss_neg = tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1)
         return -(1 - self.neg_weight) * loss_pos - self.neg_weight * loss_neg
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
@@ -276,7 +276,7 @@ class JaccardIndex(MultiScaleLoss):
         binary: bool = False,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "JaccardIndex",
     ):
         """
@@ -285,7 +285,7 @@ class JaccardIndex(MultiScaleLoss):
         :param binary: if True, project y_true, y_pred to 0 or 1.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using AUTO reduction,
+        :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -313,7 +313,7 @@ class JaccardIndex(MultiScaleLoss):
 
         return (y_prod + EPS) / (y_sum - y_prod + EPS)
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary

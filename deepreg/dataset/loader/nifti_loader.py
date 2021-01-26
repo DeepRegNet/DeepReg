@@ -6,6 +6,7 @@ import numpy as np
 
 from deepreg.dataset.loader.interface import FileLoader
 from deepreg.dataset.util import get_sorted_file_paths_in_dir_with_suffix
+from deepreg.registry import REGISTRY
 
 DATA_FILE_SUFFIX = ["nii.gz", "nii"]
 
@@ -22,6 +23,7 @@ def load_nifti_file(file_path: str) -> np.ndarray:
     return np.asarray(nib.load(file_path).dataobj, dtype=np.float32)
 
 
+@REGISTRY.register_file_loader(name="nifti")
 class NiftiFileLoader(FileLoader):
     """Generalized loader for nifti files."""
 
@@ -145,7 +147,8 @@ class NiftiFileLoader(FileLoader):
         arr = load_nifti_file(file_path=file_path)
         if len(arr.shape) == 4 and arr.shape[3] == 1:
             # for labels, if there's only one label, remove the last dimension
-            arr = arr[:, :, :, 0]
+            # currently have not encountered
+            arr = arr[:, :, :, 0]  # pragma: no cover
         return arr
 
     def get_data_ids(self) -> List[str]:

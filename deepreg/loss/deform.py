@@ -97,7 +97,7 @@ class GradientNorm(tf.keras.layers.Layer):
             norms = dfdx ** 2 + dfdy ** 2 + dfdz ** 2
         return tf.reduce_mean(norms)
 
-    def get_config(self):
+    def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["l1"] = self.l1

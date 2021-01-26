@@ -127,14 +127,18 @@ def pyramid_combination(
 
     so the weight for (x, y, z) is
 
-    W_xyz = ((1-x) * f1 + x * c1)
-          * ((1-y) * f2 + y * c2)
-          * ((1-z) * f3 + z * c3)
+    .. code-block:: text
+
+        W_xyz = ((1-x) * f1 + x * c1)
+              * ((1-y) * f2 + y * c2)
+              * ((1-z) * f3 + z * c3)
 
     Let
 
-    W_xy = ((1-x) * f1 + x * c1)
-         * ((1-y) * f2 + y * c2)
+    .. code-block:: text
+
+        W_xy = ((1-x) * f1 + x * c1)
+             * ((1-y) * f2 + y * c2)
 
     Then
 
@@ -144,10 +148,12 @@ def pyramid_combination(
     Similar to W_xyz, denote V_xyz the value at (x, y, z),
     the final sum V equals
 
-      sum over x,y,z (V_xyz * W_xyz)
-    = sum over x,y (V_xy0 * W_xy0 + V_xy1 * W_xy1)
-    = sum over x,y (V_xy0 * W_xy * f3 + V_xy1 * W_xy * c3)
-    = sum over x,y (V_xy0 * W_xy) * f3 + sum over x,y (V_xy1 * W_xy) * c3
+    .. code-block:: text
+
+          sum over x,y,z (V_xyz * W_xyz)
+        = sum over x,y (V_xy0 * W_xy0 + V_xy1 * W_xy1)
+        = sum over x,y (V_xy0 * W_xy * f3 + V_xy1 * W_xy * c3)
+        = sum over x,y (V_xy0 * W_xy) * f3 + sum over x,y (V_xy1 * W_xy) * c3
 
     That's why we call this pyramid combination.
     It calculates the linear interpolation gradually, starting from
@@ -477,12 +483,12 @@ def gen_rand_ddf(
 ) -> tf.Tensor:
     """
     Function that generates a random 3D DDF for a batch of data.
+
     :param batch_size:
     :param image_size:
     :param field_strength: maximum field strength, computed as a U[0,field_strength]
     :param low_res_size: low_resolution deformation field that will be upsampled to
-                        the original size in order to get smooth and more realistic
-                        fields.
+        the original size in order to get smooth and more realistic fields.
     :param seed: control the randomness
     :return:
     """

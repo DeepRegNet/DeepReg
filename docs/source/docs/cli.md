@@ -330,4 +330,4 @@ The warped image is saved in the given output file path, otherwise the default f
 
 In addition to the images in the output, DeepReg provides a set of tools with the
 command `deepreg_vis`. See more details in
-[its usage documentation](visualisation_tool.md).
+[its usage documentation](visualisation_tool.html).
