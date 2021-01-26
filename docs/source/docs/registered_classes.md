@@ -47,3 +47,22 @@ The category is `da_class`. Registered keys and values are as following.
 | :------- | :--------------------------------------------------- |
 | "affine" | `deepreg.dataset.preprocess.RandomAffineTransform3D` |
 | "ddf"    | `deepreg.dataset.preprocess.RandomDDFTransform3D`    |
+
+## Data Loader
+
+The category is `data_loader_class`. Registered keys and values are as following.
+
+| key        | value                                                       |
+| :--------- | :---------------------------------------------------------- |
+| "grouped"  | `deepreg.dataset.loader.grouped_loader.GroupedDataLoader`   |
+| "paired"   | `deepreg.dataset.loader.paired_loader.PairedDataLoader`     |
+| "unpaired" | `deepreg.dataset.loader.unpaired_loader.UnpairedDataLoader` |
+
+## File Loader
+
+The category is `file_loader_class`. Registered keys and values are as following.
+
+| key     | value                                                 |
+| :------ | :---------------------------------------------------- |
+| "h5"    | `deepreg.dataset.loader.h5_loader.H5FileLoader`       |
+| "nifti" | `deepreg.dataset.loader.nifti_loader.NiftiFileLoader` |

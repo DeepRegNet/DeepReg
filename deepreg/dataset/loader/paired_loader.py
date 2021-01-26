@@ -11,8 +11,10 @@ from deepreg.dataset.loader.interface import (
     GeneratorDataLoader,
 )
 from deepreg.dataset.util import check_difference_between_two_lists
+from deepreg.registry import REGISTRY
 
 
+@REGISTRY.register_data_loader(name="paired")
 class PairedDataLoader(AbstractPairedDataLoader, GeneratorDataLoader):
     """
     Load paired data using given file loader.

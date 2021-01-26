@@ -5,7 +5,16 @@ BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
 MODEL_CLASS = "model_class"
 DATA_AUGMENTATION_CLASS = "da_class"
-KNOWN_CATEGORIES = [BACKBONE_CLASS, LOSS_CLASS, MODEL_CLASS, DATA_AUGMENTATION_CLASS]
+DATA_LOADER_CLASS = "data_loader_class"
+FILE_LOADER_CLASS = "file_loader_class"
+KNOWN_CATEGORIES = [
+    BACKBONE_CLASS,
+    LOSS_CLASS,
+    MODEL_CLASS,
+    DATA_AUGMENTATION_CLASS,
+    DATA_LOADER_CLASS,
+    FILE_LOADER_CLASS,
+]
 
 
 class Registry:
@@ -224,6 +233,35 @@ class Registry:
             category=LOSS_CLASS, config=config, default_args=default_args
         )
 
+    def register_data_loader(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a data loader class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(
+            category=DATA_LOADER_CLASS, name=name, cls=cls, force=force
+        )
+
+    def build_data_loader(
+        self, config: dict, default_args: Optional[dict] = None
+    ) -> object:
+        """
+        Instantiate a registered data loader class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a loss instance
+        """
+        return self.build_from_config(
+            category=DATA_LOADER_CLASS, config=config, default_args=default_args
+        )
+
     def register_data_augmentation(
         self, name: str, cls: Callable = None, force: bool = False
     ) -> Callable:
@@ -237,6 +275,21 @@ class Registry:
         """
         return self.register(
             category=DATA_AUGMENTATION_CLASS, name=name, cls=cls, force=force
+        )
+
+    def register_file_loader(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a file loader class.
+
+        :param name: loss name
+        :param cls: loss class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(
+            category=FILE_LOADER_CLASS, name=name, cls=cls, force=force
         )
 
     def build_data_augmentation(
