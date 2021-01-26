@@ -26,7 +26,7 @@ from deepreg.loss.util import (
 def test_cauchy_kernel1d(sigma):
     """
     Testing the 1-D cauchy kernel
-    :param kernel_size: float
+    :param sigma: float
     :return:
     """
     tail = int(sigma * 5)
@@ -40,7 +40,7 @@ def test_cauchy_kernel1d(sigma):
 def test_gaussian_kernel1d_sigma(sigma):
     """
     Testing the 1-D gaussian kernel given sigma as input
-    :param kernel_size: float
+    :param sigma: float
     :return:
     """
     tail = int(sigma * 3)
