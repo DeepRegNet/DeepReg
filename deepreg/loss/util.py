@@ -1,4 +1,6 @@
 """Provide helper functions or classes for defining loss or metrics."""
+import math
+
 import tensorflow as tf
 
 
@@ -58,9 +60,10 @@ def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
 
     padding = kernel_size // 2
 
-    # (kernel_size, )
     kernel = (
-        [0] * (padding // 2 + 1) + [1] * (kernel_size - padding) + [0] * (padding // 2)
+        [0] * math.ceil(padding / 2)
+        + [1] * (kernel_size - padding)
+        + [0] * math.floor(padding / 2)
     )
     kernel = tf.constant(kernel, dtype=tf.float32)
 

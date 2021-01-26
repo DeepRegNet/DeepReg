@@ -79,7 +79,7 @@ def test_rectangular_kernel1d(kernel_size):
     assert is_equal_tf(got, expected)
 
 
-@pytest.mark.parametrize("kernel_size", [3, 7, 11])
+@pytest.mark.parametrize("kernel_size", [3, 5, 7, 9])
 def test_triangular_kernel1d(kernel_size):
     """
     Testing the 1-D triangular kernel
