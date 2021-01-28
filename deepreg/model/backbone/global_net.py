@@ -79,6 +79,7 @@ class GlobalNet(Backbone):
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
         self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
+        self._flatten = tfkl.Flatten()
         self._dense_layer = tfkl.Dense(
             units=12, bias_initializer=self.transform_initial
         )
@@ -105,9 +106,8 @@ class GlobalNet(Backbone):
         )  # level E of encoding
 
         # predict affine parameters theta of shape = (batch, 4, 3)
-        theta = self._dense_layer(h_out)
+        theta = self._dense_layer(self._flatten(h_out))
         theta = tf.reshape(theta, shape=(-1, 4, 3))
-
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, theta)
         ddf = grid_warped - self.reference_grid
