@@ -28,46 +28,6 @@ class Norm(tf.keras.layers.Layer):
         return self._norm(inputs=inputs, training=training)
 
 
-class Conv3d(tf.keras.layers.Layer):
-    def __init__(
-        self,
-        filters: int,
-        kernel_size: int = 3,
-        strides: int = 1,
-        padding: str = "same",
-        activation: (str, None) = None,
-        use_bias: bool = True,
-        kernel_initializer: str = "glorot_uniform",
-        **kwargs,
-    ):
-        """
-        Layer wraps tf.keras.layers.Conv3D.
-
-        :param filters: number of channels of the output
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param padding: same or valid
-        :param activation: defines the activation function
-        :param use_bias: whether add bias to output
-        :param kernel_initializer: defines the initialization method,
-            defines the initialization method
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        self._conv3d = tf.keras.layers.Conv3D(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding=padding,
-            activation=activation,
-            use_bias=use_bias,
-            kernel_initializer=kernel_initializer,
-        )
-
-    def call(self, inputs, **kwargs):
-        return self._conv3d(inputs=inputs)
-
-
 class Deconv3d(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -168,7 +128,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
         """
         super().__init__(**kwargs)
         # init layer variables
-        self._conv3d = Conv3d(
+        self._conv3d = tfkl.Conv3D(
             filters=filters,
             kernel_size=kernel_size,
             strides=strides,
@@ -265,8 +225,12 @@ class Residual3dBlock(tf.keras.layers.Layer):
         self._conv3d_block = Conv3dBlock(
             filters=filters, kernel_size=kernel_size, strides=strides
         )
-        self._conv3d = Conv3d(
-            filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
+        self._conv3d = tfkl.Conv3D(
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding="same",
+            use_bias=False,
         )
         self._norm = Norm()
         self._act = tfkl.Activation(activation=activation)
@@ -421,9 +385,11 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         # save parameters
         self._output_shape = output_shape
         # init layer variables
-        self._conv3d = Conv3d(
+        self._conv3d = tfkl.Conv3D(
             filters=filters,
+            kernel_size=3,
             strides=1,
+            padding="same",
             kernel_initializer=kernel_initializer,
             activation=activation,
         )  # if not zero, with init NN, ddf may be too large
@@ -584,8 +550,12 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         """
         super().__init__(**kwargs)
         # init layer variables
-        self._conv3d = Conv3d(
-            filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
+        self._conv3d = tfkl.Conv3D(
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding="same",
+            use_bias=False,
         )
         self._norm = Norm()
         self._act = tfkl.Activation(activation=activation)

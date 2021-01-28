@@ -27,21 +27,6 @@ class TestNorm:
             layer.Norm(name="none")
 
 
-def test_conv3d():
-    """
-    Test the layer.Conv3d class and its default attributes.
-    """
-
-    conv3d = layer.Conv3d(8)
-
-    assert isinstance(conv3d._conv3d, tf.keras.layers.Conv3D)
-    assert conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert conv3d._conv3d.strides == (1, 1, 1)
-    assert conv3d._conv3d.padding == "same"
-    assert isinstance(conv3d._conv3d.activation, type(tf.keras.activations.linear))
-    assert conv3d._conv3d.use_bias is True
-
-
 def test_deconv3d():
     """
     Test the layer.Deconv3d class and its default attributes."""
@@ -71,12 +56,10 @@ def test_conv3d_block():
 
     conv3d_block = layer.Conv3dBlock(8)
 
-    assert isinstance(conv3d_block._conv3d, layer.Conv3d)
-
-    assert conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
-    assert conv3d_block._conv3d._conv3d.padding == "same"
-    assert conv3d_block._conv3d._conv3d.use_bias is False
+    assert conv3d_block._conv3d.kernel_size == (3, 3, 3)
+    assert conv3d_block._conv3d.strides == (1, 1, 1)
+    assert conv3d_block._conv3d.padding == "same"
+    assert conv3d_block._conv3d.use_bias is False
 
     assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
@@ -111,13 +94,12 @@ def test_residual3d_block():
     res3d_block = layer.Residual3dBlock(8)
 
     assert isinstance(res3d_block._conv3d_block, layer.Conv3dBlock)
-    assert res3d_block._conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert res3d_block._conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
+    assert res3d_block._conv3d_block._conv3d.kernel_size == (3, 3, 3)
+    assert res3d_block._conv3d_block._conv3d.strides == (1, 1, 1)
 
-    assert isinstance(res3d_block._conv3d, layer.Conv3d)
-    assert res3d_block._conv3d._conv3d.use_bias is False
-    assert res3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert res3d_block._conv3d._conv3d.strides == (1, 1, 1)
+    assert res3d_block._conv3d.use_bias is False
+    assert res3d_block._conv3d.kernel_size == (3, 3, 3)
+    assert res3d_block._conv3d.strides == (1, 1, 1)
 
     assert isinstance(res3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
@@ -177,7 +159,6 @@ def test_init_conv3d_with_resize():
     model = layer.Conv3dWithResize(output_size, filters)
 
     assert model._output_shape == output_size
-    assert isinstance(model._conv3d, layer.Conv3d)
 
     # Pass an input of all zeros
     inputs = np.zeros(input_tensor_size)
@@ -284,12 +265,10 @@ def test_local_net_residual3d_block():
     # Test __init__()
     conv3d_block = layer.LocalNetResidual3dBlock(8)
 
-    assert isinstance(conv3d_block._conv3d, layer.Conv3d)
-
-    assert conv3d_block._conv3d._conv3d.kernel_size == (3, 3, 3)
-    assert conv3d_block._conv3d._conv3d.strides == (1, 1, 1)
-    assert conv3d_block._conv3d._conv3d.padding == "same"
-    assert conv3d_block._conv3d._conv3d.use_bias is False
+    assert conv3d_block._conv3d.kernel_size == (3, 3, 3)
+    assert conv3d_block._conv3d.strides == (1, 1, 1)
+    assert conv3d_block._conv3d.padding == "same"
+    assert conv3d_block._conv3d.use_bias is False
 
     assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
