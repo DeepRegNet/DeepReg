@@ -84,9 +84,6 @@ def test_init_global_net():
     # assert conv3dBlock type is correct, Pass
     assert isinstance(global_test._conv3d_block, layer.Conv3dBlock)
 
-    # asserting type is dense_layer, Pass
-    assert isinstance(global_test._dense_layer, layer.Dense)
-
 
 def test_call_global_net():
     """

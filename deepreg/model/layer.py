@@ -470,33 +470,6 @@ class IntDVF(tf.keras.layers.Layer):
         return ddf
 
 
-class Dense(tf.keras.layers.Layer):
-    def __init__(self, units: int, bias_initializer: str = "zeros", **kwargs):
-        """
-        Layer wraps tf.keras.layers.Dense and flattens input if necessary.
-
-        :param units: number of hidden units
-        :param bias_initializer: str, default "zeros"
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-
-        # init layer variables
-        self._flatten = tf.keras.layers.Flatten()
-        self._dense = tf.keras.layers.Dense(
-            units=units, bias_initializer=bias_initializer
-        )
-
-    def call(self, inputs, **kwargs) -> tf.Tensor:
-        r"""
-        :param inputs: shape = (batch, \*vol_dim, channels)
-        :param kwargs: (not used)
-        :return: shape = (batch, units)
-        """
-        flatten_inputs = self._flatten(inputs)
-        return self._dense(flatten_inputs)
-
-
 class AdditiveUpSampling(tf.keras.layers.Layer):
     def __init__(self, output_shape: tuple, stride: (int, list) = 2, **kwargs):
         """

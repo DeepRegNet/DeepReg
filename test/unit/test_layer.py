@@ -215,17 +215,6 @@ def test_init_dvf():
     )
 
 
-def test_dense():
-    """
-    Test the layer.Dense class and its default attributes.
-    concatenation of tensorflow classes
-    """
-    model = layer.Dense(8)
-
-    assert isinstance(model._flatten, tf.keras.layers.Flatten)
-    assert isinstance(model._dense, tf.keras.layers.Dense)
-
-
 def test_additive_upsampling():
     """
     Test the layer.AdditiveUpSampling class and its default attributes.

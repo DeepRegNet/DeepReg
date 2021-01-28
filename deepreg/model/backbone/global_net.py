@@ -4,6 +4,7 @@ from typing import List
 
 import numpy as np
 import tensorflow as tf
+import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone.interface import Backbone
@@ -78,7 +79,7 @@ class GlobalNet(Backbone):
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
         self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
-        self._dense_layer = layer.Dense(
+        self._dense_layer = tfkl.Dense(
             units=12, bias_initializer=self.transform_initial
         )
 
