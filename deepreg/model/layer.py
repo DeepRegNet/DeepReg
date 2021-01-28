@@ -2,23 +2,9 @@ import itertools
 
 import numpy as np
 import tensorflow as tf
+import tensorflow.keras.layers as tfkl
 
 import deepreg.model.layer_util as layer_util
-
-
-class Activation(tf.keras.layers.Layer):
-    def __init__(self, identifier: str = "relu", **kwargs):
-        """
-        Layer wraps tf.keras.activations.get().
-
-        :param identifier: e.g. "relu"
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        self._act = tf.keras.activations.get(identifier=identifier)
-
-    def call(self, inputs, **kwargs):
-        return self._act(inputs)
 
 
 class Norm(tf.keras.layers.Layer):
@@ -192,6 +178,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
         kernel_size: (int, tuple) = 3,
         strides: (int, tuple) = 1,
         padding: str = "same",
+        activation: str = "relu",
         **kwargs,
     ):
         """
@@ -201,6 +188,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param padding: str, same or valid
+        :param activation: name of activation
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
@@ -213,7 +201,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
             use_bias=False,
         )
         self._norm = Norm()
-        self._act = Activation()
+        self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
@@ -236,6 +224,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         kernel_size: (int, tuple) = 3,
         strides: (int, tuple) = 1,
         padding: str = "same",
+        activation: str = "relu",
         **kwargs,
     ):
         """
@@ -246,6 +235,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param padding: str, same or valid
+        :param activation: name of activation
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
@@ -259,7 +249,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
             use_bias=False,
         )
         self._norm = Norm()
-        self._act = Activation()
+        self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
@@ -280,6 +270,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
         filters: int,
         kernel_size: (int, tuple) = 3,
         strides: (int, tuple) = 1,
+        activation: str = "relu",
         **kwargs,
     ):
         """
@@ -291,6 +282,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
         :param filters: int, number of filters in the convolutional layers
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param activation: name of activation
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
@@ -302,7 +294,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
             filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
         )
         self._norm = Norm()
-        self._act = Activation()
+        self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
@@ -598,6 +590,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         filters: int,
         kernel_size: (int, tuple) = 3,
         strides: (int, tuple) = 1,
+        activation: str = "relu",
         **kwargs,
     ):
         """
@@ -609,6 +602,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         :param filters: number of channels of the output
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
+        :param activation: name of activation
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
@@ -617,7 +611,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
             filters=filters, kernel_size=kernel_size, strides=strides, use_bias=False
         )
         self._norm = Norm()
-        self._act = Activation()
+        self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         return self._act(
