@@ -27,18 +27,6 @@ class TestNorm:
             layer.Norm(name="none")
 
 
-def test_maxpool3d():
-    """
-    Test the layer.MaxPool3d class and its default attributes.
-    """
-    pooling = layer.MaxPool3d(2)
-
-    assert isinstance(pooling._max_pool, tf.keras.layers.MaxPool3D)
-    assert pooling._max_pool.pool_function == tf.nn.max_pool3d
-    assert pooling._max_pool.strides == (2, 2, 2)
-    assert pooling._max_pool.padding == "same"
-
-
 def test_conv3d():
     """
     Test the layer.Conv3d class and its default attributes.
@@ -144,7 +132,6 @@ def test_downsample_resnet_block():
 
     assert isinstance(model._conv3d_block, layer.Conv3dBlock)
     assert isinstance(model._residual_block, layer.Residual3dBlock)
-    assert isinstance(model._max_pool3d, layer.MaxPool3d)
     assert model._conv3d_block3 is None
 
     model = layer.DownSampleResnetBlock(8, pooling=False)

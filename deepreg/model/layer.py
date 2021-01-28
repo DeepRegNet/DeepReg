@@ -28,31 +28,6 @@ class Norm(tf.keras.layers.Layer):
         return self._norm(inputs=inputs, training=training)
 
 
-class MaxPool3d(tf.keras.layers.Layer):
-    def __init__(
-        self,
-        pool_size: (int, tuple),
-        strides: (int, tuple, None) = None,
-        padding: str = "same",
-        **kwargs,
-    ):
-        """
-        Layer wraps tf.keras.layers.MaxPool3D
-
-        :param pool_size: int or tuple of 3 ints
-        :param strides: int or tuple of 3 ints, if None default will be pool_size
-        :param padding: str, same or valid
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        self._max_pool = tf.keras.layers.MaxPool3D(
-            pool_size=pool_size, strides=strides, padding=padding
-        )
-
-    def call(self, inputs, **kwargs):
-        return self._max_pool(inputs=inputs)
-
-
 class Conv3d(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -339,7 +314,9 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
         self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
         self._max_pool3d = (
-            MaxPool3d(pool_size=(2, 2, 2), strides=(2, 2, 2)) if pooling else None
+            tfkl.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2), padding="same")
+            if pooling
+            else None
         )
         self._conv3d_block3 = (
             None
