@@ -10,23 +10,6 @@ import tensorflow as tf
 import deepreg.model.layer as layer
 
 
-class TestNorm:
-    @pytest.mark.parametrize("name", ["batch_norm", "layer_norm"])
-    def test_norm(self, name: str):
-        """
-        Test the layer.Norm class
-
-        :param name: name of norm
-        """
-
-        norm_layer = layer.Norm(name=name)
-        assert norm_layer._norm is not None
-
-    def test_error(self):
-        with pytest.raises(ValueError):
-            layer.Norm(name="none")
-
-
 def test_deconv3d():
     """
     Test the layer.Deconv3d class and its default attributes."""

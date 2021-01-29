@@ -7,27 +7,6 @@ import tensorflow.keras.layers as tfkl
 import deepreg.model.layer_util as layer_util
 
 
-class Norm(tf.keras.layers.Layer):
-    def __init__(self, name: str = "batch_norm", axis: int = -1, **kwargs):
-        """
-        Class merges batch norm and layer norm.
-
-        :param name: str, batch_norm or layer_norm
-        :param axis: int
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        if name == "batch_norm":
-            self._norm = tf.keras.layers.BatchNormalization(axis=axis, **kwargs)
-        elif name == "layer_norm":
-            self._norm = tf.keras.layers.LayerNormalization(axis=axis)
-        else:
-            raise ValueError("Unknown normalization type")
-
-    def call(self, inputs, training=None, **kwargs):
-        return self._norm(inputs=inputs, training=training)
-
-
 class Deconv3d(tf.keras.layers.Layer):
     def __init__(
         self,
@@ -135,7 +114,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
             padding=padding,
             use_bias=False,
         )
-        self._norm = Norm()
+        self._norm = tfkl.BatchNormalization()
         self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -183,7 +162,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
             padding=padding,
             use_bias=False,
         )
-        self._norm = Norm()
+        self._norm = tfkl.BatchNormalization()
         self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -232,7 +211,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
             padding="same",
             use_bias=False,
         )
-        self._norm = Norm()
+        self._norm = tfkl.BatchNormalization()
         self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -530,7 +509,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
             padding="same",
             use_bias=False,
         )
-        self._norm = Norm()
+        self._norm = tfkl.BatchNormalization()
         self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
