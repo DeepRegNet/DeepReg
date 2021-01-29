@@ -44,8 +44,6 @@ def test_conv3d_block():
     assert conv3d_block._conv3d.padding == "same"
     assert conv3d_block._conv3d.use_bias is False
 
-    assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
-
 
 def test_deconv3d_block():
     """
@@ -67,8 +65,6 @@ def test_deconv3d_block():
     assert deconv3d_block._deconv3d._padding == "same"
     assert deconv3d_block._deconv3d._deconv3d.use_bias is False
 
-    assert isinstance(deconv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
-
 
 def test_residual3d_block():
     """
@@ -83,8 +79,6 @@ def test_residual3d_block():
     assert res3d_block._conv3d.use_bias is False
     assert res3d_block._conv3d.kernel_size == (3, 3, 3)
     assert res3d_block._conv3d.strides == (1, 1, 1)
-
-    assert isinstance(res3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_downsample_resnet_block():
@@ -241,8 +235,6 @@ def test_local_net_residual3d_block():
     assert conv3d_block._conv3d.strides == (1, 1, 1)
     assert conv3d_block._conv3d.padding == "same"
     assert conv3d_block._conv3d.use_bias is False
-
-    assert isinstance(conv3d_block._norm._norm, tf.keras.layers.BatchNormalization)
 
 
 def test_local_net_upsample_resnet_block():
