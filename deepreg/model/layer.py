@@ -7,7 +7,7 @@ import tensorflow.keras.layers as tfkl
 import deepreg.model.layer_util as layer_util
 
 
-class Deconv3d(tf.keras.layers.Layer):
+class Deconv3d(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -19,7 +19,7 @@ class Deconv3d(tf.keras.layers.Layer):
         **kwargs,
     ):
         """
-        Layer wraps tf.keras.layers.Conv3DTranspose
+        Layer wraps tfkl.Conv3DTranspose
         and does not requires input shape when initializing.
 
         :param filters: number of channels of the output
@@ -71,7 +71,7 @@ class Deconv3d(tf.keras.layers.Layer):
                 )
                 for i in range(3)
             ]
-        self._deconv3d = tf.keras.layers.Conv3DTranspose(
+        self._deconv3d = tfkl.Conv3DTranspose(
             filters=self._filters,
             kernel_size=self._kernel_size,
             strides=self._strides,
@@ -85,7 +85,7 @@ class Deconv3d(tf.keras.layers.Layer):
         return self._deconv3d(inputs=inputs)
 
 
-class Conv3dBlock(tf.keras.layers.Layer):
+class Conv3dBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -130,7 +130,7 @@ class Conv3dBlock(tf.keras.layers.Layer):
         return output
 
 
-class Deconv3dBlock(tf.keras.layers.Layer):
+class Deconv3dBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -178,7 +178,7 @@ class Deconv3dBlock(tf.keras.layers.Layer):
         return output
 
 
-class Residual3dBlock(tf.keras.layers.Layer):
+class Residual3dBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -230,7 +230,7 @@ class Residual3dBlock(tf.keras.layers.Layer):
         )
 
 
-class DownSampleResnetBlock(tf.keras.layers.Layer):
+class DownSampleResnetBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -287,7 +287,7 @@ class DownSampleResnetBlock(tf.keras.layers.Layer):
         return pooled, skip
 
 
-class UpSampleResnetBlock(tf.keras.layers.Layer):
+class UpSampleResnetBlock(tfkl.Layer):
     def __init__(self, filters, kernel_size=3, concat=False, **kwargs):
         """
         An up-sampling resnet conv3d block, with deconv3d.
@@ -342,7 +342,7 @@ class UpSampleResnetBlock(tf.keras.layers.Layer):
         return up_sampled
 
 
-class Conv3dWithResize(tf.keras.layers.Layer):
+class Conv3dWithResize(tfkl.Layer):
     def __init__(
         self,
         output_shape: tuple,
@@ -384,7 +384,7 @@ class Conv3dWithResize(tf.keras.layers.Layer):
         return output
 
 
-class Warping(tf.keras.layers.Layer):
+class Warping(tfkl.Layer):
     def __init__(self, fixed_image_size: tuple, **kwargs):
         """
         A layer warps an image using DDF.
@@ -419,7 +419,7 @@ class Warping(tf.keras.layers.Layer):
         )
 
 
-class IntDVF(tf.keras.layers.Layer):
+class IntDVF(tfkl.Layer):
     def __init__(self, fixed_image_size: tuple, num_steps: int = 7, **kwargs):
         """
         Layer calculates DVF from DDF.
@@ -449,7 +449,7 @@ class IntDVF(tf.keras.layers.Layer):
         return ddf
 
 
-class AdditiveUpSampling(tf.keras.layers.Layer):
+class AdditiveUpSampling(tfkl.Layer):
     def __init__(self, output_shape: tuple, stride: (int, list) = 2, **kwargs):
         """
         Layer up-samples 3d tensor and reduce channels using split and sum.
@@ -479,7 +479,7 @@ class AdditiveUpSampling(tf.keras.layers.Layer):
         return output
 
 
-class LocalNetResidual3dBlock(tf.keras.layers.Layer):
+class LocalNetResidual3dBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
@@ -519,7 +519,7 @@ class LocalNetResidual3dBlock(tf.keras.layers.Layer):
         )
 
 
-class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
+class LocalNetUpSampleResnetBlock(tfkl.Layer):
     def __init__(self, filters: int, use_additive_upsampling: bool = True, **kwargs):
         """
         Layer up-samples tensor with two inputs (skipped and down-sampled).
@@ -568,7 +568,7 @@ class LocalNetUpSampleResnetBlock(tf.keras.layers.Layer):
         return h1
 
 
-class ResizeCPTransform(tf.keras.layers.Layer):
+class ResizeCPTransform(tfkl.Layer):
     """
     Layer for getting the control points from the output of a image-to-image network.
     It uses an anti-aliasing Gaussian filter before downsampling.
@@ -608,7 +608,7 @@ class ResizeCPTransform(tf.keras.layers.Layer):
         return layer_util.resize3d(image=output, size=self._output_shape)
 
 
-class BSplines3DTransform(tf.keras.layers.Layer):
+class BSplines3DTransform(tfkl.Layer):
     """
      Layer for BSplines interpolation with precomputed cubic spline filters.
      It assumes a full sized image from which:
