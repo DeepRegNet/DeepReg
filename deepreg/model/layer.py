@@ -318,10 +318,55 @@ class Resize3d(tfkl.Layer):
             output = tf.squeeze(output, axis=-1)
         return output
 
-    def get_config(self):
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["shape"] = self._shape
         config["method"] = self._method
+        return config
+
+
+class Warping(tfkl.Layer):
+    """
+    Warps an image with DDF.
+
+    Reference:
+
+    https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
+    where vol = image, loc_shift = ddf
+    """
+
+    def __init__(self, fixed_image_size: tuple, name: str = "warping", **kwargs):
+        """
+        Init.
+
+        :param fixed_image_size: shape = (f_dim1, f_dim2, f_dim3)
+             or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
+        :param name: name of the layer
+        :param kwargs: additional arguments.
+        """
+        super().__init__(name=name, **kwargs)
+        self._fixed_image_size = fixed_image_size
+        # shape = (1, f_dim1, f_dim2, f_dim3, 3)
+        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
+        self.grid_ref = self.grid_ref[None, ...]
+
+    def call(self, inputs, **kwargs) -> tf.Tensor:
+        """
+        :param inputs: (ddf, image)
+
+          - ddf, shape = (batch, f_dim1, f_dim2, f_dim3, 3)
+          - image, shape = (batch, m_dim1, m_dim2, m_dim3)
+        :param kwargs: additional arguments.
+        :return: shape = (batch, f_dim1, f_dim2, f_dim3)
+        """
+        ddf, image = inputs
+        return layer_util.resample(vol=image, loc=self.grid_ref + ddf)
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["fixed_image_size"] = self._fixed_image_size
         return config
 
 
@@ -504,39 +549,6 @@ class UpSampleResnetBlock(tfkl.Layer):
         )  # adjust channel
         up_sampled = self._residual_block(inputs=up_sampled, training=training)  # conv
         return up_sampled
-
-
-class Warping(tfkl.Layer):
-    def __init__(self, fixed_image_size: tuple, **kwargs):
-        """
-        A layer warps an image using DDF.
-
-        Reference:
-
-        - transform of neuron
-          https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
-
-          where vol = image, loc_shift = ddf
-
-        :param fixed_image_size: shape = (f_dim1, f_dim2, f_dim3)
-             or (f_dim1, f_dim2, f_dim3, ch) with the last channel for features
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)[
-            None, ...
-        ]  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-
-    def call(self, inputs, **kwargs) -> tf.Tensor:
-        """
-        :param inputs: (ddf, image)
-
-          - ddf, shape = (batch, f_dim1, f_dim2, f_dim3, 3), dtype = float32
-          - image, shape = (batch, m_dim1, m_dim2, m_dim3), dtype = float32
-        :param kwargs: additional arguments.
-        :return: shape = (batch, f_dim1, f_dim2, f_dim3)
-        """
-        return layer_util.resample(vol=inputs[1], loc=self.grid_ref + inputs[0])
 
 
 class IntDVF(tfkl.Layer):

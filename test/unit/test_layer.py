@@ -125,29 +125,30 @@ def test_upsample_resnet_block():
     assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
 
 
-def test_warping():
-    """
-    Test the layer.Warping class, its default attributes and its call() method.
-    """
-    batch_size = 5
-    fixed_image_size = (32, 32, 16)
-    moving_image_size = (24, 24, 16)
-    ndims = len(moving_image_size)
+class TestWarping:
+    @pytest.mark.parametrize(
+        ("moving_image_size", "fixed_image_size"),
+        [
+            ((1, 2, 3), (3, 4, 5)),
+            ((1, 2, 3), (1, 2, 3)),
+        ],
+    )
+    def test_forward(self, moving_image_size, fixed_image_size):
+        batch_size = 2
+        image = tf.ones(shape=(batch_size,) + moving_image_size)
+        ddf = tf.ones(shape=(batch_size,) + fixed_image_size + (3,))
+        outputs = layer.Warping(fixed_image_size=fixed_image_size)([ddf, image])
+        assert outputs.shape == (batch_size, *fixed_image_size)
 
-    grid_size = (1,) + fixed_image_size + (3,)
-    model = layer.Warping(fixed_image_size)
-
-    assert all(x == y for x, y in zip(grid_size, model.grid_ref.shape))
-
-    # Pass an input of all zeros
-    inputs = [
-        np.ones((batch_size, *fixed_image_size, ndims), dtype="float32"),
-        np.ones((batch_size, *moving_image_size), dtype="float32"),
-    ]
-    # Get outputs by calling
-    output = model.call(inputs)
-    # Expected shape is (5, 1, 2, 3, 3)
-    assert all(x == y for x, y in zip((batch_size,) + fixed_image_size, output.shape))
+    def test_get_config(self):
+        warping = layer.Warping(fixed_image_size=(2, 3, 4))
+        config = warping.get_config()
+        assert config == dict(
+            fixed_image_size=(2, 3, 4),
+            name="warping",
+            trainable=True,
+            dtype="float32",
+        )
 
 
 def test_init_dvf():
