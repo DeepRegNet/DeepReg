@@ -188,39 +188,6 @@ class TestLinearResample:
         assert "resample supports only linear interpolation" in str(err_info.value)
 
 
-def test_random_transform_generator():
-    """
-    Test random_transform_generator by confirming that it generates
-    appropriate solutions and output sizes for seeded examples.
-    """
-    # Check shapes are correct Batch Size = 1 - Pass
-    batch_size = 1
-    transforms = layer_util.gen_rand_affine_transform(batch_size, 0)
-    assert transforms.shape == (batch_size, 4, 3)
-
-    # Check numerical outputs are correct for a given seed - Pass
-    batch_size = 1
-    scale = 0.1
-    seed = 0
-    expected = tf.constant(
-        np.array(
-            [
-                [
-                    [9.4661278e-01, -3.8267835e-03, 3.6934228e-03],
-                    [5.5613145e-03, 9.8034811e-01, -1.8044969e-02],
-                    [1.9651605e-04, 1.4576728e-02, 9.6243286e-01],
-                    [-2.5107686e-03, 1.9579126e-02, -1.2195010e-02],
-                ]
-            ],
-            dtype=np.float32,
-        )
-    )  # shape = (1, 4, 3)
-    got = layer_util.gen_rand_affine_transform(
-        batch_size=batch_size, scale=scale, seed=seed
-    )
-    assert is_equal_tf(got, expected)
-
-
 class TestWarpGrid:
     """
     Test warp_grid by confirming that it generates
