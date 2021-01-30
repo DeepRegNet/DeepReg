@@ -8,6 +8,10 @@ import deepreg.model.layer_util as layer_util
 
 
 class Deconv3d(tfkl.Layer):
+    """
+    Wrap Conv3DTranspose to allow dynamic output padding calculation.
+    """
+
     def __init__(
         self,
         filters: int,
@@ -19,8 +23,7 @@ class Deconv3d(tfkl.Layer):
         **kwargs,
     ):
         """
-        Layer wraps tfkl.Conv3DTranspose
-        and does not requires input shape when initializing.
+        Init.
 
         :param filters: number of channels of the output
         :param output_shape: (out_dim1, out_dim2, out_dim3)
@@ -30,8 +33,8 @@ class Deconv3d(tfkl.Layer):
         :param use_bias: use bias for Conv3DTranspose or not.
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-        # save parameters
+        super().__init__()
+        # save arguments
         self._filters = filters
         self._output_shape = output_shape
         self._kernel_size = kernel_size
@@ -44,6 +47,17 @@ class Deconv3d(tfkl.Layer):
         self._deconv3d = None
 
     def build(self, input_shape):
+        # pylint: disable-next=line-too-long
+        """
+        Calculate output padding on the fly.
+
+        https://github.com/tensorflow/tensorflow/blob/1cf0898dd4331baf93fe77205550f2c2e6c90ee5/tensorflow/python/keras/utils/conv_utils.py#L139-L185
+        When the output shape is defined, the padding should be calculated manually
+        if padding == 'same':
+            pad = filter_size // 2
+            length = ((input_length - 1) * stride + filter_size
+                     - 2 * pad + output_padding)
+        """
         super().build(input_shape)
 
         if isinstance(self._kernel_size, int):
@@ -52,15 +66,6 @@ class Deconv3d(tfkl.Layer):
             self._strides = [self._strides] * 3
 
         if self._output_shape is not None:
-            # pylint: disable-next=line-too-long
-            """
-            https://github.com/tensorflow/tensorflow/blob/1cf0898dd4331baf93fe77205550f2c2e6c90ee5/tensorflow/python/keras/utils/conv_utils.py#L139-L185
-            When the output shape is defined, the padding should be calculated manually
-            if padding == 'same':
-                pad = filter_size // 2
-                length = ((input_length - 1) * stride + filter_size
-                         - 2 * pad + output_padding)
-            """
             self._padding = "same"
             self._output_padding = [
                 self._output_shape[i]
@@ -81,11 +86,37 @@ class Deconv3d(tfkl.Layer):
             **self._kwargs,
         )
 
-    def call(self, inputs, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs):
+        """
+        Forward.
+
+        :param inputs: input tensor.
+        :param kwargs: additional arguments
+        :return:
+        """
         return self._deconv3d(inputs=inputs)
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config
+        config.update(
+            dict(
+                filters=self._filters,
+                output_shape=self._output_shape,
+                kernel_size=self._kernel_size,
+                strides=self._strides,
+                padding=self._padding,
+                use_bias=self._use_bias,
+            )
+        )
+        config.update(self._kwargs)
 
 
 class Conv3dBlock(tfkl.Layer):
+    """
+    A conv3d block having conv3d - norm - activation.
+    """
+
     def __init__(
         self,
         filters: int,
@@ -96,7 +127,7 @@ class Conv3dBlock(tfkl.Layer):
         **kwargs,
     ):
         """
-        A conv3d block having conv3d - norm - activation.
+        Init.
 
         :param filters: number of channels of the output
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
@@ -106,6 +137,12 @@ class Conv3dBlock(tfkl.Layer):
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
+        # save arguments
+        self._filters = filters
+        self._kernel_size = kernel_size
+        self._strides = strides
+        self._padding = padding
+
         # init layer variables
         self._conv3d = tfkl.Conv3D(
             filters=filters,
@@ -117,8 +154,10 @@ class Conv3dBlock(tfkl.Layer):
         self._norm = tfkl.BatchNormalization()
         self._act = tfkl.Activation(activation=activation)
 
-    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
+    def call(self, inputs: tf.Tensor, training=None, **kwargs) -> tf.Tensor:
         """
+        Forward.
+
         :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
         :param training: training flag for normalization layers (default: None)
         :param kwargs: additional arguments.
@@ -128,6 +167,19 @@ class Conv3dBlock(tfkl.Layer):
         output = self._norm(inputs=output, training=training)
         output = self._act(output)
         return output
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config
+        config.update(
+            dict(
+                filters=self._filters,
+                kernel_size=self._kernel_size,
+                strides=self._strides,
+                padding=self._padding,
+                use_bias=self._use_bias,
+            )
+        )
 
 
 class Deconv3dBlock(tfkl.Layer):
