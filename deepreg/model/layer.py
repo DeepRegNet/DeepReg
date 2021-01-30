@@ -1,3 +1,4 @@
+"""This module defines custom layers."""
 import itertools
 
 import numpy as np
@@ -52,11 +53,8 @@ class Deconv3d(tfkl.Layer):
         Calculate output padding on the fly.
 
         https://github.com/tensorflow/tensorflow/blob/1cf0898dd4331baf93fe77205550f2c2e6c90ee5/tensorflow/python/keras/utils/conv_utils.py#L139-L185
-        When the output shape is defined, the padding should be calculated manually
-        if padding == 'same':
-            pad = filter_size // 2
-            length = ((input_length - 1) * stride + filter_size
-                     - 2 * pad + output_padding)
+
+        :param input_shape: shape of input
         """
         super().build(input_shape)
 
@@ -86,7 +84,7 @@ class Deconv3d(tfkl.Layer):
             **self._kwargs,
         )
 
-    def call(self, inputs: tf.Tensor, **kwargs):
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
         Forward.
 
@@ -110,6 +108,7 @@ class Deconv3d(tfkl.Layer):
             )
         )
         config.update(self._kwargs)
+        return config
 
 
 class Conv3dBlock(tfkl.Layer):
@@ -180,6 +179,7 @@ class Conv3dBlock(tfkl.Layer):
                 use_bias=self._use_bias,
             )
         )
+        return config
 
 
 class Deconv3dBlock(tfkl.Layer):
