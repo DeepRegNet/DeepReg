@@ -190,52 +190,23 @@ class Conv3dBlock(NormBlock):
         super().__init__(layer_name="conv3d", name=name, **kwargs)
 
 
-class Deconv3dBlock(tfkl.Layer):
+class Deconv3dBlock(NormBlock):
+    """
+    A deconv3d block having conv3d - norm - activation.
+    """
+
     def __init__(
         self,
-        filters: int,
-        output_shape: (tuple, None) = None,
-        kernel_size: (int, tuple) = 3,
-        strides: (int, tuple) = 1,
-        padding: str = "same",
-        activation: str = "relu",
+        name: str = "deconv3d_block",
         **kwargs,
     ):
         """
-        A deconv3d block having deconv3d - norm - activation.
+        Init.
 
-        :param filters: number of channels of the output
-        :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param padding: str, same or valid
-        :param activation: name of activation
+        :param name: name of the layer
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-        # init layer variables
-        self._deconv3d = Deconv3d(
-            filters=filters,
-            output_shape=output_shape,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding=padding,
-            use_bias=False,
-        )
-        self._norm = tfkl.BatchNormalization()
-        self._act = tfkl.Activation(activation=activation)
-
-    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
-        """
-        :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training: training flag for normalization layers (default: None)
-        :param kwargs: additional arguments.
-        :return output: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        """
-        output = self._deconv3d(inputs=inputs)
-        output = self._norm(inputs=output, training=training)
-        output = self._act(output)
-        return output
+        super().__init__(layer_name="deconv3d", name=name, **kwargs)
 
 
 class Residual3dBlock(tfkl.Layer):
@@ -387,7 +358,11 @@ class UpSampleResnetBlock(tfkl.Layer):
         super().build(input_shape)
         skip_shape = input_shape[1][1:4]
         self._deconv3d_block = Deconv3dBlock(
-            filters=self._filters, output_shape=skip_shape, strides=2
+            filters=self._filters,
+            output_shape=skip_shape,
+            kernel_size=3,
+            strides=2,
+            padding="same",
         )
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -617,7 +592,11 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
 
         output_shape = input_shape[1][1:4]
         self._deconv3d_block = Deconv3dBlock(
-            filters=self._filters, output_shape=output_shape, strides=2
+            filters=self._filters,
+            output_shape=output_shape,
+            kernel_size=3,
+            strides=2,
+            padding="same",
         )
         if self._use_additive_upsampling:
             self._additive_upsampling = AdditiveUpSampling(output_shape=output_shape)

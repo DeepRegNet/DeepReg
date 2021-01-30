@@ -88,19 +88,6 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     )
 
 
-def test_deconv3d_block():
-    """
-    Test the layer.Deconv3dBlock class and its default attributes.
-    """
-
-    deconv3d_block = layer.Deconv3dBlock(8)
-
-    assert isinstance(deconv3d_block._deconv3d, layer.Deconv3d)
-    assert deconv3d_block._deconv3d._deconv3d is None
-
-    deconv3d_block._deconv3d.build((8, 8))
-
-
 def test_residual3d_block():
     """
     Test the layer.Residual3dBlock class and its default attributes.
