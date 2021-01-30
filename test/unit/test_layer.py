@@ -3,6 +3,8 @@
 """
 Tests for deepreg/model/layer
 """
+from typing import Optional
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -10,26 +12,80 @@ import tensorflow as tf
 import deepreg.model.layer as layer
 
 
-def test_deconv3d():
+@pytest.mark.parametrize(
+    ("input_shape", "output_shape", "expected_shape"),
+    [
+        ((6, 7, 8), (12, 14, 16), (12, 14, 16)),
+        ((6, 7, 8), (11, 13, 15), (11, 13, 15)),
+        ((6, 7, 8), None, (12, 14, 16)),
+    ],
+)
+def test_deconv3d(input_shape, output_shape: Optional[tuple], expected_shape: tuple):
     """
-    Test the layer.Deconv3d class and its default attributes."""
+    Test output shapes and configs.
+
+    :param input_shape: input shape for layer definition
+    :param output_shape: output shape for layer definition
+    :param expected_shape: expected output shape
+    """
     batch_size = 5
-    channels = 4
-    input_size = (32, 32, 16)
-    output_size = (64, 64, 32)
-    output_padding = (1, 1, 1)
 
-    input_tensor_shape = (batch_size,) + input_size + (channels,)
+    deconv3d = layer.Deconv3d(filters=3, strides=2, output_shape=output_shape)
 
-    deconv3d = layer.Deconv3d(8, output_size, strides=2)
-    deconv3d.build(input_tensor_shape)
+    inputs = tf.ones(shape=(batch_size,) + input_shape + (1,))
+    output = deconv3d(inputs)
 
-    assert tuple(deconv3d._output_padding) == output_padding
-    assert isinstance(deconv3d._deconv3d, tf.keras.layers.Conv3DTranspose)
-    assert tuple(deconv3d._kernel_size) == (3, 3, 3)
-    assert tuple(deconv3d._strides) == (2, 2, 2)
-    assert deconv3d._padding == "same"
-    assert deconv3d._deconv3d.use_bias is True
+    assert output.shape == (batch_size,) + expected_shape + (3,)
+
+    config = deconv3d.get_config()
+    assert config == dict(
+        filters=3,
+        output_shape=output_shape,
+        kernel_size=3,
+        strides=2,
+        padding="same",
+        name="deconv3d",
+        trainable=True,
+        dtype="float32",
+    )
+
+
+@pytest.mark.parametrize("layer_name", ["conv3d", "deconv3d"])
+@pytest.mark.parametrize("norm_name", ["batch", "layer"])
+@pytest.mark.parametrize("activation", ["relu", "elu"])
+def test_norm_block(layer_name: str, norm_name: str, activation: str):
+    """
+    Test output shapes and configs.
+
+    :param layer_name: layer_name for layer definition
+    :param norm_name: norm_name for layer definition
+    :param activation: activation for layer definition
+    """
+    input_size = (2, 3, 4, 5, 6)  # (batch, *shape, ch)
+    conv_block = layer.NormBlock(
+        layer_name=layer_name,
+        norm_name=norm_name,
+        activation=activation,
+        filters=3,
+        kernel_size=1,
+        padding="same",
+    )
+    inputs = tf.ones(shape=input_size)
+    outputs = conv_block(inputs)
+    assert outputs.shape == input_size[:-1] + (3,)
+
+    config = conv_block.get_config()
+    assert config == dict(
+        layer_name=layer_name,
+        norm_name=norm_name,
+        activation=activation,
+        filters=3,
+        kernel_size=1,
+        padding="same",
+        name="norm_block",
+        trainable=True,
+        dtype="float32",
+    )
 
 
 def test_conv3d_block():
@@ -56,14 +112,6 @@ def test_deconv3d_block():
     assert deconv3d_block._deconv3d._deconv3d is None
 
     deconv3d_block._deconv3d.build((8, 8))
-
-    assert isinstance(
-        deconv3d_block._deconv3d._deconv3d, tf.keras.layers.Conv3DTranspose
-    )
-    assert tuple(deconv3d_block._deconv3d._kernel_size) == (3, 3, 3)
-    assert tuple(deconv3d_block._deconv3d._strides) == (1, 1, 1)
-    assert deconv3d_block._deconv3d._padding == "same"
-    assert deconv3d_block._deconv3d._deconv3d.use_bias is False
 
 
 def test_residual3d_block():

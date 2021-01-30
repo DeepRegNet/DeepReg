@@ -20,7 +20,7 @@ class Deconv3d(tfkl.Layer):
         kernel_size: int = 3,
         strides: int = 1,
         padding: str = "same",
-        use_bias: bool = True,
+        name="deconv3d",
         **kwargs,
     ):
         """
@@ -31,20 +31,18 @@ class Deconv3d(tfkl.Layer):
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
         :param padding: same or valid.
-        :param use_bias: use bias for Conv3DTranspose or not.
-        :param kwargs: additional arguments.
+        :param name: name of the layer.
+        :param kwargs: additional arguments for Conv3DTranspose.
         """
-        super().__init__()
+        super().__init__(name=name)
         # save arguments
         self._filters = filters
         self._output_shape = output_shape
         self._kernel_size = kernel_size
         self._strides = strides
         self._padding = padding
-        self._use_bias = use_bias
         self._kwargs = kwargs
         # init layer variables
-        self._output_padding = None
         self._deconv3d = None
 
     def build(self, input_shape):
@@ -59,18 +57,24 @@ class Deconv3d(tfkl.Layer):
         super().build(input_shape)
 
         if isinstance(self._kernel_size, int):
-            self._kernel_size = [self._kernel_size] * 3
-        if isinstance(self._strides, int):
-            self._strides = [self._strides] * 3
+            kernel_size = [self._kernel_size] * 3
+        else:
+            kernel_size = self._kernel_size
 
+        if isinstance(self._strides, int):
+            strides = [self._strides] * 3
+        else:
+            strides = self._strides
+
+        output_padding = None
         if self._output_shape is not None:
-            self._padding = "same"
-            self._output_padding = [
+            assert self._padding == "same"
+            output_padding = [
                 self._output_shape[i]
                 - (
-                    (input_shape[1 + i] - 1) * self._strides[i]
-                    + self._kernel_size[i]
-                    - 2 * (self._kernel_size[i] // 2)
+                    (input_shape[1 + i] - 1) * strides[i]
+                    + kernel_size[i]
+                    - 2 * (kernel_size[i] // 2)
                 )
                 for i in range(3)
             ]
@@ -79,8 +83,7 @@ class Deconv3d(tfkl.Layer):
             kernel_size=self._kernel_size,
             strides=self._strides,
             padding=self._padding,
-            output_padding=self._output_padding,
-            use_bias=self._use_bias,
+            output_padding=output_padding,
             **self._kwargs,
         )
 
@@ -96,7 +99,7 @@ class Deconv3d(tfkl.Layer):
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
-        config = super().get_config
+        config = super().get_config()
         config.update(
             dict(
                 filters=self._filters,
@@ -104,10 +107,67 @@ class Deconv3d(tfkl.Layer):
                 kernel_size=self._kernel_size,
                 strides=self._strides,
                 padding=self._padding,
-                use_bias=self._use_bias,
             )
         )
         config.update(self._kwargs)
+        return config
+
+
+class NormBlock(tfkl.Layer):
+    """
+    A block with layer - norm - activation.
+    """
+
+    layer_cls_dict = dict(conv3d=tfkl.Conv3D, deconv3d=Deconv3d)
+    norm_cls_dict = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
+
+    def __init__(
+        self,
+        layer_name: str,
+        norm_name: str = "batch",
+        activation: str = "relu",
+        name: str = "norm_block",
+        **kwargs,
+    ):
+        """
+        Init.
+
+        :param layer_name: class of the layer to be wrapped.
+        :param norm_name: class of the normalization layer.
+        :param activation: name of activation.
+        :param name: name of the block layer.
+        :param kwargs: additional arguments.
+        """
+        super().__init__()
+        self._config = dict(
+            layer_name=layer_name,
+            norm_name=norm_name,
+            activation=activation,
+            name=name,
+            **kwargs,
+        )
+        self._layer = self.layer_cls_dict[layer_name](use_bias=False, **kwargs)
+        self._norm = self.norm_cls_dict[norm_name]()
+        self._act = tfkl.Activation(activation=activation)
+
+    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
+        """
+        Forward.
+
+        :param inputs: inputs for the layer
+        :param training: training flag for normalization layers (default: None)
+        :param kwargs: additional arguments.
+        :return:
+        """
+        output = self._layer(inputs=inputs)
+        output = self._norm(inputs=output, training=training)
+        output = self._act(output)
+        return output
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(self._config)
         return config
 
 
