@@ -55,16 +55,13 @@ class Deconv3d(tfkl.Layer):
         :param input_shape: shape of input
         """
         super().build(input_shape)
+        kernel_size = self._kernel_size
+        strides = self._strides
+        if isinstance(kernel_size, int):
+            kernel_size = [kernel_size] * 3
 
-        if isinstance(self._kernel_size, int):
-            kernel_size = [self._kernel_size] * 3
-        else:
-            kernel_size = self._kernel_size
-
-        if isinstance(self._strides, int):
-            strides = [self._strides] * 3
-        else:
-            strides = self._strides
+        if isinstance(strides, int):
+            strides = [strides] * 3
 
         output_padding = None
         if self._output_shape is not None:
