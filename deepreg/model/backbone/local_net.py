@@ -3,6 +3,7 @@
 from typing import List
 
 import tensorflow as tf
+import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer
 from deepreg.model.backbone.interface import Backbone
@@ -96,11 +97,18 @@ class LocalNet(Backbone):
         ]  # level D to E-1
 
         self._extract_layers = [
-            layer.Conv3dWithResize(
-                output_shape=image_size,
-                filters=out_channels,
-                kernel_initializer=out_kernel_initializer,
-                activation=out_activation,
+            tf.keras.Sequential(
+                [
+                    tfkl.Conv3D(
+                        filters=out_channels,
+                        kernel_size=3,
+                        strides=1,
+                        padding="same",
+                        kernel_initializer=out_kernel_initializer,
+                        activation=out_activation,
+                    ),
+                    layer.Resize3d(shape=image_size),
+                ]
             )
             for _ in self._extract_levels
         ]

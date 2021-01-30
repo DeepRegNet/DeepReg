@@ -242,6 +242,7 @@ class Resize3d(tfkl.Layer):
         :param inputs: shape = (batch, dim1, dim2, dim3, channels)
                                      or (batch, dim1, dim2, dim3)
                                      or (dim1, dim2, dim3)
+        :param kwargs: additional arguments
         :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels)
                                 or (batch, dim1, dim2, dim3)
                                 or (dim1, dim2, dim3)
@@ -503,49 +504,6 @@ class UpSampleResnetBlock(tfkl.Layer):
         )  # adjust channel
         up_sampled = self._residual_block(inputs=up_sampled, training=training)  # conv
         return up_sampled
-
-
-class Conv3dWithResize(tfkl.Layer):
-    def __init__(
-        self,
-        output_shape: tuple,
-        filters: int,
-        kernel_initializer: str = "glorot_uniform",
-        activation: (str, None) = None,
-        **kwargs,
-    ):
-        """
-        A layer contains conv3d - resize3d.
-
-        :param output_shape: tuple, (out_dim1, out_dim2, out_dim3)
-        :param filters: int, number of channels of the output
-        :param kernel_initializer: str, defines the initialization method
-        :param activation: str, defines the activation function
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        # save parameters
-        self._output_shape = output_shape
-        # init layer variables
-        self._conv3d = tfkl.Conv3D(
-            filters=filters,
-            kernel_size=3,
-            strides=1,
-            padding="same",
-            kernel_initializer=kernel_initializer,
-            activation=activation,
-        )  # if not zero, with init NN, ddf may be too large
-        self._resize = Resize3d(shape=output_shape)
-
-    def call(self, inputs, **kwargs) -> tf.Tensor:
-        """
-        :param inputs: shape = (batch, dim1, dim2, dim3, channels)
-        :param kwargs: additional arguments.
-        :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels)
-        """
-        output = self._conv3d(inputs=inputs)
-        output = self._resize(inputs=output)
-        return output
 
 
 class Warping(tfkl.Layer):

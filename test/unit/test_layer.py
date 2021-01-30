@@ -125,31 +125,6 @@ def test_upsample_resnet_block():
     assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
 
 
-def test_init_conv3d_with_resize():
-    """
-    Test the layer.Conv3dWithResize class's default attributes and call function.
-    """
-    batch_size = 5
-    channels = 4
-    input_size = (32, 32, 16)
-    output_size = (62, 62, 24)
-    filters = 8
-
-    input_tensor_size = (batch_size,) + input_size + (channels,)
-    output_tensor_size = (batch_size,) + output_size + (filters,)
-
-    model = layer.Conv3dWithResize(output_size, filters)
-
-    assert model._output_shape == output_size
-
-    # Pass an input of all zeros
-    inputs = np.zeros(input_tensor_size)
-    # Get outputs by calling
-    output = model.call(inputs)
-    # Expected shape is (5, 1, 2, 3, 3)
-    assert all(x == y for x, y in zip(output_tensor_size, output.shape))
-
-
 def test_warping():
     """
     Test the layer.Warping class, its default attributes and its call() method.

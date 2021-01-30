@@ -159,10 +159,6 @@ class TestLocalNet:
             extract_levels
         )
 
-        # assert upsample blocks type is correct, Pass
-        assert all(
-            isinstance(item, layer.Conv3dWithResize) for item in network._extract_layers
-        )
         # assert number of upsample blocks is correct (== extract_levels), Pass
         assert len(network._extract_layers) == len(extract_levels)
 
@@ -246,9 +242,6 @@ class TestUNet:
         )
         # assert number of upsample blocks is correct (== depth), Pass
         assert len(network._upsample_blocks) == depth
-
-        # assert output_conv3d is correct type, Pass
-        assert isinstance(network._output_conv3d, layer.Conv3dWithResize)
 
         if control_points is None:
             assert network.resize is False

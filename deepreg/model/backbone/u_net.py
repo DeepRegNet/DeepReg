@@ -2,6 +2,7 @@
 
 
 import tensorflow as tf
+import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer
 from deepreg.model.backbone.interface import Backbone
@@ -79,11 +80,18 @@ class UNet(Backbone):
             layer.UpSampleResnetBlock(filters=num_channels[d], concat=concat_skip)
             for d in range(depth)
         ]
-        self._output_conv3d = layer.Conv3dWithResize(
-            output_shape=image_size,
-            filters=out_channels,
-            kernel_initializer=out_kernel_initializer,
-            activation=out_activation,
+        self._output_conv3d = tf.keras.Sequential(
+            [
+                tfkl.Conv3D(
+                    filters=out_channels,
+                    kernel_size=3,
+                    strides=1,
+                    padding="same",
+                    kernel_initializer=out_kernel_initializer,
+                    activation=out_activation,
+                ),
+                layer.Resize3d(shape=image_size),
+            ]
         )
 
         self.resize = (
