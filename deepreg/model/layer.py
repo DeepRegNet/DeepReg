@@ -401,9 +401,9 @@ class Warping(tfkl.Layer):
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
-        self.grid_ref = tf.expand_dims(
-            layer_util.get_reference_grid(grid_size=fixed_image_size), axis=0
-        )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
+        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)[
+            None, ...
+        ]  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
         """
@@ -414,9 +414,7 @@ class Warping(tfkl.Layer):
         :param kwargs: additional arguments.
         :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         """
-        return layer_util.warp_image_ddf(
-            image=inputs[1], ddf=inputs[0], grid_ref=self.grid_ref
-        )
+        return layer_util.resample(vol=inputs[1], loc=self.grid_ref + inputs[0])
 
 
 class IntDVF(tfkl.Layer):

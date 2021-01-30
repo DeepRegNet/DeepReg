@@ -13,7 +13,7 @@ import numpy as np
 import tensorflow as tf
 
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
-from deepreg.model.layer_util import warp_image_ddf
+from deepreg.model.layer import Warping
 
 
 def shape_sanity_check(image: np.ndarray, ddf: np.ndarray):
@@ -59,6 +59,7 @@ def warp(image_path: str, ddf_path: str, out_path: str):
     # load image and ddf
     image = load_nifti_file(image_path)
     ddf = load_nifti_file(ddf_path)
+    fixed_image_shape = ddf.shape[:3]
     shape_sanity_check(image=image, ddf=ddf)
 
     # add batch dimension manually
@@ -66,7 +67,7 @@ def warp(image_path: str, ddf_path: str, out_path: str):
     ddf = tf.expand_dims(ddf, axis=0)
 
     # warp
-    warped_image = warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
+    warped_image = Warping(fixed_image_size=fixed_image_shape)([ddf, image])
     warped_image = warped_image.numpy()
     warped_image = warped_image[0, ...]  # removed added batch dimension
 

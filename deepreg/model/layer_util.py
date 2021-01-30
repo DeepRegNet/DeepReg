@@ -523,52 +523,6 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     return grid_warped
 
 
-def warp_image_ddf(
-    image: tf.Tensor, ddf: tf.Tensor, grid_ref: (tf.Tensor, None)
-) -> tf.Tensor:
-    """
-    Warp an image with given DDF.
-
-    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
-        or (batch, m_dim1, m_dim2, m_dim3, ch)
-    :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3)
-        or (1, f_dim1, f_dim2, f_dim3, 3)
-        if None grid_reg will be calculated based on ddf
-    :return: shape = (batch, f_dim1, f_dim2, f_dim3)
-        or (batch, f_dim1, f_dim2, f_dim3, ch)
-    """
-    if len(image.shape) not in [4, 5]:
-        raise ValueError(
-            f"image shape must be (batch, m_dim1, m_dim2, m_dim3) "
-            f"or (batch, m_dim1, m_dim2, m_dim3, ch),"
-            f" got {image.shape}"
-        )
-    if not (len(ddf.shape) == 5 and ddf.shape[-1] == 3):
-        raise ValueError(
-            f"ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3), got {ddf.shape}"
-        )
-
-    if grid_ref is None:
-        # shape = (f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = get_reference_grid(grid_size=ddf.shape[1:4])
-    if len(grid_ref.shape) == 4:
-        # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = grid_ref[None, ...]
-    if not (
-        len(grid_ref.shape) == 5
-        and grid_ref.shape[0] == 1
-        and grid_ref.shape[2:] == ddf.shape[2:]
-    ):
-        raise ValueError(
-            f"grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None, "
-            f"(f_dim1, f_dim2, f_dim3) must be the same as ddf, "
-            f"got grid_ref.shape = {grid_ref.shape} and ddf.shape = {ddf.shape}."
-        )
-
-    return resample(vol=image, loc=grid_ref + ddf)
-
-
 def resize3d(
     image: tf.Tensor, size: (tuple, list), method: str = tf.image.ResizeMethod.BILINEAR
 ) -> tf.Tensor:

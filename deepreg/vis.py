@@ -14,7 +14,7 @@ import numpy as np
 import numpy.matlib
 
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
-from deepreg.model.layer_util import warp_image_ddf
+from deepreg.model.layer import Warping
 
 
 def string_to_list(string: str) -> List[str]:
@@ -151,10 +151,11 @@ def gif_warp(
             for ddf_scaler in ddf_scalers:
                 image = load_nifti_file(img_path)
                 ddf = load_nifti_file(ddf_path)
+                fixed_image_shape = ddf.shape[:3]
                 image = np.expand_dims(image, axis=0)
                 ddf = np.expand_dims(ddf, axis=0) * ddf_scaler
 
-                warped_image = warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
+                warped_image = Warping(fixed_image_size=fixed_image_shape)([ddf, image])
                 warped_image = np.squeeze(warped_image.numpy())
 
                 frame = plt.imshow(
