@@ -84,7 +84,9 @@ class LocalNet(Backbone):
             )
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
-        self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
+        self._conv3d_block = layer.Conv3dBlock(
+            filters=num_channels[-1], kernel_size=3, padding="same"
+        )  # level E
 
         self._upsample_blocks = [
             layer.LocalNetUpSampleResnetBlock(num_channels[level])

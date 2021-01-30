@@ -88,19 +88,6 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     )
 
 
-def test_conv3d_block():
-    """
-    Test the layer.Conv3dBlock class and its default attributes.
-    """
-
-    conv3d_block = layer.Conv3dBlock(8)
-
-    assert conv3d_block._conv3d.kernel_size == (3, 3, 3)
-    assert conv3d_block._conv3d.strides == (1, 1, 1)
-    assert conv3d_block._conv3d.padding == "same"
-    assert conv3d_block._conv3d.use_bias is False
-
-
 def test_deconv3d_block():
     """
     Test the layer.Deconv3dBlock class and its default attributes.
@@ -137,7 +124,6 @@ def test_downsample_resnet_block():
 
     assert model._pooling is True
 
-    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
     assert isinstance(model._residual_block, layer.Residual3dBlock)
     assert model._conv3d_block3 is None
 

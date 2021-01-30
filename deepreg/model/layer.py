@@ -171,75 +171,23 @@ class NormBlock(tfkl.Layer):
         return config
 
 
-class Conv3dBlock(tfkl.Layer):
+class Conv3dBlock(NormBlock):
     """
     A conv3d block having conv3d - norm - activation.
     """
 
     def __init__(
         self,
-        filters: int,
-        kernel_size: (int, tuple) = 3,
-        strides: (int, tuple) = 1,
-        padding: str = "same",
-        activation: str = "relu",
+        name: str = "conv3d_block",
         **kwargs,
     ):
         """
         Init.
 
-        :param filters: number of channels of the output
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param padding: str, same or valid
-        :param activation: name of activation
+        :param name: name of the layer
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-        # save arguments
-        self._filters = filters
-        self._kernel_size = kernel_size
-        self._strides = strides
-        self._padding = padding
-
-        # init layer variables
-        self._conv3d = tfkl.Conv3D(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding=padding,
-            use_bias=False,
-        )
-        self._norm = tfkl.BatchNormalization()
-        self._act = tfkl.Activation(activation=activation)
-
-    def call(self, inputs: tf.Tensor, training=None, **kwargs) -> tf.Tensor:
-        """
-        Forward.
-
-        :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        :param training: training flag for normalization layers (default: None)
-        :param kwargs: additional arguments.
-        :return: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
-        """
-        output = self._conv3d(inputs=inputs)
-        output = self._norm(inputs=output, training=training)
-        output = self._act(output)
-        return output
-
-    def get_config(self) -> dict:
-        """Return the config dictionary for recreating this class."""
-        config = super().get_config
-        config.update(
-            dict(
-                filters=self._filters,
-                kernel_size=self._kernel_size,
-                strides=self._strides,
-                padding=self._padding,
-                use_bias=self._use_bias,
-            )
-        )
-        return config
+        super().__init__(layer_name="conv3d", name=name, **kwargs)
 
 
 class Deconv3dBlock(tfkl.Layer):
@@ -314,7 +262,10 @@ class Residual3dBlock(tfkl.Layer):
         super().__init__(**kwargs)
         # init layer variables
         self._conv3d_block = Conv3dBlock(
-            filters=filters, kernel_size=kernel_size, strides=strides
+            filters=filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding="same",
         )
         self._conv3d = tfkl.Conv3D(
             filters=filters,
@@ -366,7 +317,9 @@ class DownSampleResnetBlock(tfkl.Layer):
         # save parameters
         self._pooling = pooling
         # init layer variables
-        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
+        self._conv3d_block = Conv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding="same"
+        )
         self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
         self._max_pool3d = (
             tfkl.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2), padding="same")
@@ -376,7 +329,13 @@ class DownSampleResnetBlock(tfkl.Layer):
         self._conv3d_block3 = (
             None
             if pooling
-            else Conv3dBlock(filters=filters, kernel_size=kernel_size, strides=2)
+            else NormBlock(
+                layer_name="conv3d",
+                filters=filters,
+                kernel_size=kernel_size,
+                strides=2,
+                padding="same",
+            )
         )
 
     def call(self, inputs, training=None, **kwargs) -> (tf.Tensor, tf.Tensor):
@@ -416,7 +375,9 @@ class UpSampleResnetBlock(tfkl.Layer):
         self._concat = concat
         # init layer variables
         self._deconv3d_block = None
-        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=kernel_size)
+        self._conv3d_block = Conv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding="same"
+        )
         self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
 
     def build(self, input_shape):
@@ -645,7 +606,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         # init layer variables
         self._deconv3d_block = None
         self._additive_upsampling = None
-        self._conv3d_block = Conv3dBlock(filters=filters)
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=3, padding="same")
         self._residual_block = LocalNetResidual3dBlock(filters=filters, strides=1)
 
     def build(self, input_shape):
