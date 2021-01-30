@@ -88,21 +88,6 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     )
 
 
-def test_residual3d_block():
-    """
-    Test the layer.Residual3dBlock class and its default attributes.
-    """
-    res3d_block = layer.Residual3dBlock(8)
-
-    assert isinstance(res3d_block._conv3d_block, layer.Conv3dBlock)
-    assert res3d_block._conv3d_block._conv3d.kernel_size == (3, 3, 3)
-    assert res3d_block._conv3d_block._conv3d.strides == (1, 1, 1)
-
-    assert res3d_block._conv3d.use_bias is False
-    assert res3d_block._conv3d.kernel_size == (3, 3, 3)
-    assert res3d_block._conv3d.strides == (1, 1, 1)
-
-
 def test_downsample_resnet_block():
     """
     Test the layer.DownSampleResnetBlock class and its default attributes.
@@ -116,7 +101,6 @@ def test_downsample_resnet_block():
 
     model = layer.DownSampleResnetBlock(8, pooling=False)
     assert model._max_pool3d is None
-    assert isinstance(model._conv3d_block3, layer.Conv3dBlock)
 
 
 def test_upsample_resnet_block():
@@ -437,3 +421,46 @@ class TestBSplines3DTransform:
 
         ddf = model.call(field)
         assert ddf.shape == input_size
+
+
+class TestResize3d:
+    @pytest.mark.parametrize(
+        ("input_shape", "resize_shape", "output_shape"),
+        [
+            ((1, 2, 3), (3, 4, 5), (3, 4, 5)),
+            ((2, 1, 2, 3), (3, 4, 5), (2, 3, 4, 5)),
+            ((2, 1, 2, 3, 1), (3, 4, 5), (2, 3, 4, 5, 1)),
+            ((2, 1, 2, 3, 6), (3, 4, 5), (2, 3, 4, 5, 6)),
+            ((1, 2, 3), (1, 2, 3), (1, 2, 3)),
+            ((2, 1, 2, 3), (1, 2, 3), (2, 1, 2, 3)),
+            ((2, 1, 2, 3, 1), (1, 2, 3), (2, 1, 2, 3, 1)),
+            ((2, 1, 2, 3, 6), (1, 2, 3), (2, 1, 2, 3, 6)),
+        ],
+    )
+    def test_forward(self, input_shape, resize_shape, output_shape):
+        inputs = tf.ones(shape=input_shape)
+        outputs = layer.Resize3d(shape=resize_shape)(inputs)
+        assert outputs.shape == output_shape
+
+    def test_get_config(self):
+        resize = layer.Resize3d(shape=(2, 3, 4))
+        config = resize.get_config()
+        assert config == dict(
+            shape=(2, 3, 4),
+            method=tf.image.ResizeMethod.BILINEAR,
+            name="resize3d",
+            trainable=True,
+            dtype="float32",
+        )
+
+    def test_shape_err(self):
+        with pytest.raises(AssertionError):
+            layer.Resize3d(shape=(2, 3))
+
+    def test_image_shape_err(self):
+        with pytest.raises(ValueError) as err_info:
+            resize = layer.Resize3d(shape=(2, 3, 4))
+            resize(tf.ones(1, 1))
+        assert "Resize3d takes input image of dimension 3 or 4 or 5" in str(
+            err_info.value
+        )

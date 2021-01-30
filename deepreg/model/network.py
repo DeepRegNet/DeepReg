@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 import tensorflow as tf
 
-from deepreg.model import layer, layer_util
+from deepreg.model import layer
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
 
@@ -148,11 +148,11 @@ class RegistrationModel(tf.keras.Model):
         """
         images = []
 
+        resize_layer = layer.Resize3d(shape=self.fixed_image_size)
+
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         moving_image = tf.expand_dims(moving_image, axis=4)
-        moving_image = layer_util.resize3d(
-            image=moving_image, size=self.fixed_image_size
-        )
+        moving_image = resize_layer(moving_image)
         images.append(moving_image)
 
         # (batch, m_dim1, m_dim2, m_dim3, 1)
@@ -162,9 +162,7 @@ class RegistrationModel(tf.keras.Model):
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         if moving_label is not None:
             moving_label = tf.expand_dims(moving_label, axis=4)
-            moving_label = layer_util.resize3d(
-                image=moving_label, size=self.fixed_image_size
-            )
+            moving_label = resize_layer(moving_label)
             images.append(moving_label)
 
         # (batch, f_dim1, f_dim2, f_dim3, 2 or 3)

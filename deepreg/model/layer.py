@@ -209,6 +209,121 @@ class Deconv3dBlock(NormBlock):
         super().__init__(layer_name="deconv3d", name=name, **kwargs)
 
 
+class Resize3d(tfkl.Layer):
+    """
+    Resize image in two folds.
+
+    - resize dim2 and dim3
+    - resize dim1 and dim2
+    """
+
+    def __init__(
+        self,
+        shape: tuple,
+        method: str = tf.image.ResizeMethod.BILINEAR,
+        name: str = "resize3d",
+    ):
+        """
+        Init, save arguments.
+
+        :param shape: (dim1, dim2, dim3)
+        :param method: tf.image.ResizeMethod
+        :param name: name of the layer
+        """
+        super().__init__(name=name)
+        assert len(shape) == 3
+        self._shape = shape
+        self._method = method
+
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
+        """
+        Perform two fold resize.
+
+        :param inputs: shape = (batch, dim1, dim2, dim3, channels)
+                                     or (batch, dim1, dim2, dim3)
+                                     or (dim1, dim2, dim3)
+        :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels)
+                                or (batch, dim1, dim2, dim3)
+                                or (dim1, dim2, dim3)
+        """
+        # sanity check
+        image = inputs
+        image_dim = len(image.shape)
+
+        # init
+        if image_dim == 5:
+            has_channel = True
+            has_batch = True
+            input_image_shape = image.shape[1:4]
+        elif image_dim == 4:
+            has_channel = False
+            has_batch = True
+            input_image_shape = image.shape[1:4]
+        elif image_dim == 3:
+            has_channel = False
+            has_batch = False
+            input_image_shape = image.shape[0:3]
+        else:
+            raise ValueError(
+                "Resize3d takes input image of dimension 3 or 4 or 5, "
+                "corresponding to (dim1, dim2, dim3) "
+                "or (batch, dim1, dim2, dim3) "
+                "or (batch, dim1, dim2, dim3, channels), "
+                "got image shape{}".format(image.shape)
+            )
+
+        # no need of resize
+        if input_image_shape == tuple(self._shape):
+            return image
+
+        # expand to five dimensions
+        if not has_batch:
+            image = tf.expand_dims(image, axis=0)
+        if not has_channel:
+            image = tf.expand_dims(image, axis=-1)
+        assert len(image.shape) == 5  # (batch, dim1, dim2, dim3, channels)
+        image_shape = tf.shape(image)
+
+        # merge axis 0 and 1
+        output = tf.reshape(
+            image, (-1, image_shape[2], image_shape[3], image_shape[4])
+        )  # (batch * dim1, dim2, dim3, channels)
+
+        # resize dim2 and dim3
+        output = tf.image.resize(
+            images=output, size=self._shape[1:3], method=self._method
+        )  # (batch * dim1, out_dim2, out_dim3, channels)
+
+        # split axis 0 and merge axis 3 and 4
+        output = tf.reshape(
+            output,
+            shape=(-1, image_shape[1], self._shape[1], self._shape[2] * image_shape[4]),
+        )  # (batch, dim1, out_dim2, out_dim3 * channels)
+
+        # resize dim1 and dim2
+        output = tf.image.resize(
+            images=output, size=self._shape[:2], method=self._method
+        )  # (batch, out_dim1, out_dim2, out_dim3 * channels)
+
+        # reshape
+        output = tf.reshape(
+            output, shape=[-1, *self._shape, image_shape[4]]
+        )  # (batch, out_dim1, out_dim2, out_dim3, channels)
+
+        # squeeze to original dimension
+        if not has_batch:
+            output = tf.squeeze(output, axis=0)
+        if not has_channel:
+            output = tf.squeeze(output, axis=-1)
+        return output
+
+    def get_config(self):
+        config = super().get_config()
+        config["shape"] = self._shape
+        config["method"] = self._method
+        return config
+
+
 class Residual3dBlock(tfkl.Layer):
     def __init__(
         self,
@@ -420,6 +535,7 @@ class Conv3dWithResize(tfkl.Layer):
             kernel_initializer=kernel_initializer,
             activation=activation,
         )  # if not zero, with init NN, ddf may be too large
+        self._resize = Resize3d(shape=output_shape)
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
         """
@@ -428,7 +544,7 @@ class Conv3dWithResize(tfkl.Layer):
         :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels)
         """
         output = self._conv3d(inputs=inputs)
-        output = layer_util.resize3d(image=output, size=self._output_shape)
+        output = self._resize(inputs=output)
         return output
 
 
@@ -507,6 +623,7 @@ class AdditiveUpSampling(tfkl.Layer):
         super().__init__(**kwargs)
         # save parameters
         self._stride = stride
+        self._resize = Resize3d(output_shape)
         self._output_shape = output_shape
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
@@ -517,7 +634,7 @@ class AdditiveUpSampling(tfkl.Layer):
         """
         if inputs.shape[4] % self._stride != 0:
             raise ValueError("The channel dimension can not be divided by the stride")
-        output = layer_util.resize3d(image=inputs, size=self._output_shape)
+        output = self._resize(inputs)
         # a list of (batch, out_dim1, out_dim2, out_dim3, channels//stride)
         output = tf.split(output, num_or_size_splits=self._stride, axis=4)
         # (batch, out_dim1, out_dim2, out_dim3, channels//stride)
@@ -640,6 +757,7 @@ class ResizeCPTransform(tfkl.Layer):
         self.cp_spacing = control_point_spacing
         self.kernel = None
         self._output_shape = None
+        self._resize = None
 
     def build(self, input_shape):
         super().build(input_shape=input_shape)
@@ -650,12 +768,14 @@ class ResizeCPTransform(tfkl.Layer):
             for v, c in zip(input_shape[1:-1], self.cp_spacing)
         ]
         self._output_shape = output_shape
+        self._resize = Resize3d(output_shape)
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
         output = tf.nn.conv3d(
             inputs, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
         )
-        return layer_util.resize3d(image=output, size=self._output_shape)
+        output = self._resize(inputs=output)
+        return output
 
 
 class BSplines3DTransform(tfkl.Layer):

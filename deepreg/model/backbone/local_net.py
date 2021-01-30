@@ -96,7 +96,6 @@ class LocalNet(Backbone):
         ]  # level D to E-1
 
         self._extract_layers = [
-            # if kernels are not initialized by zeros, with init NN, extract may be too large
             layer.Conv3dWithResize(
                 output_shape=image_size,
                 filters=out_channels,
