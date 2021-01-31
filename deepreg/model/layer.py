@@ -525,7 +525,7 @@ class UpSampleResnetBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
-        output_shape: tuple,
+        output_padding: tuple,
         kernel_size: int = 3,
         concat: bool = False,
         **kwargs,
@@ -545,7 +545,7 @@ class UpSampleResnetBlock(tfkl.Layer):
         # init layer variables
         self._deconv3d_block = Deconv3dBlock(
             filters=filters,
-            output_shape=output_shape,
+            output_padding=output_padding,
             kernel_size=3,
             strides=2,
             padding="same",

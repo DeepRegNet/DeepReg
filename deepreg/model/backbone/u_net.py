@@ -90,13 +90,9 @@ class UNet(Backbone):
                 downsample_pool = layer.Conv3dBlock(
                     filters=num_channels[d], kernel_size=3, strides=2, padding="same"
                 )
-            upsample_block = layer.UpSampleResnetBlock(
-                filters=num_channels[d], output_shape=tensor_shape, concat=concat_skip
-            )
             tensor_shape = tuple((x + 1) // 2 for x in tensor_shape)
             self._downsample_convs.append(downsample_conv)
             self._downsample_pools.append(downsample_pool)
-            self._upsample_blocks.append(upsample_block)
             self._tensor_shapes.append(tensor_shape)
         self._bottom_conv3d = layer.Conv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
@@ -104,6 +100,19 @@ class UNet(Backbone):
         self._bottom_res3d = layer.ResidualConv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
+        for d in range(depth):
+            padding = layer.deconv_output_padding(
+                input_shape=self._tensor_shapes[d + 1],
+                output_shape=self._tensor_shapes[d],
+                kernel_size=3,
+                stride=2,
+                padding="same",
+            )
+            upsample_block = layer.UpSampleResnetBlock(
+                filters=num_channels[d], output_padding=padding, concat=concat_skip
+            )
+            self._upsample_blocks.append(upsample_block)
+            self._tensor_shapes.append(tensor_shape)
         self._output_conv3d = tf.keras.Sequential(
             [
                 tfkl.Conv3D(
