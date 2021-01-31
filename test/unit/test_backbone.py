@@ -192,63 +192,29 @@ class TestUNet:
         "image_size,depth,control_points",
         [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
-    def test_init(self, image_size, depth, control_points):
+    @pytest.mark.parametrize("pooling", [True, False])
+    def test_call_unet(
+        self, image_size: tuple, depth: int, control_points: tuple, pooling: bool
+    ):
+        """
+
+        :param image_size: (dim1, dim2, dim3), dims of input image.
+        :param depth: input is at level 0, bottom is at level depth
+        :param pooling: for downsampling, use non-parameterized
+                        pooling if true, otherwise use conv3d
+        :param control_points: specify the distance between control points (in voxels).
+        """
+        out_ch = 3
         network = u.UNet(
             image_size=image_size,
-            out_channels=3,
+            out_channels=out_ch,
             num_channel_initial=2,
             depth=depth,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
+            pooling=pooling,
             control_points=control_points,
         )
-
-        # asserting num channels initial is the same, Pass
-        assert network._num_channel_initial == 2
-
-        # asserting depth is the same, Pass
-        assert network._depth == depth
-
-        # assert bottom_conv3d type is correct, Pass
-        assert isinstance(network._bottom_conv3d, layer.Conv3dBlock)
-
-        # assert upsample blocks type is correct, Pass
-        assert all(
-            isinstance(item, layer.UpSampleResnetBlock)
-            for item in network._upsample_blocks
-        )
-        # assert number of upsample blocks is correct (== depth), Pass
-        assert len(network._upsample_blocks) == depth
-
-        if control_points is None:
-            assert network.resize is False
-        else:
-            assert isinstance(network.resize, layer.ResizeCPTransform)
-            assert isinstance(network.interpolate, layer.BSplines3DTransform)
-
-    @pytest.mark.parametrize(
-        "image_size,depth,control_points",
-        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
-    )
-    def test_call_unet(self, image_size, depth, control_points):
-        out = 3
-        # initialising UNet instance
-        network = u.UNet(
-            image_size=image_size,
-            out_channels=3,
-            num_channel_initial=2,
-            depth=depth,
-            out_kernel_initializer="he_normal",
-            out_activation="softmax",
-            control_points=control_points,
-        )
-        # pass an input of all zeros
-        inputs = tf.constant(
-            np.zeros(
-                (5, image_size[0], image_size[1], image_size[2], out), dtype=np.float32
-            )
-        )
-        # get outputs by calling
+        inputs = tf.ones(shape=(5, image_size[0], image_size[1], image_size[2], out_ch))
         output = network.call(inputs)
-        # expected shape is (5, 1, 2, 3)
         assert all(x == y for x, y in zip(inputs.shape, output.shape))
