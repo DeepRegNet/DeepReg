@@ -458,7 +458,14 @@ class ResidualConv3dBlock(ResidualBlock):
 
 
 class UpSampleResnetBlock(tfkl.Layer):
-    def __init__(self, filters, kernel_size=3, concat=False, **kwargs):
+    def __init__(
+        self,
+        filters: int,
+        output_shape: tuple,
+        kernel_size: int = 3,
+        concat: bool = False,
+        **kwargs,
+    ):
         """
         An up-sampling resnet conv3d block, with deconv3d.
 
@@ -470,29 +477,20 @@ class UpSampleResnetBlock(tfkl.Layer):
         """
         super().__init__(**kwargs)
         # save parameters
-        self._filters = filters
         self._concat = concat
         # init layer variables
-        self._deconv3d_block = None
+        self._deconv3d_block = Deconv3dBlock(
+            filters=filters,
+            output_shape=output_shape,
+            kernel_size=3,
+            strides=2,
+            padding="same",
+        )
         self._conv3d_block = Conv3dBlock(
             filters=filters, kernel_size=kernel_size, padding="same"
         )
         self._residual_block = ResidualConv3dBlock(
             filters=filters, kernel_size=kernel_size, padding="same"
-        )
-
-    def build(self, input_shape):
-        """
-        :param input_shape: tuple, (downsampled_image_shape, skip_image_shape)
-        """
-        super().build(input_shape)
-        skip_shape = input_shape[1][1:4]
-        self._deconv3d_block = Deconv3dBlock(
-            filters=self._filters,
-            output_shape=skip_shape,
-            kernel_size=3,
-            strides=2,
-            padding="same",
         )
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -614,42 +612,24 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
+        output_shape: tuple,
         use_additive_upsampling: bool = True,
-        output_shape: tuple = None,
         **kwargs,
     ):
         """
         Layer up-samples tensor with two inputs (skipped and down-sampled).
 
         :param filters: int, number of output channels
-        :param use_additive_upsampling: bool to used additive upsampling
         :param output_shape: shape of the output
+        :param use_additive_upsampling: bool to used additive upsampling
         :param kwargs: additional arguments.
         """
         super().__init__(**kwargs)
         # save parameters
-        self._filters = filters
         self._use_additive_upsampling = use_additive_upsampling
         # init layer variables
-        self._output_shape = output_shape
-        self._deconv3d_block = None
-        self._additive_upsampling = None
-        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=3, padding="same")
-        self._residual_block = LocalNetResidual3dBlock(filters=filters, strides=1)
-
-    def build(self, input_shape):
-        """
-        :param input_shape: tuple (nonskip_tensor_shape, skip_tensor_shape)
-        """
-        super().build(input_shape)
-
-        output_shape = (
-            input_shape[1][1:4]
-            if self._output_shape is not None
-            else self._output_shape
-        )
         self._deconv3d_block = Deconv3dBlock(
-            filters=self._filters,
+            filters=filters,
             output_shape=output_shape,
             kernel_size=3,
             strides=2,
@@ -657,6 +637,8 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         )
         if self._use_additive_upsampling:
             self._resize = Resize3d(shape=output_shape)
+        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=3, padding="same")
+        self._residual_block = LocalNetResidual3dBlock(filters=filters, strides=1)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """

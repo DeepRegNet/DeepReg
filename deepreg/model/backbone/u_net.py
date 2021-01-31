@@ -68,8 +68,13 @@ class UNet(Backbone):
 
         self._num_channel_initial = num_channel_initial
         self._depth = depth
-        self._downsample_convs = [
-            tf.keras.Sequential(
+        self._downsample_convs = []
+        self._downsample_pools = []
+        self._upsample_blocks = []
+        tensor_shape = image_size
+        self._tensor_shapes = [tensor_shape]
+        for d in range(depth):
+            downsample_conv = tf.keras.Sequential(
                 [
                     layer.Conv3dBlock(
                         filters=num_channels[d], kernel_size=3, padding="same"
@@ -79,30 +84,26 @@ class UNet(Backbone):
                     ),
                 ]
             )
-            for d in range(depth)
-        ]
-        if pooling:
-            self._downsample_pools = [
-                tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
-                for _ in range(depth)
-            ]
-        else:
-            self._downsample_pools = [
-                layer.Conv3dBlock(
+            if pooling:
+                downsample_pool = tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
+            else:
+                downsample_pool = layer.Conv3dBlock(
                     filters=num_channels[d], kernel_size=3, strides=2, padding="same"
                 )
-                for d in range(depth)
-            ]
+            upsample_block = layer.UpSampleResnetBlock(
+                filters=num_channels[d], output_shape=tensor_shape, concat=concat_skip
+            )
+            tensor_shape = tuple((x + 1) // 2 for x in tensor_shape)
+            self._downsample_convs.append(downsample_conv)
+            self._downsample_pools.append(downsample_pool)
+            self._upsample_blocks.append(upsample_block)
+            self._tensor_shapes.append(tensor_shape)
         self._bottom_conv3d = layer.Conv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
         self._bottom_res3d = layer.ResidualConv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
-        self._upsample_blocks = [
-            layer.UpSampleResnetBlock(filters=num_channels[d], concat=concat_skip)
-            for d in range(depth)
-        ]
         self._output_conv3d = tf.keras.Sequential(
             [
                 tfkl.Conv3D(

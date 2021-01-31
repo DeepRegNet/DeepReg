@@ -190,7 +190,7 @@ class TestUNet:
 
     @pytest.mark.parametrize(
         "image_size,depth,control_points",
-        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
+        [((32, 33, 34), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
     @pytest.mark.parametrize("pooling", [True, False])
     def test_call_unet(

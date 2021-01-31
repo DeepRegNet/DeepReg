@@ -88,28 +88,6 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     )
 
 
-def test_upsample_resnet_block():
-    """
-    Test the layer.UpSampleResnetBlock class and its default attributes.
-    """
-    batch_size = 5
-    channels = 4
-    input_size = (32, 32, 16)
-    output_size = (64, 64, 32)
-
-    input_tensor_size = (batch_size,) + input_size + (channels,)
-    skip_tensor_size = (batch_size,) + output_size + (channels // 2,)
-
-    model = layer.UpSampleResnetBlock(8)
-    model.build([input_tensor_size, skip_tensor_size])
-
-    assert model._filters == 8
-    assert model._concat is False
-    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
-    assert isinstance(model._residual_block, layer.ResidualConv3dBlock)
-    assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
-
-
 class TestWarping:
     @pytest.mark.parametrize(
         ("moving_image_size", "fixed_image_size"),

@@ -79,9 +79,9 @@ class LocalNet(Backbone):
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
-        tensor_shape = image_size
         self._downsample_convs = []
         self._downsample_pools = []
+        tensor_shape = image_size
         self._tensor_shapes = [tensor_shape]
         for i in range(self._extract_max_level):
             downsample_conv = tf.keras.Sequential(
