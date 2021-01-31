@@ -149,7 +149,7 @@ def build_rectangular_kernel(
     :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
+        - kernel_size, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
         - kernel_vol, scalar
     """
     filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
@@ -166,7 +166,7 @@ def build_triangular_kernel(
     :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
-        - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
+        - kernel_size, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
         - kernel_vol, scalar
     """
     fsize = int((kernel_size + 1) / 2)
@@ -200,7 +200,7 @@ def build_gaussian_kernel(
     :param kernel_size: size of the kernel for convolution.
     :param input_channel: number of channels for input
     :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
+        - kernel_size, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
         - kernel_vol, scalar
     """
     mean = (kernel_size - 1) / 2.0

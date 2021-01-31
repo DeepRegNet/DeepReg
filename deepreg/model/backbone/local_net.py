@@ -79,6 +79,9 @@ class LocalNet(Backbone):
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
+        kernel_sizes = [
+            7 if level == 0 else 3 for level in range(self._extract_max_level + 1)
+        ]
         self._downsample_convs = []
         self._downsample_pools = []
         tensor_shape = image_size
@@ -88,12 +91,12 @@ class LocalNet(Backbone):
                 [
                     layer.Conv3dBlock(
                         filters=num_channels[i],
-                        kernel_size=7 if i == 0 else 3,
+                        kernel_size=kernel_sizes[i],
                         padding="same",
                     ),
                     layer.ResidualConv3dBlock(
                         filters=num_channels[i],
-                        kernel_size=7 if i == 0 else 3,
+                        kernel_size=kernel_sizes[i],
                         padding="same",
                     ),
                 ]
@@ -108,14 +111,23 @@ class LocalNet(Backbone):
             filters=num_channels[-1], kernel_size=3, padding="same"
         )  # level E
 
-        self._upsample_blocks = [
-            layer.LocalNetUpSampleResnetBlock(
-                num_channels[level], output_shape=self._tensor_shapes[level]
+        self._upsample_blocks = []
+        for level in range(
+            self._extract_max_level - 1, self._extract_min_level - 1, -1
+        ):  # level D to E-1
+            padding = layer.deconv_output_padding(
+                input_shape=self._tensor_shapes[level + 1],
+                output_shape=self._tensor_shapes[level],
+                kernel_size=kernel_sizes[level],
+                stride=2,
+                padding="same",
             )
-            for level in range(
-                self._extract_max_level - 1, self._extract_min_level - 1, -1
+            upsample_block = layer.LocalNetUpSampleResnetBlock(
+                num_channels[level],
+                output_padding=padding,
+                output_shape=self._tensor_shapes[level],
             )
-        ]  # level D to E-1
+            self._upsample_blocks.append(upsample_block)
 
         self._extract_layers = [
             tf.keras.Sequential(

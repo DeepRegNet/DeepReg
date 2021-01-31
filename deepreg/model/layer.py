@@ -1,11 +1,73 @@
 """This module defines custom layers."""
 import itertools
+from typing import Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
 import deepreg.model.layer_util as layer_util
+
+
+def _deconv_output_padding(
+    input_shape: int, output_shape: int, kernel_size: int, stride: int, padding: str
+) -> int:
+    """
+    Returns the correct output_padding such that output of deconv will have the desired output_shape
+
+    When padding = "same" the output shape ~ input shape and output padding has following relationship
+
+    - output_shape = (input_shape - 1) * stride + kernel_size - 2 * pad + output_padding
+    - output_padding = output_shape - ((input_shape - 1) * stride + kernel_size - 2 * pad)
+
+    Reference:
+
+    - https://github.com/tensorflow/tensorflow/blob/r2.3/tensorflow/python/keras/utils/conv_utils.py#L140
+    """
+    if padding == "same":
+        pad = kernel_size // 2
+    elif padding == "valid":
+        pad = 0
+    elif padding == "full":
+        pad = kernel_size - 1
+    else:
+        raise ValueError(f"Unknown padding {padding} in deconv_output_padding")
+    return output_shape - ((input_shape - 1) * stride + kernel_size - 2 * pad)
+
+
+def deconv_output_padding(
+    input_shape: Union[Tuple[int], int],
+    output_shape: Union[Tuple[int], int],
+    kernel_size: Union[Tuple[int], int],
+    stride: Union[Tuple[int], int],
+    padding: str,
+) -> Union[Tuple[int], int]:
+    if isinstance(input_shape, int):
+        return _deconv_output_padding(
+            input_shape=input_shape,
+            output_shape=output_shape,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+        )
+    assert len(input_shape) == len(output_shape)
+    dim = len(input_shape)
+    if isinstance(kernel_size, int):
+        kernel_size = [kernel_size] * dim
+    if isinstance(stride, int):
+        stride = [stride] * dim
+    return tuple(
+        [
+            _deconv_output_padding(
+                input_shape=input_shape[d],
+                output_shape=output_shape[d],
+                kernel_size=kernel_size[d],
+                stride=stride[d],
+                padding=padding,
+            )
+            for d in range(dim)
+        ]
+    )
 
 
 class Deconv3d(tfkl.Layer):
@@ -16,6 +78,7 @@ class Deconv3d(tfkl.Layer):
     def __init__(
         self,
         filters: int,
+        output_padding: (tuple, None) = None,
         output_shape: (tuple, None) = None,
         kernel_size: int = 3,
         strides: int = 1,
@@ -38,6 +101,7 @@ class Deconv3d(tfkl.Layer):
         # save arguments
         self._filters = filters
         self._output_shape = output_shape
+        self._output_padding = output_padding
         self._kernel_size = kernel_size
         self._strides = strides
         self._padding = padding
@@ -63,8 +127,8 @@ class Deconv3d(tfkl.Layer):
         if isinstance(strides, int):
             strides = [strides] * 3
 
-        output_padding = None
-        if self._output_shape is not None:
+        output_padding = self._output_padding
+        if output_padding is None and self._output_shape is not None:
             assert self._padding == "same"
             output_padding = [
                 self._output_shape[i]
@@ -502,7 +566,7 @@ class UpSampleResnetBlock(tfkl.Layer):
 
         :param training: training flag for normalization layers (default: None)
         :param kwargs: additional arguments.
-        :return: shape = (batch, \*skip_connection_image_shape, filters]
+        :return: shape = (batch, \*skip_connection_image_shape, kernel_size]
         """
         up_sampled, skip = inputs[0], inputs[1]
         up_sampled = self._deconv3d_block(
@@ -612,6 +676,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
     def __init__(
         self,
         filters: int,
+        output_padding: tuple,
         output_shape: tuple,
         use_additive_upsampling: bool = True,
         **kwargs,
@@ -630,7 +695,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         # init layer variables
         self._deconv3d_block = Deconv3dBlock(
             filters=filters,
-            output_shape=output_shape,
+            output_padding=output_padding,
             kernel_size=3,
             strides=2,
             padding="same",
@@ -705,7 +770,7 @@ class ResizeCPTransform(tfkl.Layer):
 
 class BSplines3DTransform(tfkl.Layer):
     """
-     Layer for BSplines interpolation with precomputed cubic spline filters.
+     Layer for BSplines interpolation with precomputed cubic spline kernel_size.
      It assumes a full sized image from which:
      1. it compute the contol points values by downsampling the initial image
      2. performs the interpolation

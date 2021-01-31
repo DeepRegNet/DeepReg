@@ -329,9 +329,9 @@ def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
     """
     Create a 3d separable filter.
 
-    Here `tf.nn.conv3d` accepts the `filters` argument of shape
+    Here `tf.nn.conv3d` accepts the `kernel_size` argument of shape
     (filter_depth, filter_height, filter_width, in_channels, out_channels),
-    where the first axis of `filters` is the depth not batch,
+    where the first axis of `kernel_size` is the depth not batch,
     and the input to `tf.nn.conv3d` is of shape
     (batch, in_depth, in_height, in_width, in_channels).
 
