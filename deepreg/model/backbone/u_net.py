@@ -75,7 +75,9 @@ class UNet(Backbone):
         self._bottom_conv3d = layer.Conv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
-        self._bottom_res3d = layer.Residual3dBlock(filters=num_channels[depth])
+        self._bottom_res3d = layer.ResidualConv3dBlock(
+            filters=num_channels[depth], kernel_size=3, padding="same"
+        )
         self._upsample_blocks = [
             layer.UpSampleResnetBlock(filters=num_channels[d], concat=concat_skip)
             for d in range(depth)

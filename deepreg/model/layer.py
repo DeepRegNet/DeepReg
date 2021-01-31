@@ -367,59 +367,94 @@ class Warping(tfkl.Layer):
         return config
 
 
-class Residual3dBlock(tfkl.Layer):
+class ResidualBlock(tfkl.Layer):
+    """
+    A block with skip links and layer - norm - activation.
+    """
+
+    layer_cls_dict = dict(conv3d=tfkl.Conv3D, deconv3d=Deconv3d)
+    norm_cls_dict = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
+
     def __init__(
         self,
-        filters: int,
-        kernel_size: (int, tuple) = 3,
-        strides: (int, tuple) = 1,
+        layer_name: str,
+        num_layers: int = 2,
+        norm_name: str = "batch",
         activation: str = "relu",
+        name: str = "res_block",
         **kwargs,
     ):
         """
-        A resnet conv3d block.
+        Init.
 
-        1. conved = conv3d(conv3d_block(inputs))
-        2. out = act(norm(conved) + inputs)
-
-        :param filters: int, number of filters in the convolutional layers
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param activation: name of activation
+        :param layer_name: class of the layer to be wrapped.
+        :param num_layers: number of layers/blocks.
+        :param norm_name: class of the normalization layer.
+        :param activation: name of activation.
+        :param name: name of the block layer.
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-        # init layer variables
-        self._conv3d_block = Conv3dBlock(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding="same",
+        super().__init__()
+        self._num_layers = num_layers
+        self._config = dict(
+            layer_name=layer_name,
+            num_layers=num_layers,
+            norm_name=norm_name,
+            activation=activation,
+            name=name,
+            **kwargs,
         )
-        self._conv3d = tfkl.Conv3D(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding="same",
-            use_bias=False,
-        )
-        self._norm = tfkl.BatchNormalization()
-        self._act = tfkl.Activation(activation=activation)
+        self._layers = [
+            self.layer_cls_dict[layer_name](use_bias=False, **kwargs)
+            for _ in range(num_layers)
+        ]
+        self._norms = [self.norm_cls_dict[norm_name]() for _ in range(num_layers)]
+        self._acts = [tfkl.Activation(activation=activation) for _ in range(num_layers)]
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
-        :param inputs: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
+        Forward.
+
+        :param inputs: inputs for the layer
         :param training: training flag for normalization layers (default: None)
         :param kwargs: additional arguments.
-        :return output: shape = (batch, in_dim1, in_dim2, in_dim3, channels)
+        :return:
         """
-        return self._act(
-            self._norm(
-                inputs=self._conv3d(inputs=self._conv3d_block(inputs)),
-                training=training,
-            )
-            + inputs
-        )
+
+        output = inputs
+        for i in range(self._num_layers):
+            output = self._layers[i](inputs=output)
+            output = self._norms[i](inputs=output, training=training)
+            if i == self._num_layers - 1:
+                # last block
+                output = output + inputs
+            output = self._acts[i](output)
+        return output
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(self._config)
+        return config
+
+
+class ResidualConv3dBlock(ResidualBlock):
+    """
+    A conv3d residual block
+    """
+
+    def __init__(
+        self,
+        name: str = "conv3d_res_block",
+        **kwargs,
+    ):
+        """
+        Init.
+
+        :param name: name of the layer
+        :param kwargs: additional arguments.
+        """
+        super().__init__(layer_name="conv3d", name=name, **kwargs)
 
 
 class DownSampleResnetBlock(tfkl.Layer):
@@ -449,7 +484,9 @@ class DownSampleResnetBlock(tfkl.Layer):
         self._conv3d_block = Conv3dBlock(
             filters=filters, kernel_size=kernel_size, padding="same"
         )
-        self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
+        self._residual_block = ResidualConv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding="same"
+        )
         self._max_pool3d = (
             tfkl.MaxPool3D(pool_size=(2, 2, 2), strides=(2, 2, 2), padding="same")
             if pooling
@@ -507,7 +544,9 @@ class UpSampleResnetBlock(tfkl.Layer):
         self._conv3d_block = Conv3dBlock(
             filters=filters, kernel_size=kernel_size, padding="same"
         )
-        self._residual_block = Residual3dBlock(filters=filters, kernel_size=kernel_size)
+        self._residual_block = ResidualConv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding="same"
+        )
 
     def build(self, input_shape):
         """
@@ -619,7 +658,7 @@ class LocalNetResidual3dBlock(tfkl.Layer):
         **kwargs,
     ):
         """
-        A resnet conv3d block, simpler than Residual3dBlock.
+        A resnet conv3d block, simpler than ResidualConv3dBlock.
 
         1. conved = conv3d(inputs)
         2. out = act(norm(conved) + inputs)

@@ -233,8 +233,6 @@ class TestUNet:
         # assert bottom_conv3d type is correct, Pass
         assert isinstance(network._bottom_conv3d, layer.Conv3dBlock)
 
-        # assert bottom res3d type is correct, Pass
-        assert isinstance(network._bottom_res3d, layer.Residual3dBlock)
         # assert upsample blocks type is correct, Pass
         assert all(
             isinstance(item, layer.UpSampleResnetBlock)

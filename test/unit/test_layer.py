@@ -62,7 +62,7 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     :param activation: activation for layer definition
     """
     input_size = (2, 3, 4, 5, 6)  # (batch, *shape, ch)
-    conv_block = layer.NormBlock(
+    norm_block = layer.NormBlock(
         layer_name=layer_name,
         norm_name=norm_name,
         activation=activation,
@@ -71,10 +71,10 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
         padding="same",
     )
     inputs = tf.ones(shape=input_size)
-    outputs = conv_block(inputs)
+    outputs = norm_block(inputs)
     assert outputs.shape == input_size[:-1] + (3,)
 
-    config = conv_block.get_config()
+    config = norm_block.get_config()
     assert config == dict(
         layer_name=layer_name,
         norm_name=norm_name,
@@ -96,7 +96,7 @@ def test_downsample_resnet_block():
 
     assert model._pooling is True
 
-    assert isinstance(model._residual_block, layer.Residual3dBlock)
+    assert isinstance(model._residual_block, layer.ResidualConv3dBlock)
     assert model._conv3d_block3 is None
 
     model = layer.DownSampleResnetBlock(8, pooling=False)
@@ -121,7 +121,7 @@ def test_upsample_resnet_block():
     assert model._filters == 8
     assert model._concat is False
     assert isinstance(model._conv3d_block, layer.Conv3dBlock)
-    assert isinstance(model._residual_block, layer.Residual3dBlock)
+    assert isinstance(model._residual_block, layer.ResidualConv3dBlock)
     assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
 
 
@@ -149,6 +149,49 @@ class TestWarping:
             trainable=True,
             dtype="float32",
         )
+
+
+@pytest.mark.parametrize("layer_name", ["conv3d", "deconv3d"])
+@pytest.mark.parametrize("norm_name", ["batch", "layer"])
+@pytest.mark.parametrize("activation", ["relu", "elu"])
+@pytest.mark.parametrize("num_layers", [2, 3])
+def test_res_block(layer_name: str, norm_name: str, activation: str, num_layers: int):
+    """
+    Test output shapes and configs.
+
+    :param layer_name: layer_name for layer definition
+    :param norm_name: norm_name for layer definition
+    :param activation: activation for layer definition
+    :param num_layers: number of blocks in res block
+    """
+    ch = 3
+    input_size = (2, 3, 4, 5, ch)  # (batch, *shape, ch)
+    res_block = layer.ResidualBlock(
+        layer_name=layer_name,
+        num_layers=num_layers,
+        norm_name=norm_name,
+        activation=activation,
+        filters=ch,
+        kernel_size=3,
+        padding="same",
+    )
+    inputs = tf.ones(shape=input_size)
+    outputs = res_block(inputs)
+    assert outputs.shape == input_size[:-1] + (3,)
+
+    config = res_block.get_config()
+    assert config == dict(
+        layer_name=layer_name,
+        num_layers=num_layers,
+        norm_name=norm_name,
+        activation=activation,
+        filters=ch,
+        kernel_size=3,
+        padding="same",
+        name="res_block",
+        trainable=True,
+        dtype="float32",
+    )
 
 
 def test_init_dvf():
