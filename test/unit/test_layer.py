@@ -179,26 +179,33 @@ def test_res_block(layer_name: str, norm_name: str, activation: str, num_layers:
     )
 
 
-def test_init_dvf():
-    """
-    Test the layer.IntDVF class, its default attributes and its call() method.
-    """
+class TestIntDVF:
+    def test_forward(self):
+        """
+        Test output shape and config.
+        """
 
-    batch_size = 5
-    fixed_image_size = (32, 32, 16)
-    ndims = len(fixed_image_size)
+        fixed_image_size = (8, 9, 10)
+        input_shape = (2, *fixed_image_size, 3)
 
-    model = layer.IntDVF(fixed_image_size)
+        int_layer = layer.IntDVF(fixed_image_size=fixed_image_size)
 
-    assert isinstance(model._warping, layer.Warping)
-    assert model._num_steps == 7
+        inputs = tf.ones(shape=input_shape)
+        outputs = int_layer(inputs)
+        assert outputs.shape == input_shape
 
-    inputs = np.ones((batch_size, *fixed_image_size, ndims))
-    output = model.call(inputs)
-    assert all(
-        x == y
-        for x, y in zip((batch_size,) + fixed_image_size + (ndims,), output.shape)
-    )
+        config = int_layer.get_config()
+        assert config == dict(
+            fixed_image_size=fixed_image_size,
+            num_steps=7,
+            name="int_dvf",
+            trainable=True,
+            dtype="float32",
+        )
+
+    def test_err(self):
+        with pytest.raises(AssertionError):
+            layer.IntDVF(fixed_image_size=(2, 3))
 
 
 def test_additive_upsampling():

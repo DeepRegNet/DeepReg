@@ -521,26 +521,38 @@ class UpSampleResnetBlock(tfkl.Layer):
 
 
 class IntDVF(tfkl.Layer):
-    def __init__(self, fixed_image_size: tuple, num_steps: int = 7, **kwargs):
+    """
+    Integrate DVF to get DDF.
+
+    Reference:
+
+    - integrate_vec of neuron
+      https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
+    """
+
+    def __init__(
+        self,
+        fixed_image_size: tuple,
+        num_steps: int = 7,
+        name: str = "int_dvf",
+        **kwargs,
+    ):
         """
-        Layer calculates DVF from DDF.
-
-        Reference:
-
-        - integrate_vec of neuron
-          https://github.com/adalca/neurite/blob/legacy/neuron/utils.py
+        Init.
 
         :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
         :param num_steps: int, number of steps for integration
         :param kwargs: additional arguments.
         """
-        super().__init__(**kwargs)
-        self._warping = Warping(fixed_image_size=fixed_image_size)
+        super().__init__(name=name, **kwargs)
+        assert len(fixed_image_size) == 3
+        self._fixed_image_size = fixed_image_size
         self._num_steps = num_steps
+        self._warping = Warping(fixed_image_size=fixed_image_size)
 
-    def call(self, inputs, **kwargs) -> tf.Tensor:
+    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
         """
-        :param inputs: dvf, shape = (batch, f_dim1, f_dim2, f_dim3, 3), type = float32
+        :param inputs: dvf, shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         :param kwargs: additional arguments.
         :return: ddf, shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         """
@@ -548,6 +560,13 @@ class IntDVF(tfkl.Layer):
         for _ in range(self._num_steps):
             ddf += self._warping(inputs=[ddf, ddf])
         return ddf
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["fixed_image_size"] = self._fixed_image_size
+        config["num_steps"] = self._num_steps
+        return config
 
 
 class AdditiveUpSampling(tfkl.Layer):
