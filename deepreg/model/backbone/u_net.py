@@ -68,10 +68,31 @@ class UNet(Backbone):
 
         self._num_channel_initial = num_channel_initial
         self._depth = depth
-        self._downsample_blocks = [
-            layer.DownSampleResnetBlock(filters=num_channels[d], pooling=pooling)
+        self._downsample_convs = [
+            tf.keras.Sequential(
+                [
+                    layer.Conv3dBlock(
+                        filters=num_channels[d], kernel_size=3, padding="same"
+                    ),
+                    layer.ResidualConv3dBlock(
+                        filters=num_channels[d], kernel_size=3, padding="same"
+                    ),
+                ]
+            )
             for d in range(depth)
         ]
+        if pooling:
+            self._downsample_pools = [
+                tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
+                for _ in range(depth)
+            ]
+        else:
+            self._downsample_pools = [
+                layer.Conv3dBlock(
+                    filters=num_channels[d], kernel_size=3, strides=2, padding="same"
+                )
+                for d in range(depth)
+            ]
         self._bottom_conv3d = layer.Conv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
@@ -122,9 +143,8 @@ class UNet(Backbone):
         # down sample
         skips = []
         for d_var in range(self._depth):  # level 0 to D-1
-            down_sampled, skip = self._downsample_blocks[d_var](
-                inputs=down_sampled, training=training
-            )
+            skip = self._downsample_convs[d_var](inputs=down_sampled, training=training)
+            down_sampled = self._downsample_pools[d_var](inputs=skip)
             skips.append(skip)
 
         # bottom, level D

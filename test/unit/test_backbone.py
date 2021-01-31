@@ -73,14 +73,6 @@ def test_init_global_net():
     global_transform_initial = tf.Variable(global_test.transform_initial(shape=[12]))
     assert is_equal_tf(global_transform_initial, expected_transform_initial)
 
-    # assert downsample blocks type is correct, Pass
-    assert all(
-        isinstance(item, layer.DownSampleResnetBlock)
-        for item in global_test._downsample_blocks
-    )
-    # assert number of downsample blocks is correct (== max level), Pass
-    assert len(global_test._downsample_blocks) == 3
-
     # assert conv3dBlock type is correct, Pass
     assert isinstance(global_test._conv3d_block, layer.Conv3dBlock)
 
@@ -141,13 +133,8 @@ class TestLocalNet:
         # asserting initialised var for extract_min_level is the same - Pass
         assert network._extract_min_level == min(extract_levels)
 
-        # assert downsample blocks type is correct, Pass
-        assert all(
-            isinstance(item, layer.DownSampleResnetBlock)
-            for item in network._downsample_blocks
-        )
         # assert number of downsample blocks is correct (== max level), Pass
-        assert len(network._downsample_blocks) == max(extract_levels)
+        assert len(network._downsample_convs) == max(extract_levels)
 
         # assert upsample blocks type is correct, Pass
         assert all(
@@ -221,14 +208,6 @@ class TestUNet:
 
         # asserting depth is the same, Pass
         assert network._depth == depth
-
-        # assert downsample blocks type is correct, Pass
-        assert all(
-            isinstance(item, layer.DownSampleResnetBlock)
-            for item in network._downsample_blocks
-        )
-        # assert number of downsample blocks is correct (== depth), Pass
-        assert len(network._downsample_blocks) == depth
 
         # assert bottom_conv3d type is correct, Pass
         assert isinstance(network._bottom_conv3d, layer.Conv3dBlock)

@@ -88,21 +88,6 @@ def test_norm_block(layer_name: str, norm_name: str, activation: str):
     )
 
 
-def test_downsample_resnet_block():
-    """
-    Test the layer.DownSampleResnetBlock class and its default attributes.
-    """
-    model = layer.DownSampleResnetBlock(8)
-
-    assert model._pooling is True
-
-    assert isinstance(model._residual_block, layer.ResidualConv3dBlock)
-    assert model._conv3d_block3 is None
-
-    model = layer.DownSampleResnetBlock(8, pooling=False)
-    assert model._max_pool3d is None
-
-
 def test_upsample_resnet_block():
     """
     Test the layer.UpSampleResnetBlock class and its default attributes.
