@@ -208,36 +208,6 @@ class TestIntDVF:
             layer.IntDVF(fixed_image_size=(2, 3))
 
 
-def test_additive_upsampling():
-    """
-    Test the layer.AdditiveUpSampling class and its default attributes.
-    """
-    channels = 8
-    batch_size = 5
-    output_size = (32, 32, 16)
-    input_size = (24, 24, 16)
-
-    # Test __init__()
-    model = layer.AdditiveUpSampling(output_size)
-    assert model._stride == 2
-    assert model._output_shape == output_size
-
-    # Test call()
-    inputs = np.ones(
-        (batch_size, input_size[0], input_size[1], input_size[2], channels)
-    )
-    output = model(inputs)
-    assert all(
-        x == y
-        for x, y in zip((batch_size,) + output_size + (channels / 2,), output.shape)
-    )
-
-    # Test the exceptions
-    model = layer.AdditiveUpSampling(output_size, stride=3)
-    with pytest.raises(ValueError):
-        model(inputs)
-
-
 def test_local_net_residual3d_block():
     """
     Test the layer.LocalNetResidual3dBlock class's,
@@ -274,7 +244,6 @@ def test_local_net_upsample_resnet_block():
     assert model._use_additive_upsampling is True
 
     assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
-    assert isinstance(model._additive_upsampling, layer.AdditiveUpSampling)
     assert isinstance(model._conv3d_block, layer.Conv3dBlock)
     assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
 

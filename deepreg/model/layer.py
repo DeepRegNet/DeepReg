@@ -569,37 +569,6 @@ class IntDVF(tfkl.Layer):
         return config
 
 
-class AdditiveUpSampling(tfkl.Layer):
-    def __init__(self, output_shape: tuple, stride: (int, list) = 2, **kwargs):
-        """
-        Layer up-samples 3d tensor and reduce channels using split and sum.
-
-        :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param stride: int, 1-D Tensor or list
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        # save parameters
-        self._stride = stride
-        self._resize = Resize3d(output_shape)
-        self._output_shape = output_shape
-
-    def call(self, inputs, **kwargs) -> tf.Tensor:
-        """
-        :param inputs: shape = (batch, dim1, dim2, dim3, channels)
-        :param kwargs: additional arguments.
-        :return: shape = (batch, out_dim1, out_dim2, out_dim3, channels//stride]
-        """
-        if inputs.shape[4] % self._stride != 0:
-            raise ValueError("The channel dimension can not be divided by the stride")
-        output = self._resize(inputs)
-        # a list of (batch, out_dim1, out_dim2, out_dim3, channels//stride)
-        output = tf.split(output, num_or_size_splits=self._stride, axis=4)
-        # (batch, out_dim1, out_dim2, out_dim3, channels//stride)
-        output = tf.reduce_sum(tf.stack(output, axis=5), axis=5)
-        return output
-
-
 class LocalNetResidual3dBlock(tfkl.Layer):
     def __init__(
         self,
@@ -674,7 +643,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
             padding="same",
         )
         if self._use_additive_upsampling:
-            self._additive_upsampling = AdditiveUpSampling(output_shape=output_shape)
+            self._resize = Resize3d(shape=output_shape)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
@@ -686,7 +655,10 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         inputs_nonskip, inputs_skip = inputs[0], inputs[1]
         h0 = self._deconv3d_block(inputs=inputs_nonskip, training=training)
         if self._use_additive_upsampling:
-            h0 += self._additive_upsampling(inputs=inputs_nonskip)
+            upsampled = self._resize(inputs=inputs_nonskip)
+            upsampled = tf.split(upsampled, num_or_size_splits=2, axis=4)
+            upsampled = tf.add_n(upsampled)
+            h0 = h0 + upsampled
         r1 = h0 + inputs_skip
         r2 = self._conv3d_block(inputs=h0, training=training)
         h1 = self._residual_block(inputs=[r2, r1], training=training)
