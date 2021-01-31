@@ -13,6 +13,24 @@ compatible with the updates.
 
 ### Added
 
+- tba
+
+### Changed
+
+- tba
+
+### Fixed
+
+- tba
+
+## [0.1.2] - 2021-01-31
+
+Release comment: This is mainly a bugfix release, although some of the tasks in
+1.0.0-rc1 have been included in this release, with or without public-facing
+accessibility (see details below).
+
+### Added
+
 - Added global NCC loss
 - Added the docs on registry for backbone models.
 - Added backward compatible config parser.
