@@ -542,6 +542,7 @@ class IntDVF(tfkl.Layer):
 
         :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
         :param num_steps: int, number of steps for integration
+        :param name: name of the layer
         :param kwargs: additional arguments.
         """
         super().__init__(name=name, **kwargs)
