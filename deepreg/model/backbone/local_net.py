@@ -79,8 +79,12 @@ class LocalNet(Backbone):
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
-        self._downsample_convs = [
-            tf.keras.Sequential(
+        tensor_shape = image_size
+        self._downsample_convs = []
+        self._downsample_pools = []
+        self._tensor_shapes = [tensor_shape]
+        for i in range(self._extract_max_level):
+            downsample_conv = tf.keras.Sequential(
                 [
                     layer.Conv3dBlock(
                         filters=num_channels[i],
@@ -94,18 +98,20 @@ class LocalNet(Backbone):
                     ),
                 ]
             )
-            for i in range(self._extract_max_level)
-        ]  # level 0 to E-1
-        self._downsample_pools = [
-            tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
-            for _ in range(self._extract_max_level)
-        ]  # level 0 to E-1
+            downsample_pool = tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
+            tensor_shape = tuple((x + 1) // 2 for x in tensor_shape)
+            self._downsample_convs.append(downsample_conv)
+            self._downsample_pools.append(downsample_pool)
+            self._tensor_shapes.append(tensor_shape)
+
         self._conv3d_block = layer.Conv3dBlock(
             filters=num_channels[-1], kernel_size=3, padding="same"
         )  # level E
 
         self._upsample_blocks = [
-            layer.LocalNetUpSampleResnetBlock(num_channels[level])
+            layer.LocalNetUpSampleResnetBlock(
+                num_channels[level], output_shape=self._tensor_shapes[level]
+            )
             for level in range(
                 self._extract_max_level - 1, self._extract_min_level - 1, -1
             )

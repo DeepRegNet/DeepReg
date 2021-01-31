@@ -113,7 +113,7 @@ class TestLocalNet:
 
     @pytest.mark.parametrize(
         "image_size,extract_levels,control_points",
-        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        [((10, 20, 30), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_init(self, image_size, extract_levels, control_points):
         network = loc.LocalNet(
@@ -157,7 +157,7 @@ class TestLocalNet:
 
     @pytest.mark.parametrize(
         "image_size,extract_levels,control_points",
-        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        [((64, 65, 66), [1, 2, 3, 4], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
     )
     def test_call(self, image_size, extract_levels, control_points):
         # initialising LocalNet instance
