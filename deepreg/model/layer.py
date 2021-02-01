@@ -428,68 +428,6 @@ class ResidualConv3dBlock(ResidualBlock):
         super().__init__(layer_name="conv3d", name=name, **kwargs)
 
 
-class UpSampleResnetBlock(tfkl.Layer):
-    def __init__(
-        self,
-        filters: int,
-        output_padding: tuple,
-        kernel_size: int = 3,
-        concat: bool = False,
-        **kwargs,
-    ):
-        """
-        An up-sampling resnet conv3d block, with deconv3d.
-
-        :param filters: number of channels of the output
-        :param output_padding: output padding for deconv block
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param concat: bool,specify how to combine input and skip connection images.
-            If True, use concatenation, otherwise use sum (default=False).
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        # save parameters
-        self._concat = concat
-        # init layer variables
-        self._deconv3d_block = Deconv3dBlock(
-            filters=filters,
-            output_padding=output_padding,
-            kernel_size=3,
-            strides=2,
-            padding="same",
-        )
-        self._conv3d_block = Conv3dBlock(
-            filters=filters, kernel_size=kernel_size, padding="same"
-        )
-        self._residual_block = ResidualConv3dBlock(
-            filters=filters, kernel_size=kernel_size, padding="same"
-        )
-
-    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
-        r"""
-        :param inputs: tuple
-
-          - down-sampled
-          - skipped
-
-        :param training: training flag for normalization layers (default: None)
-        :param kwargs: additional arguments.
-        :return: shape = (batch, \*skip_connection_image_shape, kernel_size]
-        """
-        up_sampled, skip = inputs[0], inputs[1]
-        up_sampled = self._deconv3d_block(
-            inputs=up_sampled, training=training
-        )  # up sample and change channel
-        up_sampled = (
-            tf.concat([up_sampled, skip], axis=4) if self._concat else up_sampled + skip
-        )  # combine
-        up_sampled = self._conv3d_block(
-            inputs=up_sampled, training=training
-        )  # adjust channel
-        up_sampled = self._residual_block(inputs=up_sampled, training=training)  # conv
-        return up_sampled
-
-
 class IntDVF(tfkl.Layer):
     """
     Integrate DVF to get DDF.

@@ -68,9 +68,9 @@ class UNet(Backbone):
 
         self._num_channel_initial = num_channel_initial
         self._depth = depth
+        self._concat_skip = concat_skip
         self._downsample_convs = []
         self._downsample_pools = []
-        self._upsample_blocks = []
         tensor_shape = image_size
         self._tensor_shapes = [tensor_shape]
         for d in range(depth):
@@ -100,6 +100,8 @@ class UNet(Backbone):
         self._bottom_res3d = layer.ResidualConv3dBlock(
             filters=num_channels[depth], kernel_size=3, padding="same"
         )
+        self._upsample_deconvs = []
+        self._upsample_convs = []
         for d in range(depth):
             padding = layer.deconv_output_padding(
                 input_shape=self._tensor_shapes[d + 1],
@@ -108,11 +110,25 @@ class UNet(Backbone):
                 stride=2,
                 padding="same",
             )
-            upsample_block = layer.UpSampleResnetBlock(
-                filters=num_channels[d], output_padding=padding, concat=concat_skip
+            upsample_deconv = layer.Deconv3dBlock(
+                filters=num_channels[d],
+                output_padding=padding,
+                kernel_size=3,
+                strides=2,
+                padding="same",
             )
-            self._upsample_blocks.append(upsample_block)
-            self._tensor_shapes.append(tensor_shape)
+            upsample_conv = tf.keras.Sequential(
+                [
+                    layer.Conv3dBlock(
+                        filters=num_channels[d], kernel_size=3, padding="same"
+                    ),
+                    layer.ResidualConv3dBlock(
+                        filters=num_channels[d], kernel_size=3, padding="same"
+                    ),
+                ]
+            )
+            self._upsample_deconvs.append(upsample_deconv)
+            self._upsample_convs.append(upsample_conv)
         self._output_conv3d = tf.keras.Sequential(
             [
                 tfkl.Conv3D(
@@ -165,9 +181,12 @@ class UNet(Backbone):
 
         # up sample, level D-1 to 0
         for d_var in range(self._depth - 1, -1, -1):
-            up_sampled = self._upsample_blocks[d_var](
-                inputs=[up_sampled, skips[d_var]], training=training
-            )
+            up_sampled = self._upsample_deconvs[d_var](inputs=up_sampled)
+            if self._concat_skip:
+                up_sampled = tf.concat([up_sampled, skips[d_var]], axis=4)
+            else:
+                up_sampled = up_sampled + skips[d_var]
+            up_sampled = self._upsample_convs[d_var](inputs=up_sampled)
 
         # output
         output = self._output_conv3d(inputs=up_sampled)
