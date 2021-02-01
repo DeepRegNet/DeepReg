@@ -85,55 +85,78 @@ def test_parse_loss():
     assert got == expected
 
 
-def test_parse_image_loss():
-    loss_config = {
-        "image": {
-            "name": "lncc",
-            "weight": 2.0,
-            "lncc": {
-                "kernel_size": 9,
-                "kernel_type": "rectangular",
-            },
-        },
-    }
-    expected = {
-        "image": {
-            "name": "lncc",
-            "weight": 2.0,
-            "kernel_size": 9,
-            "kernel_type": "rectangular",
-        },
-    }
-    got = parse_image_loss(loss_config=loss_config)
-    assert got == expected
-
-
-class TestParseLabelLoss:
-    def test_label_multi_scale(self):
+class TestParseImageLoss:
+    def test_parse_old_loss(self):
         loss_config = {
-            "label": {
-                "name": "multi_scale",
+            "image": {
+                "name": "lncc",
                 "weight": 2.0,
-                "multi_scale": {
-                    "loss_type": "mean-squared",
-                    "loss_scales": [0, 1],
+                "lncc": {
+                    "kernel_size": 9,
+                    "kernel_type": "rectangular",
                 },
             },
         }
         expected = {
-            "label": {
-                "name": "ssd",
+            "image": {
+                "name": "lncc",
                 "weight": 2.0,
-                "scales": [0, 1],
+                "kernel_size": 9,
+                "kernel_type": "rectangular",
             },
         }
-        got = parse_label_loss(loss_config=loss_config)
+        got = parse_image_loss(loss_config=loss_config)
         assert got == expected
 
-    def test_label_single_scale(self):
+    def test_parse_multiple_loss(self):
+        loss_config = {
+            "image": [
+                {
+                    "name": "lncc",
+                    "weight": 0.5,
+                    "kernel_size": 9,
+                    "kernel_type": "rectangular",
+                },
+                {
+                    "name": "ssd",
+                    "weight": 0.5,
+                },
+            ],
+        }
+
+        got = parse_reg_loss(loss_config=loss_config)
+        assert got == loss_config
+
+
+class TestParseLabelLoss:
+    @pytest.mark.parametrize(
+        ("name_loss", "expected_config"),
+        [
+            (
+                "multi_scale",
+                {
+                    "label": {
+                        "name": "ssd",
+                        "weight": 2.0,
+                        "scales": [0, 1],
+                    },
+                },
+            ),
+            (
+                "single_scale",
+                {
+                    "label": {
+                        "name": "dice",
+                        "weight": 1.0,
+                    },
+                },
+            ),
+        ],
+    )
+    def test_parse_old_loss(self, name_loss: str, expected_config: dict):
         loss_config = {
             "label": {
-                "name": "single_scale",
+                "name": name_loss,
                 "single_scale": {
                     "loss_type": "dice_generalized",
                 },
@@ -143,40 +166,74 @@ class TestParseLabelLoss:
                 },
             },
         }
+
+        if name_loss == "multi_scale":
+            loss_config["label"]["weight"] = 2.0
+
+        got = parse_label_loss(loss_config=loss_config)
+        assert got == expected_config
+
+    def test_parse_multiple_loss(self):
+        loss_config = {
+            "label": [
+                {
+                    "name": "dice",
+                    "weight": 1.0,
+                },
+                {
+                    "name": "cross-entropy",
+                    "weight": 1.0,
+                },
+            ],
+        }
+
+        got = parse_reg_loss(loss_config=loss_config)
+        assert got == loss_config
+
+
+class TestParseRegularizationLoss:
+    @pytest.mark.parametrize(
+        ("energy_type", "loss_name", "extra_args"),
+        [
+            ("bending", "bending", {}),
+            ("gradient-l2", "gradient", {"l1": False}),
+            ("gradient-l1", "gradient", {"l1": True}),
+        ],
+    )
+    def test_parse_old_loss(self, energy_type: str, loss_name: str, extra_args: dict):
+
+        loss_config = {
+            "regularization": {
+                "energy_type": energy_type,
+                "weight": 2.0,
+            }
+        }
         expected = {
-            "label": {
-                "name": "dice",
-                "weight": 1.0,
+            "regularization": {
+                "name": loss_name,
+                "weight": 2.0,
+                **extra_args,
             },
         }
-        got = parse_label_loss(loss_config=loss_config)
+        got = parse_reg_loss(loss_config=loss_config)
         assert got == expected
 
-
-@pytest.mark.parametrize(
-    ("energy_type", "loss_name", "extra_args"),
-    [
-        ("bending", "bending", {}),
-        ("gradient-l2", "gradient", {"l1": False}),
-        ("gradient-l1", "gradient", {"l1": True}),
-    ],
-)
-def test_parse_reg_loss(energy_type: str, loss_name: str, extra_args: dict):
-    loss_config = {
-        "regularization": {
-            "energy_type": energy_type,
-            "weight": 2.0,
+    def test_parse_multiple_reg_loss(self):
+        loss_config = {
+            "regularization": [
+                {
+                    "name": "bending",
+                    "weight": 2.0,
+                },
+                {
+                    "name": "gradient",
+                    "weight": 2.0,
+                    "l1": True,
+                },
+            ],
         }
-    }
-    expected = {
-        "regularization": {
-            "name": loss_name,
-            "weight": 2.0,
-            **extra_args,
-        },
-    }
-    got = parse_reg_loss(loss_config=loss_config)
-    assert got == expected
+        got = parse_reg_loss(loss_config=loss_config)
+        assert got == loss_config
 
 
 def test_parse_optimizer():
