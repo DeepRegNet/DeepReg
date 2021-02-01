@@ -36,6 +36,13 @@ config = {
     },
 }
 
+config_multiple_losses = deepcopy(config)
+config_multiple_losses["loss"]["image"] = [
+    {"name": "lncc", "weight": 0.1},
+    {"name": "ssd", "weight": 0.1},
+    {"name": "gmi", "weight": 0.1},
+]
+
 
 @pytest.fixture
 def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
@@ -160,12 +167,13 @@ class TestRegistrationModel:
 
 class TestBuildLoss:
     params = [
-        dict(option=0, expected=2),
-        dict(option=1, expected=2),
-        dict(option=2, expected=3),
+        dict(config=config, option=0, expected=2),
+        dict(config=config, option=1, expected=2),
+        dict(config=config, option=2, expected=3),
+        dict(config=config_multiple_losses, option=3, expected=5),
     ]
 
-    def test_no_image_loss(self, option: int, expected: int):
+    def test_image_loss(self, config: dict, option: int, expected: int):
         method = "ddf"
         backbone = "local"
         labeled = True
@@ -180,7 +188,7 @@ class TestBuildLoss:
         elif option == 1:
             # set image loss weight to zero, so loss is not used
             copied["loss"]["image"]["weight"] = 0.0
-        else:
+        elif option == 2:
             # remove image loss weight, so loss is used with default weight 1
             copied["loss"]["image"].pop("weight")
 
