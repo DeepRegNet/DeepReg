@@ -111,10 +111,15 @@ def config_sanity_check(config: dict) -> dict:
 
     # loss weights should >= 0
     for name in ["image", "label", "regularization"]:
-        loss_weight = config["train"]["loss"][name]["weight"]
-        if loss_weight <= 0:
-            logging.warning(
-                "The %s loss weight %.2f is not positive.", name, loss_weight
-            )
+        loss_config = config["train"]["loss"][name]
+        if not isinstance(loss_config, list):
+            loss_config = [loss_config]
+
+        for loss_i in loss_config:
+            loss_weight = loss_i["weight"]
+            if loss_weight <= 0:
+                logging.warning(
+                    "The %s loss weight %.2f is not positive.", name, loss_weight
+                )
 
     return config
