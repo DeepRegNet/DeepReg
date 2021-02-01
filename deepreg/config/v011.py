@@ -26,6 +26,10 @@ def parse_v011(old_config: dict) -> dict:
         preprocess_config=new_config["train"]["preprocess"]
     )
 
+    new_config["train"]["optimizer"] = parse_optimizer(
+        opt_config=new_config["train"]["optimizer"]
+    )
+
     return new_config
 
 
@@ -171,3 +175,24 @@ def parse_preprocess(preprocess_config: dict) -> dict:
     if "data_augmentation" not in preprocess_config:
         preprocess_config["data_augmentation"] = {"name": "affine"}
     return preprocess_config
+
+
+def parse_optimizer(opt_config: dict) -> dict:
+    """
+    Parse the optimizer configuration.
+
+    :param opt_config: potentially outdated config
+    :return: latest config
+    """
+    name = opt_config["name"]
+    if name not in opt_config:
+        # up-to-date
+        return opt_config
+
+    name_dict = dict(
+        adam="Adam",
+        sgd="SGD",
+        rms="RMSprop",
+    )
+    new_name = name_dict[name]
+    return {"name": new_name, **opt_config[name]}

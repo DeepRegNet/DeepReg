@@ -57,7 +57,8 @@ def build_log_dir(log_root: str, log_dir: str) -> str:
     :return: the path of directory to save logs
     """
     log_dir = os.path.join(
-        log_root, datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir
+        os.path.expanduser(log_root),
+        datetime.now().strftime("%Y%m%d-%H%M%S") if log_dir == "" else log_dir,
     )
     if os.path.exists(log_dir):
         logging.warning("Log directory {} exists already.".format(log_dir))

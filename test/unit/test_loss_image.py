@@ -110,3 +110,32 @@ class TestLocalNormalizedCrossCorrelation:
             name="LocalNormalizedCrossCorrelation",
         )
         assert got == expected
+
+
+class TestGlobalNormalizedCrossCorrelation:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,shape,expected",
+        [
+            (0.6, 0.3, (3, 3), 1),
+            (0.6, 0.3, (3, 3, 3), 1),
+            (0.6, -0.3, (3, 3, 3), 1),
+            (0.6, 0.3, (3, 3, 3, 3), 1),
+        ],
+    )
+    def test_output(self, y_true, y_pred, shape, expected):
+
+        y_true = y_true * tf.ones(shape=shape)
+        y_pred = y_pred * tf.ones(shape=shape)
+
+        pad_width = tuple([(0, 0)] + [(1, 1)] * (len(shape) - 1))
+        y_true = np.pad(y_true, pad_width=pad_width)
+        y_pred = np.pad(y_pred, pad_width=pad_width)
+
+        got = image.GlobalNormalizedCrossCorrelation().call(
+            y_true,
+            y_pred,
+        )
+
+        expected = expected * tf.ones(shape=(shape[0],))
+
+        assert is_equal_tf(got, expected)

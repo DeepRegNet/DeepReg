@@ -32,7 +32,7 @@ def test_build_dataset():
     ckpt_path = ""
 
     # load config
-    config, log_dir = build_config(
+    config, log_dir, _ = build_config(
         config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
     )
 

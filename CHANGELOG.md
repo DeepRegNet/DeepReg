@@ -13,6 +13,25 @@ compatible with the updates.
 
 ### Added
 
+- tba
+
+### Changed
+
+- tba
+
+### Fixed
+
+- tba
+
+## [0.1.2] - 2021-01-31
+
+Release comment: This is mainly a bugfix release, although some of the tasks in
+1.0.0-rc1 have been included in this release, with or without public-facing
+accessibility (see details below).
+
+### Added
+
+- Added global NCC loss
 - Added the docs on registry for backbone models.
 - Added backward compatible config parser.
 - Added tests so that test coverage is 100%.
@@ -29,6 +48,7 @@ compatible with the updates.
 
 ### Changed
 
+- Refactored optimizer configuration.
 - Refactored affine transform data augmentation.
 - Modified the implementation of resampler to support zero boundary condition.
 - Refactored loss functions into classes.

@@ -38,15 +38,8 @@ train:
 
   # define the optimizer
   optimizer:
-    name: "adam" # value should be adam / sgd / rms
-    adam:
-      learning_rate: 1.0e-4
-    sgd:
-      learning_rate: 1.0e-4
-      momentum: 0.9
-    rms:
-      learning_rate: 1.0e-4
-      momentum: 0.9
+    name: "Adam"
+    learning_rate: 1.0e-4
 
   # define the hyper-parameters for preprocessing
   preprocess:
