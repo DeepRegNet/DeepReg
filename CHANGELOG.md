@@ -13,7 +13,8 @@ compatible with the updates.
 
 ### Added
 
-- tba
+- Added support to multiple loss functions for each loss type: "image", "label" and
+  "regularization".
 
 ### Changed
 
