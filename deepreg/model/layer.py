@@ -8,21 +8,29 @@ import tensorflow.keras.layers as tfkl
 
 import deepreg.model.layer_util as layer_util
 
+LAYER_DICT = dict(conv3d=tfkl.Conv3D, deconv3d=tfkl.Conv3DTranspose)
+NORM_DICT = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
+
 
 def _deconv_output_padding(
     input_shape: int, output_shape: int, kernel_size: int, stride: int, padding: str
 ) -> int:
     """
-    Returns the correct output_padding such that output of deconv will have the desired output_shape
+    Calculate output padding for Conv3DTranspose in 1D.
 
-    When padding = "same" the output shape ~ input shape and output padding has following relationship
-
-    - output_shape = (input_shape - 1) * stride + kernel_size - 2 * pad + output_padding
-    - output_padding = output_shape - ((input_shape - 1) * stride + kernel_size - 2 * pad)
+    - output_shape = (input_shape - 1)*stride + kernel_size - 2*pad + output_padding
+    - output_padding = output_shape - ((input_shape - 1)*stride + kernel_size - 2*pad)
 
     Reference:
 
     - https://github.com/tensorflow/tensorflow/blob/r2.3/tensorflow/python/keras/utils/conv_utils.py#L140
+
+    :param input_shape: shape of input tensor, without batch or channel
+    :param output_shape: shape of out tensor, without batch or channel
+    :param kernel_size: kernel size of Conv3DTranspose layer
+    :param stride: stride of Conv3DTranspose layer
+    :param padding: padding of Conv3DTranspose layer
+    :return: output_padding
     """
     if padding == "same":
         pad = kernel_size // 2
@@ -42,6 +50,16 @@ def deconv_output_padding(
     stride: Union[Tuple[int], int],
     padding: str,
 ) -> Union[Tuple[int], int]:
+    """
+    Calculate output padding for Conv3DTranspose in any dimension.
+
+    :param input_shape: shape of input tensor, without batch or channel
+    :param output_shape: shape of out tensor, without batch or channel
+    :param kernel_size: kernel size of Conv3DTranspose layer
+    :param stride: stride of Conv3DTranspose layer
+    :param padding: padding of Conv3DTranspose layer
+    :return: output_padding
+    """
     if isinstance(input_shape, int):
         return _deconv_output_padding(
             input_shape=input_shape,
@@ -70,117 +88,10 @@ def deconv_output_padding(
     )
 
 
-class Deconv3d(tfkl.Layer):
-    """
-    Wrap Conv3DTranspose to allow dynamic output padding calculation.
-    """
-
-    def __init__(
-        self,
-        filters: int,
-        output_padding: (tuple, None) = None,
-        output_shape: (tuple, None) = None,
-        kernel_size: int = 3,
-        strides: int = 1,
-        padding: str = "same",
-        name="deconv3d",
-        **kwargs,
-    ):
-        """
-        Init.
-
-        :param filters: number of channels of the output
-        :param output_shape: (out_dim1, out_dim2, out_dim3)
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param padding: same or valid.
-        :param name: name of the layer.
-        :param kwargs: additional arguments for Conv3DTranspose.
-        """
-        super().__init__(name=name)
-        # save arguments
-        self._filters = filters
-        self._output_shape = output_shape
-        self._output_padding = output_padding
-        self._kernel_size = kernel_size
-        self._strides = strides
-        self._padding = padding
-        self._kwargs = kwargs
-        # init layer variables
-        self._deconv3d = None
-
-    def build(self, input_shape):
-        # pylint: disable-next=line-too-long
-        """
-        Calculate output padding on the fly.
-
-        https://github.com/tensorflow/tensorflow/blob/1cf0898dd4331baf93fe77205550f2c2e6c90ee5/tensorflow/python/keras/utils/conv_utils.py#L139-L185
-
-        :param input_shape: shape of input
-        """
-        super().build(input_shape)
-        kernel_size = self._kernel_size
-        strides = self._strides
-        if isinstance(kernel_size, int):
-            kernel_size = [kernel_size] * 3
-
-        if isinstance(strides, int):
-            strides = [strides] * 3
-
-        output_padding = self._output_padding
-        if output_padding is None and self._output_shape is not None:
-            assert self._padding == "same"
-            output_padding = [
-                self._output_shape[i]
-                - (
-                    (input_shape[1 + i] - 1) * strides[i]
-                    + kernel_size[i]
-                    - 2 * (kernel_size[i] // 2)
-                )
-                for i in range(3)
-            ]
-        self._deconv3d = tfkl.Conv3DTranspose(
-            filters=self._filters,
-            kernel_size=self._kernel_size,
-            strides=self._strides,
-            padding=self._padding,
-            output_padding=output_padding,
-            **self._kwargs,
-        )
-
-    def call(self, inputs: tf.Tensor, **kwargs) -> tf.Tensor:
-        """
-        Forward.
-
-        :param inputs: input tensor.
-        :param kwargs: additional arguments
-        :return:
-        """
-        return self._deconv3d(inputs=inputs)
-
-    def get_config(self) -> dict:
-        """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config.update(
-            dict(
-                filters=self._filters,
-                output_shape=self._output_shape,
-                kernel_size=self._kernel_size,
-                strides=self._strides,
-                padding=self._padding,
-            )
-        )
-        config.update(self._kwargs)
-        return config
-
-
 class NormBlock(tfkl.Layer):
     """
     A block with layer - norm - activation.
     """
-
-    layer_cls_dict = dict(conv3d=tfkl.Conv3D, deconv3d=Deconv3d)
-    norm_cls_dict = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
 
     def __init__(
         self,
@@ -207,8 +118,8 @@ class NormBlock(tfkl.Layer):
             name=name,
             **kwargs,
         )
-        self._layer = self.layer_cls_dict[layer_name](use_bias=False, **kwargs)
-        self._norm = self.norm_cls_dict[norm_name]()
+        self._layer = LAYER_DICT[layer_name](use_bias=False, **kwargs)
+        self._norm = NORM_DICT[norm_name]()
         self._act = tfkl.Activation(activation=activation)
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -436,9 +347,6 @@ class ResidualBlock(tfkl.Layer):
     A block with skip links and layer - norm - activation.
     """
 
-    layer_cls_dict = dict(conv3d=tfkl.Conv3D, deconv3d=Deconv3d)
-    norm_cls_dict = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
-
     def __init__(
         self,
         layer_name: str,
@@ -469,10 +377,9 @@ class ResidualBlock(tfkl.Layer):
             **kwargs,
         )
         self._layers = [
-            self.layer_cls_dict[layer_name](use_bias=False, **kwargs)
-            for _ in range(num_layers)
+            LAYER_DICT[layer_name](use_bias=False, **kwargs) for _ in range(num_layers)
         ]
-        self._norms = [self.norm_cls_dict[norm_name]() for _ in range(num_layers)]
+        self._norms = [NORM_DICT[norm_name]() for _ in range(num_layers)]
         self._acts = [tfkl.Activation(activation=activation) for _ in range(num_layers)]
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
@@ -534,6 +441,7 @@ class UpSampleResnetBlock(tfkl.Layer):
         An up-sampling resnet conv3d block, with deconv3d.
 
         :param filters: number of channels of the output
+        :param output_padding: output padding for deconv block
         :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
         :param concat: bool,specify how to combine input and skip connection images.
             If True, use concatenation, otherwise use sum (default=False).
@@ -685,6 +593,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         Layer up-samples tensor with two inputs (skipped and down-sampled).
 
         :param filters: int, number of output channels
+        :param output_padding: output padding for deconv block
         :param output_shape: shape of the output
         :param use_additive_upsampling: bool to used additive upsampling
         :param kwargs: additional arguments.

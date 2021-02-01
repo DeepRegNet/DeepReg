@@ -3,51 +3,12 @@
 """
 Tests for deepreg/model/layer
 """
-from typing import Optional
 
 import numpy as np
 import pytest
 import tensorflow as tf
 
 import deepreg.model.layer as layer
-
-
-@pytest.mark.parametrize(
-    ("input_shape", "output_shape", "expected_shape"),
-    [
-        ((6, 7, 8), (12, 14, 16), (12, 14, 16)),
-        ((6, 7, 8), (11, 13, 15), (11, 13, 15)),
-        ((6, 7, 8), None, (12, 14, 16)),
-    ],
-)
-def test_deconv3d(input_shape, output_shape: Optional[tuple], expected_shape: tuple):
-    """
-    Test output shapes and configs.
-
-    :param input_shape: input shape for layer definition
-    :param output_shape: output shape for layer definition
-    :param expected_shape: expected output shape
-    """
-    batch_size = 5
-
-    deconv3d = layer.Deconv3d(filters=3, strides=2, output_shape=output_shape)
-
-    inputs = tf.ones(shape=(batch_size,) + input_shape + (1,))
-    output = deconv3d(inputs)
-
-    assert output.shape == (batch_size,) + expected_shape + (3,)
-
-    config = deconv3d.get_config()
-    assert config == dict(
-        filters=3,
-        output_shape=output_shape,
-        kernel_size=3,
-        strides=2,
-        padding="same",
-        name="deconv3d",
-        trainable=True,
-        dtype="float32",
-    )
 
 
 @pytest.mark.parametrize("layer_name", ["conv3d", "deconv3d"])
@@ -199,31 +160,6 @@ def test_local_net_residual3d_block():
     assert conv3d_block._conv3d.strides == (1, 1, 1)
     assert conv3d_block._conv3d.padding == "same"
     assert conv3d_block._conv3d.use_bias is False
-
-
-def test_local_net_upsample_resnet_block():
-    """
-    Test the layer.LocalNetUpSampleResnetBlock class,
-    its default attributes and its call() function.
-    """
-    batch_size = 5
-    channels = 4
-    input_size = (32, 32, 16)
-    output_size = (64, 64, 32)
-
-    nonskip_tensor_size = (batch_size,) + input_size + (channels,)
-    skip_tensor_size = (batch_size,) + output_size + (channels,)
-
-    # Test __init__() and build()
-    model = layer.LocalNetUpSampleResnetBlock(8)
-    model.build([nonskip_tensor_size, skip_tensor_size])
-
-    assert model._filters == 8
-    assert model._use_additive_upsampling is True
-
-    assert isinstance(model._deconv3d_block, layer.Deconv3dBlock)
-    assert isinstance(model._conv3d_block, layer.Conv3dBlock)
-    assert isinstance(model._residual_block, layer.LocalNetResidual3dBlock)
 
 
 class TestResizeCPTransform:
