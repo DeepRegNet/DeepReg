@@ -183,8 +183,14 @@ class TestUNet:
         [((32, 33, 34), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
     )
     @pytest.mark.parametrize("pooling", [True, False])
+    @pytest.mark.parametrize("concat_skip", [True, False])
     def test_call_unet(
-        self, image_size: tuple, depth: int, control_points: tuple, pooling: bool
+        self,
+        image_size: tuple,
+        depth: int,
+        control_points: tuple,
+        pooling: bool,
+        concat_skip: bool,
     ):
         """
 
@@ -192,6 +198,7 @@ class TestUNet:
         :param depth: input is at level 0, bottom is at level depth
         :param pooling: for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
+        :param concat_skip: if concatenate skip or add it
         :param control_points: specify the distance between control points (in voxels).
         """
         out_ch = 3
@@ -203,6 +210,7 @@ class TestUNet:
             out_kernel_initializer="he_normal",
             out_activation="softmax",
             pooling=pooling,
+            concat_skip=concat_skip,
             control_points=control_points,
         )
         inputs = tf.ones(shape=(5, image_size[0], image_size[1], image_size[2], out_ch))
