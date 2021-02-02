@@ -478,61 +478,6 @@ class IntDVF(tfkl.Layer):
         return config
 
 
-class LocalNetUpSampleResnetBlock(tfkl.Layer):
-    def __init__(
-        self,
-        filters: int,
-        output_padding: tuple,
-        output_shape: tuple,
-        use_additive_upsampling: bool = True,
-        **kwargs,
-    ):
-        """
-        Layer up-samples tensor with two inputs (skipped and down-sampled).
-
-        :param filters: int, number of output channels
-        :param output_padding: output padding for deconv block
-        :param output_shape: shape of the output
-        :param use_additive_upsampling: bool to used additive upsampling
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        # save parameters
-        self._use_additive_upsampling = use_additive_upsampling
-        # init layer variables
-        self._deconv3d_block = Deconv3dBlock(
-            filters=filters,
-            output_padding=output_padding,
-            kernel_size=3,
-            strides=2,
-            padding="same",
-        )
-        if self._use_additive_upsampling:
-            self._resize = Resize3d(shape=output_shape)
-        self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=3, padding="same")
-        self._residual_block = ResidualConv3dBlock(
-            filters=filters, kernel_size=3, padding="same"
-        )
-
-    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
-        """
-        :param inputs: list = [inputs_nonskip, inputs_skip]
-        :param training: training flag for normalization layers (default: None)
-        :param kwargs: additional arguments.
-        :return:
-        """
-        inputs_nonskip, inputs_skip = inputs[0], inputs[1]
-        h0 = self._deconv3d_block(inputs=inputs_nonskip, training=training)
-        if self._use_additive_upsampling:
-            upsampled = self._resize(inputs=inputs_nonskip)
-            upsampled = tf.split(upsampled, num_or_size_splits=2, axis=4)
-            upsampled = tf.add_n(upsampled)
-            h0 = h0 + upsampled
-        r1 = h0 + inputs_skip
-        h1 = self._residual_block(inputs=r1, training=training)
-        return h1
-
-
 class ResizeCPTransform(tfkl.Layer):
     """
     Layer for getting the control points from the output of a image-to-image network.

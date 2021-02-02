@@ -37,6 +37,7 @@ class LocalNet(Backbone):
         extract_levels: List[int],
         out_kernel_initializer: str,
         out_activation: str,
+        use_additive_upsampling: bool = True,
         control_points: (tuple, None) = None,
         name: str = "LocalNet",
         **kwargs,
@@ -71,6 +72,7 @@ class LocalNet(Backbone):
 
         # save parameters
         self._extract_levels = extract_levels
+        self._use_additive_upsampling = use_additive_upsampling
         self._extract_max_level = max(self._extract_levels)  # E
         self._extract_min_level = min(self._extract_levels)  # D
 
@@ -111,7 +113,9 @@ class LocalNet(Backbone):
             filters=num_channels[-1], kernel_size=3, padding="same"
         )  # level E
 
-        self._upsample_blocks = []
+        self._upsample_deconvs = []
+        self._resizes = []
+        self._upsample_convs = []
         for level in range(
             self._extract_max_level - 1, self._extract_min_level - 1, -1
         ):  # level D to E-1
@@ -122,13 +126,28 @@ class LocalNet(Backbone):
                 stride=2,
                 padding="same",
             )
-            upsample_block = layer.LocalNetUpSampleResnetBlock(
-                num_channels[level],
+            upsample_deconv = layer.Deconv3dBlock(
+                filters=num_channels[level],
                 output_padding=padding,
-                output_shape=self._tensor_shapes[level],
+                kernel_size=3,
+                strides=2,
+                padding="same",
             )
-            self._upsample_blocks.append(upsample_block)
-
+            upsample_conv = tf.keras.Sequential(
+                [
+                    layer.Conv3dBlock(
+                        filters=num_channels[level], kernel_size=3, padding="same"
+                    ),
+                    layer.ResidualConv3dBlock(
+                        filters=num_channels[level], kernel_size=3, padding="same"
+                    ),
+                ]
+            )
+            self._upsample_deconvs.append(upsample_deconv)
+            self._upsample_convs.append(upsample_conv)
+            if self._use_additive_upsampling:
+                resize = layer.Resize3d(shape=self._tensor_shapes[level])
+                self._resizes.append(resize)
         self._extract_layers = [
             tf.keras.Sequential(
                 [
@@ -185,9 +204,14 @@ class LocalNet(Backbone):
         for idx, level in enumerate(
             range(self._extract_max_level - 1, self._extract_min_level - 1, -1)
         ):  # level E-1 to D
-            h_bottom = self._upsample_blocks[idx](
-                inputs=[h_bottom, encoded[level]], training=training
-            )
+            h = self._upsample_deconvs[idx](inputs=h_bottom, training=training)
+            if self._use_additive_upsampling:
+                up_sampled = self._resizes[idx](inputs=h_bottom)
+                up_sampled = tf.split(up_sampled, num_or_size_splits=2, axis=4)
+                up_sampled = tf.add_n(up_sampled)
+                h = h + up_sampled
+            h = h + encoded[level]
+            h_bottom = self._upsample_convs[idx](inputs=h, training=training)
             decoded.append(h_bottom)
 
         # output

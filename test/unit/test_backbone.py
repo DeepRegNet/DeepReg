@@ -136,16 +136,6 @@ class TestLocalNet:
         # assert number of downsample blocks is correct (== max level), Pass
         assert len(network._downsample_convs) == max(extract_levels)
 
-        # assert upsample blocks type is correct, Pass
-        assert all(
-            isinstance(item, layer.LocalNetUpSampleResnetBlock)
-            for item in network._upsample_blocks
-        )
-        # assert number of upsample blocks is correct (== max level - min level), Pass
-        assert len(network._upsample_blocks) == max(extract_levels) - min(
-            extract_levels
-        )
-
         # assert number of upsample blocks is correct (== extract_levels), Pass
         assert len(network._extract_layers) == len(extract_levels)
 
