@@ -147,21 +147,6 @@ class TestIntDVF:
             layer.IntDVF(fixed_image_size=(2, 3))
 
 
-def test_local_net_residual3d_block():
-    """
-    Test the layer.LocalNetResidual3dBlock class's,
-    default attributes and call() function.
-    """
-
-    # Test __init__()
-    conv3d_block = layer.LocalNetResidual3dBlock(8)
-
-    assert conv3d_block._conv3d.kernel_size == (3, 3, 3)
-    assert conv3d_block._conv3d.strides == (1, 1, 1)
-    assert conv3d_block._conv3d.padding == "same"
-    assert conv3d_block._conv3d.use_bias is False
-
-
 class TestResizeCPTransform:
     @pytest.mark.parametrize(
         "parameter,cp_spacing", [((8, 8, 8), 8), ((8, 24, 16), (8, 24, 16))]

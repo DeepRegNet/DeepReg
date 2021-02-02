@@ -170,7 +170,7 @@ class UNet(Backbone):
         skips = []
         for d_var in range(self._depth):  # level 0 to D-1
             skip = self._downsample_convs[d_var](inputs=down_sampled, training=training)
-            down_sampled = self._downsample_pools[d_var](inputs=skip)
+            down_sampled = self._downsample_pools[d_var](inputs=skip, training=training)
             skips.append(skip)
 
         # bottom, level D
@@ -181,15 +181,19 @@ class UNet(Backbone):
 
         # up sample, level D-1 to 0
         for d_var in range(self._depth - 1, -1, -1):
-            up_sampled = self._upsample_deconvs[d_var](inputs=up_sampled)
+            up_sampled = self._upsample_deconvs[d_var](
+                inputs=up_sampled, training=training
+            )
             if self._concat_skip:
                 up_sampled = tf.concat([up_sampled, skips[d_var]], axis=4)
             else:
                 up_sampled = up_sampled + skips[d_var]
-            up_sampled = self._upsample_convs[d_var](inputs=up_sampled)
+            up_sampled = self._upsample_convs[d_var](
+                inputs=up_sampled, training=training
+            )
 
         # output
-        output = self._output_conv3d(inputs=up_sampled)
+        output = self._output_conv3d(inputs=up_sampled, training=training)
 
         if self.resize:
             output = self.resize(output)

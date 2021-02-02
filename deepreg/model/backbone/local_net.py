@@ -168,14 +168,13 @@ class LocalNet(Backbone):
         """
 
         # down sample from level 0 to E
-        encoded = []
         # outputs used for decoding, encoded[i] corresponds -> level i
         # stored only 0 to E-1
-
+        encoded = []
         h_in = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
             skip = self._downsample_convs[level](inputs=h_in, training=training)
-            h_in = self._downsample_pools[level](inputs=skip)
+            h_in = self._downsample_pools[level](inputs=skip, training=training)
             encoded.append(skip)
         h_bottom = self._conv3d_block(
             inputs=h_in, training=training
@@ -192,18 +191,14 @@ class LocalNet(Backbone):
             decoded.append(h_bottom)
 
         # output
-        output = tf.reduce_mean(
-            tf.stack(
-                [
-                    self._extract_layers[idx](
-                        inputs=decoded[self._extract_max_level - level]
-                    )
-                    for idx, level in enumerate(self._extract_levels)
-                ],
-                axis=5,
-            ),
-            axis=5,
-        )
+        output = tf.add_n(
+            [
+                self._extract_layers[idx](
+                    inputs=decoded[self._extract_max_level - level]
+                )
+                for idx, level in enumerate(self._extract_levels)
+            ]
+        ) / len(self._extract_levels)
 
         if self.resize:
             output = self.resize(output)

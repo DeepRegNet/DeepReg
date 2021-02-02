@@ -478,46 +478,6 @@ class IntDVF(tfkl.Layer):
         return config
 
 
-class LocalNetResidual3dBlock(tfkl.Layer):
-    def __init__(
-        self,
-        filters: int,
-        kernel_size: (int, tuple) = 3,
-        strides: (int, tuple) = 1,
-        activation: str = "relu",
-        **kwargs,
-    ):
-        """
-        A resnet conv3d block, simpler than ResidualConv3dBlock.
-
-        1. conved = conv3d(inputs)
-        2. out = act(norm(conved) + inputs)
-
-        :param filters: number of channels of the output
-        :param kernel_size: int or tuple of 3 ints, e.g. (3,3,3) or 3
-        :param strides: int or tuple of 3 ints, e.g. (1,1,1) or 1
-        :param activation: name of activation
-        :param kwargs: additional arguments.
-        """
-        super().__init__(**kwargs)
-        # init layer variables
-        self._conv3d = tfkl.Conv3D(
-            filters=filters,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding="same",
-            use_bias=False,
-        )
-        self._norm = tfkl.BatchNormalization()
-        self._act = tfkl.Activation(activation=activation)
-
-    def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
-        return self._act(
-            self._norm(inputs=self._conv3d(inputs=inputs[0]), training=training)
-            + inputs[1]
-        )
-
-
 class LocalNetUpSampleResnetBlock(tfkl.Layer):
     def __init__(
         self,
@@ -550,7 +510,9 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
         if self._use_additive_upsampling:
             self._resize = Resize3d(shape=output_shape)
         self._conv3d_block = Conv3dBlock(filters=filters, kernel_size=3, padding="same")
-        self._residual_block = LocalNetResidual3dBlock(filters=filters, strides=1)
+        self._residual_block = ResidualConv3dBlock(
+            filters=filters, kernel_size=3, padding="same"
+        )
 
     def call(self, inputs, training=None, **kwargs) -> tf.Tensor:
         """
@@ -567,8 +529,7 @@ class LocalNetUpSampleResnetBlock(tfkl.Layer):
             upsampled = tf.add_n(upsampled)
             h0 = h0 + upsampled
         r1 = h0 + inputs_skip
-        r2 = self._conv3d_block(inputs=h0, training=training)
-        h1 = self._residual_block(inputs=[r2, r1], training=training)
+        h1 = self._residual_block(inputs=r1, training=training)
         return h1
 
 
