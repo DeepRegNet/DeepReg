@@ -123,10 +123,10 @@ class TestLocalNet:
     """
 
     @pytest.mark.parametrize(
-        "image_size,extract_levels,control_points",
-        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        "image_size,extract_levels",
+        [((1, 2, 3), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_init(self, image_size, extract_levels, control_points):
+    def test_init(self, image_size, extract_levels):
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -134,7 +134,6 @@ class TestLocalNet:
             extract_levels=extract_levels,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
 
         # asserting initialised var for extract_levels is the same - Pass
@@ -169,17 +168,11 @@ class TestLocalNet:
         # assert number of upsample blocks is correct (== extract_levels), Pass
         assert len(network._extract_layers) == len(extract_levels)
 
-        if control_points is None:
-            assert network.resize is False
-        else:
-            assert isinstance(network.resize, layer.ResizeCPTransform)
-            assert isinstance(network.interpolate, layer.BSplines3DTransform)
-
     @pytest.mark.parametrize(
-        "image_size,extract_levels,control_points",
-        [((1, 2, 3), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        "image_size,extract_levels",
+        [((1, 2, 3), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_call(self, image_size, extract_levels, control_points):
+    def test_call(self, image_size, extract_levels):
         # initialising LocalNet instance
         network = loc.LocalNet(
             image_size=image_size,
@@ -188,7 +181,6 @@ class TestLocalNet:
             extract_levels=extract_levels,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
 
         # pass an input of all zeros
@@ -209,10 +201,10 @@ class TestUNet:
     """
 
     @pytest.mark.parametrize(
-        "image_size,depth,control_points",
-        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
+        "image_size,depth",
+        [((1, 2, 3), 5), ((8, 8, 8), 3)],
     )
-    def test_init(self, image_size, depth, control_points):
+    def test_init(self, image_size, depth):
         network = u.UNet(
             image_size=image_size,
             out_channels=3,
@@ -220,7 +212,6 @@ class TestUNet:
             depth=depth,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
 
         # asserting num channels initial is the same, Pass
@@ -253,17 +244,11 @@ class TestUNet:
         # assert output_conv3d is correct type, Pass
         assert isinstance(network._output_conv3d, layer.Conv3dWithResize)
 
-        if control_points is None:
-            assert network.resize is False
-        else:
-            assert isinstance(network.resize, layer.ResizeCPTransform)
-            assert isinstance(network.interpolate, layer.BSplines3DTransform)
-
     @pytest.mark.parametrize(
-        "image_size,depth,control_points",
-        [((1, 2, 3), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
+        "image_size,depth",
+        [((1, 2, 3), 5), ((8, 8, 8), 3)],
     )
-    def test_call_unet(self, image_size, depth, control_points):
+    def test_call_unet(self, image_size, depth):
         out = 3
         # initialising UNet instance
         network = u.UNet(
@@ -273,7 +258,6 @@ class TestUNet:
             depth=depth,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
         # pass an input of all zeros
         inputs = tf.constant(
