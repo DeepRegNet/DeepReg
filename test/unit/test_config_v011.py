@@ -124,7 +124,7 @@ class TestParseImageLoss:
             ],
         }
 
-        got = parse_reg_loss(loss_config=loss_config)
+        got = parse_image_loss(loss_config=loss_config)
         assert got == loss_config
 
 
@@ -187,7 +187,7 @@ class TestParseLabelLoss:
             ],
         }
 
-        got = parse_reg_loss(loss_config=loss_config)
+        got = parse_label_loss(loss_config=loss_config)
         assert got == loss_config
 
 
