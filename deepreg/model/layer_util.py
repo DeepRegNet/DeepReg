@@ -439,8 +439,8 @@ def _deconv_output_padding(
 
     - https://github.com/tensorflow/tensorflow/blob/r2.3/tensorflow/python/keras/utils/conv_utils.py#L140
 
-    :param input_shape: shape of input tensor, without batch or channel
-    :param output_shape: shape of out tensor, without batch or channel
+    :param input_shape: shape of Conv3DTranspose input tensor
+    :param output_shape: shape of Conv3DTranspose output tensor
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
@@ -467,8 +467,8 @@ def deconv_output_padding(
     """
     Calculate output padding for Conv3DTranspose in any dimension.
 
-    :param input_shape: shape of input tensor, without batch or channel
-    :param output_shape: shape of out tensor, without batch or channel
+    :param input_shape: shape of Conv3DTranspose input tensor, without batch or channel
+    :param output_shape: shape of Conv3DTranspose output tensor, without batch or channel
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
