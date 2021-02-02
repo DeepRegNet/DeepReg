@@ -1,8 +1,13 @@
 """Provide different loss or metrics classes for images."""
-
 import tensorflow as tf
 
 from deepreg.loss.util import NegativeLossMixin
+from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
+from deepreg.loss.util import (
+    rectangular_kernel1d,
+    separable_filter,
+    triangular_kernel1d,
+)
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
@@ -140,96 +145,32 @@ class GlobalMutualInformationLoss(NegativeLossMixin, GlobalMutualInformation):
     """Revert the sign of GlobalMutualInformation."""
 
 
-def build_rectangular_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a rectangular kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
-    :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
-        - kernel_vol, scalar
-    """
-    filters = tf.ones(shape=(kernel_size, kernel_size, kernel_size, input_channel, 1))
-    kernel_vol = kernel_size ** 3
-    return filters, tf.constant(kernel_vol)
-
-
-def build_triangular_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a triangular kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
-    :return:
-        - filters, of shape (kernel_size-1, kernel_size-1, kernel_size-1, ch, 1)
-        - kernel_vol, scalar
-    """
-    fsize = int((kernel_size + 1) / 2)
-    pad_filter = tf.constant(
-        [
-            [0, 0],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [int((fsize - 1) / 2), int((fsize + 1) / 2)],
-            [0, 0],
-        ]
-    )
-
-    f1 = tf.ones(shape=(1, fsize, fsize, fsize, 1)) / fsize
-    f1 = tf.pad(f1, pad_filter, "CONSTANT")
-    f2 = tf.ones(shape=(fsize, fsize, fsize, 1, input_channel)) / fsize
-
-    filters = tf.nn.conv3d(f1, f2, strides=[1, 1, 1, 1, 1], padding="SAME")
-    filters = tf.transpose(filters, perm=[1, 2, 3, 4, 0])
-    kernel_vol = tf.reduce_sum(filters ** 2)
-
-    return filters, kernel_vol
-
-
-def build_gaussian_kernel(
-    kernel_size: int, input_channel: int
-) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a Gaussian kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: size of the kernel for convolution.
-    :param input_channel: number of channels for input
-    :return:
-        - filters, of shape (kernel_size, kernel_size, kernel_size, ch, 1)
-        - kernel_vol, scalar
-    """
-    mean = (kernel_size - 1) / 2.0
-    sigma = kernel_size / 3
-
-    grid_dim = tf.range(0, kernel_size)
-    grid_dim_ch = tf.range(0, input_channel)
-    grid = tf.expand_dims(
-        tf.cast(
-            tf.stack(tf.meshgrid(grid_dim, grid_dim, grid_dim, grid_dim_ch), 0),
-            dtype="float32",
-        ),
-        axis=-1,
-    )
-    filters = tf.exp(-tf.reduce_sum(tf.square(grid - mean), axis=0) / (2 * sigma ** 2))
-    kernel_vol = tf.reduce_sum(filters ** 2)
-
-    return filters, kernel_vol
-
-
 class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
     Local squared zero-normalized cross-correlation.
 
-    The loss is based on a moving kernel/window over the y_true/y_pred,
-    within the window the square of zncc is calculated.
-    The kernel can be a rectangular / triangular / gaussian window.
-    The final loss is the averaged loss over all windows.
-    y_true and y_pred have to be at least 4d tensor, including batch axis.
+    Denote y_true as t and y_pred as p. Consider a window having n elements.
+    Each position in the window corresponds a weight w_i for i=1:n.
+
+    Define the discrete expectation in the window E[t] as
+
+        E[t] = sum_i(w_i * t_i) / sum_i(w_i)
+
+    Similarly, the discrete variance in the window V[t] is
+
+        V[t] = E[t**2] - E[t] ** 2
+
+    The local squared zero-normalized cross-correlation is therefore
+
+        E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
+
+    where the expectation in numerator is
+
+        E[ (t-E[t]) * (p-E[p]) ] = E[t * p] - E[t] * E[p]
+
+    Different kernel corresponds to different weights.
+
+    For now, y_true and y_pred have to be at least 4d tensor, including batch axis.
 
     Reference:
 
@@ -239,9 +180,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
     """
 
     kernel_fn_dict = dict(
-        gaussian=build_gaussian_kernel,
-        rectangular=build_rectangular_kernel,
-        triangular=build_triangular_kernel,
+        gaussian=gaussian_kernel1d,
+        rectangular=rectangular_kernel1d,
+        triangular=triangular_kernel1d,
     )
 
     def __init__(
@@ -270,6 +211,15 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
 
+        # (kernel_size, )
+        self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
+        # E[1] = sum_i(w_i), ()
+        self.kernel_vol = tf.reduce_sum(
+            self.kernel[:, None, None]
+            * self.kernel[None, :, None]
+            * self.kernel[None, None, :]
+        )
+
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
@@ -286,15 +236,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
-        filters, kernel_vol = self.kernel_fn(
-            kernel_size=self.kernel_size,
-            input_channel=y_true.shape[4],
-        )
-        filters = tf.cast(filters, dtype=y_true.dtype)
-        kernel_vol = tf.cast(kernel_vol, dtype=y_true.dtype)
-        strides = [1, 1, 1, 1, 1]
-        padding = "SAME"
-
         # t = y_true, p = y_pred
         # (batch, dim1, dim2, dim3, ch)
         t2 = y_true * y_true
@@ -303,31 +244,25 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         # sum over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
-        p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
-        t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
-        p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
-        tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
+        t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
+        p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
+        t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
+        p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
+        tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
 
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_avg = t_sum / kernel_vol
-        p_avg = p_sum / kernel_vol
+        t_avg = t_sum / self.kernel_vol  # E[t]
+        p_avg = p_sum / self.kernel_vol  # E[p]
 
-        # normalized cross correlation between t and p
-        # sum[(t - mean[t]) * (p - mean[p])] / std[t] / std[p]
-        # denoted by num / denom
-        # assume we sum over N values
-        # num = sum[t * p - mean[t] * p - t * mean[p] + mean[t] * mean[p]]
-        #     = sum[t*p] - sum[t] * sum[p] / N * 2 + sum[t] * sum[p] / N
-        #     = sum[t*p] - sum[t] * sum[p] / N
-        #     = sum[t*p] - sum[t] * mean[p] = cross
-        # the following is actually squared ncc
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_avg * t_sum
-        t_var = t2_sum - t_avg * t_sum  # std[t] ** 2
-        p_var = p2_sum - p_avg * p_sum  # std[p] ** 2
+        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+
+        # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
