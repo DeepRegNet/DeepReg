@@ -1,6 +1,5 @@
 """This module defines custom layers."""
 import itertools
-from typing import Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -10,82 +9,6 @@ import deepreg.model.layer_util as layer_util
 
 LAYER_DICT = dict(conv3d=tfkl.Conv3D, deconv3d=tfkl.Conv3DTranspose)
 NORM_DICT = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
-
-
-def _deconv_output_padding(
-    input_shape: int, output_shape: int, kernel_size: int, stride: int, padding: str
-) -> int:
-    """
-    Calculate output padding for Conv3DTranspose in 1D.
-
-    - output_shape = (input_shape - 1)*stride + kernel_size - 2*pad + output_padding
-    - output_padding = output_shape - ((input_shape - 1)*stride + kernel_size - 2*pad)
-
-    Reference:
-
-    - https://github.com/tensorflow/tensorflow/blob/r2.3/tensorflow/python/keras/utils/conv_utils.py#L140
-
-    :param input_shape: shape of input tensor, without batch or channel
-    :param output_shape: shape of out tensor, without batch or channel
-    :param kernel_size: kernel size of Conv3DTranspose layer
-    :param stride: stride of Conv3DTranspose layer
-    :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
-    """
-    if padding == "same":
-        pad = kernel_size // 2
-    elif padding == "valid":
-        pad = 0
-    elif padding == "full":
-        pad = kernel_size - 1
-    else:
-        raise ValueError(f"Unknown padding {padding} in deconv_output_padding")
-    return output_shape - ((input_shape - 1) * stride + kernel_size - 2 * pad)
-
-
-def deconv_output_padding(
-    input_shape: Union[Tuple[int], int],
-    output_shape: Union[Tuple[int], int],
-    kernel_size: Union[Tuple[int], int],
-    stride: Union[Tuple[int], int],
-    padding: str,
-) -> Union[Tuple[int], int]:
-    """
-    Calculate output padding for Conv3DTranspose in any dimension.
-
-    :param input_shape: shape of input tensor, without batch or channel
-    :param output_shape: shape of out tensor, without batch or channel
-    :param kernel_size: kernel size of Conv3DTranspose layer
-    :param stride: stride of Conv3DTranspose layer
-    :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
-    """
-    if isinstance(input_shape, int):
-        return _deconv_output_padding(
-            input_shape=input_shape,
-            output_shape=output_shape,
-            kernel_size=kernel_size,
-            stride=stride,
-            padding=padding,
-        )
-    assert len(input_shape) == len(output_shape)
-    dim = len(input_shape)
-    if isinstance(kernel_size, int):
-        kernel_size = [kernel_size] * dim
-    if isinstance(stride, int):
-        stride = [stride] * dim
-    return tuple(
-        [
-            _deconv_output_padding(
-                input_shape=input_shape[d],
-                output_shape=output_shape[d],
-                kernel_size=kernel_size[d],
-                stride=stride[d],
-                padding=padding,
-            )
-            for d in range(dim)
-        ]
-    )
 
 
 class NormBlock(tfkl.Layer):

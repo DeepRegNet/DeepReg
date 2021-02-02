@@ -4,6 +4,7 @@
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
+import deepreg.model.layer_util
 from deepreg.model import layer
 from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
@@ -103,7 +104,7 @@ class UNet(Backbone):
         self._upsample_deconvs = []
         self._upsample_convs = []
         for d in range(depth):
-            padding = layer.deconv_output_padding(
+            padding = deepreg.model.layer_util.deconv_output_padding(
                 input_shape=self._tensor_shapes[d + 1],
                 output_shape=self._tensor_shapes[d],
                 kernel_size=3,

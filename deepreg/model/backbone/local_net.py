@@ -5,6 +5,7 @@ from typing import List
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
+import deepreg.model.layer_util
 from deepreg.model import layer
 from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
@@ -119,7 +120,7 @@ class LocalNet(Backbone):
         for level in range(
             self._extract_max_level - 1, self._extract_min_level - 1, -1
         ):  # level D to E-1
-            padding = layer.deconv_output_padding(
+            padding = deepreg.model.layer_util.deconv_output_padding(
                 input_shape=self._tensor_shapes[level + 1],
                 output_shape=self._tensor_shapes[level],
                 kernel_size=kernel_sizes[level],
