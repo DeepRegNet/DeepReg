@@ -264,74 +264,82 @@ class TestGaussianFilter3D:
         assert np.allclose(np.sum(filter), 3, atol=1e-3)
 
 
-@pytest.mark.parametrize(
-    ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
-    [
-        (5, 5, 3, 1, "same", 0),
-        (5, 7, 3, 1, "valid", 0),
-        (5, 3, 3, 1, "full", 0),
-        (5, 6, 3, 1, "same", 1),
-        (5, 8, 3, 1, "valid", 1),
-        (5, 4, 3, 1, "full", 1),
-        (5, 9, 3, 2, "same", 0),
-        (5, 11, 3, 2, "valid", 0),
-        (5, 7, 3, 2, "full", 0),
-    ],
-)
-def test_1d_deconv_output_padding(
-    input_shape: int,
-    output_shape: int,
-    kernel_size: int,
-    stride: int,
-    padding: str,
-    expected: int,
-):
-    """
-    Test _deconv_output_padding by verifying output
-
-    :param input_shape: shape of Conv3DTranspose input tensor
-    :param output_shape: shape of Conv3DTranspose output tensor
-    :param kernel_size: kernel size of Conv3DTranspose layer
-    :param stride: stride of Conv3DTranspose layer
-    :param padding: padding of Conv3DTranspose layer
-    :param expected: expected output padding for Conv3DTranspose layer
-    """
-    got = layer_util._deconv_output_padding(
-        input_shape, output_shape, kernel_size, stride, padding
+class TestDeconvOutputPadding:
+    @pytest.mark.parametrize(
+        ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
+        [
+            (5, 5, 3, 1, "same", 0),
+            (5, 7, 3, 1, "valid", 0),
+            (5, 3, 3, 1, "full", 0),
+            (5, 6, 3, 1, "same", 1),
+            (5, 8, 3, 1, "valid", 1),
+            (5, 4, 3, 1, "full", 1),
+            (5, 9, 3, 2, "same", 0),
+            (5, 11, 3, 2, "valid", 0),
+            (5, 7, 3, 2, "full", 0),
+        ],
     )
-    assert got == expected
+    def test_1d(
+        self,
+        input_shape: int,
+        output_shape: int,
+        kernel_size: int,
+        stride: int,
+        padding: str,
+        expected: int,
+    ):
+        """
+        Test _deconv_output_padding by verifying output
 
+        :param input_shape: shape of Conv3DTranspose input tensor
+        :param output_shape: shape of Conv3DTranspose output tensor
+        :param kernel_size: kernel size of Conv3DTranspose layer
+        :param stride: stride of Conv3DTranspose layer
+        :param padding: padding of Conv3DTranspose layer
+        :param expected: expected output padding for Conv3DTranspose layer
+        """
+        got = layer_util._deconv_output_padding(
+            input_shape, output_shape, kernel_size, stride, padding
+        )
+        assert got == expected
 
-@pytest.mark.parametrize(
-    ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
-    [
-        (5, 9, 3, 2, "same", 0),
-        ((5, 5), (9, 10), 3, 2, "same", (0, 1)),
-        ((5, 5, 6), (9, 10, 12), 3, 2, "same", (0, 1, 1)),
-        ((5, 5), (9, 10), (3, 3), 2, "same", (0, 1)),
-        ((5, 5), (9, 10), 3, (2, 2), "same", (0, 1)),
-        ((5, 5), (9, 10), (3, 4), 2, "same", (0, 2)),
-    ],
-)
-def test_deconv_output_padding(
-    input_shape: Union[Tuple[int], int],
-    output_shape: Union[Tuple[int], int],
-    kernel_size: Union[Tuple[int], int],
-    stride: Union[Tuple[int], int],
-    padding: str,
-    expected: Union[Tuple[int], int],
-):
-    """
-    Test deconv_output_padding by verifying output
+    def test_1d_err(self):
+        """Test _deconv_output_padding err raising."""
+        with pytest.raises(ValueError) as err_info:
+            layer_util._deconv_output_padding(5, 5, 3, 1, "x")
+        assert "Unknown padding" in str(err_info.value)
 
-    :param input_shape: shape of Conv3DTranspose input tensor
-    :param output_shape: shape of Conv3DTranspose output tensor
-    :param kernel_size: kernel size of Conv3DTranspose layer
-    :param stride: stride of Conv3DTranspose layer
-    :param padding: padding of Conv3DTranspose layer
-    :param expected: expected output padding for Conv3DTranspose layer
-    """
-    got = layer_util.deconv_output_padding(
-        input_shape, output_shape, kernel_size, stride, padding
+    @pytest.mark.parametrize(
+        ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
+        [
+            (5, 9, 3, 2, "same", 0),
+            ((5, 5), (9, 10), 3, 2, "same", (0, 1)),
+            ((5, 5, 6), (9, 10, 12), 3, 2, "same", (0, 1, 1)),
+            ((5, 5), (9, 10), (3, 3), 2, "same", (0, 1)),
+            ((5, 5), (9, 10), 3, (2, 2), "same", (0, 1)),
+            ((5, 5), (9, 10), (3, 4), 2, "same", (0, 2)),
+        ],
     )
-    assert got == expected
+    def test_n_dim(
+        self,
+        input_shape: Union[Tuple[int], int],
+        output_shape: Union[Tuple[int], int],
+        kernel_size: Union[Tuple[int], int],
+        stride: Union[Tuple[int], int],
+        padding: str,
+        expected: Union[Tuple[int], int],
+    ):
+        """
+        Test deconv_output_padding by verifying output
+
+        :param input_shape: shape of Conv3DTranspose input tensor
+        :param output_shape: shape of Conv3DTranspose output tensor
+        :param kernel_size: kernel size of Conv3DTranspose layer
+        :param stride: stride of Conv3DTranspose layer
+        :param padding: padding of Conv3DTranspose layer
+        :param expected: expected output padding for Conv3DTranspose layer
+        """
+        got = layer_util.deconv_output_padding(
+            input_shape, output_shape, kernel_size, stride, padding
+        )
+        assert got == expected

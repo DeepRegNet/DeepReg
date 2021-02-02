@@ -17,12 +17,14 @@ compatible with the updates.
 
 ### Changed
 
-- Refactored BSplines interpolation independetly of the backbone network and available
+- Removed multiple unnecessary custom layers and use tf.keras.layers whenever possible.
+- Refactored BSplines interpolation independently of the backbone network and available
   only for DDF and DVF models.
 
 ### Fixed
 
-- tba
+- Fixed the residual module in local net architecture, compatible for previous
+  checkpoints.
 
 ## [0.1.2] - 2021-01-31
 
