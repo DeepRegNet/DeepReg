@@ -33,7 +33,6 @@ class UNet(Backbone):
         out_activation: str,
         pooling: bool = True,
         concat_skip: bool = False,
-        control_points: (tuple, None) = None,
         name: str = "Unet",
         **kwargs,
     ):
@@ -50,7 +49,6 @@ class UNet(Backbone):
                         pooling if true, otherwise use conv3d
         :param concat_skip: when upsampling, concatenate skipped
                             tensor if true, otherwise use addition
-        :param control_points: specify the distance between control points (in voxels).
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
@@ -144,17 +142,6 @@ class UNet(Backbone):
             ]
         )
 
-        self.resize = (
-            layer.ResizeCPTransform(control_points)
-            if control_points is not None
-            else False
-        )
-        self.interpolate = (
-            layer.BSplines3DTransform(control_points, image_size)
-            if control_points is not None
-            else False
-        )
-
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Builds graph based on built layers.
@@ -195,9 +182,5 @@ class UNet(Backbone):
 
         # output
         output = self._output_conv3d(inputs=up_sampled, training=training)
-
-        if self.resize:
-            output = self.resize(output)
-            output = self.interpolate(output)
 
         return output

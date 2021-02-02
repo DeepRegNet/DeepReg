@@ -17,7 +17,8 @@ compatible with the updates.
 
 ### Changed
 
-- tba
+- Refactored BSplines interpolation independetly of the backbone network and available
+  only for DDF and DVF models.
 
 ### Fixed
 

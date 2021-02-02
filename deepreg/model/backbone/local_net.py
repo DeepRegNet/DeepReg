@@ -39,7 +39,6 @@ class LocalNet(Backbone):
         out_kernel_initializer: str,
         out_activation: str,
         use_additive_upsampling: bool = True,
-        control_points: (tuple, None) = None,
         name: str = "LocalNet",
         **kwargs,
     ):
@@ -58,7 +57,6 @@ class LocalNet(Backbone):
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
         :param use_additive_upsampling: whether use additive up-sampling.
-        :param control_points: specify the distance between control points (in voxels).
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
@@ -167,17 +165,6 @@ class LocalNet(Backbone):
             for _ in self._extract_levels
         ]
 
-        self.resize = (
-            layer.ResizeCPTransform(control_points)
-            if control_points is not None
-            else False
-        )
-        self.interpolate = (
-            layer.BSplines3DTransform(control_points, image_size)
-            if control_points is not None
-            else False
-        )
-
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build LocalNet graph based on built layers.
@@ -225,9 +212,5 @@ class LocalNet(Backbone):
                 for idx, level in enumerate(self._extract_levels)
             ]
         ) / len(self._extract_levels)
-
-        if self.resize:
-            output = self.resize(output)
-            output = self.interpolate(output)
 
         return output

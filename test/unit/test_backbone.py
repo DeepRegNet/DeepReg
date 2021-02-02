@@ -112,10 +112,10 @@ class TestLocalNet:
     """
 
     @pytest.mark.parametrize(
-        "image_size,extract_levels,control_points",
-        [((10, 20, 30), [1, 2, 3], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        "image_size,extract_levels",
+        [((11, 12, 13), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_init(self, image_size, extract_levels, control_points):
+    def test_init(self, image_size, extract_levels):
         network = loc.LocalNet(
             image_size=image_size,
             out_channels=3,
@@ -123,7 +123,6 @@ class TestLocalNet:
             extract_levels=extract_levels,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
 
         # asserting initialised var for extract_levels is the same - Pass
@@ -139,17 +138,11 @@ class TestLocalNet:
         # assert number of upsample blocks is correct (== extract_levels), Pass
         assert len(network._extract_layers) == len(extract_levels)
 
-        if control_points is None:
-            assert network.resize is False
-        else:
-            assert isinstance(network.resize, layer.ResizeCPTransform)
-            assert isinstance(network.interpolate, layer.BSplines3DTransform)
-
     @pytest.mark.parametrize(
-        "image_size,extract_levels,control_points",
-        [((64, 65, 66), [1, 2, 3, 4], None), ((8, 8, 8), [1, 2, 3], (2, 2, 2))],
+        "image_size,extract_levels",
+        [((11, 12, 13), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_call(self, image_size, extract_levels, control_points):
+    def test_call(self, image_size, extract_levels):
         # initialising LocalNet instance
         network = loc.LocalNet(
             image_size=image_size,
@@ -158,7 +151,6 @@ class TestLocalNet:
             extract_levels=extract_levels,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
-            control_points=control_points,
         )
 
         # pass an input of all zeros
@@ -179,8 +171,8 @@ class TestUNet:
     """
 
     @pytest.mark.parametrize(
-        "image_size,depth,control_points",
-        [((32, 33, 34), 5, None), ((8, 8, 8), 3, (2, 2, 2))],
+        "image_size,depth",
+        [((11, 12, 13), 5), ((8, 8, 8), 3)],
     )
     @pytest.mark.parametrize("pooling", [True, False])
     @pytest.mark.parametrize("concat_skip", [True, False])
@@ -188,7 +180,6 @@ class TestUNet:
         self,
         image_size: tuple,
         depth: int,
-        control_points: tuple,
         pooling: bool,
         concat_skip: bool,
     ):
@@ -199,7 +190,6 @@ class TestUNet:
         :param pooling: for downsampling, use non-parameterized
                         pooling if true, otherwise use conv3d
         :param concat_skip: if concatenate skip or add it
-        :param control_points: specify the distance between control points (in voxels).
         """
         out_ch = 3
         network = u.UNet(
@@ -211,7 +201,6 @@ class TestUNet:
             out_activation="softmax",
             pooling=pooling,
             concat_skip=concat_skip,
-            control_points=control_points,
         )
         inputs = tf.ones(shape=(5, image_size[0], image_size[1], image_size[2], out_ch))
         output = network.call(inputs)
