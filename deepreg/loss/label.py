@@ -4,39 +4,12 @@ from typing import List, Optional
 
 import tensorflow as tf
 
-from deepreg.loss.util import NegativeLossMixin
+from deepreg.loss.util import NegativeLossMixin, cauchy_kernel1d
+from deepreg.loss.util import gaussian_kernel1d_sigma as gaussian_kernel1d
+from deepreg.loss.util import separable_filter
 from deepreg.registry import REGISTRY
 
 EPS = tf.keras.backend.epsilon()
-
-
-def gaussian_kernel1d(sigma: int) -> tf.Tensor:
-    """
-    Calculate a gaussian kernel.
-
-    :param sigma: number defining standard deviation for
-                  gaussian kernel.
-    :return: shape = (dim, ) or ()
-    """
-    assert sigma > 0
-    tail = int(sigma * 3)
-    k = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
-    k = k / tf.reduce_sum(k)
-    return k
-
-
-def cauchy_kernel1d(sigma: int) -> tf.Tensor:
-    """
-    Approximating cauchy kernel in 1d.
-
-    :param sigma: int, defining standard deviation of kernel.
-    :return: shape = (dim, ) or ()
-    """
-    assert sigma > 0
-    tail = int(sigma * 5)
-    k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
-    k = k / tf.reduce_sum(k)
-    return k
 
 
 class MultiScaleLoss(tf.keras.losses.Loss):
@@ -94,8 +67,12 @@ class MultiScaleLoss(tf.keras.losses.Loss):
             else:
                 losses.append(
                     self._call(
-                        y_true=separable_filter(y_true, kernel_fn(s)),
-                        y_pred=separable_filter(y_pred, kernel_fn(s)),
+                        y_true=separable_filter(
+                            tf.expand_dims(y_true, axis=4), kernel_fn(s)
+                        )[..., 0],
+                        y_pred=separable_filter(
+                            tf.expand_dims(y_pred, axis=4), kernel_fn(s)
+                        )[..., 0],
                     )
                 )
         loss = tf.add_n(losses)
@@ -325,45 +302,9 @@ class JaccardLoss(NegativeLossMixin, JaccardIndex):
     """Revert the sign of JaccardIndex."""
 
 
-def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:
-    """
-    Create a 3d separable filter.
-
-    Here `tf.nn.conv3d` accepts the `filters` argument of shape
-    (filter_depth, filter_height, filter_width, in_channels, out_channels),
-    where the first axis of `filters` is the depth not batch,
-    and the input to `tf.nn.conv3d` is of shape
-    (batch, in_depth, in_height, in_width, in_channels).
-
-    :param tensor: shape = (batch, dim1, dim2, dim3)
-    :param kernel: shape = (dim4,)
-    :return: shape = (batch, dim1, dim2, dim3)
-    """
-    strides = [1, 1, 1, 1, 1]
-    kernel = tf.cast(kernel, dtype=tensor.dtype)
-    tensor = tf.nn.conv3d(
-        tf.nn.conv3d(
-            tf.nn.conv3d(
-                tf.expand_dims(tensor, axis=4),
-                filters=tf.reshape(kernel, [-1, 1, 1, 1, 1]),
-                strides=strides,
-                padding="SAME",
-            ),
-            filters=tf.reshape(kernel, [1, -1, 1, 1, 1]),
-            strides=strides,
-            padding="SAME",
-        ),
-        filters=tf.reshape(kernel, [1, 1, -1, 1, 1]),
-        strides=strides,
-        padding="SAME",
-    )
-    return tensor[:, :, :, :, 0]
-
-
 def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     """
     Calculate the centroid of the mask.
-
     :param mask: shape = (batch, dim1, dim2, dim3)
     :param grid: shape = (dim1, dim2, dim3, 3)
     :return: shape = (batch, 3), batch of vectors denoting
@@ -387,7 +328,6 @@ def compute_centroid_distance(
 ) -> tf.Tensor:
     """
     Calculate the L2-distance between two tensors' centroids.
-
     :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
     :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
     :param grid: tensor, shape = (dim1, dim2, dim3, 3)
@@ -401,7 +341,6 @@ def compute_centroid_distance(
 def foreground_proportion(y: tf.Tensor) -> tf.Tensor:
     """
     Calculate the percentage of foreground vs background per 3d volume.
-
     :param y: shape = (batch, dim1, dim2, dim3), a 3D label tensor
     :return: shape = (batch,)
     """
