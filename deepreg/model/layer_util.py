@@ -444,7 +444,7 @@ def _deconv_output_padding(
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
+    :return: output_padding for Conv3DTranspose layer
     """
     if padding == "same":
         pad = kernel_size // 2
@@ -468,11 +468,12 @@ def deconv_output_padding(
     Calculate output padding for Conv3DTranspose in any dimension.
 
     :param input_shape: shape of Conv3DTranspose input tensor, without batch or channel
-    :param output_shape: shape of Conv3DTranspose output tensor, without batch or channel
+    :param output_shape: shape of Conv3DTranspose output tensor,
+        without batch or channel
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
+    :return: output_padding for Conv3DTranspose layer
     """
     if isinstance(input_shape, int):
         return _deconv_output_padding(

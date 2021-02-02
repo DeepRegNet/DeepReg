@@ -294,7 +294,7 @@ def test_1d_deconv_output_padding(
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
+    :param expected: expected output padding for Conv3DTranspose layer
     """
     got = layer_util._deconv_output_padding(
         input_shape, output_shape, kernel_size, stride, padding
@@ -329,7 +329,7 @@ def test_deconv_output_padding(
     :param kernel_size: kernel size of Conv3DTranspose layer
     :param stride: stride of Conv3DTranspose layer
     :param padding: padding of Conv3DTranspose layer
-    :return: output_padding
+    :param expected: expected output padding for Conv3DTranspose layer
     """
     got = layer_util.deconv_output_padding(
         input_shape, output_shape, kernel_size, stride, padding
