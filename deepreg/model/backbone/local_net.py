@@ -57,6 +57,7 @@ class LocalNet(Backbone):
         :param extract_levels: number of extraction levels.
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
+        :param use_additive_upsampling: whether use additive up-sampling.
         :param control_points: specify the distance between control points (in voxels).
         :param name: name of the backbone.
         :param kwargs: additional arguments.
