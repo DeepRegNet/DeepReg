@@ -188,11 +188,11 @@ class RegistrationModel(tf.keras.Model):
             )
             return
 
-        loss_list = self.config["loss"][name]
-        if not isinstance(loss_list, list):
-            loss_list = [loss_list]
+        loss_configs = self.config["loss"][name]
+        if not isinstance(loss_configs, list):
+            loss_configs = [loss_configs]
 
-        for loss_config in loss_list:
+        for loss_config in loss_configs:
 
             if "weight" not in loss_config:
                 # default loss weight 1
