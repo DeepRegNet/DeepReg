@@ -275,6 +275,15 @@ class DDFModel(RegistrationModel):
     and a DDF is calculated based on that.
     """
 
+    def _resize_interpolate(self, field, control_points):
+        resize = layer.ResizeCPTransform(control_points)
+        field = resize(field)
+
+        interpolate = layer.BSplines3DTransform(control_points, self.fixed_image_size)
+        field = interpolate(field)
+
+        return field
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         # build inputs
@@ -283,6 +292,7 @@ class DDFModel(RegistrationModel):
         fixed_image = self._inputs["fixed_image"]
 
         # build ddf
+        control_points = self.config["backbone"].pop("control_points", False)
         backbone_inputs = self.concat_images(moving_image, fixed_image)
         backbone = REGISTRY.build_backbone(
             config=self.config["backbone"],
@@ -301,6 +311,9 @@ class DDFModel(RegistrationModel):
         else:
             # (f_dim1, f_dim2, f_dim3, 3)
             ddf = backbone(inputs=backbone_inputs)
+            ddf = (
+                self._resize_interpolate(ddf, control_points) if control_points else ddf
+            )
             self._outputs = dict(ddf=ddf)
 
         # build outputs
@@ -398,6 +411,7 @@ class DVFModel(DDFModel):
         self._inputs = self.build_inputs()
         moving_image = self._inputs["moving_image"]
         fixed_image = self._inputs["fixed_image"]
+        control_points = self.config["backbone"].pop("control_points", False)
 
         # build ddf
         backbone_inputs = self.concat_images(moving_image, fixed_image)
@@ -411,6 +425,7 @@ class DVFModel(DDFModel):
             ),
         )
         dvf = backbone(inputs=backbone_inputs)
+        dvf = self._resize_interpolate(dvf, control_points) if control_points else dvf
         ddf = layer.IntDVF(fixed_image_size=self.fixed_image_size)(dvf)
 
         # build outputs

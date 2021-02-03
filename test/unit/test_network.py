@@ -22,9 +22,7 @@ backbone_args = {
     "unet": {"depth": 2},
 }
 config = {
-    "backbone": {
-        "num_channel_initial": 4,
-    },
+    "backbone": {"num_channel_initial": 4, "control_points": 2},
     "loss": {
         "image": {"name": "lncc", "weight": 0.1},
         "label": {
@@ -57,6 +55,8 @@ def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
     copied = deepcopy(config)
     copied["method"] = method
     copied["backbone"]["name"] = backbone
+    if method == "conditional":
+        copied["backbone"].pop("control_points", None)
     copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
     return REGISTRY.build_model(
         config=dict(
