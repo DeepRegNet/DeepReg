@@ -450,9 +450,10 @@ train:
       l1: false
 ```
 
-#### Multiple Losses
+#### Composite Loss
 
-Add multiple losses by putting all the fields in the same file.
+The loss function can be a composite of different loss categories by adding all fields
+in the same configuration file.
 
 ```yaml
 train:
@@ -468,6 +469,31 @@ train:
     label:
       weight: 1.0
       name: "dice"
+```
+
+Moreover, one may want to specify several loss functions for each category. In that
+case, a dashed line (-) indicates the specification of a new loss function under each
+field.
+
+E.G.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    image:
+      - name: "lncc"
+        weight: 0.5
+        kernel_size: 5
+      - name: "gmi"
+        weight: 0.5
+    label:
+      name: "dice"
+      weight: 0.5
 ```
 
 ### Optimizer - required
