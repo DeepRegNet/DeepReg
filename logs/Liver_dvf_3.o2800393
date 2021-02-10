@@ -1,0 +1,86 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+Enough GPUs available.
+Allocating card 1
+ernie.local
+Wed  3 Feb 10:55:25 GMT 2021
+2021-02-03 10:56:05.876914: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+WARNING:root:Log directory logs/test exists already.
+2021-02-03 10:57:09.824662: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcuda.so.1
+2021-02-03 10:57:09.874325: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:5e:00.0 name: GeForce RTX 2080 computeCapability: 7.5
+coreClock: 1.71GHz coreCount: 46 deviceMemorySize: 7.79GiB deviceMemoryBandwidth: 417.23GiB/s
+2021-02-03 10:57:09.874363: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-03 10:57:15.900667: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-03 10:57:21.638493: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-03 10:57:22.253948: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-03 10:57:23.170296: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-03 10:57:23.632667: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-03 10:57:25.968783: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-03 10:57:25.973844: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-03 10:57:26.008946: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-02-03 10:57:26.036035: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 3600000000 Hz
+2021-02-03 10:57:26.036899: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x446b880 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-02-03 10:57:26.036931: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-02-03 10:57:26.055754: W tensorflow/compiler/xla/service/platform_util.cc:210] unable to create StreamExecutor for CUDA:0: failed initializing StreamExecutor for CUDA device ordinal 0: Internal: failed call to cuDevicePrimaryCtxRetain: CUDA_ERROR_INVALID_DEVICE: invalid device ordinal
+2021-02-03 10:57:26.055965: I tensorflow/compiler/jit/xla_gpu_device.cc:161] Ignoring visible XLA_GPU_JIT device. Device number is 0, reason: Internal: no supported devices found for platform CUDA
+2021-02-03 10:57:26.079532: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:5e:00.0 name: GeForce RTX 2080 computeCapability: 7.5
+coreClock: 1.71GHz coreCount: 46 deviceMemorySize: 7.79GiB deviceMemoryBandwidth: 417.23GiB/s
+2021-02-03 10:57:26.079649: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-03 10:57:26.079717: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-03 10:57:26.079744: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-03 10:57:26.079768: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-03 10:57:26.079792: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-03 10:57:26.079828: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-03 10:57:26.079855: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-03 10:57:26.083662: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-03 10:57:26.083725: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+Traceback (most recent call last):
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/util/structure.py", line 93, in normalize_element
+    spec = type_spec_from_value(t, use_fallback=False)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/util/structure.py", line 466, in type_spec_from_value
+    (element, type(element).__name__))
+TypeError: Could not build a TypeSpec for 0 with type int
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/bryanko/venvs/deepreg/bin/deepreg_train", line 33, in <module>
+    sys.exit(load_entry_point('deepreg', 'console_scripts', 'deepreg_train')())
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 256, in main
+    max_epochs=args.max_epochs,
+  File "/home/bryanko/DeepReg/deepreg/train.py", line 124, in train
+    repeat=True,
+  File "/home/bryanko/DeepReg/deepreg/util.py", line 44, in build_dataset
+    training=training, repeat=repeat, **preprocess_config
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 100, in get_dataset_and_preprocess
+    dataset = self.get_dataset()
+  File "/home/bryanko/DeepReg/deepreg/dataset/loader/interface.py", line 269, in get_dataset
+    indices=self.num_indices,
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 910, in from_generator
+    id_dataset = Dataset.from_tensors(dummy)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 604, in from_tensors
+    return TensorDataset(tensors)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/ops/dataset_ops.py", line 2982, in __init__
+    element = structure.normalize_element(element)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/data/util/structure.py", line 98, in normalize_element
+    ops.convert_to_tensor(t, name="component_%d" % i))
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 1499, in convert_to_tensor
+    ret = conversion_func(value, dtype=dtype, name=name, as_ref=as_ref)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/tensor_conversion_registry.py", line 52, in _default_conversion_function
+    return constant_op.constant(value, dtype, name=name)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/constant_op.py", line 264, in constant
+    allow_broadcast=True)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/constant_op.py", line 275, in _constant_impl
+    return _constant_eager_impl(ctx, value, dtype, shape, verify_shape)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/constant_op.py", line 300, in _constant_eager_impl
+    t = convert_to_eager_tensor(value, ctx, dtype)
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/framework/constant_op.py", line 97, in convert_to_eager_tensor
+    ctx.ensure_initialized()
+  File "/home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/eager/context.py", line 539, in ensure_initialized
+    context_handle = pywrap_tfe.TFE_NewContext(opts)
+tensorflow.python.framework.errors_impl.InternalError: CUDA runtime implicit initialization on GPU:0 failed. Status: all CUDA-capable devices are busy or unavailable
+Wed  3 Feb 10:57:34 GMT 2021
+GPU Epilog Script v0.30
