@@ -1,12 +1,11 @@
 # coding=utf-8
 
-from typing import List
+from typing import List, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
-import deepreg.model.layer_util
-from deepreg.model import layer
+from deepreg.model import layer, layer_util
 from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
@@ -89,65 +88,46 @@ class LocalNet(Backbone):
         tensor_shape = image_size
         self._tensor_shapes = [tensor_shape]
         for i in range(self._extract_max_level):
-            downsample_conv = tf.keras.Sequential(
-                [
-                    layer.Conv3dBlock(
-                        filters=num_channels[i],
-                        kernel_size=kernel_sizes[i],
-                        padding="same",
-                    ),
-                    layer.ResidualConv3dBlock(
-                        filters=num_channels[i],
-                        kernel_size=kernel_sizes[i],
-                        padding="same",
-                    ),
-                ]
+            downsample_conv = self.build_conv_block(
+                filters=num_channels[i], kernel_size=kernel_sizes[i], padding="same"
             )
-            downsample_pool = tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
+            downsample_pool = self.build_down_sampling_block(
+                kernel_size=2, strides=2, padding="same"
+            )
             tensor_shape = tuple((x + 1) // 2 for x in tensor_shape)
             self._downsample_convs.append(downsample_conv)
             self._downsample_pools.append(downsample_pool)
             self._tensor_shapes.append(tensor_shape)
 
-        self._conv3d_block = layer.Conv3dBlock(
+        self._bottom_block = self.build_bottom_block(
             filters=num_channels[-1], kernel_size=3, padding="same"
         )  # level E
 
         self._upsample_deconvs = []
-        self._resizes = []
         self._upsample_convs = []
         for level in range(
             self._extract_max_level - 1, self._extract_min_level - 1, -1
         ):  # level D to E-1
-            padding = deepreg.model.layer_util.deconv_output_padding(
+            padding = layer_util.deconv_output_padding(
                 input_shape=self._tensor_shapes[level + 1],
                 output_shape=self._tensor_shapes[level],
                 kernel_size=kernel_sizes[level],
                 stride=2,
                 padding="same",
             )
-            upsample_deconv = layer.Deconv3dBlock(
+            upsample_deconv = self.build_up_sampling_block(
                 filters=num_channels[level],
                 output_padding=padding,
                 kernel_size=3,
                 strides=2,
                 padding="same",
+                output_shape=self._tensor_shapes[level],
             )
-            upsample_conv = tf.keras.Sequential(
-                [
-                    layer.Conv3dBlock(
-                        filters=num_channels[level], kernel_size=3, padding="same"
-                    ),
-                    layer.ResidualConv3dBlock(
-                        filters=num_channels[level], kernel_size=3, padding="same"
-                    ),
-                ]
+            upsample_conv = self.build_conv_block(
+                filters=num_channels[level], kernel_size=3, padding="same"
             )
             self._upsample_deconvs.append(upsample_deconv)
             self._upsample_convs.append(upsample_conv)
-            if self._use_additive_upsampling:
-                resize = layer.Resize3d(shape=self._tensor_shapes[level])
-                self._resizes.append(resize)
         self._extract_layers = [
             tf.keras.Sequential(
                 [
@@ -165,6 +145,125 @@ class LocalNet(Backbone):
             for _ in self._extract_levels
         ]
 
+    def build_conv_block(
+        self, filters: int, kernel_size: int, padding: str
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a conv block for down-sampling or up-sampling.
+
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        :param filters: number of channels for output
+        :param kernel_size: arg for conv3d
+        :param padding: arg for conv3d
+        :return: a block consists of one or multiple layers
+        """
+        return tf.keras.Sequential(
+            [
+                layer.Conv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+                layer.ResidualConv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+            ]
+        )
+
+    def build_down_sampling_block(
+        self, kernel_size: int, padding: str, strides: int
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for down-sampling.
+
+        This block changes the tensor shape (width, height, depth),
+        but it does not changes the number of channels.
+
+        :param kernel_size: arg for pool3d
+        :param padding: arg for pool3d
+        :param strides: arg for pool3d
+        :return: a block consists of one or multiple layers
+        """
+        return tfkl.MaxPool3D(pool_size=kernel_size, strides=strides, padding=padding)
+
+    def build_bottom_block(
+        self, filters: int, kernel_size: int, padding: str
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for bottom layer.
+
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        :param filters: number of channels for output
+        :param kernel_size: arg for conv3d
+        :param padding: arg for conv3d
+        :return: a block consists of one or multiple layers
+        """
+        return layer.Conv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding=padding
+        )
+
+    def build_up_sampling_block(
+        self,
+        filters: int,
+        output_padding: int,
+        kernel_size: int,
+        padding: str,
+        strides: int,
+        output_shape: tuple,
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for up-sampling.
+
+        This block changes the tensor shape (width, height, depth),
+        but it does not changes the number of channels.
+
+        :param filters: number of channels for output
+        :param output_padding: padding for output
+        :param kernel_size: arg for deconv3d
+        :param padding: arg for deconv3d
+        :param strides: arg for deconv3d
+        :param output_shape: shape of the output tensor
+        :return: a block consists of one or multiple layers
+        """
+        deconv3d = layer.Deconv3dBlock(
+            filters=filters,
+            output_padding=output_padding,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+        )
+
+        if not self._use_additive_upsampling:
+            return deconv3d
+
+        up_sampler = tf.keras.Sequential(
+            [
+                layer.Resize3d(shape=output_shape),
+                tfkl.Lambda(lambda x: tf.split(x, num_or_size_splits=2, axis=4)),
+                tfkl.Lambda(lambda x: tf.add_n(x)),
+            ]
+        )
+        return tfkl.Lambda(lambda x: deconv3d(x) + up_sampler(x))
+
+    def build_skip_block(self) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for combining skipped tensor and up-sampled one.
+
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        The input to this block is a list of tensors.
+
+        :return: a block consists of one or multiple layers
+        """
+        return tfkl.Add()
+
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build LocalNet graph based on built layers.
@@ -178,37 +277,32 @@ class LocalNet(Backbone):
         # down sample from level 0 to E
         # outputs used for decoding, encoded[i] corresponds -> level i
         # stored only 0 to E-1
-        encoded = []
-        h_in = inputs
+        skips = []
+        down_sampled = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
-            skip = self._downsample_convs[level](inputs=h_in, training=training)
-            h_in = self._downsample_pools[level](inputs=skip, training=training)
-            encoded.append(skip)
-        h_bottom = self._conv3d_block(
-            inputs=h_in, training=training
+            skip = self._downsample_convs[level](inputs=down_sampled, training=training)
+            down_sampled = self._downsample_pools[level](inputs=skip, training=training)
+            skips.append(skip)
+        up_sampled = self._bottom_block(
+            inputs=down_sampled, training=training
         )  # level E of encoding/decoding
 
         # up sample from level E to D
-        decoded = [h_bottom]  # level E
+        outs = [up_sampled]  # level E
         for idx, level in enumerate(
             range(self._extract_max_level - 1, self._extract_min_level - 1, -1)
         ):  # level E-1 to D
-            h = self._upsample_deconvs[idx](inputs=h_bottom, training=training)
-            if self._use_additive_upsampling:
-                up_sampled = self._resizes[idx](inputs=h_bottom)
-                up_sampled = tf.split(up_sampled, num_or_size_splits=2, axis=4)
-                up_sampled = tf.add_n(up_sampled)
-                h = h + up_sampled
-            h = h + encoded[level]
-            h_bottom = self._upsample_convs[idx](inputs=h, training=training)
-            decoded.append(h_bottom)
+            up_sampled = self._upsample_deconvs[idx](
+                inputs=up_sampled, training=training
+            )
+            up_sampled = self.build_skip_block()([up_sampled, skips[level]])
+            up_sampled = self._upsample_convs[idx](inputs=up_sampled, training=training)
+            outs.append(up_sampled)
 
         # output
         output = tf.add_n(
             [
-                self._extract_layers[idx](
-                    inputs=decoded[self._extract_max_level - level]
-                )
+                self._extract_layers[idx](inputs=outs[self._extract_max_level - level])
                 for idx, level in enumerate(self._extract_levels)
             ]
         ) / len(self._extract_levels)
