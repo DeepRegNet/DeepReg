@@ -66,6 +66,10 @@ def parse_image_loss(loss_config: dict) -> dict:
         # no image loss
         return loss_config
 
+    if isinstance(loss_config["image"], list):
+        # config up-to-date
+        return loss_config
+
     image_loss_name = loss_config["image"]["name"]
 
     if image_loss_name not in loss_config["image"]:
@@ -90,6 +94,10 @@ def parse_label_loss(loss_config: dict) -> dict:
     """
     if "label" not in loss_config:
         # no label loss
+        return loss_config
+
+    if isinstance(loss_config["label"], list):
+        # config up-to-date
         return loss_config
 
     label_loss_name = loss_config["label"]["name"]
@@ -125,6 +133,10 @@ def parse_reg_loss(loss_config: dict) -> dict:
     """
     if "regularization" not in loss_config:
         # no regularization loss
+        return loss_config
+
+    if isinstance(loss_config["regularization"], list):
+        # config up-to-date
         return loss_config
 
     if "energy_type" not in loss_config["regularization"]:

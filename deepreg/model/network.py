@@ -62,6 +62,7 @@ class RegistrationModel(tf.keras.Model):
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
+
         self._model = self.build_model()
         self.build_loss()
 
@@ -176,6 +177,7 @@ class RegistrationModel(tf.keras.Model):
         :param name: name of loss
         :param inputs_dict: inputs for loss function
         """
+
         if name not in self.config["loss"]:
             # loss config is not defined
             logging.warning(
@@ -184,39 +186,47 @@ class RegistrationModel(tf.keras.Model):
             )
             return
 
-        loss_config = self.config["loss"][name]
+        loss_configs = self.config["loss"][name]
+        if not isinstance(loss_configs, list):
+            loss_configs = [loss_configs]
 
-        if "weight" not in loss_config:
-            # default loss weight 1
-            logging.warning(
-                f"The weight for loss {name} is not defined."
-                f"Default weight = 1.0 is used."
+        for loss_config in loss_configs:
+
+            if "weight" not in loss_config:
+                # default loss weight 1
+                logging.warning(
+                    f"The weight for loss {name} is not defined."
+                    f"Default weight = 1.0 is used."
+                )
+                loss_config["weight"] = 1.0
+
+            # build loss
+            weight = loss_config["weight"]
+
+            if weight == 0:
+                logging.warning(
+                    f"The weight for loss {name} is zero." f"Loss is not used."
+                )
+                return
+
+            loss_cls = REGISTRY.build_loss(
+                config=dict_without(d=loss_config, key="weight")
             )
-            loss_config["weight"] = 1.0
+            loss = loss_cls(**inputs_dict) / self.global_batch_size
+            weighted_loss = loss * weight
 
-        # build loss
-        weight = loss_config["weight"]
+            # add loss
+            self._model.add_loss(weighted_loss)
 
-        if weight == 0:
-            logging.warning(f"The weight for loss {name} is zero." f"Loss is not used.")
-            return
-
-        loss_cls = REGISTRY.build_loss(config=dict_without(d=loss_config, key="weight"))
-        loss = loss_cls(**inputs_dict) / self.global_batch_size
-        weighted_loss = loss * weight
-
-        # add loss
-        self._model.add_loss(weighted_loss)
-
-        # add metric
-        self._model.add_metric(
-            loss, name=f"loss/{name}_{loss_cls.name}", aggregation="mean"
-        )
-        self._model.add_metric(
-            weighted_loss,
-            name=f"loss/{name}_{loss_cls.name}_weighted",
-            aggregation="mean",
-        )
+            # add metric
+            self._model.add_metric(
+                loss, name=f"loss/{name}_{loss_cls.name}", aggregation="mean"
+            )
+            self._model.add_metric(
+                weighted_loss,
+                name=f"loss/{name}_{loss_cls.name}_weighted",
+                aggregation="mean",
+            )
 
     @abstractmethod
     def build_loss(self):
