@@ -10,6 +10,45 @@ from deepreg.model.backbone.interface import Backbone
 from deepreg.registry import REGISTRY
 
 
+class AdditiveUpsampling(tfkl.Layer):
+    def __init__(
+        self,
+        filters: int,
+        output_padding: int,
+        kernel_size: int,
+        padding: str,
+        strides: int,
+        output_shape: tuple,
+        name: str = "AdditiveUpsampling",
+    ):
+        """
+        Addictive up-sampling layer.
+
+        :param filters: number of channels for output
+        :param output_padding: padding for output
+        :param kernel_size: arg for deconv3d
+        :param padding: arg for deconv3d
+        :param strides: arg for deconv3d
+        :param output_shape: shape of the output tensor
+        :param name: name of the layer.
+        """
+        super().__init__(name=name)
+        self.deconv3d = layer.Deconv3dBlock(
+            filters=filters,
+            output_padding=output_padding,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+        )
+        self.resize = layer.Resize3d(shape=output_shape)
+
+    def call(self, inputs, **kwargs):
+        deconved = self.deconv3d(inputs)
+        resized = self.resize(inputs)
+        resized = tf.add_n(tf.split(resized, num_or_size_splits=2, axis=4))
+        return deconved + resized
+
+
 @REGISTRY.register_backbone(name="local")
 class LocalNet(Backbone):
     """
@@ -231,25 +270,24 @@ class LocalNet(Backbone):
         :param output_shape: shape of the output tensor
         :return: a block consists of one or multiple layers
         """
-        deconv3d = layer.Deconv3dBlock(
+
+        if self._use_additive_upsampling:
+            return AdditiveUpsampling(
+                filters=filters,
+                output_padding=output_padding,
+                kernel_size=kernel_size,
+                strides=strides,
+                padding=padding,
+                output_shape=output_shape,
+            )
+
+        return layer.Deconv3dBlock(
             filters=filters,
             output_padding=output_padding,
             kernel_size=kernel_size,
             strides=strides,
             padding=padding,
         )
-
-        if not self._use_additive_upsampling:
-            return deconv3d
-
-        up_sampler = tf.keras.Sequential(
-            [
-                layer.Resize3d(shape=output_shape),
-                tfkl.Lambda(lambda x: tf.split(x, num_or_size_splits=2, axis=4)),
-                tfkl.Lambda(lambda x: tf.add_n(x)),
-            ]
-        )
-        return tfkl.Lambda(lambda x: deconv3d(x) + up_sampler(x))
 
     def build_skip_block(self) -> Union[tf.keras.Model, tfkl.Layer]:
         """
