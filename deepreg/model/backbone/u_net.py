@@ -36,8 +36,8 @@ class UNet(Backbone):
         extract_levels: Tuple[int] = (0,),
         pooling: bool = True,
         concat_skip: bool = False,
-        downsample_kernel_sizes: Union[int, List[int]] = 3,
-        upsample_kernel_sizes: Union[int, List[int]] = 3,
+        encode_kernel_sizes: Union[int, List[int]] = 3,
+        decode_kernel_sizes: Union[int, List[int]] = 3,
         strides: int = 2,
         padding: str = "same",
         name: str = "Unet",
@@ -52,12 +52,12 @@ class UNet(Backbone):
         :param depth: input is at level 0, bottom is at level depth
         :param out_kernel_initializer: kernel initializer for the last layer
         :param out_activation: activation at the last layer
-        :param pooling: for downsampling, use non-parameterized
+        :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d
-        :param concat_skip: when upsampling, concatenate skipped
+        :param concat_skip: when up-sampling, concatenate skipped
                             tensor if true, otherwise use addition
-        :param downsample_kernel_sizes: kernel size for down-sampling
-        :param upsample_kernel_sizes: kernel size for up-sampling
+        :param encode_kernel_sizes: kernel size for down-sampling
+        :param decode_kernel_sizes: kernel size for up-sampling
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
         :param name: name of the backbone.
@@ -84,11 +84,11 @@ class UNet(Backbone):
 
         # init layers
         # all lists start with d = 0
-        self._downsample_convs = None
-        self._downsample_pools = None
+        self._encode_convs = None
+        self._encode_pools = None
         self._bottom_block = None
-        self._upsample_deconvs = None
-        self._upsample_convs = None
+        self._decode_deconvs = None
+        self._decode_convs = None
         self._output_block = None
 
         # build layers
@@ -97,8 +97,8 @@ class UNet(Backbone):
             num_channel_initial=num_channel_initial,
             depth=self._depth,
             extract_levels=extract_levels,
-            downsample_kernel_sizes=downsample_kernel_sizes,
-            upsample_kernel_sizes=upsample_kernel_sizes,
+            encode_kernel_sizes=encode_kernel_sizes,
+            decode_kernel_sizes=decode_kernel_sizes,
             strides=strides,
             padding=padding,
             out_kernel_initializer=out_kernel_initializer,
@@ -272,8 +272,8 @@ class UNet(Backbone):
         num_channel_initial: int,
         depth: int,
         extract_levels: Tuple[int],
-        downsample_kernel_sizes: Union[int, List[int]],
-        upsample_kernel_sizes: Union[int, List[int]],
+        encode_kernel_sizes: Union[int, List[int]],
+        decode_kernel_sizes: Union[int, List[int]],
         strides: int,
         padding: str,
         out_kernel_initializer: str,
@@ -287,8 +287,8 @@ class UNet(Backbone):
         :param num_channel_initial: number of initial channels.
         :param depth: network starts with d = 0, and the bottom has d = depth.
         :param extract_levels: from which depths the output will be built.
-        :param downsample_kernel_sizes: kernel size for down-sampling
-        :param upsample_kernel_sizes: kernel size for up-sampling
+        :param encode_kernel_sizes: kernel size for down-sampling
+        :param decode_kernel_sizes: kernel size for up-sampling
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
         :param out_kernel_initializer: initializer to use for kernels.
@@ -298,25 +298,25 @@ class UNet(Backbone):
         # init params
         min_extract_level = min(extract_levels)
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
-        if isinstance(downsample_kernel_sizes, int):
-            downsample_kernel_sizes = [downsample_kernel_sizes] * (depth + 1)
-        assert len(downsample_kernel_sizes) == depth + 1
-        if isinstance(upsample_kernel_sizes, int):
-            upsample_kernel_sizes = [upsample_kernel_sizes] * depth
-        assert len(upsample_kernel_sizes) == depth
+        if isinstance(encode_kernel_sizes, int):
+            encode_kernel_sizes = [encode_kernel_sizes] * (depth + 1)
+        assert len(encode_kernel_sizes) == depth + 1
+        if isinstance(decode_kernel_sizes, int):
+            decode_kernel_sizes = [decode_kernel_sizes] * depth
+        assert len(decode_kernel_sizes) == depth
 
-        # down-sampling
-        self._downsample_convs = []
-        self._downsample_pools = []
+        # encoding / down-sampling
+        self._encode_convs = []
+        self._encode_pools = []
         tensor_shape = image_size
         tensor_shapes = [tensor_shape]
         for d in range(depth):
-            downsample_conv = self.build_conv_block(
+            encode_conv = self.build_conv_block(
                 filters=num_channels[d],
-                kernel_size=downsample_kernel_sizes[d],
+                kernel_size=encode_kernel_sizes[d],
                 padding=padding,
             )
-            downsample_pool = self.build_down_sampling_block(
+            encode_pool = self.build_down_sampling_block(
                 filters=num_channels[d],
                 kernel_size=strides,
                 strides=strides,
@@ -332,22 +332,22 @@ class UNet(Backbone):
                 )
                 for x in tensor_shape
             )
-            self._downsample_convs.append(downsample_conv)
-            self._downsample_pools.append(downsample_pool)
+            self._encode_convs.append(encode_conv)
+            self._encode_pools.append(encode_pool)
             tensor_shapes.append(tensor_shape)
 
         # bottom layer
         self._bottom_block = self.build_bottom_block(
             filters=num_channels[depth],
-            kernel_size=downsample_kernel_sizes[depth],
+            kernel_size=encode_kernel_sizes[depth],
             padding=padding,
         )
 
-        # up-sampling
-        self._upsample_deconvs = []
-        self._upsample_convs = []
+        # decoding / up-sampling
+        self._decode_deconvs = []
+        self._decode_convs = []
         for d in range(depth - 1, min_extract_level - 1, -1):
-            kernel_size = upsample_kernel_sizes[d]
+            kernel_size = decode_kernel_sizes[d]
             output_padding = layer_util.deconv_output_padding(
                 input_shape=tensor_shapes[d + 1],
                 output_shape=tensor_shapes[d],
@@ -355,7 +355,7 @@ class UNet(Backbone):
                 stride=strides,
                 padding=padding,
             )
-            upsample_deconv = self.build_up_sampling_block(
+            decode_deconv = self.build_up_sampling_block(
                 filters=num_channels[d],
                 output_padding=output_padding,
                 kernel_size=kernel_size,
@@ -363,15 +363,15 @@ class UNet(Backbone):
                 padding=padding,
                 output_shape=tensor_shapes[d],
             )
-            upsample_conv = self.build_conv_block(
+            decode_conv = self.build_conv_block(
                 filters=num_channels[d], kernel_size=kernel_size, padding=padding
             )
-            self._upsample_deconvs = [upsample_deconv] + self._upsample_deconvs
-            self._upsample_convs = [upsample_conv] + self._upsample_convs
+            self._decode_deconvs = [decode_deconv] + self._decode_deconvs
+            self._decode_convs = [decode_conv] + self._decode_convs
         if min_extract_level > 0:
             # add Nones to make lists have length depth - 1
-            self._upsample_deconvs = [None] * min_extract_level + self._upsample_deconvs
-            self._upsample_convs = [None] * min_extract_level + self._upsample_convs
+            self._decode_deconvs = [None] * min_extract_level + self._decode_deconvs
+            self._decode_convs = [None] * min_extract_level + self._decode_convs
 
         # extraction
         self._output_block = self.build_output_block(
@@ -392,24 +392,24 @@ class UNet(Backbone):
         :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
         """
 
-        # down-sampling
+        # encoding / down-sampling
         skips = []
-        down_sampled = inputs
+        encoded = inputs
         for d in range(self._depth):
-            skip = self._downsample_convs[d](inputs=down_sampled, training=training)
-            down_sampled = self._downsample_pools[d](inputs=skip, training=training)
+            skip = self._encode_convs[d](inputs=encoded, training=training)
+            encoded = self._encode_pools[d](inputs=skip, training=training)
             skips.append(skip)
 
         # bottom
-        up_sampled = self._bottom_block(inputs=down_sampled, training=training)
+        decoded = self._bottom_block(inputs=encoded, training=training)
 
-        # up-sampling
-        outs = [up_sampled]
+        # decoding / up-sampling
+        outs = [decoded]
         for d in range(self._depth - 1, min(self._extract_levels) - 1, -1):
-            up_sampled = self._upsample_deconvs[d](inputs=up_sampled, training=training)
-            up_sampled = self.build_skip_block()([up_sampled, skips[d]])
-            up_sampled = self._upsample_convs[d](inputs=up_sampled, training=training)
-            outs.append(up_sampled)
+            decoded = self._decode_deconvs[d](inputs=decoded, training=training)
+            decoded = self.build_skip_block()([decoded, skips[d]])
+            decoded = self._decode_convs[d](inputs=decoded, training=training)
+            outs.append(decoded)
 
         # output
         output = self._output_block(outs)

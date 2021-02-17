@@ -72,7 +72,7 @@ class GlobalNet(Backbone):
             num_channel_initial * (2 ** level)
             for level in range(self._extract_max_level + 1)
         ]  # level 0 to E
-        self._downsample_convs = [
+        self._encode_convs = [
             tf.keras.Sequential(
                 [
                     layer.Conv3dBlock(
@@ -89,7 +89,7 @@ class GlobalNet(Backbone):
             )
             for i in range(self._extract_max_level)
         ]  # level 0 to E-1
-        self._downsample_pools = [
+        self._encode_pools = [
             tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
             for _ in range(self._extract_max_level)
         ]  # level 0 to E-1
@@ -117,8 +117,8 @@ class GlobalNet(Backbone):
         # down sample from level 0 to E
         h_in = inputs
         for level in range(self._extract_max_level):  # level 0 to E - 1
-            skip = self._downsample_convs[level](inputs=h_in, training=training)
-            h_in = self._downsample_pools[level](inputs=skip)
+            skip = self._encode_convs[level](inputs=h_in, training=training)
+            h_in = self._encode_pools[level](inputs=skip)
         h_out = self._conv3d_block(
             inputs=h_in, training=training
         )  # level E of encoding

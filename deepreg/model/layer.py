@@ -405,7 +405,7 @@ class IntDVF(tfkl.Layer):
 class ResizeCPTransform(tfkl.Layer):
     """
     Layer for getting the control points from the output of a image-to-image network.
-    It uses an anti-aliasing Gaussian filter before downsampling.
+    It uses an anti-aliasing Gaussian filter before down-sampling.
     """
 
     def __init__(self, control_point_spacing: (list, tuple, int), **kwargs):
@@ -449,7 +449,7 @@ class BSplines3DTransform(tfkl.Layer):
     """
      Layer for BSplines interpolation with precomputed cubic spline kernel_size.
      It assumes a full sized image from which:
-     1. it compute the contol points values by downsampling the initial image
+     1. it compute the contol points values by down-sampling the initial image
      2. performs the interpolation
      3. crops the image around the valid values.
 

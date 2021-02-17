@@ -100,9 +100,9 @@ class LocalNet(UNet):
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         :param use_additive_upsampling: whether use additive up-sampling.
-        :param pooling: for downsampling, use non-parameterized
+        :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d
-        :param concat_skip: when upsampling, concatenate skipped
+        :param concat_skip: when up-sampling, concatenate skipped
                             tensor if true, otherwise use addition
         :param name: name of the backbone.
         :param kwargs: additional arguments.
@@ -120,7 +120,7 @@ class LocalNet(UNet):
             out_channels=out_channels,
             pooling=pooling,
             concat_skip=concat_skip,
-            downsample_kernel_sizes=[7] + [3] * depth,
+            encode_kernel_sizes=[7] + [3] * depth,
             name=name,
             **kwargs,
         )

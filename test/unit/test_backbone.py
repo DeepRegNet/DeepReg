@@ -164,7 +164,7 @@ class TestUNet:
 
         :param image_size: (dim1, dim2, dim3), dims of input image.
         :param depth: input is at level 0, bottom is at level depth
-        :param pooling: for downsampling, use non-parameterized
+        :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d
         :param concat_skip: if concatenate skip or add it
         """
