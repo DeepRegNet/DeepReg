@@ -95,7 +95,7 @@ class UNet(Backbone):
         self.build_layers(
             image_size=image_size,
             num_channel_initial=num_channel_initial,
-            depth=self._depth,
+            depth=depth,
             extract_levels=extract_levels,
             encode_kernel_sizes=encode_kernel_sizes,
             decode_kernel_sizes=decode_kernel_sizes,
@@ -295,15 +295,52 @@ class UNet(Backbone):
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         """
+        tensor_shapes = self.build_encode_layers(
+            image_size=image_size,
+            num_channel_initial=num_channel_initial,
+            depth=depth,
+            encode_kernel_sizes=encode_kernel_sizes,
+            strides=strides,
+            padding=padding,
+        )
+        self.build_decode_layers(
+            tensor_shapes=tensor_shapes,
+            image_size=image_size,
+            num_channel_initial=num_channel_initial,
+            depth=depth,
+            extract_levels=extract_levels,
+            decode_kernel_sizes=decode_kernel_sizes,
+            strides=strides,
+            padding=padding,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            out_channels=out_channels,
+        )
+
+    def build_encode_layers(
+        self,
+        image_size: tuple,
+        num_channel_initial: int,
+        depth: int,
+        encode_kernel_sizes: Union[int, List[int]],
+        strides: int,
+        padding: str,
+    ):
+        """
+        Build layers for encoding.
+
+        :param image_size: (dim1, dim2, dim3).
+        :param num_channel_initial: number of initial channels.
+        :param depth: network starts with d = 0, and the bottom has d = depth.
+        :param encode_kernel_sizes: kernel size for down-sampling
+        :param strides: strides for down-sampling
+        :param padding: padding mode for all conv layers
+        """
         # init params
-        min_extract_level = min(extract_levels)
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
         if isinstance(encode_kernel_sizes, int):
             encode_kernel_sizes = [encode_kernel_sizes] * (depth + 1)
         assert len(encode_kernel_sizes) == depth + 1
-        if isinstance(decode_kernel_sizes, int):
-            decode_kernel_sizes = [decode_kernel_sizes] * depth
-        assert len(decode_kernel_sizes) == depth
 
         # encoding / down-sampling
         self._encode_convs = []
@@ -342,6 +379,42 @@ class UNet(Backbone):
             kernel_size=encode_kernel_sizes[depth],
             padding=padding,
         )
+        return tensor_shapes
+
+    def build_decode_layers(
+        self,
+        tensor_shapes: List[Tuple],
+        image_size: tuple,
+        num_channel_initial: int,
+        depth: int,
+        extract_levels: Tuple[int],
+        decode_kernel_sizes: Union[int, List[int]],
+        strides: int,
+        padding: str,
+        out_kernel_initializer: str,
+        out_activation: str,
+        out_channels: int,
+    ):
+        """
+        Build layers for decoding.
+
+        :param image_size: (dim1, dim2, dim3).
+        :param num_channel_initial: number of initial channels.
+        :param depth: network starts with d = 0, and the bottom has d = depth.
+        :param extract_levels: from which depths the output will be built.
+        :param decode_kernel_sizes: kernel size for up-sampling
+        :param strides: strides for down-sampling
+        :param padding: padding mode for all conv layers
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :param out_channels: number of channels for the extractions
+        """
+        # init params
+        min_extract_level = min(extract_levels)
+        num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
+        if isinstance(decode_kernel_sizes, int):
+            decode_kernel_sizes = [decode_kernel_sizes] * depth
+        assert len(decode_kernel_sizes) == depth
 
         # decoding / up-sampling
         self._decode_deconvs = []
