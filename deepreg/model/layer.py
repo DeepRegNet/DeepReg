@@ -1,5 +1,6 @@
 """This module defines custom layers."""
 import itertools
+from typing import List, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -561,3 +562,57 @@ class BSplines3DTransform(tfkl.Layer):
             index[1] : index[1] + self._output_shape[1],
             index[2] : index[2] + self._output_shape[2],
         ]
+
+
+class Extraction(tfkl.Layer):
+    def __init__(
+        self,
+        image_size: Tuple[int],
+        extract_levels: Tuple[int],
+        out_channels: int,
+        out_kernel_initializer: str,
+        out_activation: str,
+        name: str = "Extraction",
+    ):
+        """
+        :param image_size: such as (dim1, dim2, dim3)
+        :param extract_levels: number of extraction levels.
+        :param out_channels: number of channels for the extractions
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :param name: name of the layer
+        """
+        super().__init__(name=name)
+        self.extract_levels = extract_levels
+        self.max_level = max(extract_levels)
+        self.layers = [
+            tf.keras.Sequential(
+                [
+                    tfkl.Conv3D(
+                        filters=out_channels,
+                        kernel_size=3,
+                        strides=1,
+                        padding="same",
+                        kernel_initializer=out_kernel_initializer,
+                        activation=out_activation,
+                    ),
+                    Resize3d(shape=image_size),
+                ]
+            )
+            for _ in extract_levels
+        ]
+
+    def call(self, inputs: List[tf.Tensor], **kwargs) -> tf.Tensor:
+        """
+
+        :param inputs: a list of tensors
+        :param kwargs:
+        :return:
+        """
+        outputs = [
+            self.layers[idx](inputs=inputs[self.max_level - level])
+            for idx, level in enumerate(self.extract_levels)
+        ]
+        if len(self.extract_levels) == 1:
+            return outputs[0]
+        return tf.add_n(outputs) / len(self.extract_levels)

@@ -1,12 +1,13 @@
 # coding=utf-8
 
-from typing import List, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer
-from deepreg.model.backbone.u_net import AbstractUNet
+from deepreg.model.backbone.u_net import UNet
+from deepreg.model.layer import Extraction
 from deepreg.registry import REGISTRY
 
 
@@ -49,62 +50,8 @@ class AdditiveUpsampling(tfkl.Layer):
         return deconved + resized
 
 
-class Extraction(tfkl.Layer):
-    def __init__(
-        self,
-        image_size: Tuple[int],
-        extract_levels: List[int],
-        out_channels: int,
-        out_kernel_initializer: str,
-        out_activation: str,
-        name: str = "Extraction",
-    ):
-        """
-        :param image_size: such as (dim1, dim2, dim3)
-        :param extract_levels: number of extraction levels.
-        :param out_channels: number of channels for the extractions
-        :param out_kernel_initializer: initializer to use for kernels.
-        :param out_activation: activation to use at end layer.
-        :param name: name of the layer
-        """
-        super().__init__(name=name)
-        self.extract_levels = extract_levels
-        self.max_level = max(extract_levels)
-        self.layers = [
-            tf.keras.Sequential(
-                [
-                    tfkl.Conv3D(
-                        filters=out_channels,
-                        kernel_size=3,
-                        strides=1,
-                        padding="same",
-                        kernel_initializer=out_kernel_initializer,
-                        activation=out_activation,
-                    ),
-                    layer.Resize3d(shape=image_size),
-                ]
-            )
-            for _ in extract_levels
-        ]
-
-    def call(self, inputs: List[tf.Tensor], **kwargs) -> tf.Tensor:
-        """
-
-        :param inputs: a list of tensors
-        :param kwargs:
-        :return:
-        """
-
-        return tf.add_n(
-            [
-                self.layers[idx](inputs=inputs[self.max_level - level])
-                for idx, level in enumerate(self.extract_levels)
-            ]
-        ) / len(self.extract_levels)
-
-
 @REGISTRY.register_backbone(name="local")
-class LocalNet(AbstractUNet):
+class LocalNet(UNet):
     """
     Build LocalNet for image registration.
 
@@ -126,11 +73,14 @@ class LocalNet(AbstractUNet):
         self,
         image_size: tuple,
         num_channel_initial: int,
-        extract_levels: List[int],
+        extract_levels: Tuple[int],
         out_kernel_initializer: str,
         out_activation: str,
         out_channels: int,
+        depth: Optional[int] = None,
         use_additive_upsampling: bool = True,
+        pooling: bool = True,
+        concat_skip: bool = False,
         name: str = "LocalNet",
         **kwargs,
     ):
@@ -150,83 +100,30 @@ class LocalNet(AbstractUNet):
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         :param use_additive_upsampling: whether use additive up-sampling.
+        :param pooling: for downsampling, use non-parameterized
+                        pooling if true, otherwise use conv3d
+        :param concat_skip: when upsampling, concatenate skipped
+                            tensor if true, otherwise use addition
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
+        self._use_additive_upsampling = use_additive_upsampling
+        if depth is None:
+            depth = max(extract_levels)
         super().__init__(
             image_size=image_size,
             num_channel_initial=num_channel_initial,
-            depth=max(extract_levels),
+            depth=depth,
             extract_levels=extract_levels,
             out_kernel_initializer=out_kernel_initializer,
             out_activation=out_activation,
             out_channels=out_channels,
+            pooling=pooling,
+            concat_skip=concat_skip,
+            downsample_kernel_sizes=[7] + [3] * depth,
             name=name,
             **kwargs,
         )
-
-        # save extra parameters
-        self._use_additive_upsampling = use_additive_upsampling
-
-        # build layers
-        self.build_layers(
-            image_size=image_size,
-            num_channel_initial=num_channel_initial,
-            depth=self._depth,
-            extract_levels=self._extract_levels,
-            downsample_kernel_sizes=[7] + [3] * self._depth,
-            upsample_kernel_sizes=3,
-            strides=2,
-            padding="same",
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-            out_channels=out_channels,
-        )
-
-    def build_conv_block(
-        self, filters: int, kernel_size: int, padding: str
-    ) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a conv block for down-sampling or up-sampling.
-
-        This block do not change the tensor shape (width, height, depth),
-        it only changes the number of channels.
-
-        :param filters: number of channels for output
-        :param kernel_size: arg for conv3d
-        :param padding: arg for conv3d
-        :return: a block consists of one or multiple layers
-        """
-        return tf.keras.Sequential(
-            [
-                layer.Conv3dBlock(
-                    filters=filters,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                ),
-                layer.ResidualConv3dBlock(
-                    filters=filters,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                ),
-            ]
-        )
-
-    def build_down_sampling_block(
-        self, kernel_size: int, padding: str, strides: int
-    ) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a block for down-sampling.
-
-        This block changes the tensor shape (width, height, depth),
-        but it does not changes the number of channels.
-
-        :param kernel_size: arg for pool3d
-        :param padding: arg for pool3d
-        :param strides: arg for pool3d
-        :return: a block consists of one or multiple layers
-        """
-        return tfkl.MaxPool3D(pool_size=kernel_size, strides=strides, padding=padding)
 
     def build_bottom_block(
         self, filters: int, kernel_size: int, padding: str
@@ -288,23 +185,10 @@ class LocalNet(AbstractUNet):
             padding=padding,
         )
 
-    def build_skip_block(self) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a block for combining skipped tensor and up-sampled one.
-
-        This block do not change the tensor shape (width, height, depth),
-        it only changes the number of channels.
-
-        The input to this block is a list of tensors.
-
-        :return: a block consists of one or multiple layers
-        """
-        return tfkl.Add()
-
     def build_output_block(
         self,
         image_size: Tuple[int],
-        extract_levels: List[int],
+        extract_levels: Tuple[int],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,

@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import List
+from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -29,7 +29,7 @@ class GlobalNet(Backbone):
         image_size: tuple,
         out_channels: int,
         num_channel_initial: int,
-        extract_levels: List[int],
+        extract_levels: Tuple[int],
         out_kernel_initializer: str,
         out_activation: str,
         name: str = "GlobalNet",
