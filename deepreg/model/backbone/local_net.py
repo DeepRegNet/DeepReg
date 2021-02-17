@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
@@ -47,6 +47,60 @@ class AdditiveUpsampling(tfkl.Layer):
         resized = self.resize(inputs)
         resized = tf.add_n(tf.split(resized, num_or_size_splits=2, axis=4))
         return deconved + resized
+
+
+class Extraction(tfkl.Layer):
+    def __init__(
+        self,
+        image_size: Tuple[int],
+        extract_levels: List[int],
+        out_channels: int,
+        out_kernel_initializer: str,
+        out_activation: str,
+        name: str = "Extraction",
+    ):
+        """
+        :param image_size: such as (dim1, dim2, dim3)
+        :param extract_levels: number of extraction levels.
+        :param out_channels: number of channels for the extractions
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :param name: name of the layer
+        """
+        super().__init__(name=name)
+        self.extract_levels = extract_levels
+        self.max_level = max(extract_levels)
+        self.layers = [
+            tf.keras.Sequential(
+                [
+                    tfkl.Conv3D(
+                        filters=out_channels,
+                        kernel_size=3,
+                        strides=1,
+                        padding="same",
+                        kernel_initializer=out_kernel_initializer,
+                        activation=out_activation,
+                    ),
+                    layer.Resize3d(shape=image_size),
+                ]
+            )
+            for _ in extract_levels
+        ]
+
+    def call(self, inputs: List[tf.Tensor], **kwargs) -> tf.Tensor:
+        """
+
+        :param inputs: a list of tensors
+        :param kwargs:
+        :return:
+        """
+
+        return tf.add_n(
+            [
+                self.layers[idx](inputs=inputs[self.max_level - level])
+                for idx, level in enumerate(self.extract_levels)
+            ]
+        ) / len(self.extract_levels)
 
 
 @REGISTRY.register_backbone(name="local")
@@ -167,22 +221,13 @@ class LocalNet(Backbone):
             )
             self._upsample_deconvs.append(upsample_deconv)
             self._upsample_convs.append(upsample_conv)
-        self._extract_layers = [
-            tf.keras.Sequential(
-                [
-                    tfkl.Conv3D(
-                        filters=out_channels,
-                        kernel_size=3,
-                        strides=1,
-                        padding="same",
-                        kernel_initializer=out_kernel_initializer,
-                        activation=out_activation,
-                    ),
-                    layer.Resize3d(shape=image_size),
-                ]
-            )
-            for _ in self._extract_levels
-        ]
+        self._output = self.build_output_block(
+            image_size=image_size,
+            extract_levels=extract_levels,
+            out_channels=out_channels,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+        )
 
     def build_conv_block(
         self, filters: int, kernel_size: int, padding: str
@@ -302,6 +347,34 @@ class LocalNet(Backbone):
         """
         return tfkl.Add()
 
+    def build_output_block(
+        self,
+        image_size: Tuple[int],
+        extract_levels: List[int],
+        out_channels: int,
+        out_kernel_initializer: str,
+        out_activation: str,
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for output.
+
+        The input to this block is a list of tensors.
+
+        :param image_size: such as (dim1, dim2, dim3)
+        :param extract_levels: number of extraction levels.
+        :param out_channels: number of channels for the extractions
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :return: a block consists of one or multiple layers
+        """
+        return Extraction(
+            image_size=image_size,
+            extract_levels=extract_levels,
+            out_channels=out_channels,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+        )
+
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build LocalNet graph based on built layers.
@@ -338,11 +411,6 @@ class LocalNet(Backbone):
             outs.append(up_sampled)
 
         # output
-        output = tf.add_n(
-            [
-                self._extract_layers[idx](inputs=outs[self._extract_max_level - level])
-                for idx, level in enumerate(self._extract_levels)
-            ]
-        ) / len(self._extract_levels)
+        output = self._output(outs)
 
         return output

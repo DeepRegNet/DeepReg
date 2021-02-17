@@ -115,33 +115,6 @@ class TestLocalNet:
         "image_size,extract_levels",
         [((11, 12, 13), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_init(self, image_size, extract_levels):
-        network = loc.LocalNet(
-            image_size=image_size,
-            out_channels=3,
-            num_channel_initial=3,
-            extract_levels=extract_levels,
-            out_kernel_initializer="he_normal",
-            out_activation="softmax",
-        )
-
-        # asserting initialised var for extract_levels is the same - Pass
-        assert network._extract_levels == extract_levels
-        # asserting initialised var for extract_max_level is the same - Pass
-        assert network._extract_max_level == max(extract_levels)
-        # asserting initialised var for extract_min_level is the same - Pass
-        assert network._extract_min_level == min(extract_levels)
-
-        # assert number of downsample blocks is correct (== max level), Pass
-        assert len(network._downsample_convs) == max(extract_levels)
-
-        # assert number of upsample blocks is correct (== extract_levels), Pass
-        assert len(network._extract_layers) == len(extract_levels)
-
-    @pytest.mark.parametrize(
-        "image_size,extract_levels",
-        [((11, 12, 13), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
-    )
     def test_call(self, image_size, extract_levels):
         # initialising LocalNet instance
         network = loc.LocalNet(
