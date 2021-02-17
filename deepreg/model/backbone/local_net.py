@@ -4,6 +4,7 @@ from typing import List, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
+from tensorflow.python.keras.utils import conv_utils
 
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone.interface import Backbone
@@ -125,22 +126,23 @@ class LocalNet(Backbone):
     def __init__(
         self,
         image_size: tuple,
-        out_channels: int,
         num_channel_initial: int,
         extract_levels: List[int],
         out_kernel_initializer: str,
         out_activation: str,
+        out_channels: int,
         use_additive_upsampling: bool = True,
         name: str = "LocalNet",
         **kwargs,
     ):
         """
-        Image is encoded gradually, i from level 0 to E,
-        then it is decoded gradually, j from level E to D.
+        Init.
+
+        Image is encoded gradually, i from level 0 to D,
+        then it is decoded gradually, j from level D to 0.
         Some of the decoded levels are used for generating extractions.
 
-        So, extract_levels are between [0, E] with E = max(extract_levels),
-        and D = min(extract_levels).
+        So, extract_levels are between [0, D].
 
         :param image_size: such as (dim1, dim2, dim3)
         :param out_channels: number of channels for the extractions
@@ -165,63 +167,138 @@ class LocalNet(Backbone):
         # save parameters
         self._extract_levels = extract_levels
         self._use_additive_upsampling = use_additive_upsampling
-        self._extract_max_level = max(self._extract_levels)  # E
-        self._extract_min_level = min(self._extract_levels)  # D
+        self._depth = max(self._extract_levels)  # D
 
-        # init layer variables
-        num_channels = [
-            num_channel_initial * (2 ** level)
-            for level in range(self._extract_max_level + 1)
-        ]  # level 0 to E
-        kernel_sizes = [
-            7 if level == 0 else 3 for level in range(self._extract_max_level + 1)
-        ]
+        # init layers
+        # all lists start with d = 0
+        self._downsample_convs = None
+        self._downsample_pools = None
+        self._bottom_block = None
+        self._upsample_deconvs = None
+        self._upsample_convs = None
+        self._output_block = None
+
+        # build layers
+        self.build_layers(
+            image_size=image_size,
+            num_channel_initial=num_channel_initial,
+            depth=self._depth,
+            extract_levels=self._extract_levels,
+            downsample_kernel_sizes=[7] + [3] * self._depth,
+            upsample_kernel_sizes=3,
+            strides=2,
+            padding="same",
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+            out_channels=out_channels,
+        )
+
+    def build_layers(
+        self,
+        image_size: tuple,
+        num_channel_initial: int,
+        depth: int,
+        extract_levels: List[int],
+        downsample_kernel_sizes: Union[int, List[int]],
+        upsample_kernel_sizes: Union[int, List[int]],
+        strides: int,
+        padding: str,
+        out_kernel_initializer: str,
+        out_activation: str,
+        out_channels: int,
+    ):
+        """
+        Build layers that will be used in call.
+
+        :param image_size: (dim1, dim2, dim3).
+        :param num_channel_initial: number of initial channels.
+        :param depth: network starts with d = 0, and the bottom has d = depth.
+        :param extract_levels: from which depths the output will be built.
+        :param downsample_kernel_sizes: kernel size for down-sampling
+        :param upsample_kernel_sizes: kernel size for up-sampling
+        :param strides: strides for down-sampling
+        :param padding: padding mode for all conv layers
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :param out_channels: number of channels for the extractions
+        """
+        # init params
+        min_extract_level = min(extract_levels)
+        num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
+        if isinstance(downsample_kernel_sizes, int):
+            downsample_kernel_sizes = [downsample_kernel_sizes] * (depth + 1)
+        assert len(downsample_kernel_sizes) == depth + 1
+        if isinstance(upsample_kernel_sizes, int):
+            upsample_kernel_sizes = [upsample_kernel_sizes] * depth
+        assert len(upsample_kernel_sizes) == depth
+
+        # down-sampling
         self._downsample_convs = []
         self._downsample_pools = []
         tensor_shape = image_size
-        self._tensor_shapes = [tensor_shape]
-        for i in range(self._extract_max_level):
+        tensor_shapes = [tensor_shape]
+        for d in range(depth):
             downsample_conv = self.build_conv_block(
-                filters=num_channels[i], kernel_size=kernel_sizes[i], padding="same"
+                filters=num_channels[d],
+                kernel_size=downsample_kernel_sizes[d],
+                padding=padding,
             )
             downsample_pool = self.build_down_sampling_block(
-                kernel_size=2, strides=2, padding="same"
+                kernel_size=strides, strides=strides, padding=padding
             )
-            tensor_shape = tuple((x + 1) // 2 for x in tensor_shape)
+            tensor_shape = tuple(
+                conv_utils.conv_output_length(
+                    input_length=x,
+                    filter_size=strides,
+                    padding=padding,
+                    stride=strides,
+                    dilation=1,
+                )
+                for x in tensor_shape
+            )
             self._downsample_convs.append(downsample_conv)
             self._downsample_pools.append(downsample_pool)
-            self._tensor_shapes.append(tensor_shape)
+            tensor_shapes.append(tensor_shape)
 
+        # bottom layer
         self._bottom_block = self.build_bottom_block(
-            filters=num_channels[-1], kernel_size=3, padding="same"
-        )  # level E
+            filters=num_channels[depth],
+            kernel_size=downsample_kernel_sizes[depth],
+            padding=padding,
+        )
 
+        # up-sampling
         self._upsample_deconvs = []
         self._upsample_convs = []
-        for level in range(
-            self._extract_max_level - 1, self._extract_min_level - 1, -1
-        ):  # level D to E-1
-            padding = layer_util.deconv_output_padding(
-                input_shape=self._tensor_shapes[level + 1],
-                output_shape=self._tensor_shapes[level],
-                kernel_size=kernel_sizes[level],
-                stride=2,
-                padding="same",
+        for d in range(depth - 1, min_extract_level - 1, -1):
+            kernel_size = upsample_kernel_sizes[d]
+            output_padding = layer_util.deconv_output_padding(
+                input_shape=tensor_shapes[d + 1],
+                output_shape=tensor_shapes[d],
+                kernel_size=kernel_size,
+                stride=strides,
+                padding=padding,
             )
             upsample_deconv = self.build_up_sampling_block(
-                filters=num_channels[level],
-                output_padding=padding,
-                kernel_size=3,
-                strides=2,
-                padding="same",
-                output_shape=self._tensor_shapes[level],
+                filters=num_channels[d],
+                output_padding=output_padding,
+                kernel_size=kernel_size,
+                strides=strides,
+                padding=padding,
+                output_shape=tensor_shapes[d],
             )
             upsample_conv = self.build_conv_block(
-                filters=num_channels[level], kernel_size=3, padding="same"
+                filters=num_channels[d], kernel_size=kernel_size, padding=padding
             )
-            self._upsample_deconvs.append(upsample_deconv)
-            self._upsample_convs.append(upsample_conv)
-        self._output = self.build_output_block(
+            self._upsample_deconvs = [upsample_deconv] + self._upsample_deconvs
+            self._upsample_convs = [upsample_conv] + self._upsample_convs
+        if min_extract_level > 0:
+            # add Nones to make lists have length depth - 1
+            self._upsample_deconvs = [None] * min_extract_level + self._upsample_deconvs
+            self._upsample_convs = [None] * min_extract_level + self._upsample_convs
+
+        # extraction
+        self._output_block = self.build_output_block(
             image_size=image_size,
             extract_levels=extract_levels,
             out_channels=out_channels,
@@ -385,32 +462,26 @@ class LocalNet(Backbone):
         :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
         """
 
-        # down sample from level 0 to E
-        # outputs used for decoding, encoded[i] corresponds -> level i
-        # stored only 0 to E-1
+        # down-sampling
         skips = []
         down_sampled = inputs
-        for level in range(self._extract_max_level):  # level 0 to E - 1
-            skip = self._downsample_convs[level](inputs=down_sampled, training=training)
-            down_sampled = self._downsample_pools[level](inputs=skip, training=training)
+        for d in range(self._depth):
+            skip = self._downsample_convs[d](inputs=down_sampled, training=training)
+            down_sampled = self._downsample_pools[d](inputs=skip, training=training)
             skips.append(skip)
-        up_sampled = self._bottom_block(
-            inputs=down_sampled, training=training
-        )  # level E of encoding/decoding
 
-        # up sample from level E to D
-        outs = [up_sampled]  # level E
-        for idx, level in enumerate(
-            range(self._extract_max_level - 1, self._extract_min_level - 1, -1)
-        ):  # level E-1 to D
-            up_sampled = self._upsample_deconvs[idx](
-                inputs=up_sampled, training=training
-            )
-            up_sampled = self.build_skip_block()([up_sampled, skips[level]])
-            up_sampled = self._upsample_convs[idx](inputs=up_sampled, training=training)
+        # bottom
+        up_sampled = self._bottom_block(inputs=down_sampled, training=training)
+
+        # up-sampling
+        outs = [up_sampled]
+        for d in range(self._depth - 1, min(self._extract_levels) - 1, -1):
+            up_sampled = self._upsample_deconvs[d](inputs=up_sampled, training=training)
+            up_sampled = self.build_skip_block()([up_sampled, skips[d]])
+            up_sampled = self._upsample_convs[d](inputs=up_sampled, training=training)
             outs.append(up_sampled)
 
         # output
-        output = self._output(outs)
+        output = self._output_block(outs)
 
         return output

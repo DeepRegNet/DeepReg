@@ -111,11 +111,14 @@ class TestLocalNet:
     Test the backbone.local_net.LocalNet class
     """
 
+    @pytest.mark.parametrize("use_additive_upsampling", [True, False])
     @pytest.mark.parametrize(
         "image_size,extract_levels",
         [((11, 12, 13), [1, 2, 3]), ((8, 8, 8), [1, 2, 3])],
     )
-    def test_call(self, image_size, extract_levels):
+    def test_call(
+        self, image_size: tuple, extract_levels: list, use_additive_upsampling: bool
+    ):
         # initialising LocalNet instance
         network = loc.LocalNet(
             image_size=image_size,
@@ -124,6 +127,7 @@ class TestLocalNet:
             extract_levels=extract_levels,
             out_kernel_initializer="he_normal",
             out_activation="softmax",
+            use_additive_upsampling=use_additive_upsampling,
         )
 
         # pass an input of all zeros
@@ -149,7 +153,7 @@ class TestUNet:
     )
     @pytest.mark.parametrize("pooling", [True, False])
     @pytest.mark.parametrize("concat_skip", [True, False])
-    def test_call_unet(
+    def test_call(
         self,
         image_size: tuple,
         depth: int,
