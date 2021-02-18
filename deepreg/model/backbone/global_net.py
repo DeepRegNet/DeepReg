@@ -1,18 +1,41 @@
 # coding=utf-8
 
-from typing import Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
-from deepreg.model import layer, layer_util
-from deepreg.model.backbone.interface import Backbone
+from deepreg.model import layer_util
+from deepreg.model.backbone.local_net import LocalNet
 from deepreg.registry import REGISTRY
 
 
+class AffineHead(tfkl.Layer):
+    def __init__(
+        self,
+        image_size: tuple,
+        name: str = "AffineHead",
+    ):
+        super().__init__(name=name)
+        self.reference_grid = layer_util.get_reference_grid(image_size)
+        self.transform_initial = tf.constant_initializer(
+            value=list(np.eye(4, 3).reshape((-1)))
+        )
+        self._flatten = tfkl.Flatten()
+        self._dense = tfkl.Dense(units=12, bias_initializer=self.transform_initial)
+
+    def call(self, inputs, **kwargs):
+        theta = self._dense(self._flatten(inputs[0]))
+        theta = tf.reshape(theta, shape=(-1, 4, 3))
+        # warp the reference grid with affine parameters to output a ddf
+        grid_warped = layer_util.warp_grid(self.reference_grid, theta)
+        ddf = grid_warped - self.reference_grid
+        return ddf, theta
+
+
 @REGISTRY.register_backbone(name="global")
-class GlobalNet(Backbone):
+class GlobalNet(LocalNet):
     """
     Build GlobalNet for image registration.
 
@@ -32,6 +55,7 @@ class GlobalNet(Backbone):
         extract_levels: Tuple[int],
         out_kernel_initializer: str,
         out_activation: str,
+        depth: Optional[int] = None,
         name: str = "GlobalNet",
         **kwargs,
     ):
@@ -49,84 +73,31 @@ class GlobalNet(Backbone):
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
+        if depth is None:
+            depth = max(extract_levels)
         super().__init__(
             image_size=image_size,
-            out_channels=out_channels,
             num_channel_initial=num_channel_initial,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
+            depth=depth,
+            extract_levels=(depth,),
+            out_kernel_initializer="",
+            out_activation="",
+            out_channels=3,
             name=name,
             **kwargs,
         )
 
-        # save parameters
-        assert out_channels == 3
-        self._extract_levels = extract_levels
-        self._extract_max_level = max(self._extract_levels)  # E
-        self.reference_grid = layer_util.get_reference_grid(image_size)
-        self.transform_initial = tf.constant_initializer(
-            value=list(np.eye(4, 3).reshape((-1)))
-        )
-        # init layer variables
-        num_channels = [
-            num_channel_initial * (2 ** level)
-            for level in range(self._extract_max_level + 1)
-        ]  # level 0 to E
-        self._encode_convs = [
-            tf.keras.Sequential(
-                [
-                    layer.Conv3dBlock(
-                        filters=num_channels[i],
-                        kernel_size=7 if i == 0 else 3,
-                        padding="same",
-                    ),
-                    layer.ResidualConv3dBlock(
-                        filters=num_channels[i],
-                        kernel_size=7 if i == 0 else 3,
-                        padding="same",
-                    ),
-                ]
-            )
-            for i in range(self._extract_max_level)
-        ]  # level 0 to E-1
-        self._encode_pools = [
-            tfkl.MaxPool3D(pool_size=2, strides=2, padding="same")
-            for _ in range(self._extract_max_level)
-        ]  # level 0 to E-1
-        self._conv3d_block = layer.Conv3dBlock(
-            filters=num_channels[-1], kernel_size=3, padding="same"
-        )  # level E
-        self._flatten = tfkl.Flatten()
-        self._dense_layer = tfkl.Dense(
-            units=12, bias_initializer=self.transform_initial
-        )
-
-    def call(
-        self, inputs: tf.Tensor, training=None, mask=None
-    ) -> (tf.Tensor, tf.Tensor):
+    def build_output_block(
+        self, image_size: Tuple[int], **kwargs
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
-        Build GlobalNet graph based on built layers.
+        Build a block for output.
 
-        :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
-        :param training: None or bool.
-        :param mask: None or tf.Tensor.
-        :return:
-            ddf shape = (batch, dim1, dim2, dim3, 3)
-            theta shape = (batch, 4, 3)
+        The input to this block is a list of length 1.
+        The output has two tensors.
+
+        :param image_size: such as (dim1, dim2, dim3)
+        :param kwargs: unused args
+        :return: a block consists of one or multiple layers
         """
-        # down sample from level 0 to E
-        h_in = inputs
-        for level in range(self._extract_max_level):  # level 0 to E - 1
-            skip = self._encode_convs[level](inputs=h_in, training=training)
-            h_in = self._encode_pools[level](inputs=skip)
-        h_out = self._conv3d_block(
-            inputs=h_in, training=training
-        )  # level E of encoding
-
-        # predict affine parameters theta of shape = (batch, 4, 3)
-        theta = self._dense_layer(self._flatten(h_out))
-        theta = tf.reshape(theta, shape=(-1, 4, 3))
-        # warp the reference grid with affine parameters to output a ddf
-        grid_warped = layer_util.warp_grid(self.reference_grid, theta)
-        ddf = grid_warped - self.reference_grid
-        return ddf, theta
+        return AffineHead(image_size=image_size)

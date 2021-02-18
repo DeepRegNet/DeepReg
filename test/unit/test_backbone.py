@@ -13,7 +13,6 @@ import deepreg.model.backbone as backbone
 import deepreg.model.backbone.global_net as g
 import deepreg.model.backbone.local_net as loc
 import deepreg.model.backbone.u_net as u
-import deepreg.model.layer as layer
 
 
 def test_backbone_interface():
@@ -45,14 +44,9 @@ def test_init_global_net():
         out_activation="softmax",
     )
 
-    # asserting initialised var for extract_levels is the same - Pass
-    assert global_test._extract_levels == [1, 2, 3]
-    # asserting initialised var for extract_max_level is the same - Pass
-    assert global_test._extract_max_level == 3
-
     # self reference grid
     # assert global_test.reference_grid correct shape, Pass
-    assert global_test.reference_grid.shape == [1, 2, 3, 3]
+    assert global_test._output_block.reference_grid.shape == [1, 2, 3, 3]
     # assert correct reference grid returned, Pass
     expected_ref_grid = tf.convert_to_tensor(
         [
@@ -63,18 +57,17 @@ def test_init_global_net():
         ],
         dtype=tf.float32,
     )
-    assert is_equal_tf(global_test.reference_grid, expected_ref_grid)
+    assert is_equal_tf(global_test._output_block.reference_grid, expected_ref_grid)
 
     # assert correct initial transform is returned
     expected_transform_initial = tf.convert_to_tensor(
         [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
         dtype=tf.float32,
     )
-    global_transform_initial = tf.Variable(global_test.transform_initial(shape=[12]))
+    global_transform_initial = tf.Variable(
+        global_test._output_block.transform_initial(shape=[12])
+    )
     assert is_equal_tf(global_transform_initial, expected_transform_initial)
-
-    # assert conv3dBlock type is correct, Pass
-    assert isinstance(global_test._conv3d_block, layer.Conv3dBlock)
 
 
 def test_call_global_net():
