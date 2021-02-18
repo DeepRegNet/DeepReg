@@ -67,9 +67,10 @@ class GlobalNet(LocalNet):
         :param image_size: tuple, such as (dim1, dim2, dim3)
         :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
-        :param extract_levels: list, which levels from net to extract
+        :param extract_levels: list, which levels from net to extract.
         :param out_kernel_initializer: not used
         :param out_activation: not used
+        :param depth: depth of the encoder.
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """

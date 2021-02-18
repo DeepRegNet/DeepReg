@@ -99,6 +99,7 @@ class LocalNet(UNet):
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
+        :param depth: depth of the encoder.
         :param use_additive_upsampling: whether use additive up-sampling.
         :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d

@@ -47,11 +47,12 @@ class UNet(Backbone):
         Initialise UNet.
 
         :param image_size: (dim1, dim2, dim3), dims of input image.
-        :param out_channels: number of channels for the output
         :param num_channel_initial: number of initial channels
         :param depth: input is at level 0, bottom is at level depth
         :param out_kernel_initializer: kernel initializer for the last layer
         :param out_activation: activation at the last layer
+        :param out_channels: number of channels for the output
+        :param extract_levels: list, which levels from net to extract.
         :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d
         :param concat_skip: when up-sampling, concatenate skipped
@@ -325,7 +326,7 @@ class UNet(Backbone):
         encode_kernel_sizes: Union[int, List[int]],
         strides: int,
         padding: str,
-    ):
+    ) -> List[Tuple]:
         """
         Build layers for encoding.
 
@@ -335,6 +336,7 @@ class UNet(Backbone):
         :param encode_kernel_sizes: kernel size for down-sampling
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
+        :return: list of tensor shapes starting from d = 0
         """
         # init params
         num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
@@ -398,6 +400,7 @@ class UNet(Backbone):
         """
         Build layers for decoding.
 
+        :param tensor_shapes: shapes calculated in encoder
         :param image_size: (dim1, dim2, dim3).
         :param num_channel_initial: number of initial channels.
         :param depth: network starts with d = 0, and the bottom has d = depth.
