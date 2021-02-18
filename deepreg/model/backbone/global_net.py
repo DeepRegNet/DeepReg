@@ -50,11 +50,8 @@ class GlobalNet(LocalNet):
     def __init__(
         self,
         image_size: tuple,
-        out_channels: int,
         num_channel_initial: int,
-        extract_levels: Tuple[int],
-        out_kernel_initializer: str,
-        out_activation: str,
+        extract_levels: Optional[Tuple[int]] = None,
         depth: Optional[int] = None,
         name: str = "GlobalNet",
         **kwargs,
@@ -65,25 +62,20 @@ class GlobalNet(LocalNet):
         transformation.
 
         :param image_size: tuple, such as (dim1, dim2, dim3)
-        :param out_channels: int, number of channels for the output
         :param num_channel_initial: int, number of initial channels
-        :param extract_levels: list, which levels from net to extract.
-        :param out_kernel_initializer: not used
-        :param out_activation: not used
+        :param extract_levels: list, which levels from net to extract, deprecated.
         :param depth: depth of the encoder.
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
         if depth is None:
+            assert extract_levels is not None
             depth = max(extract_levels)
         super().__init__(
             image_size=image_size,
             num_channel_initial=num_channel_initial,
             depth=depth,
             extract_levels=(depth,),
-            out_kernel_initializer="",
-            out_activation="",
-            out_channels=3,
             name=name,
             **kwargs,
         )
