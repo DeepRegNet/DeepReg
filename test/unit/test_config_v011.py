@@ -39,12 +39,12 @@ class TestParseModel:
         "model": {
             "method": "dvf",
             "backbone": "global",
-            "global": {"num_channel_initial": 32},
+            "global": {"num_channel_initial": 32, "extract_levels": [0, 1, 2]},
         }
     }
     config_latest = {
         "method": "dvf",
-        "backbone": {"name": "global", "num_channel_initial": 32},
+        "backbone": {"name": "global", "num_channel_initial": 32, "depth": 2},
     }
 
     @pytest.mark.parametrize(
