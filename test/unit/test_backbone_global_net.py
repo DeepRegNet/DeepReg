@@ -8,7 +8,24 @@ from typing import Tuple
 import pytest
 import tensorflow as tf
 
-from deepreg.model.backbone.global_net import GlobalNet
+from deepreg.model.backbone.global_net import AffineHead, GlobalNet
+
+
+def test_affine_head():
+    """
+    Test AffineHead.
+    """
+    batch = 3
+    input_shape = (4, 5, 6)
+    config = dict(image_size=input_shape, name="TestAffineHead")
+    layer = AffineHead(**config)
+    inputs = tf.ones(shape=(batch, *input_shape, 2))
+    ddf, theta = layer.call(inputs)
+    assert ddf.shape == (batch, *input_shape, 3)
+    assert theta.shape == (batch, 4, 3)
+
+    got = layer.get_config()
+    assert got == {"trainable": True, "dtype": "float32", **config}
 
 
 class TestGlobalNet:

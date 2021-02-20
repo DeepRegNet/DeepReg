@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -17,6 +17,12 @@ class AffineHead(tfkl.Layer):
         image_size: tuple,
         name: str = "AffineHead",
     ):
+        """
+        Init.
+
+        :param image_size: such as (dim1, dim2, dim3)
+        :param name: name of the layer
+        """
         super().__init__(name=name)
         self.reference_grid = layer_util.get_reference_grid(image_size)
         self.transform_initial = tf.constant_initializer(
@@ -25,13 +31,32 @@ class AffineHead(tfkl.Layer):
         self._flatten = tfkl.Flatten()
         self._dense = tfkl.Dense(units=12, bias_initializer=self.transform_initial)
 
-    def call(self, inputs, **kwargs):
-        theta = self._dense(self._flatten(inputs[0]))
+    def call(
+        self, inputs: Union[tf.Tensor, List], **kwargs
+    ) -> Tuple[tf.Tensor, tf.Tensor]:
+        """
+
+        :param inputs: a tensor or a list of tensor with length 1
+        :param kwargs: additional args
+        :return: ddf and theta
+
+            - ddf has shape (batch, dim1, dim2, dim3, 3)
+            - theta has shape (batch, 4, 3)
+        """
+        if isinstance(inputs, list):
+            inputs = inputs[0]
+        theta = self._dense(self._flatten(inputs))
         theta = tf.reshape(theta, shape=(-1, 4, 3))
         # warp the reference grid with affine parameters to output a ddf
         grid_warped = layer_util.warp_grid(self.reference_grid, theta)
         ddf = grid_warped - self.reference_grid
         return ddf, theta
+
+    def get_config(self):
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(image_size=self.reference_grid.shape[:3])
+        return config
 
 
 @REGISTRY.register_backbone(name="global")

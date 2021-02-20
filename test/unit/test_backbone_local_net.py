@@ -19,17 +19,22 @@ def test_additive_up_sampling():
     filters = 4
     input_shape = (4, 5, 6)
     outputs_shape = tuple(x * 2 for x in input_shape)
-    layer = AdditiveUpsampling(
+    config = dict(
         filters=filters,
         output_padding=(1, 1, 1),
         kernel_size=3,
         padding="same",
         strides=2,
         output_shape=outputs_shape,
+        name="TestAdditiveUpsampling",
     )
+    layer = AdditiveUpsampling(**config)
     inputs = tf.ones(shape=(batch, *input_shape, filters * 2))
     output = layer.call(inputs)
     assert output.shape == (batch, *outputs_shape, filters)
+
+    got = layer.get_config()
+    assert got == {"trainable": True, "dtype": "float32", **config}
 
 
 class TestLocalNet:

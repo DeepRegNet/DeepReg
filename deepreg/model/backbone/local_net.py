@@ -49,6 +49,20 @@ class AdditiveUpsampling(tfkl.Layer):
         resized = tf.add_n(tf.split(resized, num_or_size_splits=2, axis=4))
         return deconved + resized
 
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        deconv_config = self.deconv3d.get_config()
+        config.update(
+            filters=deconv_config["filters"],
+            output_padding=deconv_config["output_padding"],
+            kernel_size=deconv_config["kernel_size"],
+            strides=deconv_config["strides"],
+            padding=deconv_config["padding"],
+        )
+        config.update(output_shape=self.resize._shape)
+        return config
+
 
 @REGISTRY.register_backbone(name="local")
 class LocalNet(UNet):
