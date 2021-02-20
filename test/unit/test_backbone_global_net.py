@@ -81,7 +81,6 @@ class TestGlobalNet:
             out_activation="softmax",
             pooling=False,
             concat_skip=False,
-            use_additive_upsampling=True,
             encode_kernel_sizes=[7, 3, 3],
             decode_kernel_sizes=3,
             strides=2,

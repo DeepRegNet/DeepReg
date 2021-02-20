@@ -7,7 +7,7 @@ import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer_util
-from deepreg.model.backbone.local_net import LocalNet
+from deepreg.model.backbone.u_net import UNet
 from deepreg.registry import REGISTRY
 
 
@@ -60,9 +60,12 @@ class AffineHead(tfkl.Layer):
 
 
 @REGISTRY.register_backbone(name="global")
-class GlobalNet(LocalNet):
+class GlobalNet(UNet):
     """
     Build GlobalNet for image registration.
+
+    GlobalNet is a special UNet where the decoder for up-sampling is skipped.
+    The network's outputs come from the bottom layer from the encoder directly.
 
     Reference:
 
