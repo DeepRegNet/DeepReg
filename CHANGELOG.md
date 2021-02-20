@@ -19,6 +19,8 @@ compatible with the updates.
 
 ### Changed
 
+- Uniformed local-net, global-net, u-net under a single u-net structure.
+- Simplified custom layer definitions.
 - Removed multiple unnecessary custom layers and use tf.keras.layers whenever possible.
 - Refactored BSplines interpolation independently of the backbone network and available
   only for DDF and DVF models.
