@@ -58,10 +58,6 @@ def parse_model(model_config: dict) -> dict:
         if "extract_levels" in backbone_config:
             extract_levels = backbone_config.pop("extract_levels")
             backbone_config["depth"] = max(extract_levels)
-    elif backbone_name == "local":
-        # local net use depth as well
-        if "depth" not in backbone_config:
-            backbone_config["depth"] = max(backbone_config["extract_levels"])
 
     model_config = {"method": model_config["method"], "backbone": backbone_config}
     return model_config
