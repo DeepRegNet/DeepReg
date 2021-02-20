@@ -100,6 +100,8 @@ class TestLocalNet:
             use_additive_upsampling=True,
             encode_kernel_sizes=[7, 3, 3],
             decode_kernel_sizes=3,
+            encode_num_channels=(2, 4, 8),
+            decode_num_channels=(2, 4, 8),
             strides=2,
             padding="same",
             name="Test",
