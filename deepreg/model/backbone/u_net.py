@@ -82,6 +82,10 @@ class UNet(Backbone):
         # save extra parameters
         self._concat_skip = concat_skip
         self._pooling = pooling
+        self._encode_kernel_sizes = encode_kernel_sizes
+        self._decode_kernel_sizes = decode_kernel_sizes
+        self._strides = strides
+        self._padding = padding
 
         # init layers
         # all lists start with d = 0
@@ -491,3 +495,18 @@ class UNet(Backbone):
         output = self._output_block(outs)
 
         return output
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(
+            depth=self._depth,
+            extract_levels=self._extract_levels,
+            pooling=self._pooling,
+            concat_skip=self._concat_skip,
+            encode_kernel_sizes=self._encode_kernel_sizes,
+            decode_kernel_sizes=self._decode_kernel_sizes,
+            strides=self._strides,
+            padding=self._padding,
+        )
+        return config

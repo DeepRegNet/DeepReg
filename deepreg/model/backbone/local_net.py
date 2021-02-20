@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
@@ -15,11 +15,11 @@ class AdditiveUpsampling(tfkl.Layer):
     def __init__(
         self,
         filters: int,
-        output_padding: int,
-        kernel_size: int,
+        output_padding: Union[int, Tuple, List],
+        kernel_size: Union[int, Tuple, List],
         padding: str,
-        strides: int,
-        output_shape: tuple,
+        strides: Union[int, Tuple, List],
+        output_shape: Tuple,
         name: str = "AdditiveUpsampling",
     ):
         """
@@ -100,7 +100,8 @@ class LocalNet(UNet):
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         :param depth: depth of the encoder.
-        :param use_additive_upsampling: whether use additive up-sampling.
+        :param use_additive_upsampling: whether use additive up-sampling layer
+            for decoding.
         :param pooling: for down-sampling, use non-parameterized
                         pooling if true, otherwise use conv3d
         :param concat_skip: when up-sampling, concatenate skipped
@@ -111,6 +112,7 @@ class LocalNet(UNet):
         self._use_additive_upsampling = use_additive_upsampling
         if depth is None:
             depth = max(extract_levels)
+        kwargs["encode_kernel_sizes"] = [7] + [3] * depth
         super().__init__(
             image_size=image_size,
             num_channel_initial=num_channel_initial,
@@ -121,7 +123,6 @@ class LocalNet(UNet):
             out_channels=out_channels,
             pooling=pooling,
             concat_skip=concat_skip,
-            encode_kernel_sizes=[7] + [3] * depth,
             name=name,
             **kwargs,
         )
@@ -213,3 +214,9 @@ class LocalNet(UNet):
             out_kernel_initializer=out_kernel_initializer,
             out_activation=out_activation,
         )
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(use_additive_upsampling=self._use_additive_upsampling)
+        return config

@@ -1,0 +1,76 @@
+# coding=utf-8
+
+"""
+Tests for deepreg/model/backbone/global_net.py
+"""
+from typing import Tuple
+
+import pytest
+import tensorflow as tf
+
+from deepreg.model.backbone.global_net import GlobalNet
+
+
+class TestGlobalNet:
+    """
+    Test the backbone.global_net.GlobalNet class
+    """
+
+    @pytest.mark.parametrize(
+        "image_size,extract_levels,depth",
+        [
+            ((11, 12, 13), (0, 1, 2, 4), 4),
+            ((11, 12, 13), None, 4),
+            ((11, 12, 13), (0, 1, 2, 4), None),
+            ((8, 8, 8), (0, 1, 2), 3),
+        ],
+    )
+    def test_call(
+        self,
+        image_size: tuple,
+        extract_levels: Tuple[int],
+        depth: int,
+    ):
+        """
+
+        :param image_size: (dim1, dim2, dim3), dims of input image.
+        :param extract_levels: from which depths the output will be built.
+        :param depth: input is at level 0, bottom is at level depth
+        """
+        batch_size = 5
+        out_ch = 3
+        network = GlobalNet(
+            image_size=image_size,
+            num_channel_initial=2,
+            extract_levels=extract_levels,
+            depth=depth,
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            out_channels=out_ch,
+        )
+        inputs = tf.ones(shape=(batch_size, *image_size, out_ch))
+        ddf, theta = network.call(inputs)
+        assert ddf.shape == inputs.shape
+        assert theta.shape == (batch_size, 4, 3)
+
+    def test_get_config(self):
+        config = dict(
+            image_size=(4, 5, 6),
+            out_channels=3,
+            num_channel_initial=2,
+            depth=2,
+            extract_levels=(2,),
+            out_kernel_initializer="he_normal",
+            out_activation="softmax",
+            pooling=False,
+            concat_skip=False,
+            use_additive_upsampling=True,
+            encode_kernel_sizes=[7, 3, 3],
+            decode_kernel_sizes=3,
+            strides=2,
+            padding="same",
+            name="Test",
+        )
+        network = GlobalNet(**config)
+        got = network.get_config()
+        assert got == config
