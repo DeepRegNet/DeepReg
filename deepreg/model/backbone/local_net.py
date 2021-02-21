@@ -114,6 +114,7 @@ class LocalNet(UNet):
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         :param depth: depth of the encoder.
+            If depth is not given, depth = max(extract_levels) will be used.
         :param use_additive_upsampling: whether use additive up-sampling layer
             for decoding.
         :param pooling: for down-sampling, use non-parameterized

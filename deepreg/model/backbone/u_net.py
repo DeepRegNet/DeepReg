@@ -48,7 +48,7 @@ class UNet(Backbone):
 
         :param image_size: (dim1, dim2, dim3), dims of input image.
         :param num_channel_initial: number of initial channels
-        :param depth: input is at level 0, bottom is at level depth
+        :param depth: input is at level 0, bottom is at level depth.
         :param out_kernel_initializer: kernel initializer for the last layer
         :param out_activation: activation at the last layer
         :param out_channels: number of channels for the output

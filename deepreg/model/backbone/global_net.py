@@ -92,12 +92,20 @@ class GlobalNet(UNet):
         :param image_size: tuple, such as (dim1, dim2, dim3)
         :param num_channel_initial: int, number of initial channels
         :param extract_levels: list, which levels from net to extract, deprecated.
-        :param depth: depth of the encoder.
+            If depth is not given, depth = max(extract_levels) will be used.
+        :param depth: depth of the encoder. If given, extract_levels is not used.
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
         if depth is None:
-            assert extract_levels is not None
+            if extract_levels is None:
+                raise ValueError(
+                    "GlobalNet requires `depth` or `extract_levels` "
+                    "to define the depth of encoder. "
+                    "If `depth` is not given, "
+                    "the maximum value of `extract_levels` will be used."
+                    "However the argument `extract_levels` is deprecated and will be removed in future release."
+                )
             depth = max(extract_levels)
         super().__init__(
             image_size=image_size,

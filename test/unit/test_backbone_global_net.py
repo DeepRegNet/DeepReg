@@ -70,6 +70,26 @@ class TestGlobalNet:
         assert ddf.shape == inputs.shape
         assert theta.shape == (batch_size, 4, 3)
 
+    def test_err(self):
+        with pytest.raises(ValueError) as err_info:
+            GlobalNet(
+                image_size=(4, 5, 6),
+                out_channels=3,
+                num_channel_initial=2,
+                depth=None,
+                extract_levels=None,
+                out_kernel_initializer="he_normal",
+                out_activation="softmax",
+                pooling=False,
+                concat_skip=False,
+                encode_kernel_sizes=[7, 3, 3],
+                decode_kernel_sizes=3,
+                strides=2,
+                padding="same",
+                name="Test",
+            )
+        assert "GlobalNet requires `depth` or `extract_levels`" in str(err_info.value)
+
     def test_get_config(self):
         config = dict(
             image_size=(4, 5, 6),
