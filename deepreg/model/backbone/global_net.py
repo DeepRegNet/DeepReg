@@ -104,7 +104,8 @@ class GlobalNet(UNet):
                     "to define the depth of encoder. "
                     "If `depth` is not given, "
                     "the maximum value of `extract_levels` will be used."
-                    "However the argument `extract_levels` is deprecated and will be removed in future release."
+                    "However the argument `extract_levels` is deprecated "
+                    "and will be removed in future release."
                 )
             depth = max(extract_levels)
         super().__init__(
