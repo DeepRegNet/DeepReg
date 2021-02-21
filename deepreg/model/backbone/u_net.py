@@ -121,11 +121,11 @@ class UNet(Backbone):
             out_channels=out_channels,
         )
 
-    def build_conv_block(
+    def build_encode_conv_block(
         self, filters: int, kernel_size: int, padding: str
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
-        Build a conv block for down-sampling or up-sampling.
+        Build a conv block for down-sampling
 
         This block do not change the tensor shape (width, height, depth),
         it only changes the number of channels.
@@ -252,6 +252,35 @@ class UNet(Backbone):
             return tfkl.Concatenate()
         else:
             return tfkl.Add()
+
+    def build_decode_conv_block(
+        self, filters: int, kernel_size: int, padding: str
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a conv block for up-sampling
+
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        :param filters: number of channels for output
+        :param kernel_size: arg for conv3d
+        :param padding: arg for conv3d
+        :return: a block consists of one or multiple layers
+        """
+        return tf.keras.Sequential(
+            [
+                layer.Conv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+                layer.ResidualConv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+            ]
+        )
 
     def build_output_block(
         self,
@@ -389,7 +418,7 @@ class UNet(Backbone):
         tensor_shape = image_size
         tensor_shapes = [tensor_shape]
         for d in range(depth):
-            encode_conv = self.build_conv_block(
+            encode_conv = self.build_encode_conv_block(
                 filters=num_channels[d],
                 kernel_size=encode_kernel_sizes[d],
                 padding=padding,
@@ -478,7 +507,7 @@ class UNet(Backbone):
                 padding=padding,
                 output_shape=tensor_shapes[d],
             )
-            decode_conv = self.build_conv_block(
+            decode_conv = self.build_decode_conv_block(
                 filters=num_channels[d], kernel_size=kernel_size, padding=padding
             )
             self._decode_deconvs = [decode_deconv] + self._decode_deconvs
