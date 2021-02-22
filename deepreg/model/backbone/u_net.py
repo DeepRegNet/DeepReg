@@ -346,7 +346,7 @@ class UNet(Backbone):
         :param out_channels: number of channels for the extractions
         """
         if encode_num_channels is None:
-            assert num_channel_initial > 1
+            assert num_channel_initial >= 1
             encode_num_channels = tuple(
                 num_channel_initial * (2 ** d) for d in range(depth + 1)
             )
