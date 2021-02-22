@@ -1,3 +1,4 @@
+"""Download and preprocess data."""
 import os
 import shutil
 import zipfile
@@ -79,15 +80,14 @@ os.remove(ZIP_PATH)
 print("Done. \n")
 
 # Download the pretrained models
-"""
-https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-unsup.zip
-https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-weakly.zip
-https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-comb.zip
-will be downloaded to, respectively,
-dataset/pretrained/unsup
-dataset/pretrained/weakly
-dataset/pretrained/comb
-"""
+# https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-unsup.zip
+# https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-weakly.zip
+# https://github.com/DeepRegNet/deepreg-model-zoo/raw/master/unpaired_ct_abdomen-comb.zip
+# will be downloaded to, respectively,
+# dataset/pretrained/unsup
+# dataset/pretrained/weakly
+# dataset/pretrained/comb
+
 MODEL_PATH = os.path.join(DATA_PATH, "pretrained")
 if os.path.exists(MODEL_PATH):
     shutil.rmtree(MODEL_PATH)

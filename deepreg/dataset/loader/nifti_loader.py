@@ -94,7 +94,7 @@ class NiftiFileLoader(FileLoader):
         data_index = group_struct[group_index][in_group_data_index]
         """
         # group_struct_dict[group_id] = list of data_index
-        group_struct_dict = dict()
+        group_struct_dict = {}
         for data_index, split in enumerate(self.data_path_splits):
             # we use (dir_path, group_path) as group_id
             group_id = split[:2]

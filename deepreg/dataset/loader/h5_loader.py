@@ -47,7 +47,7 @@ class H5FileLoader(FileLoader):
           - if not grouped, a split is (dir_path, data_key) such that
             data = h5_files[dir_path][data_key]
         """
-        h5_files = dict()
+        h5_files = {}
         data_path_splits = []
         for dir_path in self.dir_paths:
             h5_file_path = os.path.join(dir_path, self.name + ".h5")
@@ -86,7 +86,7 @@ class H5FileLoader(FileLoader):
         data_index = group_struct[group_index][in_group_data_index].
         """
         # group_struct_dict[group_id] = list of data_index
-        group_struct_dict = dict()
+        group_struct_dict = {}
         for data_index, split in enumerate(self.data_path_splits):
             group_id = split[:2]
             if group_id not in group_struct_dict.keys():

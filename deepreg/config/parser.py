@@ -37,7 +37,7 @@ def load_configs(config_path: (str, list)) -> dict:
         config_path = [config_path]
     # replace ~ with user home path
     config_path = list(map(os.path.expanduser, config_path))
-    config = dict()
+    config = {}
     for config_path_i in config_path:
         with open(config_path_i) as file:
             config_i = yaml.load(file, Loader=yaml.FullLoader)
