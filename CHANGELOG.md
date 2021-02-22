@@ -24,7 +24,7 @@ compatible with the updates.
 
 ### Fixed
 
-- tba
+- Broken link in README to seminar video.
 
 ## [0.1.2] - 2021-01-31
 
