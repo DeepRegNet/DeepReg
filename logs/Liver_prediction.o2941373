@@ -1,0 +1,53 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+Enough GPUs available.
+Allocating card 0
+gonzo-605-18.local
+Mon 22 Feb 15:03:59 GMT 2021
+2021-02-22 15:04:15.832260: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+WARNING:root:sample_label is not used in predict. It is True if and only if mode == 'train'.
+2021-02-22 15:04:41.999658: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcuda.so.1
+2021-02-22 15:04:42.055001: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: TITAN X (Pascal) computeCapability: 6.1
+coreClock: 1.531GHz coreCount: 28 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 447.48GiB/s
+2021-02-22 15:04:42.055051: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-22 15:04:42.222515: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-22 15:04:42.448978: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-22 15:04:42.529695: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-22 15:04:42.607515: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-22 15:04:42.708678: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-22 15:04:43.128512: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-22 15:04:43.131794: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-22 15:04:43.212514: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-02-22 15:04:43.680837: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 2095205000 Hz
+2021-02-22 15:04:43.683411: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x54d4ea0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-02-22 15:04:43.683449: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-02-22 15:04:44.303350: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5541440 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-02-22 15:04:44.303412: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): TITAN X (Pascal), Compute Capability 6.1
+2021-02-22 15:04:45.001447: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: TITAN X (Pascal) computeCapability: 6.1
+coreClock: 1.531GHz coreCount: 28 deviceMemorySize: 11.91GiB deviceMemoryBandwidth: 447.48GiB/s
+2021-02-22 15:04:45.001538: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-22 15:04:45.001629: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-22 15:04:45.001665: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-22 15:04:45.001691: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-22 15:04:45.001717: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-22 15:04:45.001743: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-22 15:04:45.001779: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-22 15:04:45.003588: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-22 15:04:45.067888: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-22 15:05:01.147476: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-02-22 15:05:01.147672: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263]      0 
+2021-02-22 15:05:01.147686: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1276] 0:   N 
+2021-02-22 15:05:01.151724: W tensorflow/core/common_runtime/gpu/gpu_bfc_allocator.cc:39] Overriding allow_growth setting because the TF_FORCE_GPU_ALLOW_GROWTH environment variable is set. Original config value was 0.
+2021-02-22 15:05:01.151832: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 11230 MB memory) -> physical GPU (device: 0, name: TITAN X (Pascal), pci bus id: 0000:02:00.0, compute capability: 6.1)
+2021-02-22 15:09:15.014056: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 776994816 exceeds 10% of free system memory.
+2021-02-22 15:09:15.906754: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 993001472 exceeds 10% of free system memory.
+2021-02-22 15:09:38.549908: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-22 15:09:58.502682: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-22 15:10:19.171327: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 282066944 exceeds 10% of free system memory.
+2021-02-22 15:12:24.979825: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 137363456 exceeds 10% of free system memory.
+2021-02-22 15:12:25.128447: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 993001472 exceeds 10% of free system memory.
+Mon 22 Feb 16:00:15 GMT 2021
+GPU Epilog Script v0.30
