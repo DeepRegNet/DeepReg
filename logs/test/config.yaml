@@ -11,7 +11,7 @@ dataset:
   labeled: false
   type: unpaired
 train:
-  epochs: 10
+  epochs: 1000
   loss:
     dissimilarity:
       image:
@@ -64,4 +64,4 @@ train:
   preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
-  save_period: 2
+  save_period: 10
