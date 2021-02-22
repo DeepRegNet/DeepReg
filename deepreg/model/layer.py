@@ -567,8 +567,8 @@ class BSplines3DTransform(tfkl.Layer):
 class Extraction(tfkl.Layer):
     def __init__(
         self,
-        image_size: Tuple[int],
-        extract_levels: Tuple[int],
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,

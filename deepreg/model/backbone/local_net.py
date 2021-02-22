@@ -87,7 +87,7 @@ class LocalNet(UNet):
         self,
         image_size: tuple,
         num_channel_initial: int,
-        extract_levels: Tuple[int],
+        extract_levels: Tuple[int, ...],
         out_kernel_initializer: str,
         out_activation: str,
         out_channels: int,
@@ -204,8 +204,8 @@ class LocalNet(UNet):
 
     def build_output_block(
         self,
-        image_size: Tuple[int],
-        extract_levels: Tuple[int],
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,

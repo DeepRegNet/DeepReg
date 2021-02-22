@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import tensorflow as tf
 
 
 def is_equal_np(
-    x: (np.ndarray, List), y: (np.ndarray, List), atol: float = 1.0e-7
+    x: Union[np.ndarray, List], y: Union[np.ndarray, List], atol: float = 1.0e-7
 ) -> bool:
     """
     Check if two numpy arrays are identical.
@@ -21,8 +21,8 @@ def is_equal_np(
 
 
 def is_equal_tf(
-    x: (tf.Tensor, np.ndarray, List),
-    y: (tf.Tensor, np.ndarray, List),
+    x: Union[tf.Tensor, np.ndarray, List],
+    y: Union[tf.Tensor, np.ndarray, List],
     atol: float = 1.0e-7,
 ) -> bool:
     """

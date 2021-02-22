@@ -284,8 +284,8 @@ class UNet(Backbone):
 
     def build_output_block(
         self,
-        image_size: Tuple[int],
-        extract_levels: Tuple[int],
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,
@@ -315,7 +315,7 @@ class UNet(Backbone):
         image_size: tuple,
         num_channel_initial: int,
         depth: int,
-        extract_levels: Tuple[int],
+        extract_levels: Tuple[int, ...],
         encode_kernel_sizes: Union[int, List[int]],
         decode_kernel_sizes: Union[int, List[int]],
         encode_num_channels: Optional[Tuple],
@@ -457,7 +457,7 @@ class UNet(Backbone):
         image_size: Tuple,
         num_channels: Tuple,
         depth: int,
-        extract_levels: Tuple[int],
+        extract_levels: Tuple[int, ...],
         decode_kernel_sizes: Union[int, List[int]],
         strides: int,
         padding: str,

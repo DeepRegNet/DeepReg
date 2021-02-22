@@ -79,7 +79,7 @@ class GlobalNet(UNet):
         self,
         image_size: tuple,
         num_channel_initial: int,
-        extract_levels: Optional[Tuple[int]] = None,
+        extract_levels: Optional[Tuple[int, ...]] = None,
         depth: Optional[int] = None,
         name: str = "GlobalNet",
         **kwargs,
@@ -118,7 +118,7 @@ class GlobalNet(UNet):
         )
 
     def build_output_block(
-        self, image_size: Tuple[int], **kwargs
+        self, image_size: Tuple[int, ...], **kwargs
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
         Build a block for output.
