@@ -5,18 +5,18 @@ dataset:
     valid: data/test/nifti/unpaired/test
   format: nifti
   image_shape:
-  - 16
-  - 16
-  - 16
+  - 128
+  - 128
+  - 128
   labeled: false
   type: unpaired
 train:
-  epochs: 1000
+  epochs: 10000
   loss:
     dissimilarity:
       image:
         name: lncc
-        weight: 0.1
+        weight: 1.0
       label:
         multi_scale:
           loss_scales:
@@ -26,7 +26,6 @@ train:
           - 4
           - 8
           - 16
-          - 32
           loss_type: dice
         name: multi_scale
         single_scale:
@@ -34,7 +33,7 @@ train:
         weight: 1.0
     regularization:
       energy_type: bending
-      weight: 0.5
+      weight: 1.0
   model:
     backbone: local
     local:
@@ -43,8 +42,7 @@ train:
       - 1
       - 2
       - 3
-      - 4
-      num_channel_initial: 1
+      num_channel_initial: 16
     method: dvf
     unet:
       concat_skip: false
@@ -64,4 +62,4 @@ train:
   preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
-  save_period: 10
+  save_period: 50
