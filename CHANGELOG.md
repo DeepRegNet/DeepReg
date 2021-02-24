@@ -29,6 +29,7 @@ compatible with the updates.
 
 - Fixed the residual module in local net architecture, compatible for previous
   checkpoints.
+- Broken link in README to seminar video.
 
 ## [0.1.2] - 2021-01-31
 
