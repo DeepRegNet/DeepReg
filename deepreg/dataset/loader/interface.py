@@ -499,9 +499,8 @@ class FileLoader:
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
-        if self.grouped:
-            # group_struct[group_index] = list of data_index
-            self.group_struct = None
+        # if grouped, group_struct[group_index] = list of data_index
+        self.group_struct = None
 
     def set_data_structure(self):
         """
