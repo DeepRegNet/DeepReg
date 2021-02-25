@@ -137,10 +137,10 @@ For more details please refer to
 
 ##### Paired
 
-- `moving_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2,
-  dim3) of the 3D moving image.
-- `fixed_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3)
-  of the 3D fixed image.
+- `moving_image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding
+  to (dim1, dim2, dim3) of the 3D moving image.
+- `fixed_image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding
+  to (dim1, dim2, dim3) of the 3D fixed image.
 
 ```yaml
 dataset:
@@ -158,8 +158,8 @@ dataset:
 
 ##### Unpaired
 
-- `image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3) of
-  the 3D image.
+- `image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding to
+  (dim1, dim2, dim3) of the 3D image.
 
 ```yaml
 dataset:
@@ -183,8 +183,8 @@ dataset:
 - `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
   group, so one epoch has num_groups pairs of data, if false, iterate through this
   loader will generate all possible pairs.
-- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
-  image.
+- `image_shape`: Union[Tuple[int, ...], List[int]] len 3, corresponding to (dim1, dim2,
+  dim3) of the 3D image.
 
 ```yaml
 dataset:

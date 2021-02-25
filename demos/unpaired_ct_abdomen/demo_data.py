@@ -24,7 +24,7 @@ filenames_indices = list(
     set([int(fn.split("/")[-1].split(".")[0]) for fn in filenames_all])
 )
 if len(filenames_indices) is not num_data:
-    raise ("Images and labels are not in pairs.")
+    raise ValueError("Images and labels are not in pairs.")
 
 print("\nAbdominal CT data downloaded with %d image-label pairs." % num_data)
 

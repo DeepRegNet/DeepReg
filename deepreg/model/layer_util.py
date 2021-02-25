@@ -8,7 +8,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def get_reference_grid(grid_size: Union[Tuple[int, int, int], List[int]]) -> tf.Tensor:
+def get_reference_grid(grid_size: Union[Tuple[int, ...], List[int]]) -> tf.Tensor:
     """
     Generate a 3D grid with given size.
 
@@ -369,7 +369,7 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     return grid_warped
 
 
-def gaussian_filter_3d(kernel_sigma: Union[Tuple[int, ...], List[int]]) -> tf.Tensor:
+def gaussian_filter_3d(kernel_sigma: Union[Tuple, List]) -> tf.Tensor:
     """
     Define a gaussian filter in 3d for smoothing.
 
@@ -381,7 +381,7 @@ def gaussian_filter_3d(kernel_sigma: Union[Tuple[int, ...], List[int]]) -> tf.Te
     :return: kernel: tf.Tensor specify a gaussian kernel of shape:
         [3*k for k in kernel_sigma]
     """
-    if isinstance(kernel_sigma, int):
+    if isinstance(kernel_sigma, (int, float)):
         kernel_sigma = (kernel_sigma, kernel_sigma, kernel_sigma)
 
     kernel_size = [
@@ -423,7 +423,7 @@ def gaussian_filter_3d(kernel_sigma: Union[Tuple[int, ...], List[int]]) -> tf.Te
     total_kernel[..., 1, 1] = kernel
     total_kernel[..., 2, 2] = kernel
 
-    return tf.Tensor(total_kernel, dtype=tf.float32)
+    return tf.convert_to_tensor(total_kernel, dtype=tf.float32)
 
 
 def _deconv_output_padding(

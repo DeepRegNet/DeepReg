@@ -163,11 +163,11 @@ class LocalNet(UNet):
     def build_up_sampling_block(
         self,
         filters: int,
-        output_padding: int,
-        kernel_size: int,
+        output_padding: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
         padding: str,
-        strides: int,
-        output_shape: tuple,
+        strides: Union[Tuple[int, ...], int],
+        output_shape: Tuple[int, ...],
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
         Build a block for up-sampling.

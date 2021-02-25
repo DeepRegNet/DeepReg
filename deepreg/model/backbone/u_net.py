@@ -28,7 +28,7 @@ class UNet(Backbone):
     def __init__(
         self,
         image_size: tuple,
-        num_channel_initial: Optional[int],
+        num_channel_initial: int,
         depth: int,
         out_kernel_initializer: str,
         out_activation: str,
@@ -97,11 +97,11 @@ class UNet(Backbone):
 
         # init layers
         # all lists start with d = 0
-        self._encode_convs = None
-        self._encode_pools = None
+        self._encode_convs: List[tfkl.Layer] = []
+        self._encode_pools: List[tfkl.Layer] = []
         self._bottom_block = None
-        self._decode_deconvs = None
-        self._decode_convs = None
+        self._decode_deconvs: List[tfkl.Layer] = []
+        self._decode_convs: List[tfkl.Layer] = []
         self._output_block = None
 
         # build layers
@@ -209,11 +209,11 @@ class UNet(Backbone):
     def build_up_sampling_block(
         self,
         filters: int,
-        output_padding: int,
-        kernel_size: int,
+        output_padding: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
         padding: str,
-        strides: int,
-        output_shape: tuple,
+        strides: Union[Tuple[int, ...], int],
+        output_shape: Tuple[int, ...],
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
         Build a block for up-sampling.
@@ -545,7 +545,7 @@ class UNet(Backbone):
             skips.append(skip)
 
         # bottom
-        decoded = self._bottom_block(inputs=encoded, training=training)
+        decoded = self._bottom_block(inputs=encoded, training=training)  # type: ignore
 
         # decoding / up-sampling
         outs = [decoded]
@@ -556,7 +556,7 @@ class UNet(Backbone):
             outs.append(decoded)
 
         # output
-        output = self._output_block(outs)
+        output = self._output_block(outs)  # type: ignore
 
         return output
 

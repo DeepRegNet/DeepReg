@@ -23,7 +23,7 @@ def get_h5_sorted_keys(filename: str) -> List[str]:
 
 def get_sorted_file_paths_in_dir_with_suffix(
     dir_path: str, suffix: Union[str, List[str]]
-) -> List[Tuple[str, str]]:
+) -> List[Tuple[str, ...]]:
     """
     Return the path of all files under the given directory.
 

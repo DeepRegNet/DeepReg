@@ -6,6 +6,7 @@ Module to train a network using init files and a CLI.
 
 import argparse
 import os
+from typing import Dict, List, Tuple, Union
 
 import tensorflow as tf
 
@@ -17,12 +18,12 @@ from deepreg.util import build_dataset, build_log_dir
 
 
 def build_config(
-    config_path: (str, list),
+    config_path: Union[str, List[str]],
     log_root: str,
     log_dir: str,
     ckpt_path: str,
     max_epochs: int = -1,
-) -> [dict, str]:
+) -> Tuple[Dict, str, str]:
     """
     Function to initialise log directories,
     assert that checkpointed model is the right
@@ -63,7 +64,7 @@ def build_config(
 
 def train(
     gpu: str,
-    config_path: (str, list),
+    config_path: Union[str, List[str]],
     gpu_allow_growth: bool,
     ckpt_path: str,
     log_dir: str = "",
@@ -121,7 +122,7 @@ def train(
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
-        model = REGISTRY.build_model(
+        model: tf.keras.Model = REGISTRY.build_model(
             config=dict(
                 name=config["train"]["method"],
                 moving_image_size=data_loader_train.moving_image_shape,

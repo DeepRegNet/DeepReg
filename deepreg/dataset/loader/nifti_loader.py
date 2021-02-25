@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple, Union
 
 import nibabel as nib
 import numpy as np
@@ -107,7 +107,7 @@ class NiftiFileLoader(FileLoader):
             group_struct.append(group_struct_dict[k])
         self.group_struct = group_struct
 
-    def get_data(self, index: (int, tuple)) -> np.ndarray:
+    def get_data(self, index: Union[int, Tuple[int, ...]]) -> np.ndarray:
         """
         Get one data array by specifying an index
 
@@ -127,7 +127,7 @@ class NiftiFileLoader(FileLoader):
             group_index, in_group_data_index = index
             assert 0 <= group_index
             assert 0 <= in_group_data_index
-            data_index = self.group_struct[group_index][in_group_data_index]
+            data_index = self.group_struct[group_index][in_group_data_index]  # type: ignore
         else:
             raise ValueError(
                 f"index for NiftiFileLoader.get_data must be int, "
@@ -139,7 +139,7 @@ class NiftiFileLoader(FileLoader):
         # else:
         #   path  = dir_path/name/group_path/file_name.suffix
         #   split = (dir_path, group_path, file_name, suffix)
-        path_splits = self.data_path_splits[data_index]
+        path_splits = self.data_path_splits[data_index]  # type: ignore
         path_splits, suffix = path_splits[:-1], path_splits[-1]
         path_splits = path_splits[:1] + (self.name,) + path_splits[1:]
         file_path = os.path.join(*path_splits) + "." + suffix
@@ -151,7 +151,7 @@ class NiftiFileLoader(FileLoader):
             arr = arr[:, :, :, 0]  # pragma: no cover
         return arr
 
-    def get_data_ids(self) -> List[str]:
+    def get_data_ids(self) -> List:
         """
         Return the unique IDs of the data in this data set
         this function is used to verify the consistency between
@@ -159,13 +159,13 @@ class NiftiFileLoader(FileLoader):
 
         :return: data_path_splits but without suffix
         """
-        return [x[:-1] for x in self.data_path_splits]
+        return [x[:-1] for x in self.data_path_splits]  # type: ignore
 
     def get_num_images(self) -> int:
         """
         :return: int, number of images in this data set
         """
-        return len(self.data_path_splits)
+        return len(self.data_path_splits)  # type: ignore
 
     def close(self):
         """Close opened files."""

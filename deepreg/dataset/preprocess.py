@@ -4,7 +4,7 @@ Module containing data augmentation techniques.
 """
 
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -21,8 +21,8 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         name: str = "RandomTransformation3D",
         trainable: bool = False,
@@ -44,7 +44,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         self.fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
 
     @abstractmethod
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Generates transformation parameters for moving and fixed image.
 
@@ -126,8 +126,8 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         scale: float = 0.1,
         name: str = "RandomAffineTransform3D",
@@ -158,7 +158,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
         config["scale"] = self.scale
         return config
 
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Function that generates the random 3D transformation parameters
         for a batch of data for moving and fixed image.
@@ -191,8 +191,8 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         field_strength: int = 1,
         low_res_size: tuple = (1, 1, 1),
@@ -238,20 +238,25 @@ class RandomDDFTransform3D(RandomTransformation3D):
         config["low_res_size"] = self.low_res_size
         return config
 
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Generates two random ddf fields for moving and fixed images.
 
         :return: tuple, one has shape = (batch, m_dim1, m_dim2, m_dim3, 3)
             another one has shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         """
-        kwargs = dict(
+        moving = gen_rand_ddf(
+            image_size=self.moving_image_size,
             batch_size=self.batch_size,
             field_strength=self.field_strength,
             low_res_size=self.low_res_size,
         )
-        moving = gen_rand_ddf(image_size=self.moving_image_size, **kwargs)
-        fixed = gen_rand_ddf(image_size=self.fixed_image_size, **kwargs)
+        fixed = gen_rand_ddf(
+            image_size=self.fixed_image_size,
+            batch_size=self.batch_size,
+            field_strength=self.field_strength,
+            low_res_size=self.low_res_size,
+        )
         return moving, fixed
 
     @staticmethod
@@ -270,7 +275,9 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
 
 def resize_inputs(
-    inputs: Dict[str, tf.Tensor], moving_image_size: tuple, fixed_image_size: tuple
+    inputs: Dict[str, tf.Tensor],
+    moving_image_size: Tuple[int, ...],
+    fixed_image_size: tuple,
 ) -> Dict[str, tf.Tensor]:
     """
     Resize inputs
@@ -285,8 +292,8 @@ def resize_inputs(
             moving_image, shape = (None, None, None)
             fixed_image, shape = (None, None, None)
             indices, shape = (num_indices, )
-    :param moving_image_size: tuple, (m_dim1, m_dim2, m_dim3)
-    :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
+    :param moving_image_size: Tuple[int, ...], (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: Tuple[int, ...], (f_dim1, f_dim2, f_dim3)
     :return:
         if labeled:
             moving_image, shape = (m_dim1, m_dim2, m_dim3)
@@ -327,7 +334,7 @@ def resize_inputs(
 
 
 def gen_rand_affine_transform(
-    batch_size: int, scale: float, seed: (int, None) = None
+    batch_size: int, scale: float, seed: Optional[int] = None
 ) -> tf.Tensor:
     """
     Function that generates a random 3D transformation parameters for a batch of data.
@@ -455,10 +462,10 @@ def gen_rand_affine_transform(
 
 def gen_rand_ddf(
     batch_size: int,
-    image_size: tuple,
-    field_strength: (tuple, list),
-    low_res_size: (tuple, list),
-    seed: (int, None) = None,
+    image_size: Tuple[int, ...],
+    field_strength: Union[Tuple, List, int, float],
+    low_res_size: Union[Tuple, List],
+    seed: Optional[int] = None,
 ) -> tf.Tensor:
     """
     Function that generates a random 3D DDF for a batch of data.

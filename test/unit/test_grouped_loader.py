@@ -3,6 +3,7 @@ Tests for deepreg/dataset/loader/grouped_loader.py in
 pytest style
 """
 from os.path import join
+from typing import List
 
 import numpy as np
 import pytest
@@ -16,7 +17,7 @@ DataPaths = dict(nifti="data/test/nifti/grouped", h5="data/test/h5/grouped")
 image_shape = (64, 64, 60)
 
 
-def sample_count(ni: list, direction: str) -> int:
+def sample_count(ni: List[int], direction: str) -> int:
     """
     Count number of samples.
 
@@ -24,11 +25,11 @@ def sample_count(ni: list, direction: str) -> int:
     :param direction: unconstrained/forward/backward
     :return: number of samples in total
     """
-    ni = np.array(ni)
+    arr = np.array(ni)
     if direction == "unconstrained":
-        sample_total = sum(ni * (ni - 1))
+        sample_total = np.sum(arr * (arr - 1))
     else:
-        sample_total = sum(ni * (ni - 1) / 2)
+        sample_total = np.sum(arr * (arr - 1) / 2)
     return int(sample_total)
 
 

@@ -168,7 +168,7 @@ class TestParseLabelLoss:
         }
 
         if name_loss == "multi_scale":
-            loss_config["label"]["weight"] = 2.0
+            loss_config["label"]["weight"] = 2.0  # type: ignore
 
         got = parse_label_loss(loss_config=loss_config)
         assert got == expected_config

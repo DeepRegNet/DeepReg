@@ -118,7 +118,12 @@ class GlobalNet(UNet):
         )
 
     def build_output_block(
-        self, image_size: Tuple[int, ...], **kwargs
+        self,
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
+        out_channels: int,
+        out_kernel_initializer: str,
+        out_activation: str,
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
         Build a block for output.
@@ -127,7 +132,10 @@ class GlobalNet(UNet):
         The output has two tensors.
 
         :param image_size: such as (dim1, dim2, dim3)
-        :param kwargs: unused args
+        :param extract_levels: not used
+        :param out_channels: not used
+        :param out_kernel_initializer: not used
+        :param out_activation: not used
         :return: a block consists of one or multiple layers
         """
         return AffineHead(image_size=image_size)

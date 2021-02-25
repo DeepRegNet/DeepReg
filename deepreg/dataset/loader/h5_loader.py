@@ -2,7 +2,7 @@
 Load h5 files and associated information.
 """
 import os
-from typing import List
+from typing import List, Tuple, Union
 
 import h5py
 import numpy as np
@@ -98,7 +98,7 @@ class H5FileLoader(FileLoader):
             group_struct.append(group_struct_dict[k])
         self.group_struct = group_struct
 
-    def get_data(self, index: (int, tuple)) -> np.ndarray:
+    def get_data(self, index: Union[int, Tuple[int, ...]]) -> np.ndarray:
         """
         Get one data array by specifying an index
 
@@ -109,6 +109,7 @@ class H5FileLoader(FileLoader):
             (group_index, in_group_data_index)
         :returns arr: the data array at the specified index
         """
+        assert self.data_path_splits is not None
         if isinstance(index, int):  # paired or unpaired
             assert not self.grouped
             assert 0 <= index
@@ -133,7 +134,7 @@ class H5FileLoader(FileLoader):
             arr = arr[:, :, :, 0]  # pragma: no cover
         return arr
 
-    def get_data_ids(self) -> List[str]:
+    def get_data_ids(self) -> List:
         """
         Get the unique IDs of data in this data set to
         verify consistency between
@@ -142,13 +143,13 @@ class H5FileLoader(FileLoader):
         :return: data_path_splits as the data can be identified
             using dir_path and data_key
         """
-        return self.data_path_splits
+        return self.data_path_splits  # type: ignore
 
     def get_num_images(self) -> int:
         """
         :return: int, number of images in this data set
         """
-        return len(self.data_path_splits)
+        return len(self.data_path_splits)  # type: ignore
 
     def close(self):
         """Close opened h5 file handles."""

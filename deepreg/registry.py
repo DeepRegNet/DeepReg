@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
@@ -115,7 +115,7 @@ class Registry:
 
     def build_from_config(
         self, category: str, config: dict, default_args: Optional[dict] = None
-    ) -> object:
+    ) -> Any:
         """
         Build a class instance from config dict.
 
@@ -169,7 +169,7 @@ class Registry:
         """
         return self.register(category=MODEL_CLASS, name=name, cls=cls, force=force)
 
-    def build_model(self, config: dict, default_args: Optional[dict] = None) -> object:
+    def build_model(self, config: dict, default_args: Optional[dict] = None) -> Any:
         """
         Instantiate a registered model class.
 
@@ -194,9 +194,7 @@ class Registry:
         """
         return self.register(category=BACKBONE_CLASS, name=name, cls=cls, force=force)
 
-    def build_backbone(
-        self, config: dict, default_args: Optional[dict] = None
-    ) -> object:
+    def build_backbone(self, config: dict, default_args: Optional[dict] = None) -> Any:
         """
         Instantiate a registered backbone class.
 
@@ -221,7 +219,7 @@ class Registry:
         """
         return self.register(category=LOSS_CLASS, name=name, cls=cls, force=force)
 
-    def build_loss(self, config: dict, default_args: Optional[dict] = None) -> object:
+    def build_loss(self, config: dict, default_args: Optional[dict] = None) -> Callable:
         """
         Instantiate a registered loss class.
 
@@ -250,7 +248,7 @@ class Registry:
 
     def build_data_loader(
         self, config: dict, default_args: Optional[dict] = None
-    ) -> object:
+    ) -> Any:
         """
         Instantiate a registered data loader class.
 
@@ -294,7 +292,7 @@ class Registry:
 
     def build_data_augmentation(
         self, config: dict, default_args: Optional[dict] = None
-    ) -> object:
+    ) -> Callable:
         """
         Instantiate a registered data augmentation class.
 
