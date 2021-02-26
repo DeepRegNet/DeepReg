@@ -5,9 +5,9 @@ dataset:
     valid: data/test/nifti/unpaired/test
   format: nifti
   image_shape:
-  - 128
-  - 128
-  - 128
+  - 64
+  - 64
+  - 64
   labeled: false
   type: unpaired
 train:

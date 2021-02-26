@@ -1,0 +1,82 @@
+GPU Prolog Script v0.30
+This is a GPU node.
+Enough GPUs available.
+Allocating card 0
+gonzo-605-13.local
+Fri 26 Feb 19:05:50 GMT 2021
+2021-02-26 19:06:00.969162: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+WARNING:root:Log directory logs/test exists already.
+2021-02-26 19:06:33.950272: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcuda.so.1
+2021-02-26 19:06:33.993798: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-02-26 19:06:33.993846: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-26 19:06:35.009465: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-26 19:06:35.665494: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-26 19:06:35.935262: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-26 19:06:35.991476: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-26 19:06:36.106273: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-26 19:06:36.227689: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-26 19:06:36.231211: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-26 19:06:36.241867: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-02-26 19:06:36.256764: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 2400220000 Hz
+2021-02-26 19:06:36.259086: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x4886780 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-02-26 19:06:36.259111: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-02-26 19:06:36.420094: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x4889420 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-02-26 19:06:36.420141: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): GeForce GTX 1080 Ti, Compute Capability 6.1
+2021-02-26 19:06:36.425875: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties: 
+pciBusID: 0000:02:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-02-26 19:06:36.425955: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-26 19:06:36.426004: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+2021-02-26 19:06:36.426021: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcufft.so.10
+2021-02-26 19:06:36.426038: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcurand.so.10
+2021-02-26 19:06:36.426054: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusolver.so.10
+2021-02-26 19:06:36.426069: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcusparse.so.10
+2021-02-26 19:06:36.426093: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-26 19:06:36.427881: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-02-26 19:06:36.427920: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudart.so.10.1
+2021-02-26 19:06:37.000680: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-02-26 19:06:37.000730: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263]      0 
+2021-02-26 19:06:37.000738: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1276] 0:   N 
+2021-02-26 19:06:37.002763: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10273 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:02:00.0, compute capability: 6.1)
+2021-02-26 19:06:38.795216: I tensorflow/core/profiler/lib/profiler_session.cc:164] Profiler session started.
+2021-02-26 19:06:38.795264: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1391] Profiler found 1 GPUs
+2021-02-26 19:06:38.795966: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcupti.so.10.1'; dlerror: libcupti.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:/share/apps/python-3.7.2-shared/lib:/opt/gridengine/lib/lx-amd64
+2021-02-26 19:06:38.798795: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcupti.so
+2021-02-26 19:06:39.133256: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1513] CUPTI activity buffer flushed
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:`period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+WARNING:tensorflow:Model failed to serialize as JSON. Ignoring... 
+2021-02-26 19:07:29.432073: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 866123776 exceeds 10% of free system memory.
+2021-02-26 19:07:30.498588: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:172] Filling up shuffle buffer (this may take a while): 1 of 2
+2021-02-26 19:07:33.104684: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:221] Shuffle buffer filled.
+2021-02-26 19:07:38.459568: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcudnn.so.7
+2021-02-26 19:07:44.771057: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library libcublas.so.10
+Epoch 1/10000
+ 1/32 [..............................] - ETA: 0s - loss: -0.2586 - loss/regularization: 0.0000e+00 - loss/weighted_regularization: 0.0000e+00 - loss/image_dissimilarity: -0.2586 - loss/weighted_image_dissimilarity: -0.25862021-02-26 19:07:46.855147: I tensorflow/core/profiler/lib/profiler_session.cc:164] Profiler session started.
+2021-02-26 19:11:00.651191: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 881852416 exceeds 10% of free system memory.
+WARNING:tensorflow:From /home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/summary_ops_v2.py:1277: stop (from tensorflow.python.eager.profiler) is deprecated and will be removed after 2020-07-01.
+Instructions for updating:
+use `tf.profiler.experimental.stop` instead.
+WARNING:tensorflow:From /home/bryanko/venvs/deepreg/lib/python3.7/site-packages/tensorflow/python/ops/summary_ops_v2.py:1277: stop (from tensorflow.python.eager.profiler) is deprecated and will be removed after 2020-07-01.
+Instructions for updating:
+use `tf.profiler.experimental.stop` instead.
+2021-02-26 19:11:03.712640: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1513] CUPTI activity buffer flushed
+2021-02-26 19:11:03.770628: I tensorflow/core/profiler/internal/gpu/device_tracer.cc:223]  GpuTracer has collected 6691 callback api events and 6691 activity events. 
+2021-02-26 19:11:04.099567: I tensorflow/core/profiler/rpc/client/save_profile.cc:176] Creating directory: logs/test/train/plugins/profile/2021_02_26_19_11_03
+2021-02-26 19:11:04.256801: I tensorflow/core/profiler/rpc/client/save_profile.cc:182] Dumped gzipped tool data for trace.json.gz to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.trace.json.gz
+2021-02-26 19:11:04.475268: I tensorflow/core/profiler/rpc/client/save_profile.cc:176] Creating directory: logs/test/train/plugins/profile/2021_02_26_19_11_03
+2021-02-26 19:11:04.486023: I tensorflow/core/profiler/rpc/client/save_profile.cc:182] Dumped gzipped tool data for memory_profile.json.gz to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.memory_profile.json.gz
+2021-02-26 19:11:04.532414: I tensorflow/python/profiler/internal/profiler_wrapper.cc:111] Creating directory: logs/test/train/plugins/profile/2021_02_26_19_11_03Dumped tool data for xplane.pb to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.xplane.pb
+Dumped tool data for overview_page.pb to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.overview_page.pb
+Dumped tool data for input_pipeline.pb to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.input_pipeline.pb
+Dumped tool data for tensorflow_stats.pb to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.tensorflow_stats.pb
+Dumped tool data for kernel_stats.pb to logs/test/train/plugins/profile/2021_02_26_19_11_03/gonzo-605-13.local.kernel_stats.pb
+
+ 2/32 [>.............................] - ETA: 49:25 - loss: -0.2536 - loss/regularization: 1.1015e-07 - loss/weighted_regularization: 1.1015e-07 - loss/image_dissimilarity: -0.2536 - loss/weighted_image_dissimilarity: -0.25362021-02-26 19:13:59.809593: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 792723456 exceeds 10% of free system memory.
+ 3/32 [=>............................] - ETA: 1:00:25 - loss: -0.2526 - loss/regularization: 3.4773e-07 - loss/weighted_regularization: 3.4773e-07 - loss/image_dissimilarity: -0.2526 - loss/weighted_image_dissimilarity: -0.2526 4/32 [==>...........................] - ETA: 53:22 - loss: -0.2398 - loss/regularization: 7.6815e-07 - loss/weighted_regularization: 7.6815e-07 - loss/image_dissimilarity: -0.2398 - loss/weighted_image_dissimilarity: -0.2398   5/32 [===>..........................] - ETA: 56:13 - loss: -0.2322 - loss/regularization: 1.2748e-06 - loss/weighted_regularization: 1.2748e-06 - loss/image_dissimilarity: -0.2322 - loss/weighted_image_dissimilarity: -0.23222021-02-26 19:19:46.987621: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 850395136 exceeds 10% of free system memory.
+2021-02-26 19:21:18.870200: W tensorflow/core/framework/cpu_allocator_impl.cc:81] Allocation of 952107008 exceeds 10% of free system memory.
+ 6/32 [====>.........................] - ETA: 58:48 - loss: -0.2294 - loss/regularization: 1.8313e-06 - loss/weighted_regularization: 1.8313e-06 - loss/image_dissimilarity: -0.2294 - loss/weighted_image_dissimilarity: -0.2294 7/32 [=====>........................] - ETA: 58:57 - loss: -0.2309 - loss/regularization: 2.4439e-06 - loss/weighted_regularization: 2.4439e-06 - loss/image_dissimilarity: -0.2309 - loss/weighted_image_dissimilarity: -0.2309 8/32 [======>.......................] - ETA: 1:05:27 - loss: -0.2335 - loss/regularization: 3.3368e-06 - loss/weighted_regularization: 3.3368e-06 - loss/image_dissimilarity: -0.2335 - loss/weighted_image_dissimilarity: -0.2335 9/32 [=======>......................] - ETA: 59:21 - loss: -0.2337 - loss/regularization: 4.3390e-06 - loss/weighted_regularization: 4.3390e-06 - loss/image_dissimilarity: -0.2337 - loss/weighted_image_dissimilarity: -0.2337  10/32 [========>.....................] - ETA: 57:55 - loss: -0.2387 - loss/regularization: 5.5481e-06 - loss/weighted_regularization: 5.5481e-06 - loss/image_dissimilarity: -0.2388 - loss/weighted_image_dissimilarity: -0.238811/32 [=========>....................] - ETA: 58:12 - loss: -0.2411 - loss/regularization: 6.7376e-06 - loss/weighted_regularization: 6.7376e-06 - loss/image_dissimilarity: -0.2411 - loss/weighted_image_dissimilarity: -0.241112/32 [==========>...................] - ETA: 52:22 - loss: -0.2440 - loss/regularization: 8.0735e-06 - loss/weighted_regularization: 8.0735e-06 - loss/image_dissimilarity: -0.2440 - loss/weighted_image_dissimilarity: -0.244013/32 [===========>..................] - ETA: 49:31 - loss: -0.2428 - loss/regularization: 9.5705e-06 - loss/weighted_regularization: 9.5705e-06 - loss/image_dissimilarity: -0.2428 - loss/weighted_image_dissimilarity: -0.2428
