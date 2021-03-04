@@ -3,6 +3,7 @@ channels:
   - defaults
 dependencies:
   - python=3.7
+  - python-graphviz=0.16
   - pip
   - pip:
       - -r file:requirements.txt

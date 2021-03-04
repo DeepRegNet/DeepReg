@@ -464,7 +464,7 @@ class UNet(Backbone):
 
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
-        Build LocalNet graph based on built layers.
+        Build compute graph based on built layers.
 
         :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
         :param training: None or bool.
