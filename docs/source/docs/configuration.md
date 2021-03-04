@@ -262,18 +262,16 @@ train:
     concat_skip: true
 ```
 
-#### Local and GlobalNet
+#### LocalNet
 
 The LocalNet has an encoder-decoder structure and extracts information from tensors at
 one or multiple resolution levels. We can define which levels to extract info from with
 the `extract_levels` argument.
 
-The GlobalNet encodes the image and uses the bottleneck layer to output an affine
-transformation using a CNN.
-
-- `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
-  be >=0). WARNING: this argument will be deprecated in a future release as it is not
-  used by the network.
+- `depth`: Depth of the encoder, `depth=2` means there are in total 3 layers where 0 is
+  the top layer and 2 is the bottom.
+- `extract_levels`: indices of layer from which the output will be extracted, the value
+  range is `[0, depth]` both side inclusive.
 
 ```yaml
 train:
@@ -281,7 +279,25 @@ train:
   backbone:
     name: "local" # One of unet, local, global
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 2
     extract_levels: [0, 1, 2]
+```
+
+#### GlobalNet
+
+The GlobalNet has a U-net like encoder to encode the image and uses the bottleneck layer
+to output an affine transformation using a CNN.
+
+- `depth`: Depth of the encoder, `depth=2` means there are in total 3 layers where 0 is
+  the top layer and 2 is the bottom.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "global" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 4
 ```
 
 ### Loss - required

@@ -10,6 +10,7 @@ import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
 import deepreg.util as util
+from deepreg.dataset.preprocess import gen_rand_affine_transform
 from deepreg.registry import REGISTRY
 
 # parser is used to simplify testing
@@ -58,7 +59,7 @@ fixed_image = (fixed_image - tf.reduce_min(fixed_image)) / (
 
 # generate a radomly-affine-transformed moving image
 fixed_image_size = fixed_image.shape
-transform_random = layer_util.gen_rand_affine_transform(batch_size=1, scale=0.2)
+transform_random = gen_rand_affine_transform(batch_size=1, scale=0.2)
 grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size[1:4])
 grid_random = layer_util.warp_grid(grid_ref, transform_random)
 moving_image = layer_util.resample(vol=fixed_image, loc=grid_random)

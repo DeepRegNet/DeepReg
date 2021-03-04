@@ -49,8 +49,16 @@ def parse_model(model_config: dict) -> dict:
         return model_config
 
     backbone_name = model_config["backbone"]
+
     # backbone_config is the backbone name
     backbone_config = {"name": backbone_name, **model_config[backbone_name]}
+
+    if backbone_name == "global":
+        # global net use depth instead of extract_levels
+        if "extract_levels" in backbone_config:
+            extract_levels = backbone_config.pop("extract_levels")
+            backbone_config["depth"] = max(extract_levels)
+
     model_config = {"method": model_config["method"], "backbone": backbone_config}
     return model_config
 

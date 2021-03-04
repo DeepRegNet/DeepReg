@@ -1,11 +1,12 @@
 import logging
+import os
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Dict, Optional
 
 import tensorflow as tf
 
-from deepreg.model import layer, layer_util
+from deepreg.model import layer
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
 
@@ -149,11 +150,11 @@ class RegistrationModel(tf.keras.Model):
         """
         images = []
 
+        resize_layer = layer.Resize3d(shape=self.fixed_image_size)
+
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         moving_image = tf.expand_dims(moving_image, axis=4)
-        moving_image = layer_util.resize3d(
-            image=moving_image, size=self.fixed_image_size
-        )
+        moving_image = resize_layer(moving_image)
         images.append(moving_image)
 
         # (batch, m_dim1, m_dim2, m_dim3, 1)
@@ -163,9 +164,7 @@ class RegistrationModel(tf.keras.Model):
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         if moving_label is not None:
             moving_label = tf.expand_dims(moving_label, axis=4)
-            moving_label = layer_util.resize3d(
-                image=moving_label, size=self.fixed_image_size
-            )
+            moving_label = resize_layer(moving_label)
             images.append(moving_label)
 
         # (batch, f_dim1, f_dim2, f_dim3, 2 or 3)
@@ -264,6 +263,22 @@ class RegistrationModel(tf.keras.Model):
             - on_label = True if the tensor depends on label
         """
 
+    def plot_model(self, output_dir: str):
+        """
+        Save model structure in png.
+
+        :param output_dir: path to the output dir.
+        """
+        print(self._model.summary())
+        tf.keras.utils.plot_model(
+            self._model,
+            to_file=os.path.join(output_dir, f"{self.name}.png"),
+            dpi=96,
+            show_shapes=True,
+            show_layer_names=True,
+            expand_nested=False,
+        )
+
 
 @REGISTRY.register_model(name="ddf")
 class DDFModel(RegistrationModel):
@@ -274,6 +289,8 @@ class DDFModel(RegistrationModel):
     the model predicts an affine transformation parameters,
     and a DDF is calculated based on that.
     """
+
+    name = "DDFModel"
 
     def _resize_interpolate(self, field, control_points):
         resize = layer.ResizeCPTransform(control_points)
@@ -405,6 +422,8 @@ class DVFModel(DDFModel):
     DDF is calculated based on DVF.
     """
 
+    name = "DVFModel"
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         # build inputs
@@ -470,6 +489,8 @@ class ConditionalModel(RegistrationModel):
     """
     A registration model predicts fixed image label without DDF or DVF.
     """
+
+    name = "ConditionalModel"
 
     def build_model(self):
         """Build the model to be saved as self._model."""
