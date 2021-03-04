@@ -1,4 +1,5 @@
 import logging
+import os
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Dict, Optional
@@ -262,6 +263,22 @@ class RegistrationModel(tf.keras.Model):
             - on_label = True if the tensor depends on label
         """
 
+    def plot_model(self, output_dir: str):
+        """
+        Save model structure in png.
+
+        :param output_dir: path to the output dir.
+        """
+        print(self._model.summary())
+        tf.keras.utils.plot_model(
+            self._model,
+            to_file=os.path.join(output_dir, f"{self.name}.png"),
+            dpi=96,
+            show_shapes=True,
+            show_layer_names=True,
+            expand_nested=False,
+        )
+
 
 @REGISTRY.register_model(name="ddf")
 class DDFModel(RegistrationModel):
@@ -272,6 +289,8 @@ class DDFModel(RegistrationModel):
     the model predicts an affine transformation parameters,
     and a DDF is calculated based on that.
     """
+
+    name = "DDFModel"
 
     def _resize_interpolate(self, field, control_points):
         resize = layer.ResizeCPTransform(control_points)
@@ -403,6 +422,8 @@ class DVFModel(DDFModel):
     DDF is calculated based on DVF.
     """
 
+    name = "DVFModel"
+
     def build_model(self):
         """Build the model to be saved as self._model."""
         # build inputs
@@ -468,6 +489,8 @@ class ConditionalModel(RegistrationModel):
     """
     A registration model predicts fixed image label without DDF or DVF.
     """
+
+    name = "ConditionalModel"
 
     def build_model(self):
         """Build the model to be saved as self._model."""

@@ -137,6 +137,7 @@ def train(
 
     # compile
     model.compile(optimizer=optimizer)
+    model.plot_model(output_dir=log_dir)
 
     # build callbacks
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
