@@ -610,6 +610,7 @@ class Extraction(tfkl.Layer):
 
     def call(self, inputs: List[tf.Tensor], **kwargs) -> tf.Tensor:
         """
+        Calculate the mean over some selected inputs.
 
         :param inputs: a list of tensors
         :param kwargs:
