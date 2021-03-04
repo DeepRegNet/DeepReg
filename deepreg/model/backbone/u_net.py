@@ -489,7 +489,7 @@ class UNet(Backbone):
             decoded = self._decode_deconvs[d](inputs=decoded, training=training)
             decoded = self.build_skip_block()([decoded, skips[d]])
             decoded = self._decode_convs[d](inputs=decoded, training=training)
-            outs.append(decoded)
+            outs = [decoded] + outs
 
         # output
         output = self._output_block(outs)
