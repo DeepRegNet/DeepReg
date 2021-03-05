@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
@@ -28,16 +28,18 @@ class UNet(Backbone):
     def __init__(
         self,
         image_size: tuple,
-        num_channel_initial: int,
+        num_channel_initial: Optional[int],
         depth: int,
         out_kernel_initializer: str,
         out_activation: str,
         out_channels: int,
-        extract_levels: Tuple[int] = (0,),
+        extract_levels: Tuple = (0,),
         pooling: bool = True,
         concat_skip: bool = False,
         encode_kernel_sizes: Union[int, List[int]] = 3,
         decode_kernel_sizes: Union[int, List[int]] = 3,
+        encode_num_channels: Optional[Tuple] = None,
+        decode_num_channels: Optional[Tuple] = None,
         strides: int = 2,
         padding: str = "same",
         name: str = "Unet",
@@ -59,6 +61,10 @@ class UNet(Backbone):
                             tensor if true, otherwise use addition
         :param encode_kernel_sizes: kernel size for down-sampling
         :param decode_kernel_sizes: kernel size for up-sampling
+        :param encode_num_channels: filters/channels for down-sampling,
+            by default it is doubled at each layer during down-sampling
+        :param decode_num_channels: filters/channels for up-sampling,
+            by default it is the same as encode_num_channels
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
         :param name: name of the backbone.
@@ -84,6 +90,8 @@ class UNet(Backbone):
         self._pooling = pooling
         self._encode_kernel_sizes = encode_kernel_sizes
         self._decode_kernel_sizes = decode_kernel_sizes
+        self._encode_num_channels = encode_num_channels
+        self._decode_num_channels = decode_num_channels
         self._strides = strides
         self._padding = padding
 
@@ -104,6 +112,8 @@ class UNet(Backbone):
             extract_levels=extract_levels,
             encode_kernel_sizes=encode_kernel_sizes,
             decode_kernel_sizes=decode_kernel_sizes,
+            encode_num_channels=encode_num_channels,
+            decode_num_channels=decode_num_channels,
             strides=strides,
             padding=padding,
             out_kernel_initializer=out_kernel_initializer,
@@ -111,11 +121,11 @@ class UNet(Backbone):
             out_channels=out_channels,
         )
 
-    def build_conv_block(
+    def build_encode_conv_block(
         self, filters: int, kernel_size: int, padding: str
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
-        Build a conv block for down-sampling or up-sampling.
+        Build a conv block for down-sampling
 
         This block do not change the tensor shape (width, height, depth),
         it only changes the number of channels.
@@ -243,6 +253,35 @@ class UNet(Backbone):
         else:
             return tfkl.Add()
 
+    def build_decode_conv_block(
+        self, filters: int, kernel_size: int, padding: str
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a conv block for up-sampling
+
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        :param filters: number of channels for output
+        :param kernel_size: arg for conv3d
+        :param padding: arg for conv3d
+        :return: a block consists of one or multiple layers
+        """
+        return tf.keras.Sequential(
+            [
+                layer.Conv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+                layer.ResidualConv3dBlock(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                ),
+            ]
+        )
+
     def build_output_block(
         self,
         image_size: Tuple[int],
@@ -279,6 +318,8 @@ class UNet(Backbone):
         extract_levels: Tuple[int],
         encode_kernel_sizes: Union[int, List[int]],
         decode_kernel_sizes: Union[int, List[int]],
+        encode_num_channels: Optional[Tuple],
+        decode_num_channels: Optional[Tuple],
         strides: int,
         padding: str,
         out_kernel_initializer: str,
@@ -294,15 +335,39 @@ class UNet(Backbone):
         :param extract_levels: from which depths the output will be built.
         :param encode_kernel_sizes: kernel size for down-sampling
         :param decode_kernel_sizes: kernel size for up-sampling
+        :param encode_num_channels: filters/channels for down-sampling,
+            by default it is doubled at each layer during down-sampling
+        :param decode_num_channels: filters/channels for up-sampling,
+            by default it is the same as encode_num_channels
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
         :param out_channels: number of channels for the extractions
         """
+        if encode_num_channels is None:
+            assert num_channel_initial >= 1
+            encode_num_channels = tuple(
+                num_channel_initial * (2 ** d) for d in range(depth + 1)
+            )
+        assert len(encode_num_channels) == depth + 1
+        if decode_num_channels is None:
+            decode_num_channels = encode_num_channels
+        assert len(decode_num_channels) == depth + 1
+        if not self._concat_skip:
+            # in case of adding skip tensors, the channels should match
+            if decode_num_channels != encode_num_channels:
+                raise ValueError(
+                    "For UNet, if the skipped tensor is added "
+                    "instead of being concatenated, "
+                    "the encode_num_channels and decode_num_channels "
+                    "should be the same. "
+                    f"But got encode_num_channels = {encode_num_channels},"
+                    f"decode_num_channels = {decode_num_channels}."
+                )
         tensor_shapes = self.build_encode_layers(
             image_size=image_size,
-            num_channel_initial=num_channel_initial,
+            num_channels=encode_num_channels,
             depth=depth,
             encode_kernel_sizes=encode_kernel_sizes,
             strides=strides,
@@ -311,7 +376,7 @@ class UNet(Backbone):
         self.build_decode_layers(
             tensor_shapes=tensor_shapes,
             image_size=image_size,
-            num_channel_initial=num_channel_initial,
+            num_channels=decode_num_channels,
             depth=depth,
             extract_levels=extract_levels,
             decode_kernel_sizes=decode_kernel_sizes,
@@ -324,8 +389,8 @@ class UNet(Backbone):
 
     def build_encode_layers(
         self,
-        image_size: tuple,
-        num_channel_initial: int,
+        image_size: Tuple,
+        num_channels: Tuple,
         depth: int,
         encode_kernel_sizes: Union[int, List[int]],
         strides: int,
@@ -335,15 +400,14 @@ class UNet(Backbone):
         Build layers for encoding.
 
         :param image_size: (dim1, dim2, dim3).
-        :param num_channel_initial: number of initial channels.
+        :param num_channels: number of channels for each layer,
+            starting from the top layer.
         :param depth: network starts with d = 0, and the bottom has d = depth.
         :param encode_kernel_sizes: kernel size for down-sampling
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
         :return: list of tensor shapes starting from d = 0
         """
-        # init params
-        num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
         if isinstance(encode_kernel_sizes, int):
             encode_kernel_sizes = [encode_kernel_sizes] * (depth + 1)
         assert len(encode_kernel_sizes) == depth + 1
@@ -354,7 +418,7 @@ class UNet(Backbone):
         tensor_shape = image_size
         tensor_shapes = [tensor_shape]
         for d in range(depth):
-            encode_conv = self.build_conv_block(
+            encode_conv = self.build_encode_conv_block(
                 filters=num_channels[d],
                 kernel_size=encode_kernel_sizes[d],
                 padding=padding,
@@ -390,8 +454,8 @@ class UNet(Backbone):
     def build_decode_layers(
         self,
         tensor_shapes: List[Tuple],
-        image_size: tuple,
-        num_channel_initial: int,
+        image_size: Tuple,
+        num_channels: Tuple,
         depth: int,
         extract_levels: Tuple[int],
         decode_kernel_sizes: Union[int, List[int]],
@@ -406,7 +470,8 @@ class UNet(Backbone):
 
         :param tensor_shapes: shapes calculated in encoder
         :param image_size: (dim1, dim2, dim3).
-        :param num_channel_initial: number of initial channels.
+        :param num_channels: number of channels for each layer,
+            starting from the top layer.
         :param depth: network starts with d = 0, and the bottom has d = depth.
         :param extract_levels: from which depths the output will be built.
         :param decode_kernel_sizes: kernel size for up-sampling
@@ -418,7 +483,6 @@ class UNet(Backbone):
         """
         # init params
         min_extract_level = min(extract_levels)
-        num_channels = [num_channel_initial * (2 ** d) for d in range(depth + 1)]
         if isinstance(decode_kernel_sizes, int):
             decode_kernel_sizes = [decode_kernel_sizes] * depth
         assert len(decode_kernel_sizes) == depth
@@ -443,7 +507,7 @@ class UNet(Backbone):
                 padding=padding,
                 output_shape=tensor_shapes[d],
             )
-            decode_conv = self.build_conv_block(
+            decode_conv = self.build_decode_conv_block(
                 filters=num_channels[d], kernel_size=kernel_size, padding=padding
             )
             self._decode_deconvs = [decode_deconv] + self._decode_deconvs
@@ -506,6 +570,8 @@ class UNet(Backbone):
             concat_skip=self._concat_skip,
             encode_kernel_sizes=self._encode_kernel_sizes,
             decode_kernel_sizes=self._decode_kernel_sizes,
+            encode_num_channels=self._encode_num_channels,
+            decode_num_channels=self._decode_num_channels,
             strides=self._strides,
             padding=self._padding,
         )
