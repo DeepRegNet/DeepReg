@@ -35,6 +35,7 @@ jobs:
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        if: matrix.os == "ubuntu-latest" && matrix.python-version == "3.7"
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
