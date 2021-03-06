@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 
-import deepreg.model.layer_util as layer_util
+from deepreg.model import layer_util
 
 LAYER_DICT = dict(conv3d=tfkl.Conv3D, deconv3d=tfkl.Conv3DTranspose)
 NORM_DICT = dict(batch=tfkl.BatchNormalization, layer=tfkl.LayerNormalization)
