@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         python-version: ["3.6", "3.7"]
 
     steps:
@@ -21,8 +21,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install graphviz
           python -m pip install --upgrade pip
-          pip install codecov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install codecov==2.1.11
+          pip install -e .
       - name: Linting
         # W9006 can't be checked like this as we need to ignore ValueError
         run: |

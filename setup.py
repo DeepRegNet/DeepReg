@@ -1,7 +1,17 @@
+import sys
+
 from setuptools import find_packages, setup
 
+# package requirements
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Python version >= 3.6 required.")
 with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
+if sys.version_info[:2] == (3, 6):
+    requirements.remove("pandas==1.2.3")
+    requirements.append("pandas==1.1.5")
+    requirements.remove("scipy==1.6.1")
+    requirements.append("scipy==1.5.4")
 
 with open("README.md", "r") as f:
     long_description = f.read()

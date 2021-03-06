@@ -8,10 +8,11 @@ on:
 
 jobs:
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7]
+        os: [ubuntu-latest]
+        python-version: ["3.6", "3.7"]
 
     steps:
       - uses: actions/checkout@v2
@@ -24,12 +25,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install graphviz
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -e .
       - name: Test examples
         run: |
-          pip install -e .
           pytest test/integration/test_examples.py
       - name: Test demos
         run: |
-          pip install -e .
           pytest test/integration/test_demos.py
