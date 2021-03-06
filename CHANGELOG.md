@@ -13,6 +13,8 @@ compatible with the updates.
 
 ### Added
 
+- Added tests on Mac OS.
+- Added tests for python 3.6 and 3.7.
 - Added support to custom layer channels in U-Net.
 - Added support to multiple loss functions for each loss type: "image", "label" and
   "regularization".
@@ -28,6 +30,7 @@ compatible with the updates.
 
 ### Fixed
 
+- Fixed import error under python 3.6.
 - Fixed the residual module in local net architecture, compatible for previous
   checkpoints.
 - Broken link in README to seminar video.
