@@ -1,14 +1,25 @@
 name: Unit Test
 
-on: [push, pull_request]
-
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   unit-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.6", "3.7"]
+        python-version: ["3.7", "3.6"]
+        exclude:
+          # excludes py3.6 on MacOS to save time/energy
+          - os: macos-latest
+            python-version: "3.6"
 
     steps:
       - uses: actions/checkout@v2
