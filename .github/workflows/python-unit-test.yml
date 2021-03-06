@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.6", "3.7"]
 
     steps:
@@ -16,10 +16,17 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install Ubuntu system dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
           sudo apt-get install graphviz
+      - name: Install Mac OS system dependencies
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install graphviz
+      - name: Install python dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install codecov==2.1.11
           pip install -e .
@@ -35,7 +42,7 @@ jobs:
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
-        if: matrix.os == "ubuntu-latest" && matrix.python-version == "3.7"
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.7' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
