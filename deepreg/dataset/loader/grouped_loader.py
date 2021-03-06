@@ -6,7 +6,7 @@ Read https://deepreg.readthedocs.io/en/latest/api/loader.html#module-deepreg.dat
 """
 import random
 from copy import deepcopy
-from typing import List
+from typing import List, Optional, Tuple, Union
 
 from deepreg.dataset.loader.interface import (
     AbstractUnpairedDataLoader,
@@ -31,12 +31,12 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         file_loader,
         data_dir_paths: List[str],
         labeled: bool,
-        sample_label: (str, None),
+        sample_label: Optional[str],
         intra_group_prob: float,
         intra_group_option: str,
         sample_image_in_group: bool,
-        seed: (int, None),
-        image_shape: (list, tuple),
+        seed: Optional[int],
+        image_shape: Union[Tuple[int, ...], List[int]],
     ):
         """
         :param file_loader: a subclass of FileLoader
@@ -121,7 +121,7 @@ class GroupedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
             else:  # intra group
                 self.sample_indices = self.get_intra_sample_indices()
 
-            self._num_samples = len(self.sample_indices)
+            self._num_samples = len(self.sample_indices)  # type: ignore
 
     def validate_data_files(self):
         """If the data are labeled, verify image loader and label loader have the same files."""

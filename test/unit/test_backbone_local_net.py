@@ -52,7 +52,7 @@ class TestLocalNet:
     def test_call(
         self,
         image_size: tuple,
-        extract_levels: Tuple[int],
+        extract_levels: Tuple[int, ...],
         depth: int,
         use_additive_upsampling: bool,
         pooling: bool,

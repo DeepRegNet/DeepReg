@@ -1,13 +1,13 @@
-import collections.abc
 import logging
 import os
+from typing import Dict, List, Union
 
 import yaml
 
 from deepreg.config.v011 import parse_v011
 
 
-def update_nested_dict(d: dict, u: dict) -> dict:
+def update_nested_dict(d: Dict, u: Dict) -> Dict:
     """
     Merge two dicts.
 
@@ -19,25 +19,25 @@ def update_nested_dict(d: dict, u: dict) -> dict:
     """
 
     for k, v in u.items():
-        if isinstance(v, collections.Mapping):
+        if isinstance(v, dict):
             d[k] = update_nested_dict(d.get(k, {}), v)
         else:
             d[k] = v
     return d
 
 
-def load_configs(config_path: (str, list)) -> dict:
+def load_configs(config_path: Union[str, List[str]]) -> Dict:
     """
     Load multiple configs and update the nested dictionary.
 
     :param config_path: list of paths or one path.
-    :return:
+    :return: the loaded config
     """
     if isinstance(config_path, str):
         config_path = [config_path]
     # replace ~ with user home path
-    config_path = list(map(os.path.expanduser, config_path))
-    config = dict()
+    config_path = [os.path.expanduser(x) for x in config_path]
+    config: Dict = {}
     for config_path_i in config_path:
         with open(config_path_i) as file:
             config_i = yaml.load(file, Loader=yaml.FullLoader)

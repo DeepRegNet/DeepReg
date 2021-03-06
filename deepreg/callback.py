@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import tensorflow as tf
 
 
@@ -64,7 +66,7 @@ def build_checkpoint_callback(
     log_dir: str,
     save_period: int,
     ckpt_path: str,
-) -> (CheckpointManagerCallback, int):
+) -> Tuple[CheckpointManagerCallback, int]:
     """
     Function to prepare callbacks for training.
 
@@ -85,12 +87,12 @@ def build_checkpoint_callback(
         model, log_dir + "/save", period=save_period
     )
     if ckpt_path:
-        initial_epoch = ckpt_path.split("-")[-1]
-        assert initial_epoch.isdigit(), (
+        initial_epoch_str = ckpt_path.split("-")[-1]
+        assert initial_epoch_str.isdigit(), (
             f"Checkpoint path for checkpoint manager "
             f"must be of form ckpt-epoch_count, got {ckpt_path}"
         )
-        initial_epoch = int(initial_epoch)
+        initial_epoch = int(initial_epoch_str)
         checkpoint_manager_callback.restore(ckpt_path)
     else:
         initial_epoch = 0

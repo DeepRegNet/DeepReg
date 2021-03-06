@@ -87,7 +87,7 @@ class LocalNet(UNet):
         self,
         image_size: tuple,
         num_channel_initial: int,
-        extract_levels: Tuple[int],
+        extract_levels: Tuple[int, ...],
         out_kernel_initializer: str,
         out_activation: str,
         out_channels: int,
@@ -163,11 +163,11 @@ class LocalNet(UNet):
     def build_up_sampling_block(
         self,
         filters: int,
-        output_padding: int,
-        kernel_size: int,
+        output_padding: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
         padding: str,
-        strides: int,
-        output_shape: tuple,
+        strides: Union[Tuple[int, ...], int],
+        output_shape: Tuple[int, ...],
     ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
         Build a block for up-sampling.
@@ -204,8 +204,8 @@ class LocalNet(UNet):
 
     def build_output_block(
         self,
-        image_size: Tuple[int],
-        extract_levels: Tuple[int],
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,

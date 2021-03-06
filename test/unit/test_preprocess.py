@@ -112,7 +112,7 @@ class TestRandomTransformation:
         :param name: name of the layer
         :return: built layer object
         """
-        config = {**self.common_config, **self.extra_config_dict[name]}
+        config = {**self.common_config, **self.extra_config_dict[name]}  # type: ignore
         return self.layer_cls_dict[name](**config)
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
@@ -127,8 +127,8 @@ class TestRandomTransformation:
         expected = {
             "trainable": False,
             "dtype": "float32",
-            **self.common_config,
-            **self.extra_config_dict[name],
+            **self.common_config,  # type: ignore
+            **self.extra_config_dict[name],  # type: ignore
         }
         assert got == expected
 
