@@ -48,9 +48,9 @@ total_iter = int(10) if args.test else int(3000)
 
 # load images
 if not os.path.exists(DATA_PATH):
-    raise ("Download the data using demo_data.py script")
+    raise ValueError("Download the data using demo_data.py script")
 if not os.path.exists(FILE_PATH):
-    raise ("Download the data using demo_data.py script")
+    raise ValueError("Download the data using demo_data.py script")
 
 fid = h5py.File(FILE_PATH, "r")
 moving_image = tf.cast(tf.expand_dims(fid["image0"], axis=0), dtype=tf.float32)

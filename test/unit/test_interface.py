@@ -507,8 +507,7 @@ def test_file_loader():
     assert "Groups of ID [0, 2, 2] are empty." in str(err_info.value)
 
     # test ungrouped file loader
-    with pytest.raises(AttributeError):
-        loader_ungrouped.group_struct
+    assert loader_ungrouped.group_struct is None
     with pytest.raises(AssertionError):
         loader_ungrouped.get_num_groups()
     with pytest.raises(AssertionError):

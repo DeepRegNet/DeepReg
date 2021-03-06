@@ -30,7 +30,7 @@ class NegativeLossMixin(tf.keras.losses.Loss):
 EPS = tf.keras.backend.epsilon()
 
 
-def rectangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
+def rectangular_kernel1d(kernel_size: int) -> tf.Tensor:
     """
     Return a the 1D filter for separable convolution equivalent to a 3-D rectangular
     kernel for LocalNormalizedCrossCorrelation.
@@ -43,7 +43,7 @@ def rectangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     return kernel
 
 
-def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
+def triangular_kernel1d(kernel_size: int) -> tf.Tensor:
     """
     1D triangular kernel.
 
@@ -59,13 +59,12 @@ def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     assert kernel_size % 2 != 0
 
     padding = kernel_size // 2
-
-    kernel = (
+    kernel = tf.constant(
         [0] * math.ceil(padding / 2)
         + [1] * (kernel_size - padding)
-        + [0] * math.floor(padding / 2)
+        + [0] * math.floor(padding / 2),
+        dtype=tf.float32,
     )
-    kernel = tf.constant(kernel, dtype=tf.float32)
 
     # (padding*2, )
     filters = tf.ones(shape=(kernel_size - padding, 1, 1), dtype=tf.float32)
@@ -77,7 +76,7 @@ def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
     return kernel[0, :, 0]
 
 
-def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
+def gaussian_kernel1d_size(kernel_size: int) -> tf.Tensor:
     """
     Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
     kernel for LocalNormalizedCrossCorrelation.

@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import datetime
+from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import nibabel as nib
@@ -21,7 +22,7 @@ def build_dataset(
     mode: str,
     training: bool,
     repeat: bool,
-) -> [(DataLoader, None), (tf.data.Dataset, None), (int, None)]:
+) -> Tuple[Optional[DataLoader], Optional[tf.data.Dataset], Optional[int]]:
     """
     Function to prepare dataset for training and validation.
     :param dataset_config: configuration for dataset
@@ -69,7 +70,7 @@ def build_log_dir(log_root: str, log_dir: str) -> str:
 
 def save_array(
     save_dir: str,
-    arr: (np.ndarray, tf.Tensor),
+    arr: Union[np.ndarray, tf.Tensor],
     name: str,
     normalize: bool,
     save_nifti: bool = True,
@@ -137,9 +138,9 @@ def save_array(
 
 def calculate_metrics(
     fixed_image: tf.Tensor,
-    fixed_label: (tf.Tensor, None),
-    pred_fixed_image: (tf.Tensor, None),
-    pred_fixed_label: (tf.Tensor, None),
+    fixed_label: Optional[tf.Tensor],
+    pred_fixed_image: Optional[tf.Tensor],
+    pred_fixed_label: Optional[tf.Tensor],
     fixed_grid_ref: tf.Tensor,
     sample_index: int,
 ) -> dict:

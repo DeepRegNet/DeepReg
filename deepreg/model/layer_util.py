@@ -2,13 +2,13 @@
 Module containing utilities for layer inputs
 """
 import itertools
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 
 
-def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
+def get_reference_grid(grid_size: Union[Tuple[int, ...], List[int]]) -> tf.Tensor:
     """
     Generate a 3D grid with given size.
 
@@ -50,7 +50,7 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     return grid
 
 
-def get_n_bits_combinations(num_bits: int) -> list:
+def get_n_bits_combinations(num_bits: int) -> List[List[int]]:
     """
     Function returning list containing all combinations of n bits.
     Given num_bits binary bits, each bit has value 0 or 1,
@@ -369,7 +369,7 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     return grid_warped
 
 
-def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
+def gaussian_filter_3d(kernel_sigma: Union[Tuple, List]) -> tf.Tensor:
     """
     Define a gaussian filter in 3d for smoothing.
 
@@ -381,7 +381,7 @@ def gaussian_filter_3d(kernel_sigma: (list, tuple, int)) -> tf.Tensor:
     :return: kernel: tf.Tensor specify a gaussian kernel of shape:
         [3*k for k in kernel_sigma]
     """
-    if isinstance(kernel_sigma, int):
+    if isinstance(kernel_sigma, (int, float)):
         kernel_sigma = (kernel_sigma, kernel_sigma, kernel_sigma)
 
     kernel_size = [
@@ -458,12 +458,12 @@ def _deconv_output_padding(
 
 
 def deconv_output_padding(
-    input_shape: Union[Tuple[int], int],
-    output_shape: Union[Tuple[int], int],
-    kernel_size: Union[Tuple[int], int],
-    stride: Union[Tuple[int], int],
+    input_shape: Union[Tuple[int, ...], int],
+    output_shape: Union[Tuple[int, ...], int],
+    kernel_size: Union[Tuple[int, ...], int],
+    stride: Union[Tuple[int, ...], int],
     padding: str,
-) -> Union[Tuple[int], int]:
+) -> Union[Tuple[int, ...], int]:
     """
     Calculate output padding for Conv3DTranspose in any dimension.
 
@@ -476,28 +476,24 @@ def deconv_output_padding(
     :return: output_padding for Conv3DTranspose layer
     """
     if isinstance(input_shape, int):
-        return _deconv_output_padding(
-            input_shape=input_shape,
-            output_shape=output_shape,
-            kernel_size=kernel_size,
-            stride=stride,
+        input_shape = (input_shape,)
+    dim = len(input_shape)
+    if isinstance(output_shape, int):
+        output_shape = (output_shape,)
+    if isinstance(kernel_size, int):
+        kernel_size = (kernel_size,) * dim
+    if isinstance(stride, int):
+        stride = (stride,) * dim
+    output_padding = tuple(
+        _deconv_output_padding(
+            input_shape=input_shape[d],
+            output_shape=output_shape[d],
+            kernel_size=kernel_size[d],
+            stride=stride[d],
             padding=padding,
         )
-    assert len(input_shape) == len(output_shape)
-    dim = len(input_shape)
-    if isinstance(kernel_size, int):
-        kernel_size = [kernel_size] * dim
-    if isinstance(stride, int):
-        stride = [stride] * dim
-    return tuple(
-        [
-            _deconv_output_padding(
-                input_shape=input_shape[d],
-                output_shape=output_shape[d],
-                kernel_size=kernel_size[d],
-                stride=stride[d],
-                padding=padding,
-            )
-            for d in range(dim)
-        ]
+        for d in range(dim)
     )
+    if dim == 1:
+        return output_padding[0]
+    return output_padding

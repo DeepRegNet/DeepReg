@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 from test.unit.util import is_equal_np
+from typing import Tuple
 
 import nibabel as nib
 import numpy as np
@@ -111,7 +112,7 @@ class TestSaveArray:
             np.random.rand(2, 3, 4, 3),
         ],
     )
-    def test_3d_4d(self, arr: (tf.Tensor, np.ndarray)):
+    def test_3d_4d(self, arr: Tuple[tf.Tensor, np.ndarray]):
         save_array(save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True)
         assert self.get_num_files_in_dir(self.png_dir, suffix=".png") == 4
         assert self.get_num_files_in_dir(self.save_dir, suffix=".nii.gz") == 1
@@ -125,7 +126,7 @@ class TestSaveArray:
             [np.random.rand(2, 3, 4, 1), ch_err_msg],
         ],
     )
-    def test_wrong_shape(self, arr: (tf.Tensor, np.ndarray), err_msg: str):
+    def test_wrong_shape(self, arr: Tuple[tf.Tensor, np.ndarray], err_msg: str):
         with pytest.raises(ValueError) as err_info:
             save_array(
                 save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True

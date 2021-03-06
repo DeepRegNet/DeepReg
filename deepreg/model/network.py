@@ -2,7 +2,7 @@ import logging
 import os
 from abc import abstractmethod
 from copy import deepcopy
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
@@ -64,7 +64,7 @@ class RegistrationModel(tf.keras.Model):
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
 
-        self._model = self.build_model()
+        self._model: tf.keras.Model = self.build_model()
         self.build_loss()
 
     def get_config(self) -> dict:
@@ -210,22 +210,22 @@ class RegistrationModel(tf.keras.Model):
                 )
                 return
 
-            loss_cls = REGISTRY.build_loss(
+            loss_layer: tf.keras.layers.Layer = REGISTRY.build_loss(
                 config=dict_without(d=loss_config, key="weight")
             )
-            loss = loss_cls(**inputs_dict) / self.global_batch_size
-            weighted_loss = loss * weight
+            loss_value = loss_layer(**inputs_dict) / self.global_batch_size
+            weighted_loss = loss_value * weight
 
             # add loss
             self._model.add_loss(weighted_loss)
 
             # add metric
             self._model.add_metric(
-                loss, name=f"loss/{name}_{loss_cls.name}", aggregation="mean"
+                loss_value, name=f"loss/{name}_{loss_layer.name}", aggregation="mean"
             )
             self._model.add_metric(
                 weighted_loss,
-                name=f"loss/{name}_{loss_cls.name}_weighted",
+                name=f"loss/{name}_{loss_layer.name}_weighted",
                 aggregation="mean",
             )
 
@@ -251,7 +251,7 @@ class RegistrationModel(tf.keras.Model):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -376,7 +376,7 @@ class DDFModel(RegistrationModel):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -397,7 +397,7 @@ class DDFModel(RegistrationModel):
 
         # save theta for affine model
         if "theta" in outputs:
-            processed["theta"] = (outputs["theta"], None, None)
+            processed["theta"] = (outputs["theta"], None, None)  # type: ignore
 
         if not self.labeled:
             return indices, processed
@@ -468,7 +468,7 @@ class DVFModel(DDFModel):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -534,7 +534,7 @@ class ConditionalModel(RegistrationModel):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 

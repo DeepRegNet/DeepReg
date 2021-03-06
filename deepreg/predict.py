@@ -9,6 +9,7 @@ import argparse
 import logging
 import os
 import shutil
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -27,7 +28,7 @@ from deepreg.util import (
 )
 
 
-def build_pair_output_path(indices: list, save_dir: str) -> (str, str):
+def build_pair_output_path(indices: list, save_dir: str) -> Tuple[str, str]:
     """
     Create directory for saving the paired data
 
@@ -147,8 +148,8 @@ def predict_on_dataset(
 
 
 def build_config(
-    config_path: (str, list), log_root: str, log_dir: str, ckpt_path: str
-) -> [dict, str]:
+    config_path: Union[str, List[str]], log_root: str, log_dir: str, ckpt_path: str
+) -> Tuple[Dict, str, str]:
     """
     Function to create new directory to log directory to store results.
 
@@ -190,7 +191,7 @@ def predict(
     batch_size: int,
     log_dir: str,
     sample_label: str,
-    config_path: (str, list),
+    config_path: Union[str, List[str]],
     save_nifti: bool = True,
     save_png: bool = True,
     log_root: str = "logs",
@@ -237,12 +238,13 @@ def predict(
         training=False,
         repeat=False,
     )
+    assert data_loader is not None
 
     # optimizer
     optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
 
     # model
-    model = REGISTRY.build_model(
+    model: tf.keras.Model = REGISTRY.build_model(
         config=dict(
             name=config["train"]["method"],
             moving_image_size=data_loader.moving_image_shape,

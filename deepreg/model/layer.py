@@ -1,6 +1,6 @@
 """This module defines custom layers."""
 import itertools
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -408,7 +408,9 @@ class ResizeCPTransform(tfkl.Layer):
     It uses an anti-aliasing Gaussian filter before down-sampling.
     """
 
-    def __init__(self, control_point_spacing: (list, tuple, int), **kwargs):
+    def __init__(
+        self, control_point_spacing: Union[List[int], Tuple[int, ...], int], **kwargs
+    ):
         """
         :param control_point_spacing: list or int
         :param kwargs: additional arguments.
@@ -430,10 +432,10 @@ class ResizeCPTransform(tfkl.Layer):
         super().build(input_shape=input_shape)
 
         self.kernel = layer_util.gaussian_filter_3d(self.kernel_sigma)
-        output_shape = [
+        output_shape = tuple(
             tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
             for v, c in zip(input_shape[1:-1], self.cp_spacing)
-        ]
+        )
         self._output_shape = output_shape
         self._resize = Resize3d(output_shape)
 
@@ -441,37 +443,41 @@ class ResizeCPTransform(tfkl.Layer):
         output = tf.nn.conv3d(
             inputs, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
         )
-        output = self._resize(inputs=output)
+        output = self._resize(inputs=output)  # type: ignore
         return output
 
 
 class BSplines3DTransform(tfkl.Layer):
     """
-     Layer for BSplines interpolation with precomputed cubic spline kernel_size.
-     It assumes a full sized image from which:
-     1. it compute the contol points values by down-sampling the initial image
-     2. performs the interpolation
-     3. crops the image around the valid values.
-
-    :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels)
-        in each dimension. When a single int is used,
-        the same spacing to all dimensions is used
-    :param output_shape: (batch_size, dim0, dim1, dim2, 3) of the high resolution
-        deformation fields.
-    :param kwargs: additional arguments.
+    Layer for BSplines interpolation with precomputed cubic spline kernel_size.
+    It assumes a full sized image from which:
+    1. it compute the contol points values by down-sampling the initial image
+    2. performs the interpolation
+    3. crops the image around the valid values.
     """
 
-    def __init__(self, cp_spacing: (int, tuple), output_shape: tuple, **kwargs):
+    def __init__(
+        self,
+        cp_spacing: Union[Tuple[int, ...], int],
+        output_shape: Tuple[int, ...],
+        **kwargs,
+    ):
+        """
+        Init.
 
+        :param cp_spacing: int or tuple of three ints specifying the spacing (in pixels)
+            in each dimension. When a single int is used,
+            the same spacing to all dimensions is used
+        :param output_shape: (batch_size, dim0, dim1, dim2, 3) of the high resolution
+            deformation fields.
+        :param kwargs: additional arguments.
+        """
         super().__init__(**kwargs)
 
-        self.filters = []
         self._output_shape = output_shape
-
         if isinstance(cp_spacing, int):
-            self.cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
-        else:
-            self.cp_spacing = cp_spacing
+            cp_spacing = (cp_spacing, cp_spacing, cp_spacing)
+        self.cp_spacing = cp_spacing
 
     def build(self, input_shape: tuple):
         """
@@ -567,8 +573,8 @@ class BSplines3DTransform(tfkl.Layer):
 class Extraction(tfkl.Layer):
     def __init__(
         self,
-        image_size: Tuple[int],
-        extract_levels: Tuple[int],
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
         out_channels: int,
         out_kernel_initializer: str,
         out_activation: str,

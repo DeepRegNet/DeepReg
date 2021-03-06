@@ -1,3 +1,5 @@
+from typing import List, Union
+
 import numpy as np
 
 
@@ -25,7 +27,9 @@ def normalize_array(arr: np.ndarray, v_min=None, v_max=None) -> np.ndarray:
     return arr
 
 
-def remove_prefix_suffix(x: str, prefix: (str, list), suffix: (str, list)) -> str:
+def remove_prefix_suffix(
+    x: str, prefix: Union[str, List[str]], suffix: Union[str, List[str]]
+) -> str:
     """
     Remove the prefix and suffix from a string,
     prefix and suffix can be a string or a list of strings.

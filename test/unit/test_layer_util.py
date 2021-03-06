@@ -322,12 +322,12 @@ class TestDeconvOutputPadding:
     )
     def test_n_dim(
         self,
-        input_shape: Union[Tuple[int], int],
-        output_shape: Union[Tuple[int], int],
-        kernel_size: Union[Tuple[int], int],
-        stride: Union[Tuple[int], int],
+        input_shape: Union[Tuple[int, ...], int],
+        output_shape: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
+        stride: Union[Tuple[int, ...], int],
         padding: str,
-        expected: Union[Tuple[int], int],
+        expected: Union[Tuple[int, ...], int],
     ):
         """
         Test deconv_output_padding by verifying output

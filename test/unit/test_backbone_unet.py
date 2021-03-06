@@ -55,7 +55,7 @@ class TestUNet:
             network = UNet(
                 image_size=image_size,
                 out_channels=out_ch,
-                num_channel_initial=None,
+                num_channel_initial=0,
                 encode_num_channels=encode_num_channels,
                 decode_num_channels=decode_num_channels,
                 depth=depth,

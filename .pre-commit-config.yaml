@@ -1,17 +1,25 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v3.4.0
     hooks:
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: requirements-txt-fixer
-      - id: trailing-whitespace
+      - id: check-ast # Simply check whether the files parse as valid python
+      - id: check-case-conflict # Check for files that would conflict in case-insensitive filesystems
+      - id: check-builtin-literals # Require literal syntax when initializing empty or zero Python builtin types
+      - id: check-docstring-first # Check a common error of defining a docstring after code
+      - id: check-merge-conflict # Check for files that contain merge conflict strings
+      - id: check-yaml # Check yaml files
+      - id: check-vcs-permalinks # Ensure that links to vcs websites are permalinks
+      - id: debug-statements # Check for debugger imports and py37+ `breakpoint()` calls in python source
+      - id: detect-private-key # Detect the presence of private keys
+      - id: end-of-file-fixer # Ensure that a file is either empty, or ends with one newline
+      - id: mixed-line-ending # Replace or checks mixed line ending
+      - id: trailing-whitespace # This hook trims trailing whitespace
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
     hooks:
       - id: seed-isort-config
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.6.4
+    rev: 5.7.0
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
@@ -19,8 +27,12 @@ repos:
     hooks:
       - id: black
         language_version: python3.7
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.812
+    hooks:
+      - id: mypy
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.0
+    rev: v2.2.1
     hooks:
       - id: prettier
   - repo: https://gitlab.com/pycqa/flake8
