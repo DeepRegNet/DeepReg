@@ -28,6 +28,7 @@ compatible with the updates.
 
 ### Fixed
 
+- Removed loss weight checks to be more robust.
 - Fixed the residual module in local net architecture, compatible for previous
   checkpoints.
 - Broken link in README to seminar video.
