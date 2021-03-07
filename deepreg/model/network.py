@@ -182,8 +182,8 @@ class RegistrationModel(tf.keras.Model):
         if name not in self.config["loss"]:
             # loss config is not defined
             logging.warning(
-                f"The configuration for loss {name} is not defined."
-                f"Loss is not used."
+                f"The configuration for loss {name} is not defined. "
+                f"Therefore it is not used."
             )
             return
 
