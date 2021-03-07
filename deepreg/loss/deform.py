@@ -85,6 +85,7 @@ class GradientNorm(tf.keras.layers.Layer):
         :return: shape = ()
         """
         assert len(inputs.shape) == 5
+        tf.debugging.check_numerics(inputs, "GRAIDENT ddf value NAN/INF", name=None)
         ddf = inputs
         # first order gradient
         # (batch, m_dim1-2, m_dim2-2, m_dim3-2, 3)

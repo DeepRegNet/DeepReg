@@ -231,6 +231,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         # adjust
+        tf.debugging.check_numerics(y_true, "LNCC y_true value NAN/INF", name=None)
+        tf.debugging.check_numerics(y_pred, "LNCC y_pred value NAN/INF", name=None)
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
@@ -263,6 +265,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
+        tf.debugging.check_numerics(ncc, "LNCC y_pred value NAN/INF", name=None)
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
