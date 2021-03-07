@@ -13,6 +13,7 @@ compatible with the updates.
 
 ### Added
 
+- Added example for using custom loss.
 - Added support to custom layer channels in U-Net.
 - Added support to multiple loss functions for each loss type: "image", "label" and
   "regularization".
