@@ -269,15 +269,23 @@ class RegistrationModel(tf.keras.Model):
 
         :param output_dir: path to the output dir.
         """
-        print(self._model.summary())
-        tf.keras.utils.plot_model(
-            self._model,
-            to_file=os.path.join(output_dir, f"{self.name}.png"),
-            dpi=96,
-            show_shapes=True,
-            show_layer_names=True,
-            expand_nested=False,
-        )
+        logging.info(self._model.summary())
+        try:
+            tf.keras.utils.plot_model(
+                self._model,
+                to_file=os.path.join(output_dir, f"{self.name}.png"),
+                dpi=96,
+                show_shapes=True,
+                show_layer_names=True,
+                expand_nested=False,
+            )
+        except ImportError as err:  # pragma: no cover
+            logging.error(
+                "Failed to plot model structure."
+                "Please check if graphviz is installed.\n"
+                "Error message is:"
+                f"{err}"
+            )
 
 
 @REGISTRY.register_model(name="ddf")

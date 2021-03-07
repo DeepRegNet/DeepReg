@@ -31,6 +31,13 @@ for more details.
 
     .. tab:: Linux
 
+        Install prerequisites (Optional).
+
+        .. code:: bash
+
+            sudo apt-get update
+            sudo apt-get install graphviz
+
         Install DeepReg without GPU support.
 
         .. code:: bash
@@ -45,20 +52,13 @@ for more details.
             conda env create -f environment.yml
             conda activate deepreg
 
-        Update DeepReg without GPU support.
-
-        .. code:: bash
-
-            conda env update -f environment_cpu.yml
-
-
-        Update DeepReg with GPU support.
-
-        .. code:: bash
-
-            conda env update -f environment.yml
-
     .. tab:: Mac OS
+
+        Install prerequisites (Optional).
+
+        .. code:: bash
+
+            brew install graphviz
 
         Install DeepReg without GPU support.
 
@@ -67,13 +67,7 @@ for more details.
             conda env create -f environment_cpu.yml
             conda activate deepreg
 
-        Update DeepReg without GPU support.
-
-        .. code:: bash
-
-            conda env update -f environment_cpu.yml
-
-        Install/update DeepReg with GPU support.
+        Install DeepReg with GPU support.
 
         .. warning::
 
@@ -81,7 +75,7 @@ for more details.
 
     .. tab:: Windows
 
-        Install/update DeepReg without GPU support.
+        Install DeepReg without GPU support.
 
         .. warning::
 
@@ -89,7 +83,7 @@ for more details.
             However, you can use the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`__.
             Set up WSL and follow the DeepReg setup instructions for Linux.
 
-        Install/update DeepReg with GPU support.
+        Install DeepReg with GPU support.
 
         .. warning::
 
