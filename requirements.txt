@@ -10,7 +10,7 @@ nibabel==3.2.1
 notebook==6.2.0
 numpy==1.18.5
 pandas==1.2.3
-pre-commit==2.10.1
+pre-commit==2.11.0
 pydocstyle==5.1.1
 pydot==1.4.2
 pylint==2.7.2
