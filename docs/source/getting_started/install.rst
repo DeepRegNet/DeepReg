@@ -1,8 +1,8 @@
 Installation
 ============
 
-DeepReg uses in Python 3.7 and external python dependencies are defined in `requirements <https://github.com/DeepRegNet/DeepReg/blob/main/requirements.txt>`__.
-DeepReg primarily supports and is regularly tested with Ubuntu and Debian Linux distributions.
+DeepReg can be installed in Python 3.7 and external python dependencies are mainly defined in `requirements`_.
+DeepReg primarily supports and is regularly tested with Ubuntu and Mac OS.
 
 There are multiple different methods to install DeepReg:
 
@@ -185,3 +185,4 @@ If you need to download to a specific directory, use the
 .. _Anaconda: https://docs.anaconda.com/anaconda/install
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _DeepReg: https://github.com/DeepRegNet/DeepReg
+.. _requirements: https://github.com/DeepRegNet/DeepReg/blob/main/requirements.txt

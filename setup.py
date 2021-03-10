@@ -1,7 +1,17 @@
+import sys
+
 from setuptools import find_packages, setup
 
+# package requirements
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError("Python version >= 3.6 required.")
 with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
+if sys.version_info[:2] == (3, 6):
+    requirements.remove("pandas==1.2.3")
+    requirements.append("pandas==1.1.5")
+    requirements.remove("scipy==1.6.1")
+    requirements.append("scipy==1.5.4")
 
 with open("README.md", "r") as f:
     long_description = f.read()
@@ -43,16 +53,16 @@ setup(
         "Environment :: Console",
         "Environment :: GPU",
         "Environment :: MacOS X",
-        "Environment :: Win32 (MS Windows)",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
         "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows :: Windows 10",
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Software Development",
