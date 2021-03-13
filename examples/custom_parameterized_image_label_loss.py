@@ -5,27 +5,32 @@ from deepreg.registry import REGISTRY
 from deepreg.train import train
 
 
-@REGISTRY.register_loss(name="root_mean_square")
-class RootMeanSquaredDifference(tf.keras.losses.Loss):
+@REGISTRY.register_loss(name="lp_norm")
+class LPNorm(tf.keras.losses.Loss):
     """
-    Square root of the mean of squared distance between y_true and y_pred.
+    L^p norm between y_true and y_pred, p = 1 or 2.
 
     y_true and y_pred have to be at least 1d tensor, including batch axis.
     """
 
     def __init__(
         self,
+        p: int,
         reduction: str = tf.keras.losses.Reduction.SUM,
-        name: str = "RootMeanSquaredDifference",
+        name: str = "LPNorm",
     ):
         """
         Init.
 
+        :param p: order of the norm, 1 or 2.
         :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
-        :param name: name of the loss
+        :param name: name of the loss.
         """
         super().__init__(reduction=reduction, name=name)
+        if p not in [1, 2]:
+            raise ValueError(f"For LPNorm, p must be 0 or 1, got {p}.")
+        self.p = p
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -35,14 +40,13 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
         :param y_pred: shape = (batch, ...)
         :return: shape = (batch,)
         """
-        loss = tf.math.squared_difference(y_true, y_pred)
-        loss = tf.keras.layers.Flatten()(loss)
-        loss = tf.reduce_mean(loss, axis=1)
-        loss = tf.math.sqrt(loss)
+        diff = y_true - y_pred
+        diff = tf.keras.layers.Flatten()(diff)
+        loss = tf.norm(diff, axis=-1, ord=self.p)
         return loss
 
 
-config_path = "examples/config_custom_image_label_loss.yaml"
+config_path = "examples/config_custom_parameterized_image_label_loss.yaml"
 train(
     gpu="",
     config_path=config_path,

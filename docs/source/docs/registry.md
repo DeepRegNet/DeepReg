@@ -120,4 +120,5 @@ To register a custom loss class for images and labels, the steps are as follows
 
 Please check the self-contained
 [example script](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_image_label_loss.py)
-for further details.
+for further details. There is also a more complicated
+[example of parameterized custom loss](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_parameterized_image_label_loss.py).
