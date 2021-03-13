@@ -4,7 +4,23 @@ In DeepReg, we use [pytest](https://docs.pytest.org/en/stable/) (not
 [unittest](https://docs.python.org/3/library/unittest.html)) for unit tests to ensure a
 certain code quality and to facilitate the code maintenance.
 
-The testing is checked via
+For testing the code locally,
+
+- If you only need to test with python 3.7, please execute `pytest` at the repository
+  root:
+
+  ```bash
+  pytest test/
+  ```
+
+- If you want to test with all supported python versions, please execute `tox` at the
+  repository root:
+
+  ```bash
+  tox
+  ```
+
+Moreover, the testing is checked automatically via
 [GitHub workflows](https://github.com/DeepRegNet/DeepReg/actions) and
 [Codecov](https://codecov.io/gh/DeepRegNet/DeepReg) is used to monitor the test
 coverage. While checking the Codecov report in file mode, generally a line highlighted
