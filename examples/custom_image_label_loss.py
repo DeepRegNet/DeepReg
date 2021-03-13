@@ -5,10 +5,10 @@ from deepreg.registry import REGISTRY
 from deepreg.train import train
 
 
-@REGISTRY.register_loss(name="custom_image_loss")
-class RootSumSquaredDifference(tf.keras.losses.Loss):
+@REGISTRY.register_loss(name="custom_image_label_loss")
+class RootMeanSquaredDifference(tf.keras.losses.Loss):
     """
-    Square root of the sum of squared distance between y_true and y_pred.
+    Square root of the mean of squared distance between y_true and y_pred.
 
     y_true and y_pred have to be at least 1d tensor, including batch axis.
     """
@@ -16,7 +16,7 @@ class RootSumSquaredDifference(tf.keras.losses.Loss):
     def __init__(
         self,
         reduction: str = tf.keras.losses.Reduction.SUM,
-        name: str = "RootSumSquaredDifference",
+        name: str = "RootMeanSquaredDifference",
     ):
         """
         Init.
@@ -42,7 +42,7 @@ class RootSumSquaredDifference(tf.keras.losses.Loss):
         return loss
 
 
-config_path = "examples/config_custom_image_loss.yaml"
+config_path = "examples/config_custom_image_label_loss.yaml"
 train(
     gpu="",
     config_path=config_path,

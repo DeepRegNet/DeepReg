@@ -20,7 +20,7 @@ class TestTutorial:
         "name",
         [
             "custom_backbone",
-            "custom_image_loss",
+            "custom_image_label_loss",
         ],
     )
     def test_registry(self, name: str):
