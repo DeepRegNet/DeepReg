@@ -23,7 +23,7 @@ seed-isort-config==2.2.0
 sphinx==3.5.1
 sphinx-notfound-page==0.6
 sphinx-rtd-theme==0.5.1
-sphinx-tabs==2.0.1
+sphinx-tabs==2.1.0
 tabulate==0.8.9
 tensorboard_plugin_profile==2.3.0
 tensorflow==2.3.1
