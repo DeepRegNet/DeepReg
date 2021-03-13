@@ -13,6 +13,7 @@ compatible with the updates.
 
 ### Added
 
+- Added example for using custom loss.
 - Added tests on Mac OS.
 - Added tests for python 3.6 and 3.7.
 - Added support to custom layer channels in U-Net.

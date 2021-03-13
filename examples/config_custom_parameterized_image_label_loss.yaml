@@ -12,13 +12,14 @@ train:
   # define neural network structure
   method: "ddf" # options include "ddf", "dvf", "conditional"
   backbone:
-    name: "custom_backbone" # options include "local", "unet" and "global"
+    name: "local" # options include "local", "unet" and "global"
     num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
-
+    extract_levels: [0, 1, 2]
   # define the loss function for training
   loss:
     image:
-      name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      name: "lp_norm" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      p: 1 # 1 or 2
       weight: 0.1
     label:
       weight: 1.0
