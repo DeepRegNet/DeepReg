@@ -15,6 +15,9 @@
       <a href="https://pypi.python.org/pypi/DeepReg/">
       <img src="https://img.shields.io/pypi/v/deepreg.svg" alt="PyPI Version">
       </a>
+      <a href="https://pypi.python.org/pypi/DeepReg/">
+      <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/deepreg">
+      </a>
       <a href="https://pepy.tech/project/deepreg">
       <img src="https://static.pepy.tech/personalized-badge/deepreg?period=total&units=none&left_color=grey&right_color=orange&left_text=Downloads"
         alt="PyPI downloads">
