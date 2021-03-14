@@ -6,9 +6,9 @@ from deepreg.train import train
 name = "unpaired_ct_abdomen"
 
 # parser is used to simplify testing
-# please run the script with --no-test flag to ensure non-testing mode
+# please run the script with --full flag to ensure non-testing mode
 # for instance:
-# python script.py --no-test
+# python script.py --full
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--method",
@@ -18,13 +18,13 @@ parser.add_argument(
 )
 parser.add_argument(
     "--test",
-    help="Execute the script for test purpose",
+    help="Execute the script with reduced image size for test purpose.",
     dest="test",
     action="store_true",
 )
 parser.add_argument(
-    "--no-test",
-    help="Execute the script for non-test purpose",
+    "--full",
+    help="Execute the script with full configuration.",
     dest="test",
     action="store_false",
 )
