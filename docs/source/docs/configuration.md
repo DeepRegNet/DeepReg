@@ -406,21 +406,21 @@ at the same indent level:
 - `dice`: Calls a Dice loss on the labels, requires the following arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
-    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
-    respectively.
+  - `background_weight`: float, default=0.0. `background_weight` weights the foreground
+    and background classes by replacing the labels of 1s and 0s with
+    `(1-background_weight)` and `background_weight`, respectively.
 
 - `cross-entropy`: Calls a cross-entropy loss between labels, requires the following
   arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
-    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
-    respectively.
+  - `background_weight`: float, default=0.0. `background_weight` weights the foreground
+    and background classes by replacing the labels of 1s and 0s with
+    `(1-background_weight)` and `background_weight`, respectively.
 
 - `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
 0.5.
-<!-- - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight, respectively. -->
+<!-- - `background_weight`: float, default=0.0. `background_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-background_weight) and background_weight, respectively. -->
 
 #### Regularization
 
