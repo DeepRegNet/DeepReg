@@ -74,13 +74,13 @@ def train(
     """
     Function to train a model.
 
-    :param gpu: which local gpu to use to train
-    :param config_path: path to configuration set up
-    :param gpu_allow_growth: whether to allocate whole GPU memory for training
-    :param ckpt_path: where to store training checkpoints
-    :param log_dir: path of the log directory
-    :param exp_name: name of the experiment
-    :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
+    :param gpu: which local gpu to use to train.
+    :param config_path: path to configuration set up.
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
+    :param ckpt_path: where to store training checkpoints.
+    :param log_dir: path of the log directory.
+    :param exp_name: experiment name.
+    :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu

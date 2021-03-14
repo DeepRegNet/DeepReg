@@ -64,27 +64,33 @@ configuration can be specified in the configuration file. Please see
 
   - `--ckpt_path weights-epoch2.ckpt` for reloading the given checkpoint.
 
-- **Output directory**:
+- **Log directory**:
 
-  `--log_dir`, specifies the directory for saving all logs.
+  `--log_dir`, specifies the log directory for logging output information and results.
 
-  By default, it is `logs` under the root of package.
+  By default, it is `logs` under the package root.
 
   Example usage:
 
-  - `--log_dir logs` for saving all logs under `logs/`.
+  - `--log_dir logs` for specifying the log directory `logs/` under current directory.
 
 - **Experiment name**:
 
-  `--exp_name` or `-n`, specifies the name of the experiment, which will be used for
-  specifying logs directory for the experiment.
+  `--exp_name` or `-n`, specifies the name of an experiment (every time a training or a
+  prediction is run), which will be used together with the log directory (via `log_dir`)
+  to specify the sub-folder that saves the output information and results from
+  individual experiments (runs).
 
-  By default, it creates a timestamp-named directory under the `log_dir`, e.g.
-  `logs/20200810-194042/`.
+  If this is not provided, it creates a timestamp-named sub-folder under the `log_dir`,
+  by default, e.g. `logs/20200810-194042/`.
 
   Example usage:
 
-  - `--exp_name test` for saving under `logs/test/`.
+  - `--exp_name test --log_dir logs` for saving under `logs/test/`.
+  - `--log_dir logs` for saving under `logs/20210101-120000/`, assuming
+    `20210101-120000` is current time.
+  - `--exp_name test` for saving under `DeepReg/logs/test/`, assuming `DeepReg` is the
+    package root.
 
 - **Maximum number of epochs**:
 
@@ -161,27 +167,33 @@ configuration can be specified in the configuration file. Please see
 
   - `--gpu_allow_growth`, no extra argument is needed.
 
-- **Output directory**:
+- **Log directory**:
 
-  `--log_dir`, specifies the directory for saving all logs.
+  `--log_dir`, specifies the log directory for logging output information and results.
 
-  By default, it is `logs` under the root of package.
+  By default, it is `logs` under the package root.
 
   Example usage:
 
-  - `--log_dir logs` for saving all logs under `logs/`.
+  - `--log_dir logs` for specifying the log directory `logs/` under current directory.
 
 - **Experiment name**:
 
-  `--exp_name` or `-n`, specifies the name of the experiment, which will be used for
-  specifying logs directory for the experiment.
+  `--exp_name` or `-n`, specifies the name of an experiment (every time a training or a
+  prediction is run), which will be used together with the log directory (via `log_dir`)
+  to specify the sub-folder that saves the output information and results from
+  individual experiments (runs).
 
-  By default, it creates a timestamp-named directory under the `log_dir`, e.g.
-  `logs/20200810-194042/`.
+  If this is not provided, it creates a timestamp-named sub-folder under the `log_dir`,
+  by default, e.g. `logs/20200810-194042/`.
 
   Example usage:
 
-  - `--exp_name test` for saving under `logs/test/`.
+  - `--exp_name test --log_dir logs` for saving under `logs/test/`.
+  - `--log_dir logs` for saving under `logs/20210101-120000/`, assuming
+    `20210101-120000` is current time.
+  - `--exp_name test` for saving under `DeepReg/logs/test/`, assuming `DeepReg` is the
+    package root.
 
 - **Batch size**:
 

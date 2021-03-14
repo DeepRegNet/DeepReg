@@ -154,11 +154,11 @@ def build_config(
     Function to create new directory to log directory to store results.
 
     :param config_path: path of configuration files.
-    :param log_dir: path of the directory.
-    :param exp_name: name of the experiment.
+    :param log_dir: path of the log directory.
+    :param exp_name: experiment name.
     :param ckpt_path: path where model is stored.
-    :return: - config, configuration dictionary
-             - exp_name, path of the directory for saving outputs
+    :return: - config, configuration dictionary.
+             - exp_name, path of the directory for saving outputs.
     """
 
     # init log directory
