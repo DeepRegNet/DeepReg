@@ -86,7 +86,7 @@ def test_parse_loss():
 
 
 class TestParseImageLoss:
-    def test_parse_old_loss(self):
+    def test_parse_outdated_loss(self):
         loss_config = {
             "image": {
                 "name": "lncc",
@@ -153,8 +153,8 @@ class TestParseLabelLoss:
             ),
         ],
     )
-    def test_parse_old_loss(self, name_loss: str, expected_config: dict):
-        loss_config = {
+    def test_parse_outdated_loss(self, name_loss: str, expected_config: dict):
+        outdated_config = {
             "label": {
                 "name": name_loss,
                 "single_scale": {
@@ -168,9 +168,27 @@ class TestParseLabelLoss:
         }
 
         if name_loss == "multi_scale":
-            loss_config["label"]["weight"] = 2.0  # type: ignore
+            outdated_config["label"]["weight"] = 2.0  # type: ignore
 
-        got = parse_label_loss(loss_config=loss_config)
+        got = parse_label_loss(loss_config=outdated_config)
+        assert got == expected_config
+
+    def test_parse_background_weight(self):
+        outdated_config = {
+            "label": {
+                "name": "dice",
+                "weight": 1.0,
+                "neg_weight": 2.0,
+            },
+        }
+        expected_config = {
+            "label": {
+                "name": "dice",
+                "weight": 1.0,
+                "background_weight": 2.0,
+            },
+        }
+        got = parse_label_loss(loss_config=outdated_config)
         assert got == expected_config
 
     def test_parse_multiple_loss(self):
@@ -200,7 +218,9 @@ class TestParseRegularizationLoss:
             ("gradient-l1", "gradient", {"l1": True}),
         ],
     )
-    def test_parse_old_loss(self, energy_type: str, loss_name: str, extra_args: dict):
+    def test_parse_outdated_loss(
+        self, energy_type: str, loss_name: str, extra_args: dict
+    ):
 
         loss_config = {
             "regularization": {
