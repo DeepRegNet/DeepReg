@@ -45,7 +45,7 @@ configuration can be specified in the configuration file. Please see
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
   is needed.
 
-  By default it allocates all available GPU memory.
+  By default, it allocates all available GPU memory.
 
   Example usage:
 
@@ -58,33 +58,33 @@ configuration can be specified in the configuration file. Please see
 
   The path must end with `.ckpt`.
 
-  By default it starts training from a random initialization.
+  By default, it starts training from a random initialization.
 
   Example usage:
 
   - `--ckpt_path weights-epoch2.ckpt` for reloading the given checkpoint.
 
-- **Output root**:
-
-  `--log_root`, specifies the directory for saving all logs.
-
-  By default it is `logs` under the root of package.
-
-  Example usage:
-
-  - `--log_root /logs` for saving all logs under `/logs`.
-
 - **Output directory**:
 
-  `--log_dir` or `-l`, specifies the directory name to save logs.
+  `--log_dir`, specifies the directory for saving all logs.
 
-  The directory will be under the `log_root` which is `logs` by default.
-
-  By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
+  By default, it is `logs` under the root of package.
 
   Example usage:
 
-  - `--log_dir test` for saving under `logs/test/`.
+  - `--log_dir logs` for saving all logs under `logs/`.
+
+- **Experiment name**:
+
+  `--exp_name` or `-n`, specifies the name of the experiment, which will be used for
+  specifying logs directory for the experiment.
+
+  By default, it creates a timestamp-named directory under the `log_dir`, e.g.
+  `logs/20200810-194042/`.
+
+  Example usage:
+
+  - `--exp_name test` for saving under `logs/test/`.
 
 - **Maximum number of epochs**:
 
@@ -155,33 +155,33 @@ configuration can be specified in the configuration file. Please see
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
   is needed.
 
-  By default it allocates all availables in the GPU memory.
+  By default, it allocates all availables in the GPU memory.
 
   Example usage:
 
   - `--gpu_allow_growth`, no extra argument is needed.
 
-- **Output root**:
-
-  `--log_root`, specifies the directory for saving all logs.
-
-  By default it is `logs` under the root of package.
-
-  Example usage:
-
-  - `--log_root /logs` for saving all logs under `/logs`.
-
 - **Output directory**:
 
-  `--log_dir` or `-l`, specifies the directory name to save logs.
+  `--log_dir`, specifies the directory for saving all logs.
 
-  The directory will be under the `log_root` which is `logs` by default.
-
-  By default it creates a timestamp-named directory, e.g. `logs/20200810-194042/`.
+  By default, it is `logs` under the root of package.
 
   Example usage:
 
-  - `--log_dir test` for saving under `logs/test/`.
+  - `--log_dir logs` for saving all logs under `logs/`.
+
+- **Experiment name**:
+
+  `--exp_name` or `-n`, specifies the name of the experiment, which will be used for
+  specifying logs directory for the experiment.
+
+  By default, it creates a timestamp-named directory under the `log_dir`, e.g.
+  `logs/20200810-194042/`.
+
+  Example usage:
+
+  - `--exp_name test` for saving under `logs/test/`.
 
 - **Batch size**:
 
@@ -197,7 +197,7 @@ configuration can be specified in the configuration file. Please see
 
   The predicted 3D tensors can be saved in Nifti format for further calculation.
 
-  By default it saves outputs in Nifti format.
+  By default, it saves outputs in Nifti format.
 
   Example usage:
 
@@ -214,7 +214,7 @@ configuration can be specified in the configuration file. Please see
   Labels (`moving_label`, `fixed_label` and `pred_fixed_label`) are not affected as they
   are already within 0~1.
 
-  By default it saves the outputs in png format.
+  By default, it saves the outputs in png format.
 
   Example usage:
 
@@ -227,7 +227,7 @@ configuration can be specified in the configuration file. Please see
 
   The path must end with `.yaml`.
 
-  By default it uses the configuration file saved in the directory of the given
+  By default, it uses the configuration file saved in the directory of the given
   checkpoint.
 
   Example usage:
@@ -315,7 +315,7 @@ The saved files include:
   The path should end with `.nii` or `.nii.gz`, otherwise the output path will be
   corrected automatically based on the given path.
 
-  By default it saves the output as `warped.nii.gz` in the current directory.
+  By default, it saves the output as `warped.nii.gz` in the current directory.
 
   Example usage:
 
