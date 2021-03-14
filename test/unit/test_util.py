@@ -28,13 +28,13 @@ def test_build_dataset():
 
     # init arguments
     config_path = "config/unpaired_labeled_ddf.yaml"
-    log_root = "logs"
-    log_dir = "test_build_dataset"
+    log_dir = "logs"
+    exp_name = "test_build_dataset"
     ckpt_path = ""
 
     # load config
-    config, log_dir, _ = build_config(
-        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
+    config, _, _ = build_config(
+        config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
 
     # build dataset
@@ -68,18 +68,18 @@ def test_build_dataset():
     assert steps_per_epoch_valid is None
 
 
-@pytest.mark.parametrize("log_root,log_dir", [("logs", ""), ("logs", "custom")])
-def test_build_log_dir(log_root: str, log_dir: str):
-    built_log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
+@pytest.mark.parametrize("log_dir,exp_name", [("logs", ""), ("logs", "custom")])
+def test_build_log_dir(log_dir: str, exp_name: str):
+    built_log_dir = build_log_dir(log_dir=log_dir, exp_name=exp_name)
     head, tail = os.path.split(built_log_dir)
-    assert head == log_root
-    if log_dir == "":
+    assert head == log_dir
+    if exp_name == "":
         # use default timestamp based directory
         pattern = re.compile("[0-9]{8}-[0-9]{6}")
         assert pattern.match(tail)
     else:
         # use custom directory
-        assert tail == log_dir
+        assert tail == exp_name
 
 
 class TestSaveArray:

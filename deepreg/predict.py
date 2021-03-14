@@ -148,21 +148,21 @@ def predict_on_dataset(
 
 
 def build_config(
-    config_path: Union[str, List[str]], log_root: str, log_dir: str, ckpt_path: str
+    config_path: Union[str, List[str]], log_dir: str, exp_name: str, ckpt_path: str
 ) -> Tuple[Dict, str, str]:
     """
     Function to create new directory to log directory to store results.
 
-    :param config_path: string or list of strings, path of configuration files
-    :param log_root: str, root of logs
-    :param log_dir: string, path to store logs.
-    :param ckpt_path: str, path where model is stored.
+    :param config_path: path of configuration files.
+    :param log_dir: path of the directory.
+    :param exp_name: name of the experiment.
+    :param ckpt_path: path where model is stored.
     :return: - config, configuration dictionary
-             - log_dir, path of the directory for saving outputs
+             - exp_name, path of the directory for saving outputs
     """
 
     # init log directory
-    log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
+    log_dir = build_log_dir(log_dir=log_dir, exp_name=exp_name)
 
     # replace the ~ with user home path
     ckpt_path = os.path.expanduser(ckpt_path)
@@ -189,12 +189,11 @@ def predict(
     ckpt_path: str,
     mode: str,
     batch_size: int,
-    log_dir: str,
-    sample_label: str,
+    exp_name: str,
     config_path: Union[str, List[str]],
     save_nifti: bool = True,
     save_png: bool = True,
-    log_root: str = "logs",
+    log_dir: str = "logs",
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -204,9 +203,8 @@ def predict(
     :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
     :param mode: train / valid / test, to define which split of dataset to be evaluated
     :param batch_size: int, batch size to perform predictions in
-    :param log_dir: path to store logs
-    :param log_root: folder name to store logs
-    :param sample_label: sample/all, not used
+    :param exp_name: name of the experiment
+    :param log_dir: path of the log directory
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
@@ -223,7 +221,7 @@ def predict(
 
     # load config
     config, log_dir, ckpt_path = build_config(
-        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
+        config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
     preprocess_config = config["train"]["preprocess"]
     # batch_size corresponds to batch_size per GPU
@@ -284,7 +282,7 @@ def predict(
         fixed_grid_ref=fixed_grid_ref,
         model=model,
         model_method=config["train"]["method"],
-        save_dir=log_dir + "/test",
+        save_dir=os.path.join(log_dir, "test"),
         save_nifti=save_nifti,
         save_png=save_png,
     )
@@ -343,20 +341,11 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--log_root", help="Root of log directory.", default="logs", type=str
+        "--log_dir", help="Path of log directory.", default="logs", type=str
     )
 
     parser.add_argument(
-        "--log_dir", "-l", help="Path of log directory", default="", type=str
-    )
-
-    # TODO use this argument
-    parser.add_argument(
-        "--sample_label",
-        "-s",
-        help="Method of sampling labels",
-        default="all",
-        type=str,
+        "--exp_name", "-n", help="Name of the experiment.", default="", type=str
     )
 
     parser.add_argument("--save_nifti", dest="nifti", action="store_true")
@@ -384,9 +373,8 @@ def main(args=None):
         ckpt_path=args.ckpt_path,
         mode=args.mode,
         batch_size=args.batch_size,
-        log_root=args.log_root,
         log_dir=args.log_dir,
-        sample_label=args.sample_label,
+        exp_name=args.exp_name,
         config_path=args.config_path,
         save_nifti=args.nifti,
         save_png=args.png,

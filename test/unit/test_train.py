@@ -14,13 +14,12 @@ from deepreg.predict import main as predict_main
 from deepreg.train import build_config
 from deepreg.train import main as train_main
 
-log_root = "logs"
-
 
 class TestBuildConfig:
     # in the config, epochs = save_period = 2
     config_path = "config/unpaired_labeled_ddf.yaml"
-    log_dir = "test_build_config"
+    exp_name = "test_build_config"
+    log_dir = "logs"
 
     @pytest.mark.parametrize("ckpt_path", ["", "example.ckpt"])
     def test_ckpt_path(self, ckpt_path):
@@ -28,12 +27,12 @@ class TestBuildConfig:
 
         got_config, got_log_dir, _ = build_config(
             config_path=self.config_path,
-            log_root=log_root,
             log_dir=self.log_dir,
+            exp_name=self.exp_name,
             ckpt_path=ckpt_path,
         )
         assert isinstance(got_config, dict)
-        assert got_log_dir == os.path.join(log_root, self.log_dir)
+        assert got_log_dir == os.path.join(self.log_dir, self.exp_name)
 
     @pytest.mark.parametrize(
         "max_epochs, expected_epochs, expected_save_period", [(-1, 2, 2), (3, 3, 2)]
@@ -41,8 +40,8 @@ class TestBuildConfig:
     def test_max_epochs(self, max_epochs, expected_epochs, expected_save_period):
         got_config, _, _ = build_config(
             config_path=self.config_path,
-            log_root=log_root,
             log_dir=self.log_dir,
+            exp_name=self.exp_name,
             ckpt_path="",
             max_epochs=max_epochs,
         )
@@ -67,7 +66,7 @@ def test_train_and_predict_main(config_paths):
         args=[
             "--gpu",
             "",
-            "--log_dir",
+            "--exp_name",
             "test_train",
             "--config_path",
         ]
@@ -88,7 +87,7 @@ def test_train_and_predict_main(config_paths):
             "logs/test_train/save/ckpt-2",
             "--mode",
             "test",
-            "--log_dir",
+            "--exp_name",
             "test_predict",
             "--save_nifti",
             "--save_png",
