@@ -12,7 +12,7 @@ Train a registration network using unpaired and labeled example data with a pred
 configuration:
 
 ```bash
-deepreg_train --gpu "" --config_path config/unpaired_labeled_ddf.yaml --log_dir test
+deepreg_train --gpu "" --config_path config/unpaired_labeled_ddf.yaml --exp_name test
 ```
 
 where:
