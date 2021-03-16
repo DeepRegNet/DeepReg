@@ -24,6 +24,7 @@ compatible with the updates.
 ### Changed
 
 - Renamed `neg_weight` to `background_weight`.
+- Renamed `log_dir` to `exp_name` and `log_root` to `log_dir` respectively.
 - Uniformed local-net, global-net, u-net under a single u-net structure.
 - Simplified custom layer definitions.
 - Removed multiple unnecessary custom layers and use tf.keras.layers whenever possible.
