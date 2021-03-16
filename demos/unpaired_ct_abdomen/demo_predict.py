@@ -43,17 +43,17 @@ print(
     "deepreg_predict --gpu '' "
     f"--config_path demos/{name}/{name}_{method}.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt "
-    f"--log_root demos/{name} "
+    f"--log_dir demos/{name} "
     f"--log_dir logs_predict/{method} "
     "--save_png --mode test\n"
     "=========================================================\n"
     "\n\n\n\n\n"
 )
 
-log_root = f"demos/{name}"
-log_dir = f"logs_predict/{method}/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-ckpt_path = f"{log_root}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt"
-config_path = [f"{log_root}/{name}_{method}.yaml"]
+log_dir = f"demos/{name}"
+exp_name = f"logs_predict/{method}/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+ckpt_path = f"{log_dir}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt"
+config_path = [f"{log_dir}/{name}_{method}.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 
@@ -63,8 +63,7 @@ predict(
     ckpt_path=ckpt_path,
     mode="test",
     batch_size=1,
-    log_root=log_root,
     log_dir=log_dir,
-    sample_label="all",
+    exp_name=exp_name,
     config_path=config_path,
 )

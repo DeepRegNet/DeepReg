@@ -44,7 +44,7 @@ class TestDiceScore:
         return np.ones(shape=self.shape) * 0.3
 
     @pytest.mark.parametrize(
-        "binary,neg_weight,scales,expected",
+        "binary,background_weight,scales,expected",
         [
             (True, 0.0, None, 0.0),
             (False, 0.0, None, 0.4),
@@ -53,22 +53,22 @@ class TestDiceScore:
             (False, 0.2, [0, 1], 0.46030036),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, neg_weight, scales, expected):
+    def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
         expected = np.array([expected] * self.shape[0])  # call returns (batch, )
-        got = label.DiceScore(binary=binary, neg_weight=neg_weight, scales=scales).call(
-            y_true=y_true, y_pred=y_pred
-        )
+        got = label.DiceScore(
+            binary=binary, background_weight=background_weight, scales=scales
+        ).call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected)
-        got = label.DiceLoss(binary=binary, neg_weight=neg_weight, scales=scales).call(
-            y_true=y_true, y_pred=y_pred
-        )
+        got = label.DiceLoss(
+            binary=binary, background_weight=background_weight, scales=scales
+        ).call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, -expected)
 
     def test_get_config(self):
         got = label.DiceScore().get_config()
         expected = dict(
             binary=False,
-            neg_weight=0.0,
+            background_weight=0.0,
             scales=None,
             kernel="gaussian",
             reduction=tf.keras.losses.Reduction.SUM,
@@ -89,7 +89,7 @@ class TestCrossEntropy:
         return np.ones(shape=self.shape) * 0.3
 
     @pytest.mark.parametrize(
-        "binary,neg_weight,scales,expected",
+        "binary,background_weight,scales,expected",
         [
             (True, 0.0, None, -np.log(1.0e-7)),
             (False, 0.0, None, -0.6 * np.log(0.3)),
@@ -98,10 +98,10 @@ class TestCrossEntropy:
             (False, 0.2, [0, 1], 0.5239637),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, neg_weight, scales, expected):
+    def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
         expected = np.array([expected] * self.shape[0])  # call returns (batch, )
         got = label.CrossEntropy(
-            binary=binary, neg_weight=neg_weight, scales=scales
+            binary=binary, background_weight=background_weight, scales=scales
         ).call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected)
 
@@ -109,7 +109,7 @@ class TestCrossEntropy:
         got = label.CrossEntropy().get_config()
         expected = dict(
             binary=False,
-            neg_weight=0.0,
+            background_weight=0.0,
             scales=None,
             kernel="gaussian",
             reduction=tf.keras.losses.Reduction.SUM,

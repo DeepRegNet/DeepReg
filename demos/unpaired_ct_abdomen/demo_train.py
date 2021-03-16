@@ -44,14 +44,14 @@ print(
     "The training can also be launched using the following command.\n"
     "deepreg_train --gpu '0' "
     f"--config_path demos/{name}/{name}_{method}.yaml "
-    f"--log_root demos/{name} "
+    f"--log_dir demos/{name} "
     f"--log_dir logs_train/{method}\n"
     "=======================================================\n"
     "\n\n\n\n\n"
 )
 
-log_root = f"demos/{name}"
-log_dir = f"logs_train/{method}/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+log_dir = f"demos/{name}"
+exp_name = f"logs_train/{method}/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 config_path = [f"demos/{name}/{name}_{method}.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
@@ -61,6 +61,6 @@ train(
     config_path=config_path,
     gpu_allow_growth=True,
     ckpt_path="",
-    log_root=log_root,
     log_dir=log_dir,
+    exp_name=exp_name,
 )

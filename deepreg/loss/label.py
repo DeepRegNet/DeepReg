@@ -102,14 +102,15 @@ class DiceScore(MultiScaleLoss):
     Define dice score.
 
     The formulation is:
-        0. pos_w + neg_w = 1
+
+        0. w_fg + w_bg = 1
         1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
-        2. num = 2 *  (pos_w * y_true * y_pred + neg_w * (1−y_true) * (1−y_pred))
-               = 2 *  ((pos_w+neg_w) * y_prod - neg_w * y_sum + neg_w)
-               = 2 *  (y_prod - neg_w * y_sum + neg_w)
-        3. denom = (pos_w * (y_true + y_pred) + neg_w * (1−y_true + 1−y_pred))
-                 = (pos_w-neg_w) * y_sum + 2 * neg_w
-                 = (1-2*neg_w) * y_sum + 2 * neg_w
+        2. num = 2 *  (w_fg * y_true * y_pred + w_bg * (1−y_true) * (1−y_pred))
+               = 2 *  ((w_fg+w_bg) * y_prod - w_bg * y_sum + w_bg)
+               = 2 *  (y_prod - w_bg * y_sum + w_bg)
+        3. denom = (w_fg * (y_true + y_pred) + w_bg * (1−y_true + 1−y_pred))
+                 = (w_fg-w_bg) * y_sum + 2 * w_bg
+                 = (1-2*w_bg) * y_sum + 2 * w_bg
         4. dice score = num / denom
 
     where num and denom are summed over all axes except the batch axis.
@@ -118,7 +119,7 @@ class DiceScore(MultiScaleLoss):
     def __init__(
         self,
         binary: bool = False,
-        neg_weight: float = 0.0,
+        background_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction: str = tf.keras.losses.Reduction.SUM,
@@ -128,7 +129,7 @@ class DiceScore(MultiScaleLoss):
         Init.
 
         :param binary: if True, project y_true, y_pred to 0 or 1.
-        :param neg_weight: weight for negative class.
+        :param background_weight: weight for background, where y == 0.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
@@ -136,9 +137,9 @@ class DiceScore(MultiScaleLoss):
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
-        assert 0 <= neg_weight <= 1
+        assert 0 <= background_weight <= 1
         self.binary = binary
-        self.neg_weight = neg_weight
+        self.background_weight = background_weight
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -159,15 +160,19 @@ class DiceScore(MultiScaleLoss):
         y_prod = tf.reduce_mean(y_true * y_pred, axis=1)
         y_sum = tf.reduce_mean(y_true, axis=1) + tf.reduce_mean(y_pred, axis=1)
 
-        numerator = 2 * (y_prod - self.neg_weight * y_sum + self.neg_weight)
-        denominator = (1 - 2 * self.neg_weight) * y_sum + 2 * self.neg_weight
+        numerator = 2 * (
+            y_prod - self.background_weight * y_sum + self.background_weight
+        )
+        denominator = (
+            1 - 2 * self.background_weight
+        ) * y_sum + 2 * self.background_weight
         return (numerator + EPS) / (denominator + EPS)
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
-        config["neg_weight"] = self.neg_weight
+        config["background_weight"] = self.background_weight
         return config
 
 
@@ -182,13 +187,13 @@ class CrossEntropy(MultiScaleLoss):
     Define weighted cross-entropy.
 
     The formulation is:
-        loss = − pos_w * y_true log(y_pred) - neg_w * (1−y_true) log(1−y_pred)
+        loss = − w_fg * y_true log(y_pred) - w_bg * (1−y_true) log(1−y_pred)
     """
 
     def __init__(
         self,
         binary: bool = False,
-        neg_weight: float = 0.0,
+        background_weight: float = 0.0,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction: str = tf.keras.losses.Reduction.SUM,
@@ -198,7 +203,7 @@ class CrossEntropy(MultiScaleLoss):
         Init.
 
         :param binary: if True, project y_true, y_pred to 0 or 1
-        :param neg_weight: weight for negative class
+        :param background_weight: weight for background, where y == 0.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
@@ -206,9 +211,9 @@ class CrossEntropy(MultiScaleLoss):
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
-        assert 0 <= neg_weight <= 1
+        assert 0 <= background_weight <= 1
         self.binary = binary
-        self.neg_weight = neg_weight
+        self.background_weight = background_weight
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -226,15 +231,20 @@ class CrossEntropy(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        loss_pos = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
-        loss_neg = tf.reduce_mean((1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1)
-        return -(1 - self.neg_weight) * loss_pos - self.neg_weight * loss_neg
+        loss_foreground = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
+        loss_background = tf.reduce_mean(
+            (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1
+        )
+        return (
+            -(1 - self.background_weight) * loss_foreground
+            - self.background_weight * loss_background
+        )
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["binary"] = self.binary
-        config["neg_weight"] = self.neg_weight
+        config["background_weight"] = self.background_weight
         return config
 
 

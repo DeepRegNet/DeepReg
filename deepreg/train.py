@@ -19,8 +19,8 @@ from deepreg.util import build_dataset, build_log_dir
 
 def build_config(
     config_path: Union[str, List[str]],
-    log_root: str,
     log_dir: str,
+    exp_name: str,
     ckpt_path: str,
     max_epochs: int = -1,
 ) -> Tuple[Dict, str, str]:
@@ -30,16 +30,16 @@ def build_config(
     type and to parse the configuration for training.
 
     :param config_path: list of str, path to config file
-    :param log_root: root of logs
-    :param log_dir: path to where training logs to be stored.
+    :param log_dir: path of the log directory
+    :param exp_name: name of the experiment
     :param ckpt_path: path where model is stored.
     :param max_epochs: if max_epochs > 0, use it to overwrite the configuration
     :return: - config: a dictionary saving configuration
-             - log_dir: the path of directory to save logs
+             - exp_name: the path of directory to save logs
     """
 
     # init log directory
-    log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
+    log_dir = build_log_dir(log_dir=log_dir, exp_name=exp_name)
 
     # load config
     config = config_parser.load_configs(config_path)
@@ -67,20 +67,20 @@ def train(
     config_path: Union[str, List[str]],
     gpu_allow_growth: bool,
     ckpt_path: str,
-    log_dir: str = "",
-    log_root: str = "logs",
+    exp_name: str = "",
+    log_dir: str = "logs",
     max_epochs: int = -1,
 ):
     """
     Function to train a model.
 
-    :param gpu: which local gpu to use to train
-    :param config_path: path to configuration set up
-    :param gpu_allow_growth: whether to allocate whole GPU memory for training
-    :param ckpt_path: where to store training checkpoints
-    :param log_root: root of logs
-    :param log_dir: where to store logs in training
-    :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration
+    :param gpu: which local gpu to use to train.
+    :param config_path: path to configuration set up.
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
+    :param ckpt_path: where to store training checkpoints.
+    :param log_dir: path of the log directory.
+    :param exp_name: experiment name.
+    :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
     """
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -89,8 +89,8 @@ def train(
     # load config
     config, log_dir, ckpt_path = build_config(
         config_path=config_path,
-        log_root=log_root,
         log_dir=log_dir,
+        exp_name=exp_name,
         ckpt_path=ckpt_path,
         max_epochs=max_epochs,
     )
@@ -177,7 +177,7 @@ def main(args=None):
     """
     Entry point for train script.
 
-    :param args:
+    :param args: arguments
     """
 
     parser = argparse.ArgumentParser()
@@ -211,11 +211,11 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--log_root", help="Root of log directory.", default="logs", type=str
+        "--log_dir", help="Path of log directory.", default="logs", type=str
     )
 
     parser.add_argument(
-        "--log_dir",
+        "--exp_name",
         "-l",
         help="Name of log directory."
         "The directory is under log root, e.g. logs/ by default."
@@ -246,8 +246,8 @@ def main(args=None):
         config_path=args.config_path,
         gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
-        log_root=args.log_root,
         log_dir=args.log_dir,
+        exp_name=args.exp_name,
         max_epochs=args.max_epochs,
     )
 

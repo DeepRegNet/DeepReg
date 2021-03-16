@@ -129,6 +129,11 @@ def parse_label_loss(loss_config: dict) -> dict:
     if loss_config["label"]["name"] == "dice_generalized":
         loss_config["label"]["name"] = "dice"
 
+    # rename neg_weight to background_weight
+    if "neg_weight" in loss_config["label"]:
+        background_weight = loss_config["label"].pop("neg_weight")
+        loss_config["label"]["background_weight"] = background_weight
+
     return loss_config
 
 
