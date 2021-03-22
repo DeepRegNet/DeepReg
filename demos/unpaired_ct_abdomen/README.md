@@ -55,11 +55,11 @@ python demos/unpaired_ct_abdomen/demo_train.py --method comb
 ```
 
 Here the training is launched using the GPU of index 0 with a limited number of steps
-and reduced size. Please add flag `--no-test` to use the original training
-configuration, such as
+and reduced size. Please add flag `--full` to use the original training configuration,
+such as
 
 ```bash
-python demos/unpaired_ct_abdomen/demo_train.py --method unsup --no-test
+python demos/unpaired_ct_abdomen/demo_train.py --method unsup --full
 ```
 
 ### Predict
