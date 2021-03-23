@@ -295,7 +295,7 @@ class RegistrationModel(tf.keras.Model):
         :param tensor: tensor to monitor.
         :param name: name of the tensor.
         """
-        flatten = tf.keras.layers.Flatten()(tensor)
+        flatten = tf.reshape(tensor, shape=(self.batch_size, -1))
         self._model.add_metric(
             tf.reduce_mean(flatten, axis=1),
             name=f"metric/{name}_mean",
@@ -413,7 +413,7 @@ class DDFModel(RegistrationModel):
             tre = compute_centroid_distance(
                 y_true=fixed_label, y_pred=pred_fixed_label, grid=self._warping.grid_ref
             )
-            self._model.add_metric(tre, name="metric/tre", aggregation="mean")
+            self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
 
     def postprocess(
         self,
