@@ -13,7 +13,7 @@ compatible with the updates.
 
 ### Added
 
-- Added DDF stats and TRE into tensorboard.
+- Added statistics on inputs, DDF and TRE into tensorboard.
 - Added example for using custom loss.
 - Added tests on Mac OS.
 - Added tests for python 3.6 and 3.7.

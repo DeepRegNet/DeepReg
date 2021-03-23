@@ -304,17 +304,12 @@ class RegistrationModel(tf.keras.Model):
         self._model.add_metric(
             tf.reduce_min(flatten, axis=1),
             name=f"metric/{name}_min",
-            aggregation="mean",
+            aggregation="min",
         )
         self._model.add_metric(
             tf.reduce_max(flatten, axis=1),
             name=f"metric/{name}_max",
-            aggregation="mean",
-        )
-        self._model.add_metric(
-            tf.reduce_max(tf.abs(flatten), axis=1),
-            name=f"metric/{name}_abs_max",
-            aggregation="mean",
+            aggregation="max",
         )
 
 
@@ -390,8 +385,13 @@ class DDFModel(RegistrationModel):
     def build_loss(self):
         """Build losses according to configs."""
         fixed_image = self._inputs["fixed_image"]
+        moving_image = self._inputs["moving_image"]
         ddf = self._outputs["ddf"]
         pred_fixed_image = self._outputs["pred_fixed_image"]
+
+        # inputs
+        self.log_tensor_stats(tensor=moving_image, name="moving_image")
+        self.log_tensor_stats(tensor=fixed_image, name="fixed_image")
 
         # ddf
         self._build_loss(name="regularization", inputs_dict=dict(inputs=ddf))
@@ -405,6 +405,7 @@ class DDFModel(RegistrationModel):
         # label
         if self.labeled:
             fixed_label = self._inputs["fixed_label"]
+            moving_label = self._inputs["moving_label"]
             pred_fixed_label = self._outputs["pred_fixed_label"]
             self._build_loss(
                 name="label",
@@ -414,6 +415,8 @@ class DDFModel(RegistrationModel):
                 y_true=fixed_label, y_pred=pred_fixed_label, grid=self._warping.grid_ref
             )
             self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
+            self.log_tensor_stats(tensor=moving_label, name="moving_label")
+            self.log_tensor_stats(tensor=fixed_label, name="fixed_label")
 
     def postprocess(
         self,
