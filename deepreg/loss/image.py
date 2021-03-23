@@ -274,6 +274,16 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         ncc = tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
         tf.debugging.check_numerics(ncc, "LNCC ncc_mean value NAN/INF", name=None)
 
+        tf.print(
+            "DEBUG",
+            tf.reduce_min(ncc),
+            tf.reduce_max(ncc),
+            tf.reduce_min(y_pred),
+            tf.reduce_max(y_pred),
+            tf.reduce_min(y_true),
+            tf.reduce_max(y_true),
+            ncc,
+        )
         return ncc
 
     def get_config(self) -> dict:
