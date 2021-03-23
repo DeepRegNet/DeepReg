@@ -50,11 +50,11 @@ python demos/unpaired_us_prostate_cv/demo_train.py
 ```
 
 Here the training is launched using the GPU of index 0 with a limited number of steps
-and reduced size. Please add flag `--no-test` to use the original training
-configuration, such as
+and reduced size. Please add flag `--full` to use the original training configuration,
+such as
 
 ```bash
-python demos/unpaired_us_prostate_cv/demo_train.py --no-test
+python demos/unpaired_us_prostate_cv/demo_train.py --full
 ```
 
 ### Predict
