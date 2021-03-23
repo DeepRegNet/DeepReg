@@ -6,6 +6,7 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
+from deepreg.loss.label import compute_centroid_distance
 from deepreg.model import layer
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
@@ -371,9 +372,9 @@ class DDFModel(RegistrationModel):
             self._outputs = dict(ddf=ddf)
 
         # build outputs
-        warping = layer.Warping(fixed_image_size=self.fixed_image_size)
+        self._warping = layer.Warping(fixed_image_size=self.fixed_image_size)
         # (f_dim1, f_dim2, f_dim3, 3)
-        pred_fixed_image = warping(inputs=[ddf, moving_image])
+        pred_fixed_image = self._warping(inputs=[ddf, moving_image])
         self._outputs["pred_fixed_image"] = pred_fixed_image
 
         if not self.labeled:
@@ -381,7 +382,7 @@ class DDFModel(RegistrationModel):
 
         # (f_dim1, f_dim2, f_dim3, 3)
         moving_label = self._inputs["moving_label"]
-        pred_fixed_label = warping(inputs=[ddf, moving_label])
+        pred_fixed_label = self._warping(inputs=[ddf, moving_label])
 
         self._outputs["pred_fixed_label"] = pred_fixed_label
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
@@ -409,7 +410,10 @@ class DDFModel(RegistrationModel):
                 name="label",
                 inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
             )
-            # TODO add TRE metric
+            tre = compute_centroid_distance(
+                y_true=fixed_label, y_pred=pred_fixed_label, grid=self._warping.grid_ref
+            )
+            self._model.add_metric(tre, name="metric/tre", aggregation="mean")
 
     def postprocess(
         self,
@@ -487,9 +491,9 @@ class DVFModel(DDFModel):
         ddf = layer.IntDVF(fixed_image_size=self.fixed_image_size)(dvf)
 
         # build outputs
-        warping = layer.Warping(fixed_image_size=self.fixed_image_size)
+        self._warping = layer.Warping(fixed_image_size=self.fixed_image_size)
         # (f_dim1, f_dim2, f_dim3, 3)
-        pred_fixed_image = warping(inputs=[ddf, moving_image])
+        pred_fixed_image = self._warping(inputs=[ddf, moving_image])
 
         self._outputs = dict(dvf=dvf, ddf=ddf, pred_fixed_image=pred_fixed_image)
 
@@ -498,7 +502,7 @@ class DVFModel(DDFModel):
 
         # (f_dim1, f_dim2, f_dim3, 3)
         moving_label = self._inputs["moving_label"]
-        pred_fixed_label = warping(inputs=[ddf, moving_label])
+        pred_fixed_label = self._warping(inputs=[ddf, moving_label])
 
         self._outputs["pred_fixed_label"] = pred_fixed_label
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
