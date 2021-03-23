@@ -258,15 +258,23 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         p_avg = p_sum / self.kernel_vol  # E[p]
 
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
-        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
-        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+        cross = tp_sum - p_avg * t_sum - t_avg * p_sum + p_avg * t_avg * self.kernel_vol
+        t_var = t2_sum - 2 * t_avg * t_sum + t_avg * t_avg * self.kernel_vol
+        p_var = p2_sum - 2 * p_avg * p_sum + p_avg * p_avg * self.kernel_vol
+
+        # cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        # t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        # p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
 
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
-        ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+        ncc = (cross * cross) / (t_var * p_var + EPS)
 
-        tf.debugging.check_numerics(ncc, "LNCC y_pred value NAN/INF", name=None)
-        return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
+        tf.debugging.check_numerics(ncc, "LNCC ncc value NAN/INF", name=None)
+
+        ncc = tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
+        tf.debugging.check_numerics(ncc, "LNCC ncc_mean value NAN/INF", name=None)
+
+        return ncc
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
