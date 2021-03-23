@@ -175,7 +175,7 @@ class RegistrationModel(tf.keras.Model):
         """
         Build and add one weighted loss together with the metrics.
 
-        :param name: name of loss
+        :param name: name of loss, image / label / regularization.
         :param inputs_dict: inputs for loss function
         """
 
@@ -287,6 +287,35 @@ class RegistrationModel(tf.keras.Model):
                 f"{err}"
             )
 
+    def log_tensor_stats(self, tensor: tf.Tensor, name: str):
+        """
+        Log statistics of a given tensor.
+
+        :param tensor: tensor to monitor.
+        :param name: name of the tensor.
+        """
+        flatten = tf.keras.layers.Flatten()(tensor)
+        self._model.add_metric(
+            tf.reduce_mean(flatten, axis=1),
+            name=f"metric/{name}_mean",
+            aggregation="mean",
+        )
+        self._model.add_metric(
+            tf.reduce_min(flatten, axis=1),
+            name=f"metric/{name}_min",
+            aggregation="mean",
+        )
+        self._model.add_metric(
+            tf.reduce_max(flatten, axis=1),
+            name=f"metric/{name}_max",
+            aggregation="mean",
+        )
+        self._model.add_metric(
+            tf.reduce_max(tf.abs(flatten), axis=1),
+            name=f"metric/{name}_abs_max",
+            aggregation="mean",
+        )
+
 
 @REGISTRY.register_model(name="ddf")
 class DDFModel(RegistrationModel):
@@ -365,6 +394,7 @@ class DDFModel(RegistrationModel):
 
         # ddf
         self._build_loss(name="regularization", inputs_dict=dict(inputs=ddf))
+        self.log_tensor_stats(tensor=ddf, name="ddf")
 
         # image
         self._build_loss(
@@ -379,6 +409,7 @@ class DDFModel(RegistrationModel):
                 name="label",
                 inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
             )
+            # TODO add TRE metric
 
     def postprocess(
         self,
