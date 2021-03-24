@@ -384,6 +384,11 @@ class GeneratorDataLoader(DataLoader, ABC):
                     f"Sample {image_indices}'s {name}' shape should be 3D. "
                     f"Got {arr.shape}."
                 )
+            if min(arr.shape) <= 0:
+                raise ValueError(
+                    f"Sample {image_indices}'s {name}' shape should be non-empty. "
+                    f"Got {arr.shape}."
+                )
         # when data are labeled
         if moving_label is not None and fixed_label is not None:
             # labels should be 3D or 4D arrays
