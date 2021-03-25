@@ -231,9 +231,12 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         # adjust
-        tf.debugging.enable_check_numerics()
-        tf.debugging.check_numerics(y_true, "LNCC y_true value NAN/INF", name=None)
-        tf.debugging.check_numerics(y_pred, "LNCC y_pred value NAN/INF", name=None)
+        y_true = tf.debugging.check_numerics(
+            y_true, "LNCC y_true value NAN/INF", name="LNCC_y_true"
+        )
+        y_pred = tf.debugging.check_numerics(
+            y_pred, "LNCC y_pred value NAN/INF", name="LNCCC_y_pred"
+        )
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
@@ -270,21 +273,15 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
-        tf.debugging.check_numerics(ncc, "LNCC ncc value NAN/INF", name=None)
+        ncc = tf.debugging.check_numerics(
+            ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
+        )
 
         ncc = tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
-        tf.debugging.check_numerics(ncc, "LNCC ncc_mean value NAN/INF", name=None)
+        ncc = tf.debugging.check_numerics(
+            ncc, "LNCC ncc_mean value NAN/INF", name="LNCC_after_mean"
+        )
 
-        # tf.print(
-        #     "DEBUG",
-        #     tf.reduce_min(ncc),
-        #     tf.reduce_max(ncc),
-        #     tf.reduce_min(y_pred),
-        #     tf.reduce_max(y_pred),
-        #     tf.reduce_min(y_true),
-        #     tf.reduce_max(y_true),
-        #     ncc,
-        # )
         return ncc
 
     def get_config(self) -> dict:
