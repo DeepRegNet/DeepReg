@@ -227,7 +227,7 @@ class RegistrationModel(tf.keras.Model):
             tf.debugging.check_numerics(
                 loss_value,
                 f"loss {name}_{loss_layer.name} inf/nan",
-                name=f"op loss/{name}_{loss_layer.name}",
+                name=f"op_loss_{name}_{loss_layer.name}",
             )
 
             # add metric
