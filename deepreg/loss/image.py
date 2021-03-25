@@ -306,9 +306,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
-        tf.debugging.Assert(
-            tf.math.reduce_any(tf.math.is_inf(ncc)),
-            [
+        debug_assert = tf.debugging.Assert(
+            tf.math.is_finite(tf.reduce_mean(ncc))[
                 tf.reduce_min(cross),
                 tf.reduce_max(cross),
                 tf.reduce_min(t_var),
@@ -322,6 +321,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             summarize=None,
             name="debug_div",
         )
+        debug_assert.mark_used()
 
         ncc = tf.debugging.check_numerics(
             ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
