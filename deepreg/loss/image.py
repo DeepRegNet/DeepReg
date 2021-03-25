@@ -307,7 +307,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
         debug_assert = tf.debugging.Assert(
-            tf.math.is_finite(tf.reduce_mean(ncc))[
+            tf.math.is_finite(tf.reduce_mean(ncc)),
+            [
                 tf.reduce_min(cross),
                 tf.reduce_max(cross),
                 tf.reduce_min(t_var),
