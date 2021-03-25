@@ -224,6 +224,12 @@ class RegistrationModel(tf.keras.Model):
             # add loss
             self._model.add_loss(weighted_loss)
 
+            tf.debugging.check_numerics(
+                loss_value,
+                f"loss {name}_{loss_layer.name} inf/nan",
+                name=f"op loss/{name}_{loss_layer.name}",
+            )
+
             # add metric
             self._model.add_metric(
                 loss_value, name=f"loss/{name}_{loss_layer.name}", aggregation="mean"
