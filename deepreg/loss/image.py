@@ -271,7 +271,10 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             ("ncc", ncc),
         ]:
             print(x_name + "_min_max", tf.reduce_min(x), tf.reduce_max(x))
-            np.save(x_name + ".npy", x.numpy())
+            try:
+                np.save(x_name + ".npy", x.numpy())
+            except AttributeError:
+                print("save failed")
 
         ncc = tf.debugging.check_numerics(
             ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
