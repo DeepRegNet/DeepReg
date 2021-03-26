@@ -1,4 +1,5 @@
 """Provide different loss or metrics classes for images."""
+import numpy as np
 import tensorflow as tf
 
 from deepreg.loss.util import NegativeLossMixin
@@ -263,10 +264,14 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
-        print("cross", cross)
-        print("t_var", t_var)
-        print("p_var", p_var)
-        print("ncc", ncc)
+        for x_name, x in [
+            ("cross", cross),
+            ("t_var", t_var),
+            ("p_var", p_var),
+            ("ncc", ncc),
+        ]:
+            print(x_name + "_min_max", tf.reduce_min(x), tf.reduce_max(x))
+            np.save(x_name + ".npy", x.numpy())
 
         ncc = tf.debugging.check_numerics(
             ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
