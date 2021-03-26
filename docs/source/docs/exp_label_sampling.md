@@ -33,11 +33,11 @@ However,
 - When using the grouped-labeled-image loader without mixing intra-group and inter-group
   images, consistent label pairs are not required between different image groups.
 
-## Partially labeled image data
+## Partially labeled image data or missing labels
 
 When one of the label dissimilarity measures prevents accidentally missing labels. When
-appropriate, enable training with missing labels with a placeholder all-zero mask for
-the imaging data.
+appropriate, enable training with missing labels with placeholder all-zero masks for the
+labels.
 
 ## Option for iterating all available label pairs
 
