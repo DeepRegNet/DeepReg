@@ -264,7 +264,7 @@ class RegistrationModel(tf.keras.Model):
             debug_value2 = LocalNormalizedCrossCorrelationDEBUG2()(
                 y_true=fixed_image, y_pred=pred_fixed_image
             )
-            self.log_tensor_stats(debug_value2, name="debug-lncc-num")
+            self.log_tensor_stats(debug_value2, name="debug-lncc-denom")
             self._build_loss(
                 name="image",
                 inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image),
