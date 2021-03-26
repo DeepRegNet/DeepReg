@@ -205,6 +205,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             )
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
+        self.kernel_size = kernel_size
         self.filters = tf.ones(
             shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1]
         )
@@ -345,6 +346,7 @@ class LocalNormalizedCrossCorrelationDEBUG1(tf.keras.layers.Layer):
             )
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
+        self.kernel_size = kernel_size
         self.filters = tf.ones(
             shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1]
         )
@@ -484,6 +486,7 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
             )
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
+        self.kernel_size = kernel_size
         self.filters = tf.ones(
             shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1]
         )
