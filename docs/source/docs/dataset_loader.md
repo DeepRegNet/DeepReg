@@ -76,7 +76,10 @@ follows.
     the channel of index `label_idx` is the same anatomical or pathological structure.
 
   - Currently, if the data are labeled, each data sample must have at least one label.
-    For missing labels, consider using all zeros as a workaround.
+    For missing labels or partially labelled data, consider using all-zero masks as a
+    workaround.
+
+  - See further discussion in [Label sampling](exp_label_sampling.html).
 
 .. \_paired-images:
 
