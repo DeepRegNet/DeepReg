@@ -5,7 +5,11 @@ import tensorflow as tf
 
 from deepreg.loss.util import NegativeLossMixin
 from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
-from deepreg.loss.util import rectangular_kernel1d, triangular_kernel1d
+from deepreg.loss.util import (
+    rectangular_kernel1d,
+    separable_filter,
+    triangular_kernel1d,
+)
 from deepreg.registry import REGISTRY
 
 EPS = 1.0e-5
@@ -208,14 +212,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
-        self.filters = tf.ones(
-            shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1]
-        ) / (kernel_size ** 3)
-        self.strides = [1, 1, 1, 1, 1]
-        self.padding = "SAME"
 
-        # E[1] = sum_i(w_i), ()
-        # self.kernel_vol = kernel_size ** 3
+        # (kernel_size, )
+        self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -264,31 +263,16 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         # sum over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_sum = tf.nn.conv3d(
-            y_true, filters=self.filters, strides=self.strides, padding=self.padding
-        )
-        p_sum = tf.nn.conv3d(
-            y_pred, filters=self.filters, strides=self.strides, padding=self.padding
-        )
-        t2_sum = tf.nn.conv3d(
-            t2, filters=self.filters, strides=self.strides, padding=self.padding
-        )
-        p2_sum = tf.nn.conv3d(
-            p2, filters=self.filters, strides=self.strides, padding=self.padding
-        )
-        tp_sum = tf.nn.conv3d(
-            tp, filters=self.filters, strides=self.strides, padding=self.padding
-        )
-
-        # average over kernel
-        # (batch, dim1, dim2, dim3, 1)
-        # t_avg = t_sum / self.kernel_vol  # E[t]
-        # p_avg = p_sum / self.kernel_vol  # E[p]
+        t_sum = separable_filter(y_true, kernel=self.kernel)
+        p_sum = separable_filter(y_pred, kernel=self.kernel)
+        t2_sum = separable_filter(t2, kernel=self.kernel)
+        p2_sum = separable_filter(p2, kernel=self.kernel)
+        tp_sum = separable_filter(tp, kernel=self.kernel)
 
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_sum * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
-        t_var = t2_sum - t_sum * t_sum  # V[t] * E[1]
-        p_var = p2_sum - p_sum * p_sum  # V[p] * E[1]
+        cross = tp_sum - p_sum * t_sum
+        t_var = t2_sum - t_sum * t_sum
+        p_var = p2_sum - p_sum * p_sum
 
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         num = cross * cross
