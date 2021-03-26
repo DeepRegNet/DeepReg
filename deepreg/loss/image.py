@@ -321,7 +321,7 @@ class LocalNormalizedCrossCorrelationDEBUG(tf.keras.layers.Layer):
         self,
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        # reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "LocalNormalizedCrossCorrelationDEBUG",
     ):
         """
@@ -329,11 +329,9 @@ class LocalNormalizedCrossCorrelationDEBUG(tf.keras.layers.Layer):
 
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
-        :param reduction: using SUM reduction over batch axis,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name)
         if kernel_type not in self.kernel_fn_dict.keys():
             raise ValueError(
                 f"Wrong kernel_type {kernel_type} for LNCC loss type. "
