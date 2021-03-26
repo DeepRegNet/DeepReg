@@ -218,7 +218,7 @@ def resample(
     vol: tf.Tensor,
     loc: tf.Tensor,
     interpolation: str = "linear",
-    zero_boundary: bool = False,
+    zero_boundary: bool = True,
 ) -> tf.Tensor:
     r"""
     Sample the volume at given locations.

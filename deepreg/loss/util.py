@@ -27,9 +27,6 @@ class NegativeLossMixin(tf.keras.losses.Loss):
         return -super().call(y_true=y_true, y_pred=y_pred)
 
 
-EPS = 1.0e-5
-
-
 def rectangular_kernel1d(kernel_size: int) -> tf.Tensor:
     """
     Return a the 1D rectangular kernel for LocalNormalizedCrossCorrelation.

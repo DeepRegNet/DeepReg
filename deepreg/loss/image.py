@@ -1,6 +1,7 @@
 """Provide different loss or metrics classes for images."""
 import tensorflow as tf
 
+from deepreg.constant import EPS
 from deepreg.loss.util import NegativeLossMixin
 from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
 from deepreg.loss.util import (
@@ -9,8 +10,6 @@ from deepreg.loss.util import (
     triangular_kernel1d,
 )
 from deepreg.registry import REGISTRY
-
-EPS = 1.0e-5
 
 
 @REGISTRY.register_loss(name="ssd")

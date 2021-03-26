@@ -60,7 +60,7 @@ class RegistrationModel(tf.keras.Model):
         self.batch_size = batch_size
         self.config = config
         self.num_devices = num_devices
-        self.global_batch_size = num_devices * batch_size * 1.0
+        self.global_batch_size = num_devices * batch_size
         assert self.global_batch_size > 0
 
         self._inputs = None  # save inputs of self._model as dict
@@ -219,17 +219,10 @@ class RegistrationModel(tf.keras.Model):
                 config=dict_without(d=loss_config, key="weight")
             )
             loss_value = loss_layer(**inputs_dict) / self.global_batch_size
-            weighted_loss = loss_value * weight if weight != 1 else loss_value
+            weighted_loss = loss_value * weight
 
             # add loss
             self._model.add_loss(weighted_loss)
-
-            loss_value = tf.debugging.check_numerics(
-                loss_value,
-                f"loss {name}_{loss_layer.name} inf/nan",
-                name=f"op_loss_{name}_{loss_layer.name}",
-            )
-
             # add metric
             self._model.add_metric(
                 loss_value, name=f"loss/{name}_{loss_layer.name}", aggregation="mean"
