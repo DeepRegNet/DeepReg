@@ -6,7 +6,10 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
-from deepreg.loss.image import LocalNormalizedCrossCorrelationDEBUG
+from deepreg.loss.image import (
+    LocalNormalizedCrossCorrelationDEBUG1,
+    LocalNormalizedCrossCorrelationDEBUG2,
+)
 from deepreg.loss.label import DiceScore, compute_centroid_distance
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
@@ -254,10 +257,14 @@ class RegistrationModel(tf.keras.Model):
         # image loss, conditional model does not have this
         if "pred_fixed_image" in self._outputs:
             pred_fixed_image = self._outputs["pred_fixed_image"]
-            debug_value = LocalNormalizedCrossCorrelationDEBUG()(
+            debug_value1 = LocalNormalizedCrossCorrelationDEBUG1()(
                 y_true=fixed_image, y_pred=pred_fixed_image
             )
-            self.log_tensor_stats(debug_value, name="debug-lncc")
+            self.log_tensor_stats(debug_value1, name="debug-lncc-num")
+            debug_value2 = LocalNormalizedCrossCorrelationDEBUG2()(
+                y_true=fixed_image, y_pred=pred_fixed_image
+            )
+            self.log_tensor_stats(debug_value2, name="debug-lncc-num")
             self._build_loss(
                 name="image",
                 inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image),
