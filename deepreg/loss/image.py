@@ -455,7 +455,7 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
         # reduction: str = tf.keras.losses.Reduction.SUM,
-        name: str = "LocalNormalizedCrossCorrelationDEBUG1",
+        name: str = "LocalNormalizedCrossCorrelationDEBUG2",
     ):
         """
         Init.
