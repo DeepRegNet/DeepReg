@@ -263,6 +263,11 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
+        print("cross", cross)
+        print("t_var", t_var)
+        print("p_var", p_var)
+        print("ncc", ncc)
+
         ncc = tf.debugging.check_numerics(
             ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
         )
