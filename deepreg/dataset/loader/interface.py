@@ -379,14 +379,9 @@ class GeneratorDataLoader(DataLoader, ABC):
         for arr, name in zip(
             [moving_image, fixed_image], ["moving_image", "fixed_image"]
         ):
-            if len(arr.shape) != 3:
+            if len(arr.shape) != 3 or min(arr.shape) <= 0:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}' shape should be 3D. "
-                    f"Got {arr.shape}."
-                )
-            if min(arr.shape) <= 0:
-                raise ValueError(
-                    f"Sample {image_indices}'s {name}' shape should be non-empty. "
+                    f"Sample {image_indices}'s {name}' shape should be 3D and non-empty. "
                     f"Got {arr.shape}."
                 )
         # when data are labeled
