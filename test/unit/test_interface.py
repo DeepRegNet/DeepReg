@@ -356,7 +356,7 @@ def test_generator_data_loader(caplog):
             fixed_label=None,
             image_indices=[1],
         )
-    assert "Sample [1]'s moving_image' shape should be 3D. " in str(err_info.value)
+    assert "Sample [1]'s moving_image' shape should be 3D" in str(err_info.value)
     with pytest.raises(ValueError) as err_info:
         generator.validate_images_and_labels(
             fixed_image=dummy_array,
