@@ -1,6 +1,4 @@
 """Provide different loss or metrics classes for images."""
-from typing import Tuple
-
 import tensorflow as tf
 
 from deepreg.loss.util import NegativeLossMixin
@@ -226,30 +224,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
-        num, denom = self._call(y_true, y_pred)
-        num = num + EPS
-        denom = denom + EPS
-        ncc = num / denom
-
-        ncc = tf.debugging.check_numerics(
-            ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
-        )
-
-        return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
-
-    def _call(
-        self, y_true: tf.Tensor, y_pred: tf.Tensor
-    ) -> Tuple[tf.Tensor, tf.Tensor]:
-        """
-        Return loss for a batch.
-
-        :param y_true: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
-        :param y_pred: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
-        :return: shape = (batch,)
-        """
-        # adjust
+        # adjust shape
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
@@ -277,8 +252,11 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         num = cross * cross
         denom = t_var * p_var
+        denom = tf.maximum(denom, 0)  # make sure variance >=0
 
-        return num, denom
+        ncc = (num + EPS) / (denom + EPS)
+
+        return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
