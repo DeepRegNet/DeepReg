@@ -10,7 +10,7 @@ from deepreg.loss.util import (
 )
 from deepreg.registry import REGISTRY
 
-EPS = tf.keras.backend.epsilon()
+EPS = 1.0e-5
 
 
 @REGISTRY.register_loss(name="ssd")
@@ -231,12 +231,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         # adjust
-        y_true = tf.debugging.check_numerics(
-            y_true, "LNCC y_true value NAN/INF", name="LNCC_y_true"
-        )
-        y_pred = tf.debugging.check_numerics(
-            y_pred, "LNCC y_pred value NAN/INF", name="LNCCC_y_pred"
-        )
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
@@ -256,88 +250,24 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
         tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
 
-        t_sum = tf.debugging.check_numerics(
-            t_sum, "LNCC t_sum value NAN/INF", name="LNCC_t_sum"
-        )
-        p_sum = tf.debugging.check_numerics(
-            p_sum, "LNCC p_avg value NAN/INF", name="LNCC_p_sum"
-        )
-        t2_sum = tf.debugging.check_numerics(
-            t2_sum, "LNCC t2_sum value NAN/INF", name="LNCC_t2_sum"
-        )
-        p2_sum = tf.debugging.check_numerics(
-            p2_sum, "LNCC p2_sum value NAN/INF", name="LNCC_p2_sum"
-        )
-        tp_sum = tf.debugging.check_numerics(
-            tp_sum, "LNCC tp_sum value NAN/INF", name="LNCC_tp_sum"
-        )
-
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
         t_avg = t_sum / self.kernel_vol  # E[t]
         p_avg = p_sum / self.kernel_vol  # E[p]
 
-        t_avg = tf.debugging.check_numerics(
-            t_avg, "LNCC t_avg value NAN/INF", name="LNCC_t_avg"
-        )
-        p_avg = tf.debugging.check_numerics(
-            p_avg, "LNCC p_avg value NAN/INF", name="LNCC_p_avg"
-        )
-
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_avg * t_sum - t_avg * p_sum + p_avg * t_avg * self.kernel_vol
-        t_var = t2_sum - 2 * t_avg * t_sum + t_avg * t_avg * self.kernel_vol
-        p_var = p2_sum - 2 * p_avg * p_sum + p_avg * p_avg * self.kernel_vol
-
-        # cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
-        # t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
-        # p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
-
-        cross = tf.debugging.check_numerics(
-            cross, "LNCC cross value NAN/INF", name="LNCC_cross"
-        )
-        t_var = tf.debugging.check_numerics(
-            t_var, "LNCC t_var value NAN/INF", name="LNCC_t_var"
-        )
-        p_var = tf.debugging.check_numerics(
-            p_var, "LNCC t_var value NAN/INF", name="LNCC_t_var"
-        )
+        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
 
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
-
-        with tf.control_dependencies(
-            [
-                tf.debugging.Assert(
-                    tf.math.is_finite(tf.reduce_mean(ncc)),
-                    [
-                        tf.reduce_min(cross),
-                        tf.reduce_max(cross),
-                        tf.reduce_min(t_var),
-                        tf.reduce_max(t_var),
-                        tf.reduce_min(p_var),
-                        tf.reduce_max(p_var),
-                        cross,
-                        t_var,
-                        p_var,
-                    ],
-                    summarize=None,
-                    name="debug_div",
-                )
-            ]
-        ):
-            ncc = tf.identity(ncc)
 
         ncc = tf.debugging.check_numerics(
             ncc, "LNCC ncc value NAN/INF", name="LNCC_before_mean"
         )
 
-        ncc = tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
-        ncc = tf.debugging.check_numerics(
-            ncc, "LNCC ncc_mean value NAN/INF", name="LNCC_after_mean"
-        )
-
-        return ncc
+        return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
