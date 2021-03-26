@@ -142,7 +142,9 @@ def train(
 
     # build callbacks
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=log_dir, histogram_freq=config["train"]["save_period"]
+        log_dir=log_dir,
+        histogram_freq=config["train"]["save_period"],
+        update_freq=config["train"].get("update_freq", "epoch"),
     )
     ckpt_callback, initial_epoch = build_checkpoint_callback(
         model=model,

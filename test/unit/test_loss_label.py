@@ -202,9 +202,9 @@ def test_compute_centroid():
     tensor_mask[0, :, :, :] = np.ones((2, 2, 2))
     tensor_mask = tf.constant(tensor_mask, dtype=tf.float32)
 
-    tensor_grid = np.ones((2, 2, 2, 3))
-    tensor_grid[:, :, :, 1] *= 2
-    tensor_grid[:, :, :, 2] *= 3
+    tensor_grid = np.ones((1, 2, 2, 2, 3))
+    tensor_grid[:, :, :, :, 1] *= 2
+    tensor_grid[:, :, :, :, 2] *= 3
     tensor_grid = tf.constant(tensor_grid, dtype=tf.float32)
 
     expected = np.ones((3, 3))  # use 1 because 0/0 ~= (0+eps)/(0+eps) = 1
@@ -223,8 +223,8 @@ def test_compute_centroid_d():
     tensor_mask[0, :, :, :] = array_ones
     tensor_mask = tf.convert_to_tensor(tensor_mask, dtype=tf.float32)
 
-    tensor_grid = np.zeros((2, 2, 2, 3))
-    tensor_grid[:, :, :, 0] = array_ones
+    tensor_grid = np.zeros((1, 2, 2, 2, 3))
+    tensor_grid[:, :, :, :, 0] = array_ones
     tensor_grid = tf.convert_to_tensor(tensor_grid, dtype=tf.float32)
 
     get = label.compute_centroid_distance(tensor_mask, tensor_mask, tensor_grid)

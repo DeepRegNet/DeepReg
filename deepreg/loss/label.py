@@ -316,18 +316,16 @@ def compute_centroid(mask: tf.Tensor, grid: tf.Tensor) -> tf.Tensor:
     """
     Calculate the centroid of the mask.
     :param mask: shape = (batch, dim1, dim2, dim3)
-    :param grid: shape = (dim1, dim2, dim3, 3)
+    :param grid: shape = (1, dim1, dim2, dim3, 3)
     :return: shape = (batch, 3), batch of vectors denoting
              location of centroids.
     """
     assert len(mask.shape) == 4
-    assert len(grid.shape) == 4
+    assert len(grid.shape) == 5
     bool_mask = tf.expand_dims(
         tf.cast(mask >= 0.5, dtype=tf.float32), axis=4
     )  # (batch, dim1, dim2, dim3, 1)
-    masked_grid = bool_mask * tf.expand_dims(
-        grid, axis=0
-    )  # (batch, dim1, dim2, dim3, 3)
+    masked_grid = bool_mask * grid  # (batch, dim1, dim2, dim3, 3)
     numerator = tf.reduce_sum(masked_grid, axis=[1, 2, 3])  # (batch, 3)
     denominator = tf.reduce_sum(bool_mask, axis=[1, 2, 3])  # (batch, 1)
     return (numerator + EPS) / (denominator + EPS)  # (batch, 3)
@@ -340,7 +338,7 @@ def compute_centroid_distance(
     Calculate the L2-distance between two tensors' centroids.
     :param y_true: tensor, shape = (batch, dim1, dim2, dim3)
     :param y_pred: tensor, shape = (batch, dim1, dim2, dim3)
-    :param grid: tensor, shape = (dim1, dim2, dim3, 3)
+    :param grid: tensor, shape = (1, dim1, dim2, dim3, 3)
     :return: shape = (batch,)
     """
     centroid_1 = compute_centroid(mask=y_pred, grid=grid)  # (batch, 3)
