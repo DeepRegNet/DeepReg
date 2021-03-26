@@ -472,7 +472,7 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
             )
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
-        self.kernel_size = kernel_size
+        self.kernel_size = kernel_size ** 3
 
         # (kernel_size, )
         self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
@@ -499,6 +499,15 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
+        # [dim1, dim2, dim3, d_in, d_out]
+        # ch must be evenly divisible by d_in
+        ch = y_true.shape[4]
+        filters = tf.ones(
+            shape=[self.kernel_size, self.kernel_size, self.kernel_size, ch, 1]
+        )
+        strides = [1, 1, 1, 1, 1]
+        padding = "SAME"
+
         # t = y_true, p = y_pred
         # (batch, dim1, dim2, dim3, ch)
         t2 = y_true * y_true
@@ -507,11 +516,16 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
 
         # sum over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
-        p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
-        t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
-        p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
-        tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
+        # t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
+        # p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
+        # t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
+        # p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
+        # tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
+        t_sum = tf.nn.conv3d(y_true, filters=filters, strides=strides, padding=padding)
+        p_sum = tf.nn.conv3d(y_pred, filters=filters, strides=strides, padding=padding)
+        t2_sum = tf.nn.conv3d(t2, filters=filters, strides=strides, padding=padding)
+        p2_sum = tf.nn.conv3d(p2, filters=filters, strides=strides, padding=padding)
+        tp_sum = tf.nn.conv3d(tp, filters=filters, strides=strides, padding=padding)
 
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
