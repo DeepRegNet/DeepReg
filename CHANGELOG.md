@@ -23,6 +23,7 @@ compatible with the updates.
 
 ### Changed
 
+- Clarify the suggestion in doc to use all-zero masks for missing labels.
 - Moved contributor list to a separate page.
 - Changed `no-test` flag to `full` for demo scripts.
 - Renamed `neg_weight` to `background_weight`.
