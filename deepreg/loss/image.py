@@ -487,8 +487,9 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
-        self.filters = tf.ones(
-            shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1]
+        self.filters = (
+            tf.ones(shape=[self.kernel_size, self.kernel_size, self.kernel_size, 1, 1])
+            / kernel_size ** 3
         )
         self.strides = [1, 1, 1, 1, 1]
         self.padding = "SAME"
@@ -538,13 +539,16 @@ class LocalNormalizedCrossCorrelationDEBUG2(tf.keras.layers.Layer):
 
         # average over kernel
         # (batch, dim1, dim2, dim3, 1)
-        t_avg = t_sum / self.kernel_vol  # E[t]
-        p_avg = p_sum / self.kernel_vol  # E[p]
+        # t_avg = t_sum / self.kernel_vol  # E[t]
+        # p_avg = p_sum / self.kernel_vol  # E[p]
 
         # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
-        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
-        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+        # cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        # t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        # p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+        cross = tp_sum - p_sum * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_sum * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_sum * p_sum  # V[p] * E[1]
 
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         num = cross * cross + EPS
