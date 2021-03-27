@@ -40,6 +40,16 @@ configuration can be specified in the configuration file. Please see
 
 ### Optional arguments
 
+- **CPU allocation**:
+
+  `--num_cpus`, if given, TensorFlow will use limited CPUs.
+
+  By default, it uses all available CPUs.
+
+  Example usage:
+
+  - `--num_cpus 2` for using at most 2 CPUs.
+
 - **GPU memory allocation**:
 
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
@@ -155,6 +165,16 @@ configuration can be specified in the configuration file. Please see
   - `--mode test` for evaluating the model on test data.
 
 ### Optional arguments
+
+- **CPU allocation**:
+
+  `--num_cpus`, if given, TensorFlow will use limited CPUs.
+
+  By default, it uses all available CPUs.
+
+  Example usage:
+
+  - `--num_cpus 2` for using at most 2 CPUs.
 
 - **GPU memory allocation**:
 
