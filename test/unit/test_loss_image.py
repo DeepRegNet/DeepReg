@@ -60,6 +60,8 @@ class TestGlobalMutualInformation:
         expected = dict(
             num_bins=23,
             sigma_ratio=0.5,
+            vmin=0.0,
+            vmax=1.0,
             reduction=tf.keras.losses.Reduction.SUM,
             name="GlobalMutualInformation",
         )

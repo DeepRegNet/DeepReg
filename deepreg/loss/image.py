@@ -61,6 +61,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
+        vmin: float = 0.0,
+        vmax: float = 1.0,
         reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "GlobalMutualInformation",
     ):
@@ -68,14 +70,35 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         Init.
 
         :param num_bins: number of bins for intensity, the default value is empirical.
-        :param sigma_ratio: a hyper param for gaussian function
+        :param sigma_ratio: sigma in used Gaussian equals bin_size * sigma_ratio.
         :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
+        if vmax <= vmin:
+            raise ValueError(
+                f"vmax must be greater than vmin, " f"got vmax = {vmax}, vmin = {vmin}."
+            )
+        # arguments
         self.num_bins = num_bins
         self.sigma_ratio = sigma_ratio
+        self.vmin = vmin
+        self.vmax = vmax
+
+        # constants to be used
+        # sigma in the Gaussian function (weighting function W)
+        self.sigma = (vmax - vmin) * sigma_ratio
+        if self.sigma <= EPS:
+            raise ValueError(
+                f"The sigma in Gaussian is too small, " f"got {self.sigma}"
+            )
+
+        # intensity is split into bins between vmin and vmax
+        self.bin_centers = tf.linspace(
+            self.vmin, self.vmax, self.num_bins
+        )  # (num_bins,)
+        self.bin_centers = self.bin_centers[None, None, ...]  # (1, 1, num_bins)
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -87,55 +110,66 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
             or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
-        # adjust
+        # adjust tensor shape
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
+        batch, w, h, d, c = y_true.shape
+        num_voxels = w * h * d  # number of voxels
+        y_true = tf.reshape(
+            y_true, [batch, num_voxels * c, 1]
+        )  # (batch, num_voxels, 1)
+        y_pred = tf.reshape(
+            y_pred, [batch, num_voxels * c, 1]
+        )  # (batch, num_voxels, 1)
 
-        # intensity is split into bins between 0, 1
-        y_true = tf.clip_by_value(y_true, 0, 1)
-        y_pred = tf.clip_by_value(y_pred, 0, 1)
-        bin_centers = tf.linspace(0.0, 1.0, self.num_bins)  # (num_bins,)
-        bin_centers = tf.cast(bin_centers, dtype=y_true.dtype)
-        bin_centers = bin_centers[None, None, ...]  # (1, 1, num_bins)
-        sigma = (
-            tf.reduce_mean(bin_centers[:, :, 1:] - bin_centers[:, :, :-1])
-            * self.sigma_ratio
-        )  # scalar, sigma in the Gaussian function (weighting function W)
-        preterm = 1 / (2 * tf.math.square(sigma))  # scalar
-        batch, w, h, z, c = y_true.shape
-        y_true = tf.reshape(y_true, [batch, w * h * z * c, 1])  # (batch, nb_voxels, 1)
-        y_pred = tf.reshape(y_pred, [batch, w * h * z * c, 1])  # (batch, nb_voxels, 1)
-        nb_voxels = y_true.shape[1] * 1.0  # w * h * z, number of voxels
+        wa = self.weight(y_true)  # (batch, num_voxels, num_bins)
+        wb = self.weight(y_pred)  # (batch, num_voxels, num_bins)
+        wa = tf.transpose(wa, perm=[0, 2, 1])  # (batch, num_bins, num_voxels)
 
-        # each voxel contributes continuously to a range of histogram bin
-        ia = tf.math.exp(
-            -preterm * tf.math.square(y_true - bin_centers)
-        )  # (batch, nb_voxels, num_bins)
-        ia /= tf.reduce_sum(ia, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
-        ia = tf.transpose(ia, (0, 2, 1))  # (batch, num_bins, nb_voxels)
-        pa = tf.reduce_mean(ia, axis=-1, keepdims=True)  # (batch, num_bins, 1)
+        # pa pb should be a proba distribution
+        pa = tf.reduce_mean(wa, axis=2, keepdims=True)  # (batch, num_bins, 1)
+        pa /= tf.reduce_sum(pa, axis=1, keepdims=True)
+        pb = tf.reduce_mean(wb, axis=1, keepdims=True)  # (batch, 1, num_bins)
+        pb /= tf.reduce_sum(pb, axis=2, keepdims=True)
 
-        ib = tf.math.exp(
-            -preterm * tf.math.square(y_pred - bin_centers)
-        )  # (batch, nb_voxels, num_bins)
-        ib /= tf.reduce_sum(ib, -1, keepdims=True)  # (batch, nb_voxels, num_bins)
-        pb = tf.reduce_mean(ib, axis=1, keepdims=True)  # (batch, 1, num_bins)
+        # both papb and pab have shape = (batch, num_bins, num_bins)
+        # pab should be a proba distribution
+        papb = tf.matmul(pa, pb)
+        pab = tf.matmul(wa, wb) / tf.cast(num_voxels, dtype=y_true.dtype)
+        pab /= tf.reduce_sum(pab, axis=[1, 2], keepdims=True)
 
-        papb = tf.matmul(pa, pb)  # (batch, num_bins, num_bins)
-        pab = tf.matmul(ia, ib)  # (batch, num_bins, num_bins)
-        pab /= nb_voxels
-
-        # MI: sum(P_ab * log(P_ab/P_ap_b))
         div = (pab + EPS) / (papb + EPS)
-        return tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
+        mi = tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
+
+        return mi
+
+    def weight(self, x: tf.Tensor) -> tf.Tensor:
+        """Calculate weight using Parzen windowing.
+
+        The weight is only exp(...) without being divided by sigma * (2 * pi) ** 0.5.
+        As the weight will be later renormalized, division here is not necessary.
+
+        :param x: image tensor, shape = (batch, nb_voxels, 1).
+        :return: W(x) as equation 3.2 in the reference, but with a constant difference
+            shape = (batch, nb_voxels, num_bins)
+        """
+        # each voxel contributes continuously to a range of histogram bin
+        # (batch, nb_voxels, num_bins)
+        bin_centers = tf.cast(self.bin_centers, x.dtype)
+        sigma = tf.cast(self.sigma, x.dtype)
+        w = tf.exp(-((x - bin_centers) ** 2) / 2 / sigma / sigma)
+
+        return w
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
         config["num_bins"] = self.num_bins
         config["sigma_ratio"] = self.sigma_ratio
+        config["vmin"] = self.vmin
+        config["vmax"] = self.vmax
         return config
 
 
