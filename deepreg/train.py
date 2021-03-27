@@ -61,6 +61,7 @@ def build_config(
 def train(
     gpu: str,
     config_path: Union[str, List[str]],
+    num_cpus: int,
     gpu_allow_growth: bool,
     ckpt_path: str,
     exp_name: str = "",
@@ -72,6 +73,7 @@ def train(
 
     :param gpu: which local gpu to use to train.
     :param config_path: path to configuration set up.
+    :param num_cpus: number of cpus to be used, -1 means not limited.
     :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param ckpt_path: where to store training checkpoints.
     :param log_dir: path of the log directory.
@@ -81,6 +83,12 @@ def train(
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
+    if num_cpus > 0:
+        # Maximum number of threads to use for OpenMP parallel regions.
+        os.environ["OMP_NUM_THREADS"] = str(num_cpus)
+        # Without setting below 2 environment variables, it didn't work for me. Thanks to @cjw85
+        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_cpus)
+        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_cpus)
 
     # load config
     config, log_dir, ckpt_path = build_config(
@@ -202,6 +210,13 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--num_cpus",
+        help="Number of CPUs to be used, -1 means unlimited.",
+        type=int,
+        default=-1,
+    )
+
+    parser.add_argument(
         "--ckpt_path",
         "-k",
         help="Path of the saved model checkpoint to load."
@@ -245,6 +260,7 @@ def main(args=None):
     train(
         gpu=args.gpu,
         config_path=args.config_path,
+        num_cpus=args.num_cpus,
         gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
         log_dir=args.log_dir,
