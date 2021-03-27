@@ -51,8 +51,8 @@ jobs:
         timeout-minutes: 10
       - name: Unit test with pytest
         run: |
-          pytest --cov-report=xml --cov=deepreg --durations=10 --durations-min=1.0 ./test/unit/
-        timeout-minutes: 10
+          pytest --cov-report=xml --cov=deepreg --durations=20 --durations-min=1.0 ./test/unit/
+        timeout-minutes: 20
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.7' }}
