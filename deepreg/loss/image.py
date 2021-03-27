@@ -155,6 +155,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         E[t] = sum_i(w_i * t_i) / sum_i(w_i)
 
+    Here, we assume sum_i(w_i) == 1, means the weights have been normalized.
+
     Similarly, the discrete variance in the window V[t] is
 
         V[t] = E[(t - E[t])**2]
@@ -163,7 +165,12 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
 
-    Different kernel corresponds to different weights.
+    When calculating variance, we choose to subtract the mean first then calculte
+    variance instead of calculating E[t**2] - E[t] ** 2, the reason is that when
+    E[t**2] and E[t] ** 2 are both very large or very small, the subtraction may
+    have large rounding error and makes the result inaccurate. Also, it is not
+    guaranteed that the result >= 0. For more details, please read "Algorithms for
+    computing the sample variance: Analysis and recommendations." page 1.
 
     For now, y_true and y_pred have to be at least 4d tensor, including batch axis.
 
@@ -172,6 +179,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         - Zero-normalized cross-correlation (ZNCC):
             https://en.wikipedia.org/wiki/Cross-correlation
         - https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
+        - Chan, Tony F., Gene H. Golub, and Randall J. LeVeque.
+          "Algorithms for computing the sample variance: Analysis and recommendations."
+           The American Statistician 37.3 (1983): 242-247.
     """
 
     kernel_fn_dict = dict(
@@ -207,6 +217,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_size = kernel_size
 
         # (kernel_size, )
+        # sum of the kernel weights would be one
         self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
