@@ -244,8 +244,9 @@ class Warping(tfkl.Layer):
         super().__init__(name=name, **kwargs)
         self._fixed_image_size = fixed_image_size
         # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)
-        self.grid_ref = self.grid_ref[None, ...]
+        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)[
+            None, ...
+        ]
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
         """
