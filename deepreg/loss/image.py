@@ -115,14 +115,11 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
-        batch, w, h, d, c = y_true.shape
-        num_voxels = w * h * d  # number of voxels
-        y_true = tf.reshape(
-            y_true, [batch, num_voxels * c, 1]
-        )  # (batch, num_voxels, 1)
-        y_pred = tf.reshape(
-            y_pred, [batch, num_voxels * c, 1]
-        )  # (batch, num_voxels, 1)
+
+        # (batch, num_voxels, 1)
+        batch_size = y_true.shape[0]
+        y_true = tf.reshape(y_true, (batch_size, -1, 1))
+        y_pred = tf.reshape(y_true, (batch_size, -1, 1))
 
         wa = self.weight(y_true)  # (batch, num_voxels, num_bins)
         wb = self.weight(y_pred)  # (batch, num_voxels, num_bins)
@@ -137,7 +134,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         # both papb and pab have shape = (batch, num_bins, num_bins)
         # pab should be a proba distribution
         papb = tf.matmul(pa, pb)
-        pab = tf.matmul(wa, wb) / tf.cast(num_voxels, dtype=y_true.dtype)
+        pab = tf.matmul(wa, wb)
         pab /= tf.reduce_sum(pab, axis=[1, 2], keepdims=True)
 
         div = (pab + EPS) / (papb + EPS)
