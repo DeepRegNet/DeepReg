@@ -61,9 +61,9 @@ def build_config(
 def train(
     gpu: str,
     config_path: Union[str, List[str]],
-    num_cpus: int,
-    gpu_allow_growth: bool,
     ckpt_path: str,
+    num_cpus: int = -1,
+    gpu_allow_growth: bool = True,
     exp_name: str = "",
     log_dir: str = "logs",
     max_epochs: int = -1,
@@ -73,9 +73,9 @@ def train(
 
     :param gpu: which local gpu to use to train.
     :param config_path: path to configuration set up.
+    :param ckpt_path: where to store training checkpoints.
     :param num_cpus: number of cpus to be used, -1 means not limited.
     :param gpu_allow_growth: whether to allocate whole GPU memory for training.
-    :param ckpt_path: where to store training checkpoints.
     :param log_dir: path of the log directory.
     :param exp_name: experiment name.
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
