@@ -7,7 +7,7 @@ isort==5.7.0
 m2r2==0.2.7
 matplotlib==3.3.4
 nibabel==3.2.1
-notebook==6.2.0
+notebook==6.3.0
 numpy==1.18.5
 pandas==1.2.3
 pre-commit==2.11.1
