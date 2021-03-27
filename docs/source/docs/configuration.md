@@ -566,6 +566,8 @@ The `preprocess` field defines how the data loader feeds data into the model.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
   memory to buffer training, such that shuffle_buffer_size = batch_size \*
   shuffle_buffer_num_batch.
+- `num_parallel_calls`: int, it defines the number of cpus used during preprocessing, -1
+  means unlimited and it may take all cpus and significantly more memory.
 
 ```yaml
 train:
@@ -587,6 +589,7 @@ train:
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
+    num_parallel_calls: -1 # num_cpus to be used, -1 means unlimited
 ```
 
 ### Epochs - required

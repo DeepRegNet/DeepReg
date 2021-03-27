@@ -92,15 +92,20 @@ class DataLoader:
         repeat: bool,
         shuffle_buffer_num_batch: int,
         data_augmentation: Optional[Union[List, Dict]] = None,
+        num_parallel_calls: int = tf.data.experimental.AUTOTUNE,
     ) -> tf.data.Dataset:
         """
+        Generate tf.data.dataset.
+
         :param training: indicating if it's training or not
-        :param batch_size: total number of samples consumed per step, over all devices.
+        :param batch_size: size of mini batch
         :param repeat: indicating if we need to repeat the dataset
         :param shuffle_buffer_num_batch: when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
         :param repeat: indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
+        :param num_parallel_calls: number of cpus to be used,
+            AUTOTUNE=-1 mean not limited.
         :returns dataset:
         """
 
@@ -113,7 +118,7 @@ class DataLoader:
                 moving_image_size=self.moving_image_shape,
                 fixed_image_size=self.fixed_image_shape,
             ),
-            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+            num_parallel_calls=num_parallel_calls,
         )
 
         # shuffle / repeat / batch / preprocess
@@ -140,9 +145,7 @@ class DataLoader:
                         "batch_size": batch_size,
                     },
                 )
-                dataset = dataset.map(
-                    da_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE
-                )
+                dataset = dataset.map(da_fn, num_parallel_calls=num_parallel_calls)
 
         return dataset
 
