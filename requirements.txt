@@ -3,7 +3,7 @@ black==20.8b1
 flake8==3.9.0
 GitPython==3.1.14
 h5py==2.10.0
-isort==5.7.0
+isort==5.8.0
 m2r2==0.2.7
 matplotlib==3.3.4
 nibabel==3.2.1
@@ -18,7 +18,7 @@ pytest==6.2.2
 pytest-cov==2.11.1
 pytest-dependency==0.5.1
 pyyaml==5.4.1
-scipy==1.6.1
+scipy==1.6.2
 seed-isort-config==2.2.0
 sphinx==3.5.3
 sphinx-notfound-page==0.6
