@@ -157,15 +157,11 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     Similarly, the discrete variance in the window V[t] is
 
-        V[t] = E[t**2] - E[t] ** 2
+        V[t] = E[(t - E[t])**2]
 
     The local squared zero-normalized cross-correlation is therefore
 
         E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
-
-    where the expectation in numerator is
-
-        E[ (t-E[t]) * (p-E[p]) ] = E[t * p] - E[t] * E[p]
 
     Different kernel corresponds to different weights.
 
@@ -175,7 +171,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         - Zero-normalized cross-correlation (ZNCC):
             https://en.wikipedia.org/wiki/Cross-correlation
-        - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
+        - https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
     """
 
     kernel_fn_dict = dict(
@@ -223,36 +219,28 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
-        # adjust shape
+        # adjust shape to be (batch, dim1, dim2, dim3, ch)
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
         # t = y_true, p = y_pred
-        # (batch, dim1, dim2, dim3, ch)
-        t2 = y_true * y_true
-        p2 = y_pred * y_pred
-        tp = y_true * y_pred
+        t_mean = separable_filter(y_true, kernel=self.kernel)
+        p_mean = separable_filter(y_pred, kernel=self.kernel)
 
-        # sum over kernel
-        # (batch, dim1, dim2, dim3, 1)
-        t_sum = separable_filter(y_true, kernel=self.kernel)
-        p_sum = separable_filter(y_pred, kernel=self.kernel)
-        t2_sum = separable_filter(t2, kernel=self.kernel)
-        p2_sum = separable_filter(p2, kernel=self.kernel)
-        tp_sum = separable_filter(tp, kernel=self.kernel)
+        t = y_true - t_mean
+        p = y_pred - p_mean
 
-        # shape = (batch, dim1, dim2, dim3, 1)
-        cross = tp_sum - p_sum * t_sum
-        t_var = t2_sum - t_sum * t_sum
-        p_var = p2_sum - p_sum * p_sum
+        # the variance can be biased but as both num and denom are biased
+        # it got cancelled
+        # https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
+        cross = separable_filter(t * p, kernel=self.kernel)
+        t_var = separable_filter(t * t, kernel=self.kernel)
+        p_var = separable_filter(p * p, kernel=self.kernel)
 
-        # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         num = cross * cross
         denom = t_var * p_var
-        denom = tf.maximum(denom, 0)  # make sure variance >=0
-
         ncc = (num + EPS) / (denom + EPS)
 
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
