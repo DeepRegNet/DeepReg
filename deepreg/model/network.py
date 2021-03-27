@@ -6,7 +6,8 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
-from deepreg.model import layer
+from deepreg.loss.label import DiceScore, compute_centroid_distance
+from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
 
@@ -64,6 +65,9 @@ class RegistrationModel(tf.keras.Model):
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
 
+        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)[
+            None, ...
+        ]
         self._model: tf.keras.Model = self.build_model()
         self.build_loss()
 
@@ -175,7 +179,7 @@ class RegistrationModel(tf.keras.Model):
         """
         Build and add one weighted loss together with the metrics.
 
-        :param name: name of loss
+        :param name: name of loss, image / label / regularization.
         :param inputs_dict: inputs for loss function
         """
 
@@ -233,6 +237,46 @@ class RegistrationModel(tf.keras.Model):
     def build_loss(self):
         """Build losses according to configs."""
 
+        # input metrics
+        fixed_image = self._inputs["fixed_image"]
+        moving_image = self._inputs["moving_image"]
+        self.log_tensor_stats(tensor=moving_image, name="moving_image")
+        self.log_tensor_stats(tensor=fixed_image, name="fixed_image")
+
+        # image loss, conditional model does not have this
+        if "pred_fixed_image" in self._outputs:
+            pred_fixed_image = self._outputs["pred_fixed_image"]
+            self._build_loss(
+                name="image",
+                inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image),
+            )
+
+        if self.labeled:
+            # input metrics
+            fixed_label = self._inputs["fixed_label"]
+            moving_label = self._inputs["moving_label"]
+            self.log_tensor_stats(tensor=moving_label, name="moving_label")
+            self.log_tensor_stats(tensor=fixed_label, name="fixed_label")
+
+            # label loss
+            pred_fixed_label = self._outputs["pred_fixed_label"]
+            self._build_loss(
+                name="label",
+                inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
+            )
+
+            # additional label metrics
+            tre = compute_centroid_distance(
+                y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
+            )
+            dice_binary = DiceScore(binary=True)(
+                y_true=fixed_label, y_pred=pred_fixed_label
+            )
+            self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
+            self._model.add_metric(
+                dice_binary, name="metric/BinaryDiceScore", aggregation="mean"
+            )
+
     def call(
         self, inputs: Dict[str, tf.Tensor], training=None, mask=None
     ) -> Dict[str, tf.Tensor]:
@@ -286,6 +330,30 @@ class RegistrationModel(tf.keras.Model):
                 "Error message is:"
                 f"{err}"
             )
+
+    def log_tensor_stats(self, tensor: tf.Tensor, name: str):
+        """
+        Log statistics of a given tensor.
+
+        :param tensor: tensor to monitor.
+        :param name: name of the tensor.
+        """
+        flatten = tf.reshape(tensor, shape=(self.batch_size, -1))
+        self._model.add_metric(
+            tf.reduce_mean(flatten, axis=1),
+            name=f"metric/{name}_mean",
+            aggregation="mean",
+        )
+        self._model.add_metric(
+            tf.reduce_min(flatten, axis=1),
+            name=f"metric/{name}_min",
+            aggregation="min",
+        )
+        self._model.add_metric(
+            tf.reduce_max(flatten, axis=1),
+            name=f"metric/{name}_max",
+            aggregation="max",
+        )
 
 
 @REGISTRY.register_model(name="ddf")
@@ -359,26 +427,12 @@ class DDFModel(RegistrationModel):
 
     def build_loss(self):
         """Build losses according to configs."""
-        fixed_image = self._inputs["fixed_image"]
+        super().build_loss()
+
+        # ddf loss and metrics
         ddf = self._outputs["ddf"]
-        pred_fixed_image = self._outputs["pred_fixed_image"]
-
-        # ddf
         self._build_loss(name="regularization", inputs_dict=dict(inputs=ddf))
-
-        # image
-        self._build_loss(
-            name="image", inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image)
-        )
-
-        # label
-        if self.labeled:
-            fixed_label = self._inputs["fixed_label"]
-            pred_fixed_label = self._outputs["pred_fixed_label"]
-            self._build_loss(
-                name="label",
-                inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
-            )
+        self.log_tensor_stats(tensor=ddf, name="ddf")
 
     def postprocess(
         self,
@@ -456,9 +510,9 @@ class DVFModel(DDFModel):
         ddf = layer.IntDVF(fixed_image_size=self.fixed_image_size)(dvf)
 
         # build outputs
-        warping = layer.Warping(fixed_image_size=self.fixed_image_size)
+        self._warping = layer.Warping(fixed_image_size=self.fixed_image_size)
         # (f_dim1, f_dim2, f_dim3, 3)
-        pred_fixed_image = warping(inputs=[ddf, moving_image])
+        pred_fixed_image = self._warping(inputs=[ddf, moving_image])
 
         self._outputs = dict(dvf=dvf, ddf=ddf, pred_fixed_image=pred_fixed_image)
 
@@ -467,10 +521,18 @@ class DVFModel(DDFModel):
 
         # (f_dim1, f_dim2, f_dim3, 3)
         moving_label = self._inputs["moving_label"]
-        pred_fixed_label = warping(inputs=[ddf, moving_label])
+        pred_fixed_label = self._warping(inputs=[ddf, moving_label])
 
         self._outputs["pred_fixed_label"] = pred_fixed_label
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
+
+    def build_loss(self):
+        """Build losses according to configs."""
+        super().build_loss()
+
+        # dvf metrics
+        dvf = self._outputs["dvf"]
+        self.log_tensor_stats(tensor=dvf, name="dvf")
 
     def postprocess(
         self,
@@ -527,16 +589,6 @@ class ConditionalModel(RegistrationModel):
 
         self._outputs = dict(pred_fixed_label=pred_fixed_label)
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
-
-    def build_loss(self):
-        """Build losses according to configs."""
-        fixed_label = self._inputs["fixed_label"]
-        pred_fixed_label = self._outputs["pred_fixed_label"]
-
-        self._build_loss(
-            name="label",
-            inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
-        )
 
     def postprocess(
         self,
