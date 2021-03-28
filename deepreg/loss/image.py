@@ -1,4 +1,5 @@
 """Provide different loss or metrics classes for images."""
+import numpy as np
 import tensorflow as tf
 
 from deepreg.constant import EPS
@@ -88,11 +89,10 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         # constants to be used
         # sigma in the Gaussian function (weighting function W)
-        self.sigma = (vmax - vmin) * sigma_ratio
-        if self.sigma <= EPS:
-            raise ValueError(
-                f"The sigma in Gaussian is too small, " f"got {self.sigma}"
-            )
+        sigma = (vmax - vmin) * sigma_ratio
+        if sigma <= EPS:
+            raise ValueError(f"The sigma in Gaussian is too small, " f"got {sigma}")
+        self.denom = 2 * sigma * sigma
 
         # intensity is split into bins between vmin and vmax
         self.bin_centers = tf.linspace(
@@ -116,8 +116,10 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
-        # (batch, num_voxels, 1)
         batch_size = y_true.shape[0]
+        num_voxels = tf.cast(np.prod(y_true.shape[1:4]), dtype=y_true.dtype)
+
+        # (batch, num_voxels, 1)
         y_true = tf.reshape(y_true, (batch_size, -1, 1))
         y_pred = tf.reshape(y_true, (batch_size, -1, 1))
 
@@ -127,15 +129,13 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         # pa pb should be a proba distribution
         pa = tf.reduce_mean(wa, axis=2, keepdims=True)  # (batch, num_bins, 1)
-        pa /= tf.reduce_sum(pa, axis=1, keepdims=True)
         pb = tf.reduce_mean(wb, axis=1, keepdims=True)  # (batch, 1, num_bins)
-        pb /= tf.reduce_sum(pb, axis=2, keepdims=True)
 
         # both papb and pab have shape = (batch, num_bins, num_bins)
         # pab should be a proba distribution
         papb = tf.matmul(pa, pb)
         pab = tf.matmul(wa, wb)
-        pab /= tf.reduce_sum(pab, axis=[1, 2], keepdims=True)
+        pab /= num_voxels
 
         div = (pab + EPS) / (papb + EPS)
         mi = tf.reduce_sum(pab * tf.math.log(div + EPS), axis=[1, 2])
@@ -155,8 +155,9 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         # each voxel contributes continuously to a range of histogram bin
         # (batch, nb_voxels, num_bins)
         bin_centers = tf.cast(self.bin_centers, x.dtype)
-        sigma = tf.cast(self.sigma, x.dtype)
-        w = tf.exp(-((x - bin_centers) ** 2) / 2 / sigma / sigma)
+        denom = tf.cast(self.denom, x.dtype)
+        logits = -((x - bin_centers) ** 2) / denom
+        w = tf.math.softmax(logits=logits, axis=-1)
 
         return w
 
