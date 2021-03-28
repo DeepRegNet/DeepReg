@@ -7,7 +7,7 @@ isort==5.8.0
 m2r2==0.2.7
 matplotlib==3.3.4
 nibabel==3.2.1
-notebook==6.2.0
+notebook==6.3.0
 numpy==1.18.5
 pandas==1.2.3
 pre-commit==2.11.1
@@ -18,7 +18,7 @@ pytest==6.2.2
 pytest-cov==2.11.1
 pytest-dependency==0.5.1
 pyyaml==5.4.1
-scipy==1.6.1
+scipy==1.6.2
 seed-isort-config==2.2.0
 sphinx==3.5.3
 sphinx-notfound-page==0.6

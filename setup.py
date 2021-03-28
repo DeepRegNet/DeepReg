@@ -8,9 +8,9 @@ if sys.version_info[:2] < (3, 6):
 with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
 if sys.version_info[:2] == (3, 6):
-    requirements.remove("pandas==1.2.3")
+    requirements = [x for x in requirements if "pandas" not in x]
     requirements.append("pandas==1.1.5")
-    requirements.remove("scipy==1.6.1")
+    requirements = [x for x in requirements if "scipy" not in x]
     requirements.append("scipy==1.5.4")
 
 with open("README.md", "r") as f:
