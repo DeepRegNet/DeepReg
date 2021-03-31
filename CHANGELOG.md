@@ -24,6 +24,7 @@ compatible with the updates.
 
 ### Changed
 
+- Increased all EPS to 1e-5.
 - Clarify the suggestion in doc to use all-zero masks for missing labels.
 - Moved contributor list to a separate page.
 - Changed `no-test` flag to `full` for demo scripts.
@@ -37,6 +38,7 @@ compatible with the updates.
 
 ### Fixed
 
+- Fixed LNCC loss regarding INF values.
 - Removed loss weight checks to be more robust.
 - Fixed import error under python 3.6.
 - Fixed the residual module in local net architecture, compatible for previous

@@ -30,8 +30,8 @@ class RegistrationModel(tf.keras.Model):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple,
+        fixed_image_size: Tuple,
         index_size: int,
         labeled: bool,
         batch_size: int,
@@ -61,6 +61,7 @@ class RegistrationModel(tf.keras.Model):
         self.config = config
         self.num_devices = num_devices
         self.global_batch_size = num_devices * batch_size
+        assert self.global_batch_size > 0
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
@@ -222,7 +223,6 @@ class RegistrationModel(tf.keras.Model):
 
             # add loss
             self._model.add_loss(weighted_loss)
-
             # add metric
             self._model.add_metric(
                 loss_value, name=f"loss/{name}_{loss_layer.name}", aggregation="mean"
