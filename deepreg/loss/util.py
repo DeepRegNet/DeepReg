@@ -27,25 +27,25 @@ class NegativeLossMixin(tf.keras.losses.Loss):
         return -super().call(y_true=y_true, y_pred=y_pred)
 
 
+EPS = tf.keras.backend.epsilon()
+
+
 def rectangular_kernel1d(kernel_size: int) -> tf.Tensor:
     """
-    Return a the 1D rectangular kernel for LocalNormalizedCrossCorrelation.
-
-    Sum of the weights is 1.
+    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular
+    kernel for LocalNormalizedCrossCorrelation.
 
     :param kernel_size: scalar, size of the 1-D kernel
     :return: kernel_weights, of shape (kernel_size, )
     """
 
-    kernel = tf.ones(shape=(kernel_size,), dtype=tf.float32) / float(kernel_size)
+    kernel = tf.ones(shape=(kernel_size,), dtype=tf.float32)
     return kernel
 
 
 def triangular_kernel1d(kernel_size: int) -> tf.Tensor:
     """
-    Return a the 1D triangular kernel for LocalNormalizedCrossCorrelation.
-
-    Sum of the weights is 1.
+    1D triangular kernel.
 
     Assume kernel_size is odd, it will be a smoothed from
     a kernel which center part is zero.
@@ -73,17 +73,13 @@ def triangular_kernel1d(kernel_size: int) -> tf.Tensor:
     kernel = tf.nn.conv1d(
         kernel[None, :, None], filters=filters, stride=[1, 1, 1], padding="SAME"
     )
-    kernel = kernel / tf.reduce_sum(kernel)
-
     return kernel[0, :, 0]
 
 
 def gaussian_kernel1d_size(kernel_size: int) -> tf.Tensor:
     """
-    Return a the 1D Gaussian kernel for LocalNormalizedCrossCorrelation.
-
-    Sum of the weights is 1.
-
+    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
+    kernel for LocalNormalizedCrossCorrelation.
     :param kernel_size: scalar, size of the 1-D kernel
     :return: filters, of shape (kernel_size, )
     """
@@ -92,7 +88,6 @@ def gaussian_kernel1d_size(kernel_size: int) -> tf.Tensor:
 
     grid = tf.range(0, kernel_size, dtype=tf.float32)
     filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
-    filters = filters / tf.reduce_sum(filters)
 
     return filters
 
