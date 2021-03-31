@@ -1,7 +1,6 @@
 """Provide different loss or metrics classes for images."""
 import tensorflow as tf
 
-from deepreg.constant import EPS
 from deepreg.loss.util import NegativeLossMixin
 from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
 from deepreg.loss.util import (
@@ -10,6 +9,8 @@ from deepreg.loss.util import (
     triangular_kernel1d,
 )
 from deepreg.registry import REGISTRY
+
+EPS = tf.keras.backend.epsilon()
 
 
 @REGISTRY.register_loss(name="ssd")
@@ -155,22 +156,19 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         E[t] = sum_i(w_i * t_i) / sum_i(w_i)
 
-    Here, we assume sum_i(w_i) == 1, means the weights have been normalized.
-
     Similarly, the discrete variance in the window V[t] is
 
-        V[t] = E[(t - E[t])**2]
+        V[t] = E[t**2] - E[t] ** 2
 
     The local squared zero-normalized cross-correlation is therefore
 
         E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
 
-    When calculating variance, we choose to subtract the mean first then calculte
-    variance instead of calculating E[t**2] - E[t] ** 2, the reason is that when
-    E[t**2] and E[t] ** 2 are both very large or very small, the subtraction may
-    have large rounding error and makes the result inaccurate. Also, it is not
-    guaranteed that the result >= 0. For more details, please read "Algorithms for
-    computing the sample variance: Analysis and recommendations." page 1.
+    where the expectation in numerator is
+
+        E[ (t-E[t]) * (p-E[p]) ] = E[t * p] - E[t] * E[p]
+
+    Different kernel corresponds to different weights.
 
     For now, y_true and y_pred have to be at least 4d tensor, including batch axis.
 
@@ -178,10 +176,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         - Zero-normalized cross-correlation (ZNCC):
             https://en.wikipedia.org/wiki/Cross-correlation
-        - https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
-        - Chan, Tony F., Gene H. Golub, and Randall J. LeVeque.
-          "Algorithms for computing the sample variance: Analysis and recommendations."
-           The American Statistician 37.3 (1983): 242-247.
+        - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
     """
 
     kernel_fn_dict = dict(
@@ -217,8 +212,13 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_size = kernel_size
 
         # (kernel_size, )
-        # sum of the kernel weights would be one
         self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
+        # E[1] = sum_i(w_i), ()
+        self.kernel_vol = tf.reduce_sum(
+            self.kernel[:, None, None]
+            * self.kernel[None, :, None]
+            * self.kernel[None, None, :]
+        )
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -230,29 +230,38 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             or (batch, dim1, dim2, dim3, ch)
         :return: shape = (batch,)
         """
-        # adjust shape to be (batch, dim1, dim2, dim3, ch)
+        # adjust
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
         assert len(y_true.shape) == len(y_pred.shape) == 5
 
         # t = y_true, p = y_pred
-        t_mean = separable_filter(y_true, kernel=self.kernel)
-        p_mean = separable_filter(y_pred, kernel=self.kernel)
+        # (batch, dim1, dim2, dim3, ch)
+        t2 = y_true * y_true
+        p2 = y_pred * y_pred
+        tp = y_true * y_pred
 
-        t = y_true - t_mean
-        p = y_pred - p_mean
+        # sum over kernel
+        # (batch, dim1, dim2, dim3, 1)
+        t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
+        p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
+        t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
+        p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
+        tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
 
-        # the variance can be biased but as both num and denom are biased
-        # it got cancelled
-        # https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
-        cross = separable_filter(t * p, kernel=self.kernel)
-        t_var = separable_filter(t * t, kernel=self.kernel)
-        p_var = separable_filter(p * p, kernel=self.kernel)
+        # average over kernel
+        # (batch, dim1, dim2, dim3, 1)
+        t_avg = t_sum / self.kernel_vol  # E[t]
+        p_avg = p_sum / self.kernel_vol  # E[p]
 
-        num = cross * cross
-        denom = t_var * p_var
-        ncc = (num + EPS) / (denom + EPS)
+        # shape = (batch, dim1, dim2, dim3, 1)
+        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+
+        # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
+        ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 

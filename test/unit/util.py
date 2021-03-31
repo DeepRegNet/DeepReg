@@ -3,11 +3,9 @@ from typing import List, Union
 import numpy as np
 import tensorflow as tf
 
-from deepreg.constant import EPS
-
 
 def is_equal_np(
-    x: Union[np.ndarray, List], y: Union[np.ndarray, List], atol: float = EPS
+    x: Union[np.ndarray, List], y: Union[np.ndarray, List], atol: float = 1.0e-7
 ) -> bool:
     """
     Check if two numpy arrays are identical.
@@ -25,7 +23,7 @@ def is_equal_np(
 def is_equal_tf(
     x: Union[tf.Tensor, np.ndarray, List],
     y: Union[tf.Tensor, np.ndarray, List],
-    atol: float = EPS,
+    atol: float = 1.0e-7,
 ) -> bool:
     """
     Check if two tf tensors are identical.

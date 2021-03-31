@@ -62,7 +62,6 @@ def test_gaussian_kernel1d_size(kernel_size):
 
     grid = tf.range(0, kernel_size, dtype=tf.float32)
     expected = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
-    expected = expected / tf.reduce_sum(expected)
 
     got = gaussian_kernel1d_size(kernel_size)
     assert is_equal_tf(got, expected)
@@ -76,7 +75,6 @@ def test_rectangular_kernel1d(kernel_size):
     :return:
     """
     expected = tf.ones(shape=(kernel_size,), dtype=tf.float32)
-    expected = expected / tf.reduce_sum(expected)
     got = rectangular_kernel1d(kernel_size)
     assert is_equal_tf(got, expected)
 
@@ -93,7 +91,6 @@ def test_triangular_kernel1d(kernel_size):
     for it_k in range(kernel_size // 2):
         expected[it_k] = it_k + 1
         expected[-it_k - 1] = it_k + 1
-    expected = expected / tf.reduce_sum(expected)
 
     got = triangular_kernel1d(kernel_size)
     assert is_equal_tf(got, expected)
