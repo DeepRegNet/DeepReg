@@ -105,7 +105,7 @@ class TestLocalNormalizedCrossCorrelation:
 
         :param kernel_size: size of the kernel and the cube.
         """
-        mid = kernel_size // 2 + 1
+        mid = kernel_size // 2
         y_true = tf.random.uniform(shape=(1, kernel_size, kernel_size, kernel_size, 1))
         y_pred = tf.random.uniform(shape=(1, kernel_size, kernel_size, kernel_size, 1))
 
