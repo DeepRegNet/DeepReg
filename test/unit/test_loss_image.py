@@ -95,6 +95,37 @@ class TestLocalNormalizedCrossCorrelation:
         )
         assert is_equal_tf(got, expected)
 
+    @pytest.mark.parametrize(
+        "kernel_size",
+        [3, 5, 7],
+    )
+    def test_exact_value(self, kernel_size):
+        """
+        Test the exact value at the center of a cube.
+
+        :param kernel_size: size of the kernel and the cube.
+        """
+        mid = kernel_size // 2 + 1
+        y_true = tf.random.uniform(shape=(1, kernel_size, kernel_size, kernel_size, 1))
+        y_pred = tf.random.uniform(shape=(1, kernel_size, kernel_size, kernel_size, 1))
+
+        loss = image.LocalNormalizedCrossCorrelation(kernel_size=kernel_size)
+        got = loss.calc_ncc(y_true=y_true, y_pred=y_pred)
+        got = got[0, mid, mid, mid, 0]
+
+        y_true_mean = tf.reduce_mean(y_true)
+        y_true_std = tf.math.reduce_std(y_true)
+
+        y_pred_mean = tf.reduce_mean(y_pred)
+        y_pred_std = tf.math.reduce_std(y_pred)
+
+        num = tf.reduce_mean((y_true - y_true_mean) * (y_pred - y_pred_mean))
+        denom = y_true_std * y_pred_std
+
+        expected = (num / denom) ** 2
+
+        assert is_equal_tf(got, expected)
+
     def test_error(self):
         y = np.ones(shape=(3, 3, 3, 3))
         with pytest.raises(ValueError) as err_info:

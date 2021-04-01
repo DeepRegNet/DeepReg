@@ -4,12 +4,11 @@ from typing import List, Optional
 
 import tensorflow as tf
 
+from deepreg.constant import EPS
 from deepreg.loss.util import NegativeLossMixin, cauchy_kernel1d
 from deepreg.loss.util import gaussian_kernel1d_sigma as gaussian_kernel1d
 from deepreg.loss.util import separable_filter
 from deepreg.registry import REGISTRY
-
-EPS = tf.keras.backend.epsilon()
 
 
 class MultiScaleLoss(tf.keras.losses.Loss):

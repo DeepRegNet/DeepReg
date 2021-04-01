@@ -1,6 +1,7 @@
 """Provide different loss or metrics classes for images."""
 import tensorflow as tf
 
+from deepreg.constant import EPS
 from deepreg.loss.util import NegativeLossMixin
 from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
 from deepreg.loss.util import (
@@ -9,8 +10,6 @@ from deepreg.loss.util import (
     triangular_kernel1d,
 )
 from deepreg.registry import REGISTRY
-
-EPS = tf.keras.backend.epsilon()
 
 
 @REGISTRY.register_loss(name="ssd")
@@ -220,21 +219,20 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
             * self.kernel[None, None, :]
         )
 
-    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def calc_ncc(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
-        Return loss for a batch.
+        Return NCC for a batch.
 
         :param y_true: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
+            or (batch, dim1, dim2, dim3, 1)
         :param y_pred: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
-        :return: shape = (batch,)
+            or (batch, dim1, dim2, dim3, 1)
+        :return: shape = (batch, dim1, dim2, dim3. 1)
         """
         # adjust
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
             y_pred = tf.expand_dims(y_pred, axis=4)
-        assert len(y_true.shape) == len(y_pred.shape) == 5
 
         # t = y_true, p = y_pred
         # (batch, dim1, dim2, dim3, ch)
@@ -260,9 +258,26 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
         p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
 
+        # ensure variance >= 0
+        t_var = tf.maximum(t_var, 0)
+        p_var = tf.maximum(p_var, 0)
+
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
         ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
 
+        return ncc
+
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Return loss for a batch.
+
+        :param y_true: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
+        :param y_pred: shape = (batch, dim1, dim2, dim3)
+            or (batch, dim1, dim2, dim3, ch)
+        :return: shape = (batch,)
+        """
+        ncc = self.calc_ncc(y_true=y_true, y_pred=y_pred)
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
