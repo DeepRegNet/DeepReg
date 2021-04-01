@@ -188,6 +188,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self,
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
+        smooth_nr: float = EPS,
+        smooth_dr: float = EPS,
         reduction: str = tf.keras.losses.Reduction.SUM,
         name: str = "LocalNormalizedCrossCorrelation",
     ):
@@ -196,6 +198,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
+        :param smooth_nr: small constant added to numerator in case of zero covariance.
+        :param smooth_dr: small constant added to denominator in case of zero variance.
         :param reduction: using SUM reduction over batch axis,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
@@ -209,6 +213,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
+        self.smooth_nr = smooth_nr
+        self.smooth_dr = smooth_dr
 
         # (kernel_size, )
         self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
@@ -223,19 +229,21 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         """
         Return NCC for a batch.
 
-        :param y_true: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, 1)
-        :param y_pred: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, 1)
+        The kernel should not be normalized, as normalizing them leads to computation
+        with small values and the precision will be reduced.
+        Here both numerator and denominator are actually multiplied by kernel volume,
+        which helps the precision as well.
+        However, when the variance is zero, the obtained value might be negative due to
+        machine error. Therefore a hard-coded clipping is added to
+        prevent division by zero.
+
+        :param y_true: shape = (batch, dim1, dim2, dim3, 1)
+        :param y_pred: shape = (batch, dim1, dim2, dim3, 1)
         :return: shape = (batch, dim1, dim2, dim3. 1)
         """
-        # adjust
-        if len(y_true.shape) == 4:
-            y_true = tf.expand_dims(y_true, axis=4)
-            y_pred = tf.expand_dims(y_pred, axis=4)
 
         # t = y_true, p = y_pred
-        # (batch, dim1, dim2, dim3, ch)
+        # (batch, dim1, dim2, dim3, 1)
         t2 = y_true * y_true
         p2 = y_pred * y_pred
         tp = y_true * y_pred
@@ -263,7 +271,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         p_var = tf.maximum(p_var, 0)
 
         # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
-        ncc = (cross * cross + EPS) / (t_var * p_var + EPS)
+        ncc = (cross * cross + self.smooth_nr) / (t_var * p_var + self.smooth_dr)
 
         return ncc
 
@@ -271,20 +279,40 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         """
         Return loss for a batch.
 
+        TODO: support channel axis dimension > 1.
+
         :param y_true: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
+            or (batch, dim1, dim2, dim3, 1)
         :param y_pred: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
+            or (batch, dim1, dim2, dim3, 1)
         :return: shape = (batch,)
         """
+        # sanity checks
+        if len(y_true.shape) == 4:
+            y_true = tf.expand_dims(y_true, axis=4)
+        if y_true.shape[4] != 1:
+            raise ValueError(
+                "Last dimension of y_true is not one. " f"y_true.shape = {y_true.shape}"
+            )
+        if len(y_pred.shape) == 4:
+            y_pred = tf.expand_dims(y_pred, axis=4)
+        if y_pred.shape[4] != 1:
+            raise ValueError(
+                "Last dimension of y_pred is not one. " f"y_pred.shape = {y_pred.shape}"
+            )
+
         ncc = self.calc_ncc(y_true=y_true, y_pred=y_pred)
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["kernel_size"] = self.kernel_size
-        config["kernel_type"] = self.kernel_type
+        config.update(
+            kernel_size=self.kernel_size,
+            kernel_type=self.kernel_type,
+            smooth_nr=self.smooth_nr,
+            smooth_dr=self.smooth_dr,
+        )
         return config
 
 
