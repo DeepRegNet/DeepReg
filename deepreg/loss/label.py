@@ -160,8 +160,8 @@ class DiceScore(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        y_prod = tf.reduce_mean(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_mean(y_true, axis=1) + tf.reduce_mean(y_pred, axis=1)
+        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
 
         numerator = 2 * (
             y_prod - self.background_weight * y_sum + self.background_weight
@@ -236,8 +236,8 @@ class CrossEntropy(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        loss_foreground = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
-        loss_background = tf.reduce_mean(
+        loss_foreground = tf.reduce_sum(y_true * tf.math.log(y_pred + EPS), axis=1)
+        loss_background = tf.reduce_sum(
             (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1
         )
         return (
@@ -302,8 +302,8 @@ class JaccardIndex(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        y_prod = tf.reduce_mean(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_mean(y_true, axis=1) + tf.reduce_mean(y_pred, axis=1)
+        y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
 
         return (y_prod + EPS) / (y_sum - y_prod + EPS)
 
