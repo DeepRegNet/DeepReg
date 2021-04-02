@@ -60,16 +60,43 @@ class TestDiceScore:
             binary=binary, background_weight=background_weight, scales=scales
         ).call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected)
-        got = label.DiceLoss(
-            binary=binary, background_weight=background_weight, scales=scales
+
+    @pytest.mark.parametrize("binary", [True, False])
+    @pytest.mark.parametrize("background_weight", [0.0, 0.1, 0.5, 1.0])
+    def test_exact_value(self, binary, background_weight):
+        foreground_weight = 1 - background_weight
+        size = 5
+        tf.random.set_seed(0)
+        y_true = tf.random.uniform(shape=(1, size))
+        y_pred = tf.random.uniform(shape=(1, size))
+
+        if binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
+        num = foreground_weight * tf.reduce_sum(
+            y_true * y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) * (1 - y_pred), axis=1)
+        num *= 2
+        denom = foreground_weight * tf.reduce_sum(
+            y_true + y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) + (1 - y_pred), axis=1)
+        expected = (num + EPS) / (denom + EPS)
+
+        got = label.DiceScore(
+            binary=binary,
+            background_weight=background_weight,
         ).call(y_true=y_true, y_pred=y_pred)
-        assert is_equal_tf(got, -expected)
+
+        assert is_equal_tf(got, expected)
 
     def test_get_config(self):
         got = label.DiceScore().get_config()
         expected = dict(
             binary=False,
             background_weight=0.0,
+            smooth_nr=1e-5,
+            smooth_dr=1e-5,
             scales=None,
             kernel="gaussian",
             reduction=tf.keras.losses.Reduction.SUM,
@@ -136,7 +163,7 @@ class TestJaccardIndex:
             (True, None, 0),
             (False, None, 0.25),
             (False, [0, 0], 0.25),
-            (False, [0, 1], 0.17485845),
+            (False, [0, 1], 0.17484127),
         ],
     )
     def test_call(self, y_true, y_pred, binary, scales, expected):

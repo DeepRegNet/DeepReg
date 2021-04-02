@@ -115,12 +115,20 @@ class DiceScore(MultiScaleLoss):
         4. dice score = num / denom
 
     where num and denom are summed over all axes except the batch axis.
+
+    Reference:
+        Sudre, Carole H., et al. "Generalised dice overlap as a deep learning loss
+        function for highly unbalanced segmentations." Deep learning in medical image
+        analysis and multimodal learning for clinical decision support.
+        Springer, Cham, 2017. 240-248.
     """
 
     def __init__(
         self,
         binary: bool = False,
         background_weight: float = 0.0,
+        smooth_nr: float = EPS,
+        smooth_dr: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction: str = tf.keras.losses.Reduction.SUM,
@@ -131,6 +139,8 @@ class DiceScore(MultiScaleLoss):
 
         :param binary: if True, project y_true, y_pred to 0 or 1.
         :param background_weight: weight for background, where y == 0.
+        :param smooth_nr: small constant added to numerator in case of zero covariance.
+        :param smooth_dr: small constant added to denominator in case of zero variance.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
@@ -140,9 +150,17 @@ class DiceScore(MultiScaleLoss):
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
-        assert 0 <= background_weight <= 1
+        if background_weight < 0 or background_weight > 1:
+            raise ValueError(
+                "The background weight for Dice Score must be "
+                f"within [0, 1], got {background_weight}."
+            )
+
         self.binary = binary
         self.background_weight = background_weight
+        self.smooth_nr = smooth_nr
+        self.smooth_dr = smooth_dr
+        self.flatten = tf.keras.layers.Flatten()
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -157,25 +175,38 @@ class DiceScore(MultiScaleLoss):
             y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
 
         # (batch, ...) -> (batch, d)
-        y_true = tf.keras.layers.Flatten()(y_true)
-        y_pred = tf.keras.layers.Flatten()(y_pred)
+        y_true = self.flatten(y_true)
+        y_pred = self.flatten(y_pred)
 
+        # for foreground class
         y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true + y_pred, axis=1)
 
-        numerator = 2 * (
-            y_prod - self.background_weight * y_sum + self.background_weight
-        )
-        denominator = (
-            1 - 2 * self.background_weight
-        ) * y_sum + 2 * self.background_weight
-        return (numerator + EPS) / (denominator + EPS)
+        if self.background_weight > 0:
+            # generalized
+            vol = tf.reduce_sum(tf.ones_like(y_true), axis=1)
+            numerator = 2 * (
+                y_prod - self.background_weight * y_sum + self.background_weight * vol
+            )
+            denominator = (
+                1 - 2 * self.background_weight
+            ) * y_sum + 2 * self.background_weight * vol
+        else:
+            # foreground only
+            numerator = 2 * y_prod
+            denominator = y_sum
+
+        return (numerator + self.smooth_nr) / (denominator + self.smooth_dr)
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["binary"] = self.binary
-        config["background_weight"] = self.background_weight
+        config.update(
+            binary=self.binary,
+            background_weight=self.background_weight,
+            smooth_nr=self.smooth_nr,
+            smooth_dr=self.smooth_dr,
+        )
         return config
 
 
@@ -236,8 +267,8 @@ class CrossEntropy(MultiScaleLoss):
         y_true = tf.keras.layers.Flatten()(y_true)
         y_pred = tf.keras.layers.Flatten()(y_pred)
 
-        loss_foreground = tf.reduce_sum(y_true * tf.math.log(y_pred + EPS), axis=1)
-        loss_background = tf.reduce_sum(
+        loss_foreground = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
+        loss_background = tf.reduce_mean(
             (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1
         )
         return (
