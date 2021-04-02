@@ -29,6 +29,8 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         Init.
 
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
@@ -70,6 +72,8 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
@@ -201,6 +205,8 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :param smooth_nr: small constant added to numerator in case of zero covariance.
         :param smooth_dr: small constant added to denominator in case of zero variance.
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """

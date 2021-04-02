@@ -34,6 +34,8 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -132,6 +134,8 @@ class DiceScore(MultiScaleLoss):
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -206,6 +210,8 @@ class CrossEntropy(MultiScaleLoss):
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
@@ -272,6 +278,8 @@ class JaccardIndex(MultiScaleLoss):
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
