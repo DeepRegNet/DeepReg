@@ -34,38 +34,59 @@ class TestMultiScaleLoss:
 
 
 class TestDiceScore:
-    shape = (3, 3, 3, 3)
-
-    @pytest.fixture()
-    def y_true(self):
-        return np.ones(shape=self.shape) * 0.6
-
-    @pytest.fixture()
-    def y_pred(self):
-        return np.ones(shape=self.shape) * 0.3
-
     @pytest.mark.parametrize(
-        "binary,background_weight,scales,expected",
+        ("value", "smooth_nr", "smooth_dr", "expected"),
         [
-            (True, 0.0, None, 0.0),
-            (False, 0.0, None, 0.4),
-            (False, 0.2, None, 0.4 / 0.94),
-            (False, 0.2, [0, 0], 0.4 / 0.94),
-            (False, 0.2, [0, 1], 0.46030036),
+            (0, 1e-5, 1e-5, 1),
+            (0, 0, 1e-5, 0),
+            (0, 1e-5, 0, np.inf),
+            (0, 0, 0, np.nan),
+            (0, 1e-7, 1e-7, 1),
+            (1, 1e-5, 1e-5, 1),
+            (1, 0, 1e-5, 1),
+            (1, 1e-5, 0, 1),
+            (1, 0, 0, 1),
+            (1, 1e-7, 1e-7, 1),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
-        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
-        got = label.DiceScore(
-            binary=binary, background_weight=background_weight, scales=scales
-        ).call(y_true=y_true, y_pred=y_pred)
-        assert is_equal_tf(got, expected)
+    def test_smooth(
+        self,
+        value: float,
+        smooth_nr: float,
+        smooth_dr: float,
+        expected: float,
+    ):
+        """
+        Test values in extreme cases where numerator/denominator are all zero.
+
+        :param value: value for input.
+        :param smooth_nr: constant for numerator.
+        :param smooth_dr: constant for denominator.
+        :param expected: target value.
+        """
+        shape = (1, 10)
+        y_true = tf.ones(shape=shape) * value
+        y_pred = tf.ones(shape=shape) * value
+
+        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr,)._call(
+            y_true,
+            y_pred,
+        )
+        expected = tf.constant(expected)
+        assert is_equal_tf(got[0], expected)
 
     @pytest.mark.parametrize("binary", [True, False])
     @pytest.mark.parametrize("background_weight", [0.0, 0.1, 0.5, 1.0])
-    def test_exact_value(self, binary, background_weight):
+    @pytest.mark.parametrize("size", [1, 10, 100])
+    def test_exact_value(self, binary: bool, background_weight: float, size: int):
+        """
+        Test dice score by comparing at ground truth values.
+
+        :param binary: if project labels to binary values.
+        :param background_weight: the weight of background class.
+        :param size: size of input.
+        """
         foreground_weight = 1 - background_weight
-        size = 5
         tf.random.set_seed(0)
         y_true = tf.random.uniform(shape=(1, size))
         y_pred = tf.random.uniform(shape=(1, size))
