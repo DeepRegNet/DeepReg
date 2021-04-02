@@ -69,7 +69,7 @@ class TestDiceScore:
         y_true = tf.ones(shape=shape) * value
         y_pred = tf.ones(shape=shape) * value
 
-        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr,)._call(
+        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
             y_true,
             y_pred,
         )
@@ -146,6 +146,41 @@ class TestCrossEntropy:
         return np.ones(shape=self.shape) * 0.3
 
     @pytest.mark.parametrize(
+        ("value", "smooth", "expected"),
+        [
+            (0, 1e-5, 0),
+            (0, 0, np.nan),
+            (0, 1e-7, 0),
+            (1, 1e-5, -np.log(1 + 1e-5)),
+            (1, 0, 0),
+            (1, 1e-7, -np.log(1 + 1e-7)),
+        ],
+    )
+    def test_smooth(
+        self,
+        value: float,
+        smooth: float,
+        expected: float,
+    ):
+        """
+        Test values in extreme cases where numerator/denominator are all zero.
+
+        :param value: value for input.
+        :param smooth: constant for log.
+        :param expected: target value.
+        """
+        shape = (1, 10)
+        y_true = tf.ones(shape=shape) * value
+        y_pred = tf.ones(shape=shape) * value
+
+        got = label.CrossEntropy(smooth=smooth)._call(
+            y_true,
+            y_pred,
+        )
+        expected = tf.constant(expected)
+        assert is_equal_tf(got[0], expected)
+
+    @pytest.mark.parametrize(
         "binary,background_weight,scales,expected",
         [
             (True, 0.0, None, -np.log(EPS)),
@@ -167,6 +202,7 @@ class TestCrossEntropy:
         expected = dict(
             binary=False,
             background_weight=0.0,
+            smooth=1e-5,
             scales=None,
             kernel="gaussian",
             reduction=tf.keras.losses.Reduction.SUM,
@@ -210,7 +246,7 @@ class TestJaccardIndex:
         y_true = tf.ones(shape=shape) * value
         y_pred = tf.ones(shape=shape) * value
 
-        got = label.JaccardIndex(smooth_nr=smooth_nr, smooth_dr=smooth_dr,)._call(
+        got = label.JaccardIndex(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
             y_true,
             y_pred,
         )

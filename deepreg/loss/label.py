@@ -228,6 +228,7 @@ class CrossEntropy(MultiScaleLoss):
         self,
         binary: bool = False,
         background_weight: float = 0.0,
+        smooth: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction: str = tf.keras.losses.Reduction.SUM,
@@ -250,6 +251,8 @@ class CrossEntropy(MultiScaleLoss):
         assert 0 <= background_weight <= 1
         self.binary = binary
         self.background_weight = background_weight
+        self.smooth = smooth
+        self.flatten = tf.keras.layers.Flatten()
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -264,23 +267,28 @@ class CrossEntropy(MultiScaleLoss):
             y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
 
         # (batch, ...) -> (batch, d)
-        y_true = tf.keras.layers.Flatten()(y_true)
-        y_pred = tf.keras.layers.Flatten()(y_pred)
+        y_true = self.flatten(y_true)
+        y_pred = self.flatten(y_pred)
 
-        loss_foreground = tf.reduce_mean(y_true * tf.math.log(y_pred + EPS), axis=1)
-        loss_background = tf.reduce_mean(
-            (1 - y_true) * tf.math.log(1 - y_pred + EPS), axis=1
-        )
-        return (
-            -(1 - self.background_weight) * loss_foreground
-            - self.background_weight * loss_background
-        )
+        loss_fg = -tf.reduce_mean(y_true * tf.math.log(y_pred + self.smooth), axis=1)
+        if self.background_weight > 0:
+            loss_bg = -tf.reduce_mean(
+                (1 - y_true) * tf.math.log(1 - y_pred + self.smooth), axis=1
+            )
+            return (
+                1 - self.background_weight
+            ) * loss_fg + self.background_weight * loss_bg
+        else:
+            return loss_fg
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["binary"] = self.binary
-        config["background_weight"] = self.background_weight
+        config.update(
+            binary=self.binary,
+            background_weight=self.background_weight,
+            smooth=self.smooth,
+        )
         return config
 
 
