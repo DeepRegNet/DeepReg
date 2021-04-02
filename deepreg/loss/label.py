@@ -284,7 +284,7 @@ class CrossEntropy(MultiScaleLoss):
         return config
 
 
-class JaccardIndex(MultiScaleLoss):
+class JaccardIndex(DiceScore):
     """
     Define Jaccard index.
 
@@ -292,11 +292,25 @@ class JaccardIndex(MultiScaleLoss):
     1. num = y_true * y_pred
     2. denom = y_true + y_pred - y_true * y_pred
     3. Jaccard index = num / denom
+
+        0. w_fg + w_bg = 1
+        1. let y_prod = y_true * y_pred and y_sum  = y_true + y_pred
+        2. num = (w_fg * y_true * y_pred + w_bg * (1−y_true) * (1−y_pred))
+               = ((w_fg+w_bg) * y_prod - w_bg * y_sum + w_bg)
+               = (y_prod - w_bg * y_sum + w_bg)
+        3. denom = (w_fg * (y_true + y_pred - y_true * y_pred)
+                  + w_bg * (1−y_true + 1−y_pred - (1−y_true) * (1−y_pred)))
+                 = w_fg * (y_sum - y_prod) + w_bg * (1-y_prod)
+                 = (1-w_bg) * y_sum - y_prod + w_bg
+        4. dice score = num / denom
     """
 
     def __init__(
         self,
         binary: bool = False,
+        background_weight: float = 0.0,
+        smooth_nr: float = EPS,
+        smooth_dr: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
         reduction: str = tf.keras.losses.Reduction.SUM,
@@ -306,6 +320,9 @@ class JaccardIndex(MultiScaleLoss):
         Init.
 
         :param binary: if True, project y_true, y_pred to 0 or 1.
+        :param background_weight: weight for background, where y == 0.
+        :param smooth_nr: small constant added to numerator in case of zero covariance.
+        :param smooth_dr: small constant added to denominator in case of zero variance.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
         :param reduction: using SUM reduction over batch axis,
@@ -314,8 +331,16 @@ class JaccardIndex(MultiScaleLoss):
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: str, name of the loss.
         """
-        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
-        self.binary = binary
+        super().__init__(
+            binary=binary,
+            background_weight=background_weight,
+            smooth_nr=smooth_nr,
+            smooth_dr=smooth_dr,
+            scales=scales,
+            kernel=kernel,
+            reduction=reduction,
+            name=name,
+        )
 
     def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -330,19 +355,30 @@ class JaccardIndex(MultiScaleLoss):
             y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
 
         # (batch, ...) -> (batch, d)
-        y_true = tf.keras.layers.Flatten()(y_true)
-        y_pred = tf.keras.layers.Flatten()(y_pred)
+        y_true = self.flatten(y_true)
+        y_pred = self.flatten(y_pred)
 
+        # for foreground class
         y_prod = tf.reduce_sum(y_true * y_pred, axis=1)
-        y_sum = tf.reduce_sum(y_true, axis=1) + tf.reduce_sum(y_pred, axis=1)
+        y_sum = tf.reduce_sum(y_true + y_pred, axis=1)
 
-        return (y_prod + EPS) / (y_sum - y_prod + EPS)
+        if self.background_weight > 0:
+            # generalized
+            vol = tf.reduce_sum(tf.ones_like(y_true), axis=1)
+            numerator = (
+                y_prod - self.background_weight * y_sum + self.background_weight * vol
+            )
+            denominator = (
+                (1 - self.background_weight) * y_sum
+                - y_prod
+                + self.background_weight * vol
+            )
+        else:
+            # foreground only
+            numerator = y_prod
+            denominator = y_sum - y_prod
 
-    def get_config(self) -> dict:
-        """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config["binary"] = self.binary
-        return config
+        return (numerator + self.smooth_nr) / (denominator + self.smooth_dr)
 
 
 @REGISTRY.register_loss(name="jaccard")
