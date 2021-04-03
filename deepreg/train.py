@@ -136,8 +136,6 @@ def train(
             )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
-
-        # compile
         model.compile(optimizer=optimizer)
         model.plot_model(output_dir=log_dir)
 

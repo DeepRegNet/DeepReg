@@ -209,12 +209,6 @@ def predict(
     :param save_png: if true, outputs will be saved in png format
     :param config_path: to overwrite the default config
     """
-    # TODO support custom sample_label
-    logging.warning(
-        "sample_label is not used in predict. "
-        "It is True if and only if mode == 'train'."
-    )
-
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
@@ -223,39 +217,47 @@ def predict(
     config, log_dir, ckpt_path = build_config(
         config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
-    preprocess_config = config["train"]["preprocess"]
-    # batch_size corresponds to batch_size per GPU
-    gpus = tf.config.experimental.list_physical_devices("GPU")
-    preprocess_config["batch_size"] = batch_size * max(len(gpus), 1)
+
+    # set global batch size
+    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
+    batch_size = config["train"]["preprocess"].pop("batch_size")
+    global_batch_size = batch_size * num_devices
+    config["train"]["preprocess"]["global_batch_size"] = global_batch_size
 
     # data
     data_loader, dataset, _ = build_dataset(
         dataset_config=config["dataset"],
-        preprocess_config=preprocess_config,
+        preprocess_config=config["train"]["preprocess"],
         mode=mode,
         training=False,
         repeat=False,
     )
     assert data_loader is not None
 
-    # optimizer
-    optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
-
-    # model
-    model: tf.keras.Model = REGISTRY.build_model(
-        config=dict(
-            name=config["train"]["method"],
-            moving_image_size=data_loader.moving_image_shape,
-            fixed_image_size=data_loader.fixed_image_shape,
-            index_size=data_loader.num_indices,
-            labeled=config["dataset"]["labeled"],
-            batch_size=config["train"]["preprocess"]["batch_size"],
-            config=config["train"],
+    # use strategy to support multiple GPUs
+    # the network is mirrored in each GPU so that we can use larger batch size
+    # https://www.tensorflow.org/guide/distributed_training
+    # only model, optimizer and metrics need to be defined inside the strategy
+    if num_devices > 1:
+        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
+    else:
+        strategy = tf.distribute.get_strategy()
+    with strategy.scope():
+        model: tf.keras.Model = REGISTRY.build_model(
+            config=dict(
+                name=config["train"]["method"],
+                moving_image_size=data_loader.moving_image_shape,
+                fixed_image_size=data_loader.fixed_image_shape,
+                index_size=data_loader.num_indices,
+                labeled=config["dataset"]["labeled"],
+                global_batch_size=global_batch_size,
+                config=config["train"],
+            )
         )
-    )
-
-    # metrics
-    model.compile(optimizer=optimizer)
+        optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
+        model.compile(optimizer=optimizer)
+        model.plot_model(output_dir=log_dir)
 
     # load weights
     if ckpt_path.endswith(".ckpt"):
