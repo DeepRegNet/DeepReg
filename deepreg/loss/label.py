@@ -48,9 +48,9 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         """
         Use _call to calculate loss at different scales.
 
-        :param y_true: ground-truth tensor.
-        :param y_pred: predicted tensor.
-        :return: multi-scale loss.
+        :param y_true: ground-truth tensor, shape = (batch, dim1, dim2, dim3).
+        :param y_pred: predicted tensor, shape = (batch, dim1, dim2, dim3).
+        :return: multi-scale loss, shape = (batch, ).
         """
         if self.scales is None:
             return self._call(y_true=y_true, y_pred=y_pred)
