@@ -211,7 +211,8 @@ class RegistrationModel(tf.keras.Model):
             loss_layer: tf.keras.layers.Layer = REGISTRY.build_loss(
                 config=dict_without(d=loss_config, key="weight")
             )
-            loss_value = loss_layer(**inputs_dict) / self.global_batch_size
+            loss_value = loss_layer(**inputs_dict)
+            loss_value = tf.nn.compute_average_loss(loss_value)
             weighted_loss = loss_value * weight
 
             # add loss
