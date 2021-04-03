@@ -133,6 +133,19 @@ class TestDiceScore:
         )
         assert got == expected
 
+    @pytest.mark.parametrize("background_weight", [-0.1, 1.1])
+    def test_background_weight_err(self, background_weight: float):
+        """
+        Test the error message when using wrong background weight.
+
+        :param background_weight: weight for background class.
+        """
+        with pytest.raises(ValueError) as err_info:
+            label.DiceScore(background_weight=background_weight)
+        assert "The background weight for Dice Score must be within [0, 1]" in str(
+            err_info.value
+        )
+
 
 class TestCrossEntropy:
     shape = (3, 3, 3, 3)
@@ -209,6 +222,19 @@ class TestCrossEntropy:
             name="CrossEntropy",
         )
         assert got == expected
+
+    @pytest.mark.parametrize("background_weight", [-0.1, 1.1])
+    def test_background_weight_err(self, background_weight: float):
+        """
+        Test the error message when using wrong background weight.
+
+        :param background_weight: weight for background class.
+        """
+        with pytest.raises(ValueError) as err_info:
+            label.CrossEntropy(background_weight=background_weight)
+        assert "The background weight for Cross Entropy must be within [0, 1]" in str(
+            err_info.value
+        )
 
 
 class TestJaccardIndex:

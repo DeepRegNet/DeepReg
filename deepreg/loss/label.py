@@ -248,7 +248,11 @@ class CrossEntropy(MultiScaleLoss):
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
-        assert 0 <= background_weight <= 1
+        if background_weight < 0 or background_weight > 1:
+            raise ValueError(
+                "The background weight for Cross Entropy must be "
+                f"within [0, 1], got {background_weight}."
+            )
         self.binary = binary
         self.background_weight = background_weight
         self.smooth = smooth
