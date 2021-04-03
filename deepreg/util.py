@@ -43,11 +43,12 @@ def build_dataset(
     data_loader = get_data_loader(dataset_config, mode)
     if data_loader is None:
         return None, None, None
+
     dataset = data_loader.get_dataset_and_preprocess(
         training=training, repeat=repeat, **preprocess_config
     )
     dataset_size = data_loader.num_samples
-    steps_per_epoch = max(dataset_size // preprocess_config["batch_size"], 1)
+    steps_per_epoch = max(dataset_size // preprocess_config["global_batch_size"], 1)
     return data_loader, dataset, steps_per_epoch
 
 

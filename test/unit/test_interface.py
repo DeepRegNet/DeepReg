@@ -130,7 +130,7 @@ class TestDataLoader:
 
         dataset = data_loader.get_dataset_and_preprocess(
             training=True,
-            batch_size=batch_size,
+            global_batch_size=batch_size,
             repeat=True,
             shuffle_buffer_num_batch=1,
             **data_augmentation,

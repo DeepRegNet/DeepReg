@@ -85,18 +85,18 @@ class DataLoader:
     def get_dataset_and_preprocess(
         self,
         training: bool,
-        batch_size: int,
+        global_batch_size: int,
         repeat: bool,
         shuffle_buffer_num_batch: int,
         data_augmentation: Optional[Union[List, Dict]] = None,
     ) -> tf.data.Dataset:
         """
-        :param training: bool, indicating if it's training or not
-        :param batch_size: int, size of mini batch
-        :param repeat: bool, indicating if we need to repeat the dataset
-        :param shuffle_buffer_num_batch: int, when shuffling,
-            the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
-        :param repeat: bool, indicating if we need to repeat the dataset
+        :param training: indicating if it's training or not
+        :param global_batch_size: total number of samples consumed per step.
+        :param repeat: indicating if we need to repeat the dataset
+        :param shuffle_buffer_num_batch: when shuffling,
+            the shuffle_buffer_size = global_batch_size * shuffle_buffer_num_batch
+        :param repeat: indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
         :returns dataset:
         """
@@ -116,13 +116,13 @@ class DataLoader:
         # shuffle / repeat / batch / preprocess
         if training and shuffle_buffer_num_batch > 0:
             dataset = dataset.shuffle(
-                buffer_size=batch_size * shuffle_buffer_num_batch,
+                buffer_size=global_batch_size * shuffle_buffer_num_batch,
                 reshuffle_each_iteration=True,
             )
         if repeat:
             dataset = dataset.repeat()
 
-        dataset = dataset.batch(batch_size=batch_size, drop_remainder=training)
+        dataset = dataset.batch(batch_size=global_batch_size, drop_remainder=training)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
         if training and data_augmentation is not None:
@@ -134,7 +134,7 @@ class DataLoader:
                     default_args={
                         "moving_image_size": self.moving_image_shape,
                         "fixed_image_size": self.fixed_image_shape,
-                        "batch_size": batch_size,
+                        "batch_size": global_batch_size,
                     },
                 )
                 dataset = dataset.map(

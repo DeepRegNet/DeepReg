@@ -55,10 +55,6 @@ def build_config(
     # backup config
     config_parser.save(config=config, out_dir=log_dir)
 
-    # batch_size in original config corresponds to batch_size per GPU
-    gpus = tf.config.experimental.list_physical_devices("GPU")
-    config["train"]["preprocess"]["batch_size"] *= max(len(gpus), 1)
-
     return config, log_dir, ckpt_path
 
 
@@ -95,6 +91,13 @@ def train(
         max_epochs=max_epochs,
     )
 
+    # set global batch size
+    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
+    batch_size = config["train"]["preprocess"].pop("batch_size")
+    global_batch_size = batch_size * num_devices
+    config["train"]["preprocess"]["global_batch_size"] = global_batch_size
+
     # build dataset
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
@@ -116,7 +119,6 @@ def train(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
-    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
     if num_devices > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
@@ -129,7 +131,7 @@ def train(
                 fixed_image_size=data_loader_train.fixed_image_shape,
                 index_size=data_loader_train.num_indices,
                 labeled=config["dataset"]["labeled"],
-                batch_size=config["train"]["preprocess"]["batch_size"],
+                batch_size=batch_size,
                 config=config["train"],
                 num_devices=num_devices,
             )
