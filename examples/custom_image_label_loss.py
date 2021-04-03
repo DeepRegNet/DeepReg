@@ -28,6 +28,7 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
+        self.flatten = tf.keras.layers.Flatten()
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -38,7 +39,7 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         loss = tf.math.squared_difference(y_true, y_pred)
-        loss = tf.keras.layers.Flatten()(loss)
+        loss = self.flatten(loss)
         loss = tf.reduce_mean(loss, axis=1)
         loss = tf.math.sqrt(loss)
         return loss
