@@ -15,7 +15,7 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "RootMeanSquaredDifference",
     ):
         """

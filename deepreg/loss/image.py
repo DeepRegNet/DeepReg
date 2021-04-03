@@ -22,7 +22,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "SumSquaredDifference",
     ):
         """
@@ -64,7 +64,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalMutualInformation",
     ):
         """
@@ -195,7 +195,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         kernel_type: str = "rectangular",
         smooth_nr: float = EPS,
         smooth_dr: float = EPS,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LocalNormalizedCrossCorrelation",
     ):
         """
@@ -346,7 +346,7 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalNormalizedCrossCorrelation",
     ):
         """

@@ -25,7 +25,7 @@ class MultiScaleLoss(tf.keras.losses.Loss):
         self,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "MultiScaleLoss",
     ):
         """
@@ -131,7 +131,7 @@ class DiceScore(MultiScaleLoss):
         smooth_dr: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "DiceScore",
     ):
         """
@@ -231,7 +231,7 @@ class CrossEntropy(MultiScaleLoss):
         smooth: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "CrossEntropy",
     ):
         """
@@ -325,7 +325,7 @@ class JaccardIndex(DiceScore):
         smooth_dr: float = EPS,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "JaccardIndex",
     ):
         """

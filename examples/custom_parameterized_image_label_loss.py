@@ -16,7 +16,7 @@ class LPNorm(tf.keras.losses.Loss):
     def __init__(
         self,
         p: int,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LPNorm",
     ):
         """

@@ -28,7 +28,7 @@ class TestMultiScaleLoss:
         expected = dict(
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="MultiScaleLoss",
         )
         assert got == expected
@@ -128,7 +128,7 @@ class TestDiceScore:
             smooth_dr=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="DiceScore",
         )
         assert got == expected
@@ -218,7 +218,7 @@ class TestCrossEntropy:
             smooth=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="CrossEntropy",
         )
         assert got == expected
@@ -331,7 +331,7 @@ class TestJaccardIndex:
             smooth_dr=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="JaccardIndex",
         )
         assert got == expected
