@@ -266,11 +266,8 @@ class RegistrationModel(tf.keras.Model):
             )
 
             # additional label metrics
-            tre = (
-                compute_centroid_distance(
-                    y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
-                )
-                / self.global_batch_size
+            tre = compute_centroid_distance(
+                y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
             )
             dice_binary = (
                 DiceScore(binary=True)(y_true=fixed_label, y_pred=pred_fixed_label)
