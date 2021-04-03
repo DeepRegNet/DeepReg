@@ -30,8 +30,8 @@ class RegistrationModel(tf.keras.Model):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple,
+        fixed_image_size: Tuple,
         index_size: int,
         labeled: bool,
         batch_size: int,

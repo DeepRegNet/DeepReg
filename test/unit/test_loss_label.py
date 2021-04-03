@@ -12,6 +12,7 @@ import pytest
 import tensorflow as tf
 
 import deepreg.loss.label as label
+from deepreg.constant import EPS
 
 
 class TestMultiScaleLoss:
@@ -91,11 +92,11 @@ class TestCrossEntropy:
     @pytest.mark.parametrize(
         "binary,background_weight,scales,expected",
         [
-            (True, 0.0, None, -np.log(1.0e-7)),
-            (False, 0.0, None, -0.6 * np.log(0.3)),
-            (False, 0.2, None, -0.48 * np.log(0.3) - 0.08 * np.log(0.7)),
-            (False, 0.2, [0, 0], -0.48 * np.log(0.3) - 0.08 * np.log(0.7)),
-            (False, 0.2, [0, 1], 0.5239637),
+            (True, 0.0, None, -np.log(EPS)),
+            (False, 0.0, None, -0.6 * np.log(0.3 + EPS)),
+            (False, 0.2, None, -0.48 * np.log(0.3 + EPS) - 0.08 * np.log(0.7 + EPS)),
+            (False, 0.2, [0, 0], -0.48 * np.log(0.3 + EPS) - 0.08 * np.log(0.7 + EPS)),
+            (False, 0.2, [0, 1], 0.5239465),
         ],
     )
     def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
@@ -135,7 +136,7 @@ class TestJaccardIndex:
             (True, None, 0),
             (False, None, 0.25),
             (False, [0, 0], 0.25),
-            (False, [0, 1], 0.17484076),
+            (False, [0, 1], 0.17485845),
         ],
     )
     def test_call(self, y_true, y_pred, binary, scales, expected):

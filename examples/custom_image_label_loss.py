@@ -22,6 +22,8 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
         Init.
 
         :param reduction: using SUM reduction over batch axis,
+            this is for supporting multi-device training,
+            and the loss will be divided by global batch size,
             calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
         :param name: name of the loss
         """
