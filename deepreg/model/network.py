@@ -60,7 +60,7 @@ class RegistrationModel(tf.keras.Model):
         self.batch_size = batch_size
         self.config = config
         self.num_devices = num_devices
-        self.global_batch_size = num_devices * batch_size
+        self.global_batch_size = batch_size
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
