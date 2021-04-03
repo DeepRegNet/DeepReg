@@ -34,9 +34,8 @@ class RegistrationModel(tf.keras.Model):
         fixed_image_size: Tuple,
         index_size: int,
         labeled: bool,
-        batch_size: int,
+        global_batch_size: int,
         config: dict,
-        num_devices: int = 1,
         name: str = "RegistrationModel",
     ):
         """
@@ -46,10 +45,8 @@ class RegistrationModel(tf.keras.Model):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param index_size: number of indices for identify each sample
         :param labeled: if the data is labeled
-        :param batch_size: size of mini-batch
+        :param global_batch_size: number of samples per step.
         :param config: config for method, backbone, and loss.
-        :param num_devices: number of GPU used,
-            global_batch_size = batch_size*num_devices
         :param name: name of the model
         """
         super().__init__(name=name)
@@ -57,10 +54,8 @@ class RegistrationModel(tf.keras.Model):
         self.fixed_image_size = fixed_image_size
         self.index_size = index_size
         self.labeled = labeled
-        self.batch_size = batch_size
         self.config = config
-        self.num_devices = num_devices
-        self.global_batch_size = batch_size
+        self.global_batch_size = global_batch_size
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
@@ -78,9 +73,8 @@ class RegistrationModel(tf.keras.Model):
             fixed_image_size=self.fixed_image_size,
             index_size=self.index_size,
             labeled=self.labeled,
-            batch_size=self.batch_size,
+            global_batch_size=self.global_batch_size,
             config=self.config,
-            num_devices=self.num_devices,
             name=self.name,
         )
 
@@ -97,19 +91,19 @@ class RegistrationModel(tf.keras.Model):
         # (batch, m_dim1, m_dim2, m_dim3)
         moving_image = tf.keras.Input(
             shape=self.moving_image_size,
-            batch_size=self.batch_size,
+            batch_size=self.global_batch_size,
             name="moving_image",
         )
         # (batch, f_dim1, f_dim2, f_dim3)
         fixed_image = tf.keras.Input(
             shape=self.fixed_image_size,
-            batch_size=self.batch_size,
+            batch_size=self.global_batch_size,
             name="fixed_image",
         )
         # (batch, index_size)
         indices = tf.keras.Input(
             shape=(self.index_size,),
-            batch_size=self.batch_size,
+            batch_size=self.global_batch_size,
             name="indices",
         )
 
@@ -121,13 +115,13 @@ class RegistrationModel(tf.keras.Model):
         # (batch, m_dim1, m_dim2, m_dim3)
         moving_label = tf.keras.Input(
             shape=self.moving_image_size,
-            batch_size=self.batch_size,
+            batch_size=self.global_batch_size,
             name="moving_label",
         )
         # (batch, m_dim1, m_dim2, m_dim3)
         fixed_label = tf.keras.Input(
             shape=self.fixed_image_size,
-            batch_size=self.batch_size,
+            batch_size=self.global_batch_size,
             name="fixed_label",
         )
         return dict(
@@ -339,7 +333,7 @@ class RegistrationModel(tf.keras.Model):
         :param tensor: tensor to monitor.
         :param name: name of the tensor.
         """
-        flatten = tf.reshape(tensor, shape=(self.batch_size, -1))
+        flatten = tf.reshape(tensor, shape=(self.global_batch_size, -1))
         self._model.add_metric(
             tf.reduce_mean(flatten, axis=1),
             name=f"metric/{name}_mean",

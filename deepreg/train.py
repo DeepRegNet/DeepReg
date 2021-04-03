@@ -131,9 +131,8 @@ def train(
                 fixed_image_size=data_loader_train.fixed_image_shape,
                 index_size=data_loader_train.num_indices,
                 labeled=config["dataset"]["labeled"],
-                batch_size=batch_size,
+                global_batch_size=global_batch_size,
                 config=config["train"],
-                num_devices=num_devices,
             )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
