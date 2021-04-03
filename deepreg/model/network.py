@@ -6,7 +6,7 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
-from deepreg.loss.label import DiceScore, compute_centroid_distance
+from deepreg.loss.label import compute_centroid_distance
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
@@ -269,14 +269,14 @@ class RegistrationModel(tf.keras.Model):
             tre = compute_centroid_distance(
                 y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
             )
-            dice_binary = (
-                DiceScore(binary=True)(y_true=fixed_label, y_pred=pred_fixed_label)
-                / self.global_batch_size
-            )
+            # dice_binary = (
+            #     DiceScore(binary=True)(y_true=fixed_label, y_pred=pred_fixed_label)
+            #     / self.global_batch_size
+            # )
             self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
-            self._model.add_metric(
-                dice_binary, name="metric/BinaryDiceScore", aggregation="mean"
-            )
+            # self._model.add_metric(
+            #     dice_binary, name="metric/BinaryDiceScore", aggregation="mean"
+            # )
 
     def call(
         self, inputs: Dict[str, tf.Tensor], training=None, mask=None
