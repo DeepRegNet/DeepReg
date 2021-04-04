@@ -32,7 +32,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: size of mini-batch
+        :param batch_size: number of samples per step.
         :param name: name of layer
         :param trainable: if this layer is trainable
         """
@@ -138,7 +138,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: size of mini-batch
+        :param batch_size: number of samples per step.
         :param scale: a positive float controlling the scale of transformation
         :param name: name of the layer
         :param kwargs: extra arguments
@@ -209,7 +209,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
         :param moving_image_size: tuple
         :param fixed_image_size: tuple
-        :param batch_size: int
+        :param batch_size: number of samples per step.
         :param field_strength: int = 1. It is used as the upper bound for the
         deformation field variance
         :param low_res_size: tuple = (1, 1, 1).

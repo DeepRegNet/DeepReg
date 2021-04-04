@@ -218,13 +218,6 @@ def predict(
         config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
 
-    # set global batch size
-    # https://www.tensorflow.org/guide/distributed_training#using_tfdistributestrategy_with_tfkerasmodelfit
-    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
-    batch_size = config["train"]["preprocess"].pop("batch_size")
-    global_batch_size = batch_size * num_devices
-    config["train"]["preprocess"]["global_batch_size"] = global_batch_size
-
     # data
     data_loader, dataset, _ = build_dataset(
         dataset_config=config["dataset"],
@@ -239,6 +232,7 @@ def predict(
     # the network is mirrored in each GPU so that we can use larger batch size
     # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
+    num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
     if num_devices > 1:
         strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
     else:
@@ -251,7 +245,7 @@ def predict(
                 fixed_image_size=data_loader.fixed_image_shape,
                 index_size=data_loader.num_indices,
                 labeled=config["dataset"]["labeled"],
-                global_batch_size=global_batch_size,
+                batch_size=config["train"]["preprocess"]["batch_size"],
                 config=config["train"],
             )
         )
