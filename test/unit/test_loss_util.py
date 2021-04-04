@@ -11,15 +11,14 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-from deepreg.loss.util import (
-    NegativeLossMixin,
+from deepreg.loss.kernel import (
     cauchy_kernel1d,
     gaussian_kernel1d_sigma,
     gaussian_kernel1d_size,
     rectangular_kernel1d,
-    separable_filter,
     triangular_kernel1d,
 )
+from deepreg.loss.util import NegativeLossMixin, separable_filter
 
 
 @pytest.mark.parametrize("sigma", [1, 3, 2.2])

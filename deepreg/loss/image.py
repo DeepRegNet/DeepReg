@@ -2,13 +2,9 @@
 import tensorflow as tf
 
 from deepreg.constant import EPS
-from deepreg.loss.util import NegativeLossMixin
-from deepreg.loss.util import gaussian_kernel1d_size as gaussian_kernel1d
-from deepreg.loss.util import (
-    rectangular_kernel1d,
-    separable_filter,
-    triangular_kernel1d,
-)
+from deepreg.loss.kernel import gaussian_kernel1d_size as gaussian_kernel1d
+from deepreg.loss.kernel import rectangular_kernel1d, triangular_kernel1d
+from deepreg.loss.util import NegativeLossMixin, separable_filter
 from deepreg.registry import REGISTRY
 
 
