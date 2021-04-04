@@ -33,10 +33,10 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: str, name of the loss.
         """
         super().__init__(reduction=reduction, name=name)
@@ -143,10 +143,10 @@ class DiceScore(MultiScaleLoss):
         :param smooth_dr: small constant added to denominator in case of zero variance.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
@@ -241,10 +241,10 @@ class CrossEntropy(MultiScaleLoss):
         :param background_weight: weight for background, where y == 0.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: str, name of the loss.
         """
         super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
@@ -337,10 +337,10 @@ class JaccardIndex(DiceScore):
         :param smooth_dr: small constant added to denominator in case of zero variance.
         :param scales: list of scalars or None, if None, do not apply any scaling.
         :param kernel: gaussian or cauchy.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: str, name of the loss.
         """
         super().__init__(
