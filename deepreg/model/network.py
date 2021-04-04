@@ -265,14 +265,7 @@ class RegistrationModel(tf.keras.Model):
             tre = compute_centroid_distance(
                 y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
             )
-            # dice_binary = (
-            #     DiceScore(binary=True)(y_true=fixed_label, y_pred=pred_fixed_label)
-            #     / self.batch_size
-            # )
             self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
-            # self._model.add_metric(
-            #     dice_binary, name="metric/BinaryDiceScore", aggregation="mean"
-            # )
 
     def call(
         self, inputs: Dict[str, tf.Tensor], training=None, mask=None

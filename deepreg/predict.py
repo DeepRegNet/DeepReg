@@ -217,6 +217,7 @@ def predict(
     config, log_dir, ckpt_path = build_config(
         config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
+    config["train"]["preprocess"]["batch_size"] = batch_size
 
     # data
     data_loader, dataset, _ = build_dataset(
@@ -233,8 +234,13 @@ def predict(
     # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
     num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
-    if num_devices > 1:
-        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
+    if num_devices > 1:  # pragma: no cover
+        strategy = tf.distribute.MirroredStrategy()
+        if batch_size % num_devices != 0:
+            raise ValueError(
+                f"batch size {batch_size} can not be divided evenly "
+                f"by the number of devices."
+            )
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
@@ -245,7 +251,7 @@ def predict(
                 fixed_image_size=data_loader.fixed_image_shape,
                 index_size=data_loader.num_indices,
                 labeled=config["dataset"]["labeled"],
-                batch_size=config["train"]["preprocess"]["batch_size"],
+                batch_size=batch_size,
                 config=config["train"],
             )
         )
