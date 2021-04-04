@@ -45,8 +45,8 @@ class RegistrationModel(tf.keras.Model):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param index_size: number of indices for identify each sample
         :param labeled: if the data is labeled
-        :param batch_size: number of samples per step. When using multiple
-            devices, TensorFlow automatically split the tensors.
+        :param batch_size: total number of samples consumed per step, over all devices.
+            When using multiple devices, TensorFlow automatically split the tensors.
             Therefore, input shapes should be defined over batch_size.
         :param config: config for method, backbone, and loss.
         :param name: name of the model

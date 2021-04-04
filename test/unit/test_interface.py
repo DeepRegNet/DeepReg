@@ -109,7 +109,7 @@ class TestDataLoader:
         :param labeled: bool
         :param moving_shape: tuple
         :param fixed_shape: tuple
-        :param batch_size: int
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param data_augmentation: dict
         :return:
         """

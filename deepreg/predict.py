@@ -202,7 +202,7 @@ def predict(
     :param gpu_allow_growth: whether to allow gpu growth or not
     :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
     :param mode: train / valid / test, to define which split of dataset to be evaluated
-    :param batch_size: int, batch size to perform predictions in
+    :param batch_size: total number of samples consumed per step, over all devices.int, batch size to perform predictions in
     :param exp_name: name of the experiment
     :param log_dir: path of the log directory
     :param save_nifti: if true, outputs will be saved in nifti format

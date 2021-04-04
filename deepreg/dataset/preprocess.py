@@ -32,7 +32,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: number of samples per step.
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param name: name of layer
         :param trainable: if this layer is trainable
         """
@@ -138,7 +138,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: number of samples per step.
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param scale: a positive float controlling the scale of transformation
         :param name: name of the layer
         :param kwargs: extra arguments
@@ -209,7 +209,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
         :param moving_image_size: tuple
         :param fixed_image_size: tuple
-        :param batch_size: number of samples per step.
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param field_strength: int = 1. It is used as the upper bound for the
         deformation field variance
         :param low_res_size: tuple = (1, 1, 1).
@@ -435,7 +435,7 @@ def gen_rand_affine_transform(
         | /               | /
         A — — — — — — — — B
 
-    :param batch_size: int
+    :param batch_size: total number of samples consumed per step, over all devices.
     :param scale: a float number between 0 and 1
     :param seed: control the randomness
     :return: shape = (batch, 4, 3)
@@ -470,7 +470,7 @@ def gen_rand_ddf(
     """
     Function that generates a random 3D DDF for a batch of data.
 
-    :param batch_size:
+    :param batch_size: total number of samples consumed per step, over all devices.
     :param image_size:
     :param field_strength: maximum field strength, computed as a U[0,field_strength]
     :param low_res_size: low_resolution deformation field that will be upsampled to

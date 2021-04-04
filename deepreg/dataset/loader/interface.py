@@ -92,7 +92,7 @@ class DataLoader:
     ) -> tf.data.Dataset:
         """
         :param training: indicating if it's training or not
-        :param batch_size: total number of samples consumed per step.
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param repeat: indicating if we need to repeat the dataset
         :param shuffle_buffer_num_batch: when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
