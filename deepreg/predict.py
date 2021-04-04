@@ -192,7 +192,7 @@ def predict(
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
-    num_cpus: int = -1,
+    num_workers: int = 1,
     gpu_allow_growth: bool = True,
     save_nifti: bool = True,
     save_png: bool = True,
@@ -207,7 +207,7 @@ def predict(
     :param batch_size: int, batch size to perform predictions.
     :param exp_name: name of the experiment.
     :param config_path: to overwrite the default config.
-    :param num_cpus: number of cpus to be used, -1 means not limited.
+    :param num_workers: number of cpus to be used, -1 means not limited.
     :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param save_nifti: if true, outputs will be saved in nifti format.
     :param save_png: if true, outputs will be saved in png format.
@@ -217,12 +217,12 @@ def predict(
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
-    if num_cpus > 0:
+    if num_workers > 0:
         # Maximum number of threads to use for OpenMP parallel regions.
-        os.environ["OMP_NUM_THREADS"] = str(num_cpus)
+        os.environ["OMP_NUM_THREADS"] = str(num_workers)
         # Without setting below 2 environment variables, it didn't work for me. Thanks to @cjw85
-        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_cpus)
-        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_cpus)
+        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 
     # load config
     config, log_dir, ckpt_path = build_config(
@@ -331,10 +331,10 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--num_cpus",
-        help="Number of CPUs to be used, -1 means unlimited.",
+        "--num_workers",
+        help="Number of CPUs to be used, <= 0 means unlimited.",
         type=int,
-        default=-1,
+        default=1,
     )
 
     parser.add_argument(
@@ -390,7 +390,7 @@ def main(args=None):
     predict(
         gpu=args.gpu,
         ckpt_path=args.ckpt_path,
-        num_cpus=args.num_cpus,
+        num_workers=args.num_workers,
         gpu_allow_growth=args.gpu_allow_growth,
         mode=args.mode,
         batch_size=args.batch_size,

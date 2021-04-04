@@ -40,7 +40,7 @@ train:
       name: "affine"
     batch_size: 2
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
-    num_parallel_calls: -1 # num_cpus to be used, -1 means unlimited
+    num_parallel_calls: -1 # number of workers to be used, -1 means unlimited
 
   # other training hyper-parameters
   epochs: 2 # number of training epochs

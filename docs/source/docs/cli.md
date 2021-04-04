@@ -42,13 +42,13 @@ configuration can be specified in the configuration file. Please see
 
 - **CPU allocation**:
 
-  `--num_cpus`, if given, TensorFlow will use limited CPUs.
+  `--num_workers`, if given, TensorFlow will use limited CPUs.
 
   By default, it uses all available CPUs.
 
   Example usage:
 
-  - `--num_cpus 2` for using at most 2 CPUs.
+  - `--num_workers 2` for using at most 2 CPUs.
 
 - **GPU memory allocation**:
 
@@ -168,13 +168,13 @@ configuration can be specified in the configuration file. Please see
 
 - **CPU allocation**:
 
-  `--num_cpus`, if given, TensorFlow will use limited CPUs.
+  `--num_workers`, if given, TensorFlow will use limited CPUs.
 
   By default, it uses all available CPUs.
 
   Example usage:
 
-  - `--num_cpus 2` for using at most 2 CPUs.
+  - `--num_workers 2` for using at most 2 CPUs.
 
 - **GPU memory allocation**:
 

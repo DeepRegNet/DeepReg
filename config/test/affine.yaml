@@ -18,7 +18,7 @@ train:
   preprocess:
     batch_size: 2
     shuffle_buffer_num_batch: 1
-    num_parallel_calls: -1 # num_cpus to be used, -1 means unlimited
+    num_parallel_calls: -1 # number of workers to be used, -1 means unlimited
   optimizer:
     name: "Adam"
     learning_rate: 1.0e-5
