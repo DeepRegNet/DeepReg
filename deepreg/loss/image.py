@@ -150,7 +150,6 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         kernel_type: str = "rectangular",
         smooth_nr: float = EPS,
         smooth_dr: float = EPS,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LocalNormalizedCrossCorrelation",
         **kwargs,
     ):

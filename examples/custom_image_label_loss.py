@@ -15,19 +15,16 @@ class RootMeanSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "RootMeanSquaredDifference",
+        **kwargs,
     ):
         """
         Init.
 
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         self.flatten = tf.keras.layers.Flatten()
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
