@@ -34,6 +34,29 @@ class TestMultiScaleLoss:
         assert got == expected
 
 
+class TestSumSquaredDistance:
+    @pytest.mark.parametrize(
+        "y_true,y_pred,shape,expected",
+        [
+            (0.6, 0.3, (3,), 0.09),
+            (0.6, 0.3, (3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.6, 0.3, (3, 3, 3), 0.09),
+            (0.5, 0.5, (3, 3), 0.0),
+            (0.3, 0.6, (3, 3), 0.09),
+        ],
+    )
+    def test_output(self, y_true, y_pred, shape, expected):
+        y_true = y_true * np.ones(shape=shape)
+        y_pred = y_pred * np.ones(shape=shape)
+        expected = expected * np.ones(shape=(shape[0],))
+        got = label.SumSquaredDifference().call(
+            y_true,
+            y_pred,
+        )
+        assert is_equal_tf(got, expected)
+
+
 class TestDiceScore:
     @pytest.mark.parametrize(
         ("value", "smooth_nr", "smooth_dr", "expected"),

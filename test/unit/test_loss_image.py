@@ -4,6 +4,7 @@ pytest style.
 Notes: The format of inputs to the function dissimilarity_fn
 in image.py should be better converted into tf tensor type beforehand.
 """
+
 from test.unit.util import is_equal_tf
 from typing import Tuple
 
@@ -13,29 +14,6 @@ import tensorflow as tf
 
 import deepreg.loss.image as image
 from deepreg.constant import EPS
-
-
-class TestSumSquaredDistance:
-    @pytest.mark.parametrize(
-        "y_true,y_pred,shape,expected",
-        [
-            (0.6, 0.3, (3,), 0.09),
-            (0.6, 0.3, (3, 3), 0.09),
-            (0.6, 0.3, (3, 3, 3), 0.09),
-            (0.6, 0.3, (3, 3, 3), 0.09),
-            (0.5, 0.5, (3, 3), 0.0),
-            (0.3, 0.6, (3, 3), 0.09),
-        ],
-    )
-    def test_output(self, y_true, y_pred, shape, expected):
-        y_true = y_true * np.ones(shape=shape)
-        y_pred = y_pred * np.ones(shape=shape)
-        expected = expected * np.ones(shape=(shape[0],))
-        got = image.SumSquaredDifference().call(
-            y_true,
-            y_pred,
-        )
-        assert is_equal_tf(got, expected)
 
 
 class TestGlobalMutualInformation:
