@@ -16,24 +16,6 @@ import deepreg.loss.label as label
 from deepreg.constant import EPS
 
 
-class TestMultiScaleLoss:
-    def test_call(self):
-        loss = label.MultiScaleLoss()
-        with pytest.raises(NotImplementedError):
-            loss.call(0, 0)
-
-    def test_get_config(self):
-        loss = label.MultiScaleLoss()
-        got = loss.get_config()
-        expected = dict(
-            scales=None,
-            kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.NONE,
-            name="MultiScaleLoss",
-        )
-        assert got == expected
-
-
 class TestSumSquaredDistance:
     @pytest.mark.parametrize(
         "y_true,y_pred,shape,expected",
@@ -92,7 +74,7 @@ class TestDiceScore:
         y_true = tf.ones(shape=shape) * value
         y_pred = tf.ones(shape=shape) * value
 
-        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
+        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr).call(
             y_true,
             y_pred,
         )
@@ -149,9 +131,7 @@ class TestDiceScore:
             background_weight=0.0,
             smooth_nr=1e-5,
             smooth_dr=1e-5,
-            scales=None,
-            kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.NONE,
+            reduction=tf.keras.losses.Reduction.AUTO,
             name="DiceScore",
         )
         assert got == expected
@@ -209,7 +189,7 @@ class TestCrossEntropy:
         y_true = tf.ones(shape=shape) * value
         y_pred = tf.ones(shape=shape) * value
 
-        got = label.CrossEntropy(smooth=smooth)._call(
+        got = label.CrossEntropy(smooth=smooth).call(
             y_true,
             y_pred,
         )
@@ -217,19 +197,18 @@ class TestCrossEntropy:
         assert is_equal_tf(got[0], expected)
 
     @pytest.mark.parametrize(
-        "binary,background_weight,scales,expected",
+        "binary,background_weight,expected",
         [
-            (True, 0.0, None, -np.log(EPS)),
-            (False, 0.0, None, -0.6 * np.log(0.3 + EPS)),
-            (False, 0.2, None, -0.48 * np.log(0.3 + EPS) - 0.08 * np.log(0.7 + EPS)),
-            (False, 0.2, [0, 0], -0.48 * np.log(0.3 + EPS) - 0.08 * np.log(0.7 + EPS)),
-            (False, 0.2, [0, 1], 0.5239465),
+            (True, 0.0, -np.log(EPS)),
+            (False, 0.0, -0.6 * np.log(0.3 + EPS)),
+            (False, 0.2, -0.48 * np.log(0.3 + EPS) - 0.08 * np.log(0.7 + EPS)),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
+    def testcall(self, y_true, y_pred, binary, background_weight, expected):
         expected = np.array([expected] * self.shape[0])  # call returns (batch, )
         got = label.CrossEntropy(
-            binary=binary, background_weight=background_weight, scales=scales
+            binary=binary,
+            background_weight=background_weight,
         ).call(y_true=y_true, y_pred=y_pred)
         assert is_equal_tf(got, expected)
 
@@ -239,9 +218,7 @@ class TestCrossEntropy:
             binary=False,
             background_weight=0.0,
             smooth=1e-5,
-            scales=None,
-            kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.NONE,
+            reduction=tf.keras.losses.Reduction.AUTO,
             name="CrossEntropy",
         )
         assert got == expected
@@ -295,7 +272,7 @@ class TestJaccardIndex:
         y_true = tf.ones(shape=shape) * value
         y_pred = tf.ones(shape=shape) * value
 
-        got = label.JaccardIndex(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
+        got = label.JaccardIndex(smooth_nr=smooth_nr, smooth_dr=smooth_dr).call(
             y_true,
             y_pred,
         )
@@ -352,9 +329,7 @@ class TestJaccardIndex:
             background_weight=0.0,
             smooth_nr=1e-5,
             smooth_dr=1e-5,
-            scales=None,
-            kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.NONE,
+            reduction=tf.keras.losses.Reduction.AUTO,
             name="JaccardIndex",
         )
         assert got == expected

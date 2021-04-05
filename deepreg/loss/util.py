@@ -1,6 +1,88 @@
 """Provide helper functions or classes for defining loss or metrics."""
 
+from typing import List, Optional
+
 import tensorflow as tf
+
+from deepreg.loss.kernel import cauchy_kernel1d
+from deepreg.loss.kernel import gaussian_kernel1d_sigma as gaussian_kernel1d
+
+
+class MultiScaleMixin(tf.keras.losses.Loss):
+    """
+    Mixin class for multi-scale loss.
+
+    It applies the loss at different scales (gaussian or cauchy smoothing).
+    It is assumed that loss values are between 0 and 1.
+    """
+
+    kernel_fn_dict = dict(gaussian=gaussian_kernel1d, cauchy=cauchy_kernel1d)
+
+    def __init__(
+        self,
+        scales: Optional[List] = None,
+        kernel: str = "gaussian",
+        name: str = "MultiScaleMixin",
+        **kwargs,
+    ):
+        """
+        Init.
+
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param kwargs: additional arguments.
+        """
+        super().__init__(name=name, **kwargs)
+        if kernel not in self.kernel_fn_dict:
+            raise ValueError(
+                f"Kernel {kernel} is not supported."
+                f"Supported kernels are {list(self.kernel_fn_dict.keys())}"
+            )
+        self.scales = scales
+        self.kernel = kernel
+
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Use super().call to calculate loss at different scales.
+
+        :param y_true: ground-truth tensor, shape = (batch, dim1, dim2, dim3).
+        :param y_pred: predicted tensor, shape = (batch, dim1, dim2, dim3).
+        :return: multi-scale loss, shape = (batch, ).
+        """
+        if self.scales is None:
+            return super().call(y_true=y_true, y_pred=y_pred)
+        kernel_fn = self.kernel_fn_dict[self.kernel]
+        losses = []
+        for s in self.scales:
+            if s == 0:
+                # no smoothing
+                losses.append(
+                    super().call(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                    )
+                )
+            else:
+                losses.append(
+                    super().call(
+                        y_true=separable_filter(
+                            tf.expand_dims(y_true, axis=4), kernel_fn(s)
+                        )[..., 0],
+                        y_pred=separable_filter(
+                            tf.expand_dims(y_pred, axis=4), kernel_fn(s)
+                        )[..., 0],
+                    )
+                )
+        loss = tf.add_n(losses)
+        loss = loss / len(self.scales)
+        return loss
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["scales"] = self.scales
+        config["kernel"] = self.kernel
+        return config
 
 
 class NegativeLossMixin(tf.keras.losses.Loss):

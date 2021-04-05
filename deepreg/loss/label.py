@@ -1,105 +1,13 @@
 """Provide different loss or metrics classes for labels."""
 
-from typing import List, Optional
-
 import tensorflow as tf
 
 from deepreg.constant import EPS
-from deepreg.loss.kernel import cauchy_kernel1d
-from deepreg.loss.kernel import gaussian_kernel1d_sigma as gaussian_kernel1d
-from deepreg.loss.util import NegativeLossMixin, separable_filter
+from deepreg.loss.util import MultiScaleMixin, NegativeLossMixin
 from deepreg.registry import REGISTRY
 
 
-class MultiScaleLoss(tf.keras.losses.Loss):
-    """
-    Base class for multi-scale loss.
-
-    It applies the loss at different scales (gaussian or cauchy smoothing).
-    It is assumed that loss values are between 0 and 1.
-    """
-
-    kernel_fn_dict = dict(gaussian=gaussian_kernel1d, cauchy=cauchy_kernel1d)
-
-    def __init__(
-        self,
-        scales: Optional[List] = None,
-        kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.NONE,
-        name: str = "MultiScaleLoss",
-    ):
-        """
-        Init.
-
-        :param scales: list of scalars or None, if None, do not apply any scaling.
-        :param kernel: gaussian or cauchy.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: str, name of the loss.
-        """
-        super().__init__(reduction=reduction, name=name)
-        assert kernel in ["gaussian", "cauchy"]
-        self.scales = scales
-        self.kernel = kernel
-
-    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-        """
-        Use _call to calculate loss at different scales.
-
-        :param y_true: ground-truth tensor, shape = (batch, dim1, dim2, dim3).
-        :param y_pred: predicted tensor, shape = (batch, dim1, dim2, dim3).
-        :return: multi-scale loss, shape = (batch, ).
-        """
-        if self.scales is None:
-            return self._call(y_true=y_true, y_pred=y_pred)
-        kernel_fn = self.kernel_fn_dict[self.kernel]
-        losses = []
-        for s in self.scales:
-            if s == 0:
-                # no smoothing
-                losses.append(
-                    self._call(
-                        y_true=y_true,
-                        y_pred=y_pred,
-                    )
-                )
-            else:
-                losses.append(
-                    self._call(
-                        y_true=separable_filter(
-                            tf.expand_dims(y_true, axis=4), kernel_fn(s)
-                        )[..., 0],
-                        y_pred=separable_filter(
-                            tf.expand_dims(y_pred, axis=4), kernel_fn(s)
-                        )[..., 0],
-                    )
-                )
-        loss = tf.add_n(losses)
-        loss = loss / len(self.scales)
-        return loss
-
-    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-        """
-        Return loss for a batch.
-
-        :param y_true: ground-truth tensor.
-        :param y_pred: predicted tensor.
-        :return: negated loss.
-        """
-        raise NotImplementedError
-
-    def get_config(self) -> dict:
-        """Return the config dictionary for recreating this class."""
-        config = super().get_config()
-        config["scales"] = self.scales
-        config["kernel"] = self.kernel
-        return config
-
-
-@REGISTRY.register_loss(name="ssd")
-class SumSquaredDifference(MultiScaleLoss):
+class SumSquaredDifference(tf.keras.losses.Loss):
     """
     Actually, mean of squared distance between y_true and y_pred.
 
@@ -110,24 +18,21 @@ class SumSquaredDifference(MultiScaleLoss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "SumSquaredDifference",
+        **kwargs,
     ):
         """
         Init.
 
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: name of the loss
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         self.flatten = tf.keras.layers.Flatten()
 
-    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
-        Return loss for a batch.
+        Return mean squared different for a batch.
 
         :param y_true: shape = (batch, ...)
         :param y_pred: shape = (batch, ...)
@@ -138,7 +43,12 @@ class SumSquaredDifference(MultiScaleLoss):
         return tf.reduce_mean(loss, axis=1)
 
 
-class DiceScore(MultiScaleLoss):
+@REGISTRY.register_loss(name="ssd")
+class SumSquaredDifferenceLoss(MultiScaleMixin, SumSquaredDifference):
+    """Define loss with multi-scaling options."""
+
+
+class DiceScore(tf.keras.losses.Loss):
     """
     Define dice score.
 
@@ -169,10 +79,8 @@ class DiceScore(MultiScaleLoss):
         background_weight: float = 0.0,
         smooth_nr: float = EPS,
         smooth_dr: float = EPS,
-        scales: Optional[List] = None,
-        kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "DiceScore",
+        **kwargs,
     ):
         """
         Init.
@@ -181,15 +89,10 @@ class DiceScore(MultiScaleLoss):
         :param background_weight: weight for background, where y == 0.
         :param smooth_nr: small constant added to numerator in case of zero covariance.
         :param smooth_dr: small constant added to denominator in case of zero variance.
-        :param scales: list of scalars or None, if None, do not apply any scaling.
-        :param kernel: gaussian or cauchy.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: str, name of the loss.
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
-        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         if background_weight < 0 or background_weight > 1:
             raise ValueError(
                 "The background weight for Dice Score must be "
@@ -202,7 +105,7 @@ class DiceScore(MultiScaleLoss):
         self.smooth_dr = smooth_dr
         self.flatten = tf.keras.layers.Flatten()
 
-    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -251,12 +154,11 @@ class DiceScore(MultiScaleLoss):
 
 
 @REGISTRY.register_loss(name="dice")
-class DiceLoss(NegativeLossMixin, DiceScore):
-    """Revert the sign of DiceScore."""
+class DiceLoss(NegativeLossMixin, MultiScaleMixin, DiceScore):
+    """Revert the sign of DiceScore and support multi-scaling options."""
 
 
-@REGISTRY.register_loss(name="cross-entropy")
-class CrossEntropy(MultiScaleLoss):
+class CrossEntropy(tf.keras.losses.Loss):
     """
     Define weighted cross-entropy.
 
@@ -269,25 +171,19 @@ class CrossEntropy(MultiScaleLoss):
         binary: bool = False,
         background_weight: float = 0.0,
         smooth: float = EPS,
-        scales: Optional[List] = None,
-        kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "CrossEntropy",
+        **kwargs,
     ):
         """
         Init.
 
         :param binary: if True, project y_true, y_pred to 0 or 1
         :param background_weight: weight for background, where y == 0.
-        :param scales: list of scalars or None, if None, do not apply any scaling.
-        :param kernel: gaussian or cauchy.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: str, name of the loss.
+        :param smooth: smooth constant for log.
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
-        super().__init__(scales=scales, kernel=kernel, reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         if background_weight < 0 or background_weight > 1:
             raise ValueError(
                 "The background weight for Cross Entropy must be "
@@ -298,7 +194,7 @@ class CrossEntropy(MultiScaleLoss):
         self.smooth = smooth
         self.flatten = tf.keras.layers.Flatten()
 
-    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -336,6 +232,11 @@ class CrossEntropy(MultiScaleLoss):
         return config
 
 
+@REGISTRY.register_loss(name="cross-entropy")
+class CrossEntropyLoss(MultiScaleMixin, CrossEntropy):
+    """Define loss with multi-scaling options."""
+
+
 class JaccardIndex(DiceScore):
     """
     Define Jaccard index.
@@ -363,10 +264,8 @@ class JaccardIndex(DiceScore):
         background_weight: float = 0.0,
         smooth_nr: float = EPS,
         smooth_dr: float = EPS,
-        scales: Optional[List] = None,
-        kernel: str = "gaussian",
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "JaccardIndex",
+        **kwargs,
     ):
         """
         Init.
@@ -375,26 +274,19 @@ class JaccardIndex(DiceScore):
         :param background_weight: weight for background, where y == 0.
         :param smooth_nr: small constant added to numerator in case of zero covariance.
         :param smooth_dr: small constant added to denominator in case of zero variance.
-        :param scales: list of scalars or None, if None, do not apply any scaling.
-        :param kernel: gaussian or cauchy.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: str, name of the loss.
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
         super().__init__(
             binary=binary,
             background_weight=background_weight,
             smooth_nr=smooth_nr,
             smooth_dr=smooth_dr,
-            scales=scales,
-            kernel=kernel,
-            reduction=reduction,
             name=name,
+            **kwargs,
         )
 
-    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
@@ -434,7 +326,7 @@ class JaccardIndex(DiceScore):
 
 
 @REGISTRY.register_loss(name="jaccard")
-class JaccardLoss(NegativeLossMixin, JaccardIndex):
+class JaccardLoss(NegativeLossMixin, MultiScaleMixin, JaccardIndex):
     """Revert the sign of JaccardIndex."""
 
 

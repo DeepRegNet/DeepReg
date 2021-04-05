@@ -22,21 +22,18 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalMutualInformation",
+        **kwargs,
     ):
         """
         Init.
 
         :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         self.num_bins = num_bins
         self.sigma_ratio = sigma_ratio
 
@@ -155,6 +152,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         smooth_dr: float = EPS,
         reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LocalNormalizedCrossCorrelation",
+        **kwargs,
     ):
         """
         Init.
@@ -163,13 +161,10 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :param kernel_type: str, rectangular, triangular or gaussian
         :param smooth_nr: small constant added to numerator in case of zero covariance.
         :param smooth_dr: small constant added to denominator in case of zero variance.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
-        :param name: name of the loss
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         if kernel_type not in self.kernel_fn_dict.keys():
             raise ValueError(
                 f"Wrong kernel_type {kernel_type} for LNCC loss type. "
@@ -304,16 +299,16 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalNormalizedCrossCorrelation",
+        **kwargs,
     ):
         """
         Init.
-        :param reduction: using AUTO reduction,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+
         :param name: name of the loss
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
