@@ -91,12 +91,12 @@ class DataLoader:
         data_augmentation: Optional[Union[List, Dict]] = None,
     ) -> tf.data.Dataset:
         """
-        :param training: bool, indicating if it's training or not
-        :param batch_size: int, size of mini batch
-        :param repeat: bool, indicating if we need to repeat the dataset
-        :param shuffle_buffer_num_batch: int, when shuffling,
+        :param training: indicating if it's training or not
+        :param batch_size: total number of samples consumed per step, over all devices.
+        :param repeat: indicating if we need to repeat the dataset
+        :param shuffle_buffer_num_batch: when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
-        :param repeat: bool, indicating if we need to repeat the dataset
+        :param repeat: indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
         :returns dataset:
         """

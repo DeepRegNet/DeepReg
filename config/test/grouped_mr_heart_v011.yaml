@@ -35,7 +35,7 @@ train:
         single_scale:
           loss_type: "cross-entropy"
     regularization:
-      weight: 1.0 # weight of regularization loss
+      weight: 0.25 # weight of regularization loss
       energy_type: "gradient-l2" # value should be bending / gradient-l1 / gradient-l2
 
   # define the optimizer

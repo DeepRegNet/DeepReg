@@ -43,6 +43,7 @@ def build_dataset(
     data_loader = get_data_loader(dataset_config, mode)
     if data_loader is None:
         return None, None, None
+
     dataset = data_loader.get_dataset_and_preprocess(
         training=training, repeat=repeat, **preprocess_config
     )
@@ -196,6 +197,7 @@ def save_metric_dict(save_dir: str, metrics: list):
 
     # calculate mean/median/std per label
     df_per_label = df.drop(["pair_index"], axis=1)
+    df_per_label = df_per_label.fillna(value=np.nan)
     df_per_label = df_per_label.groupby(["label_index"])
     df_per_label = pd.concat(
         [

@@ -22,7 +22,7 @@ train:
       name: "dice"
       scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 4.0
+      weight: 1.0
       name: "bending"
   preprocess:
     data_augmentation:
