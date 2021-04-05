@@ -25,7 +25,7 @@ train:
       name: "dice"
       scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 0.1
+      weight: 0.025
       name: "gradient"
   preprocess:
     data_augmentation:

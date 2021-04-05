@@ -29,7 +29,7 @@ train:
       name: "dice"
       scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 0.01 # weight of regularization loss
+      weight: 0.0025 # weight of regularization loss
       name: "gradient" # options include "bending", "gradient"
       l1: false # false for l2, true for l1
 
