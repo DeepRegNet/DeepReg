@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-import deepreg.loss.image as image_loss
 import deepreg.loss.label as label_loss
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
@@ -163,7 +162,7 @@ def calculate_metrics(
         y_pred = pred_fixed_image[sample_index : (sample_index + 1), :, :, :]
         y_true = tf.expand_dims(y_true, axis=4)
         y_pred = tf.expand_dims(y_pred, axis=4)
-        ssd = image_loss.SumSquaredDifference()(y_true=y_true, y_pred=y_pred).numpy()
+        ssd = label_loss.SumSquaredDifference()(y_true=y_true, y_pred=y_pred).numpy()
     else:
         ssd = None
 

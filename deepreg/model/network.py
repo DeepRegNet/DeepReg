@@ -210,8 +210,11 @@ class RegistrationModel(tf.keras.Model):
                 )
                 return
 
+            # do not perform reduction over batch axis for supporting multi-device
+            # training, model.fit() will average over global batch size automatically
             loss_layer: tf.keras.layers.Layer = REGISTRY.build_loss(
-                config=dict_without(d=loss_config, key="weight")
+                config=dict_without(d=loss_config, key="weight"),
+                default_args={"reduction": tf.keras.losses.Reduction.NONE},
             )
             loss_value = loss_layer(**inputs_dict)
             weighted_loss = loss_value * weight
