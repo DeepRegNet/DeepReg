@@ -589,7 +589,7 @@ train:
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
-    num_parallel_calls: -1 # number of workers to be used, -1 means unlimited
+    num_parallel_calls: -1 # number elements to process asynchronously in parallel during preprocessing, -1 means unlimited, heuristically it should be set to the number of CPU cores available
 ```
 
 ### Epochs - required

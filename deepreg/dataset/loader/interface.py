@@ -97,6 +97,11 @@ class DataLoader:
         """
         Generate tf.data.dataset.
 
+        Reference:
+
+            - https://www.tensorflow.org/guide/data_performance#parallelizing_data_transformation
+            - https://www.tensorflow.org/api_docs/python/tf/data/Dataset
+
         :param training: indicating if it's training or not
         :param batch_size: size of mini batch
         :param repeat: indicating if we need to repeat the dataset
@@ -104,8 +109,9 @@ class DataLoader:
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
         :param repeat: indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
-        :param num_parallel_calls: number of cpus to be used,
-            AUTOTUNE=-1 mean not limited.
+        :param num_parallel_calls: number elements to process asynchronously in parallel
+            during preprocessing, -1 means unlimited, heuristically it should be set to
+            the number of CPU cores available. AUTOTUNE=-1 means not limited.
         :returns dataset:
         """
 
