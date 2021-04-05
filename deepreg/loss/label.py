@@ -99,9 +99,11 @@ class MultiScaleLoss(tf.keras.losses.Loss):
 
 
 @REGISTRY.register_loss(name="ssd")
-class SumSquaredDifference(tf.keras.losses.Loss):
+class SumSquaredDifference(MultiScaleLoss):
     """
-    Sum of squared distance between y_true and y_pred.
+    Actually, mean of squared distance between y_true and y_pred.
+
+    The inconsistent name was for convention.
 
     y_true and y_pred have to be at least 1d tensor, including batch axis.
     """
@@ -123,7 +125,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         super().__init__(reduction=reduction, name=name)
         self.flatten = tf.keras.layers.Flatten()
 
-    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    def _call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
