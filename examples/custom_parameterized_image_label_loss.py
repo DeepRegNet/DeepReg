@@ -16,20 +16,17 @@ class LPNorm(tf.keras.losses.Loss):
     def __init__(
         self,
         p: int,
-        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LPNorm",
+        **kwargs,
     ):
         """
         Init.
 
         :param p: order of the norm, 1 or 2.
-        :param reduction: do not perform reduction over batch axis.
-            this is for supporting multi-device training,
-            model.fit() will average over global batch size automatically.
-            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
-        super().__init__(reduction=reduction, name=name)
+        super().__init__(name=name, **kwargs)
         if p not in [1, 2]:
             raise ValueError(f"For LPNorm, p must be 0 or 1, got {p}.")
         self.p = p

@@ -40,7 +40,7 @@ class TestGlobalMutualInformation:
         expected = dict(
             num_bins=23,
             sigma_ratio=0.5,
-            reduction=tf.keras.losses.Reduction.NONE,
+            reduction=tf.keras.losses.Reduction.AUTO,
             name="GlobalMutualInformation",
         )
         assert got == expected
@@ -206,7 +206,7 @@ class TestLocalNormalizedCrossCorrelation:
         expected = dict(
             kernel_size=9,
             kernel_type="rectangular",
-            reduction=tf.keras.losses.Reduction.NONE,
+            reduction=tf.keras.losses.Reduction.AUTO,
             name="LocalNormalizedCrossCorrelation",
             smooth_nr=1e-5,
             smooth_dr=1e-5,
