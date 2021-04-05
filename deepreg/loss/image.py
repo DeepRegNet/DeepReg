@@ -22,19 +22,20 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "SumSquaredDifference",
     ):
         """
         Init.
 
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
+        self.flatten = tf.keras.layers.Flatten()
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -45,7 +46,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         loss = tf.math.squared_difference(y_true, y_pred)
-        loss = tf.keras.layers.Flatten()(loss)
+        loss = self.flatten(loss)
         return tf.reduce_mean(loss, axis=1)
 
 
@@ -63,7 +64,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalMutualInformation",
     ):
         """
@@ -71,10 +72,10 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -194,7 +195,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         kernel_type: str = "rectangular",
         smooth_nr: float = EPS,
         smooth_dr: float = EPS,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LocalNormalizedCrossCorrelation",
     ):
         """
@@ -204,10 +205,10 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         :param kernel_type: str, rectangular, triangular or gaussian
         :param smooth_nr: small constant added to numerator in case of zero covariance.
         :param smooth_dr: small constant added to denominator in case of zero variance.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -345,7 +346,7 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalNormalizedCrossCorrelation",
     ):
         """

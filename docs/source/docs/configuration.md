@@ -560,7 +560,9 @@ train:
 
 The `preprocess` field defines how the data loader feeds data into the model.
 
-- `batch_size`: int, the batch size to pass to the network on each training step.
+- `batch_size`: int, specifies the number of samples per step for prediction. If using
+  multiple GPUs, i.e. `n` GPUs, each GPU will have mini batch size `batch_size / n`.
+  Thus, `batch_size` should be divided by `n` evenly.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
   memory to buffer training, such that shuffle_buffer_size = batch_size \*
   shuffle_buffer_num_batch.

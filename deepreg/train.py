@@ -55,10 +55,6 @@ def build_config(
     # backup config
     config_parser.save(config=config, out_dir=log_dir)
 
-    # batch_size in original config corresponds to batch_size per GPU
-    gpus = tf.config.experimental.list_physical_devices("GPU")
-    config["train"]["preprocess"]["batch_size"] *= max(len(gpus), 1)
-
     return config, log_dir, ckpt_path
 
 
@@ -117,8 +113,14 @@ def train(
     # https://www.tensorflow.org/guide/distributed_training
     # only model, optimizer and metrics need to be defined inside the strategy
     num_devices = max(len(tf.config.list_physical_devices("GPU")), 1)
-    if num_devices > 1:
-        strategy = tf.distribute.MirroredStrategy()  # pragma: no cover
+    batch_size = config["train"]["preprocess"]["batch_size"]
+    if num_devices > 1:  # pragma: no cover
+        strategy = tf.distribute.MirroredStrategy()
+        if batch_size % num_devices != 0:
+            raise ValueError(
+                f"batch size {batch_size} can not be divided evenly "
+                f"by the number of devices."
+            )
     else:
         strategy = tf.distribute.get_strategy()
     with strategy.scope():
@@ -129,16 +131,13 @@ def train(
                 fixed_image_size=data_loader_train.fixed_image_shape,
                 index_size=data_loader_train.num_indices,
                 labeled=config["dataset"]["labeled"],
-                batch_size=config["train"]["preprocess"]["batch_size"],
+                batch_size=batch_size,
                 config=config["train"],
-                num_devices=num_devices,
             )
         )
         optimizer = opt.build_optimizer(optimizer_config=config["train"]["optimizer"])
-
-    # compile
-    model.compile(optimizer=optimizer)
-    model.plot_model(output_dir=log_dir)
+        model.compile(optimizer=optimizer)
+        model.plot_model(output_dir=log_dir)
 
     # build callbacks
     tensorboard_callback = tf.keras.callbacks.TensorBoard(

@@ -197,13 +197,15 @@ configuration can be specified in the configuration file. Please see
 
 - **Batch size**:
 
-  `--batch_size` or `-b`, specifies the mini-batch size (per GPU) for prediction.
+  `--batch_size` or `-b`, specifies the number of samples per step for prediction. If
+  using multiple GPUs, i.e. `n` GPUs, each GPU will have mini batch size
+  `batch_size / n`. Thus, `batch_size` should be divided by `n` evenly.
 
   The default value is 1.
 
   Example usage:
 
-  - `--batch_size 2` for using a mini-batch size of 2.
+  - `--batch_size 2` for using a global mini-batch size of 2.
 
 - **Save outputs in Nifti format**:
 

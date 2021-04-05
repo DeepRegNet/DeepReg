@@ -16,23 +16,24 @@ class LPNorm(tf.keras.losses.Loss):
     def __init__(
         self,
         p: int,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LPNorm",
     ):
         """
         Init.
 
         :param p: order of the norm, 1 or 2.
-        :param reduction: using SUM reduction over batch axis,
+        :param reduction: do not perform reduction over batch axis.
             this is for supporting multi-device training,
-            and the loss will be divided by global batch size,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss.
         """
         super().__init__(reduction=reduction, name=name)
         if p not in [1, 2]:
             raise ValueError(f"For LPNorm, p must be 0 or 1, got {p}.")
         self.p = p
+        self.flatten = tf.keras.layers.Flatten()
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -43,7 +44,7 @@ class LPNorm(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         diff = y_true - y_pred
-        diff = tf.keras.layers.Flatten()(diff)
+        diff = self.flatten(diff)
         loss = tf.norm(diff, axis=-1, ord=self.p)
         return loss
 
