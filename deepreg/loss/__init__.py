@@ -6,7 +6,6 @@ from deepreg.loss.image import (
     GlobalMutualInformationLoss,
     LocalNormalizedCrossCorrelation,
     LocalNormalizedCrossCorrelationLoss,
-    SumSquaredDifference,
 )
 from deepreg.loss.label import (
     CrossEntropy,
@@ -14,4 +13,5 @@ from deepreg.loss.label import (
     DiceScore,
     JaccardIndex,
     JaccardLoss,
+    SumSquaredDifference,
 )
