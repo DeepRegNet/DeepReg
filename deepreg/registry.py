@@ -3,10 +3,12 @@ from typing import Any, Callable, Optional
 
 BACKBONE_CLASS = "backbone_class"
 LOSS_CLASS = "loss_class"
+METRIC_CLASS = "metric_class"
 MODEL_CLASS = "model_class"
 DATA_AUGMENTATION_CLASS = "da_class"
 DATA_LOADER_CLASS = "data_loader_class"
 FILE_LOADER_CLASS = "file_loader_class"
+
 KNOWN_CATEGORIES = [
     BACKBONE_CLASS,
     LOSS_CLASS,
@@ -229,6 +231,33 @@ class Registry:
         """
         return self.build_from_config(
             category=LOSS_CLASS, config=config, default_args=default_args
+        )
+
+    def register_metric(
+        self, name: str, cls: Callable = None, force: bool = False
+    ) -> Callable:
+        """
+        Register a metric class.
+
+        :param name: metric name
+        :param cls: metric class
+        :param force: whether overwrite if already registered
+        :return: the registered class
+        """
+        return self.register(category=METRIC_CLASS, name=name, cls=cls, force=force)
+
+    def build_metric(
+        self, config: dict, default_args: Optional[dict] = None
+    ) -> Callable:
+        """
+        Instantiate a registered metric class.
+
+        :param config: config having key `name`.
+        :param default_args: optionally some default arguments.
+        :return: a loss instance
+        """
+        return self.build_from_config(
+            category=METRIC_CLASS, config=config, default_args=default_args
         )
 
     def register_data_loader(
