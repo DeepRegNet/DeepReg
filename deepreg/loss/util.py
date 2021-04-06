@@ -22,7 +22,6 @@ class MultiScaleMixin(tf.keras.losses.Loss):
         self,
         scales: Optional[List] = None,
         kernel: str = "gaussian",
-        name: str = "MultiScaleMixin",
         **kwargs,
     ):
         """
@@ -32,7 +31,7 @@ class MultiScaleMixin(tf.keras.losses.Loss):
         :param kernel: gaussian or cauchy.
         :param kwargs: additional arguments.
         """
-        super().__init__(name=name, **kwargs)
+        super().__init__(**kwargs)
         if kernel not in self.kernel_fn_dict:
             raise ValueError(
                 f"Kernel {kernel} is not supported."
