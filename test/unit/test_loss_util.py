@@ -22,7 +22,7 @@ class TestMultiScaleLoss:
             scales=None,
             kernel="gaussian",
             reduction=tf.keras.losses.Reduction.AUTO,
-            name="MultiScaleMixin",
+            name=None,
         )
         assert got == expected
 
