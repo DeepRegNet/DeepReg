@@ -10,6 +10,7 @@ from testfixtures import TempDirectory
 
 from deepreg.config.parser import (
     config_sanity_check,
+    has_wandb_callback,
     load_configs,
     save,
     update_nested_dict,
@@ -213,3 +214,15 @@ def test_config_sanity_check(caplog):
     assert "Data directory for train is not defined." in caplog.text
     assert "Data directory for valid is not defined." in caplog.text
     assert "Data directory for test is not defined." in caplog.text
+
+
+@pytest.mark.parametrize(
+    """test_dict, expect""", [[{"wandb": True}, True], [{"random": False}, False]]
+)
+def test_has_wandb_callback(test_dict, expect):
+    """
+    Testing whether function returns expected value
+    from has_wandb_callback
+    """
+    get = has_wandb_callback(test_dict)
+    assert get == expect

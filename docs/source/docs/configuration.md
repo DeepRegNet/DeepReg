@@ -644,3 +644,50 @@ train:
   epochs: 1000
   save_period: 5
 ```
+
+### W&B logging - optional
+
+We have introduced [W&B support](https://docs.wandb.ai/) to remotely log experiments
+live. To log your training runs with W&B, pass a `wandb` key in the dictionary, and log
+in to your W&B account prior to initiating your run with the DeepReg command line tools.
+
+Example config:
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "local" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    extract_levels: [0, 1, 2]
+  loss:
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+  optimizer:
+    name: "sgd"
+    sgd:
+      learning_rate: 1.0e-5
+      momentum: 0.9
+      nesterov: false
+  preprocess:
+    batch_size: 32
+    shuffle_buffer_num_batch: 1
+  epochs: 1000
+  save_period: 5
+wandb:
+  init:
+    project: "My Project Name"
+    entity: "Username"
+    name: "Run name"
+  callback:
+    monitor: "val_loss"
+    mode: "min"
+```
+
+Check [W&B Callback docs](https://docs.wandb.ai/integrations/keras) and
+[W&B init docs](https://docs.wandb.ai/ref/python/init) for all possible arguments for
+this config aspect.
+
+If the `wandb` key is passed without `init` or `callback`, default runs without keyword
+arguments for both cases will be started.
