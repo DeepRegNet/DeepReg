@@ -30,6 +30,7 @@
     :caption: Documentation
 
     docs/cli
+    docs/log
     docs/configuration
     docs/dataset_loader
     docs/registry
