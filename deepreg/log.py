@@ -8,6 +8,14 @@ def get(name: str) -> logging.Logger:
     """
     Configure the logger with formatter and handlers.
 
+    The logger should be used as:
+
+    .. code-block:: python
+
+        from deepreg import log
+
+        logger = log.get(__name__)
+
     The log level depends on the environment variable `DEEPREG_LOG_LEVEL`.
 
     - 0: NOTSET, will be set to DEBUG

@@ -308,7 +308,7 @@ class RegistrationModel(tf.keras.Model):
 
         :param output_dir: path to the output dir.
         """
-        logger.info(self._model.summary())
+        self._model.summary(print_fn=logger.debug)
         try:
             tf.keras.utils.plot_model(
                 self._model,
