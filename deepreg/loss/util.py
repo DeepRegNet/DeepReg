@@ -1,6 +1,6 @@
 """Provide helper functions or classes for defining loss or metrics."""
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import tensorflow as tf
 
@@ -20,7 +20,7 @@ class MultiScaleMixin(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        scales: Optional[List] = None,
+        scales: Optional[Union[List, float, int]] = None,
         kernel: str = "gaussian",
         **kwargs,
     ):
@@ -37,6 +37,8 @@ class MultiScaleMixin(tf.keras.losses.Loss):
                 f"Kernel {kernel} is not supported."
                 f"Supported kernels are {list(self.kernel_fn_dict.keys())}"
             )
+        if scales is not None and not isinstance(scales, list):
+            scales = [scales]
         self.scales = scales
         self.kernel = kernel
 

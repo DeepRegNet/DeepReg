@@ -233,33 +233,6 @@ class Registry:
             category=LOSS_CLASS, config=config, default_args=default_args
         )
 
-    def register_metric(
-        self, name: str, cls: Callable = None, force: bool = False
-    ) -> Callable:
-        """
-        Register a metric class.
-
-        :param name: metric name
-        :param cls: metric class
-        :param force: whether overwrite if already registered
-        :return: the registered class
-        """
-        return self.register(category=METRIC_CLASS, name=name, cls=cls, force=force)
-
-    def build_metric(
-        self, config: Dict, default_args: Optional[dict] = None
-    ) -> Callable:
-        """
-        Instantiate a registered metric class.
-
-        :param config: config having key `name`.
-        :param default_args: optionally some default arguments.
-        :return: a loss instance
-        """
-        return self.build_from_config(
-            category=METRIC_CLASS, config=config, default_args=default_args
-        )
-
     def register_data_loader(
         self, name: str, cls: Callable = None, force: bool = False
     ) -> Callable:
