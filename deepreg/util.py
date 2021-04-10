@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import Optional, Tuple, Union
@@ -10,11 +9,12 @@ import pandas as pd
 import tensorflow as tf
 
 import deepreg.loss.label as label_loss
+from deepreg import log
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.util import normalize_array
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def build_dataset(

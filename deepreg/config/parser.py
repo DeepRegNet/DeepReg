@@ -1,12 +1,12 @@
-import logging
 import os
 from typing import Dict, List, Union
 
 import yaml
 
+from deepreg import log
 from deepreg.config.v011 import parse_v011
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def update_nested_dict(d: Dict, u: Dict) -> Dict:

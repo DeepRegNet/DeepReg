@@ -6,7 +6,6 @@ command line interface.
 """
 
 import argparse
-import logging
 import os
 import shutil
 from typing import Dict, List, Tuple, Union
@@ -17,6 +16,7 @@ import tensorflow as tf
 import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
+from deepreg import log
 from deepreg.callback import build_checkpoint_callback
 from deepreg.registry import REGISTRY
 from deepreg.util import (
@@ -27,7 +27,7 @@ from deepreg.util import (
     save_metric_dict,
 )
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def build_pair_output_path(indices: list, save_dir: str) -> Tuple[str, str]:

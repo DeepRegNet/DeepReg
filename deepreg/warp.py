@@ -5,17 +5,17 @@ Module to warp a image with given ddf. A CLI tool is provided.
 """
 
 import argparse
-import logging
 import os
 
 import nibabel as nib
 import numpy as np
 import tensorflow as tf
 
+from deepreg import log
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer import Warping
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def shape_sanity_check(image: np.ndarray, ddf: np.ndarray):
@@ -76,6 +76,8 @@ def warp(image_path: str, ddf_path: str, out_path: str):
 
     # save output
     nib.save(img=nib.Nifti1Image(warped_image, affine=np.eye(4)), filename=out_path)
+
+    logger.info("Warped image has been saved at %s.", out_path)
 
 
 def main(args=None):

@@ -1,19 +1,20 @@
 """
 Interface between the data loaders and file loaders.
 """
-import logging
+
 from abc import ABC
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
 
+from deepreg import log
 from deepreg.dataset.loader.util import normalize_array
 from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
 from deepreg.registry import REGISTRY
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 class DataLoader:

@@ -6,13 +6,14 @@ are not included in releases via command line interface.
 """
 
 import argparse
-import logging
 import os
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-logger = logging.getLogger(__name__)
+from deepreg import log
+
+logger = log.get(__name__)
 
 
 def download(dirs, output_dir="./", branch="main"):

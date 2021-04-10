@@ -1,4 +1,3 @@
-import logging
 import os
 from abc import abstractmethod
 from copy import deepcopy
@@ -6,12 +5,13 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
+from deepreg import log
 from deepreg.loss.label import compute_centroid_distance
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def dict_without(d: dict, key) -> dict:

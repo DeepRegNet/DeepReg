@@ -5,7 +5,6 @@ Requires ffmpeg writer to write gif files
 """
 
 import argparse
-import logging
 import os
 from typing import List
 
@@ -14,10 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.matlib
 
+from deepreg import log
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer import Warping
 
-logger = logging.getLogger(__name__)
+logger = log.get(__name__)
 
 
 def string_to_list(string: str) -> List[str]:

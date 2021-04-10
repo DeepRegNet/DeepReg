@@ -1,9 +1,12 @@
-import logging
 import os
 import shutil
 import subprocess
 
 import pytest
+
+from deepreg import log
+
+logger = log.get(__name__)
 
 
 def remove_files(name):
@@ -71,9 +74,9 @@ def check_vis_classical_demo(name):
 def execute_commands(cmds):
     for cmd in cmds:
         try:
-            logging.info(f"Running {cmd}")
+            logger.info(f"Running {cmd}")
             out = subprocess.check_output(cmd, shell=True).decode("utf-8")
-            logging.info(out)
+            logger.info(out)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 f"Command {cmd} return with err {e.returncode} {e.output}"
