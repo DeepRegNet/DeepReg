@@ -4,17 +4,23 @@
 Tests for deepreg/model/loss/label.py in
 pytest style
 """
-
 from test.unit.util import is_equal_tf
+from typing import List, Optional, Union
 
 import numpy as np
 import pytest
 import tensorflow as tf
 
-from deepreg.loss.util import MultiScaleMixin, NegativeLossMixin, separable_filter
+from deepreg.loss.label import DiceLoss, DiceScore
+from deepreg.loss.util import MultiScaleMixin, separable_filter
 
 
-class TestMultiScaleLoss:
+class TestMultiScaleMixin:
+    def test_err(self):
+        with pytest.raises(ValueError) as err_info:
+            MultiScaleMixin(kernel="unknown")
+        assert "Kernel unknown is not supported." in str(err_info.value)
+
     def test_get_config(self):
         loss = MultiScaleMixin()
         got = loss.get_config()
@@ -26,58 +32,45 @@ class TestMultiScaleLoss:
         )
         assert got == expected
 
+    @pytest.mark.parametrize("kernel", ["gaussian", "cauchy"])
+    @pytest.mark.parametrize("scales", [None, 0, [0], [0, 1], [1, 2]])
+    def test_call(self, kernel: str, scales: Optional[Union[List, float, int]]):
+        """
+        Test MultiScaleMixin using DiceLoss.
+
+        :param kernel: kernel name.
+        :param scales: scaling parameters.
+        """
+        shape = (2, 3, 4, 5)
+        y_true = tf.random.uniform(shape=shape)
+        y_pred = tf.random.uniform(shape=shape)
+
+        loss = DiceLoss(kernel=kernel, scales=scales)
+        loss(y_pred=y_pred, y_true=y_true)
+
+
+def test_negative_loss_mixin():
+    """Test DiceScore and DiceLoss have reversed sign."""
+    shape = (2, 3, 4, 5)
+    y_true = tf.random.uniform(shape=shape)
+    y_pred = tf.random.uniform(shape=shape)
+
+    dice_score = DiceScore()(y_pred=y_pred, y_true=y_true)
+    dice_loss = DiceLoss()(y_pred=y_pred, y_true=y_true)
+
+    assert is_equal_tf(dice_score, -dice_loss)
+
 
 def test_separable_filter():
-    """
-    Testing separable filter case where non
-    zero length tensor is passed to the
-    function.
-    """
-    k = np.ones((3, 3, 3, 3, 1), dtype=np.float32)
-    array_eye = np.identity(3, dtype=np.float32)
-    tensor_pred = np.zeros((3, 3, 3, 3, 1), dtype=np.float32)
-    tensor_pred[:, :, 0, 0, 0] = array_eye
-    tensor_pred = tf.convert_to_tensor(tensor_pred, dtype=tf.float32)
-    k = tf.convert_to_tensor(k, dtype=tf.float32)
+    """Testing separable filter case where diagonal ones are propagated."""
+    k = tf.ones(shape=(3, 3, 3, 3, 1), dtype=tf.float32)
 
-    expect = np.ones((3, 3, 3, 3, 1), dtype=np.float32)
-    expect = tf.convert_to_tensor(expect, dtype=tf.float32)
+    array_eye = np.identity(3)
+    x = np.zeros((3, 3, 3, 3, 1))
+    x[:, :, 0, 0, 0] = array_eye
+    x = tf.convert_to_tensor(x, dtype=tf.float32)
 
-    get = separable_filter(tensor_pred, k)
-    assert is_equal_tf(get, expect)
+    expected = tf.ones(shape=(3, 3, 3, 3, 1), dtype=tf.float32)
+    got = separable_filter(x, k)
 
-
-class MinusClass(tf.keras.losses.Loss):
-    def __init__(self):
-        super().__init__()
-        self.name = "MinusClass"
-
-    def call(self, y_true, y_pred):
-        return y_true - y_pred
-
-
-class MinusClassLoss(NegativeLossMixin, MinusClass):
-    pass
-
-
-@pytest.mark.parametrize("y_true,y_pred,expected", [(1, 2, 1), (2, 1, -1), (0, 0, 0)])
-def test_negative_loss_mixin(y_true, y_pred, expected):
-    """
-    Testing NegativeLossMixin class that
-    inverts the sign of any value
-    returned by a function
-
-    :param y_true: int
-    :param y_pred: int
-    :param expected: int
-    :return:
-    """
-
-    y_true = tf.constant(y_true, dtype=tf.float32)
-    y_pred = tf.constant(y_pred, dtype=tf.float32)
-
-    got = MinusClassLoss().call(
-        y_true,
-        y_pred,
-    )
     assert is_equal_tf(got, expected)
