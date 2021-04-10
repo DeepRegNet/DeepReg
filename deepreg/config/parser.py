@@ -6,6 +6,8 @@ import yaml
 
 from deepreg.config.v011 import parse_v011
 
+logger = logging.getLogger(__name__)
+
 
 def update_nested_dict(d: Dict, u: Dict) -> Dict:
     """
@@ -49,10 +51,9 @@ def load_configs(config_path: Union[str, List[str]]) -> Dict:
         head, tail = os.path.split(config_path[0])
         filename = "updated_" + tail
         save(config=loaded_config, out_dir=head, filename=filename)
-        logging.error(
-            f"Used config is outdated. "
-            f"An updated version has been saved at "
-            f"{os.path.join(head, filename)}"
+        logger.error(
+            "Used config is outdated. An updated version has been saved at %s.",
+            os.path.join(head, filename),
         )
 
     return loaded_config
@@ -92,7 +93,7 @@ def config_sanity_check(config: dict) -> dict:
         assert mode in data_config["dir"].keys()
         data_dir = data_config["dir"][mode]
         if data_dir is None:
-            logging.warning(f"Data directory for {mode} is not defined.")
+            logger.warning("Data directory for %s is not defined.", mode)
         if not (isinstance(data_dir, (str, list)) or data_dir is None):
             raise ValueError(
                 f"data_dir for mode {mode} must be string or list of strings,"

@@ -13,6 +13,8 @@ from deepreg.dataset.preprocess import resize_inputs
 from deepreg.dataset.util import get_label_indices
 from deepreg.registry import REGISTRY
 
+logger = logging.getLogger(__name__)
+
 
 class DataLoader:
     """
@@ -397,14 +399,14 @@ class GeneratorDataLoader(DataLoader, ABC):
                     )
             # image and label is better to have the same shape
             if moving_image.shape[:3] != moving_label.shape[:3]:
-                logging.warning(
+                logger.warning(
                     f"Sample {image_indices}'s moving image and label "
                     f"have different shapes. "
                     f"moving_image.shape = {moving_image.shape}, "
                     f"moving_label.shape = {moving_label.shape}"
                 )
             if fixed_image.shape[:3] != fixed_label.shape[:3]:
-                logging.warning(
+                logger.warning(
                     f"Sample {image_indices}'s fixed image and label "
                     f"have different shapes. "
                     f"fixed_image.shape = {fixed_image.shape}, "

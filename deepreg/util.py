@@ -14,6 +14,8 @@ from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.util import normalize_array
 
+logger = logging.getLogger(__name__)
+
 
 def build_dataset(
     dataset_config: dict,
@@ -64,7 +66,7 @@ def build_log_dir(log_dir: str, exp_name: str) -> str:
         datetime.now().strftime("%Y%m%d-%H%M%S") if exp_name == "" else exp_name,
     )
     if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
+        logger.warning("Log directory %s exists already.", log_dir)
     else:
         os.makedirs(log_dir)
     return log_dir

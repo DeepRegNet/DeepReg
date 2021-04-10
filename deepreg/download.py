@@ -12,6 +12,8 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
+logger = logging.getLogger(__name__)
+
 
 def download(dirs, output_dir="./", branch="main"):
     """
@@ -29,13 +31,12 @@ def download(dirs, output_dir="./", branch="main"):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    logging.info("\nWill download folders: [", *dirs, sep=" ", end=" ")
-    logging.info("] into {}.\n".format(output_dir))
+    logger.info("Will download folders: %s into %s.", dirs, output_dir)
 
     zip_url = f"https://github.com/DeepRegNet/DeepReg/archive/{branch}.zip"
-    logging.info(f"Downloading archive from DeepReg repository {zip_url}...\n")
+    logger.info("Downloading archive from DeepReg repository %s.", zip_url)
     response = urlopen(zip_url)  # Download the zip.
-    logging.info("Downloaded archive. Extracting files...\n")
+    logger.info("Downloaded archive. Extracting files.")
 
     with ZipFile(BytesIO(response.read())) as zf:
 
@@ -54,7 +55,7 @@ def download(dirs, output_dir="./", branch="main"):
                 )  # Remove head directory from filepath
                 zf.extract(info, output_dir)
 
-                logging.info("Downloaded {}".format(info.filename))
+                logger.info("Downloaded %s", info.filename)
 
 
 def main(args=None):
@@ -89,8 +90,8 @@ def main(args=None):
 
     download(dirs, args.output_dir, args.branch)
 
-    logging.info(
-        "\nDownload complete. "
+    logger.info(
+        "Download complete. "
         "Please refer to the DeepReg Quick Start guide for next steps."
     )
 

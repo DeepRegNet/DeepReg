@@ -27,6 +27,8 @@ from deepreg.util import (
     save_metric_dict,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def build_pair_output_path(indices: list, save_dir: str) -> Tuple[str, str]:
     """
@@ -175,8 +177,8 @@ def build_config(
         )
     else:
         # use customized config
-        logging.warning(
-            "Using customized configuration."
+        logger.warning(
+            "Using customized configuration. "
             "The code might break if the config doesn't match the saved model."
         )
         config = config_parser.load_configs(config_path)
