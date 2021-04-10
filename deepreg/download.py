@@ -6,6 +6,7 @@ are not included in releases via command line interface.
 """
 
 import argparse
+import logging
 import os
 from io import BytesIO
 from urllib.request import urlopen
@@ -28,13 +29,13 @@ def download(dirs, output_dir="./", branch="main"):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    print("\nWill download folders: [", *dirs, sep=" ", end=" ")
-    print("] into {}.\n".format(output_dir))
+    logging.info("\nWill download folders: [", *dirs, sep=" ", end=" ")
+    logging.info("] into {}.\n".format(output_dir))
 
     zip_url = f"https://github.com/DeepRegNet/DeepReg/archive/{branch}.zip"
-    print(f"Downloading archive from DeepReg repository {zip_url}...\n")
+    logging.info(f"Downloading archive from DeepReg repository {zip_url}...\n")
     response = urlopen(zip_url)  # Download the zip.
-    print("Downloaded archive. Extracting files...\n")
+    logging.info("Downloaded archive. Extracting files...\n")
 
     with ZipFile(BytesIO(response.read())) as zf:
 
@@ -53,7 +54,7 @@ def download(dirs, output_dir="./", branch="main"):
                 )  # Remove head directory from filepath
                 zf.extract(info, output_dir)
 
-                print("Downloaded {}".format(info.filename))
+                logging.info("Downloaded {}".format(info.filename))
 
 
 def main(args=None):
@@ -88,7 +89,7 @@ def main(args=None):
 
     download(dirs, args.output_dir, args.branch)
 
-    print(
+    logging.info(
         "\nDownload complete. "
         "Please refer to the DeepReg Quick Start guide for next steps."
     )
