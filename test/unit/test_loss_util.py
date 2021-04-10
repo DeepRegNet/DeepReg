@@ -46,7 +46,7 @@ class TestMultiScaleMixin:
         y_pred = tf.random.uniform(shape=shape)
 
         loss = DiceLoss(kernel=kernel, scales=scales)
-        loss(y_pred=y_pred, y_true=y_true)
+        loss.call(y_pred=y_pred, y_true=y_true)
 
 
 def test_negative_loss_mixin():
@@ -55,8 +55,8 @@ def test_negative_loss_mixin():
     y_true = tf.random.uniform(shape=shape)
     y_pred = tf.random.uniform(shape=shape)
 
-    dice_score = DiceScore()(y_pred=y_pred, y_true=y_true)
-    dice_loss = DiceLoss()(y_pred=y_pred, y_true=y_true)
+    dice_score = DiceScore().call(y_pred=y_pred, y_true=y_true)
+    dice_loss = DiceLoss().call(y_pred=y_pred, y_true=y_true)
 
     assert is_equal_tf(dice_score, -dice_loss)
 
