@@ -22,17 +22,20 @@ class SumSquaredDifference(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "SumSquaredDifference",
     ):
         """
         Init.
 
-        :param reduction: using SUM reduction over batch axis,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param reduction: do not perform reduction over batch axis.
+            this is for supporting multi-device training,
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
+        self.flatten = tf.keras.layers.Flatten()
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
@@ -43,7 +46,7 @@ class SumSquaredDifference(tf.keras.losses.Loss):
         :return: shape = (batch,)
         """
         loss = tf.math.squared_difference(y_true, y_pred)
-        loss = tf.keras.layers.Flatten()(loss)
+        loss = self.flatten(loss)
         return tf.reduce_mean(loss, axis=1)
 
 
@@ -61,7 +64,7 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
         self,
         num_bins: int = 23,
         sigma_ratio: float = 0.5,
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalMutualInformation",
     ):
         """
@@ -69,8 +72,10 @@ class GlobalMutualInformation(tf.keras.losses.Loss):
 
         :param num_bins: number of bins for intensity, the default value is empirical.
         :param sigma_ratio: a hyper param for gaussian function
-        :param reduction: using SUM reduction over batch axis,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param reduction: do not perform reduction over batch axis.
+            this is for supporting multi-device training,
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -155,22 +160,19 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         E[t] = sum_i(w_i * t_i) / sum_i(w_i)
 
-    Here, we assume sum_i(w_i) == 1, means the weights have been normalized.
-
     Similarly, the discrete variance in the window V[t] is
 
-        V[t] = E[(t - E[t])**2]
+        V[t] = E[t**2] - E[t] ** 2
 
     The local squared zero-normalized cross-correlation is therefore
 
         E[ (t-E[t]) * (p-E[p]) ] ** 2 / V[t] / V[p]
 
-    When calculating variance, we choose to subtract the mean first then calculte
-    variance instead of calculating E[t**2] - E[t] ** 2, the reason is that when
-    E[t**2] and E[t] ** 2 are both very large or very small, the subtraction may
-    have large rounding error and makes the result inaccurate. Also, it is not
-    guaranteed that the result >= 0. For more details, please read "Algorithms for
-    computing the sample variance: Analysis and recommendations." page 1.
+    where the expectation in numerator is
+
+        E[ (t-E[t]) * (p-E[p]) ] = E[t * p] - E[t] * E[p]
+
+    Different kernel corresponds to different weights.
 
     For now, y_true and y_pred have to be at least 4d tensor, including batch axis.
 
@@ -178,10 +180,7 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         - Zero-normalized cross-correlation (ZNCC):
             https://en.wikipedia.org/wiki/Cross-correlation
-        - https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
-        - Chan, Tony F., Gene H. Golub, and Randall J. LeVeque.
-          "Algorithms for computing the sample variance: Analysis and recommendations."
-           The American Statistician 37.3 (1983): 242-247.
+        - Code: https://github.com/voxelmorph/voxelmorph/blob/legacy/src/losses.py
     """
 
     kernel_fn_dict = dict(
@@ -194,7 +193,9 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self,
         kernel_size: int = 9,
         kernel_type: str = "rectangular",
-        reduction: str = tf.keras.losses.Reduction.SUM,
+        smooth_nr: float = EPS,
+        smooth_dr: float = EPS,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "LocalNormalizedCrossCorrelation",
     ):
         """
@@ -202,8 +203,12 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
         :param kernel_size: int. Kernel size or kernel sigma for kernel_type='gauss'.
         :param kernel_type: str, rectangular, triangular or gaussian
-        :param reduction: using SUM reduction over batch axis,
-            calling the loss like `loss(y_true, y_pred)` will return a scalar tensor.
+        :param smooth_nr: small constant added to numerator in case of zero covariance.
+        :param smooth_dr: small constant added to denominator in case of zero variance.
+        :param reduction: do not perform reduction over batch axis.
+            this is for supporting multi-device training,
+            model.fit() will average over global batch size automatically.
+            Loss returns a tensor of shape (batch, ).
         :param name: name of the loss
         """
         super().__init__(reduction=reduction, name=name)
@@ -215,52 +220,106 @@ class LocalNormalizedCrossCorrelation(tf.keras.losses.Loss):
         self.kernel_fn = self.kernel_fn_dict[kernel_type]
         self.kernel_type = kernel_type
         self.kernel_size = kernel_size
+        self.smooth_nr = smooth_nr
+        self.smooth_dr = smooth_dr
 
         # (kernel_size, )
-        # sum of the kernel weights would be one
         self.kernel = self.kernel_fn(kernel_size=self.kernel_size)
+        # E[1] = sum_i(w_i), ()
+        self.kernel_vol = tf.reduce_sum(
+            self.kernel[:, None, None]
+            * self.kernel[None, :, None]
+            * self.kernel[None, None, :]
+        )
+
+    def calc_ncc(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Return NCC for a batch.
+
+        The kernel should not be normalized, as normalizing them leads to computation
+        with small values and the precision will be reduced.
+        Here both numerator and denominator are actually multiplied by kernel volume,
+        which helps the precision as well.
+        However, when the variance is zero, the obtained value might be negative due to
+        machine error. Therefore a hard-coded clipping is added to
+        prevent division by zero.
+
+        :param y_true: shape = (batch, dim1, dim2, dim3, 1)
+        :param y_pred: shape = (batch, dim1, dim2, dim3, 1)
+        :return: shape = (batch, dim1, dim2, dim3. 1)
+        """
+
+        # t = y_true, p = y_pred
+        # (batch, dim1, dim2, dim3, 1)
+        t2 = y_true * y_true
+        p2 = y_pred * y_pred
+        tp = y_true * y_pred
+
+        # sum over kernel
+        # (batch, dim1, dim2, dim3, 1)
+        t_sum = separable_filter(y_true, kernel=self.kernel)  # E[t] * E[1]
+        p_sum = separable_filter(y_pred, kernel=self.kernel)  # E[p] * E[1]
+        t2_sum = separable_filter(t2, kernel=self.kernel)  # E[tt] * E[1]
+        p2_sum = separable_filter(p2, kernel=self.kernel)  # E[pp] * E[1]
+        tp_sum = separable_filter(tp, kernel=self.kernel)  # E[tp] * E[1]
+
+        # average over kernel
+        # (batch, dim1, dim2, dim3, 1)
+        t_avg = t_sum / self.kernel_vol  # E[t]
+        p_avg = p_sum / self.kernel_vol  # E[p]
+
+        # shape = (batch, dim1, dim2, dim3, 1)
+        cross = tp_sum - p_avg * t_sum  # E[tp] * E[1] - E[p] * E[t] * E[1]
+        t_var = t2_sum - t_avg * t_sum  # V[t] * E[1]
+        p_var = p2_sum - p_avg * p_sum  # V[p] * E[1]
+
+        # ensure variance >= 0
+        t_var = tf.maximum(t_var, 0)
+        p_var = tf.maximum(p_var, 0)
+
+        # (E[tp] - E[p] * E[t]) ** 2 / V[t] / V[p]
+        ncc = (cross * cross + self.smooth_nr) / (t_var * p_var + self.smooth_dr)
+
+        return ncc
 
     def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
         """
         Return loss for a batch.
 
+        TODO: support channel axis dimension > 1.
+
         :param y_true: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
+            or (batch, dim1, dim2, dim3, 1)
         :param y_pred: shape = (batch, dim1, dim2, dim3)
-            or (batch, dim1, dim2, dim3, ch)
+            or (batch, dim1, dim2, dim3, 1)
         :return: shape = (batch,)
         """
-        # adjust shape to be (batch, dim1, dim2, dim3, ch)
+        # sanity checks
         if len(y_true.shape) == 4:
             y_true = tf.expand_dims(y_true, axis=4)
+        if y_true.shape[4] != 1:
+            raise ValueError(
+                "Last dimension of y_true is not one. " f"y_true.shape = {y_true.shape}"
+            )
+        if len(y_pred.shape) == 4:
             y_pred = tf.expand_dims(y_pred, axis=4)
-        assert len(y_true.shape) == len(y_pred.shape) == 5
+        if y_pred.shape[4] != 1:
+            raise ValueError(
+                "Last dimension of y_pred is not one. " f"y_pred.shape = {y_pred.shape}"
+            )
 
-        # t = y_true, p = y_pred
-        t_mean = separable_filter(y_true, kernel=self.kernel)
-        p_mean = separable_filter(y_pred, kernel=self.kernel)
-
-        t = y_true - t_mean
-        p = y_pred - p_mean
-
-        # the variance can be biased but as both num and denom are biased
-        # it got cancelled
-        # https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Reliability_weights
-        cross = separable_filter(t * p, kernel=self.kernel)
-        t_var = separable_filter(t * t, kernel=self.kernel)
-        p_var = separable_filter(p * p, kernel=self.kernel)
-
-        num = cross * cross
-        denom = t_var * p_var
-        ncc = (num + EPS) / (denom + EPS)
-
+        ncc = self.calc_ncc(y_true=y_true, y_pred=y_pred)
         return tf.reduce_mean(ncc, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
         config = super().get_config()
-        config["kernel_size"] = self.kernel_size
-        config["kernel_type"] = self.kernel_type
+        config.update(
+            kernel_size=self.kernel_size,
+            kernel_type=self.kernel_type,
+            smooth_nr=self.smooth_nr,
+            smooth_dr=self.smooth_dr,
+        )
         return config
 
 
@@ -287,7 +346,7 @@ class GlobalNormalizedCrossCorrelation(tf.keras.losses.Loss):
 
     def __init__(
         self,
-        reduction: str = tf.keras.losses.Reduction.AUTO,
+        reduction: str = tf.keras.losses.Reduction.NONE,
         name: str = "GlobalNormalizedCrossCorrelation",
     ):
         """

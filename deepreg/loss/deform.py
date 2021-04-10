@@ -82,7 +82,7 @@ class GradientNorm(tf.keras.layers.Layer):
 
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
         :param kwargs: additional arguments.
-        :return: shape = ()
+        :return: shape = (batch, )
         """
         assert len(inputs.shape) == 5
         ddf = inputs
@@ -95,7 +95,7 @@ class GradientNorm(tf.keras.layers.Layer):
             norms = tf.abs(dfdx) + tf.abs(dfdy) + tf.abs(dfdz)
         else:
             norms = dfdx ** 2 + dfdy ** 2 + dfdz ** 2
-        return tf.reduce_mean(norms)
+        return tf.reduce_mean(norms, axis=[1, 2, 3, 4])
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
@@ -126,7 +126,7 @@ class BendingEnergy(tf.keras.layers.Layer):
 
         :param inputs: shape = (batch, m_dim1, m_dim2, m_dim3, 3)
         :param kwargs: additional arguments.
-        :return: shape = ()
+        :return: shape = (batch, )
         """
         assert len(inputs.shape) == 5
         ddf = inputs
@@ -148,4 +148,4 @@ class BendingEnergy(tf.keras.layers.Layer):
         # (dx + dy + dz) ** 2 = dxx + dyy + dzz + 2*(dxy + dyz + dzx)
         energy = dfdxx ** 2 + dfdyy ** 2 + dfdzz ** 2
         energy += 2 * dfdxy ** 2 + 2 * dfdxz ** 2 + 2 * dfdyz ** 2
-        return tf.reduce_mean(energy)
+        return tf.reduce_mean(energy, axis=[1, 2, 3, 4])

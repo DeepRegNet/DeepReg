@@ -6,6 +6,7 @@ pytest style
 """
 
 from test.unit.util import is_equal_tf
+from typing import Tuple
 
 import numpy as np
 import pytest
@@ -27,55 +28,123 @@ class TestMultiScaleLoss:
         expected = dict(
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="MultiScaleLoss",
         )
         assert got == expected
 
 
 class TestDiceScore:
-    shape = (3, 3, 3, 3)
-
-    @pytest.fixture()
-    def y_true(self):
-        return np.ones(shape=self.shape) * 0.6
-
-    @pytest.fixture()
-    def y_pred(self):
-        return np.ones(shape=self.shape) * 0.3
-
     @pytest.mark.parametrize(
-        "binary,background_weight,scales,expected",
+        ("value", "smooth_nr", "smooth_dr", "expected"),
         [
-            (True, 0.0, None, 0.0),
-            (False, 0.0, None, 0.4),
-            (False, 0.2, None, 0.4 / 0.94),
-            (False, 0.2, [0, 0], 0.4 / 0.94),
-            (False, 0.2, [0, 1], 0.46030036),
+            (0, 1e-5, 1e-5, 1),
+            (0, 0, 1e-5, 0),
+            (0, 1e-5, 0, np.inf),
+            (0, 0, 0, np.nan),
+            (0, 1e-7, 1e-7, 1),
+            (1, 1e-5, 1e-5, 1),
+            (1, 0, 1e-5, 1),
+            (1, 1e-5, 0, 1),
+            (1, 0, 0, 1),
+            (1, 1e-7, 1e-7, 1),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, background_weight, scales, expected):
-        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
+    def test_smooth(
+        self,
+        value: float,
+        smooth_nr: float,
+        smooth_dr: float,
+        expected: float,
+    ):
+        """
+        Test values in extreme cases where numerator/denominator are all zero.
+
+        :param value: value for input.
+        :param smooth_nr: constant for numerator.
+        :param smooth_dr: constant for denominator.
+        :param expected: target value.
+        """
+        shape = (1, 10)
+        y_true = tf.ones(shape=shape) * value
+        y_pred = tf.ones(shape=shape) * value
+
+        got = label.DiceScore(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
+            y_true,
+            y_pred,
+        )
+        expected = tf.constant(expected)
+        assert is_equal_tf(got[0], expected)
+
+    @pytest.mark.parametrize("binary", [True, False])
+    @pytest.mark.parametrize("background_weight", [0.0, 0.1, 0.5, 1.0])
+    @pytest.mark.parametrize("shape", [(1,), (10,), (100,), (2, 3), (2, 3, 4)])
+    def test_exact_value(self, binary: bool, background_weight: float, shape: Tuple):
+        """
+        Test dice score by comparing at ground truth values.
+
+        :param binary: if project labels to binary values.
+        :param background_weight: the weight of background class.
+        :param shape: shape of input.
+        """
+        # init
+        shape = (1,) + shape  # add batch axis
+        foreground_weight = 1 - background_weight
+        tf.random.set_seed(0)
+        y_true = tf.random.uniform(shape=shape)
+        y_pred = tf.random.uniform(shape=shape)
+
+        # obtained value
         got = label.DiceScore(
-            binary=binary, background_weight=background_weight, scales=scales
+            binary=binary,
+            background_weight=background_weight,
         ).call(y_true=y_true, y_pred=y_pred)
+
+        # expected value
+        flatten = tf.keras.layers.Flatten()
+        y_true = flatten(y_true)
+        y_pred = flatten(y_pred)
+        if binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
+        num = foreground_weight * tf.reduce_sum(
+            y_true * y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) * (1 - y_pred), axis=1)
+        num *= 2
+        denom = foreground_weight * tf.reduce_sum(
+            y_true + y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) + (1 - y_pred), axis=1)
+        expected = (num + EPS) / (denom + EPS)
+
         assert is_equal_tf(got, expected)
-        got = label.DiceLoss(
-            binary=binary, background_weight=background_weight, scales=scales
-        ).call(y_true=y_true, y_pred=y_pred)
-        assert is_equal_tf(got, -expected)
 
     def test_get_config(self):
         got = label.DiceScore().get_config()
         expected = dict(
             binary=False,
             background_weight=0.0,
+            smooth_nr=1e-5,
+            smooth_dr=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="DiceScore",
         )
         assert got == expected
+
+    @pytest.mark.parametrize("background_weight", [-0.1, 1.1])
+    def test_background_weight_err(self, background_weight: float):
+        """
+        Test the error message when using wrong background weight.
+
+        :param background_weight: weight for background class.
+        """
+        with pytest.raises(ValueError) as err_info:
+            label.DiceScore(background_weight=background_weight)
+        assert "The background weight for Dice Score must be within [0, 1]" in str(
+            err_info.value
+        )
 
 
 class TestCrossEntropy:
@@ -88,6 +157,41 @@ class TestCrossEntropy:
     @pytest.fixture()
     def y_pred(self):
         return np.ones(shape=self.shape) * 0.3
+
+    @pytest.mark.parametrize(
+        ("value", "smooth", "expected"),
+        [
+            (0, 1e-5, 0),
+            (0, 0, np.nan),
+            (0, 1e-7, 0),
+            (1, 1e-5, -np.log(1 + 1e-5)),
+            (1, 0, 0),
+            (1, 1e-7, -np.log(1 + 1e-7)),
+        ],
+    )
+    def test_smooth(
+        self,
+        value: float,
+        smooth: float,
+        expected: float,
+    ):
+        """
+        Test values in extreme cases where numerator/denominator are all zero.
+
+        :param value: value for input.
+        :param smooth: constant for log.
+        :param expected: target value.
+        """
+        shape = (1, 10)
+        y_true = tf.ones(shape=shape) * value
+        y_pred = tf.ones(shape=shape) * value
+
+        got = label.CrossEntropy(smooth=smooth)._call(
+            y_true,
+            y_pred,
+        )
+        expected = tf.constant(expected)
+        assert is_equal_tf(got[0], expected)
 
     @pytest.mark.parametrize(
         "binary,background_weight,scales,expected",
@@ -111,52 +215,123 @@ class TestCrossEntropy:
         expected = dict(
             binary=False,
             background_weight=0.0,
+            smooth=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="CrossEntropy",
         )
         assert got == expected
 
+    @pytest.mark.parametrize("background_weight", [-0.1, 1.1])
+    def test_background_weight_err(self, background_weight: float):
+        """
+        Test the error message when using wrong background weight.
+
+        :param background_weight: weight for background class.
+        """
+        with pytest.raises(ValueError) as err_info:
+            label.CrossEntropy(background_weight=background_weight)
+        assert "The background weight for Cross Entropy must be within [0, 1]" in str(
+            err_info.value
+        )
+
 
 class TestJaccardIndex:
-    shape = (3, 3, 3, 3)
-
-    @pytest.fixture()
-    def y_true(self):
-        return np.ones(shape=self.shape) * 0.6
-
-    @pytest.fixture()
-    def y_pred(self):
-        return np.ones(shape=self.shape) * 0.3
-
     @pytest.mark.parametrize(
-        "binary,scales,expected",
+        ("value", "smooth_nr", "smooth_dr", "expected"),
         [
-            (True, None, 0),
-            (False, None, 0.25),
-            (False, [0, 0], 0.25),
-            (False, [0, 1], 0.17485845),
+            (0, 1e-5, 1e-5, 1),
+            (0, 0, 1e-5, 0),
+            (0, 1e-5, 0, np.inf),
+            (0, 0, 0, np.nan),
+            (0, 1e-7, 1e-7, 1),
+            (1, 1e-5, 1e-5, 1),
+            (1, 0, 1e-5, 1),
+            (1, 1e-5, 0, 1),
+            (1, 0, 0, 1),
+            (1, 1e-7, 1e-7, 1),
         ],
     )
-    def test_call(self, y_true, y_pred, binary, scales, expected):
-        expected = np.array([expected] * self.shape[0])  # call returns (batch, )
-        got = label.JaccardIndex(binary=binary, scales=scales).call(
-            y_true=y_true, y_pred=y_pred
+    def test_smooth(
+        self,
+        value: float,
+        smooth_nr: float,
+        smooth_dr: float,
+        expected: float,
+    ):
+        """
+        Test values in extreme cases where numerator/denominator are all zero.
+
+        :param value: value for input.
+        :param smooth_nr: constant for numerator.
+        :param smooth_dr: constant for denominator.
+        :param expected: target value.
+        """
+        shape = (1, 10)
+        y_true = tf.ones(shape=shape) * value
+        y_pred = tf.ones(shape=shape) * value
+
+        got = label.JaccardIndex(smooth_nr=smooth_nr, smooth_dr=smooth_dr)._call(
+            y_true,
+            y_pred,
         )
+        expected = tf.constant(expected)
+        assert is_equal_tf(got[0], expected)
+
+    @pytest.mark.parametrize("binary", [True, False])
+    @pytest.mark.parametrize("background_weight", [0.0, 0.1, 0.5, 1.0])
+    @pytest.mark.parametrize("shape", [(1,), (10,), (100,), (2, 3), (2, 3, 4)])
+    def test_exact_value(self, binary: bool, background_weight: float, shape: Tuple):
+        """
+        Test Jaccard index by comparing at ground truth values.
+
+        :param binary: if project labels to binary values.
+        :param background_weight: the weight of background class.
+        :param shape: shape of input.
+        """
+        # init
+        shape = (1,) + shape  # add batch axis
+        foreground_weight = 1 - background_weight
+        tf.random.set_seed(0)
+        y_true = tf.random.uniform(shape=shape)
+        y_pred = tf.random.uniform(shape=shape)
+
+        # obtained value
+        got = label.JaccardIndex(
+            binary=binary,
+            background_weight=background_weight,
+        ).call(y_true=y_true, y_pred=y_pred)
+
+        # expected value
+        flatten = tf.keras.layers.Flatten()
+        y_true = flatten(y_true)
+        y_pred = flatten(y_pred)
+        if binary:
+            y_true = tf.cast(y_true >= 0.5, dtype=y_true.dtype)
+            y_pred = tf.cast(y_pred >= 0.5, dtype=y_pred.dtype)
+
+        num = foreground_weight * tf.reduce_sum(
+            y_true * y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) * (1 - y_pred), axis=1)
+        denom = foreground_weight * tf.reduce_sum(
+            y_true + y_pred, axis=1
+        ) + background_weight * tf.reduce_sum((1 - y_true) + (1 - y_pred), axis=1)
+        denom = denom - num
+        expected = (num + EPS) / (denom + EPS)
+
         assert is_equal_tf(got, expected)
-        got = label.JaccardLoss(binary=binary, scales=scales).call(
-            y_true=y_true, y_pred=y_pred
-        )
-        assert is_equal_tf(got, -expected)
 
     def test_get_config(self):
         got = label.JaccardIndex().get_config()
         expected = dict(
             binary=False,
+            background_weight=0.0,
+            smooth_nr=1e-5,
+            smooth_dr=1e-5,
             scales=None,
             kernel="gaussian",
-            reduction=tf.keras.losses.Reduction.SUM,
+            reduction=tf.keras.losses.Reduction.NONE,
             name="JaccardIndex",
         )
         assert got == expected

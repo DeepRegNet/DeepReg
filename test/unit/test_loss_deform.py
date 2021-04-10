@@ -61,7 +61,11 @@ class TestGradientNorm:
     def test_call(self, l1):
         tensor = tf.ones([4, 50, 50, 50, 3])
         got = deform.GradientNorm(l1=l1)(tensor)
-        expected = 0
+        expected = tf.zeros(
+            [
+                4,
+            ]
+        )
         assert is_equal_tf(got, expected)
 
     def test_get_config(self):
@@ -79,5 +83,9 @@ def test_bending_energy():
     """test the calculation of bending energy"""
     tensor = tf.ones([4, 50, 50, 50, 3])
     got = deform.BendingEnergy()(tensor)
-    expected = 0
+    expected = tf.zeros(
+        [
+            4,
+        ]
+    )
     assert is_equal_tf(got, expected)

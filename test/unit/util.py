@@ -10,7 +10,7 @@ def is_equal_np(
     x: Union[np.ndarray, List], y: Union[np.ndarray, List], atol: float = EPS
 ) -> bool:
     """
-    Check if two numpy arrays are identical.
+    Check if two numpy arrays are identical within a tolerance.
 
     :param x:
     :param y:
@@ -19,7 +19,20 @@ def is_equal_np(
     """
     x = np.asarray(x, dtype=np.float32)
     y = np.asarray(y, dtype=np.float32)
-    return x.shape == y.shape and np.all(np.isclose(x, y, atol=atol))
+
+    # check shape
+    if x.shape != y.shape:
+        return False
+
+    # check nan values
+    # support case some values are nan
+    if np.any(np.isnan(x) != np.isnan(y)):
+        return False
+    x = np.nan_to_num(x)
+    y = np.nan_to_num(y)
+
+    # check values
+    return np.all(np.isclose(x, y, atol=atol))
 
 
 def is_equal_tf(
@@ -28,7 +41,7 @@ def is_equal_tf(
     atol: float = EPS,
 ) -> bool:
     """
-    Check if two tf tensors are identical.
+    Check if two tf tensors are identical within a tolerance.
 
     :param x:
     :param y:
@@ -37,4 +50,4 @@ def is_equal_tf(
     """
     x = tf.cast(x, dtype=tf.float32).numpy()
     y = tf.cast(y, dtype=tf.float32).numpy()
-    return x.shape == y.shape and np.all(np.isclose(x, y, atol=atol))
+    return is_equal_np(x=x, y=y, atol=atol)
