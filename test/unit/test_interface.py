@@ -4,6 +4,7 @@
 Tests for deepreg/dataset/loader/interface.py
 """
 from test.unit.util import is_equal_np
+from typing import Optional, Tuple
 
 import numpy as np
 import pytest
@@ -214,226 +215,322 @@ def test_abstract_unpaired_data_loader():
     assert data_loader.num_samples is None
 
 
-def test_generator_data_loader():
-    """Test the functions in GeneratorDataLoader."""
-    generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+def get_arr(shape: Tuple = (2, 3, 4), seed: Optional[int] = None) -> np.ndarray:
+    """
+    Return a random array.
 
-    # test properties
-    assert generator.loader_moving_image is None
-    assert generator.loader_moving_image is None
-    assert generator.loader_moving_image is None
-    assert generator.loader_moving_image is None
+    :param shape: shape of array.
+    :param seed: random seed.
+    :return: random array.
+    """
+    np.random.seed(seed)
+    return np.random.random(size=shape).astype(np.float32)
 
-    # not implemented properties / functions
-    with pytest.raises(NotImplementedError):
-        generator.sample_index_generator()
 
-    # implemented functions
-    # test get_Dataset
-    dummy_array = np.random.random(size=(100, 100, 100)).astype(np.float32)
-    # for unlabeled data
-    # mock generator
-    sequence = [
-        dict(
-            moving_image=dummy_array,
-            fixed_image=dummy_array,
-            moving_label=dummy_array,
-            fixed_label=dummy_array,
-            indices=[1],
-        )
-        for i in range(3)
-    ]
+class TestGeneratorDataLoader:
+    @pytest.mark.parametrize("labeled", [True, False])
+    def test_get_labeled_dataset(self, labeled: bool):
+        """Test get_dataset with data loader."""
+        sample = {
+            "moving_image": get_arr(),
+            "fixed_image": get_arr(),
+            "indices": [1],
+        }
+        if labeled:
+            sample = {
+                "moving_label": get_arr(),
+                "fixed_label": get_arr(),
+                **sample,
+            }
 
-    def mock_generator():
-        for el in sequence:
-            yield el
+        def mock_gen():
+            """Toy data generator."""
+            for _ in range(3):
+                yield sample
 
-    # inputs, no error means passed
-    generator.data_generator = mock_generator
-    dataset = generator.get_dataset()
+        loader = GeneratorDataLoader(labeled=labeled, num_indices=1, sample_label="all")
+        loader.__setattr__("data_generator", mock_gen)
+        dataset = loader.get_dataset()
+        for got in dataset.as_numpy_iterator():
+            assert all(is_equal_np(got[key], sample[key]) for key in sample.keys())
 
-    # check dataset output
-    expected = dict(
-        moving_image=dummy_array,
-        fixed_image=dummy_array,
-        moving_label=dummy_array,
-        fixed_label=dummy_array,
-        indices=[1],
-    )
-    for got in list(dataset.as_numpy_iterator()):
+    @pytest.mark.parametrize("labeled", [True, False])
+    def test_data_generator(self, labeled: bool):
+        """
+        Test data_generator()
+
+        :param labeled: labeled data or not.
+        """
+
+        class MockDataLoader:
+            """Toy data loader."""
+
+            def __init__(self, seed: int):
+                """
+                Init.
+
+                :param seed: random seed for numpy.
+                :param kwargs: additional arguments.
+                """
+                self.seed = seed
+
+            def get_data(self, index: int) -> np.ndarray:
+                """
+                Return the dummy array despite of the index.
+
+                :param index: not used
+                :return: dummy array.
+                """
+                assert isinstance(index, int)
+                return get_arr(seed=self.seed)
+
+        def mock_sample_index_generator():
+            """Toy sample index generator."""
+            return [[1, 1, [1]]]
+
+        loader = GeneratorDataLoader(labeled=labeled, num_indices=1, sample_label="all")
+        loader.__setattr__("sample_index_generator", mock_sample_index_generator)
+        loader.loader_moving_image = MockDataLoader(seed=0)
+        loader.loader_fixed_image = MockDataLoader(seed=1)
+        if labeled:
+            loader.loader_moving_label = MockDataLoader(seed=2)
+            loader.loader_fixed_label = MockDataLoader(seed=3)
+
+        # check data loader output
+        got = next(loader.data_generator())
+
+        expected = {
+            "moving_image": normalize_array(get_arr(seed=0)),
+            "fixed_image": normalize_array(get_arr(seed=1)),
+            # 0 or -1 is the label index
+            "indices": np.array([1, 0] if labeled else [1, -1], dtype=np.float32),
+        }
+        if labeled:
+            expected = {
+                "moving_label": get_arr(seed=2),
+                "fixed_label": get_arr(seed=3),
+                **expected,
+            }
         assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
-    # for unlabeled data
-    generator_unlabeled = GeneratorDataLoader(
-        labeled=False, num_indices=1, sample_label="all"
+    def test_sample_index_generator(self):
+        loader = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+        with pytest.raises(NotImplementedError):
+            loader.sample_index_generator()
+
+    @pytest.mark.parametrize(
+        (
+            "moving_image_shape",
+            "fixed_image_shape",
+            "moving_label_shape",
+            "fixed_label_shape",
+            "err_msg",
+        ),
+        [
+            (
+                None,
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                "moving image and fixed image must not be None",
+            ),
+            (
+                (10, 10, 10),
+                None,
+                (10, 10, 10),
+                (10, 10, 10),
+                "moving image and fixed image must not be None",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10, 10),
+                None,
+                (10, 10, 10),
+                "moving label and fixed label must be both None or non-None",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                None,
+                "moving label and fixed label must be both None or non-None",
+            ),
+            (
+                (10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                "Sample [1]'s moving_image's shape should be 3D",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                "Sample [1]'s fixed_image's shape should be 3D",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10),
+                (10, 10, 10),
+                "Sample [1]'s moving_label's shape should be 3D or 4D.",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10),
+                "Sample [1]'s fixed_label's shape should be 3D or 4D.",
+            ),
+            (
+                (10, 10, 10),
+                (10, 10, 10),
+                (10, 10, 10, 2),
+                (10, 10, 10, 3),
+                "Sample [1]'s moving image and fixed image have different numbers of labels.",
+            ),
+        ],
     )
+    def test_validate_images_and_labels(
+        self,
+        moving_image_shape: Optional[Tuple],
+        fixed_image_shape: Optional[Tuple],
+        moving_label_shape: Optional[Tuple],
+        fixed_label_shape: Optional[Tuple],
+        err_msg: str,
+    ):
+        """
+        Test error messages.
 
-    sequence = [
-        dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
-        for i in range(3)
-    ]
+        :param moving_image_shape: None or tuple.
+        :param fixed_image_shape: None or tuple.
+        :param moving_label_shape: None or tuple.
+        :param fixed_label_shape: None or tuple.
+        :param err_msg: message.
+        """
+        moving_image = None
+        fixed_image = None
+        moving_label = None
+        fixed_label = None
+        if moving_image_shape:
+            moving_image = get_arr(shape=moving_image_shape)
+        if fixed_image_shape:
+            fixed_image = get_arr(shape=fixed_image_shape)
+        if moving_label_shape:
+            moving_label = get_arr(shape=moving_label_shape)
+        if fixed_label_shape:
+            fixed_label = get_arr(shape=fixed_label_shape)
+        loader = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+        with pytest.raises(ValueError) as err_info:
+            loader.validate_images_and_labels(
+                moving_image=moving_image,
+                fixed_image=fixed_image,
+                moving_label=moving_label,
+                fixed_label=fixed_label,
+                image_indices=[1],
+            )
+        assert err_msg in str(err_info.value)
 
-    # inputs, no error means passed
-    generator_unlabeled.data_generator = mock_generator
-    dataset = generator_unlabeled.get_dataset()
+    @pytest.mark.parametrize("option", [0, 1, 2, 3])
+    def test_validate_images_and_labels_range(self, option: int):
+        """
+        Test error messages related to input range.
 
-    # check dataset output
-    expected = dict(moving_image=dummy_array, fixed_image=dummy_array, indices=[1])
-    for got in list(dataset.as_numpy_iterator()):
-        assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
+        :param option: control which image to modify
+        """
+        option_to_name = {
+            0: "moving_image",
+            1: "fixed_image",
+            2: "moving_label",
+            3: "fixed_label",
+        }
+        input = {
+            "moving_image": get_arr(),
+            "fixed_image": get_arr(),
+            "moving_label": get_arr(),
+            "fixed_label": get_arr(),
+        }
+        name = option_to_name[option]
+        input[name] += 1
+        err_msg = f"Sample [1]'s {name}'s values are not between [0, 1]"
 
-    # test data_generator
-    # create mock data loader and sample index generator
-    class MockDataLoader:
-        def __init__(self, **kwargs):
-            super().__init__(**kwargs)
+        loader = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+        with pytest.raises(ValueError) as err_info:
+            loader.validate_images_and_labels(
+                image_indices=[1],
+                **input,
+            )
+        assert err_msg in str(err_info.value)
 
-        def get_data(index):
-            return dummy_array
-
-    def mock_sample_index_generator():
-        return [[[1], [1], [1]]]
-
-    generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
-    generator.sample_index_generator = mock_sample_index_generator
-    generator.loader_moving_image = MockDataLoader
-    generator.loader_fixed_image = MockDataLoader
-    generator.loader_moving_label = MockDataLoader
-    generator.loader_fixed_label = MockDataLoader
-
-    # check data generator output
-    got = next(generator.data_generator())
-
-    expected = dict(
-        moving_image=normalize_array(dummy_array),
-        fixed_image=normalize_array(dummy_array),
-        moving_label=dummy_array,
-        fixed_label=dummy_array,
-        indices=np.asarray([1] + [0], dtype=np.float32),
-    )
-    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
-
-    # test validate_images_and_labels
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=None,
-            moving_image=dummy_array,
-            moving_label=None,
-            fixed_label=None,
-            image_indices=[1],
+    def test_sample_image_label_unlabeled(self):
+        """Test sample_image_label in unlabeled case."""
+        loader = GeneratorDataLoader(labeled=False, num_indices=1, sample_label="all")
+        got = next(
+            loader.sample_image_label(
+                moving_image=get_arr(seed=0),
+                fixed_image=get_arr(seed=1),
+                moving_label=None,
+                fixed_label=None,
+                image_indices=[1],
+            )
         )
-    assert "moving image and fixed image must not be None" in str(err_info.value)
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=dummy_array,
-            moving_image=dummy_array,
-            moving_label=dummy_array,
-            fixed_label=None,
-            image_indices=[1],
-        )
-    assert "moving label and fixed label must be both None or non-None" in str(
-        err_info.value
-    )
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=dummy_array,
-            moving_image=dummy_array + 1.0,
-            moving_label=None,
-            fixed_label=None,
-            image_indices=[1],
-        )
-    assert "Sample [1]'s moving_image's values are not between [0, 1]" in str(
-        err_info.value
-    )
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=dummy_array,
-            moving_image=np.random.random(size=(100, 100)),
-            moving_label=None,
-            fixed_label=None,
-            image_indices=[1],
-        )
-    assert "Sample [1]'s moving_image' shape should be 3D" in str(err_info.value)
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=dummy_array,
-            moving_image=dummy_array,
-            moving_label=np.random.random(size=(100, 100)),
-            fixed_label=dummy_array,
-            image_indices=[1],
-        )
-    assert "Sample [1]'s moving_label' shape should be 3D or 4D. " in str(
-        err_info.value
-    )
-    with pytest.raises(ValueError) as err_info:
-        generator.validate_images_and_labels(
-            fixed_image=dummy_array,
-            moving_image=dummy_array,
-            moving_label=np.random.random(size=(100, 100, 100, 3)),
-            fixed_label=np.random.random(size=(100, 100, 100, 4)),
-            image_indices=[1],
-        )
-    assert (
-        "Sample [1]'s moving image and fixed image have different numbers of labels."
-        in str(err_info.value)
-    )
-
-    # test sample_image_label method
-    # for unlabeled input data
-    got = next(
-        generator.sample_image_label(
-            fixed_image=dummy_array,
-            moving_image=dummy_array,
-            moving_label=None,
-            fixed_label=None,
-            image_indices=[1],
-        )
-    )
-    expected = dict(
-        moving_image=dummy_array,
-        fixed_image=dummy_array,
-        indices=np.asarray([1] + [-1], dtype=np.float32),
-    )
-    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
-
-    # for data with one label
-    got = next(
-        generator.sample_image_label(
-            fixed_image=dummy_array,
-            moving_image=dummy_array,
-            moving_label=dummy_array,
-            fixed_label=dummy_array,
-            image_indices=[1],
-        )
-    )
-    expected = dict(
-        moving_image=dummy_array,
-        fixed_image=dummy_array,
-        moving_label=dummy_array,
-        fixed_label=dummy_array,
-        indices=np.asarray([1] + [0], dtype=np.float32),
-    )
-    assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
-
-    # for data with multiple labels
-    dummy_labels = np.random.random(size=(100, 100, 100, 3))
-    got = generator.sample_image_label(
-        fixed_image=dummy_array,
-        moving_image=dummy_array,
-        moving_label=dummy_labels,
-        fixed_label=dummy_labels,
-        image_indices=[1],
-    )
-    for label_index in range(dummy_labels.shape[3]):
-        got_iter = next(got)
         expected = dict(
-            moving_image=dummy_array,
-            fixed_image=dummy_array,
-            moving_label=dummy_labels[..., label_index],
-            fixed_label=dummy_labels[..., label_index],
-            indices=np.asarray([1] + [label_index], dtype=np.float32),
+            moving_image=get_arr(seed=0),
+            fixed_image=get_arr(seed=1),
+            indices=np.asarray([1, -1], dtype=np.float32),
         )
-        assert all(is_equal_np(got_iter[key], expected[key]) for key in expected.keys())
+        assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
+
+    @pytest.mark.parametrize("shape", [(2, 3, 4), (2, 3, 4, 1)])
+    def test_sample_image_label_one_label(self, shape: Tuple):
+        """
+        Test sample_image_label in labeled case with one label.
+
+        :param shape: shape of the label.
+        """
+        loader = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+        got = next(
+            loader.sample_image_label(
+                moving_image=get_arr(shape=shape[:3], seed=0),
+                fixed_image=get_arr(shape=shape[:3], seed=1),
+                moving_label=get_arr(shape=shape, seed=2),
+                fixed_label=get_arr(shape=shape, seed=3),
+                image_indices=[1],
+            )
+        )
+        expected = dict(
+            moving_image=get_arr(shape=shape[:3], seed=0),
+            fixed_image=get_arr(shape=shape[:3], seed=1),
+            moving_label=get_arr(shape=shape[:3], seed=2),
+            fixed_label=get_arr(shape=shape[:3], seed=3),
+            indices=np.asarray([1, 0], dtype=np.float32),
+        )
+        assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
+
+    def test_sample_image_label_multiple_labels(self):
+        """Test sample_image_label in labeled case with multiple labels."""
+        loader = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
+        shape = (2, 3, 4, 5)
+        got_iter = loader.sample_image_label(
+            moving_image=get_arr(shape=shape[:3], seed=0),
+            fixed_image=get_arr(shape=shape[:3], seed=1),
+            moving_label=get_arr(shape=shape, seed=2),
+            fixed_label=get_arr(shape=shape, seed=3),
+            image_indices=[1],
+        )
+        moving_label = get_arr(shape=shape, seed=2)
+        fixed_label = get_arr(shape=shape, seed=3)
+        for i in range(shape[-1]):
+            got = next(got_iter)
+            expected = dict(
+                moving_image=get_arr(shape=shape[:3], seed=0),
+                fixed_image=get_arr(shape=shape[:3], seed=1),
+                moving_label=moving_label[:, :, :, i],
+                fixed_label=fixed_label[:, :, :, i],
+                indices=np.asarray([1, i], dtype=np.float32),
+            )
+            assert all(is_equal_np(got[key], expected[key]) for key in expected.keys())
 
 
 def test_file_loader():

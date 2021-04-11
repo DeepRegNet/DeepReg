@@ -279,18 +279,17 @@ class GeneratorDataLoader(DataLoader, ABC):
                     indices=self.num_indices,
                 ),
             )
-        else:
-            return tf.data.Dataset.from_generator(
-                generator=self.data_generator,
-                output_types=dict(
-                    moving_image=tf.float32, fixed_image=tf.float32, indices=tf.float32
-                ),
-                output_shapes=dict(
-                    moving_image=tf.TensorShape([None, None, None]),
-                    fixed_image=tf.TensorShape([None, None, None]),
-                    indices=self.num_indices,
-                ),
-            )
+        return tf.data.Dataset.from_generator(
+            generator=self.data_generator,
+            output_types=dict(
+                moving_image=tf.float32, fixed_image=tf.float32, indices=tf.float32
+            ),
+            output_shapes=dict(
+                moving_image=tf.TensorShape([None, None, None]),
+                fixed_image=tf.TensorShape([None, None, None]),
+                indices=self.num_indices,
+            ),
+        )
 
     def data_generator(self):
         """
@@ -384,7 +383,7 @@ class GeneratorDataLoader(DataLoader, ABC):
         ):
             if len(arr.shape) != 3 or min(arr.shape) <= 0:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}' shape should be 3D"
+                    f"Sample {image_indices}'s {name}'s shape should be 3D"
                     f" and non-empty, got {arr.shape}."
                 )
         # when data are labeled
@@ -395,18 +394,18 @@ class GeneratorDataLoader(DataLoader, ABC):
             ):
                 if len(arr.shape) not in [3, 4]:
                     raise ValueError(
-                        f"Sample {image_indices}'s {name}' shape should be 3D or 4D. "
+                        f"Sample {image_indices}'s {name}'s shape should be 3D or 4D. "
                         f"Got {arr.shape}."
                     )
             # image and label is better to have the same shape
-            if moving_image.shape[:3] != moving_label.shape[:3]:
+            if moving_image.shape[:3] != moving_label.shape[:3]:  # pragma: no cover
                 logger.warning(
                     f"Sample {image_indices}'s moving image and label "
                     f"have different shapes. "
                     f"moving_image.shape = {moving_image.shape}, "
                     f"moving_label.shape = {moving_label.shape}"
                 )
-            if fixed_image.shape[:3] != fixed_label.shape[:3]:
+            if fixed_image.shape[:3] != fixed_label.shape[:3]:  # pragma: no cover
                 logger.warning(
                     f"Sample {image_indices}'s fixed image and label "
                     f"have different shapes. "
