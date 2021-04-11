@@ -141,7 +141,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
         :param batch_size: total number of samples consumed per step, over all devices.
         :param scale: a positive float controlling the scale of transformation
         :param name: name of the layer
-        :param kwargs: extra arguments
+        :param kwargs: additional arguments
         """
         super().__init__(
             moving_image_size=moving_image_size,
@@ -214,7 +214,7 @@ class RandomDDFTransform3D(RandomTransformation3D):
         deformation field variance
         :param low_res_size: tuple = (1, 1, 1).
         :param name: name of layer
-        :param kwargs: extra arguments
+        :param kwargs: additional arguments
         """
 
         super().__init__(

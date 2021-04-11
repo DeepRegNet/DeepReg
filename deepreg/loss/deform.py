@@ -66,12 +66,13 @@ class GradientNorm(tf.keras.layers.Layer):
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, l1: bool = False, name: str = "GradientNorm"):
+    def __init__(self, l1: bool = False, name: str = "GradientNorm", **kwargs):
         """
         Init.
 
         :param l1: bool true if calculate L1 norm, otherwise L2 norm
         :param name: name of the loss
+        :param kwargs: additional arguments.
         """
         super().__init__(name=name)
         self.l1 = l1
@@ -112,11 +113,12 @@ class BendingEnergy(tf.keras.layers.Layer):
     y_true and y_pred have to be at least 5d tensor, including batch axis.
     """
 
-    def __init__(self, name: str = "BendingEnergy"):
+    def __init__(self, name: str = "BendingEnergy", **kwargs):
         """
         Init.
 
-        :param name: name of the loss
+        :param name: name of the loss.
+        :param kwargs: additional arguments.
         """
         super().__init__(name=name)
 

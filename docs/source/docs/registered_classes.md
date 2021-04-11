@@ -31,14 +31,14 @@ The category is `loss_class`. Registered keys and values are as following.
 | key             | value                                                     |
 | :-------------- | :-------------------------------------------------------- |
 | "bending"       | `deepreg.loss.deform.BendingEnergy`                       |
-| "cross-entropy" | `deepreg.loss.label.CrossEntropy`                         |
+| "cross-entropy" | `deepreg.loss.label.CrossEntropyLoss`                     |
 | "dice"          | `deepreg.loss.label.DiceLoss`                             |
 | "gmi"           | `deepreg.loss.image.GlobalMutualInformationLoss`          |
 | "gncc"          | `deepreg.loss.image.GlobalNormalizedCrossCorrelationLoss` |
 | "gradient"      | `deepreg.loss.deform.GradientNorm`                        |
 | "jaccard"       | `deepreg.loss.label.JaccardLoss`                          |
 | "lncc"          | `deepreg.loss.image.LocalNormalizedCrossCorrelationLoss`  |
-| "ssd"           | `deepreg.loss.image.SumSquaredDifference`                 |
+| "ssd"           | `deepreg.loss.label.SumSquaredDifferenceLoss`             |
 
 ## Data Augmentation
 
