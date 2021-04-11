@@ -214,11 +214,8 @@ def test_abstract_unpaired_data_loader():
     assert data_loader.num_samples is None
 
 
-def test_generator_data_loader(caplog):
-    """
-    Test the functions in GeneratorDataLoader
-    :param caplog: used to check warning message.
-    """
+def test_generator_data_loader():
+    """Test the functions in GeneratorDataLoader."""
     generator = GeneratorDataLoader(labeled=True, num_indices=1, sample_label="all")
 
     # test properties
@@ -380,26 +377,6 @@ def test_generator_data_loader(caplog):
         "Sample [1]'s moving image and fixed image have different numbers of labels."
         in str(err_info.value)
     )
-
-    # warning
-    caplog.clear()  # clear previous log
-    generator.validate_images_and_labels(
-        fixed_image=dummy_array,
-        moving_image=dummy_array,
-        moving_label=np.random.random(size=(100, 100, 90)),
-        fixed_label=dummy_array,
-        image_indices=[1],
-    )
-    assert "Sample [1]'s moving image and label have different shapes. " in caplog.text
-    caplog.clear()  # clear previous log
-    generator.validate_images_and_labels(
-        fixed_image=dummy_array,
-        moving_image=dummy_array,
-        moving_label=dummy_array,
-        fixed_label=np.random.random(size=(100, 100, 90)),
-        image_indices=[1],
-    )
-    assert "Sample [1]'s fixed image and label have different shapes. " in caplog.text
 
     # test sample_image_label method
     # for unlabeled input data
