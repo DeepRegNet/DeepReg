@@ -82,24 +82,6 @@ def config_sanity_check(config: dict) -> dict:
     # check data
     data_config = config["dataset"]
 
-    if data_config["type"] not in ["paired", "unpaired", "grouped"]:
-        raise ValueError(f"data type must be paired / unpaired / grouped, got {type}.")
-
-    if data_config["format"] not in ["nifti", "h5"]:
-        raise ValueError(f"data format must be nifti / h5, got {format}.")
-
-    assert "dir" in data_config
-    for mode in ["train", "valid", "test"]:
-        assert mode in data_config["dir"].keys()
-        data_dir = data_config["dir"][mode]
-        if data_dir is None:
-            logger.warning("Data directory for %s is not defined.", mode)
-        if not (isinstance(data_dir, (str, list)) or data_dir is None):
-            raise ValueError(
-                f"data_dir for mode {mode} must be string or list of strings,"
-                f"got {data_dir}."
-            )
-
     # back compatibility support
     config = parse_v011(config)
 
