@@ -52,7 +52,8 @@ def load_configs(config_path: Union[str, List[str]]) -> Dict:
         filename = "updated_" + tail
         save(config=loaded_config, out_dir=head, filename=filename)
         logger.error(
-            "Used config is outdated. An updated version has been saved at %s.",
+            "The provided configuration file is outdated. "
+            "An updated version has been saved at %s.",
             os.path.join(head, filename),
         )
 
