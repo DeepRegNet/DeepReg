@@ -230,7 +230,11 @@ def get_arr(shape: Tuple = (2, 3, 4), seed: Optional[int] = None) -> np.ndarray:
 class TestGeneratorDataLoader:
     @pytest.mark.parametrize("labeled", [True, False])
     def test_get_labeled_dataset(self, labeled: bool):
-        """Test get_dataset with data loader."""
+        """
+        Test get_dataset with data loader.
+
+        :param labeled: labeled data or not.
+        """
         sample = {
             "moving_image": get_arr(),
             "fixed_image": get_arr(),
@@ -388,7 +392,8 @@ class TestGeneratorDataLoader:
                 (10, 10, 10),
                 (10, 10, 10, 2),
                 (10, 10, 10, 3),
-                "Sample [1]'s moving image and fixed image have different numbers of labels.",
+                "Sample [1]'s moving image and fixed image "
+                "have different numbers of labels.",
             ),
         ],
     )
