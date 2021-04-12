@@ -250,7 +250,7 @@ class Warping(tfkl.Layer):
             None, ...
         ]
 
-    def call(self, inputs, zero_boundary: bool = True, **kwargs) -> tf.Tensor:
+    def call(self, inputs, **kwargs) -> tf.Tensor:
         """
         :param inputs: (ddf, image)
 
