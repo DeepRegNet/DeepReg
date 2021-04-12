@@ -27,7 +27,7 @@ where:
 Once trained, evaluate the network using a test dataset:
 
 ```bash
-deepreg_predict --gpu "" --ckpt_path logs/test/save/ckpt-2 --mode test
+deepreg_predict --gpu "" --ckpt_path logs/test/save/ckpt-2 --split test
 ```
 
 where:

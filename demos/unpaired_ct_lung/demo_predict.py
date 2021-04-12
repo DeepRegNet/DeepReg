@@ -36,7 +36,7 @@ print(
     f"--ckpt_path demos/{name}/dataset/pretrained/ckpt-5000 "
     f"--log_dir demos/{name} "
     "--exp_name logs_predict "
-    "--save_png --mode test\n"
+    "--save_png --split test\n"
     "=========================================================\n"
     "\n\n\n\n\n"
 )
@@ -52,7 +52,7 @@ predict(
     gpu="0",
     gpu_allow_growth=True,
     ckpt_path=ckpt_path,
-    mode="test",
+    split="test",
     batch_size=1,
     log_dir=log_dir,
     exp_name=exp_name,

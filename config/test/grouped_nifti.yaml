@@ -1,12 +1,18 @@
 dataset:
-  dir:
-    train: "data/test/nifti/grouped/train"
-    valid: "data/test/nifti/grouped/test"
-    test: "data/test/nifti/grouped/test"
-  format: "nifti"
+  train:
+    dir: "data/test/nifti/grouped/train"
+    format: "nifti"
+    labeled: true
+  valid:
+    dir: "data/test/nifti/grouped/test"
+    format: "nifti"
+    labeled: true
+  test:
+    dir: "data/test/nifti/grouped/test"
+    format: "nifti"
+    labeled: true
   type: "grouped" # paired / unpaired / grouped
-  labeled: true
+  image_shape: [16, 16, 16]
   intra_group_prob: 1
   intra_group_option: "forward"
   sample_image_in_group: true
-  image_shape: [16, 16, 16]

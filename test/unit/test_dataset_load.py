@@ -36,14 +36,14 @@ class TestGetDataLoader:
         """
         # single paired data loader
         config = load_yaml(f"config/test/{data_type}_{format}.yaml")
-        got = load.get_data_loader(data_config=config["dataset"], mode="train")
+        got = load.get_data_loader(data_config=config["dataset"], split="train")
         expected = REGISTRY.get(category=DATA_LOADER_CLASS, key=data_type)
         assert isinstance(got, expected)  # type: ignore
 
     def test_multi_dir_data_loader(self):
         """unpaired data loader with multiple dirs"""
         config = load_yaml("config/test/unpaired_nifti_multi_dirs.yaml")
-        got = load.get_data_loader(data_config=config["dataset"], mode="train")
+        got = load.get_data_loader(data_config=config["dataset"], split="train")
         assert isinstance(got, UnpairedDataLoader)
 
     @pytest.mark.parametrize("path", ["", None])
@@ -54,20 +54,20 @@ class TestGetDataLoader:
         :param path: training data path to be used
         """
         config = load_yaml("config/test/paired_nifti.yaml")
-        config["dataset"]["dir"]["train"] = path
-        got = load.get_data_loader(data_config=config["dataset"], mode="train")
+        config["dataset"]["train"]["dir"] = path
+        got = load.get_data_loader(data_config=config["dataset"], split="train")
         assert got is None
 
-    @pytest.mark.parametrize("mode", ["train", "valid", "test"])
-    def test_empty_config(self, mode: str):
+    @pytest.mark.parametrize("split", ["train", "valid", "test"])
+    def test_empty_config(self, split: str):
         """
-        Test return without data path for the mode.
+        Test return without data path for the split.
 
-        :param mode: train or valid or test
+        :param split: train or valid or test
         """
         config = load_yaml("config/test/paired_nifti.yaml")
-        config["dataset"]["dir"].pop(mode)
-        got = load.get_data_loader(data_config=config["dataset"], mode=mode)
+        config["dataset"].pop(split)
+        got = load.get_data_loader(data_config=config["dataset"], split=split)
         assert got is None
 
     @pytest.mark.parametrize(
@@ -80,14 +80,14 @@ class TestGetDataLoader:
         :param path: training data path to be used
         """
         config = load_yaml("config/test/paired_nifti.yaml")
-        config["dataset"]["dir"]["train"] = path
+        config["dataset"]["train"]["dir"] = path
         with pytest.raises(ValueError) as err_info:
-            load.get_data_loader(data_config=config["dataset"], mode="train")
+            load.get_data_loader(data_config=config["dataset"], split="train")
         assert "is not a directory or does not exist" in str(err_info.value)
 
     def test_mode_err(self):
-        """Check the error is raised when the mode is wrong."""
+        """Check the error is raised when the split is wrong."""
         config = load_yaml("config/test/paired_nifti.yaml")
-        with pytest.raises(AssertionError) as err_info:
-            load.get_data_loader(data_config=config["dataset"], mode="example")
-        assert "mode must be one of train/valid/test" in str(err_info.value)
+        with pytest.raises(ValueError) as err_info:
+            load.get_data_loader(data_config=config["dataset"], split="example")
+        assert "split must be one of ['train', 'valid', 'test']" in str(err_info.value)

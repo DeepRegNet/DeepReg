@@ -20,7 +20,7 @@ logger = log.get(__name__)
 def build_dataset(
     dataset_config: dict,
     preprocess_config: dict,
-    mode: str,
+    split: str,
     training: bool,
     repeat: bool,
 ) -> Tuple[Optional[DataLoader], Optional[tf.data.Dataset], Optional[int]]:
@@ -28,7 +28,7 @@ def build_dataset(
     Function to prepare dataset for training and validation.
     :param dataset_config: configuration for dataset
     :param preprocess_config: configuration for preprocess
-    :param mode: train or valid or test
+    :param split: train or valid or test
     :param training: bool, if true, data augmentation and shuffling will be added
     :param repeat: bool, if true, dataset will be repeated,
         true for train/valid dataset during model.fit
@@ -40,8 +40,8 @@ def build_dataset(
     Cannot move this function into deepreg/dataset/util.py
     as we need DataLoader to define the output
     """
-    assert mode in ["train", "valid", "test"]
-    data_loader = get_data_loader(dataset_config, mode)
+    assert split in ["train", "valid", "test"]
+    data_loader = get_data_loader(dataset_config, split)
     if data_loader is None:
         return None, None, None
 

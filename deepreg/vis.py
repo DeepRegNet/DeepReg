@@ -352,11 +352,11 @@ def main(args=None):
         args.slice_inds = string_to_list(args.slice_inds)
         args.slice_inds = [int(elem) for elem in args.slice_inds]
 
-    if args.mode is int(0):
+    if args.mode == 0:
         gif_slices(
             img_paths=args.image_paths, save_path=args.save_path, interval=args.interval
         )
-    elif args.mode is int(1):
+    elif args.mode == 1:
         if args.ddf_path is None:
             raise Exception("--ddf-path is required when using --mode 1")
         gif_warp(
@@ -367,7 +367,7 @@ def main(args=None):
             interval=args.interval,
             save_path=args.save_path,
         )
-    elif args.mode is int(2):
+    elif args.mode == 2:
         tile_slices(
             img_paths=args.image_paths,
             save_path=args.save_path,
@@ -375,7 +375,7 @@ def main(args=None):
             slice_inds=args.slice_inds,
             col_titles=args.col_titles,
         )
-    elif args.mode is int(3):
+    elif args.mode == 3:
         size = tuple([int(elem) for elem in string_to_list(args.size)])
         gif_tile_slices(
             img_paths=args.image_paths,

@@ -189,7 +189,7 @@ def predict(
     gpu: str,
     gpu_allow_growth: bool,
     ckpt_path: str,
-    mode: str,
+    split: str,
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
@@ -203,7 +203,7 @@ def predict(
     :param gpu: which env gpu to use.
     :param gpu_allow_growth: whether to allow gpu growth or not
     :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
-    :param mode: train / valid / test, to define which split of dataset to be evaluated
+    :param split: train / valid / test, to define which split of dataset to be evaluated
     :param batch_size: total number of samples consumed per step, over all devices.
     :param exp_name: name of the experiment
     :param log_dir: path of the log directory
@@ -225,7 +225,7 @@ def predict(
     data_loader, dataset, _ = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode=mode,
+        split=split,
         training=False,
         repeat=False,
     )
@@ -252,7 +252,7 @@ def predict(
                 moving_image_size=data_loader.moving_image_shape,
                 fixed_image_size=data_loader.fixed_image_shape,
                 index_size=data_loader.num_indices,
-                labeled=config["dataset"]["labeled"],
+                labeled=config["dataset"][split]["labeled"],
                 batch_size=batch_size,
                 config=config["train"],
             )
@@ -331,12 +331,10 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--mode",
-        "-m",
-        help="Define the split of data to be used for prediction."
+        "--split",
+        help="Define the split of data to be used for prediction: "
         "train or valid or test",
         type=str,
-        default="test",
         required=True,
     )
 
@@ -375,7 +373,7 @@ def main(args=None):
         gpu=args.gpu,
         gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
-        mode=args.mode,
+        split=args.split,
         batch_size=args.batch_size,
         log_dir=args.log_dir,
         exp_name=args.exp_name,

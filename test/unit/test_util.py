@@ -41,7 +41,7 @@ def test_build_dataset():
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="train",
+        split="train",
         training=False,
         repeat=False,
     )
@@ -52,13 +52,13 @@ def test_build_dataset():
     assert isinstance(steps_per_epoch_train, int)
 
     # remove valid data
-    config["dataset"]["dir"]["valid"] = ""
+    config["dataset"]["valid"]["dir"] = ""
 
     # build dataset
     data_loader_valid, dataset_valid, steps_per_epoch_valid = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="valid",
+        split="valid",
         training=False,
         repeat=False,
     )
