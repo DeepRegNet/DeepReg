@@ -25,6 +25,7 @@ compatible with the updates.
 
 ### Changed
 
+- Change the ResizeCPTransform to use 1-D separable convolutions
 - Increased all EPS to 1e-5.
 - Clarify the suggestion in doc to use all-zero masks for missing labels.
 - Moved contributor list to a separate page.
