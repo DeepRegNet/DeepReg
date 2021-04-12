@@ -25,6 +25,7 @@ compatible with the updates.
 
 ### Changed
 
+- Changed dataset config so that `format` and `labeled` are defined per split.
 - Reduced TensorFlow logging level.
 - Used `DEEPREG_LOG_LEVEL` to control logging in DeepReg.
 - Increased all EPS to 1e-5.

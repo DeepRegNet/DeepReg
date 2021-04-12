@@ -59,7 +59,6 @@ def predict_on_dataset(
     dataset: tf.data.Dataset,
     fixed_grid_ref: tf.Tensor,
     model: tf.keras.Model,
-    model_method: str,
     save_dir: str,
     save_nifti: bool,
     save_png: bool,
@@ -70,7 +69,6 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
-    :param model_method: ddf / dvf / affine / conditional
     :param save_dir: path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
@@ -285,7 +283,6 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
-        model_method=config["train"]["method"],
         save_dir=os.path.join(log_dir, "test"),
         save_nifti=save_nifti,
         save_png=save_png,
