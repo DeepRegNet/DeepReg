@@ -4,6 +4,8 @@ import numpy as np
 import tensorflow as tf
 
 import deepreg.model.layer_util as layer_util
+from deepreg.loss.util import gaussian_kernel1d_sigma as gaussian_kernel1d
+from deepreg.loss.util import separable_filter
 
 
 class Activation(tf.keras.layers.Layer):
@@ -491,7 +493,7 @@ class Warping(tf.keras.layers.Layer):
             layer_util.get_reference_grid(grid_size=fixed_image_size), axis=0
         )  # shape = (1, f_dim1, f_dim2, f_dim3, 3)
 
-    def call(self, inputs, **kwargs) -> tf.Tensor:
+    def call(self, inputs, zero_boundary: bool = True, **kwargs) -> tf.Tensor:
         """
         :param inputs: (ddf, image)
 
@@ -501,7 +503,10 @@ class Warping(tf.keras.layers.Layer):
         :return: shape = (batch, f_dim1, f_dim2, f_dim3)
         """
         return layer_util.warp_image_ddf(
-            image=inputs[1], ddf=inputs[0], grid_ref=self.grid_ref
+            image=inputs[1],
+            ddf=inputs[0],
+            grid_ref=self.grid_ref,
+            zero_boundary=zero_boundary,
         )
 
 
@@ -701,7 +706,8 @@ class ResizeCPTransform(tf.keras.layers.Layer):
     def build(self, input_shape):
         super().build(input_shape=input_shape)
 
-        self.kernel = layer_util.gaussian_filter_3d(self.kernel_sigma)
+        self.kernel = [gaussian_kernel1d(sigma=sigma) for sigma in self.kernel_sigma]
+
         output_shape = [
             tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
             for v, c in zip(input_shape[1:-1], self.cp_spacing)
@@ -709,9 +715,14 @@ class ResizeCPTransform(tf.keras.layers.Layer):
         self._output_shape = output_shape
 
     def call(self, inputs, **kwargs) -> tf.Tensor:
-        output = tf.nn.conv3d(
-            inputs, self.kernel, strides=(1, 1, 1, 1, 1), padding="SAME"
-        )
+        tensor = tf.unstack(inputs, axis=-1)
+        outputs = []
+        for it_t, t in enumerate(tensor):
+            outputs += [
+                separable_filter(tf.expand_dims(t, axis=4), kernel=self.kernel[it_t])
+            ]  # E[t] * E[1]
+        output = tf.concat(outputs, axis=-1)
+
         return layer_util.resize3d(image=output, size=self._output_shape)
 
 
