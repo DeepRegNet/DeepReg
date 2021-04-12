@@ -25,6 +25,8 @@ compatible with the updates.
 
 ### Changed
 
+- Reduced TensorFlow logging level.
+- Used `DEEPREG_LOG_LEVEL` to control logging in DeepReg.
 - Increased all EPS to 1e-5.
 - Clarify the suggestion in doc to use all-zero masks for missing labels.
 - Moved contributor list to a separate page.

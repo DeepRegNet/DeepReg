@@ -82,6 +82,7 @@ def build_checkpoint_callback(
         x=dataset,
         steps_per_epoch=1,
         epochs=1,
+        verbose=0,
     )
     checkpoint_manager_callback = CheckpointManagerCallback(
         model, log_dir + "/save", period=save_period
