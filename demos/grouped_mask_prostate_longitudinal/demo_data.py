@@ -35,7 +35,7 @@ ratio_test = 0.2
 data_filename = os.path.join(DATA_PATH, ZIP_FILE + ".h5")
 fid_data = h5py.File(data_filename, "r")
 num_data = len(fid_data)
-ids_group, ids_ob = list(), list()
+ids_group, ids_ob = [], []
 for f in fid_data:
     ds, ig, io = fid_data[f].name.split("-")
     if ds == "/group":
@@ -61,7 +61,7 @@ print(
 )
 
 # write
-fid_image, fid_label = list(), list()
+fid_image, fid_label = [], []
 folders = [
     os.path.join(DATA_PATH, "train"),
     os.path.join(DATA_PATH, "val"),

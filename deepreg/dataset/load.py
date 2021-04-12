@@ -43,7 +43,7 @@ def get_data_loader(data_config: dict, mode: str) -> Optional[DataLoader]:
         sample_label="sample" if mode == "train" else "all",
         seed=None if mode == "train" else 0,
     )
-    data_loader = REGISTRY.build_data_loader(
+    data_loader: DataLoader = REGISTRY.build_data_loader(
         config=data_loader_config, default_args=default_args
     )
     return data_loader

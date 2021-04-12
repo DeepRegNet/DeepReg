@@ -1,25 +1,48 @@
 name: Unit Test
 
-on: [push, pull_request]
-
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   unit-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.7]
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.7", "3.6"]
+        exclude:
+          # excludes py3.6 on MacOS to save time/energy
+          - os: macos-latest
+            python-version: "3.6"
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install Ubuntu system dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install graphviz
+      - name: Install Mac OS system dependencies
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install graphviz
+      - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install codecov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install codecov==2.1.11
+          pip install -e .
       - name: Linting
         # W9006 can't be checked like this as we need to ignore ValueError
         run: |
@@ -28,10 +51,11 @@ jobs:
         timeout-minutes: 10
       - name: Unit test with pytest
         run: |
-          pytest --cov-report=xml --cov=deepreg --durations=10 --durations-min=1.0 ./test/unit/
-        timeout-minutes: 10
+          pytest --cov-report=xml --cov=deepreg --durations=20 --durations-min=1.0 ./test/unit/
+        timeout-minutes: 20
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.7' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml

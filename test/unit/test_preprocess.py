@@ -10,11 +10,13 @@ transform function, such as:
 Are assumed working, and are tested separately in
 test_layer_util.py; as such we just check output size here.
 """
-from test.unit.util import is_equal_np
+from test.unit.util import is_equal_np, is_equal_tf
 
+import numpy as np
 import pytest
 import tensorflow as tf
 
+import deepreg.dataset
 import deepreg.dataset.preprocess as preprocess
 
 
@@ -110,7 +112,7 @@ class TestRandomTransformation:
         :param name: name of the layer
         :return: built layer object
         """
-        config = {**self.common_config, **self.extra_config_dict[name]}
+        config = {**self.common_config, **self.extra_config_dict[name]}  # type: ignore
         return self.layer_cls_dict[name](**config)
 
     @pytest.mark.parametrize("name", ["affine", "ddf"])
@@ -125,8 +127,8 @@ class TestRandomTransformation:
         expected = {
             "trainable": False,
             "dtype": "float32",
-            **self.common_config,
-            **self.extra_config_dict[name],
+            **self.common_config,  # type: ignore
+            **self.extra_config_dict[name],  # type: ignore
         }
         assert got == expected
 
@@ -200,3 +202,36 @@ class TestRandomTransformation:
         outputs = layer.call(inputs)
         for k in inputs:
             assert outputs[k].shape == inputs[k].shape
+
+
+def test_random_transform_generator():
+    """
+    Test random_transform_generator by confirming that it generates
+    appropriate solutions and output sizes for seeded examples.
+    """
+    # Check shapes are correct Batch Size = 1 - Pass
+    batch_size = 1
+    transforms = deepreg.dataset.preprocess.gen_rand_affine_transform(batch_size, 0)
+    assert transforms.shape == (batch_size, 4, 3)
+
+    # Check numerical outputs are correct for a given seed - Pass
+    batch_size = 1
+    scale = 0.1
+    seed = 0
+    expected = tf.constant(
+        np.array(
+            [
+                [
+                    [9.4661278e-01, -3.8267835e-03, 3.6934228e-03],
+                    [5.5613145e-03, 9.8034811e-01, -1.8044969e-02],
+                    [1.9651605e-04, 1.4576728e-02, 9.6243286e-01],
+                    [-2.5107686e-03, 1.9579126e-02, -1.2195010e-02],
+                ]
+            ],
+            dtype=np.float32,
+        )
+    )  # shape = (1, 4, 3)
+    got = deepreg.dataset.preprocess.gen_rand_affine_transform(
+        batch_size=batch_size, scale=scale, seed=seed
+    )
+    assert is_equal_tf(got, expected)

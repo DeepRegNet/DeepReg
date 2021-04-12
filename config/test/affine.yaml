@@ -3,7 +3,7 @@ train:
   backbone:
     name: "global"
     num_channel_initial: 1
-    extract_levels: [0, 1, 2, 3, 4]
+    depth: 4
   loss:
     image:
       name: "lncc"

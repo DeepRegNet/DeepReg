@@ -1,16 +1,71 @@
 # coding=utf-8
 
-from typing import List
+from typing import List, Optional, Tuple, Union
 
 import tensorflow as tf
+import tensorflow.keras.layers as tfkl
 
 from deepreg.model import layer
-from deepreg.model.backbone.interface import Backbone
+from deepreg.model.backbone.u_net import UNet
+from deepreg.model.layer import Extraction
 from deepreg.registry import REGISTRY
 
 
+class AdditiveUpsampling(tfkl.Layer):
+    def __init__(
+        self,
+        filters: int,
+        output_padding: Union[int, Tuple, List],
+        kernel_size: Union[int, Tuple, List],
+        padding: str,
+        strides: Union[int, Tuple, List],
+        output_shape: Tuple,
+        name: str = "AdditiveUpsampling",
+    ):
+        """
+        Addictive up-sampling layer.
+
+        :param filters: number of channels for output
+        :param output_padding: padding for output
+        :param kernel_size: arg for deconv3d
+        :param padding: arg for deconv3d
+        :param strides: arg for deconv3d
+        :param output_shape: shape of the output tensor
+        :param name: name of the layer.
+        """
+        super().__init__(name=name)
+        self.deconv3d = layer.Deconv3dBlock(
+            filters=filters,
+            output_padding=output_padding,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+        )
+        self.resize = layer.Resize3d(shape=output_shape)
+
+    def call(self, inputs, **kwargs):
+        deconved = self.deconv3d(inputs)
+        resized = self.resize(inputs)
+        resized = tf.add_n(tf.split(resized, num_or_size_splits=2, axis=4))
+        return deconved + resized
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        deconv_config = self.deconv3d.get_config()
+        config.update(
+            filters=deconv_config["filters"],
+            output_padding=deconv_config["output_padding"],
+            kernel_size=deconv_config["kernel_size"],
+            strides=deconv_config["strides"],
+            padding=deconv_config["padding"],
+        )
+        config.update(output_shape=self.resize._shape)
+        return config
+
+
 @REGISTRY.register_backbone(name="local")
-class LocalNet(Backbone):
+class LocalNet(UNet):
     """
     Build LocalNet for image registration.
 
@@ -31,124 +86,152 @@ class LocalNet(Backbone):
     def __init__(
         self,
         image_size: tuple,
-        out_channels: int,
         num_channel_initial: int,
-        extract_levels: List[int],
+        extract_levels: Tuple[int, ...],
         out_kernel_initializer: str,
         out_activation: str,
+        out_channels: int,
+        depth: Optional[int] = None,
+        use_additive_upsampling: bool = True,
+        pooling: bool = True,
+        concat_skip: bool = False,
         name: str = "LocalNet",
         **kwargs,
     ):
         """
-        Image is encoded gradually, i from level 0 to E,
-        then it is decoded gradually, j from level E to D.
+        Init.
+
+        Image is encoded gradually, i from level 0 to D,
+        then it is decoded gradually, j from level D to 0.
         Some of the decoded levels are used for generating extractions.
 
-        So, extract_levels are between [0, E] with E = max(extract_levels),
-        and D = min(extract_levels).
+        So, extract_levels are between [0, D].
 
         :param image_size: such as (dim1, dim2, dim3)
-        :param out_channels: number of channels for the extractions
         :param num_channel_initial: number of initial channels.
-        :param extract_levels: number of extraction levels.
+        :param extract_levels: from which depths the output will be built.
         :param out_kernel_initializer: initializer to use for kernels.
         :param out_activation: activation to use at end layer.
+        :param out_channels: number of channels for the extractions
+        :param depth: depth of the encoder.
+            If depth is not given, depth = max(extract_levels) will be used.
+        :param use_additive_upsampling: whether use additive up-sampling layer
+            for decoding.
+        :param pooling: for down-sampling, use non-parameterized
+                        pooling if true, otherwise use conv3d
+        :param concat_skip: when up-sampling, concatenate skipped
+                            tensor if true, otherwise use addition
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
+        self._use_additive_upsampling = use_additive_upsampling
+        if depth is None:
+            depth = max(extract_levels)
+        kwargs["encode_kernel_sizes"] = [7] + [3] * depth
         super().__init__(
             image_size=image_size,
-            out_channels=out_channels,
             num_channel_initial=num_channel_initial,
+            depth=depth,
+            extract_levels=extract_levels,
             out_kernel_initializer=out_kernel_initializer,
             out_activation=out_activation,
+            out_channels=out_channels,
+            pooling=pooling,
+            concat_skip=concat_skip,
             name=name,
             **kwargs,
         )
 
-        # save parameters
-        self._extract_levels = extract_levels
-        self._extract_max_level = max(self._extract_levels)  # E
-        self._extract_min_level = min(self._extract_levels)  # D
-
-        # init layer variables
-        num_channels = [
-            num_channel_initial * (2 ** level)
-            for level in range(self._extract_max_level + 1)
-        ]  # level 0 to E
-        self._downsample_blocks = [
-            layer.DownSampleResnetBlock(
-                filters=num_channels[i], kernel_size=7 if i == 0 else 3
-            )
-            for i in range(self._extract_max_level)
-        ]  # level 0 to E-1
-        self._conv3d_block = layer.Conv3dBlock(filters=num_channels[-1])  # level E
-
-        self._upsample_blocks = [
-            layer.LocalNetUpSampleResnetBlock(num_channels[level])
-            for level in range(
-                self._extract_max_level - 1, self._extract_min_level - 1, -1
-            )
-        ]  # level D to E-1
-
-        self._extract_layers = [
-            # if kernels are not initialized by zeros, with init NN, extract may be too large
-            layer.Conv3dWithResize(
-                output_shape=image_size,
-                filters=out_channels,
-                kernel_initializer=out_kernel_initializer,
-                activation=out_activation,
-            )
-            for _ in self._extract_levels
-        ]
-
-    def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
+    def build_bottom_block(
+        self, filters: int, kernel_size: int, padding: str
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
         """
-        Build LocalNet graph based on built layers.
+        Build a block for bottom layer.
 
-        :param inputs: image batch, shape = (batch, f_dim1, f_dim2, f_dim3, ch)
-        :param training: None or bool.
-        :param mask: None or tf.Tensor.
-        :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
+        This block do not change the tensor shape (width, height, depth),
+        it only changes the number of channels.
+
+        :param filters: number of channels for output
+        :param kernel_size: arg for conv3d
+        :param padding: arg for conv3d
+        :return: a block consists of one or multiple layers
         """
-
-        # down sample from level 0 to E
-        encoded = []
-        # outputs used for decoding, encoded[i] corresponds -> level i
-        # stored only 0 to E-1
-
-        h_in = inputs
-        for level in range(self._extract_max_level):  # level 0 to E - 1
-            h_in, h_channel = self._downsample_blocks[level](
-                inputs=h_in, training=training
-            )
-            encoded.append(h_channel)
-        h_bottom = self._conv3d_block(
-            inputs=h_in, training=training
-        )  # level E of encoding/decoding
-
-        # up sample from level E to D
-        decoded = [h_bottom]  # level E
-        for idx, level in enumerate(
-            range(self._extract_max_level - 1, self._extract_min_level - 1, -1)
-        ):  # level E-1 to D
-            h_bottom = self._upsample_blocks[idx](
-                inputs=[h_bottom, encoded[level]], training=training
-            )
-            decoded.append(h_bottom)
-
-        # output
-        output = tf.reduce_mean(
-            tf.stack(
-                [
-                    self._extract_layers[idx](
-                        inputs=decoded[self._extract_max_level - level]
-                    )
-                    for idx, level in enumerate(self._extract_levels)
-                ],
-                axis=5,
-            ),
-            axis=5,
+        return layer.Conv3dBlock(
+            filters=filters, kernel_size=kernel_size, padding=padding
         )
 
-        return output
+    def build_up_sampling_block(
+        self,
+        filters: int,
+        output_padding: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
+        padding: str,
+        strides: Union[Tuple[int, ...], int],
+        output_shape: Tuple[int, ...],
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for up-sampling.
+
+        This block changes the tensor shape (width, height, depth),
+        but it does not changes the number of channels.
+
+        :param filters: number of channels for output
+        :param output_padding: padding for output
+        :param kernel_size: arg for deconv3d
+        :param padding: arg for deconv3d
+        :param strides: arg for deconv3d
+        :param output_shape: shape of the output tensor
+        :return: a block consists of one or multiple layers
+        """
+
+        if self._use_additive_upsampling:
+            return AdditiveUpsampling(
+                filters=filters,
+                output_padding=output_padding,
+                kernel_size=kernel_size,
+                strides=strides,
+                padding=padding,
+                output_shape=output_shape,
+            )
+
+        return layer.Deconv3dBlock(
+            filters=filters,
+            output_padding=output_padding,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+        )
+
+    def build_output_block(
+        self,
+        image_size: Tuple[int, ...],
+        extract_levels: Tuple[int, ...],
+        out_channels: int,
+        out_kernel_initializer: str,
+        out_activation: str,
+    ) -> Union[tf.keras.Model, tfkl.Layer]:
+        """
+        Build a block for output.
+
+        The input to this block is a list of tensors.
+
+        :param image_size: such as (dim1, dim2, dim3)
+        :param extract_levels: number of extraction levels.
+        :param out_channels: number of channels for the extractions
+        :param out_kernel_initializer: initializer to use for kernels.
+        :param out_activation: activation to use at end layer.
+        :return: a block consists of one or multiple layers
+        """
+        return Extraction(
+            image_size=image_size,
+            extract_levels=extract_levels,
+            out_channels=out_channels,
+            out_kernel_initializer=out_kernel_initializer,
+            out_activation=out_activation,
+        )
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config.update(use_additive_upsampling=self._use_additive_upsampling)
+        return config

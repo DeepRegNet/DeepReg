@@ -4,18 +4,13 @@ Module containing data augmentation techniques.
 """
 
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import tensorflow as tf
 
-from deepreg.model.layer_util import (
-    gen_rand_affine_transform,
-    gen_rand_ddf,
-    get_reference_grid,
-    resample,
-    resize3d,
-    warp_grid,
-)
+from deepreg.model.layer import Resize3d
+from deepreg.model.layer_util import get_reference_grid, resample, warp_grid
 from deepreg.registry import REGISTRY
 
 
@@ -26,8 +21,8 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         name: str = "RandomTransformation3D",
         trainable: bool = False,
@@ -37,7 +32,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: size of mini-batch
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param name: name of layer
         :param trainable: if this layer is trainable
         """
@@ -49,7 +44,7 @@ class RandomTransformation3D(tf.keras.layers.Layer):
         self.fixed_grid_ref = get_reference_grid(grid_size=fixed_image_size)
 
     @abstractmethod
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Generates transformation parameters for moving and fixed image.
 
@@ -131,8 +126,8 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         scale: float = 0.1,
         name: str = "RandomAffineTransform3D",
@@ -143,10 +138,10 @@ class RandomAffineTransform3D(RandomTransformation3D):
 
         :param moving_image_size: (m_dim1, m_dim2, m_dim3)
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
-        :param batch_size: size of mini-batch
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param scale: a positive float controlling the scale of transformation
         :param name: name of the layer
-        :param kwargs: extra arguments
+        :param kwargs: additional arguments
         """
         super().__init__(
             moving_image_size=moving_image_size,
@@ -163,7 +158,7 @@ class RandomAffineTransform3D(RandomTransformation3D):
         config["scale"] = self.scale
         return config
 
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Function that generates the random 3D transformation parameters
         for a batch of data for moving and fixed image.
@@ -196,8 +191,8 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple[int, ...],
+        fixed_image_size: Tuple[int, ...],
         batch_size: int,
         field_strength: int = 1,
         low_res_size: tuple = (1, 1, 1),
@@ -214,12 +209,12 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
         :param moving_image_size: tuple
         :param fixed_image_size: tuple
-        :param batch_size: int
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param field_strength: int = 1. It is used as the upper bound for the
         deformation field variance
         :param low_res_size: tuple = (1, 1, 1).
         :param name: name of layer
-        :param kwargs: extra arguments
+        :param kwargs: additional arguments
         """
 
         super().__init__(
@@ -243,20 +238,25 @@ class RandomDDFTransform3D(RandomTransformation3D):
         config["low_res_size"] = self.low_res_size
         return config
 
-    def gen_transform_params(self) -> (tf.Tensor, tf.Tensor):
+    def gen_transform_params(self) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Generates two random ddf fields for moving and fixed images.
 
         :return: tuple, one has shape = (batch, m_dim1, m_dim2, m_dim3, 3)
             another one has shape = (batch, f_dim1, f_dim2, f_dim3, 3)
         """
-        kwargs = dict(
+        moving = gen_rand_ddf(
+            image_size=self.moving_image_size,
             batch_size=self.batch_size,
             field_strength=self.field_strength,
             low_res_size=self.low_res_size,
         )
-        moving = gen_rand_ddf(image_size=self.moving_image_size, **kwargs)
-        fixed = gen_rand_ddf(image_size=self.fixed_image_size, **kwargs)
+        fixed = gen_rand_ddf(
+            image_size=self.fixed_image_size,
+            batch_size=self.batch_size,
+            field_strength=self.field_strength,
+            low_res_size=self.low_res_size,
+        )
         return moving, fixed
 
     @staticmethod
@@ -275,7 +275,9 @@ class RandomDDFTransform3D(RandomTransformation3D):
 
 
 def resize_inputs(
-    inputs: Dict[str, tf.Tensor], moving_image_size: tuple, fixed_image_size: tuple
+    inputs: Dict[str, tf.Tensor],
+    moving_image_size: Tuple[int, ...],
+    fixed_image_size: tuple,
 ) -> Dict[str, tf.Tensor]:
     """
     Resize inputs
@@ -290,8 +292,8 @@ def resize_inputs(
             moving_image, shape = (None, None, None)
             fixed_image, shape = (None, None, None)
             indices, shape = (num_indices, )
-    :param moving_image_size: tuple, (m_dim1, m_dim2, m_dim3)
-    :param fixed_image_size: tuple, (f_dim1, f_dim2, f_dim3)
+    :param moving_image_size: Tuple[int, ...], (m_dim1, m_dim2, m_dim3)
+    :param fixed_image_size: Tuple[int, ...], (f_dim1, f_dim2, f_dim3)
     :return:
         if labeled:
             moving_image, shape = (m_dim1, m_dim2, m_dim3)
@@ -308,16 +310,19 @@ def resize_inputs(
     fixed_image = inputs["fixed_image"]
     indices = inputs["indices"]
 
-    moving_image = resize3d(image=moving_image, size=moving_image_size)
-    fixed_image = resize3d(image=fixed_image, size=fixed_image_size)
+    moving_resize_layer = Resize3d(shape=moving_image_size)
+    fixed_resize_layer = Resize3d(shape=fixed_image_size)
+
+    moving_image = moving_resize_layer(moving_image)
+    fixed_image = fixed_resize_layer(fixed_image)
 
     if "moving_label" not in inputs:  # unlabeled
         return dict(moving_image=moving_image, fixed_image=fixed_image, indices=indices)
     moving_label = inputs["moving_label"]
     fixed_label = inputs["fixed_label"]
 
-    moving_label = resize3d(image=moving_label, size=moving_image_size)
-    fixed_label = resize3d(image=fixed_label, size=fixed_image_size)
+    moving_label = moving_resize_layer(moving_label)
+    fixed_label = fixed_resize_layer(fixed_label)
 
     return dict(
         moving_image=moving_image,
@@ -326,3 +331,158 @@ def resize_inputs(
         fixed_label=fixed_label,
         indices=indices,
     )
+
+
+def gen_rand_affine_transform(
+    batch_size: int, scale: float, seed: Optional[int] = None
+) -> tf.Tensor:
+    """
+    Function that generates a random 3D transformation parameters for a batch of data.
+
+    for 3D coordinates, affine transformation is
+
+    .. code-block:: text
+
+        [[x' y' z' 1]] = [[x y z 1]] * [[* * * 0]
+                                        [* * * 0]
+                                        [* * * 0]
+                                        [* * * 1]]
+
+    where each * represents a degree of freedom,
+    so there are in total 12 degrees of freedom
+    the equation can be denoted as
+
+        new = old * T
+
+    where
+
+    - new is the transformed coordinates, of shape (1, 4)
+    - old is the original coordinates, of shape (1, 4)
+    - T is the transformation matrix, of shape (4, 4)
+
+    the equation can be simplified to
+
+    .. code-block:: text
+
+        [[x' y' z']] = [[x y z 1]] * [[* * *]
+                                      [* * *]
+                                      [* * *]
+                                      [* * *]]
+
+    so that
+
+        new = old * T
+
+    where
+
+    - new is the transformed coordinates, of shape (1, 3)
+    - old is the original coordinates, of shape (1, 4)
+    - T is the transformation matrix, of shape (4, 3)
+
+    Given original and transformed coordinates,
+    we can calculate the transformation matrix using
+
+        x = np.linalg.lstsq(a, b)
+
+    such that
+
+        a x = b
+
+    In our case,
+
+    - a = old
+    - b = new
+    - x = T
+
+    To generate random transformation,
+    we choose to add random perturbation to corner coordinates as follows:
+    for corner of coordinates (x, y, z), the noise is
+
+        -(x, y, z) .* (r1, r2, r3)
+
+    where ri is a random number between (0, scale).
+    So
+
+        (x', y', z') = (x, y, z) .* (1-r1, 1-r2, 1-r3)
+
+    Thus, we can directly sample between 1-scale and 1 instead
+
+    We choose to calculate the transformation based on
+    four corners in a cube centered at (0, 0, 0).
+    A cube is shown as below, where
+
+    - C = (-1, -1, -1)
+    - G = (-1, -1, 1)
+    - D = (-1, 1, -1)
+    - A = (1, -1, -1)
+
+    .. code-block:: text
+
+                    G — — — — — — — — H
+                  / |               / |
+                /   |             /   |
+              /     |           /     |
+            /       |         /       |
+          /         |       /         |
+        E — — — — — — — — F           |
+        |           |     |           |
+        |           |     |           |
+        |           C — — | — — — — — D
+        |         /       |         /
+        |       /         |       /
+        |     /           |     /
+        |   /             |   /
+        | /               | /
+        A — — — — — — — — B
+
+    :param batch_size: total number of samples consumed per step, over all devices.
+    :param scale: a float number between 0 and 1
+    :param seed: control the randomness
+    :return: shape = (batch, 4, 3)
+    """
+
+    assert 0 <= scale <= 1
+    np.random.seed(seed)
+    noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # shape = (batch, 4, 3)
+
+    # old represents four corners of a cube
+    # corresponding to the corner C G D A as shown above
+    old = np.tile(
+        [[[-1, -1, -1, 1], [-1, -1, 1, 1], [-1, 1, -1, 1], [1, -1, -1, 1]]],
+        [batch_size, 1, 1],
+    )  # shape = (batch, 4, 4)
+    new = old[:, :, :3] * noise  # shape = (batch, 4, 3)
+
+    theta = np.array(
+        [np.linalg.lstsq(old[k], new[k], rcond=-1)[0] for k in range(batch_size)]
+    )  # shape = (batch, 4, 3)
+
+    return tf.cast(theta, dtype=tf.float32)
+
+
+def gen_rand_ddf(
+    batch_size: int,
+    image_size: Tuple[int, ...],
+    field_strength: Union[Tuple, List, int, float],
+    low_res_size: Union[Tuple, List],
+    seed: Optional[int] = None,
+) -> tf.Tensor:
+    """
+    Function that generates a random 3D DDF for a batch of data.
+
+    :param batch_size: total number of samples consumed per step, over all devices.
+    :param image_size:
+    :param field_strength: maximum field strength, computed as a U[0,field_strength]
+    :param low_res_size: low_resolution deformation field that will be upsampled to
+        the original size in order to get smooth and more realistic fields.
+    :param seed: control the randomness
+    :return:
+    """
+
+    np.random.seed(seed)
+    low_res_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
+    low_res_field = low_res_strength * np.random.randn(
+        batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
+    )
+    high_res_field = Resize3d(shape=image_size)(low_res_field)
+    return high_res_field

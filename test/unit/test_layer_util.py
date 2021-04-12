@@ -3,6 +3,7 @@ Tests for deepreg/model/layer_util.py in
 pytest style
 """
 from test.unit.util import is_equal_tf
+from typing import Tuple, Union
 
 import numpy as np
 import pytest
@@ -188,39 +189,6 @@ class TestLinearResample:
         assert "resample supports only linear interpolation" in str(err_info.value)
 
 
-def test_random_transform_generator():
-    """
-    Test random_transform_generator by confirming that it generates
-    appropriate solutions and output sizes for seeded examples.
-    """
-    # Check shapes are correct Batch Size = 1 - Pass
-    batch_size = 1
-    transforms = layer_util.gen_rand_affine_transform(batch_size, 0)
-    assert transforms.shape == (batch_size, 4, 3)
-
-    # Check numerical outputs are correct for a given seed - Pass
-    batch_size = 1
-    scale = 0.1
-    seed = 0
-    expected = tf.constant(
-        np.array(
-            [
-                [
-                    [9.4661278e-01, -3.8267835e-03, 3.6934228e-03],
-                    [5.5613145e-03, 9.8034811e-01, -1.8044969e-02],
-                    [1.9651605e-04, 1.4576728e-02, 9.6243286e-01],
-                    [-2.5107686e-03, 1.9579126e-02, -1.2195010e-02],
-                ]
-            ],
-            dtype=np.float32,
-        )
-    )  # shape = (1, 4, 3)
-    got = layer_util.gen_rand_affine_transform(
-        batch_size=batch_size, scale=scale, seed=seed
-    )
-    assert is_equal_tf(got, expected)
-
-
 class TestWarpGrid:
     """
     Test warp_grid by confirming that it generates
@@ -271,154 +239,82 @@ class TestWarpGrid:
         assert is_equal_tf(got, expected)
 
 
-def test_warp_image_ddf():
-    """
-    Test warp_image_ddf by checking input/output shapes
-    """
-    batch_size = 2
-    fixed_image_size = (32, 32, 16)
-    moving_image_size = (24, 24, 16)
-    channel = 6
-    image = tf.ones((batch_size, *moving_image_size), dtype="float32")
-    image_ch = tf.ones((batch_size, *moving_image_size, channel), dtype="float32")
-    ddf = tf.ones((batch_size, *fixed_image_size, 3), dtype="float32")
-    grid_ref = tf.ones((1, *fixed_image_size, 3), dtype="float32")
-
-    # without channel, with grid_ref
-    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=grid_ref)
-    assert got.shape == (batch_size, *fixed_image_size)
-
-    # without channel, without grid_ref
-    got = layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=None)
-    assert got.shape == (batch_size, *fixed_image_size)
-
-    # with channel, with grid_ref
-    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=grid_ref)
-    assert got.shape == (batch_size, *fixed_image_size, channel)
-
-    # with channel, without grid_ref
-    got = layer_util.warp_image_ddf(image=image_ch, ddf=ddf, grid_ref=None)
-    assert got.shape == (batch_size, *fixed_image_size, channel)
-
-    # wrong image shape
-    wrong_image = tf.ones(moving_image_size, dtype="float32")
-    with pytest.raises(ValueError) as err_info:
-        layer_util.warp_image_ddf(image=wrong_image, ddf=ddf, grid_ref=grid_ref)
-    assert "image shape must be (batch, m_dim1, m_dim2, m_dim3)" in str(err_info.value)
-
-    # wrong ddf shape
-    wrong_ddf = tf.ones((batch_size, *fixed_image_size, 2), dtype="float32")
-    with pytest.raises(ValueError) as err_info:
-        layer_util.warp_image_ddf(image=image, ddf=wrong_ddf, grid_ref=grid_ref)
-    assert "ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3)" in str(err_info.value)
-
-    # wrong grid_ref shape
-    wrong_grid_ref = tf.ones((batch_size, *moving_image_size, 3), dtype="float32")
-    with pytest.raises(ValueError) as err_info:
-        layer_util.warp_image_ddf(image=image, ddf=ddf, grid_ref=wrong_grid_ref)
-    assert "grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None" in str(
-        err_info.value
-    )
-
-
-def test_resize3d():
-    """
-    Test resize3d by confirming the output shapes.
-    """
-
-    # Check resize3d for images with different size and without channel nor batch - Pass
-    input_shape = (1, 3, 5)
-    output_shape = (2, 4, 6)
-    size = (2, 4, 6)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with different size and without channel - Pass
-    input_shape = (1, 1, 3, 5)
-    output_shape = (1, 2, 4, 6)
-    size = (2, 4, 6)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with different size and with one channel - Pass
-    input_shape = (1, 1, 3, 5, 1)
-    output_shape = (1, 2, 4, 6, 1)
-    size = (2, 4, 6)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with different size and with multiple channels - Pass
-    input_shape = (1, 1, 3, 5, 3)
-    output_shape = (1, 2, 4, 6, 3)
-    size = (2, 4, 6)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with the same size and without channel nor batch - Pass
-    input_shape = (1, 3, 5)
-    output_shape = (1, 3, 5)
-    size = (1, 3, 5)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with the same size and without channel - Pass
-    input_shape = (1, 1, 3, 5)
-    output_shape = (1, 1, 3, 5)
-    size = (1, 3, 5)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with the same size and with one channel - Pass
-    input_shape = (1, 1, 3, 5, 1)
-    output_shape = (1, 1, 3, 5, 1)
-    size = (1, 3, 5)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for images with the same size and with multiple channels - Pass
-    input_shape = (1, 1, 3, 5, 3)
-    output_shape = (1, 1, 3, 5, 3)
-    size = (1, 3, 5)
-    got = layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert got.shape == output_shape
-
-    # Check resize3d for proper image dimensions - Fail
-    input_shape = (1, 1)
-    size = (1, 1, 1)
-    with pytest.raises(ValueError) as err_info:
-        layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert "resize3d takes input image of dimension 3 or 4 or 5" in str(err_info.value)
-
-    # Check resize3d for proper size - Fail
-    input_shape = (1, 1, 1)
-    size = (1, 1)
-    with pytest.raises(ValueError) as err_info:
-        layer_util.resize3d(image=tf.ones(input_shape), size=size)
-    assert "resize3d takes size of type tuple/list and of length 3" in str(
-        err_info.value
-    )
-
-
-class TestGaussianFilter3D:
+class TestDeconvOutputPadding:
     @pytest.mark.parametrize(
-        "kernel_sigma, kernel_size",
+        ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
         [
-            ((1, 1, 1), (3, 3, 3, 3, 3)),
-            ((2, 2, 2), (7, 7, 7, 3, 3)),
-            ((5, 5, 5), (15, 15, 15, 3, 3)),
-            (1, (3, 3, 3, 3, 3)),
-            (2, (7, 7, 7, 3, 3)),
-            (5, (15, 15, 15, 3, 3)),
+            (5, 5, 3, 1, "same", 0),
+            (5, 7, 3, 1, "valid", 0),
+            (5, 3, 3, 1, "full", 0),
+            (5, 6, 3, 1, "same", 1),
+            (5, 8, 3, 1, "valid", 1),
+            (5, 4, 3, 1, "full", 1),
+            (5, 9, 3, 2, "same", 0),
+            (5, 11, 3, 2, "valid", 0),
+            (5, 7, 3, 2, "full", 0),
         ],
     )
-    def test_kernel_size(self, kernel_sigma, kernel_size):
-        filter = layer_util.gaussian_filter_3d(kernel_sigma)
-        assert filter.shape == kernel_size
+    def test_1d(
+        self,
+        input_shape: int,
+        output_shape: int,
+        kernel_size: int,
+        stride: int,
+        padding: str,
+        expected: int,
+    ):
+        """
+        Test _deconv_output_padding by verifying output
+
+        :param input_shape: shape of Conv3DTranspose input tensor
+        :param output_shape: shape of Conv3DTranspose output tensor
+        :param kernel_size: kernel size of Conv3DTranspose layer
+        :param stride: stride of Conv3DTranspose layer
+        :param padding: padding of Conv3DTranspose layer
+        :param expected: expected output padding for Conv3DTranspose layer
+        """
+        got = layer_util._deconv_output_padding(
+            input_shape, output_shape, kernel_size, stride, padding
+        )
+        assert got == expected
+
+    def test_1d_err(self):
+        """Test _deconv_output_padding err raising."""
+        with pytest.raises(ValueError) as err_info:
+            layer_util._deconv_output_padding(5, 5, 3, 1, "x")
+        assert "Unknown padding" in str(err_info.value)
 
     @pytest.mark.parametrize(
-        "kernel_sigma",
-        [(1, 1, 1), (2, 2, 2), (5, 5, 5)],
+        ("input_shape", "output_shape", "kernel_size", "stride", "padding", "expected"),
+        [
+            (5, 9, 3, 2, "same", 0),
+            ((5, 5), (9, 10), 3, 2, "same", (0, 1)),
+            ((5, 5, 6), (9, 10, 12), 3, 2, "same", (0, 1, 1)),
+            ((5, 5), (9, 10), (3, 3), 2, "same", (0, 1)),
+            ((5, 5), (9, 10), 3, (2, 2), "same", (0, 1)),
+            ((5, 5), (9, 10), (3, 4), 2, "same", (0, 2)),
+        ],
     )
-    def test_sum(self, kernel_sigma):
-        filter = layer_util.gaussian_filter_3d(kernel_sigma)
-        assert np.allclose(np.sum(filter), 3, atol=1e-3)
+    def test_n_dim(
+        self,
+        input_shape: Union[Tuple[int, ...], int],
+        output_shape: Union[Tuple[int, ...], int],
+        kernel_size: Union[Tuple[int, ...], int],
+        stride: Union[Tuple[int, ...], int],
+        padding: str,
+        expected: Union[Tuple[int, ...], int],
+    ):
+        """
+        Test deconv_output_padding by verifying output
+
+        :param input_shape: shape of Conv3DTranspose input tensor
+        :param output_shape: shape of Conv3DTranspose output tensor
+        :param kernel_size: kernel size of Conv3DTranspose layer
+        :param stride: stride of Conv3DTranspose layer
+        :param padding: padding of Conv3DTranspose layer
+        :param expected: expected output padding for Conv3DTranspose layer
+        """
+        got = layer_util.deconv_output_padding(
+            input_shape, output_shape, kernel_size, stride, padding
+        )
+        assert got == expected

@@ -4,7 +4,7 @@ Supported formats: h5 and Nifti.
 Image data can be labeled or unlabeled.
 """
 import random
-from typing import List
+from typing import List, Tuple, Union
 
 from deepreg.dataset.loader.interface import (
     AbstractUnpairedDataLoader,
@@ -30,7 +30,7 @@ class UnpairedDataLoader(AbstractUnpairedDataLoader, GeneratorDataLoader):
         labeled: bool,
         sample_label: str,
         seed: int,
-        image_shape: (list, tuple),
+        image_shape: Union[Tuple[int, ...], List[int]],
     ):
         """
         Load data which are unpaired, labeled or unlabeled.

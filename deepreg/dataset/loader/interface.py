@@ -3,7 +3,7 @@ Interface between the data loaders and file loaders.
 """
 import logging
 from abc import ABC
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -21,16 +21,16 @@ class DataLoader:
 
     def __init__(
         self,
-        labeled: (bool, None),
-        num_indices: (int, None),
-        sample_label: (str, None),
-        seed: (int, None) = None,
+        labeled: Optional[bool],
+        num_indices: Optional[int],
+        sample_label: Optional[str],
+        seed: Optional[int] = None,
     ):
         """
         :param labeled: bool corresponding to labels provided or omitted
-        :param num_indices : int
-        :param sample_label : (str, None)
-        :param seed : (int, None), optional
+        :param num_indices:
+        :param sample_label:
+        :param seed:
         """
         assert labeled in [
             True,
@@ -91,12 +91,12 @@ class DataLoader:
         data_augmentation: Optional[Union[List, Dict]] = None,
     ) -> tf.data.Dataset:
         """
-        :param training: bool, indicating if it's training or not
-        :param batch_size: int, size of mini batch
-        :param repeat: bool, indicating if we need to repeat the dataset
-        :param shuffle_buffer_num_batch: int, when shuffling,
+        :param training: indicating if it's training or not
+        :param batch_size: total number of samples consumed per step, over all devices.
+        :param repeat: indicating if we need to repeat the dataset
+        :param shuffle_buffer_num_batch: when shuffling,
             the shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
-        :param repeat: bool, indicating if we need to repeat the dataset
+        :param repeat: indicating if we need to repeat the dataset
         :param data_augmentation: augmentation config, can be a list of dict or dict.
         :returns dataset:
         """
@@ -154,8 +154,8 @@ class AbstractPairedDataLoader(DataLoader, ABC):
 
     def __init__(
         self,
-        moving_image_shape: (list, tuple),
-        fixed_image_shape: (list, tuple),
+        moving_image_shape: Union[Tuple[int, ...], List[int]],
+        fixed_image_shape: Union[Tuple[int, ...], List[int]],
         **kwargs,
     ):
         """
@@ -198,7 +198,7 @@ class AbstractPairedDataLoader(DataLoader, ABC):
         Return the number of samples in the dataset for one epoch.
         :return: number of images
         """
-        return self.num_images
+        return self.num_images  # type:ignore
 
 
 class AbstractUnpairedDataLoader(DataLoader, ABC):
@@ -206,7 +206,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
     Abstract loader for unparied data independent of file format.
     """
 
-    def __init__(self, image_shape: (list, tuple), **kwargs):
+    def __init__(self, image_shape: Union[Tuple[int, ...], List[int]], **kwargs):
         """
         Init.
 
@@ -234,7 +234,7 @@ class AbstractUnpairedDataLoader(DataLoader, ABC):
 
     @property
     def num_samples(self) -> int:
-        return self._num_samples
+        return self._num_samples  # type:ignore
 
 
 class GeneratorDataLoader(DataLoader, ABC):
@@ -329,8 +329,8 @@ class GeneratorDataLoader(DataLoader, ABC):
     def validate_images_and_labels(
         moving_image: np.ndarray,
         fixed_image: np.ndarray,
-        moving_label: (np.ndarray, None),
-        fixed_label: (np.ndarray, None),
+        moving_label: Optional[np.ndarray],
+        fixed_label: Optional[np.ndarray],
         image_indices: list,
     ):
         """
@@ -379,13 +379,13 @@ class GeneratorDataLoader(DataLoader, ABC):
         for arr, name in zip(
             [moving_image, fixed_image], ["moving_image", "fixed_image"]
         ):
-            if len(arr.shape) != 3:
+            if len(arr.shape) != 3 or min(arr.shape) <= 0:
                 raise ValueError(
-                    f"Sample {image_indices}'s {name}' shape should be 3D. "
-                    f"Got {arr.shape}."
+                    f"Sample {image_indices}'s {name}' shape should be 3D"
+                    f" and non-empty, got {arr.shape}."
                 )
         # when data are labeled
-        if moving_label is not None:
+        if moving_label is not None and fixed_label is not None:
             # labels should be 3D or 4D arrays
             for arr, name in zip(
                 [moving_label, fixed_label], ["moving_label", "fixed_label"]
@@ -428,24 +428,24 @@ class GeneratorDataLoader(DataLoader, ABC):
         self,
         moving_image: np.ndarray,
         fixed_image: np.ndarray,
-        moving_label: (np.ndarray, None),
-        fixed_label: (np.ndarray, None),
+        moving_label: Optional[np.ndarray],
+        fixed_label: Optional[np.ndarray],
         image_indices: list,
     ):
         """
-        Sample the image labels.
-        Only used in data_generator
-        :param moving_image : np.ndarray
-        :param fixed_image : np.ndarray
-        :param moving_label : (np.ndarray, None)
-        :param fixed_label : (np.ndarray, None)
-        :param image_indices : list
+        Sample the image labels, only used in data_generator.
+
+        :param moving_image:
+        :param fixed_image:
+        :param moving_label:
+        :param fixed_label:
+        :param image_indices:
         """
         self.validate_images_and_labels(
             moving_image, fixed_image, moving_label, fixed_label, image_indices
         )
         # unlabeled
-        if moving_label is None:
+        if moving_label is None or fixed_label is None:
             label_index = -1  # means no label
             indices = np.asarray(image_indices + [label_index], dtype=np.float32)
             yield dict(
@@ -455,7 +455,7 @@ class GeneratorDataLoader(DataLoader, ABC):
             # labeled
             if len(moving_label.shape) == 4:  # multiple labels
                 label_indices = get_label_indices(
-                    moving_label.shape[3], self.sample_label
+                    moving_label.shape[3], self.sample_label  # type:ignore
                 )
                 for label_index in label_indices:
                     indices = np.asarray(
@@ -499,9 +499,8 @@ class FileLoader:
         self.dir_paths = dir_paths
         self.name = name
         self.grouped = grouped
-        if self.grouped:
-            # group_struct[group_index] = list of data_index
-            self.group_struct = None
+        # if grouped, group_struct[group_index] = list of data_index
+        self.group_struct = None
 
     def set_data_structure(self):
         """
@@ -519,7 +518,7 @@ class FileLoader:
         """
         raise NotImplementedError
 
-    def get_data(self, index: (int, tuple)):
+    def get_data(self, index: Union[int, Tuple[int, ...]]) -> np.ndarray:
         """
         Get one data array by specifying an index.
 
@@ -533,7 +532,7 @@ class FileLoader:
         """
         raise NotImplementedError
 
-    def get_data_ids(self) -> List[str]:
+    def get_data_ids(self) -> List:
         """
         Return the unique IDs of the data in this data set.
         This function is used to verify the consistency between
@@ -555,7 +554,7 @@ class FileLoader:
 
         :return: int, number of groups in this data set, if grouped
         """
-        assert self.grouped
+        assert self.group_struct is not None
         return len(self.group_struct)
 
     def get_num_images_per_group(self) -> List[int]:
@@ -565,7 +564,7 @@ class FileLoader:
 
         :return: a list of integers, representing the number of images in each group.
         """
-        assert self.grouped
+        assert self.group_struct is not None
         num_images_per_group = [len(group) for group in self.group_struct]
         if min(num_images_per_group) == 0:
             group_ids = [

@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 from test.unit.util import is_equal_np
+from typing import Tuple
 
 import nibabel as nib
 import numpy as np
@@ -27,13 +28,13 @@ def test_build_dataset():
 
     # init arguments
     config_path = "config/unpaired_labeled_ddf.yaml"
-    log_root = "logs"
-    log_dir = "test_build_dataset"
+    log_dir = "logs"
+    exp_name = "test_build_dataset"
     ckpt_path = ""
 
     # load config
-    config, log_dir, _ = build_config(
-        config_path=config_path, log_root=log_root, log_dir=log_dir, ckpt_path=ckpt_path
+    config, _, _ = build_config(
+        config_path=config_path, log_dir=log_dir, exp_name=exp_name, ckpt_path=ckpt_path
     )
 
     # build dataset
@@ -67,18 +68,18 @@ def test_build_dataset():
     assert steps_per_epoch_valid is None
 
 
-@pytest.mark.parametrize("log_root,log_dir", [("logs", ""), ("logs", "custom")])
-def test_build_log_dir(log_root: str, log_dir: str):
-    built_log_dir = build_log_dir(log_root=log_root, log_dir=log_dir)
+@pytest.mark.parametrize("log_dir,exp_name", [("logs", ""), ("logs", "custom")])
+def test_build_log_dir(log_dir: str, exp_name: str):
+    built_log_dir = build_log_dir(log_dir=log_dir, exp_name=exp_name)
     head, tail = os.path.split(built_log_dir)
-    assert head == log_root
-    if log_dir == "":
+    assert head == log_dir
+    if exp_name == "":
         # use default timestamp based directory
         pattern = re.compile("[0-9]{8}-[0-9]{6}")
         assert pattern.match(tail)
     else:
         # use custom directory
-        assert tail == log_dir
+        assert tail == exp_name
 
 
 class TestSaveArray:
@@ -111,7 +112,7 @@ class TestSaveArray:
             np.random.rand(2, 3, 4, 3),
         ],
     )
-    def test_3d_4d(self, arr: (tf.Tensor, np.ndarray)):
+    def test_3d_4d(self, arr: Tuple[tf.Tensor, np.ndarray]):
         save_array(save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True)
         assert self.get_num_files_in_dir(self.png_dir, suffix=".png") == 4
         assert self.get_num_files_in_dir(self.save_dir, suffix=".nii.gz") == 1
@@ -125,7 +126,7 @@ class TestSaveArray:
             [np.random.rand(2, 3, 4, 1), ch_err_msg],
         ],
     )
-    def test_wrong_shape(self, arr: (tf.Tensor, np.ndarray), err_msg: str):
+    def test_wrong_shape(self, arr: Tuple[tf.Tensor, np.ndarray], err_msg: str):
         with pytest.raises(ValueError) as err_info:
             save_array(
                 save_dir=self.save_dir, arr=arr, name=self.arr_name, normalize=True

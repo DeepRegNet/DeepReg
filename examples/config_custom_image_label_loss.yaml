@@ -1,0 +1,45 @@
+dataset:
+  dir:
+    train: "data/test/nifti/unpaired/train" # required
+    valid: "data/test/nifti/unpaired/test" # required
+    test: "data/test/nifti/unpaired/test" # required
+  format: "nifti"
+  type: "unpaired" # paired / unpaired / grouped
+  labeled: true # whether to use the labels if available, "true" or "false"
+  image_shape: [16, 16, 16]
+
+train:
+  # define neural network structure
+  method: "ddf" # options include "ddf", "dvf", "conditional"
+  backbone:
+    name: "local" # options include "local", "unet" and "global"
+    num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2]
+  # define the loss function for training
+  loss:
+    image:
+      name: "root_mean_square" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
+      weight: 0.1
+    label:
+      weight: 1.0
+      name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
+      scales: [0, 1, 2, 4, 8, 16, 32]
+    regularization:
+      weight: 0.5 # weight of regularization loss
+      name: "bending" # options include "bending", "gradient"
+
+  # define the optimizer
+  optimizer:
+    name: "Adam"
+    learning_rate: 1.0e-5
+
+  # define the hyper-parameters for preprocessing
+  preprocess:
+    data_augmentation:
+      name: "affine"
+    batch_size: 2
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 2 # number of training epochs
+  save_period: 2 # the model will be saved every `save_period` epochs.

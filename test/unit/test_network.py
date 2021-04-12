@@ -34,12 +34,22 @@ config = {
     },
 }
 
-config_multiple_losses = deepcopy(config)
-config_multiple_losses["loss"]["image"] = [
-    {"name": "lncc", "weight": 0.1},
-    {"name": "ssd", "weight": 0.1},
-    {"name": "gmi", "weight": 0.1},
-]
+config_multiple_losses = {
+    "backbone": {"num_channel_initial": 4, "control_points": 2},
+    "loss": {
+        "image": [
+            {"name": "lncc", "weight": 0.1},
+            {"name": "ssd", "weight": 0.1},
+            {"name": "gmi", "weight": 0.1},
+        ],
+        "label": {
+            "name": "dice",
+            "weight": 1,
+            "scales": [0, 1],
+        },
+        "regularization": {"weight": 0.1, "name": "bending"},
+    },
+}
 
 
 @pytest.fixture
@@ -54,11 +64,11 @@ def model(method: str, labeled: bool, backbone: str) -> RegistrationModel:
     """
     copied = deepcopy(config)
     copied["method"] = method
-    copied["backbone"]["name"] = backbone
+    copied["backbone"]["name"] = backbone  # type: ignore
     if method == "conditional":
-        copied["backbone"].pop("control_points", None)
-    copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
-    return REGISTRY.build_model(
+        copied["backbone"].pop("control_points", None)  # type: ignore
+    copied["backbone"].update(backbone_args[backbone])  # type: ignore
+    return REGISTRY.build_model(  # type: ignore
         config=dict(
             name=method,  # TODO we store method twice
             moving_image_size=moving_image_size,
@@ -123,16 +133,16 @@ class TestRegistrationModel:
 
     def test_get_config(self, empty_model, labeled):
         got = empty_model.get_config()
-        assert got == dict(
+        expected = dict(
             moving_image_size=moving_image_size,
             fixed_image_size=fixed_image_size,
             index_size=index_size,
             labeled=labeled,
             batch_size=batch_size,
             config=dict(),
-            num_devices=1,
             name="RegistrationModel",
         )
+        assert got == expected
 
     def test_build_inputs(self, empty_model, labeled):
         inputs = empty_model.build_inputs()
@@ -180,7 +190,10 @@ class TestBuildLoss:
         copied = deepcopy(config)
         copied["method"] = method
         copied["backbone"]["name"] = backbone
-        copied["backbone"] = {**backbone_args[backbone], **copied["backbone"]}
+        copied["backbone"] = {
+            **backbone_args[backbone],  # type: ignore
+            **copied["backbone"],
+        }
 
         if option == 0:
             # remove image loss config, so loss is not used
@@ -204,7 +217,7 @@ class TestBuildLoss:
             )
         )
 
-        assert len(ddf_model._model.losses) == expected
+        assert len(ddf_model._model.losses) == expected  # type: ignore
 
 
 class TestDDFModel:

@@ -13,18 +13,38 @@ compatible with the updates.
 
 ### Added
 
+- Added tests for Dice score, Jaccard Index, and cross entropy losses.
+- Added statistics on inputs, DDF and TRE into tensorboard.
+- Added example for using custom loss.
+- Added tests on Mac OS.
+- Added tests for python 3.6 and 3.7.
+- Added support to custom layer channels in U-Net.
 - Added support to multiple loss functions for each loss type: "image", "label" and
   "regularization".
 - Added LNCC computation using separable 1-D filters for all kernels available
 
 ### Changed
 
-- Refactored BSplines interpolation independetly of the backbone network and available
+- Increased all EPS to 1e-5.
+- Clarify the suggestion in doc to use all-zero masks for missing labels.
+- Moved contributor list to a separate page.
+- Changed `no-test` flag to `full` for demo scripts.
+- Renamed `neg_weight` to `background_weight`.
+- Renamed `log_dir` to `exp_name` and `log_root` to `log_dir` respectively.
+- Uniformed local-net, global-net, u-net under a single u-net structure.
+- Simplified custom layer definitions.
+- Removed multiple unnecessary custom layers and use tf.keras.layers whenever possible.
+- Refactored BSplines interpolation independently of the backbone network and available
   only for DDF and DVF models.
 
 ### Fixed
 
-- tba
+- Fixed LNCC loss regarding INF values.
+- Removed loss weight checks to be more robust.
+- Fixed import error under python 3.6.
+- Fixed the residual module in local net architecture, compatible for previous
+  checkpoints.
+- Broken link in README to seminar video.
 
 ## [0.1.2] - 2021-01-31
 

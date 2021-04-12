@@ -30,9 +30,8 @@ train:
 
   # define the optimizer
   optimizer:
-    name: "adam" # options include "adam", "sgd" and "rms"
-    adam:
-      learning_rate: 1.0e-5
+    name: "Adam"
+    learning_rate: 1.0e-5
 
   # define the hyper-parameters for preprocessing
   preprocess:

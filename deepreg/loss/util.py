@@ -1,7 +1,89 @@
 """Provide helper functions or classes for defining loss or metrics."""
-import math
+
+from typing import List, Optional, Union
 
 import tensorflow as tf
+
+from deepreg.loss.kernel import cauchy_kernel1d
+from deepreg.loss.kernel import gaussian_kernel1d_sigma as gaussian_kernel1d
+
+
+class MultiScaleMixin(tf.keras.losses.Loss):
+    """
+    Mixin class for multi-scale loss.
+
+    It applies the loss at different scales (gaussian or cauchy smoothing).
+    It is assumed that loss values are between 0 and 1.
+    """
+
+    kernel_fn_dict = dict(gaussian=gaussian_kernel1d, cauchy=cauchy_kernel1d)
+
+    def __init__(
+        self,
+        scales: Optional[Union[List, float, int]] = None,
+        kernel: str = "gaussian",
+        **kwargs,
+    ):
+        """
+        Init.
+
+        :param scales: list of scalars or None, if None, do not apply any scaling.
+        :param kernel: gaussian or cauchy.
+        :param kwargs: additional arguments.
+        """
+        super().__init__(**kwargs)
+        if kernel not in self.kernel_fn_dict:
+            raise ValueError(
+                f"Kernel {kernel} is not supported."
+                f"Supported kernels are {list(self.kernel_fn_dict.keys())}"
+            )
+        if scales is not None and not isinstance(scales, list):
+            scales = [scales]
+        self.scales = scales
+        self.kernel = kernel
+
+    def call(self, y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+        """
+        Use super().call to calculate loss at different scales.
+
+        :param y_true: ground-truth tensor, shape = (batch, dim1, dim2, dim3).
+        :param y_pred: predicted tensor, shape = (batch, dim1, dim2, dim3).
+        :return: multi-scale loss, shape = (batch, ).
+        """
+        if self.scales is None:
+            return super().call(y_true=y_true, y_pred=y_pred)
+        kernel_fn = self.kernel_fn_dict[self.kernel]
+        losses = []
+        for s in self.scales:
+            if s == 0:
+                # no smoothing
+                losses.append(
+                    super().call(
+                        y_true=y_true,
+                        y_pred=y_pred,
+                    )
+                )
+            else:
+                losses.append(
+                    super().call(
+                        y_true=separable_filter(
+                            tf.expand_dims(y_true, axis=4), kernel_fn(s)
+                        )[..., 0],
+                        y_pred=separable_filter(
+                            tf.expand_dims(y_pred, axis=4), kernel_fn(s)
+                        )[..., 0],
+                    )
+                )
+        loss = tf.add_n(losses)
+        loss = loss / len(self.scales)
+        return loss
+
+    def get_config(self) -> dict:
+        """Return the config dictionary for recreating this class."""
+        config = super().get_config()
+        config["scales"] = self.scales
+        config["kernel"] = self.kernel
+        return config
 
 
 class NegativeLossMixin(tf.keras.losses.Loss):
@@ -25,101 +107,6 @@ class NegativeLossMixin(tf.keras.losses.Loss):
         :return: negated loss.
         """
         return -super().call(y_true=y_true, y_pred=y_pred)
-
-
-EPS = tf.keras.backend.epsilon()
-
-
-def rectangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a the 1D filter for separable convolution equivalent to a 3-D rectangular
-    kernel for LocalNormalizedCrossCorrelation.
-
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return: kernel_weights, of shape (kernel_size, )
-    """
-
-    kernel = tf.ones(shape=(kernel_size,), dtype=tf.float32)
-    return kernel
-
-
-def triangular_kernel1d(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    1D triangular kernel.
-
-    Assume kernel_size is odd, it will be a smoothed from
-    a kernel which center part is zero.
-    Then length of the ones will be around half kernel_size.
-    The weight scale of the kernel does not matter as LNCC will normalize it.
-
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return: kernel_weights, of shape (kernel_size, )
-    """
-    assert kernel_size >= 3
-    assert kernel_size % 2 != 0
-
-    padding = kernel_size // 2
-
-    kernel = (
-        [0] * math.ceil(padding / 2)
-        + [1] * (kernel_size - padding)
-        + [0] * math.floor(padding / 2)
-    )
-    kernel = tf.constant(kernel, dtype=tf.float32)
-
-    # (padding*2, )
-    filters = tf.ones(shape=(kernel_size - padding, 1, 1), dtype=tf.float32)
-
-    # (kernel_size, 1, 1)
-    kernel = tf.nn.conv1d(
-        kernel[None, :, None], filters=filters, stride=[1, 1, 1], padding="SAME"
-    )
-    return kernel[0, :, 0]
-
-
-def gaussian_kernel1d_size(kernel_size: int) -> (tf.Tensor, tf.Tensor):
-    """
-    Return a the 1D filter for separable convolution equivalent to a 3-D Gaussian
-    kernel for LocalNormalizedCrossCorrelation.
-    :param kernel_size: scalar, size of the 1-D kernel
-    :return: filters, of shape (kernel_size, )
-    """
-    mean = (kernel_size - 1) / 2.0
-    sigma = kernel_size / 3
-
-    grid = tf.range(0, kernel_size, dtype=tf.float32)
-    filters = tf.exp(-tf.square(grid - mean) / (2 * sigma ** 2))
-
-    return filters
-
-
-def gaussian_kernel1d_sigma(sigma: int) -> tf.Tensor:
-    """
-    Calculate a gaussian kernel.
-
-    :param sigma: number defining standard deviation for
-                  gaussian kernel.
-    :return: shape = (dim, )
-    """
-    assert sigma > 0
-    tail = int(sigma * 3)
-    kernel = tf.exp([-0.5 * x ** 2 / sigma ** 2 for x in range(-tail, tail + 1)])
-    kernel = kernel / tf.reduce_sum(kernel)
-    return kernel
-
-
-def cauchy_kernel1d(sigma: int) -> tf.Tensor:
-    """
-    Approximating cauchy kernel in 1d.
-
-    :param sigma: int, defining standard deviation of kernel.
-    :return: shape = (dim, )
-    """
-    assert sigma > 0
-    tail = int(sigma * 5)
-    k = tf.math.reciprocal([((x / sigma) ** 2 + 1) for x in range(-tail, tail + 1)])
-    k = k / tf.reduce_sum(k)
-    return k
 
 
 def separable_filter(tensor: tf.Tensor, kernel: tf.Tensor) -> tf.Tensor:

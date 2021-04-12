@@ -38,7 +38,7 @@ class TestGetDataLoader:
         config = load_yaml(f"config/test/{data_type}_{format}.yaml")
         got = load.get_data_loader(data_config=config["dataset"], mode="train")
         expected = REGISTRY.get(category=DATA_LOADER_CLASS, key=data_type)
-        assert isinstance(got, expected)
+        assert isinstance(got, expected)  # type: ignore
 
     def test_multi_dir_data_loader(self):
         """unpaired data loader with multiple dirs"""

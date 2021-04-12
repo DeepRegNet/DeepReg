@@ -109,7 +109,7 @@ class TestDataLoader:
         :param labeled: bool
         :param moving_shape: tuple
         :param fixed_shape: tuple
-        :param batch_size: int
+        :param batch_size: total number of samples consumed per step, over all devices.
         :param data_augmentation: dict
         :return:
         """
@@ -356,7 +356,7 @@ def test_generator_data_loader(caplog):
             fixed_label=None,
             image_indices=[1],
         )
-    assert "Sample [1]'s moving_image' shape should be 3D. " in str(err_info.value)
+    assert "Sample [1]'s moving_image' shape should be 3D" in str(err_info.value)
     with pytest.raises(ValueError) as err_info:
         generator.validate_images_and_labels(
             fixed_image=dummy_array,
@@ -507,8 +507,7 @@ def test_file_loader():
     assert "Groups of ID [0, 2, 2] are empty." in str(err_info.value)
 
     # test ungrouped file loader
-    with pytest.raises(AttributeError):
-        loader_ungrouped.group_struct
+    assert loader_ungrouped.group_struct is None
     with pytest.raises(AssertionError):
         loader_ungrouped.get_num_groups()
     with pytest.raises(AssertionError):

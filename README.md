@@ -15,6 +15,9 @@
       <a href="https://pypi.python.org/pypi/DeepReg/">
       <img src="https://img.shields.io/pypi/v/deepreg.svg" alt="PyPI Version">
       </a>
+      <a href="https://pypi.python.org/pypi/DeepReg/">
+      <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/deepreg">
+      </a>
       <a href="https://pepy.tech/project/deepreg">
       <img src="https://static.pepy.tech/personalized-badge/deepreg?period=total&units=none&left_color=grey&right_color=orange&left_text=Downloads"
         alt="PyPI downloads">
@@ -133,7 +136,7 @@ you can also
 Members of the DeepReg dev team presented "The Road to DeepReg" at the Centre for
 Medical Imaging Computing (CMIC) seminar series at University College London on the 4th
 of November 2020. You can access the talk
-[here](https://eu.bbcollab.com/collab/ui/session/playback/load/941325351b64410eb886bbaf9aa64fb9?authToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYkNvbGxhYkFwaSIsInJlY29yZGluZ1VpZCI6Ijk0MTMyNTM1MWI2NDQxMGViODg2YmJhZjlhYTY0ZmI5IiwiaXNzIjoiYmJDb2xsYWJBcGkiLCJ0eXBlIjoxLCJleHAiOjE2MDYyMjc4NTIsImlhdCI6MTYwNjIyNDI1MiwiY29uc3VtZXIiOiI4NmU2YWQ3YzVlZDU0NzhlOGViMTQyODUyYWNiYzA5ZiJ9.VZIJqu3q4dVSkEy7X6sysvxWK5d_Xj9cvOSmG9sdZ_U&name=CMIC%252FWEISS%20joint%20seminar%20series%20-%20Wedn.%204th%20November%20-%20recording_1).
+[here](https://www.youtube.com/watch?v=jDEyWXZM3CE&feature=youtu.be).
 
 ## Citing DeepReg
 

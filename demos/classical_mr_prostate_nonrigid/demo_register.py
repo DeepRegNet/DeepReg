@@ -13,19 +13,19 @@ import deepreg.util as util
 from deepreg.registry import REGISTRY
 
 # parser is used to simplify testing
-# please run the script with --no-test flag to ensure non-testing mode
+# please run the script with --full flag to ensure non-testing mode
 # for instance:
-# python script.py --no-test
+# python script.py --full
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--test",
-    help="Execute the script for test purpose",
+    help="Execute the script with reduced image size for test purpose.",
     dest="test",
     action="store_true",
 )
 parser.add_argument(
-    "--no-test",
-    help="Execute the script for non-test purpose",
+    "--full",
+    help="Execute the script with full configuration.",
     dest="test",
     action="store_false",
 )
@@ -48,9 +48,9 @@ total_iter = int(10) if args.test else int(3000)
 
 # load images
 if not os.path.exists(DATA_PATH):
-    raise ("Download the data using demo_data.py script")
+    raise ValueError("Download the data using demo_data.py script")
 if not os.path.exists(FILE_PATH):
-    raise ("Download the data using demo_data.py script")
+    raise ValueError("Download the data using demo_data.py script")
 
 fid = h5py.File(FILE_PATH, "r")
 moving_image = tf.cast(tf.expand_dims(fid["image0"], axis=0), dtype=tf.float32)

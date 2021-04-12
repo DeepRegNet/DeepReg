@@ -2,12 +2,12 @@
 Module containing utilities for layer inputs
 """
 import itertools
+from typing import List, Tuple, Union
 
-import numpy as np
 import tensorflow as tf
 
 
-def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
+def get_reference_grid(grid_size: Union[Tuple[int, ...], List[int]]) -> tf.Tensor:
     """
     Generate a 3D grid with given size.
 
@@ -49,7 +49,7 @@ def get_reference_grid(grid_size: (tuple, list)) -> tf.Tensor:
     return grid
 
 
-def get_n_bits_combinations(num_bits: int) -> list:
+def get_n_bits_combinations(num_bits: int) -> List[List[int]]:
     """
     Function returning list containing all combinations of n bits.
     Given num_bits binary bits, each bit has value 0 or 1,
@@ -347,161 +347,6 @@ def resample(
     return sampled
 
 
-def gen_rand_affine_transform(
-    batch_size: int, scale: float, seed: (int, None) = None
-) -> tf.Tensor:
-    """
-    Function that generates a random 3D transformation parameters for a batch of data.
-
-    for 3D coordinates, affine transformation is
-
-    .. code-block:: text
-
-        [[x' y' z' 1]] = [[x y z 1]] * [[* * * 0]
-                                        [* * * 0]
-                                        [* * * 0]
-                                        [* * * 1]]
-
-    where each * represents a degree of freedom,
-    so there are in total 12 degrees of freedom
-    the equation can be denoted as
-
-        new = old * T
-
-    where
-
-    - new is the transformed coordinates, of shape (1, 4)
-    - old is the original coordinates, of shape (1, 4)
-    - T is the transformation matrix, of shape (4, 4)
-
-    the equation can be simplified to
-
-    .. code-block:: text
-
-        [[x' y' z']] = [[x y z 1]] * [[* * *]
-                                      [* * *]
-                                      [* * *]
-                                      [* * *]]
-
-    so that
-
-        new = old * T
-
-    where
-
-    - new is the transformed coordinates, of shape (1, 3)
-    - old is the original coordinates, of shape (1, 4)
-    - T is the transformation matrix, of shape (4, 3)
-
-    Given original and transformed coordinates,
-    we can calculate the transformation matrix using
-
-        x = np.linalg.lstsq(a, b)
-
-    such that
-
-        a x = b
-
-    In our case,
-
-    - a = old
-    - b = new
-    - x = T
-
-    To generate random transformation,
-    we choose to add random perturbation to corner coordinates as follows:
-    for corner of coordinates (x, y, z), the noise is
-
-        -(x, y, z) .* (r1, r2, r3)
-
-    where ri is a random number between (0, scale).
-    So
-
-        (x', y', z') = (x, y, z) .* (1-r1, 1-r2, 1-r3)
-
-    Thus, we can directly sample between 1-scale and 1 instead
-
-    We choose to calculate the transformation based on
-    four corners in a cube centered at (0, 0, 0).
-    A cube is shown as below, where
-
-    - C = (-1, -1, -1)
-    - G = (-1, -1, 1)
-    - D = (-1, 1, -1)
-    - A = (1, -1, -1)
-
-    .. code-block:: text
-
-                    G — — — — — — — — H
-                  / |               / |
-                /   |             /   |
-              /     |           /     |
-            /       |         /       |
-          /         |       /         |
-        E — — — — — — — — F           |
-        |           |     |           |
-        |           |     |           |
-        |           C — — | — — — — — D
-        |         /       |         /
-        |       /         |       /
-        |     /           |     /
-        |   /             |   /
-        | /               | /
-        A — — — — — — — — B
-
-    :param batch_size: int
-    :param scale: a float number between 0 and 1
-    :param seed: control the randomness
-    :return: shape = (batch, 4, 3)
-    """
-
-    assert 0 <= scale <= 1
-    np.random.seed(seed)
-    noise = np.random.uniform(1 - scale, 1, [batch_size, 4, 3])  # shape = (batch, 4, 3)
-
-    # old represents four corners of a cube
-    # corresponding to the corner C G D A as shown above
-    old = np.tile(
-        [[[-1, -1, -1, 1], [-1, -1, 1, 1], [-1, 1, -1, 1], [1, -1, -1, 1]]],
-        [batch_size, 1, 1],
-    )  # shape = (batch, 4, 4)
-    new = old[:, :, :3] * noise  # shape = (batch, 4, 3)
-
-    theta = np.array(
-        [np.linalg.lstsq(old[k], new[k], rcond=-1)[0] for k in range(batch_size)]
-    )  # shape = (batch, 4, 3)
-
-    return tf.cast(theta, dtype=tf.float32)
-
-
-def gen_rand_ddf(
-    batch_size: int,
-    image_size: tuple,
-    field_strength: (tuple, list),
-    low_res_size: (tuple, list),
-    seed: (int, None) = None,
-) -> tf.Tensor:
-    """
-    Function that generates a random 3D DDF for a batch of data.
-
-    :param batch_size:
-    :param image_size:
-    :param field_strength: maximum field strength, computed as a U[0,field_strength]
-    :param low_res_size: low_resolution deformation field that will be upsampled to
-        the original size in order to get smooth and more realistic fields.
-    :param seed: control the randomness
-    :return:
-    """
-
-    np.random.seed(seed)
-    low_res_strength = np.random.uniform(0, field_strength, (batch_size, 1, 1, 1, 3))
-    low_res_field = low_res_strength * np.random.randn(
-        batch_size, low_res_size[0], low_res_size[1], low_res_size[2], 3
-    )
-    high_res_field = resize3d(low_res_field, image_size)
-    return high_res_field
-
-
 def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     """
     Perform transformation on the grid.
@@ -523,140 +368,74 @@ def warp_grid(grid: tf.Tensor, theta: tf.Tensor) -> tf.Tensor:
     return grid_warped
 
 
-def warp_image_ddf(
-    image: tf.Tensor,
-    ddf: tf.Tensor,
-    grid_ref: (tf.Tensor, None),
-    zero_boundary: bool = True,
-) -> tf.Tensor:
+def _deconv_output_padding(
+    input_shape: int, output_shape: int, kernel_size: int, stride: int, padding: str
+) -> int:
     """
-    Warp an image with given DDF.
+    Calculate output padding for Conv3DTranspose in 1D.
 
-    :param image: an image to be warped, shape = (batch, m_dim1, m_dim2, m_dim3)
-        or (batch, m_dim1, m_dim2, m_dim3, ch)
-    :param ddf: shape = (batch, f_dim1, f_dim2, f_dim3, 3)
-    :param grid_ref: shape = (f_dim1, f_dim2, f_dim3, 3)
-        or (1, f_dim1, f_dim2, f_dim3, 3)
-        if None grid_reg will be calculated based on ddf
-    :return: shape = (batch, f_dim1, f_dim2, f_dim3)
-        or (batch, f_dim1, f_dim2, f_dim3, ch)
+    - output_shape = (input_shape - 1)*stride + kernel_size - 2*pad + output_padding
+    - output_padding = output_shape - ((input_shape - 1)*stride + kernel_size - 2*pad)
+
+    Reference:
+
+    - https://github.com/tensorflow/tensorflow/blob/r2.3/tensorflow/python/keras/utils/conv_utils.py#L140
+
+    :param input_shape: shape of Conv3DTranspose input tensor
+    :param output_shape: shape of Conv3DTranspose output tensor
+    :param kernel_size: kernel size of Conv3DTranspose layer
+    :param stride: stride of Conv3DTranspose layer
+    :param padding: padding of Conv3DTranspose layer
+    :return: output_padding for Conv3DTranspose layer
     """
-    if len(image.shape) not in [4, 5]:
-        raise ValueError(
-            f"image shape must be (batch, m_dim1, m_dim2, m_dim3) "
-            f"or (batch, m_dim1, m_dim2, m_dim3, ch),"
-            f" got {image.shape}"
-        )
-    if not (len(ddf.shape) == 5 and ddf.shape[-1] == 3):
-        raise ValueError(
-            f"ddf shape must be (batch, f_dim1, f_dim2, f_dim3, 3), got {ddf.shape}"
-        )
-
-    if grid_ref is None:
-        # shape = (f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = get_reference_grid(grid_size=ddf.shape[1:4])
-    if len(grid_ref.shape) == 4:
-        # shape = (1, f_dim1, f_dim2, f_dim3, 3)
-        grid_ref = grid_ref[None, ...]
-    if not (
-        len(grid_ref.shape) == 5
-        and grid_ref.shape[0] == 1
-        and grid_ref.shape[2:] == ddf.shape[2:]
-    ):
-        raise ValueError(
-            f"grid_ref shape must be (1, f_dim1, f_dim2, f_dim3, 3) or None, "
-            f"(f_dim1, f_dim2, f_dim3) must be the same as ddf, "
-            f"got grid_ref.shape = {grid_ref.shape} and ddf.shape = {ddf.shape}."
-        )
-
-    return resample(vol=image, loc=grid_ref + ddf, zero_boundary=zero_boundary)
-
-
-def resize3d(
-    image: tf.Tensor, size: (tuple, list), method: str = tf.image.ResizeMethod.BILINEAR
-) -> tf.Tensor:
-    """
-    Tensorflow does not have resize 3d, therefore the resize is performed two folds.
-
-    - resize dim2 and dim3
-    - resize dim1 and dim2
-
-    :param image: tensor of shape = (batch, dim1, dim2, dim3, channels)
-                                 or (batch, dim1, dim2, dim3)
-                                 or (dim1, dim2, dim3)
-    :param size: tuple, (out_dim1, out_dim2, out_dim3)
-    :param method: str, one of tf.image.ResizeMethod
-    :return: tensor of shape = (batch, out_dim1, out_dim2, out_dim3, channels)
-                            or (batch, dim1, dim2, dim3)
-                            or (dim1, dim2, dim3)
-    """
-    # sanity check
-    image_dim = len(image.shape)
-    if image_dim not in [3, 4, 5]:
-        raise ValueError(
-            "resize3d takes input image of dimension 3 or 4 or 5,"
-            "corresponding to (dim1, dim2, dim3) "
-            "or (batch, dim1, dim2, dim3)"
-            "or (batch, dim1, dim2, dim3, channels),"
-            "got image shape{}".format(image.shape)
-        )
-    if len(size) != 3:
-        raise ValueError("resize3d takes size of type tuple/list and of length 3")
-
-    # init
-    if image_dim == 5:
-        has_channel = True
-        has_batch = True
-        input_image_shape = image.shape[1:4]
-    elif image_dim == 4:
-        has_channel = False
-        has_batch = True
-        input_image_shape = image.shape[1:4]
+    if padding == "same":
+        pad = kernel_size // 2
+    elif padding == "valid":
+        pad = 0
+    elif padding == "full":
+        pad = kernel_size - 1
     else:
-        has_channel = False
-        has_batch = False
-        input_image_shape = image.shape[0:3]
+        raise ValueError(f"Unknown padding {padding} in deconv_output_padding")
+    return output_shape - ((input_shape - 1) * stride + kernel_size - 2 * pad)
 
-    # no need of resize
-    if input_image_shape == tuple(size):
-        return image
 
-    # expand to five dimensions
-    if not has_batch:
-        image = tf.expand_dims(image, axis=0)
-    if not has_channel:
-        image = tf.expand_dims(image, axis=-1)
-    assert len(image.shape) == 5  # (batch, dim1, dim2, dim3, channels)
-    image_shape = tf.shape(image)
+def deconv_output_padding(
+    input_shape: Union[Tuple[int, ...], int],
+    output_shape: Union[Tuple[int, ...], int],
+    kernel_size: Union[Tuple[int, ...], int],
+    stride: Union[Tuple[int, ...], int],
+    padding: str,
+) -> Union[Tuple[int, ...], int]:
+    """
+    Calculate output padding for Conv3DTranspose in any dimension.
 
-    # merge axis 0 and 1
-    output = tf.reshape(
-        image, (-1, image_shape[2], image_shape[3], image_shape[4])
-    )  # (batch * dim1, dim2, dim3, channels)
-
-    # resize dim2 and dim3
-    output = tf.image.resize(
-        images=output, size=size[1:], method=method
-    )  # (batch * dim1, out_dim2, out_dim3, channels)
-
-    # split axis 0 and merge axis 3 and 4
-    output = tf.reshape(
-        output, shape=(-1, image_shape[1], size[1], size[2] * image_shape[4])
-    )  # (batch, dim1, out_dim2, out_dim3 * channels)
-
-    # resize dim1 and dim2
-    output = tf.image.resize(
-        images=output, size=size[:2], method=method
-    )  # (batch, out_dim1, out_dim2, out_dim3 * channels)
-
-    # reshape
-    output = tf.reshape(
-        output, shape=[-1, *size, image_shape[4]]
-    )  # (batch, out_dim1, out_dim2, out_dim3, channels)
-
-    # squeeze to original dimension
-    if not has_batch:
-        output = tf.squeeze(output, axis=0)
-    if not has_channel:
-        output = tf.squeeze(output, axis=-1)
-    return output
+    :param input_shape: shape of Conv3DTranspose input tensor, without batch or channel
+    :param output_shape: shape of Conv3DTranspose output tensor,
+        without batch or channel
+    :param kernel_size: kernel size of Conv3DTranspose layer
+    :param stride: stride of Conv3DTranspose layer
+    :param padding: padding of Conv3DTranspose layer
+    :return: output_padding for Conv3DTranspose layer
+    """
+    if isinstance(input_shape, int):
+        input_shape = (input_shape,)
+    dim = len(input_shape)
+    if isinstance(output_shape, int):
+        output_shape = (output_shape,)
+    if isinstance(kernel_size, int):
+        kernel_size = (kernel_size,) * dim
+    if isinstance(stride, int):
+        stride = (stride,) * dim
+    output_padding = tuple(
+        _deconv_output_padding(
+            input_shape=input_shape[d],
+            output_shape=output_shape[d],
+            kernel_size=kernel_size[d],
+            stride=stride[d],
+            padding=padding,
+        )
+        for d in range(dim)
+    )
+    if dim == 1:
+        return output_padding[0]
+    return output_padding

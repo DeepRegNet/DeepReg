@@ -89,10 +89,12 @@ unet = REGISTRY.build_backbone(config=config)
 
 ## Example usages
 
-To further explain how to use `REGISTRY` for using customized classes, detailed examples
-are provided for the following categories:
+Apart from the table of [registered classes](registered_classes.html), to further
+explain how to use `REGISTRY` for using customized classes, detailed examples are
+provided for the following categories:
 
 - backbone
+- loss
 
 ### Custom backbone
 
@@ -101,8 +103,22 @@ To register a custom backbone class, the steps are as follows
 1. Subclass the `Backbone` and implement a custom backbone class.
 2. Import `REGISTRY` and use the decorator `@REGISTRY.register_backbone` to register the
    custom class.
-3. Use the registered name in the config for using the registered backbone.
+3. Use the registered name in the config for using the registered custom backbone.
 
 Please check the self-contained
 [example script](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_backbone.py)
 for further details.
+
+### Custom Loss
+
+To register a custom loss class for images and labels, the steps are as follows
+
+1. Subclass the `tf.keras.losses.Loss` and implement a custom backbone class.
+2. Import `REGISTRY` and use the decorator `@REGISTRY.register_loss` to register the
+   custom class.
+3. Use the registered name in the config for using the registered custom loss.
+
+Please check the self-contained
+[example script](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_image_label_loss.py)
+for further details. There is also a more complicated
+[example of parameterized custom loss](https://github.com/DeepRegNet/DeepReg/blob/main/examples/custom_parameterized_image_label_loss.py).

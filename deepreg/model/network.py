@@ -1,10 +1,12 @@
 import logging
+import os
 from abc import abstractmethod
 from copy import deepcopy
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
+from deepreg.loss.label import compute_centroid_distance
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
@@ -28,13 +30,12 @@ class RegistrationModel(tf.keras.Model):
 
     def __init__(
         self,
-        moving_image_size: tuple,
-        fixed_image_size: tuple,
+        moving_image_size: Tuple,
+        fixed_image_size: Tuple,
         index_size: int,
         labeled: bool,
         batch_size: int,
         config: dict,
-        num_devices: int = 1,
         name: str = "RegistrationModel",
     ):
         """
@@ -44,10 +45,10 @@ class RegistrationModel(tf.keras.Model):
         :param fixed_image_size: (f_dim1, f_dim2, f_dim3)
         :param index_size: number of indices for identify each sample
         :param labeled: if the data is labeled
-        :param batch_size: size of mini-batch
+        :param batch_size: total number of samples consumed per step, over all devices.
+            When using multiple devices, TensorFlow automatically split the tensors.
+            Therefore, input shapes should be defined over batch_size.
         :param config: config for method, backbone, and loss.
-        :param num_devices: number of GPU used,
-            global_batch_size = batch_size*num_devices
         :param name: name of the model
         """
         super().__init__(name=name)
@@ -55,15 +56,16 @@ class RegistrationModel(tf.keras.Model):
         self.fixed_image_size = fixed_image_size
         self.index_size = index_size
         self.labeled = labeled
-        self.batch_size = batch_size
         self.config = config
-        self.num_devices = num_devices
-        self.global_batch_size = num_devices * batch_size
+        self.batch_size = batch_size
 
         self._inputs = None  # save inputs of self._model as dict
         self._outputs = None  # save outputs of self._model as dict
 
-        self._model = self.build_model()
+        self.grid_ref = layer_util.get_reference_grid(grid_size=fixed_image_size)[
+            None, ...
+        ]
+        self._model: tf.keras.Model = self.build_model()
         self.build_loss()
 
     def get_config(self) -> dict:
@@ -75,7 +77,6 @@ class RegistrationModel(tf.keras.Model):
             labeled=self.labeled,
             batch_size=self.batch_size,
             config=self.config,
-            num_devices=self.num_devices,
             name=self.name,
         )
 
@@ -89,13 +90,13 @@ class RegistrationModel(tf.keras.Model):
 
         :return: dict of inputs.
         """
-        # (batch, m_dim1, m_dim2, m_dim3, 1)
+        # (batch, m_dim1, m_dim2, m_dim3)
         moving_image = tf.keras.Input(
             shape=self.moving_image_size,
             batch_size=self.batch_size,
             name="moving_image",
         )
-        # (batch, f_dim1, f_dim2, f_dim3, 1)
+        # (batch, f_dim1, f_dim2, f_dim3)
         fixed_image = tf.keras.Input(
             shape=self.fixed_image_size,
             batch_size=self.batch_size,
@@ -113,13 +114,13 @@ class RegistrationModel(tf.keras.Model):
                 moving_image=moving_image, fixed_image=fixed_image, indices=indices
             )
 
-        # (batch, m_dim1, m_dim2, m_dim3, 1)
+        # (batch, m_dim1, m_dim2, m_dim3)
         moving_label = tf.keras.Input(
             shape=self.moving_image_size,
             batch_size=self.batch_size,
             name="moving_label",
         )
-        # (batch, m_dim1, m_dim2, m_dim3, 1)
+        # (batch, m_dim1, m_dim2, m_dim3)
         fixed_label = tf.keras.Input(
             shape=self.fixed_image_size,
             batch_size=self.batch_size,
@@ -149,11 +150,11 @@ class RegistrationModel(tf.keras.Model):
         """
         images = []
 
+        resize_layer = layer.Resize3d(shape=self.fixed_image_size)
+
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         moving_image = tf.expand_dims(moving_image, axis=4)
-        moving_image = layer_util.resize3d(
-            image=moving_image, size=self.fixed_image_size
-        )
+        moving_image = resize_layer(moving_image)
         images.append(moving_image)
 
         # (batch, m_dim1, m_dim2, m_dim3, 1)
@@ -163,9 +164,7 @@ class RegistrationModel(tf.keras.Model):
         # (batch, m_dim1, m_dim2, m_dim3, 1)
         if moving_label is not None:
             moving_label = tf.expand_dims(moving_label, axis=4)
-            moving_label = layer_util.resize3d(
-                image=moving_label, size=self.fixed_image_size
-            )
+            moving_label = resize_layer(moving_label)
             images.append(moving_label)
 
         # (batch, f_dim1, f_dim2, f_dim3, 2 or 3)
@@ -176,15 +175,15 @@ class RegistrationModel(tf.keras.Model):
         """
         Build and add one weighted loss together with the metrics.
 
-        :param name: name of loss
+        :param name: name of loss, image / label / regularization.
         :param inputs_dict: inputs for loss function
         """
 
         if name not in self.config["loss"]:
             # loss config is not defined
             logging.warning(
-                f"The configuration for loss {name} is not defined."
-                f"Loss is not used."
+                f"The configuration for loss {name} is not defined. "
+                f"Therefore it is not used."
             )
             return
 
@@ -211,28 +210,65 @@ class RegistrationModel(tf.keras.Model):
                 )
                 return
 
-            loss_cls = REGISTRY.build_loss(
-                config=dict_without(d=loss_config, key="weight")
+            # do not perform reduction over batch axis for supporting multi-device
+            # training, model.fit() will average over global batch size automatically
+            loss_layer: tf.keras.layers.Layer = REGISTRY.build_loss(
+                config=dict_without(d=loss_config, key="weight"),
+                default_args={"reduction": tf.keras.losses.Reduction.NONE},
             )
-            loss = loss_cls(**inputs_dict) / self.global_batch_size
-            weighted_loss = loss * weight
+            loss_value = loss_layer(**inputs_dict)
+            weighted_loss = loss_value * weight
 
             # add loss
             self._model.add_loss(weighted_loss)
 
             # add metric
             self._model.add_metric(
-                loss, name=f"loss/{name}_{loss_cls.name}", aggregation="mean"
+                loss_value, name=f"loss/{name}_{loss_layer.name}", aggregation="mean"
             )
             self._model.add_metric(
                 weighted_loss,
-                name=f"loss/{name}_{loss_cls.name}_weighted",
+                name=f"loss/{name}_{loss_layer.name}_weighted",
                 aggregation="mean",
             )
 
     @abstractmethod
     def build_loss(self):
         """Build losses according to configs."""
+
+        # input metrics
+        fixed_image = self._inputs["fixed_image"]
+        moving_image = self._inputs["moving_image"]
+        self.log_tensor_stats(tensor=moving_image, name="moving_image")
+        self.log_tensor_stats(tensor=fixed_image, name="fixed_image")
+
+        # image loss, conditional model does not have this
+        if "pred_fixed_image" in self._outputs:
+            pred_fixed_image = self._outputs["pred_fixed_image"]
+            self._build_loss(
+                name="image",
+                inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image),
+            )
+
+        if self.labeled:
+            # input metrics
+            fixed_label = self._inputs["fixed_label"]
+            moving_label = self._inputs["moving_label"]
+            self.log_tensor_stats(tensor=moving_label, name="moving_label")
+            self.log_tensor_stats(tensor=fixed_label, name="fixed_label")
+
+            # label loss
+            pred_fixed_label = self._outputs["pred_fixed_label"]
+            self._build_loss(
+                name="label",
+                inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
+            )
+
+            # additional label metrics
+            tre = compute_centroid_distance(
+                y_true=fixed_label, y_pred=pred_fixed_label, grid=self.grid_ref
+            )
+            self._model.add_metric(tre, name="metric/TRE", aggregation="mean")
 
     def call(
         self, inputs: Dict[str, tf.Tensor], training=None, mask=None
@@ -252,7 +288,7 @@ class RegistrationModel(tf.keras.Model):
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -264,6 +300,54 @@ class RegistrationModel(tf.keras.Model):
             - on_label = True if the tensor depends on label
         """
 
+    def plot_model(self, output_dir: str):
+        """
+        Save model structure in png.
+
+        :param output_dir: path to the output dir.
+        """
+        logging.info(self._model.summary())
+        try:
+            tf.keras.utils.plot_model(
+                self._model,
+                to_file=os.path.join(output_dir, f"{self.name}.png"),
+                dpi=96,
+                show_shapes=True,
+                show_layer_names=True,
+                expand_nested=False,
+            )
+        except ImportError as err:  # pragma: no cover
+            logging.error(
+                "Failed to plot model structure."
+                "Please check if graphviz is installed.\n"
+                "Error message is:"
+                f"{err}"
+            )
+
+    def log_tensor_stats(self, tensor: tf.Tensor, name: str):
+        """
+        Log statistics of a given tensor.
+
+        :param tensor: tensor to monitor.
+        :param name: name of the tensor.
+        """
+        flatten = tf.reshape(tensor, shape=(self.batch_size, -1))
+        self._model.add_metric(
+            tf.reduce_mean(flatten, axis=1),
+            name=f"metric/{name}_mean",
+            aggregation="mean",
+        )
+        self._model.add_metric(
+            tf.reduce_min(flatten, axis=1),
+            name=f"metric/{name}_min",
+            aggregation="min",
+        )
+        self._model.add_metric(
+            tf.reduce_max(flatten, axis=1),
+            name=f"metric/{name}_max",
+            aggregation="max",
+        )
+
 
 @REGISTRY.register_model(name="ddf")
 class DDFModel(RegistrationModel):
@@ -274,6 +358,8 @@ class DDFModel(RegistrationModel):
     the model predicts an affine transformation parameters,
     and a DDF is calculated based on that.
     """
+
+    name = "DDFModel"
 
     def _resize_interpolate(self, field, control_points):
         resize = layer.ResizeCPTransform(control_points)
@@ -288,8 +374,8 @@ class DDFModel(RegistrationModel):
         """Build the model to be saved as self._model."""
         # build inputs
         self._inputs = self.build_inputs()
-        moving_image = self._inputs["moving_image"]
-        fixed_image = self._inputs["fixed_image"]
+        moving_image = self._inputs["moving_image"]  # (batch, m_dim1, m_dim2, m_dim3)
+        fixed_image = self._inputs["fixed_image"]  # (batch, f_dim1, f_dim2, f_dim3)
 
         # build ddf
         control_points = self.config["backbone"].pop("control_points", False)
@@ -318,14 +404,14 @@ class DDFModel(RegistrationModel):
 
         # build outputs
         warping = layer.Warping(fixed_image_size=self.fixed_image_size)
-        # (f_dim1, f_dim2, f_dim3, 3)
+        # (f_dim1, f_dim2, f_dim3)
         pred_fixed_image = warping(inputs=[ddf, moving_image])
         self._outputs["pred_fixed_image"] = pred_fixed_image
 
         if not self.labeled:
             return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
-        # (f_dim1, f_dim2, f_dim3, 3)
+        # (f_dim1, f_dim2, f_dim3)
         moving_label = self._inputs["moving_label"]
         pred_fixed_label = warping(inputs=[ddf, moving_label])
 
@@ -334,32 +420,18 @@ class DDFModel(RegistrationModel):
 
     def build_loss(self):
         """Build losses according to configs."""
-        fixed_image = self._inputs["fixed_image"]
+        super().build_loss()
+
+        # ddf loss and metrics
         ddf = self._outputs["ddf"]
-        pred_fixed_image = self._outputs["pred_fixed_image"]
-
-        # ddf
         self._build_loss(name="regularization", inputs_dict=dict(inputs=ddf))
-
-        # image
-        self._build_loss(
-            name="image", inputs_dict=dict(y_true=fixed_image, y_pred=pred_fixed_image)
-        )
-
-        # label
-        if self.labeled:
-            fixed_label = self._inputs["fixed_label"]
-            pred_fixed_label = self._outputs["pred_fixed_label"]
-            self._build_loss(
-                name="label",
-                inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
-            )
+        self.log_tensor_stats(tensor=ddf, name="ddf")
 
     def postprocess(
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -380,7 +452,7 @@ class DDFModel(RegistrationModel):
 
         # save theta for affine model
         if "theta" in outputs:
-            processed["theta"] = (outputs["theta"], None, None)
+            processed["theta"] = (outputs["theta"], None, None)  # type: ignore
 
         if not self.labeled:
             return indices, processed
@@ -404,6 +476,8 @@ class DVFModel(DDFModel):
 
     DDF is calculated based on DVF.
     """
+
+    name = "DVFModel"
 
     def build_model(self):
         """Build the model to be saved as self._model."""
@@ -429,9 +503,9 @@ class DVFModel(DDFModel):
         ddf = layer.IntDVF(fixed_image_size=self.fixed_image_size)(dvf)
 
         # build outputs
-        warping = layer.Warping(fixed_image_size=self.fixed_image_size)
+        self._warping = layer.Warping(fixed_image_size=self.fixed_image_size)
         # (f_dim1, f_dim2, f_dim3, 3)
-        pred_fixed_image = warping(inputs=[ddf, moving_image])
+        pred_fixed_image = self._warping(inputs=[ddf, moving_image])
 
         self._outputs = dict(dvf=dvf, ddf=ddf, pred_fixed_image=pred_fixed_image)
 
@@ -440,16 +514,24 @@ class DVFModel(DDFModel):
 
         # (f_dim1, f_dim2, f_dim3, 3)
         moving_label = self._inputs["moving_label"]
-        pred_fixed_label = warping(inputs=[ddf, moving_label])
+        pred_fixed_label = self._warping(inputs=[ddf, moving_label])
 
         self._outputs["pred_fixed_label"] = pred_fixed_label
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
+
+    def build_loss(self):
+        """Build losses according to configs."""
+        super().build_loss()
+
+        # dvf metrics
+        dvf = self._outputs["dvf"]
+        self.log_tensor_stats(tensor=dvf, name="dvf")
 
     def postprocess(
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 
@@ -470,6 +552,8 @@ class ConditionalModel(RegistrationModel):
     """
     A registration model predicts fixed image label without DDF or DVF.
     """
+
+    name = "ConditionalModel"
 
     def build_model(self):
         """Build the model to be saved as self._model."""
@@ -499,21 +583,11 @@ class ConditionalModel(RegistrationModel):
         self._outputs = dict(pred_fixed_label=pred_fixed_label)
         return tf.keras.Model(inputs=self._inputs, outputs=self._outputs)
 
-    def build_loss(self):
-        """Build losses according to configs."""
-        fixed_label = self._inputs["fixed_label"]
-        pred_fixed_label = self._outputs["pred_fixed_label"]
-
-        self._build_loss(
-            name="label",
-            inputs_dict=dict(y_true=fixed_label, y_pred=pred_fixed_label),
-        )
-
     def postprocess(
         self,
         inputs: Dict[str, tf.Tensor],
         outputs: Dict[str, tf.Tensor],
-    ) -> (tf.Tensor, Dict):
+    ) -> Tuple[tf.Tensor, Dict]:
         """
         Return a dict used for saving inputs and outputs.
 

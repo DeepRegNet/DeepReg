@@ -137,10 +137,10 @@ For more details please refer to
 
 ##### Paired
 
-- `moving_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2,
-  dim3) of the 3D moving image.
-- `fixed_image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3)
-  of the 3D fixed image.
+- `moving_image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding
+  to (dim1, dim2, dim3) of the 3D moving image.
+- `fixed_image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding
+  to (dim1, dim2, dim3) of the 3D fixed image.
 
 ```yaml
 dataset:
@@ -158,8 +158,8 @@ dataset:
 
 ##### Unpaired
 
-- `image_shape`: (list, tuple) of ints, len 3, corresponding to (dim1, dim2, dim3) of
-  the 3D image.
+- `image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding to
+  (dim1, dim2, dim3) of the 3D image.
 
 ```yaml
 dataset:
@@ -183,8 +183,8 @@ dataset:
 - `sample_image_in_group`: bool, if true, only one image pair will be yielded for each
   group, so one epoch has num_groups pairs of data, if false, iterate through this
   loader will generate all possible pairs.
-- `image_shape`: (list, tuple) len 3, corresponding to (dim1, dim2, dim3) of the 3D
-  image.
+- `image_shape`: Union[Tuple[int, ...], List[int]] len 3, corresponding to (dim1, dim2,
+  dim3) of the 3D image.
 
 ```yaml
 dataset:
@@ -262,18 +262,16 @@ train:
     concat_skip: true
 ```
 
-#### Local and GlobalNet
+#### LocalNet
 
 The LocalNet has an encoder-decoder structure and extracts information from tensors at
 one or multiple resolution levels. We can define which levels to extract info from with
 the `extract_levels` argument.
 
-The GlobalNet encodes the image and uses the bottleneck layer to output an affine
-transformation using a CNN.
-
-- `extract_levels`: list of positive ints (ie, the min value in `extract_levels` should
-  be >=0). WARNING: this argument will be deprecated in a future release as it is not
-  used by the network.
+- `depth`: Depth of the encoder, `depth=2` means there are in total 3 layers where 0 is
+  the top layer and 2 is the bottom.
+- `extract_levels`: indices of layer from which the output will be extracted, the value
+  range is `[0, depth]` both side inclusive.
 
 ```yaml
 train:
@@ -281,7 +279,25 @@ train:
   backbone:
     name: "local" # One of unet, local, global
     num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 2
     extract_levels: [0, 1, 2]
+```
+
+#### GlobalNet
+
+The GlobalNet has a U-net like encoder to encode the image and uses the bottleneck layer
+to output an affine transformation using a CNN.
+
+- `depth`: Depth of the encoder, `depth=2` means there are in total 3 layers where 0 is
+  the top layer and 2 is the bottom.
+
+```yaml
+train:
+  method: "ddf" # One of ddf, dvf, conditional
+  backbone:
+    name: "global" # One of unet, local, global
+    num_channel_initial: 16 # Int type, number of initial channels in the network. Controls the network size.
+    depth: 4
 ```
 
 ### Loss - required
@@ -390,21 +406,21 @@ at the same indent level:
 - `dice`: Calls a Dice loss on the labels, requires the following arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
-    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
-    respectively.
+  - `background_weight`: float, default=0.0. `background_weight` weights the foreground
+    and background classes by replacing the labels of 1s and 0s with
+    `(1-background_weight)` and `background_weight`, respectively.
 
 - `cross-entropy`: Calls a cross-entropy loss between labels, requires the following
   arguments:
 
   - `binary`: bool, default is false. If true, the tensors are thresholded at 0.5.
-  - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background
-    classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight,
-    respectively.
+  - `background_weight`: float, default=0.0. `background_weight` weights the foreground
+    and background classes by replacing the labels of 1s and 0s with
+    `(1-background_weight)` and `background_weight`, respectively.
 
 - `jaccard`: - `binary`: bool, default is false. If true, the tensors are thresholded at
 0.5.
-<!-- - `neg_weight`: float, default=0.0. `neg_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-neg_weight) and neg_weight, respectively. -->
+<!-- - `background_weight`: float, default=0.0. `background_weight` weights the foreground and background classes by replacing the labels of 1s and 0s with (1-background_weight) and background_weight, respectively. -->
 
 #### Regularization
 
@@ -544,7 +560,9 @@ train:
 
 The `preprocess` field defines how the data loader feeds data into the model.
 
-- `batch_size`: int, the batch size to pass to the network on each training step.
+- `batch_size`: int, specifies the number of samples per step for prediction. If using
+  multiple GPUs, i.e. `n` GPUs, each GPU will have mini batch size `batch_size / n`.
+  Thus, `batch_size` should be divided by `n` evenly.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
   memory to buffer training, such that shuffle_buffer_size = batch_size \*
   shuffle_buffer_num_batch.
