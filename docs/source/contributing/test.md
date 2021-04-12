@@ -54,7 +54,6 @@ We provide here an example to help understanding the requirements.
 
 ```python
 import pytest
-import logging
 
 
 def subtract(x: int) -> int:
@@ -65,8 +64,6 @@ def subtract(x: int) -> int:
     """
     assert isinstance(x, int), f"input {x} is not int"
     assert x >= 0, f"input {x} is negative"
-    if x == 0:
-        logging.warning("input is zero")
     return x - 1
 
 
@@ -81,11 +78,6 @@ class TestSubtract:
         with pytest.raises(AssertionError) as err_info:
             subtract(x=x)
         assert msg in str(err_info.value)
-
-    def test_warning(self, caplog):
-        caplog.clear() # clear previous log
-        subtract(x=0)
-        assert "input is zero" in caplog.text
 ```
 
 where
@@ -94,8 +86,6 @@ where
 - we [parameterize test](https://docs.pytest.org/en/stable/example/parametrize.html) to
   test different inputs.
 - we catch errors using `pytest.raises` and check error messages.
-- we check warning message using
-  [caplog](https://docs.pytest.org/en/stable/logging.html).
 
 For further usage like [fixture](https://docs.pytest.org/en/stable/fixture.html) and
 other functionalities, please check

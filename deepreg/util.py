@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import Optional, Tuple, Union
@@ -10,9 +9,12 @@ import pandas as pd
 import tensorflow as tf
 
 import deepreg.loss.label as label_loss
+from deepreg import log
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.util import normalize_array
+
+logger = log.get(__name__)
 
 
 def build_dataset(
@@ -64,7 +66,7 @@ def build_log_dir(log_dir: str, exp_name: str) -> str:
         datetime.now().strftime("%Y%m%d-%H%M%S") if exp_name == "" else exp_name,
     )
     if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
+        logger.warning("Log directory %s exists already.", log_dir)
     else:
         os.makedirs(log_dir)
     return log_dir

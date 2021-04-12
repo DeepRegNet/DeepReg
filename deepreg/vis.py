@@ -13,8 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.matlib
 
+from deepreg import log
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer import Warping
+
+logger = log.get(__name__)
 
 
 def string_to_list(string: str) -> List[str]:
@@ -62,7 +65,7 @@ def gif_slices(img_paths, save_path="", interval=50):
         )
 
         anim.save(path_to_anim_save)
-        print("Animation saved to:", path_to_anim_save)
+        logger.info("Animation saved to: %s.", path_to_anim_save)
 
 
 def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles=None):
@@ -112,7 +115,7 @@ def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles
         fname = "visualisation.png"
     save_fig_to = os.path.join(save_path, fname)
     plt.savefig(save_fig_to)
-    print("Plot saved to:", save_fig_to)
+    logger.info("Plot saved to: %s", save_fig_to)
 
 
 def gif_warp(
@@ -174,7 +177,7 @@ def gif_warp(
             )
 
             anim.save(path_to_anim_save)
-            print("Animation saved to:", path_to_anim_save)
+            logger.info("Animation saved to: %s", path_to_anim_save)
 
 
 def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval=50):
@@ -252,7 +255,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
     path_to_anim_save = os.path.join(save_path, fname)
 
     anim.save(path_to_anim_save)
-    print("Animation saved to:", path_to_anim_save)
+    logger.info("Animation saved to: %s", path_to_anim_save)
 
 
 def main(args=None):
