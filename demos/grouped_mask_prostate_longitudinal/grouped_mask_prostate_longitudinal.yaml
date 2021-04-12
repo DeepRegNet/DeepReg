@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/grouped_mask_prostate_longitudinal/dataset/train"
-    valid: "demos/grouped_mask_prostate_longitudinal/dataset/val"
-    test: "demos/grouped_mask_prostate_longitudinal/dataset/test"
-  format: "h5"
-  type: "grouped" # paired / unpaired / grouped
-  labeled: false
+  train:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/train
+    format: h5
+    labeled: false
+  valid:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/val
+    format: h5
+    labeled: false
+  test:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/test
+    format: h5
+    labeled: false
+  type: grouped # paired / unpaired / grouped
   intra_group_prob: 1
   intra_group_option: "unconstrained" # forward / backward / unconstrained
   sample_image_in_group: true

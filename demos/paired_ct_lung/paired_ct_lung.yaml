@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/paired_ct_lung/dataset/train"
-    valid: "demos/paired_ct_lung/dataset/valid"
-    test: "demos/paired_ct_lung/dataset/test"
-  format: "nifti"
-  type: "paired" # paired / unpaired / grouped
-  labeled: true
+  train:
+    dir: demos/paired_ct_lung/dataset/train
+    format: nifti
+    labeled: true
+  valid:
+    dir: demos/paired_ct_lung/dataset/valid
+    format: nifti
+    labeled: true
+  test:
+    dir: demos/paired_ct_lung/dataset/test
+    format: nifti
+    labeled: true
+  type: paired # paired / unpaired / grouped
   moving_image_shape: [96, 96, 104]
   fixed_image_shape: [96, 96, 104]
 train:

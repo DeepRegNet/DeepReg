@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/unpaired_ct_abdomen/dataset/train"
-    valid: "demos/unpaired_ct_abdomen/dataset/val"
-    test: "demos/unpaired_ct_abdomen/dataset/test"
-  format: "nifti"
-  type: "unpaired" # paired / unpaired / grouped
-  labeled: true
+  train:
+    dir: demos/unpaired_ct_abdomen/dataset/train
+    format: nifti
+    labeled: true
+  valid:
+    dir: demos/unpaired_ct_abdomen/dataset/val
+    format: nifti
+    labeled: true
+  test:
+    dir: demos/unpaired_ct_abdomen/dataset/test
+    format: nifti
+    labeled: true
+  type: unpaired # paired / unpaired / grouped
   image_shape: [77, 64, 102] # original [192,160,256]
 
 train:
