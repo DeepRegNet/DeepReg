@@ -146,13 +146,13 @@ configuration can be specified in the configuration file. Please see
 
 - **Evaluation data**:
 
-  `--mode` or `-m`, specifies in which data set the prediction is performed.
+  `--split`, specifies in which data set the prediction is performed.
 
   It must be one of `train` / `valid` / `test`.
 
   Example usage:
 
-  - `--mode test` for evaluating the model on test data.
+  - `--split test` for evaluating the model on test split.
 
 ### Optional arguments
 
