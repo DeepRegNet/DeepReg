@@ -12,9 +12,12 @@ import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
+from deepreg import log
 from deepreg.callback import build_checkpoint_callback
 from deepreg.registry import REGISTRY
 from deepreg.util import build_dataset, build_log_dir
+
+logger = log.get(__name__)
 
 
 def build_config(
@@ -74,7 +77,7 @@ def train(
     :param gpu: which local gpu to use to train.
     :param config_path: path to configuration set up.
     :param ckpt_path: where to store training checkpoints.
-    :param num_workers: number of cpus to be used, -1 means not limited.
+    :param num_workers: number of cpu cores to be used, <=0 means not limited.
     :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param log_dir: path of the log directory.
     :param exp_name: experiment name.
@@ -83,10 +86,18 @@ def train(
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
-    if num_workers > 0:
-        # Maximum number of threads to use for OpenMP parallel regions.
+    if num_workers <= 0:  # pragma: no cover
+        logger.info(
+            "Limiting CPU usage by setting environment variables "
+            "OMP_NUM_THREADS, TF_NUM_INTRAOP_THREADS, TF_NUM_INTEROP_THREADS to %d. "
+            "This may slow down the training. "
+            "Please use --num_workers flag to modify the behavior. "
+            "Setting to 0 or negative values will remove the limitation.",
+            num_workers,
+        )
+        # limit CPU usage
+        # https://github.com/tensorflow/tensorflow/issues/29968#issuecomment-789604232
         os.environ["OMP_NUM_THREADS"] = str(num_workers)
-        # Without setting below 2 environment variables, it didn't work for me. Thanks to @cjw85
         os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
         os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 

@@ -207,7 +207,7 @@ def predict(
     :param batch_size: int, batch size to perform predictions.
     :param exp_name: name of the experiment.
     :param config_path: to overwrite the default config.
-    :param num_workers: number of cpus to be used, -1 means not limited.
+    :param num_workers: number of cpu cores to be used, <=0 means not limited.
     :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param save_nifti: if true, outputs will be saved in nifti format.
     :param save_png: if true, outputs will be saved in png format.
@@ -217,10 +217,18 @@ def predict(
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
-    if num_workers > 0:
-        # Maximum number of threads to use for OpenMP parallel regions.
+    if num_workers <= 0:  # pragma: no cover
+        logger.info(
+            "Limiting CPU usage by setting environment variables "
+            "OMP_NUM_THREADS, TF_NUM_INTRAOP_THREADS, TF_NUM_INTEROP_THREADS to %d. "
+            "This may slow down the prediction. "
+            "Please use --num_workers flag to modify the behavior. "
+            "Setting to 0 or negative values will remove the limitation.",
+            num_workers,
+        )
+        # limit CPU usage
+        # https://github.com/tensorflow/tensorflow/issues/29968#issuecomment-789604232
         os.environ["OMP_NUM_THREADS"] = str(num_workers)
-        # Without setting below 2 environment variables, it didn't work for me. Thanks to @cjw85
         os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
         os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 

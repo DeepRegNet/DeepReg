@@ -44,7 +44,8 @@ configuration can be specified in the configuration file. Please see
 
   `--num_workers`, if given, TensorFlow will use limited CPUs.
 
-  By default, it uses all available CPUs.
+  By default, it uses only 1 CPUs. Setting it to non-positive values will be using all
+  CPUs.
 
   Example usage:
 
