@@ -187,12 +187,13 @@ def build_config(
 
 def predict(
     gpu: str,
-    gpu_allow_growth: bool,
     ckpt_path: str,
     mode: str,
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
+    num_workers: int = 1,
+    gpu_allow_growth: bool = True,
     save_nifti: bool = True,
     save_png: bool = True,
     log_dir: str = "logs",
@@ -201,19 +202,35 @@ def predict(
     Function to predict some metrics from the saved model and logging results.
 
     :param gpu: which env gpu to use.
-    :param gpu_allow_growth: whether to allow gpu growth or not
-    :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
-    :param mode: train / valid / test, to define which split of dataset to be evaluated
-    :param batch_size: total number of samples consumed per step, over all devices.
-    :param exp_name: name of the experiment
-    :param log_dir: path of the log directory
-    :param save_nifti: if true, outputs will be saved in nifti format
-    :param save_png: if true, outputs will be saved in png format
-    :param config_path: to overwrite the default config
+    :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x.
+    :param mode: train / valid / test, to define which split of dataset to be evaluated.
+    :param batch_size: int, batch size to perform predictions.
+    :param exp_name: name of the experiment.
+    :param config_path: to overwrite the default config.
+    :param num_workers: number of cpu cores to be used, <=0 means not limited.
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
+    :param save_nifti: if true, outputs will be saved in nifti format.
+    :param save_png: if true, outputs will be saved in png format.
+    :param log_dir: path of the log directory.
     """
+
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
+    if num_workers <= 0:  # pragma: no cover
+        logger.info(
+            "Limiting CPU usage by setting environment variables "
+            "OMP_NUM_THREADS, TF_NUM_INTRAOP_THREADS, TF_NUM_INTEROP_THREADS to %d. "
+            "This may slow down the prediction. "
+            "Please use --num_workers flag to modify the behavior. "
+            "Setting to 0 or negative values will remove the limitation.",
+            num_workers,
+        )
+        # limit CPU usage
+        # https://github.com/tensorflow/tensorflow/issues/29968#issuecomment-789604232
+        os.environ["OMP_NUM_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 
     # load config
     config, log_dir, ckpt_path = build_config(
@@ -322,6 +339,13 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--num_workers",
+        help="Number of CPUs to be used, <= 0 means unlimited.",
+        type=int,
+        default=1,
+    )
+
+    parser.add_argument(
         "--ckpt_path",
         "-k",
         help="Path of checkpointed model to load",
@@ -373,8 +397,9 @@ def main(args=None):
 
     predict(
         gpu=args.gpu,
-        gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
+        num_workers=args.num_workers,
+        gpu_allow_growth=args.gpu_allow_growth,
         mode=args.mode,
         batch_size=args.batch_size,
         log_dir=args.log_dir,

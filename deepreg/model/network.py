@@ -320,8 +320,8 @@ class RegistrationModel(tf.keras.Model):
             )
         except ImportError as err:  # pragma: no cover
             logger.error(
-                "Failed to plot model structure."
-                "Please check if graphviz is installed.\n"
+                "Failed to plot model structure. "
+                "Please check if graphviz is installed. "
                 "Error message is: %s.",
                 err,
             )

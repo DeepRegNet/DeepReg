@@ -13,6 +13,7 @@ compatible with the updates.
 
 ### Added
 
+- Added `num_parallel_calls` option in config for data preprocessing.
 - Added tests for Dice score, Jaccard Index, and cross entropy losses.
 - Added statistics on inputs, DDF and TRE into tensorboard.
 - Added example for using custom loss.
