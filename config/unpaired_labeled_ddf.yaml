@@ -46,6 +46,7 @@ train:
       name: "affine"
     batch_size: 2
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+    num_parallel_calls: -1 # number elements to process asynchronously in parallel during preprocessing, -1 means unlimited, heuristically it should be set to the number of CPU cores available
 
   # other training hyper-parameters
   epochs: 2 # number of training epochs
