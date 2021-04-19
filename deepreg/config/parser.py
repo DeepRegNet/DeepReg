@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List, Union
 
+import wandb
 import yaml
 
 from deepreg import log
@@ -94,3 +95,51 @@ def config_sanity_check(config: dict) -> dict:
             )
 
     return config
+
+
+def has_wandb_callback(config: dict):
+    """
+    Function that checks if a given config has W&B
+    keys.
+    :param config: config dictionary with parameters for run.
+    :return: bool, whether wandb key in config.
+    """
+    if "wandb" in config:
+        return True
+    return False
+
+
+def instantiate_wandb_run(config: dict):
+    """
+    From a config dictionary with wandb keys,
+    run wandb.init to log training.
+
+    :param config: config dictionary with parameters for run.
+    :return: N/A.
+    """
+    if "init" not in config["wandb"]:
+        logging.error("No init field in config. Creating empty init.")
+        wandb.init()
+    else:
+        wandb_init = config["wandb"]["init"]
+        wandb.init(**wandb_init)
+
+
+def instantiate_wandb_callback(config: dict):
+    """
+    From a config dictionary with wandb keys,
+    generate a run callback to use during training.
+
+    :param config: config dictionary with parameters for run.
+    :return: tf.keras.callback, see W&B docs for more info.
+    """
+    # If the callback key does not exist, initialise an
+    # empty run.
+    if "callback" not in config["wandb"]:
+        logging.error("No callback field in config. Creating empty callback.")
+        wandb_callback = wandb.keras.WandbCallback()
+    # Get sub dict that contains the wandb params
+    else:
+        wandb_dict = config["wandb"]["callback"]
+        wandb_callback = wandb.keras.WandbCallback(**wandb_dict)
+    return wandb_callback

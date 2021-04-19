@@ -10,6 +10,7 @@ from testfixtures import TempDirectory
 
 from deepreg.config.parser import (
     config_sanity_check,
+    has_wandb_callback,
     load_configs,
     save,
     update_nested_dict,
@@ -143,3 +144,72 @@ class TestConfigSanityCheck:
             "For conditional model, data have to be labeled, got unlabeled data."
             in str(err_info.value)
         )
+<<<<<<< HEAD
+=======
+    assert "data_dir for mode train must be string or list of strings" in str(
+        err_info.value
+    )
+
+    # use unlabeled data for conditional model
+    with pytest.raises(ValueError) as err_info:
+        config_sanity_check(
+            config=dict(
+                dataset=dict(
+                    type="paired",
+                    format="h5",
+                    dir=dict(train=None, valid=None, test=None),
+                    labeled=False,
+                ),
+                train=dict(
+                    method="conditional",
+                    loss=dict(),
+                    preprocess=dict(),
+                    optimizer=dict(name="Adam"),
+                ),
+            )
+        )
+    assert "For conditional model, data have to be labeled, got unlabeled data." in str(
+        err_info.value
+    )
+
+    # check warnings
+    # train/valid/test of dir is None
+    # all loss weight <= 0
+    caplog.clear()  # clear previous log
+    config_sanity_check(
+        config=dict(
+            dataset=dict(
+                type="paired",
+                format="h5",
+                dir=dict(train=None, valid=None, test=None),
+                labeled=False,
+            ),
+            train=dict(
+                method="ddf",
+                loss=dict(
+                    image=dict(name="lncc", weight=0.0),
+                    label=dict(name="ssd", weight=0.0),
+                    regularization=dict(name="bending", weight=0.0),
+                ),
+                preprocess=dict(),
+                optimizer=dict(name="Adam"),
+            ),
+        )
+    )
+    # warning messages can be detected together
+    assert "Data directory for train is not defined." in caplog.text
+    assert "Data directory for valid is not defined." in caplog.text
+    assert "Data directory for test is not defined." in caplog.text
+
+
+@pytest.mark.parametrize(
+    """test_dict, expect""", [[{"wandb": True}, True], [{"random": False}, False]]
+)
+def test_has_wandb_callback(test_dict, expect):
+    """
+    Testing whether function returns expected value
+    from has_wandb_callback
+    """
+    get = has_wandb_callback(test_dict)
+    assert get == expect
+>>>>>>> 6448de8c2388756a84bd8c33fa35b3176f09c1c7

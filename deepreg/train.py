@@ -110,6 +110,11 @@ def train(
         max_epochs=max_epochs,
     )
 
+    # Init wandb run if it exists in config
+    if config_parser.has_wandb_callback(config):
+        # Init the run
+        config_parser.instantiate_wandb_run(config)
+
     # build dataset
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
@@ -172,6 +177,12 @@ def train(
         ckpt_path=ckpt_path,
     )
     callbacks = [tensorboard_callback, ckpt_callback]
+
+    # If Wandb key, instantiate the wandb callback
+    # then add it to the callback list.
+    if config_parser.has_wandb_callback(config):
+        wandb_callback = config_parser.instantiate_wandb_callback(config)
+        callbacks.append(wandb_callback)
 
     # train
     # it's necessary to define the steps_per_epoch
