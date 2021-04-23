@@ -80,15 +80,12 @@ def config_sanity_check(config: dict) -> dict:
     :param config: entire config.
     """
 
-    # check data
-    data_config = config["dataset"]
-
     # back compatibility support
     config = parse_v011(config)
 
     # check model
     if config["train"]["method"] == "conditional":
-        if data_config["labeled"] is False:  # unlabeled
+        if config["dataset"]["train"]["labeled"] is False:  # unlabeled
             raise ValueError(
                 "For conditional model, data have to be labeled, got unlabeled data."
             )

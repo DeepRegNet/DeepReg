@@ -1,12 +1,18 @@
 dataset:
-  dir:
-    train: "data/test/h5/grouped/train"
-    valid: "data/test/h5/grouped/test"
-    test: "data/test/h5/grouped/test"
-  format: "h5"
+  train:
+    dir: "data/test/h5/grouped/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/grouped/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/grouped/test"
+    format: "h5"
+    labeled: true
   type: "grouped" # paired / unpaired / grouped
-  labeled: true
+  image_shape: [16, 16, 16]
   intra_group_prob: 1
   intra_group_option: "forward"
   sample_image_in_group: true
-  image_shape: [16, 16, 16]

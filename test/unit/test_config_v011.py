@@ -1,7 +1,10 @@
+from typing import Dict
+
 import pytest
 import yaml
 
 from deepreg.config.v011 import (
+    parse_data,
     parse_image_loss,
     parse_label_loss,
     parse_loss,
@@ -34,6 +37,42 @@ def test_grouped_mr_heart(old_config_path: str, latest_config_path: str):
     assert updated_config == latest_config
 
 
+class TestParseData:
+    config_v011 = {
+        "dir": {
+            "train": "dir_train",
+            "test": "dir_test",
+        },
+        "format": "h5",
+        "labeled": True,
+        "type": "paired",
+    }
+    config_latest = {
+        "train": {
+            "dir": "dir_train",
+            "format": "h5",
+            "labeled": True,
+        },
+        "test": {
+            "dir": "dir_test",
+            "format": "h5",
+            "labeled": True,
+        },
+        "type": "paired",
+    }
+
+    @pytest.mark.parametrize(
+        ("data_config", "expected"),
+        [
+            (config_v011, config_latest),
+            (config_latest, config_latest),
+        ],
+    )
+    def test_parse(self, data_config: Dict, expected: Dict):
+        got = parse_data(data_config=data_config)
+        assert got == expected
+
+
 class TestParseModel:
     config_v011 = {
         "model": {
@@ -55,13 +94,13 @@ class TestParseModel:
             (config_latest, config_latest),
         ],
     )
-    def test_parse(self, model_config: dict, expected: dict):
+    def test_parse(self, model_config: Dict, expected: Dict):
         got = parse_model(model_config=model_config)
         assert got == expected
 
 
-def test_parse_loss():
-    loss_config = {
+class TestParseLoss:
+    config_v011 = {
         "dissimilarity": {
             "image": {
                 "name": "lncc",
@@ -73,7 +112,7 @@ def test_parse_loss():
             },
         }
     }
-    expected = {
+    config_latest = {
         "image": {
             "name": "lncc",
             "weight": 2.0,
@@ -81,30 +120,47 @@ def test_parse_loss():
             "kernel_type": "rectangular",
         },
     }
-    got = parse_loss(loss_config=loss_config)
-    assert got == expected
+
+    @pytest.mark.parametrize(
+        ("loss_config", "expected"),
+        [
+            (config_v011, config_latest),
+            (config_latest, config_latest),
+        ],
+    )
+    def test_parse(self, loss_config: Dict, expected: Dict):
+        got = parse_loss(loss_config=loss_config)
+        assert got == expected
 
 
 class TestParseImageLoss:
-    def test_parse_outdated_loss(self):
-        loss_config = {
-            "image": {
-                "name": "lncc",
-                "weight": 2.0,
-                "lncc": {
-                    "kernel_size": 9,
-                    "kernel_type": "rectangular",
-                },
-            },
-        }
-        expected = {
-            "image": {
-                "name": "lncc",
-                "weight": 2.0,
+    config_v011 = {
+        "image": {
+            "name": "lncc",
+            "weight": 2.0,
+            "lncc": {
                 "kernel_size": 9,
                 "kernel_type": "rectangular",
             },
-        }
+        },
+    }
+    config_latest = {
+        "image": {
+            "name": "lncc",
+            "weight": 2.0,
+            "kernel_size": 9,
+            "kernel_type": "rectangular",
+        },
+    }
+
+    @pytest.mark.parametrize(
+        ("loss_config", "expected"),
+        [
+            (config_v011, config_latest),
+            (config_latest, config_latest),
+        ],
+    )
+    def test_parse(self, loss_config: Dict, expected: Dict):
         got = parse_image_loss(loss_config=loss_config)
         assert got == expected
 
@@ -153,7 +209,7 @@ class TestParseLabelLoss:
             ),
         ],
     )
-    def test_parse_outdated_loss(self, name_loss: str, expected_config: dict):
+    def test_parse_outdated_loss(self, name_loss: str, expected_config: Dict):
         outdated_config = {
             "label": {
                 "name": name_loss,
@@ -219,7 +275,7 @@ class TestParseRegularizationLoss:
         ],
     )
     def test_parse_outdated_loss(
-        self, energy_type: str, loss_name: str, extra_args: dict
+        self, energy_type: str, loss_name: str, extra_args: Dict
     ):
 
         loss_config = {
@@ -256,8 +312,8 @@ class TestParseRegularizationLoss:
         assert got == loss_config
 
 
-def test_parse_optimizer():
-    opt_config = {
+class TestParseOptimizer:
+    config_v011 = {
         "name": "adam",
         "adam": {
             "learning_rate": 1.0e-4,
@@ -267,9 +323,18 @@ def test_parse_optimizer():
             "momentum": 0.9,
         },
     }
-    expected = {
+    config_latest = {
         "name": "Adam",
         "learning_rate": 1.0e-4,
     }
-    got = parse_optimizer(opt_config=opt_config)
-    assert got == expected
+
+    @pytest.mark.parametrize(
+        ("opt_config", "expected"),
+        [
+            (config_v011, config_latest),
+            (config_latest, config_latest),
+        ],
+    )
+    def test_parse(self, opt_config: Dict, expected: Dict):
+        got = parse_optimizer(opt_config=opt_config)
+        assert got == expected

@@ -122,23 +122,24 @@ def test_save():
 class TestConfigSanityCheck:
     def test_cond_err(self):
         """Test error message for conditional model."""
+        wrong_config = {
+            "dataset": {
+                "train": {
+                    "dir": "",
+                    "labeled": False,
+                    "format": "h5",
+                },
+                "type": "paired",
+            },
+            "train": {
+                "method": "conditional",
+                "loss": {},
+                "preprocess": {},
+                "optimizer": {"name": "Adam"},
+            },
+        }
         with pytest.raises(ValueError) as err_info:
-            config_sanity_check(
-                config=dict(
-                    dataset=dict(
-                        type="paired",
-                        format="h5",
-                        dir=dict(train=None, valid=None, test=None),
-                        labeled=False,
-                    ),
-                    train=dict(
-                        method="conditional",
-                        loss=dict(),
-                        preprocess=dict(),
-                        optimizer=dict(name="Adam"),
-                    ),
-                )
-            )
+            config_sanity_check(config=wrong_config)
         assert (
             "For conditional model, data have to be labeled, got unlabeled data."
             in str(err_info.value)

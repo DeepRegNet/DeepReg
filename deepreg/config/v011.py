@@ -1,9 +1,12 @@
 """Support backcompatibility for configs at v0.1.1."""
 
 from copy import deepcopy
+from typing import Dict
+
+from deepreg.constant import KNOWN_DATA_SPLITS
 
 
-def parse_v011(old_config: dict) -> dict:
+def parse_v011(old_config: Dict) -> Dict:
     """
     Transform configuration from V0.1.1 format to the latest format.
 
@@ -14,6 +17,8 @@ def parse_v011(old_config: dict) -> dict:
     """
 
     new_config = deepcopy(old_config)
+
+    new_config["dataset"] = parse_data(data_config=new_config["dataset"])
 
     model_config = new_config["train"].pop("model", None)
     if model_config is not None:
@@ -33,7 +38,34 @@ def parse_v011(old_config: dict) -> dict:
     return new_config
 
 
-def parse_model(model_config: dict) -> dict:
+def parse_data(data_config: dict) -> Dict:
+    """
+    Parse the data configuration.
+
+    :param data_config: potentially outdated config
+    :return: latest config
+    """
+    if "format" not in data_config:
+        # up-to-date
+        return data_config
+
+    # define format and labeled in each split
+    dir = data_config.pop("dir")
+    format = data_config.pop("format")
+    labeled = data_config.pop("labeled")
+    # get dir for each split
+    for split in KNOWN_DATA_SPLITS:
+        if split not in dir:
+            continue
+        data_config[split] = {
+            "dir": dir[split],
+            "format": format,
+            "labeled": labeled,
+        }
+    return data_config
+
+
+def parse_model(model_config: Dict) -> Dict:
     """
     Parse the model configuration.
 
@@ -63,7 +95,7 @@ def parse_model(model_config: dict) -> dict:
     return model_config
 
 
-def parse_image_loss(loss_config: dict) -> dict:
+def parse_image_loss(loss_config: Dict) -> Dict:
     """
     Parse the image loss part in loss configuration.
 
@@ -93,7 +125,7 @@ def parse_image_loss(loss_config: dict) -> dict:
     return loss_config
 
 
-def parse_label_loss(loss_config: dict) -> dict:
+def parse_label_loss(loss_config: Dict) -> Dict:
     """
     Parse the label loss part in loss configuration.
 
@@ -137,7 +169,7 @@ def parse_label_loss(loss_config: dict) -> dict:
     return loss_config
 
 
-def parse_reg_loss(loss_config: dict) -> dict:
+def parse_reg_loss(loss_config: Dict) -> Dict:
     """
     Parse the regularization loss part in loss configuration.
 
@@ -171,7 +203,7 @@ def parse_reg_loss(loss_config: dict) -> dict:
     return loss_config
 
 
-def parse_loss(loss_config: dict) -> dict:
+def parse_loss(loss_config: Dict) -> Dict:
     """
     Parse the loss configuration.
 
@@ -190,7 +222,7 @@ def parse_loss(loss_config: dict) -> dict:
     return loss_config
 
 
-def parse_preprocess(preprocess_config: dict) -> dict:
+def parse_preprocess(preprocess_config: Dict) -> Dict:
     """
     Parse the preprocess configuration.
 
@@ -202,7 +234,7 @@ def parse_preprocess(preprocess_config: dict) -> dict:
     return preprocess_config
 
 
-def parse_optimizer(opt_config: dict) -> dict:
+def parse_optimizer(opt_config: Dict) -> Dict:
     """
     Parse the optimizer configuration.
 

@@ -27,13 +27,13 @@ where:
 Once trained, evaluate the network using a test dataset:
 
 ```bash
-deepreg_predict --gpu "" --ckpt_path logs/test/save/ckpt-2 --mode test
+deepreg_predict --gpu "" --ckpt_path logs/test/save/ckpt-2 --split test
 ```
 
 where:
 
 - `--ckpt_path <filepath>` specifies the checkpoint file path.
-- `--mode test` specifies prediction on the test dataset.
+- `--split test` specifies prediction on the test dataset.
 
 ## Warp an image
 

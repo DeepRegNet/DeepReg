@@ -59,7 +59,6 @@ def predict_on_dataset(
     dataset: tf.data.Dataset,
     fixed_grid_ref: tf.Tensor,
     model: tf.keras.Model,
-    model_method: str,
     save_dir: str,
     save_nifti: bool,
     save_png: bool,
@@ -70,7 +69,6 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
-    :param model_method: ddf / dvf / affine / conditional
     :param save_dir: path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
@@ -188,7 +186,7 @@ def build_config(
 def predict(
     gpu: str,
     ckpt_path: str,
-    mode: str,
+    split: str,
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
@@ -203,7 +201,7 @@ def predict(
 
     :param gpu: which env gpu to use.
     :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x.
-    :param mode: train / valid / test, to define which split of dataset to be evaluated.
+    :param split: train / valid / test, to define the split to be evaluated.
     :param batch_size: int, batch size to perform predictions.
     :param exp_name: name of the experiment.
     :param config_path: to overwrite the default config.
@@ -242,7 +240,7 @@ def predict(
     data_loader, dataset, _ = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode=mode,
+        split=split,
         training=False,
         repeat=False,
     )
@@ -269,7 +267,7 @@ def predict(
                 moving_image_size=data_loader.moving_image_shape,
                 fixed_image_size=data_loader.fixed_image_shape,
                 index_size=data_loader.num_indices,
-                labeled=config["dataset"]["labeled"],
+                labeled=config["dataset"][split]["labeled"],
                 batch_size=batch_size,
                 config=config["train"],
             )
@@ -302,7 +300,6 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
-        model_method=config["train"]["method"],
         save_dir=os.path.join(log_dir, "test"),
         save_nifti=save_nifti,
         save_png=save_png,
@@ -355,12 +352,10 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--mode",
-        "-m",
-        help="Define the split of data to be used for prediction."
+        "--split",
+        help="Define the split of data to be used for prediction: "
         "train or valid or test",
         type=str,
-        default="test",
         required=True,
     )
 
@@ -400,7 +395,7 @@ def main(args=None):
         ckpt_path=args.ckpt_path,
         num_workers=args.num_workers,
         gpu_allow_growth=args.gpu_allow_growth,
-        mode=args.mode,
+        split=args.split,
         batch_size=args.batch_size,
         log_dir=args.log_dir,
         exp_name=args.exp_name,

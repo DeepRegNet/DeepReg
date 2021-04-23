@@ -45,7 +45,7 @@ print(
     f"--ckpt_path demos/{name}/dataset/pretrained/{method}/weights-epoch{ckpt_index}.ckpt "
     f"--log_dir demos/{name} "
     f"--log_dir logs_predict/{method} "
-    "--save_png --mode test\n"
+    "--save_png --split test\n"
     "=========================================================\n"
     "\n\n\n\n\n"
 )
@@ -61,7 +61,7 @@ predict(
     gpu="0",
     gpu_allow_growth=True,
     ckpt_path=ckpt_path,
-    mode="test",
+    split="test",
     batch_size=1,
     log_dir=log_dir,
     exp_name=exp_name,

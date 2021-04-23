@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/unpaired_ct_lung/dataset/train"
-    valid: "demos/unpaired_ct_lung/dataset/test"
-    test: "demos/unpaired_ct_lung/dataset/test"
-  format: "nifti"
-  type: "unpaired" # paired / unpaired / grouped
-  labeled: true
+  train:
+    dir: demos/unpaired_ct_lung/dataset/train
+    format: nifti
+    labeled: true
+  valid:
+    dir: demos/unpaired_ct_lung/dataset/test
+    format: nifti
+    labeled: true
+  test:
+    dir: demos/unpaired_ct_lung/dataset/test
+    format: nifti
+    labeled: true
+  type: unpaired # paired / unpaired / grouped
   image_shape: [96, 96, 104]
 train:
   method: "ddf" # the registration method, value should be ddf / dvf / conditional

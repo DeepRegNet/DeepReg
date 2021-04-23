@@ -114,7 +114,7 @@ def train(
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="train",
+        split="train",
         training=True,
         repeat=True,
     )
@@ -122,7 +122,7 @@ def train(
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="valid",
+        split="valid",
         training=False,
         repeat=True,
     )
@@ -149,7 +149,7 @@ def train(
                 moving_image_size=data_loader_train.moving_image_shape,
                 fixed_image_size=data_loader_train.fixed_image_shape,
                 index_size=data_loader_train.num_indices,
-                labeled=config["dataset"]["labeled"],
+                labeled=config["dataset"]["train"]["labeled"],
                 batch_size=batch_size,
                 config=config["train"],
             )

@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/grouped_mr_heart/dataset/train"
-    valid: "demos/grouped_mr_heart/dataset/val"
-    test: "demos/grouped_mr_heart/dataset/test"
-  format: "nifti"
+  train:
+    dir: "demos/grouped_mr_heart/dataset/train"
+    format: "nifti"
+    labeled: false
+  valid:
+    dir: "demos/grouped_mr_heart/dataset/val"
+    format: "nifti"
+    labeled: false
+  test:
+    dir: "demos/grouped_mr_heart/dataset/test"
+    format: "nifti"
+    labeled: false
   type: "grouped" # paired / unpaired / grouped
-  labeled: false
   intra_group_prob: 1
   intra_group_option: "unconstrained" # forward / backward / unconstrained
   sample_image_in_group: true

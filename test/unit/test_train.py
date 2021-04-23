@@ -85,7 +85,7 @@ def test_train_and_predict_main(config_paths):
             "",
             "--ckpt_path",
             "logs/test_train/save/ckpt-2",
-            "--mode",
+            "--split",
             "test",
             "--exp_name",
             "test_predict",
