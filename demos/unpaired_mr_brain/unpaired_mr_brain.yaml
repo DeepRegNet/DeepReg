@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/unpaired_mr_brain/dataset/train"
-    valid: "demos/unpaired_mr_brain/dataset/test"
-    test: "demos/unpaired_mr_brain/dataset/test"
-  format: "nifti"
-  type: "unpaired" # paired / unpaired / grouped
-  labeled: True
+  train:
+    dir: demos/unpaired_mr_brain/dataset/train
+    format: nifti
+    labeled: true
+  valid:
+    dir: demos/unpaired_mr_brain/dataset/test
+    format: nifti
+    labeled: true
+  test:
+    dir: demos/unpaired_mr_brain/dataset/test
+    format: nifti
+    labeled: true
+  type: unpaired # paired / unpaired / grouped
   image_shape: [64, 64, 64]
 
 train:

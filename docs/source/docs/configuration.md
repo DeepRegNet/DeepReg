@@ -11,70 +11,80 @@ parameters related to the neural network.
 The `dataset` section specifies the path to the data to be used during training, the
 data loader to use as well as the specific arguments to configure the data loader.
 
-### Dir key - Required
+### Split keys - Required
 
-The paths to the training, validation and testing data are specified under a `dir`
-dictionary key like this:
+The data paths, data format, and label availability of the training, validation and
+testing data are specified under the corresponding sections separately:
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
 ```
 
-Multiple dataset directories can be specified, such that data are sampled across several
-folders:
+For data paths, multiple dataset directories can be specified, such that data are
+sampled across several folders:
 
 ```yaml
 dataset:
-  dir:
-    train: # folders containing training data
+  train:
+    dir:
       - "data/test/h5/paired/train1"
       - "data/test/h5/paired/train2"
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
 ```
 
-### Format key - Required
+For data format, different formats requires different file structure and format. Thus
+different file loader will be used. Check the
+[data loader configuration](dataset_loader.html) for more details.
 
-The data file format we supply the data loaders will influence the behavior, so we must
-specify the data file format using the `format` key. Currently, DeepReg data loaders
-support Nifti and H5 file types - alternate file formats will raise errors in the data
-loaders. To indicate which format to use, pass a string to this field as either "nifti"
-or "h5":
+Currently, DeepReg file loaders support Nifti and H5 file types - alternate file formats
+will raise errors in the data loaders. To indicate which format to use, pass a string to
+this field as either "nifti" or "h5":
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir:
+      - "data/test/nifti/paired/train1"
+      - "data/test/nifti/paired/train2"
+    format: "nifti"
+    labeled: true
 ```
 
-Depending on the data file format, DeepReg expects the images and labels to be stored in
-specific structures: check the [data loader configuration](dataset_loader.html) for more
-details.
-
-### Labeled key - Required
-
-The `labeled` key indicates whether segmentation labels should be used during training.
-A Boolean is used to indicate the usage of labels:
+The `labeled` key indicates whether segmentation labels are available for training or
+evaluation. Use `true` and `false` to indicate the availability and unavailability
+correspondingly. In particular, if the value passed is false, the labels will not be
+used even if they are available in the associated directories.
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
-  labeled: true
+  train:
+    dir:
+      - "data/test/nifti/paired/train1"
+      - "data/test/nifti/paired/train2"
+    format: "nifti"
+    labeled: false # labels are not available
 ```
-
-If the value passed is false, the labels will not be used in training even when they are
-available in the associated directories.
 
 ### Type key - Required
 
@@ -85,22 +95,29 @@ The data loader type would be specified using the `type` key:
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "paired" # one of "paired", "unpaired" or "grouped"
 ```
 
-#### Data loader dependent keys
+### Data loader dependent keys
 
 Depending on which string is passed to the `type` key, DeepReg will initialize a
 different data loader instance with different sampling strategies. These are described
 in depth in the [dataset loader configuration](dataset_loader.html) documentation. Here
 we outline the arguments necessary to configure the different data loaders.
 
-###### Sample_label - Required
+#### Sample_label - Required
 
 In the case that we have more than one label per image, we need to inform the loader
 which one to use. We can use the `sample_label` argument to indicate which method to use
@@ -117,13 +134,19 @@ be built to sample `all` the data-label pairs, regardless of the argument passed
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "paired" # one of "paired", "unpaired" or "grouped"
-  labeled: true
   sample_label: "sample" # one of "sample", "all" or None
 ```
 
@@ -135,7 +158,7 @@ network.
 For more details please refer to
 [Read The Docs](https://deepreg.readthedocs.io/en/latest/docs/exp_label_sampling.html).
 
-##### Paired
+#### Paired
 
 - `moving_image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding
   to (dim1, dim2, dim3) of the 3D moving image.
@@ -144,37 +167,49 @@ For more details please refer to
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "paired" # one of "paired", "unpaired" or "grouped"
-  labeled: true
   sample_label: "sample" # one of "sample", "all" or None
   moving_image_shape: [16, 16, 3]
   fixed_image_shape: [16, 16, 3]
 ```
 
-##### Unpaired
+#### Unpaired
 
 - `image_shape`: Union[Tuple[int, ...], List[int]] of ints, len 3, corresponding to
   (dim1, dim2, dim3) of the 3D image.
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "unpaired" # one of "paired", "unpaired" or "grouped"
-  labeled: true
   sample_label: "sample" # one of "sample", "all" or None
   image_shape: [16, 16, 3]
 ```
 
-##### Grouped
+#### Grouped
 
 - `intra_group_prob`: float, between 0 and 1. Passing 0 would only generate inter-group
   samples, and passing 1 would only generate intra-group samples.
@@ -188,13 +223,19 @@ dataset:
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder containing training data
-    valid: "data/test/h5/paired/valid" # folder containing validation data
-    test: "data/test/h5/paired/test" # folder containing test data
-  format: "nifti"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "grouped" # one of "paired", "unpaired" or "grouped"
-  labeled: true
   sample_label: "sample" # one of "sample", "all" or None
   image_shape: [16, 16, 3]
   sample_image_in_group: true
@@ -566,6 +607,8 @@ The `preprocess` field defines how the data loader feeds data into the model.
 - `shuffle_buffer_num_batch`: int, helps define how much data should be pre-loaded into
   memory to buffer training, such that shuffle_buffer_size = batch_size \*
   shuffle_buffer_num_batch.
+- `num_parallel_calls`: int, it defines the number of cpus used during preprocessing, -1
+  means unlimited and it may take all cpus and significantly more memory.
 
 ```yaml
 train:
@@ -587,6 +630,7 @@ train:
   preprocess:
     batch_size: 32
     shuffle_buffer_num_batch: 1
+    num_parallel_calls: -1 # number elements to process asynchronously in parallel during preprocessing, -1 means unlimited, heuristically it should be set to the number of CPU cores available
 ```
 
 ### Epochs - required

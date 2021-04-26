@@ -13,6 +13,7 @@ compatible with the updates.
 
 ### Added
 
+- Added `num_parallel_calls` option in config for data preprocessing.
 - Added tests for Dice score, Jaccard Index, and cross entropy losses.
 - Added statistics on inputs, DDF and TRE into tensorboard.
 - Added example for using custom loss.
@@ -26,6 +27,9 @@ compatible with the updates.
 ### Changed
 
 - Change the ResizeCPTransform to use 1-D separable convolutions
+- Changed dataset config so that `format` and `labeled` are defined per split.
+- Reduced TensorFlow logging level.
+- Used `DEEPREG_LOG_LEVEL` to control logging in DeepReg.
 - Increased all EPS to 1e-5.
 - Clarify the suggestion in doc to use all-zero masks for missing labels.
 - Moved contributor list to a separate page.

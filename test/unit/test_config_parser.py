@@ -119,97 +119,28 @@ def test_save():
             save(config=dict(x=1), out_dir=tempdir.path, filename="test.txt")
 
 
-def test_config_sanity_check(caplog):
-    """
-    Test config_sanity_check by check error messages
-
-    :param caplog: used to check warning message.
-    """
-
-    # unknown data type
-    with pytest.raises(ValueError) as err_info:
-        config_sanity_check(config=dict(dataset=dict(type="type")))
-    assert "data type must be paired / unpaired / grouped" in str(err_info.value)
-
-    # unknown data format
-    with pytest.raises(ValueError) as err_info:
-        config_sanity_check(config=dict(dataset=dict(type="paired", format="format")))
-    assert "data format must be nifti / h5" in str(err_info.value)
-
-    # dir is not in data_config
-    with pytest.raises(AssertionError):
-        config_sanity_check(config=dict(dataset=dict(type="paired", format="h5")))
-
-    # dir doesn't have train/valid/test
-    with pytest.raises(AssertionError):
-        config_sanity_check(
-            config=dict(dataset=dict(type="paired", format="h5", dir=dict()))
+class TestConfigSanityCheck:
+    def test_cond_err(self):
+        """Test error message for conditional model."""
+        wrong_config = {
+            "dataset": {
+                "train": {
+                    "dir": "",
+                    "labeled": False,
+                    "format": "h5",
+                },
+                "type": "paired",
+            },
+            "train": {
+                "method": "conditional",
+                "loss": {},
+                "preprocess": {},
+                "optimizer": {"name": "Adam"},
+            },
+        }
+        with pytest.raises(ValueError) as err_info:
+            config_sanity_check(config=wrong_config)
+        assert (
+            "For conditional model, data have to be labeled, got unlabeled data."
+            in str(err_info.value)
         )
-
-    # train/valid/test of dir is not string or list of string
-    with pytest.raises(ValueError) as err_info:
-        config_sanity_check(
-            config=dict(
-                dataset=dict(
-                    type="paired",
-                    format="h5",
-                    dir=dict(train=1, valid=None, test=None),
-                    labeled=True,
-                ),
-                train=dict(model=dict(method="ddf")),
-            )
-        )
-    assert "data_dir for mode train must be string or list of strings" in str(
-        err_info.value
-    )
-
-    # use unlabeled data for conditional model
-    with pytest.raises(ValueError) as err_info:
-        config_sanity_check(
-            config=dict(
-                dataset=dict(
-                    type="paired",
-                    format="h5",
-                    dir=dict(train=None, valid=None, test=None),
-                    labeled=False,
-                ),
-                train=dict(
-                    method="conditional",
-                    loss=dict(),
-                    preprocess=dict(),
-                    optimizer=dict(name="Adam"),
-                ),
-            )
-        )
-    assert "For conditional model, data have to be labeled, got unlabeled data." in str(
-        err_info.value
-    )
-
-    # check warnings
-    # train/valid/test of dir is None
-    # all loss weight <= 0
-    caplog.clear()  # clear previous log
-    config_sanity_check(
-        config=dict(
-            dataset=dict(
-                type="paired",
-                format="h5",
-                dir=dict(train=None, valid=None, test=None),
-                labeled=False,
-            ),
-            train=dict(
-                method="ddf",
-                loss=dict(
-                    image=dict(name="lncc", weight=0.0),
-                    label=dict(name="ssd", weight=0.0),
-                    regularization=dict(name="bending", weight=0.0),
-                ),
-                preprocess=dict(),
-                optimizer=dict(name="Adam"),
-            ),
-        )
-    )
-    # warning messages can be detected together
-    assert "Data directory for train is not defined." in caplog.text
-    assert "Data directory for valid is not defined." in caplog.text
-    assert "Data directory for test is not defined." in caplog.text

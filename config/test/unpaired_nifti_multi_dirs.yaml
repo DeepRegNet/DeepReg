@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train:
+  train:
+    dir:
       - "data/test/nifti/unpaired/train"
       - "data/test/nifti/unpaired/test"
-    valid: "data/test/nifti/unpaired/test"
-    test: "data/test/nifti/unpaired/test"
-  format: "nifti"
+    format: "nifti"
+    labeled: true
+  valid:
+    dir: "data/test/nifti/unpaired/test"
+    format: "nifti"
+    labeled: true
+  test:
+    dir: "data/test/nifti/unpaired/test"
+    format: "nifti"
+    labeled: true
   type: "unpaired" # paired / unpaired / grouped
-  labeled: true
   image_shape: [16, 16, 16]

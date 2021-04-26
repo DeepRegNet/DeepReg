@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "data/test/nifti/unpaired/train" # required
-    valid: "data/test/nifti/unpaired/test" # required
-    test: "data/test/nifti/unpaired/test" # required
-  format: "nifti"
+  train:
+    dir: "data/test/nifti/unpaired/train"
+    format: "nifti"
+    labeled: true
+  valid:
+    dir: "data/test/nifti/unpaired/test"
+    format: "nifti"
+    labeled: true
+  test:
+    dir: "data/test/nifti/unpaired/test"
+    format: "nifti"
+    labeled: true
   type: "unpaired" # paired / unpaired / grouped
-  labeled: true # whether to use the labels if available, "true" or "false"
   image_shape: [16, 16, 16]
 
 train:
@@ -40,6 +46,7 @@ train:
       name: "affine"
     batch_size: 2
     shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+    num_parallel_calls: -1 # number elements to process asynchronously in parallel during preprocessing, -1 means unlimited, heuristically it should be set to the number of CPU cores available
 
   # other training hyper-parameters
   epochs: 2 # number of training epochs

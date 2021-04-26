@@ -1,10 +1,12 @@
-import logging
 import os
 from typing import Dict, List, Union
 
 import yaml
 
+from deepreg import log
 from deepreg.config.v011 import parse_v011
+
+logger = log.get(__name__)
 
 
 def update_nested_dict(d: Dict, u: Dict) -> Dict:
@@ -49,10 +51,10 @@ def load_configs(config_path: Union[str, List[str]]) -> Dict:
         head, tail = os.path.split(config_path[0])
         filename = "updated_" + tail
         save(config=loaded_config, out_dir=head, filename=filename)
-        logging.error(
-            f"Used config is outdated. "
-            f"An updated version has been saved at "
-            f"{os.path.join(head, filename)}"
+        logger.error(
+            "The provided configuration file is outdated. "
+            "An updated version has been saved at %s.",
+            os.path.join(head, filename),
         )
 
     return loaded_config
@@ -78,33 +80,12 @@ def config_sanity_check(config: dict) -> dict:
     :param config: entire config.
     """
 
-    # check data
-    data_config = config["dataset"]
-
-    if data_config["type"] not in ["paired", "unpaired", "grouped"]:
-        raise ValueError(f"data type must be paired / unpaired / grouped, got {type}.")
-
-    if data_config["format"] not in ["nifti", "h5"]:
-        raise ValueError(f"data format must be nifti / h5, got {format}.")
-
-    assert "dir" in data_config
-    for mode in ["train", "valid", "test"]:
-        assert mode in data_config["dir"].keys()
-        data_dir = data_config["dir"][mode]
-        if data_dir is None:
-            logging.warning(f"Data directory for {mode} is not defined.")
-        if not (isinstance(data_dir, (str, list)) or data_dir is None):
-            raise ValueError(
-                f"data_dir for mode {mode} must be string or list of strings,"
-                f"got {data_dir}."
-            )
-
     # back compatibility support
     config = parse_v011(config)
 
     # check model
     if config["train"]["method"] == "conditional":
-        if data_config["labeled"] is False:  # unlabeled
+        if config["dataset"]["train"]["labeled"] is False:  # unlabeled
             raise ValueError(
                 "For conditional model, data have to be labeled, got unlabeled data."
             )

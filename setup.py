@@ -12,6 +12,8 @@ if sys.version_info[:2] == (3, 6):
     requirements.append("pandas==1.1.5")
     requirements = [x for x in requirements if "scipy" not in x]
     requirements.append("scipy==1.5.4")
+    requirements = [x for x in requirements if "matplotlib" not in x]
+    requirements.append("matplotlib==3.3.4")
 
 with open("README.md", "r") as f:
     long_description = f.read()

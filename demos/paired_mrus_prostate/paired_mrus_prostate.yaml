@@ -1,22 +1,28 @@
 dataset:
-  dir:
-    train:
-      - "demos/paired_mrus_prostate/dataset/part00"
-      - "demos/paired_mrus_prostate/dataset/part01"
-      - "demos/paired_mrus_prostate/dataset/part02"
-      - "demos/paired_mrus_prostate/dataset/part03"
-      - "demos/paired_mrus_prostate/dataset/part04"
-      - "demos/paired_mrus_prostate/dataset/part05"
-      - "demos/paired_mrus_prostate/dataset/part06"
-      - "demos/paired_mrus_prostate/dataset/part07"
-    valid:
-      - "demos/paired_mrus_prostate/dataset/part08"
-    test:
-      - "demos/paired_mrus_prostate/dataset/part09"
-      - "demos/paired_mrus_prostate/dataset/part10"
-  format: "nifti"
-  type: "paired"
-  labeled: true
+  train:
+    dir:
+      - demos/paired_mrus_prostate/dataset/part00
+      - demos/paired_mrus_prostate/dataset/part01
+      - demos/paired_mrus_prostate/dataset/part02
+      - demos/paired_mrus_prostate/dataset/part03
+      - demos/paired_mrus_prostate/dataset/part04
+      - demos/paired_mrus_prostate/dataset/part05
+      - demos/paired_mrus_prostate/dataset/part06
+      - demos/paired_mrus_prostate/dataset/part07
+    format: nifti
+    labeled: true
+  valid:
+    dir:
+      - demos/paired_mrus_prostate/dataset/part08
+    format: nifti
+    labeled: true
+  test:
+    dir:
+      - demos/paired_mrus_prostate/dataset/part09
+      - demos/paired_mrus_prostate/dataset/part10
+    format: nifti
+    labeled: true
+  type: paired
   moving_image_shape: [69, 69, 64]
   fixed_image_shape: [47, 63, 44]
 train:

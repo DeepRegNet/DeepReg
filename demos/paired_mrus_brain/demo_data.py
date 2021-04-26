@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 import zipfile
@@ -58,7 +57,7 @@ os.remove(fname)
 # download full data
 if not DOWNLOAD_FULL_DATA:
     exit()
-logging.warning("Code for downloading full data is not tested.")
+print("Code for downloading full data is not tested.")
 
 if os.path.exists("dataset_resect") is not True:
     os.mkdir("dataset_resect")

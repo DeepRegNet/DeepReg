@@ -1,10 +1,16 @@
 dataset:
-  dir:
-    train: "data/test/h5/paired/train"
-    valid: "data/test/h5/paired/test"
-    test: "data/test/h5/paired/test"
-  format: "h5"
+  train:
+    dir: "data/test/h5/paired/train"
+    format: "h5"
+    labeled: true
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "paired" # paired / unpaired / grouped
-  labeled: true
   moving_image_shape: [16, 16, 16]
   fixed_image_shape: [8, 8, 8]

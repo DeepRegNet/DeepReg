@@ -6,7 +6,6 @@ command line interface.
 """
 
 import argparse
-import logging
 import os
 import shutil
 from typing import Dict, List, Tuple, Union
@@ -17,6 +16,7 @@ import tensorflow as tf
 import deepreg.config.parser as config_parser
 import deepreg.model.layer_util as layer_util
 import deepreg.model.optimizer as opt
+from deepreg import log
 from deepreg.callback import build_checkpoint_callback
 from deepreg.registry import REGISTRY
 from deepreg.util import (
@@ -26,6 +26,8 @@ from deepreg.util import (
     save_array,
     save_metric_dict,
 )
+
+logger = log.get(__name__)
 
 
 def build_pair_output_path(indices: list, save_dir: str) -> Tuple[str, str]:
@@ -57,7 +59,6 @@ def predict_on_dataset(
     dataset: tf.data.Dataset,
     fixed_grid_ref: tf.Tensor,
     model: tf.keras.Model,
-    model_method: str,
     save_dir: str,
     save_nifti: bool,
     save_png: bool,
@@ -68,7 +69,6 @@ def predict_on_dataset(
     :param dataset: where data is stored
     :param fixed_grid_ref: shape=(1, f_dim1, f_dim2, f_dim3, 3)
     :param model: model to be used for prediction
-    :param model_method: ddf / dvf / affine / conditional
     :param save_dir: path to store dir
     :param save_nifti: if true, outputs will be saved in nifti format
     :param save_png: if true, outputs will be saved in png format
@@ -175,8 +175,8 @@ def build_config(
         )
     else:
         # use customized config
-        logging.warning(
-            "Using customized configuration."
+        logger.warning(
+            "Using customized configuration. "
             "The code might break if the config doesn't match the saved model."
         )
         config = config_parser.load_configs(config_path)
@@ -185,12 +185,13 @@ def build_config(
 
 def predict(
     gpu: str,
-    gpu_allow_growth: bool,
     ckpt_path: str,
-    mode: str,
+    split: str,
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
+    num_workers: int = 1,
+    gpu_allow_growth: bool = True,
     save_nifti: bool = True,
     save_png: bool = True,
     log_dir: str = "logs",
@@ -199,19 +200,35 @@ def predict(
     Function to predict some metrics from the saved model and logging results.
 
     :param gpu: which env gpu to use.
-    :param gpu_allow_growth: whether to allow gpu growth or not
-    :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x
-    :param mode: train / valid / test, to define which split of dataset to be evaluated
-    :param batch_size: total number of samples consumed per step, over all devices.
-    :param exp_name: name of the experiment
-    :param log_dir: path of the log directory
-    :param save_nifti: if true, outputs will be saved in nifti format
-    :param save_png: if true, outputs will be saved in png format
-    :param config_path: to overwrite the default config
+    :param ckpt_path: where model is stored, should be like log_folder/save/ckpt-x.
+    :param split: train / valid / test, to define the split to be evaluated.
+    :param batch_size: int, batch size to perform predictions.
+    :param exp_name: name of the experiment.
+    :param config_path: to overwrite the default config.
+    :param num_workers: number of cpu cores to be used, <=0 means not limited.
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
+    :param save_nifti: if true, outputs will be saved in nifti format.
+    :param save_png: if true, outputs will be saved in png format.
+    :param log_dir: path of the log directory.
     """
+
     # env vars
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "false" if gpu_allow_growth else "true"
+    if num_workers <= 0:  # pragma: no cover
+        logger.info(
+            "Limiting CPU usage by setting environment variables "
+            "OMP_NUM_THREADS, TF_NUM_INTRAOP_THREADS, TF_NUM_INTEROP_THREADS to %d. "
+            "This may slow down the prediction. "
+            "Please use --num_workers flag to modify the behavior. "
+            "Setting to 0 or negative values will remove the limitation.",
+            num_workers,
+        )
+        # limit CPU usage
+        # https://github.com/tensorflow/tensorflow/issues/29968#issuecomment-789604232
+        os.environ["OMP_NUM_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 
     # load config
     config, log_dir, ckpt_path = build_config(
@@ -223,7 +240,7 @@ def predict(
     data_loader, dataset, _ = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode=mode,
+        split=split,
         training=False,
         repeat=False,
     )
@@ -250,7 +267,7 @@ def predict(
                 moving_image_size=data_loader.moving_image_shape,
                 fixed_image_size=data_loader.fixed_image_shape,
                 index_size=data_loader.num_indices,
-                labeled=config["dataset"]["labeled"],
+                labeled=config["dataset"][split]["labeled"],
                 batch_size=batch_size,
                 config=config["train"],
             )
@@ -283,7 +300,6 @@ def predict(
         dataset=dataset,
         fixed_grid_ref=fixed_grid_ref,
         model=model,
-        model_method=config["train"]["method"],
         save_dir=os.path.join(log_dir, "test"),
         save_nifti=save_nifti,
         save_png=save_png,
@@ -320,6 +336,13 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--num_workers",
+        help="Number of CPUs to be used, <= 0 means unlimited.",
+        type=int,
+        default=1,
+    )
+
+    parser.add_argument(
         "--ckpt_path",
         "-k",
         help="Path of checkpointed model to load",
@@ -329,12 +352,10 @@ def main(args=None):
     )
 
     parser.add_argument(
-        "--mode",
-        "-m",
-        help="Define the split of data to be used for prediction."
+        "--split",
+        help="Define the split of data to be used for prediction: "
         "train or valid or test",
         type=str,
-        default="test",
         required=True,
     )
 
@@ -371,9 +392,10 @@ def main(args=None):
 
     predict(
         gpu=args.gpu,
-        gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
-        mode=args.mode,
+        num_workers=args.num_workers,
+        gpu_allow_growth=args.gpu_allow_growth,
+        split=args.split,
         batch_size=args.batch_size,
         log_dir=args.log_dir,
         exp_name=args.exp_name,

@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import Optional, Tuple, Union
@@ -10,15 +9,18 @@ import pandas as pd
 import tensorflow as tf
 
 import deepreg.loss.label as label_loss
+from deepreg import log
 from deepreg.dataset.load import get_data_loader
 from deepreg.dataset.loader.interface import DataLoader
 from deepreg.dataset.loader.util import normalize_array
+
+logger = log.get(__name__)
 
 
 def build_dataset(
     dataset_config: dict,
     preprocess_config: dict,
-    mode: str,
+    split: str,
     training: bool,
     repeat: bool,
 ) -> Tuple[Optional[DataLoader], Optional[tf.data.Dataset], Optional[int]]:
@@ -26,7 +28,7 @@ def build_dataset(
     Function to prepare dataset for training and validation.
     :param dataset_config: configuration for dataset
     :param preprocess_config: configuration for preprocess
-    :param mode: train or valid or test
+    :param split: train or valid or test
     :param training: bool, if true, data augmentation and shuffling will be added
     :param repeat: bool, if true, dataset will be repeated,
         true for train/valid dataset during model.fit
@@ -38,8 +40,8 @@ def build_dataset(
     Cannot move this function into deepreg/dataset/util.py
     as we need DataLoader to define the output
     """
-    assert mode in ["train", "valid", "test"]
-    data_loader = get_data_loader(dataset_config, mode)
+    assert split in ["train", "valid", "test"]
+    data_loader = get_data_loader(dataset_config, split)
     if data_loader is None:
         return None, None, None
 
@@ -64,7 +66,7 @@ def build_log_dir(log_dir: str, exp_name: str) -> str:
         datetime.now().strftime("%Y%m%d-%H%M%S") if exp_name == "" else exp_name,
     )
     if os.path.exists(log_dir):
-        logging.warning("Log directory {} exists already.".format(log_dir))
+        logger.warning("Log directory %s exists already.", log_dir)
     else:
         os.makedirs(log_dir)
     return log_dir

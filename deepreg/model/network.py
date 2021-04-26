@@ -1,4 +1,3 @@
-import logging
 import os
 from abc import abstractmethod
 from copy import deepcopy
@@ -6,10 +5,13 @@ from typing import Dict, Optional, Tuple
 
 import tensorflow as tf
 
+from deepreg import log
 from deepreg.loss.label import compute_centroid_distance
 from deepreg.model import layer, layer_util
 from deepreg.model.backbone import GlobalNet
 from deepreg.registry import REGISTRY
+
+logger = log.get(__name__)
 
 
 def dict_without(d: dict, key) -> dict:
@@ -181,7 +183,7 @@ class RegistrationModel(tf.keras.Model):
 
         if name not in self.config["loss"]:
             # loss config is not defined
-            logging.warning(
+            logger.warning(
                 f"The configuration for loss {name} is not defined. "
                 f"Therefore it is not used."
             )
@@ -195,7 +197,7 @@ class RegistrationModel(tf.keras.Model):
 
             if "weight" not in loss_config:
                 # default loss weight 1
-                logging.warning(
+                logger.warning(
                     f"The weight for loss {name} is not defined."
                     f"Default weight = 1.0 is used."
                 )
@@ -205,7 +207,7 @@ class RegistrationModel(tf.keras.Model):
             weight = loss_config["weight"]
 
             if weight == 0:
-                logging.warning(
+                logger.warning(
                     f"The weight for loss {name} is zero." f"Loss is not used."
                 )
                 return
@@ -306,7 +308,7 @@ class RegistrationModel(tf.keras.Model):
 
         :param output_dir: path to the output dir.
         """
-        logging.info(self._model.summary())
+        self._model.summary(print_fn=logger.debug)
         try:
             tf.keras.utils.plot_model(
                 self._model,
@@ -317,11 +319,11 @@ class RegistrationModel(tf.keras.Model):
                 expand_nested=False,
             )
         except ImportError as err:  # pragma: no cover
-            logging.error(
-                "Failed to plot model structure."
-                "Please check if graphviz is installed.\n"
-                "Error message is:"
-                f"{err}"
+            logger.error(
+                "Failed to plot model structure. "
+                "Please check if graphviz is installed. "
+                "Error message is: %s.",
+                err,
             )
 
     def log_tensor_stats(self, tensor: tf.Tensor, name: str):

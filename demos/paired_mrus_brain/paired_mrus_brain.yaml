@@ -1,11 +1,17 @@
 dataset:
-  dir:
-    train: "demos/paired_mrus_brain/dataset/train"
-    valid: "demos/paired_mrus_brain/dataset/test"
-    test: "demos/paired_mrus_brain/dataset/test"
-  format: "nifti"
-  type: "paired" # paired / unpaired / grouped
-  labeled: false
+  train:
+    dir: demos/paired_mrus_brain/dataset/train
+    format: nifti
+    labeled: false
+  valid:
+    dir: demos/paired_mrus_brain/dataset/test
+    format: nifti
+    labeled: false
+  test:
+    dir: demos/paired_mrus_brain/dataset/test
+    format: nifti
+    labeled: false
+  type: paired # paired / unpaired / grouped
   moving_image_shape: [256, 256, 288]
   fixed_image_shape: [256, 256, 288]
 train:

@@ -12,9 +12,12 @@ import tensorflow as tf
 
 import deepreg.config.parser as config_parser
 import deepreg.model.optimizer as opt
+from deepreg import log
 from deepreg.callback import build_checkpoint_callback
 from deepreg.registry import REGISTRY
 from deepreg.util import build_dataset, build_log_dir
+
+logger = log.get(__name__)
 
 
 def build_config(
@@ -61,8 +64,9 @@ def build_config(
 def train(
     gpu: str,
     config_path: Union[str, List[str]],
-    gpu_allow_growth: bool,
     ckpt_path: str,
+    num_workers: int = 1,
+    gpu_allow_growth: bool = True,
     exp_name: str = "",
     log_dir: str = "logs",
     max_epochs: int = -1,
@@ -72,8 +76,9 @@ def train(
 
     :param gpu: which local gpu to use to train.
     :param config_path: path to configuration set up.
-    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param ckpt_path: where to store training checkpoints.
+    :param num_workers: number of cpu cores to be used, <=0 means not limited.
+    :param gpu_allow_growth: whether to allocate whole GPU memory for training.
     :param log_dir: path of the log directory.
     :param exp_name: experiment name.
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
@@ -81,6 +86,20 @@ def train(
     # set env variables
     os.environ["CUDA_VISIBLE_DEVICES"] = gpu
     os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
+    if num_workers <= 0:  # pragma: no cover
+        logger.info(
+            "Limiting CPU usage by setting environment variables "
+            "OMP_NUM_THREADS, TF_NUM_INTRAOP_THREADS, TF_NUM_INTEROP_THREADS to %d. "
+            "This may slow down the training. "
+            "Please use --num_workers flag to modify the behavior. "
+            "Setting to 0 or negative values will remove the limitation.",
+            num_workers,
+        )
+        # limit CPU usage
+        # https://github.com/tensorflow/tensorflow/issues/29968#issuecomment-789604232
+        os.environ["OMP_NUM_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTRAOP_THREADS"] = str(num_workers)
+        os.environ["TF_NUM_INTEROP_THREADS"] = str(num_workers)
 
     # load config
     config, log_dir, ckpt_path = build_config(
@@ -95,7 +114,7 @@ def train(
     data_loader_train, dataset_train, steps_per_epoch_train = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="train",
+        split="train",
         training=True,
         repeat=True,
     )
@@ -103,7 +122,7 @@ def train(
     data_loader_val, dataset_val, steps_per_epoch_val = build_dataset(
         dataset_config=config["dataset"],
         preprocess_config=config["train"]["preprocess"],
-        mode="valid",
+        split="valid",
         training=False,
         repeat=True,
     )
@@ -130,7 +149,7 @@ def train(
                 moving_image_size=data_loader_train.moving_image_shape,
                 fixed_image_size=data_loader_train.fixed_image_shape,
                 index_size=data_loader_train.num_indices,
-                labeled=config["dataset"]["labeled"],
+                labeled=config["dataset"]["train"]["labeled"],
                 batch_size=batch_size,
                 config=config["train"],
             )
@@ -202,6 +221,13 @@ def main(args=None):
     )
 
     parser.add_argument(
+        "--num_workers",
+        help="Number of CPUs to be used, <= 0 means unlimited.",
+        type=int,
+        default=1,
+    )
+
+    parser.add_argument(
         "--ckpt_path",
         "-k",
         help="Path of the saved model checkpoint to load."
@@ -245,6 +271,7 @@ def main(args=None):
     train(
         gpu=args.gpu,
         config_path=args.config_path,
+        num_workers=args.num_workers,
         gpu_allow_growth=args.gpu_allow_growth,
         ckpt_path=args.ckpt_path,
         log_dir=args.log_dir,

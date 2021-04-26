@@ -40,6 +40,17 @@ configuration can be specified in the configuration file. Please see
 
 ### Optional arguments
 
+- **CPU allocation**:
+
+  `--num_workers`, if given, TensorFlow will use limited CPUs.
+
+  By default, it uses only 1 CPUs. Setting it to non-positive values will be using all
+  CPUs.
+
+  Example usage:
+
+  - `--num_workers 2` for using at most 2 CPUs.
+
 - **GPU memory allocation**:
 
   `--gpu_allow_growth` or `-gr`, if given, TensorFlow will only grow the memory usage as
@@ -146,15 +157,25 @@ configuration can be specified in the configuration file. Please see
 
 - **Evaluation data**:
 
-  `--mode` or `-m`, specifies in which data set the prediction is performed.
+  `--split`, specifies in which data set the prediction is performed.
 
   It must be one of `train` / `valid` / `test`.
 
   Example usage:
 
-  - `--mode test` for evaluating the model on test data.
+  - `--split test` for evaluating the model on test split.
 
 ### Optional arguments
+
+- **CPU allocation**:
+
+  `--num_workers`, if given, TensorFlow will use limited CPUs.
+
+  By default, it uses all available CPUs.
+
+  Example usage:
+
+  - `--num_workers 2` for using at most 2 CPUs.
 
 - **GPU memory allocation**:
 

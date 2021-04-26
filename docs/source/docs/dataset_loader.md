@@ -121,13 +121,19 @@ An example configuration for paired dataset is provided as follows.
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder contains training data
-    valid: "data/test/h5/paired/test" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
-  format: "nifti" # value should be nifti / h5
+  train:
+    dir: "data/test/h5/paired/train" # folder containing data
+    format: "h5" # nifti or h5
+    labeled: true # true or false
+  valid:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
   type: "paired" # value should be paired / unpaired / grouped
-  labeled: true # value should be true / false
   moving_image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
   fixed_image_shape: [8, 8, 8] # value should be like [dim1, dim2, dim3]
 ```
@@ -151,12 +157,23 @@ sampled from several directories, for instance:
 
 ```yaml
 dataset:
-  dir:
-    train: # folder contains training data
+  train:
+    dir: # folders containing data
       - "data/test/h5/paired/train1"
       - "data/test/h5/paired/train2"
-    valid: "data/test/h5/paired/test" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
+    format: "h5" # nifti or h5
+    labeled: true # true or false
+  valid:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
+  type: "paired" # value should be paired / unpaired / grouped
+  moving_image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
+  fixed_image_shape: [8, 8, 8] # value should be like [dim1, dim2, dim3]
 ```
 
 This is particularly useful when performing an
@@ -269,13 +286,19 @@ An example configuration for unpaired dataset is provided as follows.
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder contains training data
-    valid: "data/test/h5/paired/test" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
-  format: "nifti" # value should be nifti / h5
+  train:
+    dir: "data/test/h5/paired/train" # folder containing data
+    format: "h5" # nifti or h5
+    labeled: true # true or false
+  valid:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/unpaired/test"
+    format: "h5"
+    labeled: true
   type: "unpaired" # value should be paired / unpaired / grouped
-  labeled: true # value should be true / false
   image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
 ```
 
@@ -428,17 +451,23 @@ An example configuration for grouped dataset is provided as follows.
 
 ```yaml
 dataset:
-  dir:
-    train: "data/test/h5/paired/train" # folder contains training data
-    valid: "data/test/h5/paired/test" # folder contains validation data
-    test: "data/test/h5/paired/test" # folder contains test data
-  format: "nifti" # value should be nifti / h5
+  train:
+    dir: "data/test/h5/paired/train" # folder containing data
+    format: "h5" # nifti or h5
+    labeled: true # true or false
+  valid:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
+  test:
+    dir: "data/test/h5/paired/test"
+    format: "h5"
+    labeled: true
   type: "unpaired" # value should be paired / unpaired / grouped
-  labeled: true # value should be true / false
   intra_group_prob: 1 # probability of intra-group sampling, value should be between 0 and 1
   intra_group_option: "forward" # option for intra-group sampling, value should be forward / backward / unconstrained
   sample_image_in_group: true # true if sampling one image per group, value should be true / false
-  image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]
+  image_shape: [16, 16, 16] # value should be like [dim1, dim2, dim3]`
 ```
 
 where

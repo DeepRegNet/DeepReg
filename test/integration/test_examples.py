@@ -2,13 +2,17 @@ import subprocess
 
 import pytest
 
+from deepreg import log
+
+logger = log.get(__name__)
+
 
 def execute_commands(cmds):
     for cmd in cmds:
         try:
-            print(f"Running {cmd}")
+            logger.info(f"Running {cmd}")
             out = subprocess.check_output(cmd, shell=True).decode("utf-8")
-            print(out)
+            logger.info(out)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 f"Command {cmd} return with err {e.returncode} {e.output}"

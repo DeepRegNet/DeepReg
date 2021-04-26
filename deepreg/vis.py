@@ -13,8 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.matlib
 
+from deepreg import log
 from deepreg.dataset.loader.nifti_loader import load_nifti_file
 from deepreg.model.layer import Warping
+
+logger = log.get(__name__)
 
 
 def string_to_list(string: str) -> List[str]:
@@ -62,7 +65,7 @@ def gif_slices(img_paths, save_path="", interval=50):
         )
 
         anim.save(path_to_anim_save)
-        print("Animation saved to:", path_to_anim_save)
+        logger.info("Animation saved to: %s.", path_to_anim_save)
 
 
 def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles=None):
@@ -112,7 +115,7 @@ def tile_slices(img_paths, save_path="", fname=None, slice_inds=None, col_titles
         fname = "visualisation.png"
     save_fig_to = os.path.join(save_path, fname)
     plt.savefig(save_fig_to)
-    print("Plot saved to:", save_fig_to)
+    logger.info("Plot saved to: %s", save_fig_to)
 
 
 def gif_warp(
@@ -174,7 +177,7 @@ def gif_warp(
             )
 
             anim.save(path_to_anim_save)
-            print("Animation saved to:", path_to_anim_save)
+            logger.info("Animation saved to: %s", path_to_anim_save)
 
 
 def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval=50):
@@ -252,7 +255,7 @@ def gif_tile_slices(img_paths, save_path=None, size=(2, 2), fname=None, interval
     path_to_anim_save = os.path.join(save_path, fname)
 
     anim.save(path_to_anim_save)
-    print("Animation saved to:", path_to_anim_save)
+    logger.info("Animation saved to: %s", path_to_anim_save)
 
 
 def main(args=None):
@@ -349,11 +352,11 @@ def main(args=None):
         args.slice_inds = string_to_list(args.slice_inds)
         args.slice_inds = [int(elem) for elem in args.slice_inds]
 
-    if args.mode is int(0):
+    if args.mode == 0:
         gif_slices(
             img_paths=args.image_paths, save_path=args.save_path, interval=args.interval
         )
-    elif args.mode is int(1):
+    elif args.mode == 1:
         if args.ddf_path is None:
             raise Exception("--ddf-path is required when using --mode 1")
         gif_warp(
@@ -364,7 +367,7 @@ def main(args=None):
             interval=args.interval,
             save_path=args.save_path,
         )
-    elif args.mode is int(2):
+    elif args.mode == 2:
         tile_slices(
             img_paths=args.image_paths,
             save_path=args.save_path,
@@ -372,7 +375,7 @@ def main(args=None):
             slice_inds=args.slice_inds,
             col_titles=args.col_titles,
         )
-    elif args.mode is int(3):
+    elif args.mode == 3:
         size = tuple([int(elem) for elem in string_to_list(args.size)])
         gif_tile_slices(
             img_paths=args.image_paths,
