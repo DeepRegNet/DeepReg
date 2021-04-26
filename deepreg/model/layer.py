@@ -435,10 +435,8 @@ class ResizeCPTransform(tfkl.Layer):
         super().build(input_shape=input_shape)
 
         output_shape = tuple(
-            [
-                tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
-                for v, c in zip(input_shape[1:-1], self.cp_spacing)
-            ]
+            tf.cast(tf.math.ceil(v / c) + 3, tf.int32)
+            for v, c in zip(input_shape[1:-1], self.cp_spacing)
         )
         self._output_shape = output_shape
         self._resize = Resize3d(output_shape)
