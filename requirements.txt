@@ -18,7 +18,7 @@ pytest==6.2.3
 pytest-cov==2.11.1
 pytest-dependency==0.5.1
 pyyaml==5.4.1
-scipy==1.6.2
+scipy==1.6.3
 seed-isort-config==2.2.0
 sphinx==3.5.3
 sphinx-notfound-page==0.6
