@@ -22,6 +22,9 @@ parser.add_argument(
     dest="test",
     action="store_false",
 )
+parser.add_argument(
+    "--dvf", help="using dvf to train the model", dest="test", action="store_true"
+)
 parser.set_defaults(test=False)
 args = parser.parse_args()
 
@@ -43,7 +46,10 @@ print(
 log_dir = f"demos/{name}"
 exp_name = "logs_predict/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 ckpt_path = f"{log_dir}/dataset/pretrained/ckpt-5000"
-config_path = [f"{log_dir}/{name}.yaml"]
+if args.dvf:
+    config_path = [f"demos/{name}/{name}_dvf.yaml"]
+else:
+    config_path = [f"demos/{name}/{name}.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 
