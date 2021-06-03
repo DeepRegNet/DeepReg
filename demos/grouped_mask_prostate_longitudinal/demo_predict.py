@@ -23,18 +23,18 @@ parser.add_argument(
     action="store_false",
 )
 parser.add_argument(
-    "--dvf", help="using dvf to train the model", dest="test", action="store_true"
+    "--dvf", help="using dvf to train the model", dest="dvf", action="store_true"
 )
-parser.set_defaults(test=False)
+parser.set_defaults(test=False, dvf=False)
 args = parser.parse_args()
 
 
 print(
     "\n\n\n\n\n"
     "=========================================================\n"
-    "The prediction can also be launched using the following command.\n"
+    "The ddf prediction can also be launched using the following command.\n"
     "deepreg_predict --gpu '' "
-    f"--config_path demos/{name}/{name}.yaml "
+    f"--config_path demos/{name}/{name}_ddf.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/ckpt-5000 "
     f"--log_dir demos/{name} "
     "--exp_name logs_predict "
@@ -49,7 +49,7 @@ ckpt_path = f"{log_dir}/dataset/pretrained/ckpt-5000"
 if args.dvf:
     config_path = [f"demos/{name}/{name}_dvf.yaml"]
 else:
-    config_path = [f"demos/{name}/{name}.yaml"]
+    config_path = [f"demos/{name}/{name}_ddf.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 

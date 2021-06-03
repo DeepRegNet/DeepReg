@@ -23,17 +23,17 @@ parser.add_argument(
     action="store_false",
 )
 parser.add_argument(
-    "--dvf", help="using dvf to train the model", dest="test", action="store_true"
+    "--dvf", help="using dvf to train the model", dest="dvf", action="store_true"
 )
-parser.set_defaults(test=True)
+parser.set_defaults(test=True, dvf=False)
 args = parser.parse_args()
 
 print(
     "\n\n\n\n\n"
     "=======================================================\n"
-    "The training can also be launched using the following command.\n"
+    "The ddf training can also be launched using the following command.\n"
     "deepreg_train --gpu '0' "
-    f"--config_path demos/{name}/{name}.yaml "
+    f"--config_path demos/{name}/{name}_ddf.yaml "
     f"--log_dir demos/{name} "
     "--exp_name logs_train\n"
     "=======================================================\n"
@@ -45,7 +45,7 @@ exp_name = "logs_train/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 if args.dvf:
     config_path = [f"demos/{name}/{name}_dvf.yaml"]
 else:
-    config_path = [f"demos/{name}/{name}.yaml"]
+    config_path = [f"demos/{name}/{name}_ddf.yaml"]
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 
