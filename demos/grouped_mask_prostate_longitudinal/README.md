@@ -66,12 +66,6 @@ such as
 python demos/grouped_mask_prostate_longitudinal/demo_train.py --full
 ```
 
-Here the training is launched using the dvf method instead of the ddf method. Please add 
-flag `--dvf` to use the model with dvf method, such as 
-```bash
-python demos/grouped_mask_prostate_longitudinal/demo_train.py --dvf
-```
-
 ### Predict
 
 Please execute the following command to run the prediction with pre-trained model. The
@@ -86,12 +80,6 @@ python demos/grouped_mask_prostate_longitudinal/demo_predict.py
 Optionally, the user-trained model can be used by changing the `ckpt_path` variable
 inside `demo_predict.py`. Note that the path should end with `.ckpt` and checkpoints are
 saved under `logs_train` as mentioned above.
-
-Here the prediction is launched using the dvf method instead of the ddf method. Please add 
-flag `--dvf` to use the model with dvf method, such as 
-```bash
-python demos/grouped_mask_prostate_longitudinal/demo_predict.py --dvf
-```
 
 ## Visualise
 
