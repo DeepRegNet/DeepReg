@@ -1,0 +1,55 @@
+dataset:
+  train:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/train
+    format: h5
+    labeled: false
+  valid:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/val
+    format: h5
+    labeled: false
+  test:
+    dir: demos/grouped_mask_prostate_longitudinal/dataset/test
+    format: h5
+    labeled: false
+  type: grouped # paired / unpaired / grouped
+  intra_group_prob: 1
+  intra_group_option: "unconstrained" # forward / backward / unconstrained
+  sample_image_in_group: true
+  image_shape: [128, 128, 32]
+
+train:
+  # define neural network structure
+  method: "dvf" # the registration method, value should be ddf / dvf / conditional
+  backbone:
+    name: "local" # value should be local / global / unet
+    num_channel_initial: 16 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2, 3]
+
+  # define the loss function for training
+  loss:
+    image:
+      name: "ssd"
+      weight: 1.0
+    label:
+      weight: 0.0
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
+    regularization:
+      weight: 0.0025 # weight of regularization loss
+      name: "gradient" # options include "bending", "gradient"
+      l1: false # false for l2, true for l1
+
+  # define the optimizer
+  optimizer:
+    name: "Adam"
+    learning_rate: 1.0e-5
+
+  preprocess:
+    data_augmentation:
+      name: "affine"
+    batch_size: 4
+    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
+
+  # other training hyper-parameters
+  epochs: 5000 # number of training epochs
+  save_period: 1000 # the model will be saved every `save_period` epochs.
