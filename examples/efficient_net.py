@@ -16,7 +16,7 @@ from deepreg.model.backbone import Backbone
 from deepreg.registry import REGISTRY
 from deepreg.train import train
 
-efficientnet_params = {
+EFFICIENTNET_PARAMS = {
     # model_name: (width_mult, depth_mult, image_size, dropout_rate, dropconnect_rate)
     "efficientnet-b0": (1.0, 1.0, 224, 0.2, 0.2),
     "efficientnet-b1": (1.0, 1.1, 240, 0.2, 0.2),
