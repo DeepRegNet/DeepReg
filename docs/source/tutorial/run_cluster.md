@@ -6,19 +6,19 @@ Ubuntu), with job scheduler Sun Grid Engine (SGE). More information on the speci
 configuration at UCL is available [here](https://hpc.cs.ucl.ac.uk/job-submission/).
 
 ## Installing the Environment
-Below is the script to install the environment for DeepReg in the cluster. If you want to switch to the current working branch. Call `git branch origin/<branch-name>` after downloading DeepReg.
+Below is the script to install the environment for DeepReg in the cluster. If you want to switch to the current working branch. Call `git branch origin/<branch_name>` after downloading DeepReg.
 ```
-git clone https://github.com/<Personal-acount-id>/DeepReg.git
+git clone https://github.com/<personal_acount_id>/DeepReg.git
 module load default/python/3.8.5
 
-cd <DeepReg Dir>
+cd <DeepReg_Dir>
 
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda env create -f environment.yml   #set up environment
 
 source activate deepreg   # activate conda env
 
-export CONDA_PIP="/home/<cs-account-id>/.conda/envs/deepreg/bin/pip"
+export CONDA_PIP="/home/<cs_account_id>/.conda/envs/deepreg/bin/pip"
 $CONDA_PIP install -e .
 ```
 `module` is the command to find packages and set up them in your own storge. You can get more information by `module help` 
@@ -28,7 +28,7 @@ export PATH=/share/apps/<module_name>/bin:$PATH
 ```
 You can find any available packages in cluster nodes by 
 ```
-ls /share/apps/ | grep '<package name>*'
+ls /share/apps/ | grep '<package_name>*'
 ```
 **Tip:** For now, all the packages are stored in `share/apps/`. If the path does not exist, try `module load default/python/3.8.5`. Then, call `$PATH` to find the new location of packages.
 
@@ -39,7 +39,7 @@ Below is the submission script for running quick start example
 [here](../getting_started/quick_start.md). Change `<DeepReg_dir>` in the script to the
 remote DeepReg repo location and save the below code in a `<your_name>.qsub`. Submit the
 job with `qsub <your_name>.qsub` and check the status of the job with `qstat`, the saved
-stdout and stderr is in `<DeepReg_dir>/logs/`.
+stdout and stderr is in `home/<cs_account_id>/logs/`.
 
 ```
 #!/bin/bash
@@ -49,7 +49,7 @@ stdout and stderr is in `<DeepReg_dir>/logs/`.
 #$ -l h_rt=36:0:0   # max job runtime hour:min:sec
 #$ -R y
 #$ -N DeepReg_tst   # job name
-#$ -wd home/<cs-account-id>/logs   # output, error log dir. 
+#$ -wd home/<cs_account_id>/logs   # output, error log dir. 
 #Please call `mkdir logs` before using the script.
 
 hostname
