@@ -1,51 +1,43 @@
 dataset:
   train:
-    dir: "data/test/nifti/unpaired/train"
-    format: "nifti"
+    dir: demos/paired_ct_lung/dataset/train
+    format: nifti
     labeled: true
   valid:
-    dir: "data/test/nifti/unpaired/test"
-    format: "nifti"
+    dir: demos/paired_ct_lung/dataset/valid
+    format: nifti
     labeled: true
   test:
-    dir: "data/test/nifti/unpaired/test"
-    format: "nifti"
+    dir: demos/paired_ct_lung/dataset/test
+    format: nifti
     labeled: true
-  type: "unpaired" # paired / unpaired / grouped
-  image_shape: [16, 16, 16]
-
+  type: paired # paired / unpaired / grouped
+  moving_image_shape: [96, 96, 104]
+  fixed_image_shape: [96, 96, 104]
 train:
-  # define neural network structure
-  method: "ddf" # options include "ddf", "dvf", "conditional"
+  method: "ddf" # the registration method, value should be ddf / dvf / conditional
   backbone:
-    name: "efficient_net" # options include "local", "unet" and "global"
-    num_channel_initial: 1 # number of initial channel in local net, controls the size of the network
-
-  # define the loss function for training
+    name: "efficient_net" # value should be local / global / unet
+    num_channel_initial: 32 # number of initial channel in local net, controls the size of the network
+    extract_levels: [0, 1, 2]
   loss:
     image:
-      name: "lncc" # other options include "lncc", "ssd" and "gmi", for local normalised cross correlation,
-      weight: 0.1
+      name: "ssd"
+      weight: 10.0
     label:
       weight: 1.0
-      name: "dice" # options include "dice", "cross-entropy", "mean-squared", "generalised_dice" and "jaccard"
-      scales: [0, 1, 2, 4, 8, 16, 32]
+      name: "dice"
+      scales: [0, 1, 2, 4, 8, 16]
     regularization:
-      weight: 0.5 # weight of regularization loss
-      name: "bending" # options include "bending", "gradient"
-
-  # define the optimizer
-  optimizer:
-    name: "Adam"
-    learning_rate: 1.0e-5
-
-  # define the hyper-parameters for preprocessing
+      weight: 2.5
+      name: "bending"
   preprocess:
     data_augmentation:
       name: "affine"
-    batch_size: 2
-    shuffle_buffer_num_batch: 1 # shuffle_buffer_size = batch_size * shuffle_buffer_num_batch
-
-  # other training hyper-parameters
-  epochs: 2 # number of training epochs
-  save_period: 2 # the model will be saved every `save_period` epochs.
+    batch_size: 4
+    shuffle_buffer_num_batch: 1
+  optimizer:
+    name: "Adam"
+    learning_rate: 1.0e-5
+  epochs: 2
+  save_period: 2
