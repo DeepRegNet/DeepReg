@@ -84,8 +84,11 @@ def train(
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
     """
     # set env variables
-    os.environ["CUDA_VISIBLE_DEVICES"] = gpu
-    os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true" if gpu_allow_growth else "false"
+    if gpu != "all":
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+        os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
+            "true" if gpu_allow_growth else "false"
+        )
     if num_workers <= 0:  # pragma: no cover
         logger.info(
             "Limiting CPU usage by setting environment variables "
