@@ -15,6 +15,7 @@ cd <DeepReg_Dir>
 
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda env create -f environment.yml   #set up environment
+source /share/apps/source_files/cuda/cuda-10.1.source #set up cuda for gpu
 
 source activate deepreg   # activate conda env
 
@@ -30,8 +31,10 @@ You can find any available packages in cluster nodes by
 ```
 ls /share/apps/ | grep '<package_name>*'
 ```
-**Tip:** For now, all the packages are stored in `share/apps/`. If the path does not exist, try `module load default/python/3.8.5`. Then, call `$PATH` to find the new location of packages.
-
+Using `source` to set up packages is available as well. The effect is the same as `export`.
+```
+source /share/apps/source_files/<package_name>/<package_name>-x.x.source
+```
 
 ## Example Script
 
@@ -47,30 +50,26 @@ stdout and stderr is in `home/<cs_account_id>/logs/`.
 #$ -l gpu=true   # use gpu
 #$ -l tmem=10G   # virtual mem used
 #$ -l h_rt=36:0:0   # max job runtime hour:min:sec
-#$ -R y
 #$ -N DeepReg_tst   # job name
-#$ -wd home/<cs_account_id>/logs   # output, error log dir. 
+#$ -wd /home/<cs_account_id>/logs   # output, error log dir. 
 #Please call `mkdir logs` before using the script.
 
 hostname
 date
 
-cd ../<DeepReg_dir>
+cd /home/<DeepReg_dir>
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda activate deepreg   # activate conda env
-export PATH=/share/apps/cuda-10.1/bin:/share/apps/gcc-8.3/bin:$PATH   # path for cuda, gcc
-export LD_LIBRARY_PATH=/share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:$LD_LIBRARY_PATH   # path for cuda, gcc
 
 deepreg_train \
---gpu "0" \
+--gpu "all" \
 --config_path config/unpaired_labeled_ddf.yaml \
 --log_dir test
 ```
 
-You also can directly access one of four cluster nodes reserved for development purposes, by the command below. You can then run your code via the command line. More information on the specific
-configuration at UCL is available [here](https://hpc.cs.ucl.ac.uk/job-submission/).
+You also can directly access one of four cluster nodes reserved for development purposes, by the command below. You can then run your code via the command line. More information on the specific configuration at UCL is available [here](https://hpc.cs.ucl.ac.uk/job-submission/).
 ```
-qrsh -l tmem=14G,h_vmem=14G
+qrsh -l tmem=14G,h_rt=20:00:00
 ```
 ## Contact and Version
 
