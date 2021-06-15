@@ -19,7 +19,7 @@ cd <DeepReg_Dir>
 
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda env create -f environment.yml   #set up environment
-
+source /share/apps/source_files/cuda/cuda-10.1.source    # set up cuda for GPU
 source activate deepreg   # activate conda env
 
 export CONDA_PIP="/home/<cs_account_id>/.conda/envs/deepreg/bin/pip"
