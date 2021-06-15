@@ -1,12 +1,16 @@
 # Running DeepReg Remotely (on the Cluster)
 
 This tutorial gives an example of how to run DeepReg remotely (e.g. on a cluster). Our
-example is specific to the UCL cluster, which has operating system CentOS 7 (similar to
-Ubuntu), with job scheduler Sun Grid Engine (SGE). More information on the specific
+example is specific to the UCL cluster, which has the operating system CentOS 7 (similar
+to Ubuntu), with job scheduler Sun Grid Engine (SGE). More information on the specific
 configuration at UCL is available [here](https://hpc.cs.ucl.ac.uk/job-submission/).
 
 ## Installing the Environment
-Below is the script to install the environment for DeepReg in the cluster. If you want to switch to the current working branch. Call `git branch origin/<branch_name>` after downloading DeepReg.
+
+Below is the script to install the environment for DeepReg in the cluster. If you want
+to switch to the current working branch. Call `git branch origin/<branch_name>` after
+downloading DeepReg.
+
 ```
 git clone https://github.com/<personal_acount_id>/DeepReg.git
 module load default/python/3.8.5
@@ -15,26 +19,29 @@ cd <DeepReg_Dir>
 
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda env create -f environment.yml   #set up environment
-source /share/apps/source_files/cuda/cuda-10.1.source #set up cuda for gpu
 
 source activate deepreg   # activate conda env
 
 export CONDA_PIP="/home/<cs_account_id>/.conda/envs/deepreg/bin/pip"
 $CONDA_PIP install -e .
 ```
-`module` is the command to find packages and set up them in your own storge. You can get more information by `module help` 
-Another way to install packages is 
+
+`module` is a command to find packages and set up them in your own storge. You can get
+more information by `module help`. Another way to install packages is
+
 ```
 export PATH=/share/apps/<module_name>/bin:$PATH
 ```
-You can find any available packages in cluster nodes by 
+
+You can find any available packages in cluster nodes by
+
 ```
 ls /share/apps/ | grep '<package_name>*'
 ```
-Using `source` to set up packages is available as well. The effect is the same as `export`.
-```
-source /share/apps/source_files/<package_name>/<package_name>-x.x.source
-```
+
+**Tip:** For now, all the packages are stored in `share/apps/`. If the path does not
+exist, try `module load default/python/3.8.5`. Then, call `$PATH` to find the new
+location of packages.
 
 ## Example Script
 
@@ -50,27 +57,35 @@ stdout and stderr is in `home/<cs_account_id>/logs/`.
 #$ -l gpu=true   # use gpu
 #$ -l tmem=10G   # virtual mem used
 #$ -l h_rt=36:0:0   # max job runtime hour:min:sec
+#$ -R y
 #$ -N DeepReg_tst   # job name
-#$ -wd /home/<cs_account_id>/logs   # output, error log dir. 
+#$ -wd home/<cs_account_id>/logs   # output, error log dir.
 #Please call `mkdir logs` before using the script.
 
 hostname
 date
 
-cd /home/<DeepReg_dir>
+cd ../<DeepReg_dir>
 export PATH=/share/apps/anaconda3-5/bin:$PATH
 conda activate deepreg   # activate conda env
+export PATH=/share/apps/cuda-10.1/bin:/share/apps/gcc-8.3/bin:$PATH   # path for cuda, gcc
+export LD_LIBRARY_PATH=/share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:$LD_LIBRARY_PATH   # path for cuda, gcc
 
 deepreg_train \
---gpu "all" \
+--gpu "0" \
 --config_path config/unpaired_labeled_ddf.yaml \
 --log_dir test
 ```
 
-You also can directly access one of four cluster nodes reserved for development purposes, by the command below. You can then run your code via the command line. More information on the specific configuration at UCL is available [here](https://hpc.cs.ucl.ac.uk/job-submission/).
+You also can directly access one of four cluster nodes reserved for development
+purposes, by the command below. You can then run your code via the command line. More
+information on the specific configuration at UCL is available
+[here](https://hpc.cs.ucl.ac.uk/job-submission/).
+
 ```
-qrsh -l tmem=14G,h_rt=20:00:00
+qrsh -l tmem=14G,h_vmem=14G
 ```
+
 ## Contact and Version
 
 Please contact stefano.blumberg.17@ucl.ac.uk, for information about the cluster. The
