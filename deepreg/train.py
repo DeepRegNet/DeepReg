@@ -62,14 +62,15 @@ def build_config(
 
 
 def train(
-    gpu: str,
     config_path: Union[str, List[str]],
     ckpt_path: str,
+    gpu: str = None,
     num_workers: int = 1,
     gpu_allow_growth: bool = True,
     exp_name: str = "",
     log_dir: str = "logs",
     max_epochs: int = -1,
+    remote: bool = False,
 ):
     """
     Function to train a model.
@@ -84,7 +85,7 @@ def train(
     :param max_epochs: if max_epochs > 0, will use it to overwrite the configuration.
     """
     # set env variables
-    if gpu != "all":
+    if not remote and gpu:
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu
         os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
             "true" if gpu_allow_growth else "false"
@@ -213,7 +214,17 @@ def main(args=None):
         '-g "0" for using GPU 0'
         '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        required=True,
+        required=False,
+    )
+
+    parser.add_argument(
+        "--remote",
+        "-r",
+        help="Use GPU remotely for training.",
+        dest="remote",
+        action="store_true",
+        required=False,
+        default=False,
     )
 
     parser.add_argument(
@@ -280,6 +291,7 @@ def main(args=None):
         log_dir=args.log_dir,
         exp_name=args.exp_name,
         max_epochs=args.max_epochs,
+        remote=args.remote,
     )
 
 
