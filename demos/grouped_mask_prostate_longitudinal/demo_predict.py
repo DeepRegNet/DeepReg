@@ -36,6 +36,7 @@ print(
     f"--log_dir demos/{name} "
     "--exp_name logs_predict "
     "--save_png --split test\n"
+    "If using remote GPU, add '--remote'\n"
     "=========================================================\n"
     "\n\n\n\n\n"
 )

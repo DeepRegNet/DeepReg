@@ -22,13 +22,8 @@ parser.add_argument(
     dest="test",
     action="store_false",
 )
-parser.add_argument(
-    "--remote",
-    help="Use gpu romotely (on Cluster)",
-    dest="remote",
-    action="store_true",
-)
-parser.set_defaults(test=True, remote=False)
+
+parser.set_defaults(test=True)
 args = parser.parse_args()
 
 print(
@@ -39,7 +34,7 @@ print(
     f"--config_path demos/{name}/{name}.yaml "
     f"--log_dir demos/{name} "
     "--exp_name logs_train\n"
-    "If using remote GPU, change to --gpu 'all' \n"
+    "If using remote GPU, add '--remote' \n"
     "=======================================================\n"
     "\n\n\n\n\n"
 )
@@ -47,17 +42,13 @@ print(
 log_dir = f"demos/{name}"
 exp_name = "logs_train/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 config_path = [f"demos/{name}/{name}.yaml"]
-gpu = "0"
-gpu_allow_growth = True
 if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
-if args.remote:
-    gpu = "all"
-    gpu_allow_growth = False
+
 train(
-    gpu=gpu,
+    gpu="0",
     config_path=config_path,
-    gpu_allow_growth=gpu_allow_growth,
+    gpu_allow_growth=True,
     ckpt_path="",
     log_dir=log_dir,
     exp_name=exp_name,
