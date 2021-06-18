@@ -57,7 +57,6 @@ stdout and stderr is in `home/<cs_account_id>/logs/`.
 #$ -l gpu=true   # use gpu
 #$ -l tmem=10G   # virtual mem used
 #$ -l h_rt=36:0:0   # max job runtime hour:min:sec
-#$ -R y
 #$ -N DeepReg_tst   # job name
 #$ -wd home/<cs_account_id>/logs   # output, error log dir.
 #Please call `mkdir logs` before using the script.
@@ -67,12 +66,12 @@ date
 
 cd ../<DeepReg_dir>
 export PATH=/share/apps/anaconda3-5/bin:$PATH
-conda activate deepreg   # activate conda env
+source activate deepreg   # activate conda env
 export PATH=/share/apps/cuda-10.1/bin:/share/apps/gcc-8.3/bin:$PATH   # path for cuda, gcc
 export LD_LIBRARY_PATH=/share/apps/cuda-10.1/lib64:/share/apps/gcc-8.3/lib64:$LD_LIBRARY_PATH   # path for cuda, gcc
 
 deepreg_train \
---gpu "0" \
+--gpu \
 --config_path config/unpaired_labeled_ddf.yaml \
 --log_dir test
 ```
