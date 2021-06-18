@@ -214,8 +214,8 @@ def main(args=None):
         '-g "0" for using GPU 0'
         '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        required=True,
-        default=None,
+        required=False,
+        default=False,
     )
 
     parser.add_argument(
