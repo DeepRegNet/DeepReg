@@ -184,18 +184,17 @@ def build_config(
 
 
 def predict(
+    gpu: str,
     ckpt_path: str,
     split: str,
     batch_size: int,
     exp_name: str,
     config_path: Union[str, List[str]],
-    gpu: str = None,
     num_workers: int = 1,
     gpu_allow_growth: bool = True,
     save_nifti: bool = True,
     save_png: bool = True,
     log_dir: str = "logs",
-    remote: bool = False,
 ):
     """
     Function to predict some metrics from the saved model and logging results.
@@ -214,7 +213,7 @@ def predict(
     """
 
     # env vars
-    if not remote and gpu:
+    if gpu:
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu
         os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
             "false" if gpu_allow_growth else "true"
@@ -325,21 +324,13 @@ def main(args=None):
         "--gpu",
         "-g",
         help="GPU index for training."
+        "-g for using GPU remotely"
         '-g "" for using CPU'
         '-g "0" for using GPU 0'
         '-g "0,1" for using GPU 0 and 1.',
         type=str,
-        required=False,
-    )
-
-    parser.add_argument(
-        "--remote",
-        "-r",
-        help="Use GPU remotely for training.",
-        dest="remote",
-        action="store_true",
-        required=False,
-        default=False,
+        required=True,
+        default=None,
     )
 
     parser.add_argument(
@@ -416,7 +407,6 @@ def main(args=None):
         config_path=args.config_path,
         save_nifti=args.nifti,
         save_png=args.png,
-        remote=args.remote,
     )
 
 
