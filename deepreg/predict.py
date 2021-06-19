@@ -213,7 +213,7 @@ def predict(
     """
 
     # env vars
-    if gpu:
+    if gpu is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu
         os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = (
             "false" if gpu_allow_growth else "true"
@@ -330,7 +330,6 @@ def main(args=None):
         '-g "0,1" for using GPU 0 and 1.',
         type=str,
         required=False,
-        default=False,
     )
 
     parser.add_argument(

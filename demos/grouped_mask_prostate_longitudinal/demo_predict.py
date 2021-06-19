@@ -49,8 +49,8 @@ if args.test:
     config_path.append("config/test/demo_unpaired_grouped.yaml")
 
 predict(
-    gpu="",
-    gpu_allow_growth=False,
+    gpu="0",
+    gpu_allow_growth=True,
     ckpt_path=ckpt_path,
     split="test",
     batch_size=1,
