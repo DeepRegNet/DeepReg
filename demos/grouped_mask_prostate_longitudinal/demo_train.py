@@ -34,7 +34,6 @@ print(
     f"--config_path demos/{name}/{name}.yaml "
     f"--log_dir demos/{name} "
     "--exp_name logs_train\n"
-    "If using remote GPU, add '--remote' \n"
     "=======================================================\n"
     "\n\n\n\n\n"
 )
