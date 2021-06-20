@@ -43,6 +43,7 @@ compatible with the updates.
 
 ### Fixed
 
+- Fixed using GPU remotely
 - Fixed LNCC loss regarding INF values.
 - Removed loss weight checks to be more robust.
 - Fixed import error under python 3.6.
