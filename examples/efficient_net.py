@@ -4,6 +4,8 @@ import os
 import math
 import numpy as np
 import tensorflow as tf
+# tf.config.experimental_run_functions_eagerly(True)
+
 from tensorflow.keras import layers
 from copy import deepcopy
 from typing import List, Optional, Tuple, Union
@@ -166,14 +168,21 @@ class EfficientNet(LocalNet):
         # encoding / down-sampling
         skips = []
         encoded = inputs
+        print("before:", encoded.shape)
+
         for d in range(self._depth):
             skip = self._encode_convs[d](inputs=encoded, training=training)
             encoded = self._encode_pools[d](inputs=skip, training=training)
             skips.append(skip)
-
+        print("skip: ", len(skip), self._depth)
+        print("encode: ", encoded.shape)
         # bottom
-        decoded = self.build_efficient_net(inputs=encoded, training=training)  # type: ignore
+        import efficientnet_3D.keras as efn 
+        e_model = efn.EfficientNetB0(input_shape=(24, 24, 26, 64), weights='imagenet')
+        decoded = e_model(encoded)
+        # decoded = self.build_efficient_net(inputs=encoded)  # type: ignore
 
+        print("decode: ", decoded.shape)
         # decoding / up-sampling
         outs = [decoded]
         for d in range(self._depth - 1, min(self._extract_levels) - 1, -1):
@@ -207,7 +216,7 @@ class EfficientNet(LocalNet):
                         strides=1,
                         padding='same',
                         use_bias=False,
-                        kernel_initializer=CONV_KERNEL_INITIALIZER,
+                        # kernel_initializer=CONV_KERNEL_INITIALIZER,
                         name='stem_conv')(x)
         x = layers.BatchNormalization(axis=bn_axis, name='stem_bn')(x)
         x = layers.Activation(self.activation_fn, name='stem_activation')(x)
@@ -215,24 +224,24 @@ class EfficientNet(LocalNet):
 
         b = 0
         # Calculate the number of blocks
-        blocks = float(sum(args['repeats'] for args in blocks_args))
-        for (i, args) in enumerate(blocks_args):
-            assert args['repeats'] > 0
-            args['filters_in'] = self.round_filters(args['filters_in'])
-            args['filters_out'] = self.round_filters(args['filters_out'])
+        # blocks = float(sum(args['repeats'] for args in blocks_args))
+        # for (i, args) in enumerate(blocks_args):
+        #     assert args['repeats'] > 0
+        #     args['filters_in'] = self.round_filters(args['filters_in'])
+        #     args['filters_out'] = self.round_filters(args['filters_out'])
 
-            for j in range(self.round_repeats(args.pop('repeats'))):
-                if j > 0:
-                    args['strides'] = 1
-                    args['filters_in'] = args['filters_out']
-                x = self.block(x, self.activation_fn, self.drop_connect_rate * b / blocks,
-                        name='block{}{}_'.format(i + 1, chr(j + 97)), **args)
-                b += 1
+        #     for j in range(self.round_repeats(args.pop('repeats'))):
+        #         if j > 0:
+        #             args['strides'] = 1
+        #             args['filters_in'] = args['filters_out']
+        #         x = self.block(x, self.activation_fn, self.drop_connect_rate * b / blocks,
+        #                 name='block{}{}_'.format(i + 1, chr(j + 97)), **args)
+        #         b += 1
         
         x = layers.Conv3D(self.round_filters(128), 1,
                         padding='same',
                         use_bias=False,
-                        kernel_initializer=CONV_KERNEL_INITIALIZER,
+                        # kernel_initializer=CONV_KERNEL_INITIALIZER,
                         name='top_conv')(x)
         x = layers.BatchNormalization(axis=bn_axis, name='top_bn')(x)
         x = layers.Activation(self.activation_fn, name='top_activation')(x)
@@ -284,7 +293,7 @@ class EfficientNet(LocalNet):
             x = layers.Conv3D(filters, 1,
                             padding='same',
                             use_bias=False,
-                            kernel_initializer=CONV_KERNEL_INITIALIZER,
+                            # kernel_initializer=CONV_KERNEL_INITIALIZER,
                             name=name + 'expand_conv')(inputs)
             x = layers.BatchNormalization(axis=bn_axis, name=name + 'expand_bn')(x)
             x = layers.Activation(activation_fn, name=name + 'expand_activation')(x)
@@ -316,19 +325,19 @@ class EfficientNet(LocalNet):
             se = layers.Conv3D(filters_se, 1,
                             padding='same',
                             activation=activation_fn,
-                            kernel_initializer=CONV_KERNEL_INITIALIZER,
+                            # kernel_initializer=CONV_KERNEL_INITIALIZER,
                             name=name + 'se_reduce')(se)
             se = layers.Conv3D(filters, 1,
                             padding='same',
                             activation='sigmoid',
-                            kernel_initializer=CONV_KERNEL_INITIALIZER,
+                            # kernel_initializer=CONV_KERNEL_INITIALIZER,
                             name=name + 'se_expand')(se)
             x = layers.multiply([x, se], name=name + 'se_excite')
 
         x = layers.Conv3D(filters_out, 1,
                         padding='same',
                         use_bias=False,
-                        kernel_initializer=CONV_KERNEL_INITIALIZER,
+                        # kernel_initializer=CONV_KERNEL_INITIALIZER,
                         name=name + 'project_conv')(x)
         x = layers.BatchNormalization(axis=bn_axis, name=name + 'project_bn')(x)
 
@@ -350,7 +359,7 @@ class EfficientNet(LocalNet):
 if __name__ == "__main__":
     config_path = "examples/config_efficient_net.yaml"
     train(
-        gpu="",
+        gpu="0",
         config_path=config_path,
         gpu_allow_growth=True,
         ckpt_path="",
