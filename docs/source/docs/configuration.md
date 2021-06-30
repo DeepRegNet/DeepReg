@@ -23,7 +23,7 @@ dataset:
     format: "h5"
     labeled: true
   valid:
-    dir: "data/test/h5/paired/test"
+    dir: "data/test/h5/paired/valid"
     format: "h5"
     labeled: true
   test:
