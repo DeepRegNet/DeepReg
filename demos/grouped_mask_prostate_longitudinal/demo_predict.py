@@ -32,9 +32,10 @@ args = parser.parse_args()
 print(
     "\n\n\n\n\n"
     "=========================================================\n"
-    "The ddf prediction can also be launched using the following command.\n"
-    "deepreg_predict --gpu '' "
-    f"--config_path demos/{name}/{name}_ddf.yaml "
+
+    "The prediction can also be launched using the following command.\n"
+    "deepreg_predict --gpu '0' "
+    f"--config_path demos/{name}/{name}.yaml "
     f"--ckpt_path demos/{name}/dataset/pretrained/ckpt-5000 "
     f"--log_dir demos/{name} "
     "--exp_name logs_predict "

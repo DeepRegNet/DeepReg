@@ -26,6 +26,7 @@ parser.add_argument(
     "--dvf", help="using dvf to train the model", dest="dvf", action="store_true"
 )
 parser.set_defaults(test=True, dvf=False)
+
 args = parser.parse_args()
 
 print(
