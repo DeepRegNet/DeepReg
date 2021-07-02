@@ -22,6 +22,7 @@ parser.add_argument(
     dest="test",
     action="store_false",
 )
+
 parser.set_defaults(test=True)
 args = parser.parse_args()
 
