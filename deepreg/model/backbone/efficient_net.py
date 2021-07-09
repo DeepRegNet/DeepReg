@@ -88,6 +88,7 @@ class AffineHead(tfkl.Layer):
         config.update(image_size=self.reference_grid.shape[:3])
         return config
 
+
 @REGISTRY.register_backbone(name="efficient_net")
 class EfficientNet(Backbone):
     """
@@ -116,7 +117,13 @@ class EfficientNet(Backbone):
         decode_num_channels: Optional[Tuple] = None,
         strides: int = 2,
         padding: str = "same",
-        name: str = "Unet",
+        width_coefficient: float = 1.0,
+        depth_coefficient: float = 1.0,
+        default_size: int = 224,
+        dropout_rate: float = 0.2,
+        drop_connect_rate: float = 0.2,
+        depth_divisor: int = 8,
+        name: str = "EfficientNet",
         **kwargs,
     ):
         """
@@ -141,6 +148,12 @@ class EfficientNet(Backbone):
             by default it is the same as encode_num_channels
         :param strides: strides for down-sampling
         :param padding: padding mode for all conv layers
+        :param width_coefficient: float, scaling coefficient for network width.
+        :param depth_coefficient: float, scaling coefficient for network depth.
+        :param default_size: int, default input image size.
+        :param dropout_rate: float, dropout rate before final classifier layer.
+        :param drop_connect_rate: float, dropout rate at skip connections.
+        :param depth_divisor: int divisor for depth.
         :param name: name of the backbone.
         :param kwargs: additional arguments.
         """
@@ -169,12 +182,20 @@ class EfficientNet(Backbone):
         self._strides = strides
         self._padding = padding
 
+        # efficient parameters
+        self._width_coefficient =  width_coefficient
+        self._depth_coefficient = depth_coefficient
+        self._default_size = default_size
+        self._dropout_rate = dropout_rate
+        self._drop_connect_rate = drop_connect_rate
+        self._depth_divisor = depth_divisor
+        self._activation_fn = tf.nn.swish
+
         # init layers
         # all lists start with d = 0
         self._encode_convs: List[tfkl.Layer] = []
         self._encode_pools: List[tfkl.Layer] = []
         self._bottom_block = None
-        self._decode_deconvs: List[tfkl.Layer] = []
         self._decode_convs: List[tfkl.Layer] = []
         self._output_block = None
 
@@ -280,82 +301,6 @@ class EfficientNet(Backbone):
             ]
         )
 
-    def build_up_sampling_block(
-        self,
-        filters: int,
-        output_padding: Union[Tuple[int, ...], int],
-        kernel_size: Union[Tuple[int, ...], int],
-        padding: str,
-        strides: Union[Tuple[int, ...], int],
-        output_shape: Tuple[int, ...],
-    ) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a block for up-sampling.
-
-        This block changes the tensor shape (width, height, depth),
-        but it does not changes the number of channels.
-
-        :param filters: number of channels for output
-        :param output_padding: padding for output
-        :param kernel_size: arg for deconv3d
-        :param padding: arg for deconv3d
-        :param strides: arg for deconv3d
-        :param output_shape: shape of the output tensor
-        :return: a block consists of one or multiple layers
-        """
-        return layer.Deconv3dBlock(
-            filters=filters,
-            output_padding=output_padding,
-            kernel_size=kernel_size,
-            strides=strides,
-            padding=padding,
-        )
-
-    def build_skip_block(self) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a block for combining skipped tensor and up-sampled one.
-
-        This block do not change the tensor shape (width, height, depth),
-        it only changes the number of channels.
-
-        The input to this block is a list of tensors.
-
-        :return: a block consists of one or multiple layers
-        """
-        if self._concat_skip:
-            return tfkl.Concatenate()
-        else:
-            return tfkl.Add()
-
-    def build_decode_conv_block(
-        self, filters: int, kernel_size: int, padding: str
-    ) -> Union[tf.keras.Model, tfkl.Layer]:
-        """
-        Build a conv block for up-sampling
-
-        This block do not change the tensor shape (width, height, depth),
-        it only changes the number of channels.
-
-        :param filters: number of channels for output
-        :param kernel_size: arg for conv3d
-        :param padding: arg for conv3d
-        :return: a block consists of one or multiple layers
-        """
-        return tf.keras.Sequential(
-            [
-                layer.Conv3dBlock(
-                    filters=filters,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                ),
-                layer.ResidualConv3dBlock(
-                    filters=filters,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                ),
-            ]
-        )
-
     def build_output_block(
         self,
         image_size: Tuple[int, ...],
@@ -367,22 +312,17 @@ class EfficientNet(Backbone):
         """
         Build a block for output.
 
-        The input to this block is a list of tensors.
+        The input to this block is a list of length 1.
+        The output has two tensors.
 
         :param image_size: such as (dim1, dim2, dim3)
-        :param extract_levels: number of extraction levels.
-        :param out_channels: number of channels for the extractions
-        :param out_kernel_initializer: initializer to use for kernels.
-        :param out_activation: activation to use at end layer.
+        :param extract_levels: not used
+        :param out_channels: not used
+        :param out_kernel_initializer: not used
+        :param out_activation: not used
         :return: a block consists of one or multiple layers
         """
-        return Extraction(
-            image_size=image_size,
-            extract_levels=extract_levels,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-        )
+        return AffineHead(image_size=image_size)
 
     def build_layers(
         self,
@@ -425,20 +365,6 @@ class EfficientNet(Backbone):
                 num_channel_initial * (2 ** d) for d in range(depth + 1)
             )
         assert len(encode_num_channels) == depth + 1
-        if decode_num_channels is None:
-            decode_num_channels = encode_num_channels
-        assert len(decode_num_channels) == depth + 1
-        if not self._concat_skip:
-            # in case of adding skip tensors, the channels should match
-            if decode_num_channels != encode_num_channels:
-                raise ValueError(
-                    "For UNet, if the skipped tensor is added "
-                    "instead of being concatenated, "
-                    "the encode_num_channels and decode_num_channels "
-                    "should be the same. "
-                    f"But got encode_num_channels = {encode_num_channels},"
-                    f"decode_num_channels = {decode_num_channels}."
-                )
         tensor_shapes = self.build_encode_layers(
             image_size=image_size,
             num_channels=encode_num_channels,
@@ -447,18 +373,12 @@ class EfficientNet(Backbone):
             strides=strides,
             padding=padding,
         )
-        self.build_decode_layers(
-            tensor_shapes=tensor_shapes,
+        self._output_block = self.build_output_block(
             image_size=image_size,
-            num_channels=decode_num_channels,
-            depth=depth,
             extract_levels=extract_levels,
-            decode_kernel_sizes=decode_kernel_sizes,
-            strides=strides,
-            padding=padding,
+            out_channels=out_channels,
             out_kernel_initializer=out_kernel_initializer,
             out_activation=out_activation,
-            out_channels=out_channels,
         )
 
     def build_encode_layers(
@@ -525,81 +445,6 @@ class EfficientNet(Backbone):
         )
         return tensor_shapes
 
-    def build_decode_layers(
-        self,
-        tensor_shapes: List[Tuple],
-        image_size: Tuple,
-        num_channels: Tuple,
-        depth: int,
-        extract_levels: Tuple[int, ...],
-        decode_kernel_sizes: Union[int, List[int]],
-        strides: int,
-        padding: str,
-        out_kernel_initializer: str,
-        out_activation: str,
-        out_channels: int,
-    ):
-        """
-        Build layers for decoding.
-
-        :param tensor_shapes: shapes calculated in encoder
-        :param image_size: (dim1, dim2, dim3).
-        :param num_channels: number of channels for each layer,
-            starting from the top layer.
-        :param depth: network starts with d = 0, and the bottom has d = depth.
-        :param extract_levels: from which depths the output will be built.
-        :param decode_kernel_sizes: kernel size for up-sampling
-        :param strides: strides for down-sampling
-        :param padding: padding mode for all conv layers
-        :param out_kernel_initializer: initializer to use for kernels.
-        :param out_activation: activation to use at end layer.
-        :param out_channels: number of channels for the extractions
-        """
-        # init params
-        min_extract_level = min(extract_levels)
-        if isinstance(decode_kernel_sizes, int):
-            decode_kernel_sizes = [decode_kernel_sizes] * depth
-        assert len(decode_kernel_sizes) == depth
-
-        # decoding / up-sampling
-        self._decode_deconvs = []
-        self._decode_convs = []
-        for d in range(depth - 1, min_extract_level - 1, -1):
-            kernel_size = decode_kernel_sizes[d]
-            output_padding = layer_util.deconv_output_padding(
-                input_shape=tensor_shapes[d + 1],
-                output_shape=tensor_shapes[d],
-                kernel_size=kernel_size,
-                stride=strides,
-                padding=padding,
-            )
-            decode_deconv = self.build_up_sampling_block(
-                filters=num_channels[d],
-                output_padding=output_padding,
-                kernel_size=kernel_size,
-                strides=strides,
-                padding=padding,
-                output_shape=tensor_shapes[d],
-            )
-            decode_conv = self.build_decode_conv_block(
-                filters=num_channels[d], kernel_size=kernel_size, padding=padding
-            )
-            self._decode_deconvs = [decode_deconv] + self._decode_deconvs
-            self._decode_convs = [decode_conv] + self._decode_convs
-        if min_extract_level > 0:
-            # add Nones to make lists have length depth - 1
-            self._decode_deconvs = [None] * min_extract_level + self._decode_deconvs
-            self._decode_convs = [None] * min_extract_level + self._decode_convs
-
-        # extraction
-        self._output_block = self.build_output_block(
-            image_size=image_size,
-            extract_levels=extract_levels,
-            out_channels=out_channels,
-            out_kernel_initializer=out_kernel_initializer,
-            out_activation=out_activation,
-        )
-
     def call(self, inputs: tf.Tensor, training=None, mask=None) -> tf.Tensor:
         """
         Build compute graph based on built layers.
@@ -611,28 +456,129 @@ class EfficientNet(Backbone):
         """
 
         # encoding / down-sampling
-        skips = []
-        encoded = inputs
-        for d in range(self._depth):
-            skip = self._encode_convs[d](inputs=encoded, training=training)
-            encoded = self._encode_pools[d](inputs=skip, training=training)
-            skips.append(skip)
+        # skips = []
+        # encoded = inputs
+        # for d in range(self._depth):
+        #     skip = self._encode_convs[d](inputs=encoded, training=training)
+        #     encoded = self._encode_pools[d](inputs=skip, training=training)
+        #     skips.append(skip)
 
         # bottom
-        decoded = self._bottom_block(inputs=encoded, training=training)  # type: ignore
+        # decoded = self._bottom_block(inputs=encoded, training=training)  # type: ignore
 
-        # decoding / up-sampling
-        outs = [decoded]
-        for d in range(self._depth - 1, min(self._extract_levels) - 1, -1):
-            decoded = self._decode_deconvs[d](inputs=decoded, training=training)
-            decoded = self.build_skip_block()([decoded, skips[d]])
-            decoded = self._decode_convs[d](inputs=decoded, training=training)
-            outs = [decoded] + outs
+        # decoding / up-sampling. TODO(SicongLu): Add efficient_net based decoder. 
 
         # output
+        decoded = self.build_efficient_net(inputs=encoded)  # type: ignore
+        outs = [decoded]
         output = self._output_block(outs)  # type: ignore
 
         return output
+
+    def build_efficient_net(self, inputs: tf.Tensor, training=None) -> tf.Tensor:
+        """
+        Builds graph based on built layers.
+
+        :param inputs: shape = (batch, f_dim1, f_dim2, f_dim3, in_channels)
+        :param training:
+        :param mask:
+        :return: shape = (batch, f_dim1, f_dim2, f_dim3, out_channels)
+        """
+        x = inputs
+        x = layers.Conv3D(32, 3,
+                        strides=1,
+                        padding='same',
+                        use_bias=False,
+                        # kernel_initializer=CONV_KERNEL_INITIALIZER,
+                        name='stem_conv')(x)
+        x = layers.BatchNormalization(axis=4, name='stem_bn')(x)
+        x = layers.Activation(self.activation_fn, name='stem_activation')(x)
+        blocks_args = deepcopy(DEFAULT_BLOCKS_ARGS)
+
+        b = 0
+        # Calculate the number of blocks
+        blocks = float(sum(args['repeats'] for args in blocks_args))
+        for (i, args) in enumerate(blocks_args):
+            assert args['repeats'] > 0
+            args['filters_in'] = self.round_filters(args['filters_in'])
+            args['filters_out'] = self.round_filters(args['filters_out'])
+
+            for j in range(self.round_repeats(args.pop('repeats'))):
+                if j > 0:
+                    args['strides'] = 1
+                    args['filters_in'] = args['filters_out']
+                x = self.block(x, self.activation_fn, self.drop_connect_rate * b / blocks,
+                        name='block{}{}_'.format(i + 1, chr(j + 97)), **args)
+                b += 1
+        
+        x = layers.Conv3D(128, 1,
+                        padding='same',
+                        use_bias=False,
+                        name='top_conv')(x)
+        x = layers.BatchNormalization(axis=4, name='top_bn')(x)
+        x = layers.Activation(self.activation_fn, name='top_activation')(x)
+
+        return x
+
+    def round_filters(self, filters):
+        """Round number of filters based on depth multiplier."""
+        filters *= self.width_coefficient
+        divisor = self.depth_divisor
+        new_filters = max(divisor, int(filters + divisor / 2) // divisor * divisor)
+        # Make sure that round down does not go down by more than 10%.
+        if new_filters < 0.9 * filters:
+            new_filters += divisor
+        return int(new_filters)
+
+    def round_repeats(self, repeats):
+        return int(math.ceil(self.depth_coefficient * repeats))
+
+    def block(self, inputs, activation_fn=tf.nn.swish, drop_rate=0., name='',
+            filters_in=32, filters_out=16, kernel_size=3, strides=1,
+            expand_ratio=1, se_ratio=0., id_skip=True):
+        filters = filters_in * expand_ratio
+
+        # Inverted residuals
+        if expand_ratio != 1:
+            x = layers.Conv3D(filters, 1,
+                            padding='same',
+                            use_bias=False,
+                            name=name + 'expand_conv')(inputs)
+            x = layers.BatchNormalization(axis=4, name=name + 'expand_bn')(x)
+            x = layers.Activation(activation_fn, name=name + 'expand_activation')(x)
+        else:
+            x = inputs
+
+        if 0 < se_ratio <= 1:
+            filters_se = max(1, int(filters_in * se_ratio))
+            se = layers.GlobalAveragePooling3D(name=name + 'se_squeeze')(x)
+            se = layers.Reshape((1, 1, 1, filters), name=name + 'se_reshape')(se)
+            se = layers.Conv3D(filters_se, 1,
+                            padding='same',
+                            activation=activation_fn,
+                            name=name + 'se_reduce')(se)
+            se = layers.Conv3D(filters, 1,
+                            padding='same',
+                            activation='sigmoid',
+                            name=name + 'se_expand')(se)
+            x = layers.multiply([x, se], name=name + 'se_excite')
+
+        x = layers.Conv3D(filters_out, 1,
+                        padding='same',
+                        use_bias=False,
+                        name=name + 'project_conv')(x)
+        x = layers.BatchNormalization(axis=4, name=name + 'project_bn')(x)
+
+        if (id_skip is True and strides == 1 and filters_in == filters_out):
+            if drop_rate > 0:
+                x = layers.Dropout(drop_rate,
+                                noise_shape=None,
+                                name=name + 'drop')(x)
+            x = layers.add([x, inputs], name=name + 'add')
+
+        return x
+
+
 
     def get_config(self) -> dict:
         """Return the config dictionary for recreating this class."""
