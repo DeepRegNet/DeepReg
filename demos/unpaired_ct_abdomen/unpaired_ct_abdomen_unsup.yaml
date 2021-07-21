@@ -42,4 +42,4 @@ train:
     name: "Adam"
     learning_rate: 1.0e-4
   epochs: 5000
-  save_period: 250
+  save_period: 500
