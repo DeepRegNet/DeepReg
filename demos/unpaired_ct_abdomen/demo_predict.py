@@ -5,7 +5,7 @@ from datetime import datetime
 from deepreg.predict import predict
 
 name = "unpaired_ct_abdomen"
-ckpt_index_dict = {"comb": 2000, "unsup": 5000, "weakly": 2250}
+ckpt_index_dict = {"comb": 5000, "unsup": 5000, "weakly": 5000}
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
