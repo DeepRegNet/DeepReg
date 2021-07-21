@@ -26,6 +26,7 @@ compatible with the updates.
 
 ### Changed
 
+- Updated pre-trained models for unpaired_ct_abdomen demo to new version
 - Changed dataset config so that `format` and `labeled` are defined per split.
 - Reduced TensorFlow logging level.
 - Used `DEEPREG_LOG_LEVEL` to control logging in DeepReg.
