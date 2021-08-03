@@ -3,7 +3,7 @@ black==21.5b1
 flake8==3.9.0
 GitPython==3.1.14
 h5py==2.10.0
-isort==5.8.0
+isort==5.9.3
 m2r2==0.2.7
 matplotlib==3.4.1
 nibabel==3.2.1
