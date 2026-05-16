@@ -57,7 +57,9 @@ def warp(image_path: str, ddf_path: str, out_path: str):
                 "will save output in %s.",
                 out_path,
             )
-        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        out_dir = os.path.dirname(out_path)
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
 
     # load image and ddf
     image = load_nifti_file(image_path)
